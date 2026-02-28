@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum SelectedPage { home, search, write, settings }
+enum SelectedPage { home, search, write }
 
 extension SelectedPageTitle on SelectedPage {
   String toName() {
@@ -11,8 +11,6 @@ extension SelectedPageTitle on SelectedPage {
         return "Search";
       case SelectedPage.write:
         return "Write";
-      case SelectedPage.settings:
-        return "Settings";
     }
   }
 }

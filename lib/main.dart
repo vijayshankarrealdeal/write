@@ -2,14 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/carbon.dart';
 import 'package:provider/provider.dart';
 import 'package:writer/provider/editor_provider.dart';
 import 'package:writer/provider/nav_provider.dart';
-import 'package:writer/ui/feed.dart';
-import 'package:writer/ui/search_page.dart';
-import 'package:writer/ui/settings.dart';
-import 'package:writer/ui/writing_page.dart';
+import 'package:writer/ui/app/feed.dart';
+import 'package:writer/ui/app/search_page.dart';
+import 'package:writer/ui/app/settings.dart';
+import 'package:writer/ui/app/writing_page.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:writer/ui/pages/new_book_addition.dart';
+import 'package:writer/ui/theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,7 +30,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NavProvider()),
-        ChangeNotifierProvider(create: (_) => EditorProvider()),
+        ChangeNotifierProvider(lazy: false, create: (_) => EditorProvider()),
       ],
       child: MaterialApp(
         localizationsDelegates: const [
@@ -35,19 +41,9 @@ class MyApp extends StatelessWidget {
         ],
         title: "Writer",
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          popupMenuTheme: PopupMenuThemeData(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          brightness: Brightness.light,
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            brightness: Brightness.light,
-          ),
-        ),
+        themeMode: ThemeMode.system, // Switches based on device settings
+        theme: MonochromeTheme.lightTheme,
+        darkTheme: MonochromeTheme.darkTheme,
         home: const HomePage(),
       ),
     );
@@ -95,87 +91,32 @@ class HomePage extends StatelessWidget {
             ],
             selectedIndex: context.watch<NavProvider>().selectedPage.index,
             onDestinationSelected: (index) {
-              print(index);
               context.read<NavProvider>().setIndex(SelectedPage.values[index]);
             },
           ),
-
-          // SizedBox(
-          //   width: 60,
-          //   height: double.infinity,
-          //   child: Consumer<NavProvider>(
-          //     builder: (context, navProvider, child) {
-          //       return Column(
-          //         children: [
-          //           const SizedBox(height: 10),
-          //           Column(
-          //             children: [
-          //               IconButton(
-          //                 onPressed: () {
-          //                   navProvider.setIndex(SelectedPage.home);
-          //                 },
-          //                 icon: Icon(
-          //                   CupertinoIcons.home,
-          //                   color: navProvider.selectedPage == SelectedPage.home
-          //                       ? CupertinoColors.activeBlue
-          //                       : CupertinoColors.inactiveGray,
-          //                 ),
-          //               ),
-          //               // const SizedBox(height: 8),
-          //               // IconButton(
-          //               //   onPressed: () {
-          //               //     navProvider.setIndex(SelectedPage.search);
-          //               //   },
-          //               //   icon: Icon(
-          //               //     CupertinoIcons.search,
-
-          //               //     color:
-          //               //         navProvider.selectedPage == SelectedPage.search
-          //               //         ? CupertinoColors.activeBlue
-          //               //         : CupertinoColors.inactiveGray,
-          //               //   ),
-          //               // ),
-          //               const SizedBox(height: 8),
-          //               IconButton(
-          //                 onPressed: () {
-          //                   navProvider.setIndex(SelectedPage.write);
-          //                 },
-          //                 icon: Icon(
-          //                   CupertinoIcons.pen,
-
-          //                   color:
-          //                       navProvider.selectedPage == SelectedPage.write
-          //                       ? CupertinoColors.activeBlue
-          //                       : CupertinoColors.inactiveGray,
-          //                 ),
-          //               ),
-          //             ],
-          //           ),
-          //           const Spacer(),
-          //           IconButton(
-          //             onPressed: () {
-          //               navProvider.setIndex(SelectedPage.settings);
-          //             },
-          //             icon: Icon(
-          //               CupertinoIcons.settings,
-
-          //               color: navProvider.selectedPage == SelectedPage.settings
-          //                   ? CupertinoColors.activeBlue
-          //                   : CupertinoColors.inactiveGray,
-          //             ),
-          //           ),
-          //           const SizedBox(height: 20),
-          //         ],
-          //       );
-          //     },
-          //   ),
-          // ),
-          VerticalDivider(width: 1, thickness: 1, color: Colors.grey[300]),
+          VerticalDivider(width: 0.2, thickness: 0.2),
           Expanded(
             child: Scaffold(
               appBar: AppBar(
                 title: Text(context.watch<NavProvider>().selectedPage.toName()),
                 centerTitle: false,
+                actions: [
+                  context.watch<NavProvider>().selectedPage ==
+                          SelectedPage.write
+                      ? TextButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (ctx) => NewBookAddition(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(CupertinoIcons.plus),
+                          label: const Text("Writing"),
+                        )
+                      : Container(),
+                ],
               ),
               body: pages[context.watch<NavProvider>().selectedPage.index],
             ),
