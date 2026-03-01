@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:writer/provider/auth_provider.dart';
-import 'package:writer/ui/auth/signup_page.dart';
+import 'package:writer/ui/auth/auth_gate.dart';
 import 'package:writer/ui/auth/forgot_password_page.dart';
+import 'package:writer/ui/auth/signup_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -26,14 +27,15 @@ class _LoginPageState extends State<LoginPage> {
         _passwordController.text,
       );
       if (mounted) {
-        // Navigation is handled by AuthWrapper usually, but here just pop or replace
-        // If wrapped with Stream/Consumer in main, it will update automatically.
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AuthGate()),
+          (route) => false,
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        final msg = e.toString().replaceFirst('Exception: ', '');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -51,7 +53,9 @@ class _LoginPageState extends State<LoginPage> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
-          child: Column(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
@@ -150,9 +154,28 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 24),
               OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(CupertinoIcons.circle, size: 20),
-                label: const Text("Continue with GitHub"),
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        setState(() => _isLoading = true);
+                        try {
+                          await context.read<AuthProvider>().signInWithGoogle();
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(e.toString())),
+                            );
+                          }
+                        } finally {
+                          if (mounted) setState(() => _isLoading = false);
+                        }
+                      },
+                icon: Icon(
+                  Icons.g_mobiledata_rounded,
+                  size: 24,
+                  color: textColor,
+                ),
+                label: const Text("Continue with Google"),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   foregroundColor: textColor,
@@ -186,6 +209,7 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
             ],
+            ),
           ),
         ),
       ),

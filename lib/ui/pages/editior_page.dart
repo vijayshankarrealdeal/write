@@ -54,7 +54,8 @@ class _EditiorPageState extends State<EditiorPage> {
       },
       child: Scaffold(
         backgroundColor: bgColor,
-        floatingActionButton: Breakpoints.isMobile(MediaQuery.sizeOf(context).width)
+        floatingActionButton:
+            Breakpoints.isMobile(MediaQuery.sizeOf(context).width)
             ? Padding(
                 padding: const EdgeInsets.only(bottom: 64),
                 child: FloatingActionButton(
@@ -107,7 +108,9 @@ class _EditiorPageState extends State<EditiorPage> {
                               Navigator.pop(context);
                             },
                           ),
-                          if (Breakpoints.isMobile(MediaQuery.sizeOf(context).width))
+                          if (Breakpoints.isMobile(
+                            MediaQuery.sizeOf(context).width,
+                          ))
                             IconButton(
                               icon: Icon(
                                 CupertinoIcons.list_bullet,
@@ -123,10 +126,14 @@ class _EditiorPageState extends State<EditiorPage> {
                                 sidebarColor,
                               ),
                             ),
-                          if (!Breakpoints.isMobile(MediaQuery.sizeOf(context).width))
+                          if (!Breakpoints.isMobile(
+                            MediaQuery.sizeOf(context).width,
+                          ))
                             IconButton(
                               icon: Icon(
-                                context.watch<EditorProvider>().showSectionsList
+                                context.select<EditorProvider, bool>(
+                                      (p) => p.showSectionsList,
+                                    )
                                     ? CupertinoIcons.sidebar_left
                                     : CupertinoIcons.sidebar_right,
                                 size: 20,
@@ -139,7 +146,9 @@ class _EditiorPageState extends State<EditiorPage> {
                             ),
 
                           // Vertical Separator
-                          if (!Breakpoints.isMobile(MediaQuery.sizeOf(context).width))
+                          if (!Breakpoints.isMobile(
+                            MediaQuery.sizeOf(context).width,
+                          ))
                             Container(
                               width: 1,
                               height: 24,
@@ -149,7 +158,10 @@ class _EditiorPageState extends State<EditiorPage> {
 
                           // 2. CENTER: Ask AI (desktop) or spacer (mobile - AI moved to right)
                           Expanded(
-                            child: Breakpoints.isMobile(MediaQuery.sizeOf(context).width)
+                            child:
+                                Breakpoints.isMobile(
+                                  MediaQuery.sizeOf(context).width,
+                                )
                                 ? const SizedBox.shrink()
                                 : Row(
                                     children: [
@@ -198,34 +210,49 @@ class _EditiorPageState extends State<EditiorPage> {
                                         child: Container(
                                           decoration: BoxDecoration(
                                             color: isDark
-                                                ? Colors.white.withValues(alpha: 0.05)
+                                                ? Colors.white.withValues(
+                                                    alpha: 0.05,
+                                                  )
                                                 : Colors.black.withValues(
                                                     alpha: 0.04,
                                                   ),
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
                                           ),
                                           clipBehavior: Clip.antiAlias,
-                                          child: SingleChildScrollView(
-                                            scrollDirection: Axis.horizontal,
-                                            child: ConstrainedBox(
-                                              constraints: const BoxConstraints(
-                                                minWidth: 400,
-                                                maxWidth: 800,
-                                              ),
-                                              child: QuillSimpleToolbar(
+                                          child: LayoutBuilder(
+                                            builder: (context, constraints) {
+                                              final w =
+                                                  constraints.maxWidth > 400
+                                                  ? constraints.maxWidth
+                                                  : 400.0;
+                                              return SingleChildScrollView(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                child: SizedBox(
+                                                  width: w,
+                                                  child: QuillSimpleToolbar(
                                                     controller: context
                                                         .read<EditorProvider>()
                                                         .controller,
-                                                    config: const QuillSimpleToolbarConfig(
-                                                      multiRowsDisplay: false,
-                                                      showAlignmentButtons: true,
-                                                      showCenterAlignment: true,
-                                                      showLink: false,
-                                                      showInlineCode: false,
-                                                      showSearchButton: false,
-                                                    ),
+                                                    config:
+                                                        const QuillSimpleToolbarConfig(
+                                                          multiRowsDisplay:
+                                                              false,
+                                                          showAlignmentButtons:
+                                                              true,
+                                                          showCenterAlignment:
+                                                              true,
+                                                          showLink: false,
+                                                          showInlineCode: false,
+                                                          showSearchButton:
+                                                              false,
+                                                        ),
                                                   ),
                                                 ),
+                                              );
+                                            },
                                           ),
                                         ),
                                       ),
@@ -270,7 +297,9 @@ class _EditiorPageState extends State<EditiorPage> {
                                     const CupertinoActivityIndicator(radius: 6)
                                   else
                                     Icon(icon, size: 14, color: iconColor),
-                                  if (!Breakpoints.isMobile(MediaQuery.sizeOf(context).width)) ...[
+                                  if (!Breakpoints.isMobile(
+                                    MediaQuery.sizeOf(context).width,
+                                  )) ...[
                                     const SizedBox(width: 6),
                                     Text(
                                       text,
@@ -317,7 +346,9 @@ class _EditiorPageState extends State<EditiorPage> {
                                       Icon(
                                         CupertinoIcons.add,
                                         size: 14,
-                                        color: isDark ? Colors.black : Colors.white,
+                                        color: isDark
+                                            ? Colors.black
+                                            : Colors.white,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
@@ -325,20 +356,25 @@ class _EditiorPageState extends State<EditiorPage> {
                                         style: GoogleFonts.inter(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
-                                          color: isDark ? Colors.black : Colors.white,
+                                          color: isDark
+                                              ? Colors.black
+                                              : Colors.white,
                                         ),
                                       ),
                                     ],
                                   ),
                                   onPressed: () {
-                                    final provider = context.read<EditorProvider>();
+                                    final provider = context
+                                        .read<EditorProvider>();
                                     _showTextInputDialog(
                                       context: context,
                                       title: "New Section Name",
                                       initialValue:
                                           "Section ${provider.allBooksSection.length + 1}",
-                                      onSave: (val) =>
-                                          provider.addSection(val, autoSelect: true),
+                                      onSave: (val) => provider.addSection(
+                                        val,
+                                        autoSelect: true,
+                                      ),
                                     );
                                   },
                                 ),
@@ -395,7 +431,9 @@ class _EditiorPageState extends State<EditiorPage> {
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.fastOutSlowIn,
                             width:
-                                context.watch<EditorProvider>().showSectionsList
+                                context.select<EditorProvider, bool>(
+                                  (p) => p.showSectionsList,
+                                )
                                 ? 280
                                 : 0,
                             decoration: BoxDecoration(
@@ -436,43 +474,52 @@ class _EditiorPageState extends State<EditiorPage> {
                                     40,
                                     0,
                                   ),
-                                  child: QuillEditor.basic(
-                                    controller: context
-                                        .read<EditorProvider>()
-                                        .controller,
-                                    config: QuillEditorConfig(
-                                      placeholder: "Start typing here...",
-                                      padding: const EdgeInsets.only(
-                                        bottom: 100,
-                                      ),
-                                      customStyles: DefaultStyles(
-                                        placeHolder: DefaultTextBlockStyle(
-                                          GoogleFonts.inter(
-                                            fontSize: 18,
-                                            color: textColor.withValues(
-                                              alpha: 0.3,
+                                  child: Builder(
+                                    builder: (ctx) {
+                                      final sectionId = ctx
+                                          .select<EditorProvider, String?>(
+                                            (p) => p.activeSection?.id,
+                                          );
+                                      return QuillEditor.basic(
+                                        key: ValueKey(sectionId ?? 'none'),
+                                        controller: ctx
+                                            .read<EditorProvider>()
+                                            .controller,
+                                        config: QuillEditorConfig(
+                                          placeholder: "Start typing here...",
+                                          padding: const EdgeInsets.only(
+                                            bottom: 100,
+                                          ),
+                                          customStyles: DefaultStyles(
+                                            placeHolder: DefaultTextBlockStyle(
+                                              GoogleFonts.inter(
+                                                fontSize: 18,
+                                                color: textColor.withValues(
+                                                  alpha: 0.3,
+                                                ),
+                                              ),
+                                              const HorizontalSpacing(0, 0),
+                                              const VerticalSpacing(0, 0),
+                                              const VerticalSpacing(0, 0),
+                                              null,
+                                            ),
+                                            paragraph: DefaultTextBlockStyle(
+                                              GoogleFonts.inter(
+                                                fontSize: 18,
+                                                height: 1.6,
+                                                color: textColor.withValues(
+                                                  alpha: 0.9,
+                                                ),
+                                              ),
+                                              const HorizontalSpacing(0, 0),
+                                              const VerticalSpacing(16, 0),
+                                              const VerticalSpacing(0, 0),
+                                              null,
                                             ),
                                           ),
-                                          const HorizontalSpacing(0, 0),
-                                          const VerticalSpacing(0, 0),
-                                          const VerticalSpacing(0, 0),
-                                          null,
                                         ),
-                                        paragraph: DefaultTextBlockStyle(
-                                          GoogleFonts.inter(
-                                            fontSize: 18,
-                                            height: 1.6,
-                                            color: textColor.withValues(
-                                              alpha: 0.9,
-                                            ),
-                                          ),
-                                          const HorizontalSpacing(0, 0),
-                                          const VerticalSpacing(16, 0),
-                                          const VerticalSpacing(0, 0),
-                                          null,
-                                        ),
-                                      ),
-                                    ),
+                                      );
+                                    },
                                   ),
                                 ),
                               ),
@@ -555,7 +602,9 @@ class _EditiorPageState extends State<EditiorPage> {
     return ListView.separated(
       controller: scrollController,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      itemCount: context.watch<EditorProvider>().allBooksSection.length,
+      itemCount: context.select<EditorProvider, int>(
+        (p) => p.allBooksSection.length,
+      ),
       separatorBuilder: (context, index) => const SizedBox(height: 4),
       itemBuilder: (ctx, idx) {
         final provider = context.read<EditorProvider>();

@@ -1,6 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:writer/models/feed_item_model.dart';
+import 'package:writer/models/user_preferences_model.dart';
+import 'package:writer/provider/auth_provider.dart';
+import 'package:writer/provider/feed_provider.dart';
 import 'package:writer/ui/utilities/responsive_layout.dart';
 
 class Feed extends StatefulWidget {
@@ -11,62 +17,116 @@ class Feed extends StatefulWidget {
 }
 
 class _FeedState extends State<Feed> {
-  // Helper to check if dark mode is currently active
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadFeed());
+  }
+
+  void _loadFeed() {
+    final auth = context.read<AuthProvider>();
+    final feed = context.read<FeedProvider>();
+    final prefs = auth.currentUser?.preferences ?? const UserPreferences();
+    feed.ensureSeedData().then((_) async {
+      if (feed.items.isNotEmpty) {
+        feed.silentRefresh(); // Tab revisited: append new items silently
+      } else {
+        await feed.loadFeedIfNeeded(prefs);
+      }
+    });
+  }
+
+  Future<void> _onRefresh() async {
+    final auth = context.read<AuthProvider>();
+    final feed = context.read<FeedProvider>();
+    final prefs = auth.currentUser?.preferences ?? const UserPreferences();
+    await feed.loadFeed(prefs, forceRefresh: true);
+  }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = Breakpoints.isMobile(width);
     final isTablet = Breakpoints.isTablet(width);
-
-    // Premium adaptive colors
     final textColor = isDark ? Colors.white : Colors.black;
     final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
-
     final horizontalPadding = isMobile ? 16.0 : (isTablet ? 24.0 : 32.0);
     final topPadding = isMobile ? 16.0 : 32.0;
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      body: CustomScrollView(
-        slivers: [
-          // 1. TOP ACTION ROW
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(horizontalPadding, topPadding, horizontalPadding, 24.0),
-            sliver: SliverToBoxAdapter(
-              child: _buildActionRow(textColor, isMobile),
+    return Consumer2<FeedProvider, AuthProvider>(
+      builder: (context, feed, auth, _) {
+        if (feed.isLoading && feed.items.isEmpty) {
+          return Scaffold(
+            backgroundColor: bgColor,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CupertinoActivityIndicator(color: textColor),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Loading your feed...",
+                    style: GoogleFonts.inter(color: textColor.withOpacity(0.6)),
+                  ),
+                ],
+              ),
             ),
-          ),
+          );
+        }
 
-          // 2. MAIN CONTENT AREA
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(horizontalPadding, 0, horizontalPadding, 48.0),
-            sliver: SliverToBoxAdapter(
-              child: isMobile
-                  ? _buildMobileLayout(textColor)
-                  : _buildDesktopLayout(textColor, isTablet),
+        return Scaffold(
+          backgroundColor: bgColor,
+          body: RefreshIndicator(
+            onRefresh: _onRefresh,
+            color: textColor,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                    horizontalPadding, topPadding, horizontalPadding, 24.0),
+                sliver: SliverToBoxAdapter(
+                  child: _buildActionRow(textColor, isMobile, auth),
+                ),
+              ),
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                    horizontalPadding, 0, horizontalPadding, 48.0),
+                sliver: SliverToBoxAdapter(
+                  child: isMobile
+                      ? _buildMobileLayout(textColor, feed, auth)
+                      : _buildDesktopLayout(textColor, isTablet, feed, auth),
+                ),
+              ),
+            ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildMobileLayout(Color textColor) {
+  Widget _buildMobileLayout(
+      Color textColor, FeedProvider feed, AuthProvider auth) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildTrendingSection(isMobile: true),
+        _buildTrendingSection(
+            feed.items.take(2).toList(), isMobile: true, auth: auth),
         const SizedBox(height: 20),
-        SizedBox(height: 200, child: _buildBottomGallery()),
+        SizedBox(
+            height: 200,
+            child: _buildBottomGallery(feed.items.length > 2 ? feed.items.sublist(2) : [])),
         const SizedBox(height: 24),
         _buildSidebar(textColor, isMobile: true),
       ],
     );
   }
 
-  Widget _buildDesktopLayout(Color textColor, bool isTablet) {
+  Widget _buildDesktopLayout(Color textColor, bool isTablet, FeedProvider feed,
+      AuthProvider auth) {
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -76,28 +136,32 @@ class _FeedState extends State<Feed> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildTrendingSection(isMobile: false),
+                _buildTrendingSection(
+                    feed.items.take(2).toList(),
+                    isMobile: false,
+                    auth: auth),
                 const SizedBox(height: 20),
-                SizedBox(height: isTablet ? 280 : 340, child: _buildBottomGallery()),
+                SizedBox(
+                    height: isTablet ? 280 : 340,
+                    child: _buildBottomGallery(
+                        feed.items.length > 2 ? feed.items.sublist(2) : [])),
               ],
             ),
           ),
           SizedBox(width: isTablet ? 16 : 24),
-          Expanded(flex: isTablet ? 1 : 10, child: _buildSidebar(textColor, isMobile: false)),
+          Expanded(
+              flex: isTablet ? 1 : 10,
+              child: _buildSidebar(textColor, isMobile: false)),
         ],
       ),
     );
   }
 
-  // ===========================================================================
-  // 1. TOP NAVIGATION ROW
-  // ===========================================================================
-  Widget _buildActionRow(Color textColor, bool isMobile) {
-    // Soft, noiseless backgrounds for UI elements
-    final boxColor = isDark
-        ? Colors.white.withOpacity(0.06)
-        : Colors.black.withOpacity(0.04);
+  Widget _buildActionRow(Color textColor, bool isMobile, AuthProvider auth) {
+    final boxColor =
+        isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04);
     final hintColor = isDark ? Colors.white54 : Colors.black54;
+    final user = auth.currentUser;
 
     if (isMobile) {
       return Column(
@@ -135,12 +199,10 @@ class _FeedState extends State<Feed> {
           Row(
             children: [
               Expanded(
-                child: _buildPillButton("Continue Reading", boxColor, textColor),
-              ),
+                  child: _buildPillButton("Continue Reading", boxColor, textColor)),
               const SizedBox(width: 12),
               Expanded(
-                child: _buildPillButton("Reading List", boxColor, textColor),
-              ),
+                  child: _buildPillButton("Reading List", boxColor, textColor)),
             ],
           ),
         ],
@@ -182,14 +244,24 @@ class _FeedState extends State<Feed> {
         ),
         const SizedBox(width: 16),
         Expanded(
-          flex: 2,
-          child: _buildPillButton("Continue Reading", boxColor, textColor),
-        ),
+            flex: 2,
+            child: _buildPillButton("Continue Reading", boxColor, textColor)),
         const SizedBox(width: 16),
         Expanded(
-          flex: 2,
-          child: _buildPillButton("Your Reading List", boxColor, textColor),
-        ),
+            flex: 2,
+            child: _buildPillButton("Your Reading List", boxColor, textColor)),
+        if (user != null) ...[
+          const SizedBox(width: 16),
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: isDark ? Colors.white12 : Colors.black12,
+            backgroundImage:
+                user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+            child: user.photoUrl == null
+                ? Icon(CupertinoIcons.person, size: 18, color: textColor)
+                : null,
+          ),
+        ],
       ],
     );
   }
@@ -217,123 +289,127 @@ class _FeedState extends State<Feed> {
     );
   }
 
-  // ===========================================================================
-  // 2. TRENDING SECTION (Left Column Top)
-  // ===========================================================================
-  Widget _buildTrendingSection({required bool isMobile}) {
+  Widget _buildTrendingSection(List<FeedItemModel> items,
+      {required bool isMobile, required AuthProvider auth}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Dark Header
           Container(
             color: const Color(0xFF0A0A0A),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            child: Text(
-              "Trending Articles",
-              style: GoogleFonts.inter(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.3,
-              ),
+            child: Row(
+              children: [
+                Text(
+                  "For You",
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "• Based on your preferences",
+                  style: GoogleFonts.inter(
+                    color: Colors.white54,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ),
           ),
-          // Yellow Body
           Container(
             color: const Color(0xFFFFCC00),
             padding: EdgeInsets.all(isMobile ? 16 : 20),
-            child: isMobile
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildArticleCard(
-                        title: "Paper Faces,\nReal Skin:\nOn the Mask\nWe Choose",
-                        author: "Nina Abraham",
-                        description:
-                            "You are not your reflection. You are not your bio. You're not even your favourite book.",
-                        imageUrl:
-                            "https://images.unsplash.com/photo-1544502062-f82887f03d1c?fit=crop&w=400&q=80",
-                        isMobile: true,
+            child: items.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(
+                      "Select genres in onboarding to personalize your feed.",
+                      style: GoogleFonts.inter(
+                        color: Colors.black87,
+                        fontSize: 14,
                       ),
-                      const SizedBox(height: 16),
-                      _buildArticleCard(
-                        title: "Soft\nApocalypse:\nHow We Fall\nApart Quietly",
-                        author: "Rayan V",
-                        description:
-                            "Some days, your thoughts feel like bubblegum caught in a microwave.",
-                        imageUrl:
-                            "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?fit=crop&w=400&q=80",
-                        isMobile: true,
-                      ),
-                    ],
+                    ),
                   )
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: _buildArticleCard(
-                          title: "Paper Faces,\nReal Skin:\nOn the Mask\nWe Choose",
-                          author: "Nina Abraham",
-                          description:
-                              "You are not your reflection. You are not your bio. You're not even your favourite book. This essay explores the absurdity of identity in a world where we curate ourselves more than we understand ourselves.",
-                          imageUrl:
-                              "https://images.unsplash.com/photo-1544502062-f82887f03d1c?fit=crop&w=400&q=80",
-                          isMobile: false,
-                        ),
+                : isMobile
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final item in items)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _buildArticleCard(
+                                item: item,
+                                isMobile: true,
+                                auth: auth,
+                              ),
+                            ),
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (final item in items)
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                    right: item != items.last ? 32 : 0),
+                                child: _buildArticleCard(
+                                  item: item,
+                                  isMobile: false,
+                                  auth: auth,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                      const SizedBox(width: 32),
-                      Expanded(
-                        child: _buildArticleCard(
-                          title: "Soft\nApocalypse:\nHow We Fall\nApart Quietly",
-                          author: "Rayan V",
-                          description:
-                              "Some days, your thoughts feel like bubblegum caught in a microwave. This isn't a piece about breakdowns—it's about breakthroughs that look like breakdowns.",
-                          imageUrl:
-                              "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?fit=crop&w=400&q=80",
-                          isMobile: false,
-                        ),
-                      ),
-                    ],
-                  ),
-            ),
-          ],
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildArticleCard({
-    required String title,
-    required String author,
-    required String description,
-    required String imageUrl,
-    bool isMobile = false,
+    required FeedItemModel item,
+    required bool isMobile,
+    required AuthProvider auth,
   }) {
     final imageSize = isMobile ? 100.0 : 130.0;
     final imageHeight = isMobile ? 120.0 : 160.0;
+    final liked = auth.currentUser?.likes.contains(item.id) ?? false;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: Image.network(
-            imageUrl,
+          child: CachedNetworkImage(
+            imageUrl: item.imageUrl,
             width: imageSize,
             height: imageHeight,
             fit: BoxFit.cover,
+            placeholder: (_, __) => Container(
+              color: Colors.grey[300],
+              child: const Center(child: CupertinoActivityIndicator()),
+            ),
+            errorWidget: (_, __, ___) => Container(
+              color: Colors.grey[300],
+              child: Icon(CupertinoIcons.photo, size: 40),
+            ),
           ),
         ),
         SizedBox(width: isMobile ? 12 : 20),
-        // Text Content
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title,
+                item.title,
                 style: GoogleFonts.playfairDisplay(
                   color: Colors.black,
                   fontSize: isMobile ? 18 : 24,
@@ -344,7 +420,7 @@ class _FeedState extends State<Feed> {
               ),
               const SizedBox(height: 12),
               Text(
-                author,
+                item.author,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -353,7 +429,7 @@ class _FeedState extends State<Feed> {
               ),
               const SizedBox(height: 12),
               Text(
-                description,
+                item.description,
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   height: 1.5,
@@ -362,6 +438,32 @@ class _FeedState extends State<Feed> {
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
               ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      liked ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+                      color: liked ? Colors.red : Colors.black54,
+                      size: 20,
+                    ),
+                    onPressed: () async {
+                      await auth.toggleLike(item.id);
+                      if (mounted) _loadFeed();
+                    },
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    "${item.likesCount}",
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -369,31 +471,43 @@ class _FeedState extends State<Feed> {
     );
   }
 
-  // ===========================================================================
-  // 3. BOTTOM GALLERY (Left Column Bottom)
-  // ===========================================================================
-  Widget _buildBottomGallery() {
+  Widget _buildBottomGallery(List<FeedItemModel> items) {
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = Breakpoints.isMobile(width);
 
-    final images = [
+    final fallbackUrls = [
       "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?fit=crop&w=400&q=80",
       "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?fit=crop&w=400&q=80",
       "https://images.unsplash.com/photo-1604076913837-52ab5629fba9?fit=crop&w=400&q=80",
       "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?fit=crop&w=400&q=80",
     ];
+    final urls = items.isNotEmpty
+        ? items.take(4).map((e) => e.imageUrl).toList()
+        : fallbackUrls;
+    while (urls.length < 4) urls.add(fallbackUrls[urls.length % 4]);
 
     if (isMobile) {
       return ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: images.length,
+        itemCount: urls.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           return SizedBox(
             width: 140,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.network(images[index], fit: BoxFit.cover),
+              child: CachedNetworkImage(
+                imageUrl: urls[index],
+                fit: BoxFit.cover,
+                placeholder: (_, __) => Container(
+                  color: Colors.grey[300],
+                  child: const Center(child: CupertinoActivityIndicator()),
+                ),
+                errorWidget: (_, __, ___) => Container(
+                  color: Colors.grey[300],
+                  child: Icon(CupertinoIcons.photo),
+                ),
+              ),
             ),
           );
         },
@@ -402,13 +516,24 @@ class _FeedState extends State<Feed> {
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: images.map((url) {
+      children: urls.map((url) {
         return Expanded(
           child: Padding(
-            padding: EdgeInsets.only(right: url == images.last ? 0 : 20.0),
+            padding: EdgeInsets.only(right: url == urls.last ? 0 : 20.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.network(url, fit: BoxFit.cover),
+              child: CachedNetworkImage(
+                imageUrl: url,
+                fit: BoxFit.cover,
+                placeholder: (_, __) => Container(
+                  color: Colors.grey[300],
+                  child: const Center(child: CupertinoActivityIndicator()),
+                ),
+                errorWidget: (_, __, ___) => Container(
+                  color: Colors.grey[300],
+                  child: Icon(CupertinoIcons.photo),
+                ),
+              ),
             ),
           ),
         );
@@ -416,18 +541,11 @@ class _FeedState extends State<Feed> {
     );
   }
 
-  // ===========================================================================
-  // 4. RIGHT SIDEBAR (Premium, Robust, Noiseless)
-  // ===========================================================================
   Widget _buildSidebar(Color textColor, {required bool isMobile}) {
-    // Subtle colors reduce visual noise
-    final cardColor = isDark
-        ? Colors.white.withOpacity(0.04)
-        : Colors.black.withOpacity(0.02);
-    // A very faint border creates a crisp edge without being distracting
-    final borderColor = isDark
-        ? Colors.white.withOpacity(0.05)
-        : Colors.black.withOpacity(0.05);
+    final cardColor =
+        isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.02);
+    final borderColor =
+        isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05);
 
     final dropZone = Container(
       width: double.infinity,
@@ -503,9 +621,7 @@ class _FeedState extends State<Feed> {
           borderRadius: BorderRadius.circular(24),
           child: InkWell(
             borderRadius: BorderRadius.circular(24),
-            onTap: () {
-              // Action triggers smoothly
-            },
+            onTap: () {},
             child: Container(
               height: 52,
               width: double.infinity,

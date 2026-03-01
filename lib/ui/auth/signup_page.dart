@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:writer/provider/auth_provider.dart';
+import 'package:writer/ui/auth/auth_gate.dart';
 import 'package:writer/ui/auth/login_page.dart';
 
 class SignupPage extends StatefulWidget {
@@ -34,13 +35,15 @@ class _SignupPageState extends State<SignupPage> {
         _passwordController.text,
       );
       if (mounted) {
-        // Automatically redirects in AuthWrapper
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AuthGate()),
+          (route) => false,
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        final msg = e.toString().replaceFirst('Exception: ', '');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -58,7 +61,9 @@ class _SignupPageState extends State<SignupPage> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
-          child: Column(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
@@ -161,6 +166,7 @@ class _SignupPageState extends State<SignupPage> {
                 ],
               ),
             ],
+            ),
           ),
         ),
       ),

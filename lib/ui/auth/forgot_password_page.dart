@@ -64,7 +64,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
-          child: Column(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
@@ -135,6 +137,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
               ),
             ],
+            ),
           ),
         ),
       ),

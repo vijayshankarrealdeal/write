@@ -9,6 +9,7 @@ import 'package:writer/firebase_options.dart';
 
 import 'package:writer/provider/auth_provider.dart';
 import 'package:writer/provider/editor_provider.dart';
+import 'package:writer/provider/feed_provider.dart';
 import 'package:writer/provider/nav_provider.dart';
 import 'package:writer/provider/settings_provider.dart';
 import 'package:writer/services/storage_service.dart';
@@ -21,8 +22,14 @@ import 'package:writer/ui/theme/app_theme.dart';
 import 'package:writer/ui/utilities/responsive_layout.dart';
 
 void main() async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   WidgetsFlutterBinding.ensureInitialized();
+  // Suppress Hive's "Got object store box" debug message on web
+  final originalDebugPrint = debugPrint;
+  debugPrint = (String? message, {int? wrapWidth}) {
+    if (message != null && message.contains('Got object store box')) return;
+    originalDebugPrint(message, wrapWidth: wrapWidth);
+  };
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final storage = StorageService();
   await storage.init();
   runApp(MyApp(storage: storage));
@@ -39,8 +46,16 @@ class MyApp extends StatelessWidget {
         Provider<StorageService>.value(value: storage),
         ChangeNotifierProvider(create: (_) => NavProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider(storage)),
-        ChangeNotifierProvider(create: (_) => EditorProvider(storage)),
+        ChangeNotifierProxyProvider<AuthProvider, EditorProvider>(
+          create: (context) => EditorProvider(storage, context.read<AuthProvider>()),
+          update: (context, auth, previous) {
+            final provider = previous ?? EditorProvider(storage, auth);
+            if (previous != null) provider.loadBooks();
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => SettingsProvider(storage)),
+        ChangeNotifierProvider(create: (_) => FeedProvider()),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settingsProvider, child) {

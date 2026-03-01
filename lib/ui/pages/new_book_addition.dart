@@ -184,12 +184,12 @@ class NewBookAddition extends StatelessWidget {
                       borderRadius: BorderRadius.circular(24),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(24),
-                        onTap: () {
+                        onTap: () async {
                           try {
-                            editorProvider.addNewBook();
-                            Navigator.of(context).pop(); // Success
+                            await editorProvider.addNewBook();
+                            if (context.mounted) Navigator.of(context).pop();
                           } catch (e) {
-                            _showError(context, e);
+                            if (context.mounted) _showError(context, e);
                           }
                         },
                         child: Container(

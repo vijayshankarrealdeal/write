@@ -2,8 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:writer/provider/settings_provider.dart';
 import 'package:writer/provider/auth_provider.dart';
+import 'package:writer/provider/feed_provider.dart';
+import 'package:writer/provider/settings_provider.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -32,7 +33,8 @@ class SettingsPage extends StatelessWidget {
             isDestructiveAction: true,
             onPressed: () {
               Navigator.pop(context);
-              context.read<AuthProvider>().logout(); // Call logout
+              context.read<FeedProvider>().clearFeed();
+              context.read<AuthProvider>().logout();
             },
             child: const Text("Logout"),
           ),
@@ -94,6 +96,9 @@ class SettingsPage extends StatelessWidget {
               _buildSectionHeader("PREFERENCES", textColor),
               Consumer<SettingsProvider>(
                 builder: (context, provider, child) {
+                  final isDarkActive = provider.themeMode == ThemeMode.dark ||
+                      (provider.themeMode == ThemeMode.system &&
+                          Theme.of(context).brightness == Brightness.dark);
                   return _buildSettingsCard(
                     cardColor: cardColor,
                     borderColor: subtleBorder,
@@ -102,8 +107,8 @@ class SettingsPage extends StatelessWidget {
                         icon: CupertinoIcons.moon,
                         title: "Dark Mode",
                         trailing: CupertinoSwitch(
-                          value: provider.themeMode == ThemeMode.dark,
-                          activeColor: CupertinoColors.activeGreen,
+                          value: isDarkActive,
+                          activeTrackColor: CupertinoColors.activeGreen,
                           onChanged: (v) => provider.toggleTheme(v),
                         ),
                       ),
@@ -113,7 +118,7 @@ class SettingsPage extends StatelessWidget {
                         title: "Notifications",
                         trailing: CupertinoSwitch(
                           value: provider.notificationsEnabled,
-                          activeColor: CupertinoColors.activeGreen,
+                          activeTrackColor: CupertinoColors.activeGreen,
                           onChanged: (v) => provider.toggleNotifications(v),
                         ),
                       ),
@@ -480,7 +485,7 @@ class LanguagePage extends StatelessWidget {
               return ListView.separated(
                 padding: const EdgeInsets.all(24),
                 itemCount: provider.availableLanguages.length,
-                separatorBuilder: (_, __) => Divider(
+                separatorBuilder: (context, index) => Divider(
                   color: isDark
                       ? Colors.white.withValues(alpha: 0.05)
                       : Colors.black.withValues(alpha: 0.05),

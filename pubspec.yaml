@@ -40,6 +40,7 @@ dependencies:
   firebase_auth: ^6.1.4
   cloud_firestore: ^6.1.2
   firebase_storage: ^13.0.6
+  google_sign_in: ^6.2.1
   
 
   cupertino_icons: ^1.0.8

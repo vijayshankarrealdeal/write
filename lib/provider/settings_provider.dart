@@ -17,6 +17,9 @@ class SettingsProvider extends ChangeNotifier {
   // Language State
   String selectedLanguage = "English (US)";
 
+  // Sections view: 'grid' or 'list'
+  bool sectionsGridView = true;
+
   final List<String> availableLanguages = [
     "English (US)",
     "English (UK)",
@@ -28,14 +31,21 @@ class SettingsProvider extends ChangeNotifier {
 
   void _loadSettings() {
     final mode = _storage.getThemeMode();
-    if (mode == 'dark')
+    if (mode == 'dark') {
       themeMode = ThemeMode.dark;
-    else if (mode == 'light')
+    } else if (mode == 'light') {
       themeMode = ThemeMode.light;
-    else
+    } else {
       themeMode = ThemeMode.system;
+    }
 
-    // Load others if implemented in storage...
+    sectionsGridView = _storage.getSectionsViewMode() == 'grid';
+    notifyListeners();
+  }
+
+  void toggleSectionsView() {
+    sectionsGridView = !sectionsGridView;
+    _storage.saveSectionsViewMode(sectionsGridView ? 'grid' : 'list');
     notifyListeners();
   }
 

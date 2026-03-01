@@ -9,6 +9,8 @@ class StorageService {
   static const String _keyTheme = 'app_theme_mode';
   static const String _keyOnboarding = 'onboarding_complete';
   static const String _keyAuthToken = 'auth_token';
+  static const String _keyOnboardingPrefs = 'onboarding_preferences';
+  static const String _keySectionsViewMode = 'sections_view_mode';
 
   late Box _box;
 
@@ -62,6 +64,14 @@ class StorageService {
     await _box.put(_keyTheme, mode);
   }
 
+  String getSectionsViewMode() {
+    return _box.get(_keySectionsViewMode, defaultValue: 'grid');
+  }
+
+  Future<void> saveSectionsViewMode(String mode) async {
+    await _box.put(_keySectionsViewMode, mode);
+  }
+
   // --- Onboarding & Auth ---
 
   bool isOnboardingComplete() {
@@ -70,6 +80,24 @@ class StorageService {
 
   Future<void> completeOnboarding() async {
     await _box.put(_keyOnboarding, true);
+  }
+
+  Future<void> saveOnboardingPreferences(Map<String, dynamic> prefs) async {
+    await _box.put(_keyOnboardingPrefs, jsonEncode(prefs));
+  }
+
+  Map<String, dynamic>? getOnboardingPreferences() {
+    final raw = _box.get(_keyOnboardingPrefs);
+    if (raw is String) {
+      try {
+        return jsonDecode(raw);
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  Future<void> clearOnboardingPreferences() async {
+    await _box.delete(_keyOnboardingPrefs);
   }
 
   String? getAuthToken() {

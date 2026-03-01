@@ -4,12 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:writer/models/writing_model.dart';
 import 'package:writer/models/section_model.dart';
+import 'package:writer/provider/auth_provider.dart';
+import 'package:writer/services/firestore_service.dart';
 import 'package:writer/services/storage_service.dart';
 
 class EditorProvider extends ChangeNotifier {
   final StorageService _storage;
+  final AuthProvider _auth;
+  final FirestoreService _firestore = FirestoreService();
 
-  EditorProvider(this._storage) {
+  EditorProvider(this._storage, this._auth) {
     loadBooks();
   }
 
@@ -37,6 +41,8 @@ class EditorProvider extends ChangeNotifier {
     const Color(0xFF6A4C93),
   ];
 
+  String? get _userId => _auth.currentUser?.id;
+
   void toggleShowSections() {
     showSectionsList = !showSectionsList;
     notifyListeners();
@@ -56,15 +62,26 @@ class EditorProvider extends ChangeNotifier {
   StreamSubscription? _docSubscription;
   String saveStatus = "";
 
-  void loadBooks() async {
+  Future<void> loadBooks() async {
     bookLoadingData = true;
-    notifyListeners(); // Notify before loading
+    notifyListeners();
 
-    // Load from storage
-    allBooks = _storage.getBooks();
+    final uid = _userId;
+    if (uid != null) {
+      try {
+        allBooks = await _firestore.getWritings(uid);
+        await _storage.saveBooks(allBooks);
+      } catch (e) {
+        allBooks = _storage.getBooks();
+      }
+    } else {
+      allBooks = _storage.getBooks();
+    }
 
-    // If empty, maybe create a default notebook or just leave empty
-
+    // Auto-select first project when we have books but none selected
+    if (allBooks.isNotEmpty && activeBook == null) {
+      setActiveBook(allBooks.first);
+    }
     bookLoadingData = false;
     notifyListeners();
   }
@@ -75,13 +92,13 @@ class EditorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addNewBook() {
+  Future<void> addNewBook() async {
     if (titleController.text.trim().isEmpty) {
       throw Exception("Title cannot be empty");
     }
     if (subtype.trim().isEmpty) throw Exception("Please select a format");
     final newBook = WritingModel(
-      author: "Unknown Author",
+      author: _auth.currentUser?.name ?? "Unknown Author",
       coverImagePath: "",
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: titleController.text,
@@ -92,7 +109,7 @@ class EditorProvider extends ChangeNotifier {
         SectionModel(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           title: "Untitled Section",
-          content: "",
+          content: jsonEncode([{"insert": "\n"}]),
           sectionColor: sectionColors[0],
         ),
       ],
@@ -101,29 +118,64 @@ class EditorProvider extends ChangeNotifier {
     descriptionController.clear();
 
     allBooks.add(newBook);
-    _storage.saveBooks(allBooks); // Save to storage
-
     activeBook = newBook;
     allBooksSection = newBook.sections;
+
+    final uid = _userId;
+    if (uid != null) {
+      try {
+        await _firestore.createWriting(uid, newBook);
+      } catch (e) {
+        await _storage.saveBooks(allBooks);
+        rethrow;
+      }
+    } else {
+      await _storage.saveBooks(allBooks);
+    }
     notifyListeners();
   }
 
-  void deleteBook(WritingModel book) {
+  Future<void> deleteBook(WritingModel book) async {
     allBooks.remove(book);
-    _storage.saveBooks(allBooks); // Save to storage
     if (activeBook == book) {
       activeBook = null;
       allBooksSection = [];
     }
+
+    final uid = _userId;
+    if (uid != null) {
+      try {
+        await _firestore.deleteWriting(uid, book.id);
+      } catch (e) {
+        await _storage.saveBooks(allBooks);
+        rethrow;
+      }
+    } else {
+      await _storage.saveBooks(allBooks);
+    }
     notifyListeners();
   }
 
-  void renameBook(String newTitle) {
-    if (activeBook != null) {
-      activeBook!.title = newTitle;
-      _storage.saveBooks(allBooks);
-      notifyListeners();
+  Future<void> renameBook(String newTitle) async {
+    if (activeBook == null) return;
+    await renameBookById(activeBook!, newTitle);
+  }
+
+  Future<void> renameBookById(WritingModel book, String newTitle) async {
+    book.title = newTitle;
+
+    final uid = _userId;
+    if (uid != null) {
+      try {
+        await _firestore.updateWritingMetadata(uid, book.id, title: newTitle);
+      } catch (e) {
+        await _storage.saveBooks(allBooks);
+        rethrow;
+      }
+    } else {
+      await _storage.saveBooks(allBooks);
     }
+    notifyListeners();
   }
 
   void loadSection(WritingModel book) async {
@@ -160,54 +212,82 @@ class EditorProvider extends ChangeNotifier {
     }
   }
 
-  // 🔥 UPDATED: Adds section and INSTANTLY switches the editor to it
   void addSection(String title, {bool autoSelect = true}) {
-    if (activeBook != null) {
-      final newSection = SectionModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: title,
-        content: jsonEncode([
-          {"insert": "\n"},
-        ]), // Init with empty delta
-        sectionColor:
-            sectionColors[activeBook!.sections.length % sectionColors.length],
-      );
+    if (activeBook == null) return;
+    final newSection = SectionModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: title,
+      content: jsonEncode([{"insert": "\n"}]),
+      sectionColor:
+          sectionColors[activeBook!.sections.length % sectionColors.length],
+    );
 
-      // 🔥 FIX: Use insert(0, ...) instead of .add(...) to put it at the top
-      activeBook!.sections.insert(0, newSection);
-      allBooksSection = activeBook!.sections;
-      _storage.saveBooks(allBooks); // Save
+    activeBook!.sections.insert(0, newSection);
+    allBooksSection = activeBook!.sections;
 
-      if (autoSelect) {
-        forceSaveImmediately();
-        setActiveSection(newSection);
-        initEditor();
-      } else {
-        notifyListeners();
-      }
+    _persistSectionAdd(newSection);
+    if (autoSelect) {
+      forceSaveImmediately();
+      setActiveSection(newSection);
+      initEditor();
+    } else {
+      notifyListeners();
     }
   }
 
-  void addSectionToActiveBook(String title) {
-    addSection(title, autoSelect: false); // Uses the main method above
-  }
-
-  void renameSection(SectionModel section, String newTitle) {
-    section.title = newTitle;
-    _storage.saveBooks(allBooks); // Save
+  Future<void> _persistSectionAdd(SectionModel section) async {
+    final uid = _userId;
+    if (uid != null && activeBook != null) {
+      try {
+        await _firestore.addSection(uid, activeBook!.id, section);
+      } catch (e) {
+        await _storage.saveBooks(allBooks);
+      }
+    } else {
+      await _storage.saveBooks(allBooks);
+    }
     notifyListeners();
   }
 
-  void deleteSection(SectionModel section) {
-    if (activeBook != null) {
-      activeBook!.sections.removeWhere((c) => c.id == section.id);
-      allBooksSection = activeBook!.sections;
-      _storage.saveBooks(allBooks); // Save
-      if (activeSection?.id == section.id) {
-        activeSection = null;
+  void addSectionToActiveBook(String title) {
+    addSection(title, autoSelect: false);
+  }
+
+  Future<void> renameSection(SectionModel section, String newTitle) async {
+    section.title = newTitle;
+
+    final uid = _userId;
+    if (uid != null && activeBook != null) {
+      try {
+        await _firestore.renameSection(uid, activeBook!.id, section.id, newTitle);
+      } catch (e) {
+        await _storage.saveBooks(allBooks);
       }
-      notifyListeners();
+    } else {
+      await _storage.saveBooks(allBooks);
     }
+    notifyListeners();
+  }
+
+  Future<void> deleteSection(SectionModel section) async {
+    if (activeBook == null) return;
+    activeBook!.sections.removeWhere((c) => c.id == section.id);
+    allBooksSection = activeBook!.sections;
+    if (activeSection?.id == section.id) {
+      activeSection = null;
+    }
+
+    final uid = _userId;
+    if (uid != null) {
+      try {
+        await _firestore.deleteSection(uid, activeBook!.id, section.id);
+      } catch (e) {
+        await _storage.saveBooks(allBooks);
+      }
+    } else {
+      await _storage.saveBooks(allBooks);
+    }
+    notifyListeners();
   }
 
   // ==========================================
@@ -218,7 +298,6 @@ class EditorProvider extends ChangeNotifier {
     try {
       String jsonString = activeSection!.content;
       if (jsonString.trim().isEmpty) {
-        // Initialize with default delta if empty string
         controller = QuillController.basic();
       } else {
         var myJSON = jsonDecode(jsonString);
@@ -228,7 +307,6 @@ class EditorProvider extends ChangeNotifier {
         );
       }
     } catch (e) {
-      // Fallback for plain text or errors
       controller = QuillController(
         document: Document()..insert(0, '${activeSection!.content}\n'),
         selection: const TextSelection.collapsed(offset: 0),
@@ -239,8 +317,6 @@ class EditorProvider extends ChangeNotifier {
     _docSubscription = controller.document.changes.listen((event) {
       _onUserTyped();
     });
-    // Don't notify listeners here if called from build or init state to avoid errors
-    // notifyListeners();
   }
 
   void _onUserTyped() {
@@ -254,12 +330,27 @@ class EditorProvider extends ChangeNotifier {
     });
   }
 
-  void _performAutoSave() {
-    if (activeSection == null) return;
+  Future<void> _performAutoSave() async {
+    if (activeSection == null || activeBook == null) return;
     saveStatus = "Saving...";
     notifyListeners();
     activeSection!.content = dumpData();
-    _storage.saveBooks(allBooks); // Save to storage
+
+    try {
+      final uid = _userId;
+      if (uid != null) {
+        await _firestore.updateSectionContent(
+          uid,
+          activeBook!.id,
+          activeSection!.id,
+          activeSection!.content,
+        );
+      } else {
+        await _storage.saveBooks(allBooks);
+      }
+    } catch (e) {
+      await _storage.saveBooks(allBooks);
+    }
     saveStatus = "Saved";
     notifyListeners();
   }
@@ -273,8 +364,7 @@ class EditorProvider extends ChangeNotifier {
 
   String dumpData() {
     final deltaJson = controller.document.toDelta().toJson();
-    final stringified = jsonEncode(deltaJson);
-    return stringified;
+    return jsonEncode(deltaJson);
   }
 
   @override

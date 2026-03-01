@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "feed_items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "genres", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "feed_items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "likesCount", "order": "DESCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
