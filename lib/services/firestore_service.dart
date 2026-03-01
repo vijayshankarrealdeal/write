@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:inkspacex/models/comment_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:flutter/material.dart' show Color;
 import 'package:inkspacex/models/section_model.dart';
@@ -36,6 +37,7 @@ class FirestoreService {
 
   static const String _users = 'users';
   static const String _feedItems = 'feed_items';
+  static const String _comments = 'comments';
   static const String _writings = 'writings';
   static const String _sections = 'sections';
 
@@ -170,6 +172,71 @@ class FirestoreService {
   }
 
   // =========================================================================
+  // COMMENTS (subcollection of feed_items)
+  // =========================================================================
+
+  Future<void> addComment(CommentModel comment) async {
+    final batch = _firestore.batch();
+    final commentRef = _firestore
+        .collection(_feedItems)
+        .doc(comment.feedItemId)
+        .collection(_comments)
+        .doc(comment.id);
+    final feedRef = _firestore.collection(_feedItems).doc(comment.feedItemId);
+
+    batch.set(commentRef, {
+      ...comment.toJson(),
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+    batch.update(feedRef, {'commentsCount': FieldValue.increment(1)});
+    await batch.commit();
+  }
+
+  Future<void> deleteComment(String feedItemId, String commentId) async {
+    final batch = _firestore.batch();
+    final commentRef = _firestore
+        .collection(_feedItems)
+        .doc(feedItemId)
+        .collection(_comments)
+        .doc(commentId);
+    final feedRef = _firestore.collection(_feedItems).doc(feedItemId);
+
+    batch.delete(commentRef);
+    batch.update(feedRef, {'commentsCount': FieldValue.increment(-1)});
+    await batch.commit();
+  }
+
+  Future<List<CommentModel>> getComments(
+    String feedItemId, {
+    int limit = 50,
+  }) async {
+    final snap = await _firestore
+        .collection(_feedItems)
+        .doc(feedItemId)
+        .collection(_comments)
+        .orderBy('createdAt', descending: false)
+        .limit(limit)
+        .get();
+    return snap.docs.map((d) {
+      final data = _convertTimestamps(d.data());
+      return CommentModel.fromJson({...data, 'id': d.id});
+    }).toList();
+  }
+
+  Stream<List<CommentModel>> getCommentsStream(String feedItemId) {
+    return _firestore
+        .collection(_feedItems)
+        .doc(feedItemId)
+        .collection(_comments)
+        .orderBy('createdAt', descending: false)
+        .snapshots()
+        .map((snap) => snap.docs.map((d) {
+              final data = _convertTimestamps(d.data());
+              return CommentModel.fromJson({...data, 'id': d.id});
+            }).toList());
+  }
+
+  // =========================================================================
   // FEED ITEMS (optimized queries)
   // =========================================================================
 
@@ -228,38 +295,124 @@ class FirestoreService {
         );
   }
 
-  /// One-time fetch for initial load (no stream).
+  /// Recommendation engine: merges personalized + trending + recent,
+  /// deduplicates, excludes the current user's own posts, then ranks
+  /// by a composite score.
   Future<List<FeedItemModel>> getPersonalizedFeed(
     UserPreferences preferences, {
-    int limit = 20,
+    int limit = 30,
+    String? currentUserId,
   }) async {
     final genres = preferences.preferredGenres.take(10).toList();
+    final writingTypes = preferences.preferredWritingTypes.take(10).toList();
+    final seen = <String>{};
+    final all = <FeedItemModel>[];
 
-    if (genres.isEmpty) {
-      final snap = await _firestore
-          .collection(_feedItems)
-          .orderBy('likesCount', descending: true)
-          .orderBy('createdAt', descending: true)
-          .limit(limit)
-          .get();
+    List<FeedItemModel> parse(QuerySnapshot<Map<String, dynamic>> snap) {
       return snap.docs.map((d) {
         final converted = _convertFeedItemTimestamps(d.data());
         return FeedItemModel.fromJson({...converted, 'id': d.id});
       }).toList();
     }
 
-    final snap = await _firestore
+    // 1. Fetch by preferred genres
+    if (genres.isNotEmpty) {
+      final snap = await _firestore
+          .collection(_feedItems)
+          .where('genres', arrayContainsAny: genres)
+          .orderBy('createdAt', descending: true)
+          .limit(limit)
+          .get();
+      for (final item in parse(snap)) {
+        if (seen.add(item.id)) all.add(item);
+      }
+    }
+
+    // 2. Fetch by preferred writing types
+    if (writingTypes.isNotEmpty) {
+      final snap = await _firestore
+          .collection(_feedItems)
+          .where('writingTypes', arrayContainsAny: writingTypes)
+          .orderBy('createdAt', descending: true)
+          .limit(limit)
+          .get();
+      for (final item in parse(snap)) {
+        if (seen.add(item.id)) all.add(item);
+      }
+    }
+
+    // 3. Trending (by engagement: likes + comments)
+    final trendingSnap = await _firestore
         .collection(_feedItems)
-        .where('genres', arrayContainsAny: genres)
+        .orderBy('likesCount', descending: true)
+        .limit(limit)
+        .get();
+    for (final item in parse(trendingSnap)) {
+      if (seen.add(item.id)) all.add(item);
+    }
+
+    // 4. Recent posts (catch new content regardless of genre)
+    final recentSnap = await _firestore
+        .collection(_feedItems)
         .orderBy('createdAt', descending: true)
         .limit(limit)
         .get();
-    return snap.docs.map((d) {
-      final data = d.data();
-      final converted = _convertFeedItemTimestamps(data);
-      return FeedItemModel.fromJson({...converted, 'id': d.id});
-    }).toList();
+    for (final item in parse(recentSnap)) {
+      if (seen.add(item.id)) all.add(item);
+    }
+
+    // 5. Exclude current user's own posts
+    if (currentUserId != null) {
+      all.removeWhere((item) => item.authorId == currentUserId);
+    }
+
+    // 6. Score and rank
+    final now = DateTime.now();
+    final genreSet = genres.map((g) => g.toLowerCase()).toSet();
+    final typeSet = writingTypes.map((t) => t.toLowerCase()).toSet();
+
+    all.sort((a, b) {
+      final scoreA = _scoreItem(a, now, genreSet, typeSet);
+      final scoreB = _scoreItem(b, now, genreSet, typeSet);
+      return scoreB.compareTo(scoreA);
+    });
+
+    return all.take(limit).toList();
   }
+
+  /// Composite score: preference match + engagement + freshness.
+  double _scoreItem(
+    FeedItemModel item,
+    DateTime now,
+    Set<String> preferredGenres,
+    Set<String> preferredTypes,
+  ) {
+    double score = 0;
+
+    // Genre match bonus (+3 per matching genre)
+    for (final g in item.genres) {
+      if (preferredGenres.contains(g.toLowerCase())) score += 3;
+    }
+    // Writing type match bonus (+2 per match)
+    for (final t in item.writingTypes) {
+      if (preferredTypes.contains(t.toLowerCase())) score += 2;
+    }
+
+    // Engagement score (logarithmic to avoid domination by viral posts)
+    final engagement = item.likesCount + item.commentsCount * 2;
+    if (engagement > 0) {
+      score += _log2(engagement.toDouble() + 1) * 1.5;
+    }
+
+    // Freshness decay: full score within 24h, halves every 3 days
+    final hoursOld = now.difference(item.createdAt).inHours;
+    final freshness = 1.0 / (1.0 + hoursOld / 72.0);
+    score += freshness * 5;
+
+    return score;
+  }
+
+  static double _log2(double x) => x > 0 ? x.toStringAsFixed(0).length.toDouble() : 0;
 
   /// Seed default feed items (run once when collection is empty).
   Future<void> seedDefaultFeedItems() async {

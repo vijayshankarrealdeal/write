@@ -1,23 +1,51 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users: only the owner can read/write their own document
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    // Writings: user's projects and sections
-    match /users/{userId}/writings/{writingId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
     }
-    match /users/{userId}/writings/{writingId}/sections/{sectionId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+    function onlyCounterChanged(fields) {
+      return request.resource.data.diff(resource.data)
+             .affectedKeys().hasOnly(fields);
     }
-    
-    // Feed items: anyone authenticated can read; only backend/admin writes
+
+    // ── Users: owner-only access to profile and all subcollections ──
+    match /users/{userId}/{document=**} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // ── Feed items: public read, author-controlled write ──
     match /feed_items/{itemId} {
-      allow read: if request.auth != null;
-      allow write: if false; // Use Admin SDK or Cloud Functions to add items
+      allow read: if isSignedIn();
+
+      allow create: if isSignedIn()
+                    && request.resource.data.authorId == request.auth.uid;
+
+      allow update: if isSignedIn()
+                    && (resource.data.authorId == request.auth.uid
+                        || onlyCounterChanged(['likesCount'])
+                        || onlyCounterChanged(['commentsCount'])
+                        || onlyCounterChanged(['likesCount', 'commentsCount']));
+
+      allow delete: if isSignedIn()
+                    && resource.data.authorId == request.auth.uid;
+
+      // ── Comments: subcollection of feed_items ──
+      match /comments/{commentId} {
+        allow read: if isSignedIn();
+
+        allow create: if isSignedIn()
+                      && request.resource.data.authorId == request.auth.uid;
+
+        allow delete: if isSignedIn()
+                      && resource.data.authorId == request.auth.uid;
+      }
     }
   }
 }

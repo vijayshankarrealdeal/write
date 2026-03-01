@@ -11,6 +11,7 @@ class FeedItemModel {
   final List<String> tags;
   final DateTime createdAt;
   final int likesCount;
+  final int commentsCount;
 
   /// The Quill delta JSON of the section content.
   final String content;
@@ -33,6 +34,7 @@ class FeedItemModel {
     this.tags = const [],
     required this.createdAt,
     this.likesCount = 0,
+    this.commentsCount = 0,
     this.content = '',
     this.bookTitle = '',
     this.bookId = '',
@@ -53,6 +55,7 @@ class FeedItemModel {
           ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
           : DateTime.now(),
       likesCount: json['likesCount'] ?? 0,
+      commentsCount: json['commentsCount'] ?? 0,
       content: json['content'] ?? '',
       bookTitle: json['bookTitle'] ?? '',
       bookId: json['bookId'] ?? '',
@@ -71,6 +74,7 @@ class FeedItemModel {
         'tags': tags,
         'createdAt': createdAt.toIso8601String(),
         'likesCount': likesCount,
+        'commentsCount': commentsCount,
         'content': content,
         'bookTitle': bookTitle,
         'bookId': bookId,

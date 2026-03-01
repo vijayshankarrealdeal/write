@@ -7,6 +7,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
+import 'package:inkspacex/ui/pages/post_detail_page.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 
 class Feed extends StatefulWidget {
@@ -29,11 +30,12 @@ class _FeedState extends State<Feed> {
     final auth = context.read<AuthProvider>();
     final feed = context.read<FeedProvider>();
     final prefs = auth.currentUser?.preferences ?? const UserPreferences();
+    final userId = auth.currentUser?.id;
     feed.ensureSeedData().then((_) async {
       if (feed.items.isNotEmpty) {
-        feed.silentRefresh(); // Tab revisited: append new items silently
+        feed.silentRefresh();
       } else {
-        await feed.loadFeedIfNeeded(prefs);
+        await feed.loadFeedIfNeeded(prefs, userId: userId);
       }
     });
   }
@@ -42,7 +44,7 @@ class _FeedState extends State<Feed> {
     final auth = context.read<AuthProvider>();
     final feed = context.read<FeedProvider>();
     final prefs = auth.currentUser?.preferences ?? const UserPreferences();
-    await feed.loadFeed(prefs, forceRefresh: true);
+    await feed.loadFeed(prefs, forceRefresh: true, userId: auth.currentUser?.id);
   }
 
   @override
@@ -400,91 +402,151 @@ class _FeedState extends State<Feed> {
     final imageHeight = isMobile ? 120.0 : 160.0;
     final liked = auth.currentUser?.likes.contains(item.id) ?? false;
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: CachedNetworkImage(
-            imageUrl: item.imageUrl,
-            width: imageSize,
-            height: imageHeight,
-            fit: BoxFit.cover,
-            placeholder: (_, __) => Container(
-              color: Colors.grey[300],
-              child: const Center(child: CupertinoActivityIndicator()),
-            ),
-            errorWidget: (_, __, ___) => Container(
-              color: Colors.grey[300],
-              child: Icon(CupertinoIcons.photo, size: 40),
-            ),
-          ),
-        ),
-        SizedBox(width: isMobile ? 12 : 20),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.title,
-                style: GoogleFonts.playfairDisplay(
-                  color: Colors.black,
-                  fontSize: isMobile ? 18 : 24,
-                  fontWeight: FontWeight.w700,
-                  height: 1.1,
-                  letterSpacing: -0.3,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                item.author,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black.withOpacity(0.8),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                item.description,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  height: 1.5,
-                  color: Colors.black.withOpacity(0.7),
-                ),
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      liked ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
-                      color: liked ? Colors.red : Colors.black54,
-                      size: 20,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          CupertinoPageRoute(builder: (_) => PostDetailPage(item: item)),
+        );
+      },
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: item.imageUrl.isNotEmpty
+                ? CachedNetworkImage(
+                    imageUrl: item.imageUrl,
+                    width: imageSize,
+                    height: imageHeight,
+                    fit: BoxFit.cover,
+                    placeholder: (_, url) => Container(
+                      width: imageSize,
+                      height: imageHeight,
+                      color: Colors.grey[300],
+                      child: const Center(child: CupertinoActivityIndicator()),
                     ),
-                    onPressed: () async {
-                      await auth.toggleLike(item.id);
-                      if (mounted) _loadFeed();
-                    },
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
+                    errorWidget: (_, url, error) => _buildPlaceholderImage(
+                      imageSize,
+                      imageHeight,
+                      item.title,
+                    ),
+                  )
+                : _buildPlaceholderImage(imageSize, imageHeight, item.title),
+          ),
+          SizedBox(width: isMobile ? 12 : 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title,
+                  style: GoogleFonts.playfairDisplay(
+                    color: Colors.black,
+                    fontSize: isMobile ? 18 : 24,
+                    fontWeight: FontWeight.w700,
+                    height: 1.1,
+                    letterSpacing: -0.3,
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    "${item.likesCount}",
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
+                ),
+                const SizedBox(height: 8),
+                if (item.bookTitle.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      "From: ${item.bookTitle}",
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ),
+                Text(
+                  item.author,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black.withValues(alpha: 0.8),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  item.description,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    height: 1.5,
+                    color: Colors.black.withValues(alpha: 0.7),
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        await auth.toggleLike(item.id);
+                        if (mounted) _loadFeed();
+                      },
+                      child: Icon(
+                        liked
+                            ? CupertinoIcons.heart_fill
+                            : CupertinoIcons.heart,
+                        color: liked ? Colors.red : Colors.black54,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      "${item.likesCount}",
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Icon(
+                      CupertinoIcons.chat_bubble,
                       color: Colors.black54,
+                      size: 16,
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    const SizedBox(width: 4),
+                    Text(
+                      "${item.commentsCount}",
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlaceholderImage(double w, double h, String title) {
+    final initial = title.isNotEmpty ? title[0].toUpperCase() : '?';
+    return Container(
+      width: w,
+      height: h,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(10),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: GoogleFonts.playfairDisplay(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey[500],
         ),
-      ],
+      ),
     );
   }
 
