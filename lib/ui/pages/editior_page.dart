@@ -715,7 +715,7 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                         );
                       } else if (value == 'delete') {
                         provider.deleteSection(section);
-                        if (isActive) {
+                        if (provider.allBooksSection.isEmpty) {
                           Navigator.pop(context);
                         }
                       }

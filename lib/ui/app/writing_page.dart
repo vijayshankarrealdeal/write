@@ -127,7 +127,6 @@ class _MobileProjectCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         context.read<EditorProvider>().setActiveBook(book);
-        context.read<EditorProvider>().allBooksSection = book.sections;
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -284,51 +283,53 @@ Widget _buildEmptyStateMobile(BuildContext context, bool isDark) {
   return Center(
     child: SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            CupertinoIcons.square_pencil,
-            size: 64,
-            color: isDark ? Colors.white24 : Colors.black12,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            "Start Your Journey",
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black87,
+      child: CupertinoPageScaffold(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              CupertinoIcons.square_pencil,
+              size: 64,
+              color: isDark ? Colors.white24 : Colors.black12,
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "Create your first project to begin writing",
-            style: GoogleFonts.inter(
-              color: isDark ? Colors.white54 : Colors.black45,
+            const SizedBox(height: 16),
+            Text(
+              "Start Your Journey",
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 24),
-          CupertinoButton(
-            color: isDark ? Colors.white : Colors.black,
-            onPressed: () => showCupertinoModalPopup(
-              context: context,
-              builder: (context) => const NewBookAddition(),
-            ),
-            child: Text(
-              "Create Project",
+            const SizedBox(height: 8),
+            Text(
+              "Create your first project to begin writing",
               style: GoogleFonts.inter(
-                color: isDark ? Colors.black : Colors.white,
-                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white54 : Colors.black45,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 24),
+            CupertinoButton(
+              color: isDark ? Colors.white : Colors.black,
+              onPressed: () => showCupertinoModalPopup(
+                context: context,
+                builder: (context) => const NewBookAddition(),
+              ),
+              child: Text(
+                "Create Project",
+                style: GoogleFonts.inter(
+                  color: isDark ? Colors.black : Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     ),
   );
@@ -457,7 +458,6 @@ class _DesktopWritingPage extends StatelessWidget {
                       isDark: isDark,
                       onTap: () {
                         provider.setActiveBook(book);
-                        provider.allBooksSection = book.sections;
                       },
                       onRename: () => _showRenameProjectDialog(
                         context,

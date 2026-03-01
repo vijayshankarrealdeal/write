@@ -3,27 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:writer/models/user_preferences_model.dart';
+import 'package:writer/models/writing_model.dart';
 import 'package:writer/provider/auth_provider.dart';
 import 'package:writer/provider/feed_provider.dart';
-
-const List<MapEntry<String, String>> _genreOptions = [
-  MapEntry('creative', 'Creative'),
-  MapEntry('personal', 'Personal'),
-  MapEntry('essay', 'Essay'),
-  MapEntry('poetry', 'Poetry'),
-  MapEntry('digitalContent', 'Digital Content'),
-  MapEntry('journal', 'Journal'),
-  MapEntry('journalistic', 'Journalistic'),
-  MapEntry('marketing', 'Marketing'),
-];
-
-const List<MapEntry<String, String>> _writingTypeOptions = [
-  MapEntry('creative', 'Creative'),
-  MapEntry('digitalContent', 'Digital Content'),
-  MapEntry('personal', 'Personal'),
-  MapEntry('journalistic', 'Journalistic'),
-  MapEntry('marketing', 'Marketing'),
-];
 
 class FeedPreferencesPage extends StatefulWidget {
   const FeedPreferencesPage({super.key});
@@ -33,8 +15,8 @@ class FeedPreferencesPage extends StatefulWidget {
 }
 
 class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
-  late List<String> _selectedGenres;
   late List<String> _selectedWritingTypes;
+  late List<String> _selectedSubtypes;
   bool _hasChanges = false;
   bool _saving = false;
 
@@ -43,24 +25,28 @@ class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
     super.initState();
     final prefs = context.read<AuthProvider>().currentUser?.preferences ??
         const UserPreferences();
-    _selectedGenres = List.from(prefs.preferredGenres);
     _selectedWritingTypes = List.from(prefs.preferredWritingTypes);
-  }
-
-  void _toggleGenre(String genre) {
-    setState(() {
-      _selectedGenres.contains(genre)
-          ? _selectedGenres.remove(genre)
-          : _selectedGenres.add(genre);
-      _hasChanges = true;
-    });
+    _selectedSubtypes = List.from(prefs.preferredGenres);
   }
 
   void _toggleWritingType(String type) {
     setState(() {
-      _selectedWritingTypes.contains(type)
-          ? _selectedWritingTypes.remove(type)
-          : _selectedWritingTypes.add(type);
+      if (_selectedWritingTypes.contains(type)) {
+        _selectedWritingTypes.remove(type);
+      } else {
+        _selectedWritingTypes.add(type);
+      }
+      _hasChanges = true;
+    });
+  }
+
+  void _toggleSubtype(String subtype) {
+    setState(() {
+      if (_selectedSubtypes.contains(subtype)) {
+        _selectedSubtypes.remove(subtype);
+      } else {
+        _selectedSubtypes.add(subtype);
+      }
       _hasChanges = true;
     });
   }
@@ -68,7 +54,7 @@ class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
   Future<void> _save() async {
     setState(() => _saving = true);
     final prefs = UserPreferences(
-      preferredGenres: _selectedGenres,
+      preferredGenres: _selectedSubtypes,
       preferredWritingTypes: _selectedWritingTypes,
       interests: [],
     );
@@ -149,60 +135,88 @@ class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
                 ),
               ),
               const SizedBox(height: 32),
-              Text(
-                "GENRES",
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
-                  color: textColor.withValues(alpha: 0.4),
-                ),
-              ),
+
+              _sectionHeader("WRITING TYPES", textColor),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
-                children: _genreOptions.map((e) {
-                  final selected = _selectedGenres.contains(e.key);
+                children: WritingType.values.map((wt) {
+                  final key = wt.name;
+                  final selected = _selectedWritingTypes.contains(key);
                   return _ChipButton(
-                    label: e.value,
+                    label: wt.displayName,
                     selected: selected,
                     isDark: isDark,
                     cardColor: cardColor,
                     textColor: textColor,
-                    onTap: () => _toggleGenre(e.key),
+                    onTap: () => _toggleWritingType(key),
                   );
                 }).toList(),
               ),
+
               const SizedBox(height: 32),
-              Text(
-                "WRITING TYPES",
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
-                  color: textColor.withValues(alpha: 0.4),
-                ),
-              ),
+              _sectionHeader("FORMATS", textColor),
               const SizedBox(height: 12),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: _writingTypeOptions.map((e) {
-                  final selected = _selectedWritingTypes.contains(e.key);
-                  return _ChipButton(
-                    label: e.value,
-                    selected: selected,
-                    isDark: isDark,
-                    cardColor: cardColor,
-                    textColor: textColor,
-                    onTap: () => _toggleWritingType(e.key),
-                  );
-                }).toList(),
-              ),
+
+              ..._buildSubtypeSections(isDark, cardColor, textColor),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  List<Widget> _buildSubtypeSections(
+    bool isDark,
+    Color cardColor,
+    Color textColor,
+  ) {
+    final widgets = <Widget>[];
+    for (final wt in WritingType.values) {
+      final subtypes = getDisplaySubtypesForWritingType(wt);
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 16, bottom: 8),
+          child: Text(
+            wt.displayName,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: textColor.withValues(alpha: 0.5),
+            ),
+          ),
+        ),
+      );
+      widgets.add(
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: subtypes.map((label) {
+            final selected = _selectedSubtypes.contains(label);
+            return _ChipButton(
+              label: label,
+              selected: selected,
+              isDark: isDark,
+              cardColor: cardColor,
+              textColor: textColor,
+              onTap: () => _toggleSubtype(label),
+            );
+          }).toList(),
+        ),
+      );
+    }
+    return widgets;
+  }
+
+  Widget _sectionHeader(String title, Color textColor) {
+    return Text(
+      title,
+      style: GoogleFonts.inter(
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 1.2,
+        color: textColor.withValues(alpha: 0.4),
       ),
     );
   }

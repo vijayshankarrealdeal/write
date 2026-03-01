@@ -3,27 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:writer/models/user_preferences_model.dart';
+import 'package:writer/models/writing_model.dart';
 import 'package:writer/provider/auth_provider.dart';
-
-// Genres and interests for feed personalization
-const List<String> _genreOptions = [
-  'creative',
-  'personal',
-  'essay',
-  'poetry',
-  'digitalContent',
-  'journal',
-  'journalistic',
-  'marketing',
-];
-
-const List<MapEntry<String, String>> _writingTypeOptions = [
-  MapEntry('creative', 'Creative'),
-  MapEntry('digitalContent', 'Digital Content'),
-  MapEntry('personal', 'Personal'),
-  MapEntry('journalistic', 'Journalistic'),
-  MapEntry('marketing', 'Marketing'),
-];
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -36,8 +17,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<String> _selectedGenres = [];
   final List<String> _selectedWritingTypes = [];
+  final List<String> _selectedSubtypes = [];
 
   final List<OnboardingItem> _pages = [
     OnboardingItem(
@@ -60,7 +41,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   void _finishOnboarding() async {
     final prefs = UserPreferences(
-      preferredGenres: _selectedGenres,
+      preferredGenres: _selectedSubtypes,
       preferredWritingTypes: _selectedWritingTypes,
       interests: [],
     );
@@ -219,12 +200,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
             "We'll personalize your feed based on your interests.",
             style: GoogleFonts.inter(
               fontSize: 15,
-              color: textColor.withOpacity(0.6),
+              color: textColor.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: 24),
           Text(
-            "Genres",
+            "Writing Types",
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -235,17 +216,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _genreOptions.map((g) {
-              final selected = _selectedGenres.contains(g);
+            children: WritingType.values.map((wt) {
+              final key = wt.name;
+              final selected = _selectedWritingTypes.contains(key);
               return FilterChip(
-                label: Text(_formatLabel(g)),
+                label: Text(wt.displayName),
                 selected: selected,
                 onSelected: (v) {
                   setState(() {
                     if (v) {
-                      _selectedGenres.add(g);
+                      _selectedWritingTypes.add(key);
                     } else {
-                      _selectedGenres.remove(g);
+                      _selectedWritingTypes.remove(key);
                     }
                   });
                 },
@@ -258,7 +240,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           ),
           const SizedBox(height: 24),
           Text(
-            "Writing types",
+            "Formats",
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -266,42 +248,50 @@ class _OnboardingPageState extends State<OnboardingPage> {
             ),
           ),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _writingTypeOptions.map((e) {
-              final selected = _selectedWritingTypes.contains(e.key);
-              return FilterChip(
-                label: Text(e.value),
-                selected: selected,
-                onSelected: (v) {
-                  setState(() {
-                    if (v) {
-                      _selectedWritingTypes.add(e.key);
-                    } else {
-                      _selectedWritingTypes.remove(e.key);
-                    }
-                  });
-                },
-                backgroundColor: chipBg,
-                selectedColor: selectedBg,
-                checkmarkColor: textColor,
-                labelStyle: TextStyle(color: textColor, fontSize: 13),
-              );
-            }).toList(),
-          ),
+          ...WritingType.values.expand((wt) {
+            final subtypes = getDisplaySubtypesForWritingType(wt);
+            return [
+              Padding(
+                padding: const EdgeInsets.only(top: 8, bottom: 6),
+                child: Text(
+                  wt.displayName,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: textColor.withValues(alpha: 0.4),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: subtypes.map((label) {
+                  final selected = _selectedSubtypes.contains(label);
+                  return FilterChip(
+                    label: Text(label),
+                    selected: selected,
+                    onSelected: (v) {
+                      setState(() {
+                        if (v) {
+                          _selectedSubtypes.add(label);
+                        } else {
+                          _selectedSubtypes.remove(label);
+                        }
+                      });
+                    },
+                    backgroundColor: chipBg,
+                    selectedColor: selectedBg,
+                    checkmarkColor: textColor,
+                    labelStyle: TextStyle(color: textColor, fontSize: 13),
+                  );
+                }).toList(),
+              ),
+            ];
+          }),
           const SizedBox(height: 32),
         ],
       ),
     );
-  }
-
-  String _formatLabel(String s) {
-    if (s.isEmpty) return s;
-    return s[0].toUpperCase() + s.substring(1).replaceAllMapped(
-          RegExp(r'([A-Z])'),
-          (m) => ' ${m.group(0)}',
-        );
   }
 }
 

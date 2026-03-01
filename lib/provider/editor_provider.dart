@@ -50,6 +50,7 @@ class EditorProvider extends ChangeNotifier {
 
   void selectWritingType(WritingType etype) {
     type = etype;
+    subtype = "";
     notifyListeners();
   }
 
@@ -194,6 +195,8 @@ class EditorProvider extends ChangeNotifier {
     );
     titleController.clear();
     descriptionController.clear();
+    type = WritingType.personal;
+    subtype = "";
 
     allBooks.add(newBook);
     activeBook = newBook;
@@ -207,17 +210,21 @@ class EditorProvider extends ChangeNotifier {
         await _storage.saveBooks(allBooks);
         rethrow;
       }
-    } else {
-      await _storage.saveBooks(allBooks);
     }
+    await _storage.saveBooks(allBooks);
     notifyListeners();
   }
 
   Future<void> deleteBook(WritingModel book) async {
     allBooks.remove(book);
-    if (activeBook == book) {
-      activeBook = null;
-      allBooksSection = [];
+    if (activeBook?.id == book.id) {
+      if (allBooks.isNotEmpty) {
+        setActiveBook(allBooks.first);
+      } else {
+        activeBook = null;
+        activeSection = null;
+        allBooksSection = [];
+      }
     }
 
     final uid = _userId;
@@ -228,9 +235,8 @@ class EditorProvider extends ChangeNotifier {
         await _storage.saveBooks(allBooks);
         rethrow;
       }
-    } else {
-      await _storage.saveBooks(allBooks);
     }
+    await _storage.saveBooks(allBooks);
     notifyListeners();
   }
 
@@ -250,9 +256,8 @@ class EditorProvider extends ChangeNotifier {
         await _storage.saveBooks(allBooks);
         rethrow;
       }
-    } else {
-      await _storage.saveBooks(allBooks);
     }
+    await _storage.saveBooks(allBooks);
     notifyListeners();
   }
 
@@ -318,13 +323,9 @@ class EditorProvider extends ChangeNotifier {
     if (uid != null && activeBook != null) {
       try {
         await _firestore.addSection(uid, activeBook!.id, section);
-      } catch (e) {
-        await _storage.saveBooks(allBooks);
-      }
-    } else {
-      await _storage.saveBooks(allBooks);
+      } catch (_) {}
     }
-    notifyListeners();
+    await _storage.saveBooks(allBooks);
   }
 
   void addSectionToActiveBook(String title) {
@@ -338,12 +339,9 @@ class EditorProvider extends ChangeNotifier {
     if (uid != null && activeBook != null) {
       try {
         await _firestore.renameSection(uid, activeBook!.id, section.id, newTitle);
-      } catch (e) {
-        await _storage.saveBooks(allBooks);
-      }
-    } else {
-      await _storage.saveBooks(allBooks);
+      } catch (_) {}
     }
+    await _storage.saveBooks(allBooks);
     notifyListeners();
   }
 
@@ -351,20 +349,24 @@ class EditorProvider extends ChangeNotifier {
     if (activeBook == null) return;
     activeBook!.sections.removeWhere((c) => c.id == section.id);
     allBooksSection = activeBook!.sections;
+
     if (activeSection?.id == section.id) {
-      activeSection = null;
+      if (allBooksSection.isNotEmpty) {
+        activeSection = allBooksSection.first;
+        initEditor();
+      } else {
+        activeSection = null;
+        controller = QuillController.basic();
+      }
     }
 
     final uid = _userId;
     if (uid != null) {
       try {
         await _firestore.deleteSection(uid, activeBook!.id, section.id);
-      } catch (e) {
-        await _storage.saveBooks(allBooks);
-      }
-    } else {
-      await _storage.saveBooks(allBooks);
+      } catch (_) {}
     }
+    await _storage.saveBooks(allBooks);
     notifyListeners();
   }
 
