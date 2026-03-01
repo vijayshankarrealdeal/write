@@ -2,10 +2,10 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:writer/models/user_model.dart' as app;
-import 'package:writer/models/user_preferences_model.dart';
-import 'package:writer/services/firestore_service.dart';
-import 'package:writer/services/storage_service.dart';
+import 'package:inkspacex/models/user_model.dart' as app;
+import 'package:inkspacex/models/user_preferences_model.dart';
+import 'package:inkspacex/services/firestore_service.dart';
+import 'package:inkspacex/services/storage_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final StorageService _storage;

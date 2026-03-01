@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:writer/models/writing_model.dart';
-import 'package:writer/provider/editor_provider.dart';
-import 'package:writer/ui/utilities/responsive_layout.dart';
+import 'package:inkspacex/models/writing_model.dart';
+import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 
 class NewBookAddition extends StatelessWidget {
   const NewBookAddition({super.key});

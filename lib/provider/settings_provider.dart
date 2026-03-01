@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:writer/services/storage_service.dart';
+import 'package:inkspacex/services/storage_service.dart';
 
 class SettingsProvider extends ChangeNotifier {
   final StorageService _storage;

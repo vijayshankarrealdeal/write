@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:writer/models/writing_model.dart';
-import 'package:writer/models/section_model.dart';
-import 'package:writer/provider/auth_provider.dart';
-import 'package:writer/services/firestore_service.dart';
-import 'package:writer/services/storage_service.dart';
+import 'package:inkspacex/models/writing_model.dart';
+import 'package:inkspacex/models/section_model.dart';
+import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/services/firestore_service.dart';
+import 'package:inkspacex/services/storage_service.dart';
 
 class EditorProvider extends ChangeNotifier {
   final StorageService _storage;

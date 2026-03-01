@@ -1,4 +1,4 @@
-import 'package:writer/models/user_preferences_model.dart';
+import 'package:inkspacex/models/user_preferences_model.dart';
 
 class User {
   final String id;

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:writer/models/writing_model.dart';
+import 'package:inkspacex/models/writing_model.dart';
 
 class StorageService {
   static const String _boxName = 'writer_app_box';

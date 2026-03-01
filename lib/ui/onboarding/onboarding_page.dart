@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:writer/models/user_preferences_model.dart';
-import 'package:writer/models/writing_model.dart';
-import 'package:writer/provider/auth_provider.dart';
+import 'package:inkspacex/models/user_preferences_model.dart';
+import 'package:inkspacex/models/writing_model.dart';
+import 'package:inkspacex/provider/auth_provider.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});

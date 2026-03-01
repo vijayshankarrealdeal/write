@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:writer/models/feed_item_model.dart';
-import 'package:writer/models/user_preferences_model.dart';
-import 'package:writer/services/firestore_service.dart';
+import 'package:inkspacex/models/feed_item_model.dart';
+import 'package:inkspacex/models/user_preferences_model.dart';
+import 'package:inkspacex/services/firestore_service.dart';
 
 class FeedProvider extends ChangeNotifier {
   final FirestoreService _firestore = FirestoreService();
@@ -45,7 +45,7 @@ class FeedProvider extends ChangeNotifier {
     try {
       final fresh = await _firestore.getPersonalizedFeed(_lastPreferences!);
       final existingIds = _items.map((e) => e.id).toSet();
-      final newItems = fresh.where((e) => !existingIds.contains(e.id)).toList();
+      final newItems = fresh.where((e) => !existingIds.contains(e)).toList();
       if (newItems.isEmpty) return;
       _items = [...newItems, ..._items];
       notifyListeners();

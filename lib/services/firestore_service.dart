@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:writer/models/feed_item_model.dart';
+import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:flutter/material.dart' show Color;
-import 'package:writer/models/section_model.dart';
-import 'package:writer/models/user_model.dart';
-import 'package:writer/models/user_preferences_model.dart';
-import 'package:writer/models/writing_model.dart';
+import 'package:inkspacex/models/section_model.dart';
+import 'package:inkspacex/models/user_model.dart';
+import 'package:inkspacex/models/user_preferences_model.dart';
+import 'package:inkspacex/models/writing_model.dart';
 
 /// Firestore structure (optimized for reads):
 ///

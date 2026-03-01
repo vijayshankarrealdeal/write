@@ -5,22 +5,22 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:writer/firebase_options.dart';
+import 'package:inkspacex/firebase_options.dart';
 
-import 'package:writer/provider/auth_provider.dart';
-import 'package:writer/provider/editor_provider.dart';
-import 'package:writer/provider/feed_provider.dart';
-import 'package:writer/provider/nav_provider.dart';
-import 'package:writer/provider/settings_provider.dart';
-import 'package:writer/services/storage_service.dart';
-import 'package:writer/ui/app/feed.dart';
-import 'package:writer/ui/app/settings.dart';
-import 'package:writer/ui/app/writing_page.dart';
-import 'package:writer/ui/auth/auth_gate.dart';
-import 'package:writer/ui/pages/feed_preferences_page.dart';
-import 'package:writer/ui/pages/new_book_addition.dart';
-import 'package:writer/ui/theme/app_theme.dart';
-import 'package:writer/ui/utilities/responsive_layout.dart';
+import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/provider/feed_provider.dart';
+import 'package:inkspacex/provider/nav_provider.dart';
+import 'package:inkspacex/provider/settings_provider.dart';
+import 'package:inkspacex/services/storage_service.dart';
+import 'package:inkspacex/ui/app/feed.dart';
+import 'package:inkspacex/ui/app/settings.dart';
+import 'package:inkspacex/ui/app/writing_page.dart';
+import 'package:inkspacex/ui/auth/auth_gate.dart';
+import 'package:inkspacex/ui/pages/feed_preferences_page.dart';
+import 'package:inkspacex/ui/pages/new_book_addition.dart';
+import 'package:inkspacex/ui/theme/app_theme.dart';
+import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               FlutterQuillLocalizations.delegate,
             ],
-            title: "Writer",
+            title: "Inkspacex",
             debugShowCheckedModeBanner: false,
             themeMode: settingsProvider.themeMode,
             theme: MonochromeTheme.lightTheme,

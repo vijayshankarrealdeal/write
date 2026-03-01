@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import 'package:writer/provider/editor_provider.dart';
-import 'package:writer/provider/settings_provider.dart';
-import 'package:writer/ui/pages/editior_page.dart';
-import 'package:writer/ui/pages/new_book_addition.dart';
-import 'package:writer/models/writing_model.dart';
-import 'package:writer/models/section_model.dart';
-import 'package:writer/ui/utilities/responsive_layout.dart';
+import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/provider/settings_provider.dart';
+import 'package:inkspacex/ui/pages/editior_page.dart';
+import 'package:inkspacex/ui/pages/new_book_addition.dart';
+import 'package:inkspacex/models/writing_model.dart';
+import 'package:inkspacex/models/section_model.dart';
+import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 
 class WritingPageUI extends StatelessWidget {
   const WritingPageUI({super.key});

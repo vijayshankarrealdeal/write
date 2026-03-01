@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:writer/main.dart'; // To access HomePage
-import 'package:writer/provider/auth_provider.dart';
-import 'package:writer/ui/auth/login_page.dart';
-import 'package:writer/ui/auth/splash_screen.dart';
-import 'package:writer/ui/onboarding/onboarding_page.dart';
+import 'package:inkspacex/main.dart'; // To access HomePage
+import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/ui/auth/login_page.dart';
+import 'package:inkspacex/ui/auth/splash_screen.dart';
+import 'package:inkspacex/ui/onboarding/onboarding_page.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});

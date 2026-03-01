@@ -3,11 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:writer/models/feed_item_model.dart';
-import 'package:writer/models/user_preferences_model.dart';
-import 'package:writer/provider/auth_provider.dart';
-import 'package:writer/provider/feed_provider.dart';
-import 'package:writer/ui/utilities/responsive_layout.dart';
+import 'package:inkspacex/models/feed_item_model.dart';
+import 'package:inkspacex/models/user_preferences_model.dart';
+import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/provider/feed_provider.dart';
+import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 
 class Feed extends StatefulWidget {
   const Feed({super.key});

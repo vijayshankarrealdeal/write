@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:writer/provider/editor_provider.dart';
-import 'package:writer/ui/utilities/responsive_layout.dart';
+import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 
 class EditiorPage extends StatefulWidget {
   const EditiorPage({super.key});

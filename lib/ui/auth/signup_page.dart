@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:writer/provider/auth_provider.dart';
-import 'package:writer/ui/auth/auth_gate.dart';
-import 'package:writer/ui/auth/login_page.dart';
+import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/ui/auth/auth_gate.dart';
+import 'package:inkspacex/ui/auth/login_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});

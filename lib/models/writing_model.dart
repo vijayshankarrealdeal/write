@@ -1,4 +1,4 @@
-import 'package:writer/models/section_model.dart';
+import 'package:inkspacex/models/section_model.dart';
 
 enum WritingStatus { ongoing, completed, paused }
 
