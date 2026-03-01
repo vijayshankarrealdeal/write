@@ -1,35 +1,41 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:writer/provider/settings_provider.dart'; // Make sure this path is correct
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
-  @override
-  State<SettingsPage> createState() => _SettingsPageState();
-}
+  void _confirmLogout(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-class _SettingsPageState extends State<SettingsPage> {
-  void _confirmLogout() {
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Logout"),
-        content: const Text(
-          "Are you sure you want to log out of your account?",
+      builder: (context) => CupertinoAlertDialog(
+        title: Text(
+          "Logout",
+          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+        ),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            "Are you sure you want to log out of your account?",
+            style: GoogleFonts.inter(),
+          ),
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+            child: const Text("Cancel"),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Logged out successfully")),
-              );
+              // Handle Logout
             },
-            child: const Text("Logout", style: TextStyle(color: Colors.white)),
+            child: const Text("Logout"),
           ),
         ],
       ),
@@ -38,116 +44,166 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+    final cardColor = isDark ? const Color(0xFF161618) : Colors.white;
+    final subtleBorder = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.08);
+
     return Scaffold(
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        children: [
-          // --- ACCOUNT SECTION ---
-          _buildSectionHeader("ACCOUNT"),
-          _buildSettingsCard(
+      backgroundColor: Colors.transparent, // Background handled by main layout
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 680,
+          ), // Premium readable width
+          child: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 32.0,
+              vertical: 16.0,
+            ),
             children: [
-              SettingsTile(
-                icon: Icons.person_outline,
-                title: "User Profile",
-                subtitle: "Manage your personal details",
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ProfilePage()),
+              // --- ACCOUNT SECTION ---
+              _buildSectionHeader("ACCOUNT", textColor),
+              _buildSettingsCard(
+                cardColor: cardColor,
+                borderColor: subtleBorder,
+                children: [
+                  SettingsTile(
+                    icon: CupertinoIcons.person,
+                    title: "User Profile",
+                    subtitle: "Manage your personal details",
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ProfilePage()),
+                    ),
+                  ),
+                  _buildDivider(subtleBorder),
+                  SettingsTile(
+                    icon: CupertinoIcons.shield,
+                    title: "Security",
+                    subtitle: "Password, biometrics, 2FA",
+                    onTap: () {},
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 32),
+
+              // --- PREFERENCES SECTION ---
+              _buildSectionHeader("PREFERENCES", textColor),
+              Consumer<SettingsProvider>(
+                builder: (context, provider, child) {
+                  return _buildSettingsCard(
+                    cardColor: cardColor,
+                    borderColor: subtleBorder,
+                    children: [
+                      SettingsTile(
+                        icon: CupertinoIcons.moon,
+                        title: "Dark Mode",
+                        trailing: CupertinoSwitch(
+                          value: provider.themeMode == ThemeMode.dark,
+                          activeColor: isDark ? Colors.white : Colors.black,
+                          onChanged: (v) => provider.toggleTheme(v),
+                        ),
+                      ),
+                      _buildDivider(subtleBorder),
+                      SettingsTile(
+                        icon: CupertinoIcons.bell,
+                        title: "Notifications",
+                        trailing: CupertinoSwitch(
+                          value: provider.notificationsEnabled,
+                          activeColor: isDark ? Colors.white : Colors.black,
+                          onChanged: (v) => provider.toggleNotifications(v),
+                        ),
+                      ),
+                      _buildDivider(subtleBorder),
+                      SettingsTile(
+                        icon: CupertinoIcons.globe,
+                        title: "Language",
+                        subtitle: provider.selectedLanguage,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LanguagePage(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+
+              const SizedBox(height: 48),
+
+              // --- LOGOUT BUTTON ---
+              CupertinoButton(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                color: isDark
+                    ? Colors.redAccent.withValues(alpha: 0.1)
+                    : Colors.red.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+                onPressed: () => _confirmLogout(context),
+                child: Text(
+                  "Log Out",
+                  style: GoogleFonts.inter(
+                    color: Colors.redAccent,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
                 ),
               ),
-              SettingsTile(
-                icon: Icons.shield_outlined,
-                title: "Security",
-                subtitle: "Password, biometrics, 2FA",
-                onTap: () {},
-              ),
+              const SizedBox(height: 48),
             ],
           ),
-
-          // --- PREFERENCES SECTION ---
-          _buildSectionHeader("PREFERENCES"),
-          _buildSettingsCard(
-            children: [
-              SettingsTile(
-                icon: Icons.dark_mode_outlined,
-                title: "Dark Mode",
-                trailing: Switch(
-                  value: false,
-                  activeColor: Colors.white,
-                  activeTrackColor: Colors.grey[600],
-                  inactiveThumbColor: Colors.grey[400],
-
-                  onChanged: (v) {},
-                ),
-              ),
-            ],
-          ),
-          SettingsTile(
-            icon: Icons.notifications_none_outlined,
-            title: "Notifications",
-            trailing: Switch(
-              value: false,
-              activeColor: Colors.white,
-              activeTrackColor: Colors.grey[600],
-              inactiveThumbColor: Colors.grey[400],
-              inactiveTrackColor: Colors.grey[600],
-              onChanged: (value) => {},
-            ),
-          ),
-          SettingsTile(
-            icon: Icons.language,
-            title: "Language",
-            subtitle: "English (US)",
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const LanguagePage()),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  // Helper to build Section Headers
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, Color textColor) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8, top: 24),
+      padding: const EdgeInsets.only(left: 16, bottom: 12),
       child: Text(
         title,
-        style: const TextStyle(
+        style: GoogleFonts.inter(
           fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Colors.white, // White text on grey bg as seen in your image
+          fontWeight: FontWeight.w700,
+          color: textColor.withValues(alpha: 0.4),
           letterSpacing: 1.2,
         ),
       ),
     );
   }
 
-  // Helper to build grouped cards with dividers
-  Widget _buildSettingsCard({required List<Widget> children}) {
-    // Interleave dividers between items
-    List<Widget> separatedChildren = [];
-    for (int i = 0; i < children.length; i++) {
-      separatedChildren.add(children[i]);
-      if (i < children.length - 1) {
-        separatedChildren.add(
-          Divider(color: Colors.grey[800], height: 1, thickness: 1),
-        );
-      }
-    }
-
+  Widget _buildSettingsCard({
+    required Color cardColor,
+    required Color borderColor,
+    required List<Widget> children,
+  }) {
     return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: separatedChildren,
+        children: children,
       ),
+    );
+  }
+
+  Widget _buildDivider(Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 60.0), // iOS style indent
+      child: Divider(color: color, height: 1, thickness: 1),
     );
   }
 }
 
-// --- CUSTOM SETTINGS TILE WIDGET ---
+// --- CUSTOM SETTINGS TILE ---
 class SettingsTile extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -166,35 +222,43 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12), // Match card border radius
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             children: [
-              // Circular Leading Icon
+              // Premium Icon Container
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF2C2C2E), // Icon Background
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.04),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: Colors.white, size: 20),
+                child: Icon(
+                  icon,
+                  color: textColor.withValues(alpha: 0.8),
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 16),
 
-              // Title and Subtitle
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: GoogleFonts.inter(
+                        color: textColor,
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                       ),
@@ -203,8 +267,8 @@ class SettingsTile extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         subtitle!,
-                        style: const TextStyle(
-                          color: Color(0xFFAAAAAA),
+                        style: GoogleFonts.inter(
+                          color: textColor.withValues(alpha: 0.5),
                           fontSize: 13,
                         ),
                       ),
@@ -213,14 +277,13 @@ class SettingsTile extends StatelessWidget {
                 ),
               ),
 
-              // Trailing Widget or Chevron
               if (trailing != null)
                 trailing!
               else if (onTap != null)
-                const Icon(
-                  Icons.chevron_right,
-                  color: Color(0xFF757575),
-                  size: 22,
+                Icon(
+                  CupertinoIcons.chevron_right,
+                  color: textColor.withValues(alpha: 0.3),
+                  size: 18,
                 ),
             ],
           ),
@@ -230,146 +293,168 @@ class SettingsTile extends StatelessWidget {
   }
 }
 
-// ============================================================================
-// SUB-PAGES (Styled in standard dark mode to match the settings vibe)
-// ============================================================================
-
+// --- SUB PAGES (Adapting dynamically to Light/Dark mode) ---
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF0E0E10) : const Color(0xFFF9F9FB);
+    final textColor = isDark ? Colors.white : Colors.black;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text("User Profile"),
-        backgroundColor: Colors.transparent,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          const Center(
-            child: CircleAvatar(
-              radius: 50,
-              backgroundColor: Color(0xFF2C2C2E),
-              child: Icon(Icons.person, size: 50, color: Colors.white),
-            ),
+        title: Text(
+          "User Profile",
+          style: GoogleFonts.inter(
+            color: textColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
           ),
-          const SizedBox(height: 30),
-          _buildTextField("Full Name", "John Doe"),
-          const SizedBox(height: 16),
-          _buildTextField("Email Address", "john.doe@example.com"),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextField(String label, String initialValue) {
-    return TextField(
-      controller: TextEditingController(text: initialValue),
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.grey),
-        filled: true,
-        fillColor: const Color(0xFF1E1E1E),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
         ),
-      ),
-    );
-  }
-}
-
-class LanguagePage extends StatefulWidget {
-  const LanguagePage({super.key});
-  @override
-  State<LanguagePage> createState() => _LanguagePageState();
-}
-
-class _LanguagePageState extends State<LanguagePage> {
-  String selectedLang = "English (US)";
-  final List<String> languages = [
-    "English (US)",
-    "English (UK)",
-    "Spanish",
-    "French",
-    "German",
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        title: const Text("Language"),
         backgroundColor: Colors.transparent,
-      ),
-      body: ListView.builder(
-        itemCount: languages.length,
-        itemBuilder: (context, index) {
-          final lang = languages[index];
-          return ListTile(
-            title: Text(lang, style: const TextStyle(color: Colors.white)),
-            trailing: selectedLang == lang
-                ? const Icon(Icons.check, color: Colors.blueAccent)
-                : null,
-            onTap: () => setState(() => selectedLang = lang),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class PrivacyPage extends StatelessWidget {
-  const PrivacyPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        title: const Text("Privacy Policy"),
-        backgroundColor: Colors.transparent,
-      ),
-      body: const SingleChildScrollView(
-        padding: EdgeInsets.all(20),
-        child: Text(
-          "Your privacy is critically important to us. \n\nWe collect minimal data to ensure our services run smoothly. We do not sell your personal data to third parties.",
-          style: TextStyle(color: Colors.white70, fontSize: 16, height: 1.5),
-        ),
-      ),
-    );
-  }
-}
-
-class AboutPage extends StatelessWidget {
-  const AboutPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        title: const Text("About"),
-        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: textColor),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.settings_suggest, size: 80, color: Colors.grey),
-            const SizedBox(height: 20),
-            const Text(
-              "Settings App",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              Center(
+                child: CircleAvatar(
+                  radius: 48,
+                  backgroundColor: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.05),
+                  child: Icon(
+                    CupertinoIcons.person,
+                    size: 40,
+                    color: textColor.withValues(alpha: 0.5),
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text("Version 2.0.1", style: TextStyle(color: Colors.grey[400])),
-          ],
+              const SizedBox(height: 40),
+              _buildTextField("Full Name", "John Doe", isDark, textColor),
+              const SizedBox(height: 16),
+              _buildTextField(
+                "Email Address",
+                "john.doe@example.com",
+                isDark,
+                textColor,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(
+    String label,
+    String initialValue,
+    bool isDark,
+    Color textColor,
+  ) {
+    return TextField(
+      controller: TextEditingController(text: initialValue),
+      style: GoogleFonts.inter(color: textColor),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.inter(color: textColor.withValues(alpha: 0.4)),
+        filled: true,
+        fillColor: isDark ? const Color(0xFF161618) : Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.08),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.08),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LanguagePage extends StatelessWidget {
+  const LanguagePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF0E0E10) : const Color(0xFFF9F9FB);
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return Scaffold(
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        title: Text(
+          "Language",
+          style: GoogleFonts.inter(
+            color: textColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: textColor),
+      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Consumer<SettingsProvider>(
+            builder: (context, provider, child) {
+              return ListView.separated(
+                padding: const EdgeInsets.all(24),
+                itemCount: provider.availableLanguages.length,
+                separatorBuilder: (_, __) => Divider(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.05),
+                  height: 1,
+                ),
+                itemBuilder: (context, index) {
+                  final lang = provider.availableLanguages[index];
+                  final isSelected = provider.selectedLanguage == lang;
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
+                    title: Text(
+                      lang,
+                      style: GoogleFonts.inter(
+                        color: textColor,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? const Icon(
+                            CupertinoIcons.check_mark,
+                            color: Colors.blueAccent,
+                            size: 20,
+                          )
+                        : null,
+                    onTap: () => provider.setLanguage(lang),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

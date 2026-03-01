@@ -5,8 +5,6 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:writer/models/writing_model.dart';
 import 'package:writer/models/section_model.dart';
 
-// Your existing classes
-
 class EditorProvider extends ChangeNotifier {
   EditorProvider() {
     loadBooks();
@@ -15,7 +13,7 @@ class EditorProvider extends ChangeNotifier {
   List<WritingModel> allBooks = [];
   List<SectionModel> allBooksSection = [];
 
-  WritingModel? activeBook; // <--- ADDED: Track the active book
+  WritingModel? activeBook;
   SectionModel? activeSection;
 
   bool showSectionsList = false;
@@ -29,14 +27,11 @@ class EditorProvider extends ChangeNotifier {
   String subtype = "";
 
   final List<Color> sectionColors = [
-    Colors.red,
-    Colors.blue,
-    Colors.green,
-    Colors.orange,
-    Colors.purple,
-    Colors.teal,
-    Colors.amber,
-    Colors.cyanAccent,
+    const Color(0xFFFF595E),
+    const Color(0xFFFFCA3A),
+    const Color(0xFF8AC926),
+    const Color(0xFF1982C4),
+    const Color(0xFF6A4C93),
   ];
 
   void toggleShowSections() {
@@ -76,7 +71,7 @@ class EditorProvider extends ChangeNotifier {
     if (titleController.text.trim().isEmpty) {
       throw Exception("Title cannot be empty");
     }
-    if (subtype.trim().isEmpty) throw Exception("Please select a subtype");
+    if (subtype.trim().isEmpty) throw Exception("Please select a format");
     final newBook = WritingModel(
       author: "Unknown Author",
       coverImagePath: "",
@@ -88,7 +83,7 @@ class EditorProvider extends ChangeNotifier {
       sections: [
         SectionModel(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
-          title: "Untitled Section",
+          title: "Untitled Document",
           content: "",
           sectionColor: sectionColors[0],
         ),
@@ -98,7 +93,7 @@ class EditorProvider extends ChangeNotifier {
     descriptionController.clear();
 
     allBooks.add(newBook);
-    allBooks = allBooks..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    // allBooks = allBooks..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     activeBook = newBook;
     allBooksSection = newBook.sections;
     notifyListeners();
@@ -123,18 +118,17 @@ class EditorProvider extends ChangeNotifier {
   void setActiveSection(SectionModel section) {
     activeSection = section;
     saveStatus = "";
+    notifyListeners();
   }
 
   String getPreviewText(String content) {
     if (content.trim().isEmpty) return "";
     try {
-      // Try to parse the delta JSON
       var myJSON = jsonDecode(content);
       var doc = Document.fromJson(myJSON);
       String plainText = doc.toPlainText().replaceAll('\n', ' ').trim();
-      return plainText.isEmpty ? "" : plainText;
+      return plainText.isEmpty ? "Empty document" : plainText;
     } catch (e) {
-      // If it fails (e.g. it's already plain text), return it directly
       return content.replaceAll('\n', ' ').trim();
     }
   }
@@ -155,49 +149,42 @@ class EditorProvider extends ChangeNotifier {
     }
   }
 
-  void addSection(String title) {
+  // 🔥 UPDATED: Adds section and INSTANTLY switches the editor to it
+  void addSection(String title, {bool autoSelect = true}) {
     if (activeBook != null) {
       final newSection = SectionModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(), // Unique ID
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: title,
-        content: "",
+        content: "", // Empty writing
         sectionColor:
-            sectionColors[activeBook!.sections.length %
-                sectionColors.length], // Cycle colors
+            sectionColors[activeBook!.sections.length % sectionColors.length],
       );
-      activeBook!.sections.add(newSection);
-      activeBook!.sections = activeBook!.sections
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      // 🔥 FIX: Use insert(0, ...) instead of .add(...) to put it at the top
+      activeBook!.sections.insert(0, newSection);
       allBooksSection = activeBook!.sections;
-      notifyListeners();
+
+      if (autoSelect) {
+        forceSaveImmediately();
+        setActiveSection(newSection);
+        initEditor();
+      } else {
+        notifyListeners();
+      }
     }
+  }
+
+  void addSectionToActiveBook(String title) {
+    addSection(title, autoSelect: false); // Uses the main method above
   }
 
   void deleteBook(WritingModel book) {
     allBooks.removeWhere((b) => b.id == book.id);
-    // If we deleted the currently selected book, clear the section list
     if (activeBook?.id == book.id) {
       activeBook = null;
       allBooksSection = [];
     }
     notifyListeners();
-  }
-
-  // --- section OPERATIONS ---
-  void addSectionToActiveBook(String title) {
-    if (activeBook != null) {
-      final newSection = SectionModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: title,
-        content: "",
-        sectionColor:
-            sectionColors[activeBook!.sections.length %
-                sectionColors.length], // Cycle colors
-      );
-      activeBook!.sections.add(newSection);
-      allBooksSection = activeBook!.sections;
-      notifyListeners();
-    }
   }
 
   void renameSection(SectionModel section, String newTitle) {
@@ -214,7 +201,7 @@ class EditorProvider extends ChangeNotifier {
   }
 
   // ==========================================
-  // ORIGINAL EDITOR LOGIC
+  // EDITOR LOGIC
   // ==========================================
   void initEditor() {
     if (activeSection == null) return;
