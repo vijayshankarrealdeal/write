@@ -620,124 +620,132 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
     VoidCallback? onItemTap,
     ScrollController? scrollController,
   }) {
-    return ListView.separated(
-      controller: scrollController,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      itemCount: context.select<EditorProvider, int>(
-        (p) => p.allBooksSection.length,
-      ),
-      separatorBuilder: (context, index) => const SizedBox(height: 4),
-      itemBuilder: (ctx, idx) {
-        final provider = context.read<EditorProvider>();
-        final section = provider.allBooksSection[idx];
-        final isActive = provider.activeSection?.id == section.id;
+    return Consumer<EditorProvider>(
+      builder: (context, provider, _) {
+        final sections = provider.allBooksSection;
+        return ListView.separated(
+          controller: scrollController,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          itemCount: sections.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 4),
+          itemBuilder: (ctx, idx) {
+            final section = sections[idx];
+            final isActive = provider.activeSection?.id == section.id;
 
-        return Material(
-          color: isActive
-              ? (isDark
-                    ? Colors.white.withValues(alpha: 0.1)
-                    : Colors.black.withValues(alpha: 0.06))
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(10),
-            onTap: () {
-              if (!isActive) {
-                provider.forceSaveImmediately();
-                provider.setActiveSection(section);
-                provider.initEditor();
-                onItemTap?.call();
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              child: Row(
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: section.sectionColor,
-                      shape: BoxShape.circle,
-                    ),
+            return Material(
+              color: isActive
+                  ? (isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.black.withValues(alpha: 0.06))
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () {
+                  if (!isActive) {
+                    provider.forceSaveImmediately();
+                    provider.setActiveSection(section);
+                    provider.initEditor();
+                    onItemTap?.call();
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          section.title,
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: isActive
-                                ? FontWeight.w600
-                                : FontWeight.w500,
-                            color: isActive
-                                ? textColor
-                                : textColor.withValues(alpha: 0.8),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: section.sectionColor,
+                          shape: BoxShape.circle,
                         ),
-                        if (section.content.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            provider.getPreviewText(section.content),
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: textColor.withValues(alpha: 0.5),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              section.title,
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: isActive
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
+                                color: isActive
+                                    ? textColor
+                                    : textColor.withValues(alpha: 0.8),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            if (section.content.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                provider.getPreviewText(section.content),
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: textColor.withValues(alpha: 0.5),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      PopupMenuButton<String>(
+                        icon: Icon(
+                          CupertinoIcons.ellipsis_vertical,
+                          size: 16,
+                          color: textColor.withValues(alpha: 0.4),
+                        ),
+                        color: isDark ? const Color(0xFF1E1E20) : Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        onSelected: (value) {
+                          if (value == 'rename') {
+                            _showTextInputDialog(
+                              context: context,
+                              title: "Rename Document",
+                              initialValue: section.title,
+                              onSave: (val) =>
+                                  provider.renameSection(section, val),
+                            );
+                          } else if (value == 'delete') {
+                            provider.deleteSection(section);
+                            if (provider.allBooksSection.isEmpty) {
+                              Navigator.pop(context);
+                            }
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => [
+                          PopupMenuItem(
+                            value: 'rename',
+                            child:
+                                Text('Rename', style: GoogleFonts.inter()),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Text(
+                              'Delete',
+                              style:
+                                  GoogleFonts.inter(color: Colors.redAccent),
+                            ),
                           ),
                         ],
-                      ],
-                    ),
-                  ),
-                  PopupMenuButton<String>(
-                    icon: Icon(
-                      CupertinoIcons.ellipsis_vertical,
-                      size: 16,
-                      color: textColor.withValues(alpha: 0.4),
-                    ),
-                    color: isDark ? const Color(0xFF1E1E20) : Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    onSelected: (value) {
-                      if (value == 'rename') {
-                        _showTextInputDialog(
-                          context: context,
-                          title: "Rename Document",
-                          initialValue: section.title,
-                          onSave: (val) => provider.renameSection(section, val),
-                        );
-                      } else if (value == 'delete') {
-                        provider.deleteSection(section);
-                        if (provider.allBooksSection.isEmpty) {
-                          Navigator.pop(context);
-                        }
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => [
-                      PopupMenuItem(
-                        value: 'rename',
-                        child: Text('Rename', style: GoogleFonts.inter()),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Text(
-                          'Delete',
-                          style: GoogleFonts.inter(color: Colors.redAccent),
-                        ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );

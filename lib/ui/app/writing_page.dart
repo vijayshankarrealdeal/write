@@ -283,53 +283,53 @@ Widget _buildEmptyStateMobile(BuildContext context, bool isDark) {
   return Center(
     child: SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: CupertinoPageScaffold(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              CupertinoIcons.square_pencil,
-              size: 64,
-              color: isDark ? Colors.white24 : Colors.black12,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            CupertinoIcons.square_pencil,
+            size: 64,
+            color: isDark ? Colors.white24 : Colors.black12,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Start Your Journey",
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black87,
+              decoration: TextDecoration.none,
             ),
-            const SizedBox(height: 16),
-            Text(
-              "Start Your Journey",
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black87,
-              ),
-              textAlign: TextAlign.center,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Create your first project to begin writing",
+            style: GoogleFonts.inter(
+              color: isDark ? Colors.white54 : Colors.black45,
+              decoration: TextDecoration.none,
             ),
-            const SizedBox(height: 8),
-            Text(
-              "Create your first project to begin writing",
+            textAlign: TextAlign.center,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 24),
+          CupertinoButton(
+            color: isDark ? Colors.white : Colors.black,
+            onPressed: () => showCupertinoModalPopup(
+              context: context,
+              builder: (context) => const NewBookAddition(),
+            ),
+            child: Text(
+              "Create Project",
               style: GoogleFonts.inter(
-                color: isDark ? Colors.white54 : Colors.black45,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 24),
-            CupertinoButton(
-              color: isDark ? Colors.white : Colors.black,
-              onPressed: () => showCupertinoModalPopup(
-                context: context,
-                builder: (context) => const NewBookAddition(),
-              ),
-              child: Text(
-                "Create Project",
-                style: GoogleFonts.inter(
-                  color: isDark ? Colors.black : Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
+                color: isDark ? Colors.black : Colors.white,
+                fontWeight: FontWeight.w600,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     ),
   );
