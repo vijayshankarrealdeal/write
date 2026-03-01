@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:writer/services/storage_service.dart';
 
 class SettingsProvider extends ChangeNotifier {
+  final StorageService _storage;
+
+  SettingsProvider(this._storage) {
+    _loadSettings();
+  }
+
   // Application Theme State
   ThemeMode themeMode = ThemeMode.system;
 
@@ -16,10 +23,25 @@ class SettingsProvider extends ChangeNotifier {
     "Spanish",
     "French",
     "German",
+    "Chinese",
   ];
+
+  void _loadSettings() {
+    final mode = _storage.getThemeMode();
+    if (mode == 'dark')
+      themeMode = ThemeMode.dark;
+    else if (mode == 'light')
+      themeMode = ThemeMode.light;
+    else
+      themeMode = ThemeMode.system;
+
+    // Load others if implemented in storage...
+    notifyListeners();
+  }
 
   void toggleTheme(bool isDark) {
     themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+    _storage.saveThemeMode(isDark ? 'dark' : 'light');
     notifyListeners();
   }
 

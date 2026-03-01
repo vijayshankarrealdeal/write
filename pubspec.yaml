@@ -41,6 +41,11 @@ dependencies:
   cached_network_image: ^3.4.1
   iconify_flutter: ^0.0.7
   google_fonts: ^8.0.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  uuid: ^4.5.3
+  intl: ^0.20.2
+  flutter_svg: ^2.2.3
   
 dev_dependencies:
   flutter_test:

@@ -22,8 +22,10 @@ class SectionModel {
       id: json['id'],
       title: json['title'],
       content: json['content'],
-      sectionColor: Colors.primaries[Random().nextInt(Colors.primaries.length)]
-          .withAlpha(150),
+      sectionColor: json['sectionColor'] != null
+          ? Color(json['sectionColor'])
+          : Colors.primaries[Random().nextInt(Colors.primaries.length)]
+                .withAlpha(150),
       isSynced: json['isSynced'] ?? false,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
@@ -36,7 +38,7 @@ class SectionModel {
       'title': title,
       'content': content,
       'isSynced': isSynced,
-      'sectionColor': sectionColor.toARGB32(),
+      'sectionColor': sectionColor.value,
       'createdAt': createdAt.toIso8601String(),
     };
   }

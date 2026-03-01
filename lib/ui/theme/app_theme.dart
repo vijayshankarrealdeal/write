@@ -8,32 +8,34 @@ class MonochromeTheme {
       90.0; // For those elegant buttons in Image 3
 
   // ==========================================
-  // LIGHT THEME (Pure White & Deep Black)
+  // LIGHT THEME (Colorful & Modern)
   // ==========================================
   static ThemeData get lightTheme {
     final base = ThemeData.light();
 
-    // Core Colors
+    // Core Colors - More vibrant
     const Color bgWhite = Color(0xFFFFFFFF);
-    const Color surfaceGrey = Color(0xFFFAFAFA);
-    const Color borderGrey = Color(0xFFE5E5E5);
-    const Color textBlack = Color(0xFF111827);
-    const Color textSecondary = Color(0xFF6B7280);
+    const Color surfaceGrey = Color(0xFFF8F9FA);
+    const Color borderGrey = Color(0xFFE9ECEF);
+    const Color textBlack = Color(0xFF212529);
+    const Color textSecondary = Color(0xFF6C757D);
+    const Color accentBlue = Color(0xFF3B82F6); // Vibrant blue
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       scaffoldBackgroundColor: bgWhite,
 
-      // Forces the Material 3 engine to strictly use black/white/greys (Zero color tint)
+      // Colorful scheme
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.black,
+        seedColor: accentBlue,
         brightness: Brightness.light,
-        dynamicSchemeVariant: DynamicSchemeVariant.monochrome,
-        primary: textBlack,
-        onPrimary: bgWhite,
+        primary: accentBlue,
+        onPrimary: Colors.white,
         surface: bgWhite,
         onSurface: textBlack,
+        secondary: const Color(0xFF8B5CF6), // Purple accent
+        tertiary: const Color(0xFF10B981), // Green accent
       ),
 
       textTheme: GoogleFonts.interTextTheme(base.textTheme).copyWith(
@@ -55,6 +57,18 @@ class MonochromeTheme {
         space: 1,
       ),
 
+      // Dialog Theme
+      dialogTheme: DialogThemeData(
+        backgroundColor: bgWhite,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        titleTextStyle: GoogleFonts.inter(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: textBlack,
+        ),
+      ),
+
       cardTheme: CardThemeData(
         color: surfaceGrey,
         elevation: 0,
@@ -67,7 +81,7 @@ class MonochromeTheme {
       // Outlined buttons styled exactly like Image 3
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: textBlack,
+          foregroundColor: Colors.blueAccent, // Blue text
           side: const BorderSide(color: borderGrey, width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
@@ -83,8 +97,8 @@ class MonochromeTheme {
       // Solid contrasting buttons
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: textBlack,
-          foregroundColor: bgWhite,
+          backgroundColor: Colors.blueAccent, // Blue background
+          foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
@@ -118,32 +132,34 @@ class MonochromeTheme {
   }
 
   // ==========================================
-  // DARK THEME (Charcoal, Deep Black & White)
+  // DARK THEME (Colorful Dark Mode)
   // ==========================================
   static ThemeData get darkTheme {
     final base = ThemeData.dark();
 
-    // Core Colors based on your dark references
-    const Color bgDark = Color(0xFF111111); // Very dark grey/black
-    const Color surfaceDark = Color(0xFF1C1C1E); // Slightly lighter panel color
-    const Color borderDark = Color(0xFF333333); // Subtle divider lines
-    const Color textWhite = Color(0xFFF9FAFB); // Off-white for less eye strain
-    const Color textSecondary = Color(0xFFA1A1AA); // Muted grey text
+    // Core Colors - Vibrant dark theme
+    const Color bgDark = Color(0xFF0F172A); // Deep slate
+    const Color surfaceDark = Color(0xFF1E293B); // Lighter slate
+    const Color borderDark = Color(0xFF334155); // Border slate
+    const Color textWhite = Color(0xFFF1F5F9);
+    const Color textSecondary = Color(0xFF94A3B8);
+    const Color accentBlue = Color(0xFF60A5FA); // Lighter blue for dark mode
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: bgDark,
 
-      // Strictly monochrome Dark variant
+      // Colorful dark scheme
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.white,
+        seedColor: accentBlue,
         brightness: Brightness.dark,
-        dynamicSchemeVariant: DynamicSchemeVariant.monochrome,
-        primary: textWhite,
-        onPrimary: bgDark,
+        primary: accentBlue,
+        onPrimary: Colors.white,
         surface: surfaceDark,
         onSurface: textWhite,
+        secondary: const Color(0xFFA78BFA), // Purple
+        tertiary: const Color(0xFF34D399), // Green
       ),
 
       textTheme: GoogleFonts.interTextTheme(base.textTheme).copyWith(
@@ -180,14 +196,26 @@ class MonochromeTheme {
         ),
       ),
 
+      // Dialog Theme
+      dialogTheme: DialogThemeData(
+        backgroundColor: surfaceDark,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        titleTextStyle: GoogleFonts.inter(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: textWhite,
+        ),
+      ),
+
       // Recreating the elegant pill buttons from Image 3
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: textWhite,
+          foregroundColor: Colors.blueAccent, // Blue Text
           side: const BorderSide(
-            color: textWhite,
+            color: Colors.blueAccent, // Blue Border
             width: 1.0,
-          ), // Stark white border
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(_pillRadius),
@@ -202,8 +230,8 @@ class MonochromeTheme {
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: textWhite,
-          foregroundColor: bgDark,
+          backgroundColor: Colors.blueAccent, // Blue Button
+          foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(

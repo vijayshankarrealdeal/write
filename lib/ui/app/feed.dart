@@ -17,7 +17,7 @@ class _FeedState extends State<Feed> {
   Widget build(BuildContext context) {
     // Premium adaptive colors
     final textColor = isDark ? Colors.white : Colors.black;
-    final bgColor = isDark ? const Color(0xFF0E0E10) : const Color(0xFFF5F5F7);
+    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAFA);
 
     return Scaffold(
       backgroundColor: bgColor, // Deep, premium background color

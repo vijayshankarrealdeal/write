@@ -2,14 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:writer/provider/settings_provider.dart'; // Make sure this path is correct
+import 'package:writer/provider/settings_provider.dart';
+import 'package:writer/provider/auth_provider.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   void _confirmLogout(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
@@ -33,7 +32,7 @@ class SettingsPage extends StatelessWidget {
             isDestructiveAction: true,
             onPressed: () {
               Navigator.pop(context);
-              // Handle Logout
+              context.read<AuthProvider>().logout(); // Call logout
             },
             child: const Text("Logout"),
           ),
@@ -46,10 +45,10 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black;
-    final cardColor = isDark ? const Color(0xFF161618) : Colors.white;
+    final cardColor = isDark ? const Color(0xFF1E293B) : Colors.white;
     final subtleBorder = isDark
-        ? Colors.white.withValues(alpha: 0.08)
-        : Colors.black.withValues(alpha: 0.08);
+        ? Colors.white.withValues(alpha: 0.1)
+        : Colors.black.withValues(alpha: 0.1);
 
     return Scaffold(
       backgroundColor: Colors.transparent, // Background handled by main layout
@@ -299,8 +298,9 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0E0E10) : const Color(0xFFF9F9FB);
+    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAFA);
     final textColor = isDark ? Colors.white : Colors.black;
+    final user = context.watch<AuthProvider>().currentUser;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -324,26 +324,78 @@ class ProfilePage extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             children: [
               Center(
-                child: CircleAvatar(
-                  radius: 48,
-                  backgroundColor: isDark
-                      ? Colors.white.withValues(alpha: 0.05)
-                      : Colors.black.withValues(alpha: 0.05),
-                  child: Icon(
-                    CupertinoIcons.person,
-                    size: 40,
-                    color: textColor.withValues(alpha: 0.5),
-                  ),
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 58,
+                      backgroundColor: Colors.blueAccent.withValues(alpha: 0.1),
+                      child: CircleAvatar(
+                        radius: 55,
+                        backgroundColor: Colors.blueAccent.withValues(
+                          alpha: 0.2,
+                        ),
+                        child: Text(
+                          user?.name.substring(0, 1).toUpperCase() ?? 'U',
+                          style: GoogleFonts.inter(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: bgColor, width: 3),
+                        ),
+                        child: const Icon(
+                          CupertinoIcons.camera,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 40),
-              _buildTextField("Full Name", "John Doe", isDark, textColor),
+              _buildTextField(
+                "Full Name",
+                user?.name ?? "User",
+                isDark,
+                textColor,
+              ),
               const SizedBox(height: 16),
               _buildTextField(
                 "Email Address",
-                "john.doe@example.com",
+                user?.email ?? "user@example.com",
                 isDark,
                 textColor,
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  "Save Changes",
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
               ),
             ],
           ),
@@ -363,24 +415,28 @@ class ProfilePage extends StatelessWidget {
       style: GoogleFonts.inter(color: textColor),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.inter(color: textColor.withValues(alpha: 0.4)),
+        labelStyle: GoogleFonts.inter(color: textColor.withValues(alpha: 0.5)),
         filled: true,
-        fillColor: isDark ? const Color(0xFF161618) : Colors.white,
+        fillColor: isDark ? const Color(0xFF1E293B) : Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
             color: isDark
-                ? Colors.white.withValues(alpha: 0.08)
-                : Colors.black.withValues(alpha: 0.08),
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
             color: isDark
-                ? Colors.white.withValues(alpha: 0.08)
-                : Colors.black.withValues(alpha: 0.08),
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
           ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
         ),
       ),
     );
@@ -393,7 +449,7 @@ class LanguagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0E0E10) : const Color(0xFFF9F9FB);
+    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAFA);
     final textColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(

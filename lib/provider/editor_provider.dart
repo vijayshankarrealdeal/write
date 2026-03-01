@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:writer/models/writing_model.dart';
 import 'package:writer/models/section_model.dart';
+import 'package:writer/services/storage_service.dart';
 
 class EditorProvider extends ChangeNotifier {
-  EditorProvider() {
+  final StorageService _storage;
+
+  EditorProvider(this._storage) {
     loadBooks();
   }
 
@@ -55,8 +58,13 @@ class EditorProvider extends ChangeNotifier {
 
   void loadBooks() async {
     bookLoadingData = true;
-    allBooks = [];
-    await Future.delayed(const Duration(milliseconds: 400));
+    notifyListeners(); // Notify before loading
+
+    // Load from storage
+    allBooks = _storage.getBooks();
+
+    // If empty, maybe create a default notebook or just leave empty
+
     bookLoadingData = false;
     notifyListeners();
   }
@@ -83,7 +91,7 @@ class EditorProvider extends ChangeNotifier {
       sections: [
         SectionModel(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
-          title: "Untitled Document",
+          title: "Untitled Section",
           content: "",
           sectionColor: sectionColors[0],
         ),
@@ -93,10 +101,29 @@ class EditorProvider extends ChangeNotifier {
     descriptionController.clear();
 
     allBooks.add(newBook);
-    // allBooks = allBooks..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    _storage.saveBooks(allBooks); // Save to storage
+
     activeBook = newBook;
     allBooksSection = newBook.sections;
     notifyListeners();
+  }
+
+  void deleteBook(WritingModel book) {
+    allBooks.remove(book);
+    _storage.saveBooks(allBooks); // Save to storage
+    if (activeBook == book) {
+      activeBook = null;
+      allBooksSection = [];
+    }
+    notifyListeners();
+  }
+
+  void renameBook(String newTitle) {
+    if (activeBook != null) {
+      activeBook!.title = newTitle;
+      _storage.saveBooks(allBooks);
+      notifyListeners();
+    }
   }
 
   void loadSection(WritingModel book) async {
@@ -133,29 +160,15 @@ class EditorProvider extends ChangeNotifier {
     }
   }
 
-  void renameBook(String newTitle) {
-    if (activeBook != null) {
-      activeBook!.title = newTitle;
-      notifyListeners();
-    }
-  }
-
-  void deleteActiveBook() {
-    if (activeBook != null) {
-      allBooks.removeWhere((b) => b.id == activeBook!.id);
-      activeBook = null;
-      allBooksSection = [];
-      notifyListeners();
-    }
-  }
-
   // 🔥 UPDATED: Adds section and INSTANTLY switches the editor to it
   void addSection(String title, {bool autoSelect = true}) {
     if (activeBook != null) {
       final newSection = SectionModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: title,
-        content: "", // Empty writing
+        content: jsonEncode([
+          {"insert": "\n"},
+        ]), // Init with empty delta
         sectionColor:
             sectionColors[activeBook!.sections.length % sectionColors.length],
       );
@@ -163,6 +176,7 @@ class EditorProvider extends ChangeNotifier {
       // 🔥 FIX: Use insert(0, ...) instead of .add(...) to put it at the top
       activeBook!.sections.insert(0, newSection);
       allBooksSection = activeBook!.sections;
+      _storage.saveBooks(allBooks); // Save
 
       if (autoSelect) {
         forceSaveImmediately();
@@ -178,17 +192,9 @@ class EditorProvider extends ChangeNotifier {
     addSection(title, autoSelect: false); // Uses the main method above
   }
 
-  void deleteBook(WritingModel book) {
-    allBooks.removeWhere((b) => b.id == book.id);
-    if (activeBook?.id == book.id) {
-      activeBook = null;
-      allBooksSection = [];
-    }
-    notifyListeners();
-  }
-
   void renameSection(SectionModel section, String newTitle) {
     section.title = newTitle;
+    _storage.saveBooks(allBooks); // Save
     notifyListeners();
   }
 
@@ -196,6 +202,10 @@ class EditorProvider extends ChangeNotifier {
     if (activeBook != null) {
       activeBook!.sections.removeWhere((c) => c.id == section.id);
       allBooksSection = activeBook!.sections;
+      _storage.saveBooks(allBooks); // Save
+      if (activeSection?.id == section.id) {
+        activeSection = null;
+      }
       notifyListeners();
     }
   }
@@ -208,6 +218,7 @@ class EditorProvider extends ChangeNotifier {
     try {
       String jsonString = activeSection!.content;
       if (jsonString.trim().isEmpty) {
+        // Initialize with default delta if empty string
         controller = QuillController.basic();
       } else {
         var myJSON = jsonDecode(jsonString);
@@ -217,6 +228,7 @@ class EditorProvider extends ChangeNotifier {
         );
       }
     } catch (e) {
+      // Fallback for plain text or errors
       controller = QuillController(
         document: Document()..insert(0, '${activeSection!.content}\n'),
         selection: const TextSelection.collapsed(offset: 0),
@@ -227,7 +239,8 @@ class EditorProvider extends ChangeNotifier {
     _docSubscription = controller.document.changes.listen((event) {
       _onUserTyped();
     });
-    notifyListeners();
+    // Don't notify listeners here if called from build or init state to avoid errors
+    // notifyListeners();
   }
 
   void _onUserTyped() {
@@ -246,6 +259,7 @@ class EditorProvider extends ChangeNotifier {
     saveStatus = "Saving...";
     notifyListeners();
     activeSection!.content = dumpData();
+    _storage.saveBooks(allBooks); // Save to storage
     saveStatus = "Saved";
     notifyListeners();
   }

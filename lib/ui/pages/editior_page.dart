@@ -37,14 +37,14 @@ class _EditiorPageState extends State<EditiorPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0E0E10) : const Color(0xFFF9F9FB);
+    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAFA);
     final sidebarColor = isDark
-        ? const Color(0xFF161618)
+        ? const Color(0xFF1E293B)
         : const Color(0xFFF0F0F3);
     final textColor = isDark ? Colors.white : Colors.black;
     final subtleBorder = isDark
-        ? Colors.white.withValues(alpha: 0.08)
-        : Colors.black.withValues(alpha: 0.08);
+        ? Colors.white.withValues(alpha: 0.1)
+        : Colors.black.withValues(alpha: 0.1);
 
     return PopScope(
       canPop: true,
@@ -74,7 +74,7 @@ class _EditiorPageState extends State<EditiorPage> {
                           const SizedBox(width: 8),
                           IconButton(
                             icon: Icon(
-                              CupertinoIcons.back,
+                              Icons.arrow_back,
                               size: 20,
                               color: textColor,
                             ),
@@ -153,18 +153,29 @@ class _EditiorPageState extends State<EditiorPage> {
 
                                 // Quill Toolbar (Takes remaining space and scrolls itself)
                                 Expanded(
-                                  child: QuillSimpleToolbar(
-                                    controller: context
-                                        .read<EditorProvider>()
-                                        .controller,
-                                    config: const QuillSimpleToolbarConfig(
-                                      multiRowsDisplay: false,
-                                      showAlignmentButtons: true,
-                                      showCenterAlignment: true,
-                                      showLink: false,
-                                      showInlineCode: false,
-                                      showSearchButton:
-                                          false, // Turn off if it clutters
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.05)
+                                          : Colors.black.withValues(
+                                              alpha: 0.04,
+                                            ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: QuillSimpleToolbar(
+                                      controller: context
+                                          .read<EditorProvider>()
+                                          .controller,
+                                      config: const QuillSimpleToolbarConfig(
+                                        multiRowsDisplay: false,
+                                        showAlignmentButtons: true,
+                                        showCenterAlignment: true,
+                                        showLink: false,
+                                        showInlineCode: false,
+                                        showSearchButton:
+                                            false, // Turn off if it clutters
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -229,22 +240,22 @@ class _EditiorPageState extends State<EditiorPage> {
                               vertical: 0,
                             ),
                             minSize: 32,
-                            color: textColor,
+                            color: Colors.blueAccent,
                             borderRadius: BorderRadius.circular(16),
                             child: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   CupertinoIcons.add,
                                   size: 12,
-                                  color: bgColor,
+                                  color: Colors.white,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  "New Document",
+                                  "New Section",
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: bgColor,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],
@@ -253,9 +264,9 @@ class _EditiorPageState extends State<EditiorPage> {
                               final provider = context.read<EditorProvider>();
                               _showTextInputDialog(
                                 context: context,
-                                title: "New Document Name",
+                                title: "New Section Name",
                                 initialValue:
-                                    "Document ${provider.allBooksSection.length + 1}",
+                                    "Section ${provider.allBooksSection.length + 1}",
                                 onSave: (val) =>
                                     provider.addSection(val, autoSelect: true),
                               );

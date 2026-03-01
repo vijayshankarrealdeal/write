@@ -6,33 +6,39 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import 'package:writer/provider/auth_provider.dart';
 import 'package:writer/provider/editor_provider.dart';
 import 'package:writer/provider/nav_provider.dart';
-import 'package:writer/provider/settings_provider.dart'; // Add this import
+import 'package:writer/provider/settings_provider.dart';
+import 'package:writer/services/storage_service.dart';
 import 'package:writer/ui/app/feed.dart';
 import 'package:writer/ui/app/settings.dart';
 import 'package:writer/ui/app/writing_page.dart';
+import 'package:writer/ui/auth/auth_gate.dart';
 import 'package:writer/ui/pages/new_book_addition.dart';
 import 'package:writer/ui/theme/app_theme.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final storage = StorageService();
+  await storage.init();
+  runApp(MyApp(storage: storage));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final StorageService storage;
+  const MyApp({super.key, required this.storage});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<StorageService>.value(value: storage),
         ChangeNotifierProvider(create: (_) => NavProvider()),
-        ChangeNotifierProvider(lazy: false, create: (_) => EditorProvider()),
-        ChangeNotifierProvider(
-          create: (_) => SettingsProvider(),
-        ), // Register SettingsProvider
+        ChangeNotifierProvider(create: (_) => AuthProvider(storage)),
+        ChangeNotifierProvider(create: (_) => EditorProvider(storage)),
+        ChangeNotifierProvider(create: (_) => SettingsProvider(storage)),
       ],
-      // Consume SettingsProvider here to listen to Theme changes dynamically
       child: Consumer<SettingsProvider>(
         builder: (context, settingsProvider, child) {
           return MaterialApp(
@@ -44,11 +50,10 @@ class MyApp extends StatelessWidget {
             ],
             title: "Writer",
             debugShowCheckedModeBanner: false,
-            // Bind themeMode to our new provider
             themeMode: settingsProvider.themeMode,
             theme: MonochromeTheme.lightTheme,
             darkTheme: MonochromeTheme.darkTheme,
-            home: const HomePage(),
+            home: const AuthGate(),
           );
         },
       ),
