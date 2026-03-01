@@ -153,7 +153,10 @@ class EditorProvider extends ChangeNotifier {
         if (!section.isSynced) {
           try {
             await _firestore.updateSectionContent(
-              uid, book.id, section.id, section.content,
+              uid,
+              book.id,
+              section.id,
+              section.content,
             );
             section.isSynced = true;
           } catch (_) {
@@ -188,7 +191,9 @@ class EditorProvider extends ChangeNotifier {
         SectionModel(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           title: "Untitled Section",
-          content: jsonEncode([{"insert": "\n"}]),
+          content: jsonEncode([
+            {"insert": "\n"},
+          ]),
           sectionColor: sectionColors[0],
         ),
       ],
@@ -300,7 +305,9 @@ class EditorProvider extends ChangeNotifier {
     final newSection = SectionModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
-      content: jsonEncode([{"insert": "\n"}]),
+      content: jsonEncode([
+        {"insert": "\n"},
+      ]),
       sectionColor:
           sectionColors[activeBook!.sections.length % sectionColors.length],
     );
@@ -338,7 +345,12 @@ class EditorProvider extends ChangeNotifier {
     final uid = _userId;
     if (uid != null && activeBook != null) {
       try {
-        await _firestore.renameSection(uid, activeBook!.id, section.id, newTitle);
+        await _firestore.renameSection(
+          uid,
+          activeBook!.id,
+          section.id,
+          newTitle,
+        );
       } catch (_) {}
     }
     await _storage.saveBooks(allBooks);
@@ -498,6 +510,17 @@ class EditorProvider extends ChangeNotifier {
   String dumpData() {
     final deltaJson = controller.document.toDelta().toJson();
     return jsonEncode(deltaJson);
+  }
+
+  /// Publsh the current book to the public feed.
+  Future<void> publishActiveBook() async {
+    final user = _auth.currentUser;
+    final book = activeBook;
+
+    if (user == null) throw Exception("User not logged in");
+    if (book == null) throw Exception("No active book");
+
+    await _firestore.publishToFeed(book, user);
   }
 
   /// Reset all editor state on logout so stale data doesn't linger.

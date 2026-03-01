@@ -45,13 +45,10 @@ class FirestoreService {
 
   /// Create or overwrite user profile. Use batched write if updating multiple.
   Future<void> setUser(User user) async {
-    await _firestore.doc('$_users/${user.id}').set(
-          {
-            ...user.toJson(),
-            'updatedAt': FieldValue.serverTimestamp(),
-          },
-          SetOptions(merge: true),
-        );
+    await _firestore.doc('$_users/${user.id}').set({
+      ...user.toJson(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
   /// Single read for full user data (profile + preferences + likes).
@@ -82,7 +79,10 @@ class FirestoreService {
   }
 
   /// Optimized: update only changed fields (reduces write cost).
-  Future<void> updateUserPreferences(String userId, UserPreferences prefs) async {
+  Future<void> updateUserPreferences(
+    String userId,
+    UserPreferences prefs,
+  ) async {
     await _firestore.doc('$_users/$userId').update({
       'onboardingData': prefs.toJson(),
       'updatedAt': FieldValue.serverTimestamp(),
@@ -90,13 +90,34 @@ class FirestoreService {
   }
 
   /// Mark onboarding complete and save preferences.
-  Future<void> completeOnboarding(
-      String userId, UserPreferences prefs) async {
+  Future<void> completeOnboarding(String userId, UserPreferences prefs) async {
     await _firestore.doc('$_users/$userId').update({
       'onboardingComplete': true,
       'onboardingData': prefs.toJson(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  /// Publish a writing to the public feed.
+  Future<void> publishToFeed(WritingModel writing, User author) async {
+    final feedItem = FeedItemModel(
+      id: writing.id,
+      title: writing.title,
+      author: author.name,
+      authorId: author.id,
+      description: writing.description,
+      imageUrl: writing.coverImagePath,
+      genres: writing.subtype.isNotEmpty ? [writing.subtype] : [],
+      writingTypes: [writing.writingType.displayName],
+      tags: [],
+      createdAt: DateTime.now(),
+      likesCount: 0,
+    );
+
+    await _firestore
+        .collection(_feedItems)
+        .doc(feedItem.id) // Use writing ID as feed item ID for easy updates
+        .set(feedItem.toJson());
   }
 
   /// Add like - batch: update user.likes + feed_item.likesCount.
@@ -114,9 +135,7 @@ class FirestoreService {
         'likes': FieldValue.arrayUnion([feedItemId]),
         'updatedAt': FieldValue.serverTimestamp(),
       });
-      tx.update(itemRef, {
-        'likesCount': FieldValue.increment(1),
-      });
+      tx.update(itemRef, {'likesCount': FieldValue.increment(1)});
     });
   }
 
@@ -130,9 +149,7 @@ class FirestoreService {
         'likes': FieldValue.arrayRemove([feedItemId]),
         'updatedAt': FieldValue.serverTimestamp(),
       });
-      tx.update(itemRef, {
-        'likesCount': FieldValue.increment(-1),
-      });
+      tx.update(itemRef, {'likesCount': FieldValue.increment(-1)});
     });
   }
 
@@ -165,10 +182,12 @@ class FirestoreService {
           .orderBy('createdAt', descending: true)
           .limit(limit)
           .snapshots()
-          .map((snap) => snap.docs.map((d) {
-                final converted = _convertFeedItemTimestamps(d.data());
-                return FeedItemModel.fromJson({...converted, 'id': d.id});
-              }).toList());
+          .map(
+            (snap) => snap.docs.map((d) {
+              final converted = _convertFeedItemTimestamps(d.data());
+              return FeedItemModel.fromJson({...converted, 'id': d.id});
+            }).toList(),
+          );
     }
 
     // Use first 10 genres for array-contains-any (Firestore limit).
@@ -179,10 +198,12 @@ class FirestoreService {
           .orderBy('createdAt', descending: true)
           .limit(limit)
           .snapshots()
-          .map((snap) => snap.docs.map((d) {
-                final converted = _convertFeedItemTimestamps(d.data());
-                return FeedItemModel.fromJson({...converted, 'id': d.id});
-              }).toList());
+          .map(
+            (snap) => snap.docs.map((d) {
+              final converted = _convertFeedItemTimestamps(d.data());
+              return FeedItemModel.fromJson({...converted, 'id': d.id});
+            }).toList(),
+          );
     }
 
     return _firestore
@@ -191,10 +212,12 @@ class FirestoreService {
         .orderBy('createdAt', descending: true)
         .limit(limit)
         .snapshots()
-        .map((snap) => snap.docs.map((d) {
-              final converted = _convertFeedItemTimestamps(d.data());
-              return FeedItemModel.fromJson({...converted, 'id': d.id});
-            }).toList());
+        .map(
+          (snap) => snap.docs.map((d) {
+            final converted = _convertFeedItemTimestamps(d.data());
+            return FeedItemModel.fromJson({...converted, 'id': d.id});
+          }).toList(),
+        );
   }
 
   /// One-time fetch for initial load (no stream).
@@ -360,7 +383,9 @@ class FirestoreService {
   }
 
   Future<WritingModel?> _writingDocToModel(
-      String userId, DocumentSnapshot doc) async {
+    String userId,
+    DocumentSnapshot doc,
+  ) async {
     final data = doc.data() as Map<String, dynamic>?;
     if (data == null) return null;
     final sectionIds = List<String>.from(data['sectionIds'] ?? []);
@@ -396,7 +421,9 @@ class FirestoreService {
       id: id,
       title: data['title'] ?? '',
       content: data['content'] ?? '',
-      sectionColor: Color((data['sectionColor'] as num?)?.toInt() ?? 0xFF1982C4),
+      sectionColor: Color(
+        (data['sectionColor'] as num?)?.toInt() ?? 0xFF1982C4,
+      ),
       createdAt: _parseTimestamp(data['createdAt']) ?? updatedAt,
       updatedAt: updatedAt,
       isSynced: true,
@@ -456,16 +483,13 @@ class FirestoreService {
   ) async {
     await _firestore
         .doc('$_users/$userId/$_writings/$writingId/$_sections/$sectionId')
-        .set(
-      {
-        'content': content,
-        'updatedAt': FieldValue.serverTimestamp(),
-      },
-      SetOptions(merge: true),
-    );
-    await _firestore
-        .doc('$_users/$userId/$_writings/$writingId')
-        .update({'updatedAt': FieldValue.serverTimestamp()});
+        .set({
+          'content': content,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+    await _firestore.doc('$_users/$userId/$_writings/$writingId').update({
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   /// Add new section: write section doc + update writing metadata.
@@ -475,8 +499,7 @@ class FirestoreService {
     SectionModel section,
   ) async {
     final batch = _firestore.batch();
-    final writingRef =
-        _firestore.doc('$_users/$userId/$_writings/$writingId');
+    final writingRef = _firestore.doc('$_users/$userId/$_writings/$writingId');
     final sectionRef = writingRef.collection(_sections).doc(section.id);
 
     batch.set(sectionRef, {
@@ -501,10 +524,7 @@ class FirestoreService {
   ) async {
     await _firestore
         .doc('$_users/$userId/$_writings/$writingId/$_sections/$sectionId')
-        .update({
-      'title': newTitle,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+        .update({'title': newTitle, 'updatedAt': FieldValue.serverTimestamp()});
   }
 
   /// Delete section: delete section doc + remove from writing metadata.
@@ -514,8 +534,7 @@ class FirestoreService {
     String sectionId,
   ) async {
     final batch = _firestore.batch();
-    final writingRef =
-        _firestore.doc('$_users/$userId/$_writings/$writingId');
+    final writingRef = _firestore.doc('$_users/$userId/$_writings/$writingId');
     final sectionRef = writingRef.collection(_sections).doc(sectionId);
 
     batch.delete(sectionRef);
@@ -533,7 +552,9 @@ class FirestoreService {
     String? title,
     String? description,
   }) async {
-    final updates = <String, dynamic>{'updatedAt': FieldValue.serverTimestamp()};
+    final updates = <String, dynamic>{
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
     if (title != null) updates['title'] = title;
     if (description != null) updates['description'] = description;
     await _firestore

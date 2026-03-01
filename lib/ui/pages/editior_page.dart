@@ -257,19 +257,44 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                                                     controller: context
                                                         .read<EditorProvider>()
                                                         .controller,
-                                                    config:
-                                                        const QuillSimpleToolbarConfig(
-                                                          multiRowsDisplay:
-                                                              false,
-                                                          showAlignmentButtons:
-                                                              true,
-                                                          showCenterAlignment:
-                                                              true,
-                                                          showLink: false,
-                                                          showInlineCode: false,
-                                                          showSearchButton:
-                                                              false,
+                                                    config: QuillSimpleToolbarConfig(
+                                                      multiRowsDisplay: false,
+                                                      showAlignmentButtons:
+                                                          true,
+                                                      showCenterAlignment: true,
+                                                      showLink: false,
+                                                      showInlineCode: false,
+                                                      showSearchButton: false,
+                                                      buttonOptions: QuillSimpleToolbarButtonOptions(
+                                                        base: QuillToolbarBaseButtonOptions(
+                                                          iconTheme: QuillIconTheme(
+                                                            iconButtonSelectedData: IconButtonData(
+                                                              style: IconButton.styleFrom(
+                                                                backgroundColor:
+                                                                    Colors.blue
+                                                                        .withValues(
+                                                                          alpha:
+                                                                              0.1,
+                                                                        ),
+                                                                foregroundColor:
+                                                                    Colors.blue,
+                                                                shape:
+                                                                    const CircleBorder(),
+                                                              ),
+                                                              color:
+                                                                  Colors.blue,
+                                                            ),
+                                                            iconButtonUnselectedData:
+                                                                IconButtonData(
+                                                                  style: IconButton.styleFrom(
+                                                                    shape:
+                                                                        const CircleBorder(),
+                                                                  ),
+                                                                ),
+                                                          ),
                                                         ),
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
                                               );
@@ -282,6 +307,70 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                           ),
 
                           // Vertical Separator
+                          Container(
+                            width: 1,
+                            height: 24,
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            color: subtleBorder,
+                          ),
+
+                          // Publish Button
+                          CupertinoButton(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            onPressed: () async {
+                              final provider = context.read<EditorProvider>();
+                              if (provider.activeBook == null) return;
+
+                              try {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Publishing..."),
+                                  ),
+                                );
+                                await provider.publishActiveBook();
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Published to Feed!"),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("Failed to publish: $e"),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            child: Row(
+                              children: [
+                                Icon(
+                                  CupertinoIcons.share_up,
+                                  size: 18,
+                                  color: textColor.withValues(alpha: 0.7),
+                                ),
+                                if (!Breakpoints.isMobile(
+                                  MediaQuery.sizeOf(context).width,
+                                )) ...[
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    "Publish",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: textColor.withValues(alpha: 0.7),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+
                           Container(
                             width: 1,
                             height: 24,
@@ -335,11 +424,11 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                               );
                             },
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 18),
                           Breakpoints.isMobile(MediaQuery.sizeOf(context).width)
                               ? CupertinoButton(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
+                                    horizontal: 14,
                                     vertical: 0,
                                   ),
                                   minSize: 32,
@@ -356,7 +445,7 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                                 )
                               : CupertinoButton(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
+                                    horizontal: 8,
                                     vertical: 0,
                                   ),
                                   minSize: 32,
@@ -371,7 +460,7 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                                             ? Colors.black
                                             : Colors.white,
                                       ),
-                                      const SizedBox(width: 4),
+                                      const SizedBox(width: 14),
                                       Text(
                                         "New Section",
                                         style: GoogleFonts.inter(
@@ -439,13 +528,37 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                                 controller: context
                                     .read<EditorProvider>()
                                     .controller,
-                                config: const QuillSimpleToolbarConfig(
+                                config: QuillSimpleToolbarConfig(
                                   multiRowsDisplay: false,
                                   showAlignmentButtons: true,
                                   showCenterAlignment: true,
                                   showLink: false,
                                   showInlineCode: false,
                                   showSearchButton: false,
+                                  buttonOptions:
+                                      QuillSimpleToolbarButtonOptions(
+                                        base: QuillToolbarBaseButtonOptions(
+                                          iconTheme: QuillIconTheme(
+                                            iconButtonSelectedData:
+                                                IconButtonData(
+                                                  style: IconButton.styleFrom(
+                                                    backgroundColor: Colors.blue
+                                                        .withValues(alpha: 0.1),
+                                                    foregroundColor:
+                                                        Colors.blue,
+                                                    shape: const CircleBorder(),
+                                                  ),
+                                                  color: Colors.blue,
+                                                ),
+                                            iconButtonUnselectedData:
+                                                IconButtonData(
+                                                  style: IconButton.styleFrom(
+                                                    shape: const CircleBorder(),
+                                                  ),
+                                                ),
+                                          ),
+                                        ),
+                                      ),
                                 ),
                               ),
                             ),
