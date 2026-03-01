@@ -4,6 +4,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:writer/provider/editor_provider.dart';
+import 'package:writer/ui/utilities/responsive_layout.dart';
 
 class EditiorPage extends StatefulWidget {
   const EditiorPage({super.key});
@@ -37,9 +38,9 @@ class _EditiorPageState extends State<EditiorPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAFA);
+    final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
     final sidebarColor = isDark
-        ? const Color(0xFF1E293B)
+        ? const Color(0xFF1A1A1A)
         : const Color(0xFFF0F0F3);
     final textColor = isDark ? Colors.white : Colors.black;
     final subtleBorder = isDark
@@ -53,6 +54,27 @@ class _EditiorPageState extends State<EditiorPage> {
       },
       child: Scaffold(
         backgroundColor: bgColor,
+        floatingActionButton: Breakpoints.isMobile(MediaQuery.sizeOf(context).width)
+            ? Padding(
+                padding: const EdgeInsets.only(bottom: 64),
+                child: FloatingActionButton(
+                  onPressed: () {
+                    final provider = context.read<EditorProvider>();
+                    _showTextInputDialog(
+                      context: context,
+                      title: "New Section Name",
+                      initialValue:
+                          "Section ${provider.allBooksSection.length + 1}",
+                      onSave: (val) =>
+                          provider.addSection(val, autoSelect: true),
+                    );
+                  },
+                  backgroundColor: isDark ? Colors.white : Colors.black87,
+                  foregroundColor: isDark ? Colors.black : Colors.white,
+                  child: const Icon(CupertinoIcons.add, size: 28),
+                ),
+              )
+            : null,
         body: SafeArea(
           bottom: false,
           child: _isReady
@@ -85,102 +107,130 @@ class _EditiorPageState extends State<EditiorPage> {
                               Navigator.pop(context);
                             },
                           ),
-                          IconButton(
-                            icon: Icon(
-                              context.watch<EditorProvider>().showSectionsList
-                                  ? CupertinoIcons.sidebar_left
-                                  : CupertinoIcons.sidebar_right,
-                              size: 20,
-                              color: textColor,
+                          if (Breakpoints.isMobile(MediaQuery.sizeOf(context).width))
+                            IconButton(
+                              icon: Icon(
+                                CupertinoIcons.list_bullet,
+                                size: 20,
+                                color: textColor,
+                              ),
+                              tooltip: "All Sections",
+                              onPressed: () => _showSectionsSheet(
+                                context,
+                                textColor,
+                                isDark,
+                                subtleBorder,
+                                sidebarColor,
+                              ),
                             ),
-                            tooltip: "Toggle Sidebar",
-                            onPressed: () => context
-                                .read<EditorProvider>()
-                                .toggleShowSections(),
-                          ),
+                          if (!Breakpoints.isMobile(MediaQuery.sizeOf(context).width))
+                            IconButton(
+                              icon: Icon(
+                                context.watch<EditorProvider>().showSectionsList
+                                    ? CupertinoIcons.sidebar_left
+                                    : CupertinoIcons.sidebar_right,
+                                size: 20,
+                                color: textColor,
+                              ),
+                              tooltip: "Toggle Sidebar",
+                              onPressed: () => context
+                                  .read<EditorProvider>()
+                                  .toggleShowSections(),
+                            ),
 
                           // Vertical Separator
-                          Container(
-                            width: 1,
-                            height: 24,
-                            margin: const EdgeInsets.symmetric(horizontal: 8),
-                            color: subtleBorder,
-                          ),
+                          if (!Breakpoints.isMobile(MediaQuery.sizeOf(context).width))
+                            Container(
+                              width: 1,
+                              height: 24,
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                              color: subtleBorder,
+                            ),
 
-                          // 2. CENTER: Ask AI + Quill Toolbar
+                          // 2. CENTER: Ask AI (desktop) or spacer (mobile - AI moved to right)
                           Expanded(
-                            child: Row(
-                              children: [
-                                // Ask AI Button
-                                CupertinoButton(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                  ),
-                                  onPressed: () {
-                                    // Trigger AI
-                                  },
-                                  child: Row(
+                            child: Breakpoints.isMobile(MediaQuery.sizeOf(context).width)
+                                ? const SizedBox.shrink()
+                                : Row(
                                     children: [
-                                      Icon(
-                                        CupertinoIcons.sparkles,
-                                        size: 16,
-                                        color: isDark
-                                            ? Colors.purpleAccent
-                                            : Colors.deepPurple,
+                                      // Ask AI Button
+                                      CupertinoButton(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        onPressed: () {
+                                          // Trigger AI
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              CupertinoIcons.sparkles,
+                                              size: 16,
+                                              color: isDark
+                                                  ? Colors.purpleAccent
+                                                  : Colors.deepPurple,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              "Ask AI",
+                                              style: GoogleFonts.inter(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                                color: isDark
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        "Ask AI",
-                                        style: GoogleFonts.inter(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: isDark
-                                              ? Colors.white
-                                              : Colors.black,
+
+                                      // Vertical Separator
+                                      Container(
+                                        width: 1,
+                                        height: 24,
+                                        margin: const EdgeInsets.only(right: 8),
+                                        color: subtleBorder,
+                                      ),
+
+                                      // Quill Toolbar (Takes remaining space and scrolls itself)
+                                      Expanded(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: isDark
+                                                ? Colors.white.withValues(alpha: 0.05)
+                                                : Colors.black.withValues(
+                                                    alpha: 0.04,
+                                                  ),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          clipBehavior: Clip.antiAlias,
+                                          child: SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            child: ConstrainedBox(
+                                              constraints: const BoxConstraints(
+                                                minWidth: 400,
+                                                maxWidth: 800,
+                                              ),
+                                              child: QuillSimpleToolbar(
+                                                    controller: context
+                                                        .read<EditorProvider>()
+                                                        .controller,
+                                                    config: const QuillSimpleToolbarConfig(
+                                                      multiRowsDisplay: false,
+                                                      showAlignmentButtons: true,
+                                                      showCenterAlignment: true,
+                                                      showLink: false,
+                                                      showInlineCode: false,
+                                                      showSearchButton: false,
+                                                    ),
+                                                  ),
+                                                ),
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-
-                                // Vertical Separator
-                                Container(
-                                  width: 1,
-                                  height: 24,
-                                  margin: const EdgeInsets.only(right: 8),
-                                  color: subtleBorder,
-                                ),
-
-                                // Quill Toolbar (Takes remaining space and scrolls itself)
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: isDark
-                                          ? Colors.white.withValues(alpha: 0.05)
-                                          : Colors.black.withValues(
-                                              alpha: 0.04,
-                                            ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    clipBehavior: Clip.antiAlias,
-                                    child: QuillSimpleToolbar(
-                                      controller: context
-                                          .read<EditorProvider>()
-                                          .controller,
-                                      config: const QuillSimpleToolbarConfig(
-                                        multiRowsDisplay: false,
-                                        showAlignmentButtons: true,
-                                        showCenterAlignment: true,
-                                        showLink: false,
-                                        showInlineCode: false,
-                                        showSearchButton:
-                                            false, // Turn off if it clutters
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
                           ),
 
                           // Vertical Separator
@@ -220,62 +270,120 @@ class _EditiorPageState extends State<EditiorPage> {
                                     const CupertinoActivityIndicator(radius: 6)
                                   else
                                     Icon(icon, size: 14, color: iconColor),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    text,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: textColor.withValues(alpha: 0.6),
+                                  if (!Breakpoints.isMobile(MediaQuery.sizeOf(context).width)) ...[
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      text,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: textColor.withValues(alpha: 0.6),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ],
                               );
                             },
                           ),
-                          const SizedBox(width: 16),
-                          CupertinoButton(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 0,
-                            ),
-                            minSize: 32,
-                            color: Colors.blueAccent,
-                            borderRadius: BorderRadius.circular(16),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  CupertinoIcons.add,
-                                  size: 12,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  "New Section",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
+                          const SizedBox(width: 8),
+                          Breakpoints.isMobile(MediaQuery.sizeOf(context).width)
+                              ? CupertinoButton(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 0,
                                   ),
+                                  minSize: 32,
+                                  onPressed: () {
+                                    // Trigger AI
+                                  },
+                                  child: Icon(
+                                    CupertinoIcons.sparkles,
+                                    size: 22,
+                                    color: isDark
+                                        ? Colors.white70
+                                        : Colors.deepPurple,
+                                  ),
+                                )
+                              : CupertinoButton(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 0,
+                                  ),
+                                  minSize: 32,
+                                  color: isDark ? Colors.white : Colors.black87,
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.add,
+                                        size: 14,
+                                        color: isDark ? Colors.black : Colors.white,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        "New Section",
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? Colors.black : Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    final provider = context.read<EditorProvider>();
+                                    _showTextInputDialog(
+                                      context: context,
+                                      title: "New Section Name",
+                                      initialValue:
+                                          "Section ${provider.allBooksSection.length + 1}",
+                                      onSave: (val) =>
+                                          provider.addSection(val, autoSelect: true),
+                                    );
+                                  },
                                 ),
-                              ],
-                            ),
-                            onPressed: () {
-                              final provider = context.read<EditorProvider>();
-                              _showTextInputDialog(
-                                context: context,
-                                title: "New Section Name",
-                                initialValue:
-                                    "Section ${provider.allBooksSection.length + 1}",
-                                onSave: (val) =>
-                                    provider.addSection(val, autoSelect: true),
-                              );
-                            },
-                          ),
                           const SizedBox(width: 16),
                         ],
                       ),
                     ),
+
+                    // --- MOBILE: Full toolbar in writing area ---
+                    if (Breakpoints.isMobile(MediaQuery.sizeOf(context).width))
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: bgColor,
+                          border: Border(
+                            bottom: BorderSide(color: subtleBorder),
+                          ),
+                        ),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: SizedBox(
+                              width: 650,
+                              child: QuillSimpleToolbar(
+                                controller: context
+                                    .read<EditorProvider>()
+                                    .controller,
+                                config: const QuillSimpleToolbarConfig(
+                                  multiRowsDisplay: false,
+                                  showAlignmentButtons: true,
+                                  showCenterAlignment: true,
+                                  showLink: false,
+                                  showInlineCode: false,
+                                  showSearchButton: false,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
 
                     // --- MAIN WORKSPACE ---
                     Expanded(
@@ -381,8 +489,71 @@ class _EditiorPageState extends State<EditiorPage> {
     );
   }
 
-  Widget _buildSidebarList(Color textColor, bool isDark, Color subtleBorder) {
+  void _showSectionsSheet(
+    BuildContext context,
+    Color textColor,
+    bool isDark,
+    Color subtleBorder,
+    Color sidebarColor,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: sidebarColor,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (_, scrollController) => Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "All Sections",
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(CupertinoIcons.xmark, color: textColor),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: _buildSidebarList(
+                textColor,
+                isDark,
+                subtleBorder,
+                onItemTap: () => Navigator.pop(ctx),
+                scrollController: scrollController,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSidebarList(
+    Color textColor,
+    bool isDark,
+    Color subtleBorder, {
+    VoidCallback? onItemTap,
+    ScrollController? scrollController,
+  }) {
     return ListView.separated(
+      controller: scrollController,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       itemCount: context.watch<EditorProvider>().allBooksSection.length,
       separatorBuilder: (context, index) => const SizedBox(height: 4),
@@ -405,6 +576,7 @@ class _EditiorPageState extends State<EditiorPage> {
                 provider.forceSaveImmediately();
                 provider.setActiveSection(section);
                 provider.initEditor();
+                onItemTap?.call();
               }
             },
             child: Padding(

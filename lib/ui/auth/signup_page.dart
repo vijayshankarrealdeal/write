@@ -50,7 +50,7 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAFA);
+    final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
     final textColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
@@ -120,8 +120,8 @@ class _SignupPageState extends State<SignupPage> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _signup,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,
+                    backgroundColor: isDark ? Colors.white : Colors.black87,
+                    foregroundColor: isDark ? Colors.black : Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -150,10 +150,10 @@ class _SignupPageState extends State<SignupPage> {
                       context,
                       MaterialPageRoute(builder: (_) => const LoginPage()),
                     ),
-                    child: const Text(
+                    child: Text(
                       "Login",
                       style: TextStyle(
-                        color: Colors.blueAccent,
+                        color: isDark ? Colors.white70 : Colors.black87,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

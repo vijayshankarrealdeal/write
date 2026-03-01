@@ -39,8 +39,10 @@ class MonochromeTheme {
       ),
 
       textTheme: GoogleFonts.interTextTheme(base.textTheme).copyWith(
-        bodyLarge: GoogleFonts.inter(color: textBlack),
-        bodyMedium: GoogleFonts.inter(color: textSecondary),
+        bodyLarge: GoogleFonts.inter(color: textBlack, fontSize: 17),
+        bodyMedium: GoogleFonts.inter(color: textSecondary, fontSize: 16),
+        titleLarge: GoogleFonts.inter(color: textBlack, fontSize: 22),
+        titleMedium: GoogleFonts.inter(color: textBlack, fontSize: 18),
       ),
 
       appBarTheme: const AppBarTheme(
@@ -49,6 +51,13 @@ class MonochromeTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
+        toolbarHeight: 56,
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          tapTargetSize: MaterialTapTargetSize.padded,
+        ),
       ),
 
       dividerTheme: const DividerThemeData(
@@ -81,7 +90,7 @@ class MonochromeTheme {
       // Outlined buttons styled exactly like Image 3
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.blueAccent, // Blue text
+          foregroundColor: textBlack,
           side: const BorderSide(color: borderGrey, width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
@@ -97,7 +106,7 @@ class MonochromeTheme {
       // Solid contrasting buttons
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blueAccent, // Blue background
+          backgroundColor: textBlack,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -137,13 +146,13 @@ class MonochromeTheme {
   static ThemeData get darkTheme {
     final base = ThemeData.dark();
 
-    // Core Colors - Vibrant dark theme
-    const Color bgDark = Color(0xFF0F172A); // Deep slate
-    const Color surfaceDark = Color(0xFF1E293B); // Lighter slate
-    const Color borderDark = Color(0xFF334155); // Border slate
+    // Core Colors - Pure black / neutral (Google-style)
+    const Color bgDark = Color(0xFF000000); // Pure black
+    const Color surfaceDark = Color(0xFF1A1A1A); // Card/surface
+    const Color borderDark = Color(0xFF2E2E2E); // Border
     const Color textWhite = Color(0xFFF1F5F9);
     const Color textSecondary = Color(0xFF94A3B8);
-    const Color accentBlue = Color(0xFF60A5FA); // Lighter blue for dark mode
+    const Color accentBlue = Color(0xFFE8E8E8); // Neutral white/gray for dark mode
 
     return ThemeData(
       useMaterial3: true,
@@ -163,11 +172,12 @@ class MonochromeTheme {
       ),
 
       textTheme: GoogleFonts.interTextTheme(base.textTheme).copyWith(
-        bodyLarge: GoogleFonts.inter(color: textWhite),
-        bodyMedium: GoogleFonts.inter(color: textSecondary),
-        // Used in your image headers
+        bodyLarge: GoogleFonts.inter(color: textWhite, fontSize: 17),
+        bodyMedium: GoogleFonts.inter(color: textSecondary, fontSize: 16),
+        titleLarge: GoogleFonts.inter(color: textWhite, fontSize: 22),
         titleMedium: GoogleFonts.inter(
           color: textWhite,
+          fontSize: 18,
           letterSpacing: 1.2,
           fontWeight: FontWeight.w500,
         ),
@@ -179,6 +189,13 @@ class MonochromeTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
+        toolbarHeight: 56,
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          tapTargetSize: MaterialTapTargetSize.padded,
+        ),
       ),
 
       dividerTheme: const DividerThemeData(
@@ -211,9 +228,9 @@ class MonochromeTheme {
       // Recreating the elegant pill buttons from Image 3
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.blueAccent, // Blue Text
+          foregroundColor: accentBlue,
           side: const BorderSide(
-            color: Colors.blueAccent, // Blue Border
+            color: accentBlue,
             width: 1.0,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
@@ -230,8 +247,8 @@ class MonochromeTheme {
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blueAccent, // Blue Button
-          foregroundColor: Colors.white,
+          backgroundColor: accentBlue,
+          foregroundColor: bgDark,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(

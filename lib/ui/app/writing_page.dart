@@ -32,8 +32,7 @@ class _MobileWritingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
-    final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFF8FAFC);
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
 
     return CupertinoPageScaffold(
@@ -48,11 +47,11 @@ class _MobileWritingPage extends StatelessWidget {
                 color: textColor,
               ),
             ),
-            backgroundColor: surfaceColor.withValues(alpha: 0.8),
+            backgroundColor: bgColor,
             border: null,
             trailing: CupertinoButton(
               padding: EdgeInsets.zero,
-              child: const Icon(CupertinoIcons.add, size: 28),
+              child: Icon(CupertinoIcons.add, size: 28, color: textColor),
               onPressed: () => _showNewProjectDialog(context),
             ),
           ),
@@ -101,7 +100,7 @@ class _MobileProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final cardColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     
     final isActive = context.watch<EditorProvider>().activeBook?.id == book.id;
@@ -132,11 +131,11 @@ class _MobileProjectCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.blueAccent.withValues(alpha: 0.1),
+                    color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(CupertinoIcons.book_fill,
-                      color: Colors.blueAccent, size: 20),
+                  child: Icon(CupertinoIcons.book_fill,
+                      color: isDark ? Colors.white : Colors.black, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -147,11 +146,13 @@ class _MobileProjectCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: textColor,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 if (isActive)
-                  const Icon(CupertinoIcons.check_mark,
-                      color: Colors.blueAccent),
+                  Icon(CupertinoIcons.check_mark,
+                      color: isDark ? Colors.white : Colors.black),
               ],
             ),
             if (isActive) ...[
@@ -185,31 +186,36 @@ class _MobileProjectCard extends StatelessWidget {
       children: sections.map((section) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
-          child: InkWell(
-            onTap: () {
-              context.read<EditorProvider>().setActiveSection(section);
-              Navigator.push(
-                context,
-                CupertinoPageRoute(builder: (_) => const EditiorPage()),
-              );
-            },
-            child: Row(
-              children: [
-                Icon(CupertinoIcons.doc_text,
-                    size: 16, color: isDark ? Colors.white54 : Colors.black45),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    section.title,
-                    style: GoogleFonts.inter(
-                      color: isDark ? Colors.white70 : Colors.black87,
-                      fontSize: 15,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                context.read<EditorProvider>().setActiveSection(section);
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(builder: (_) => const EditiorPage()),
+                );
+              },
+              child: Row(
+                children: [
+                  Icon(CupertinoIcons.doc_text,
+                      size: 16, color: isDark ? Colors.white54 : Colors.black45),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      section.title,
+                      style: GoogleFonts.inter(
+                        color: isDark ? Colors.white70 : Colors.black87,
+                        fontSize: 15,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-                Icon(CupertinoIcons.chevron_right,
-                    size: 14, color: isDark ? Colors.white24 : Colors.black26),
-              ],
+                  Icon(CupertinoIcons.chevron_right,
+                      size: 14, color: isDark ? Colors.white24 : Colors.black26),
+                ],
+              ),
             ),
           ),
         );
@@ -220,36 +226,51 @@ class _MobileProjectCard extends StatelessWidget {
 
 Widget _buildEmptyStateMobile(BuildContext context, bool isDark) {
   return Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(CupertinoIcons.square_pencil,
-            size: 64, color: isDark ? Colors.white24 : Colors.black12),
-        const SizedBox(height: 16),
-        Text(
-          "Start Your Journey",
-          style: GoogleFonts.playfairDisplay(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : Colors.black87,
+    child: SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(CupertinoIcons.square_pencil,
+              size: 64, color: isDark ? Colors.white24 : Colors.black12),
+          const SizedBox(height: 16),
+          Text(
+            "Start Your Journey",
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
+            textAlign: TextAlign.center,
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          "Create your first project to begin writing",
-          style: GoogleFonts.inter(
-            color: isDark ? Colors.white54 : Colors.black45,
+          const SizedBox(height: 8),
+          Text(
+            "Create your first project to begin writing",
+            style: GoogleFonts.inter(
+              color: isDark ? Colors.white54 : Colors.black45,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
           ),
-        ),
         const SizedBox(height: 24),
-        CupertinoButton.filled(
-          child: const Text("Create Project"),
+        CupertinoButton(
+          color: isDark ? Colors.white : Colors.black,
           onPressed: () => showCupertinoModalPopup(
             context: context,
             builder: (context) => const NewBookAddition(),
           ),
+          child: Text(
+            "Create Project",
+            style: GoogleFonts.inter(
+              color: isDark ? Colors.black : Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
-      ],
+        ],
+      ),
     ),
   );
 }
@@ -264,8 +285,8 @@ class _DesktopWritingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
-    final sidebarColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFF8FAFC);
+    final sidebarColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
     final dividerColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
 
     return Scaffold(
@@ -383,6 +404,8 @@ class _DesktopWritingPage extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: textColor,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -398,12 +421,10 @@ class _DesktopWritingPage extends StatelessWidget {
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: () {
-                   context.read<EditorProvider>().addSection(context);
-                },
-                sty_showNewSectionDialog
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white,
+                onPressed: () => _showNewSectionDialog(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDark ? Colors.white : Colors.black,
+                  foregroundColor: isDark ? Colors.black : Colors.white,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -558,8 +579,8 @@ class _SidebarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeBg = Colors.blueAccent.withValues(alpha: 0.1);
-    final activeText = Colors.blueAccent;
+    final activeBg = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05);
+    final activeText = isDark ? Colors.white : Colors.black;
     final inactiveText = isDark ? Colors.white70 : Colors.black87;
 
     return InkWell(
@@ -611,7 +632,7 @@ class _SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final bgColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
     final borderColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
 
     return InkWell(
@@ -637,9 +658,7 @@ class _SectionCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Color(section.sectionColor.value).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),section.sectionColor.withValues(alpha: 0.1),
+                color: section.sectionColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -650,7 +669,9 @@ class _SectionCard extends StatelessWidget {
             ),
             const Spacer(),
             Text(
-              section.t
+              section.title,
+              style: GoogleFonts.inter(
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: isDark ? Colors.white : const Color(0xFF0F172A),
               ),

@@ -11,8 +11,8 @@ class NewBookAddition extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAFA);
-    final cardColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
+    final cardColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
     final textColor = isDark ? Colors.white : Colors.black;
     final subtleBorder = isDark
         ? Colors.white.withOpacity(0.08)

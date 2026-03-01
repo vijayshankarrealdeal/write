@@ -50,7 +50,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAFA);
+    final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
     final textColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
@@ -70,7 +70,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               Icon(
                 CupertinoIcons.lock_shield,
                 size: 64,
-                color: Colors.blueAccent,
+                color: isDark ? Colors.white70 : Colors.black87,
               ),
               const SizedBox(height: 32),
               Text(
@@ -117,8 +117,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,
+                    backgroundColor: isDark ? Colors.white : Colors.black87,
+                    foregroundColor: isDark ? Colors.black : Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

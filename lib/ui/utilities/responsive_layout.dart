@@ -1,6 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+/// Breakpoints for responsive design (mobile / tablet / desktop).
+class Breakpoints {
+  static const double mobile = 650;
+  static const double tablet = 1100;
+
+  static bool isMobile(double width) => width < mobile;
+  static bool isTablet(double width) => width >= mobile && width < tablet;
+  static bool isDesktop(double width) => width >= tablet;
+}
+
 class ResponsiveLayout extends StatelessWidget {
   final Widget mobileScaffold;
   final Widget tabletScaffold;
@@ -17,9 +27,10 @@ class ResponsiveLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth < 650) {
+        final width = constraints.maxWidth;
+        if (Breakpoints.isMobile(width)) {
           return mobileScaffold;
-        } else if (constraints.maxWidth < 1100) {
+        } else if (Breakpoints.isTablet(width)) {
           return tabletScaffold;
         } else {
           return desktopScaffold;
@@ -28,3 +39,13 @@ class ResponsiveLayout extends StatelessWidget {
     );
   }
 }
+
+/// Returns current breakpoint based on MediaQuery.
+BreakpointType getBreakpoint(BuildContext context) {
+  final width = MediaQuery.sizeOf(context).width;
+  if (Breakpoints.isMobile(width)) return BreakpointType.mobile;
+  if (Breakpoints.isTablet(width)) return BreakpointType.tablet;
+  return BreakpointType.desktop;
+}
+
+enum BreakpointType { mobile, tablet, desktop }

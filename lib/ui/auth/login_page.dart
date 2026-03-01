@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAFA);
+    final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
     final textColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
               Icon(
                 CupertinoIcons.square_pencil,
                 size: 64,
-                color: Colors.blueAccent,
+                color: isDark ? Colors.white70 : Colors.black87,
               ),
               const SizedBox(height: 32),
               Text(
@@ -100,7 +100,12 @@ class _LoginPageState extends State<LoginPage> {
                       builder: (_) => const ForgotPasswordPage(),
                     ),
                   ),
-                  child: const Text("Forgot Password?"),
+                  child: Text(
+                    "Forgot Password?",
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : Colors.black87,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
@@ -110,14 +115,16 @@ class _LoginPageState extends State<LoginPage> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,
+                    backgroundColor: isDark ? Colors.white : Colors.black87,
+                    foregroundColor: isDark ? Colors.black : Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: _isLoading
-                      ? const CupertinoActivityIndicator(color: Colors.white)
+                      ? CupertinoActivityIndicator(
+                          color: isDark ? Colors.black : Colors.white,
+                        )
                       : const Text(
                           "Login",
                           style: TextStyle(
@@ -168,10 +175,10 @@ class _LoginPageState extends State<LoginPage> {
                       context,
                       MaterialPageRoute(builder: (_) => const SignupPage()),
                     ),
-                    child: const Text(
+                    child: Text(
                       "Sign Up",
                       style: TextStyle(
-                        color: Colors.blueAccent,
+                        color: isDark ? Colors.white70 : Colors.black87,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

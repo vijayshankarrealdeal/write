@@ -44,7 +44,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAFA);
+    final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
     final textColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
@@ -67,13 +67,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         Container(
                           padding: const EdgeInsets.all(32),
                           decoration: BoxDecoration(
-                            color: Colors.blueAccent.withValues(alpha: 0.1),
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : Colors.black.withValues(alpha: 0.05),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             page.icon,
                             size: 80,
-                            color: Colors.blueAccent,
+                            color: isDark ? Colors.white70 : Colors.black87,
                           ),
                         ),
                         const SizedBox(height: 48),
@@ -118,7 +120,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         width: _currentPage == index ? 24 : 8,
                         decoration: BoxDecoration(
                           color: _currentPage == index
-                              ? Colors.blueAccent
+                              ? (isDark ? Colors.white70 : Colors.black87)
                               : Colors.grey.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(4),
                         ),
@@ -138,8 +140,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
+                      backgroundColor: isDark ? Colors.white : Colors.black87,
+                      foregroundColor: isDark ? Colors.black : Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

@@ -45,7 +45,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black;
-    final cardColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final cardColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
     final subtleBorder = isDark
         ? Colors.white.withValues(alpha: 0.1)
         : Colors.black.withValues(alpha: 0.1);
@@ -103,7 +103,7 @@ class SettingsPage extends StatelessWidget {
                         title: "Dark Mode",
                         trailing: CupertinoSwitch(
                           value: provider.themeMode == ThemeMode.dark,
-                          activeColor: isDark ? Colors.white : Colors.black,
+                          activeColor: CupertinoColors.activeGreen,
                           onChanged: (v) => provider.toggleTheme(v),
                         ),
                       ),
@@ -113,7 +113,7 @@ class SettingsPage extends StatelessWidget {
                         title: "Notifications",
                         trailing: CupertinoSwitch(
                           value: provider.notificationsEnabled,
-                          activeColor: isDark ? Colors.white : Colors.black,
+                          activeColor: CupertinoColors.activeGreen,
                           onChanged: (v) => provider.toggleNotifications(v),
                         ),
                       ),
@@ -298,7 +298,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAFA);
+    final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
     final textColor = isDark ? Colors.white : Colors.black;
     final user = context.watch<AuthProvider>().currentUser;
 
@@ -328,18 +328,20 @@ class ProfilePage extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 58,
-                      backgroundColor: Colors.blueAccent.withValues(alpha: 0.1),
+                      backgroundColor: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.05),
                       child: CircleAvatar(
                         radius: 55,
-                        backgroundColor: Colors.blueAccent.withValues(
-                          alpha: 0.2,
-                        ),
+                        backgroundColor: isDark
+                            ? Colors.white.withValues(alpha: 0.2)
+                            : Colors.black.withValues(alpha: 0.08),
                         child: Text(
                           user?.name.substring(0, 1).toUpperCase() ?? 'U',
                           style: GoogleFonts.inter(
                             fontSize: 40,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blueAccent,
+                            color: isDark ? Colors.white70 : Colors.black87,
                           ),
                         ),
                       ),
@@ -350,7 +352,7 @@ class ProfilePage extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.blueAccent,
+                          color: isDark ? Colors.white : Colors.black87,
                           shape: BoxShape.circle,
                           border: Border.all(color: bgColor, width: 3),
                         ),
@@ -382,8 +384,8 @@ class ProfilePage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white,
+                  backgroundColor: isDark ? Colors.white : Colors.black87,
+                  foregroundColor: isDark ? Colors.black : Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -417,7 +419,7 @@ class ProfilePage extends StatelessWidget {
         labelText: label,
         labelStyle: GoogleFonts.inter(color: textColor.withValues(alpha: 0.5)),
         filled: true,
-        fillColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        fillColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
@@ -436,7 +438,10 @@ class ProfilePage extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
+          borderSide: BorderSide(
+            color: isDark ? Colors.white70 : Colors.black87,
+            width: 2,
+          ),
         ),
       ),
     );
@@ -449,7 +454,7 @@ class LanguagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAFA);
+    final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
     final textColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
@@ -499,9 +504,9 @@ class LanguagePage extends StatelessWidget {
                       ),
                     ),
                     trailing: isSelected
-                        ? const Icon(
+                        ? Icon(
                             CupertinoIcons.check_mark,
-                            color: Colors.blueAccent,
+                            color: isDark ? Colors.white70 : Colors.black87,
                             size: 20,
                           )
                         : null,
