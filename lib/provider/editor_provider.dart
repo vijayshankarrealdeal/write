@@ -530,11 +530,24 @@ class EditorProvider extends ChangeNotifier {
   }
 
   /// Publish a single section from a book to the public feed.
-  Future<void> publishSection(WritingModel book, SectionModel section) async {
+  Future<void> publishSection(
+    WritingModel book,
+    SectionModel section, {
+    List<String> tags = const [],
+    String? descriptionOverride,
+    bool isDraft = false,
+  }) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception("User not logged in");
 
-    await _firestore.publishSection(book, section, user);
+    await _firestore.publishSection(
+      book,
+      section,
+      user,
+      tags: tags,
+      descriptionOverride: descriptionOverride,
+      isDraft: isDraft,
+    );
   }
 
   /// Reset all editor state on logout so stale data doesn't linger.

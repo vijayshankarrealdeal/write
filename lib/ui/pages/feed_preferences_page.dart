@@ -23,7 +23,8 @@ class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
   @override
   void initState() {
     super.initState();
-    final prefs = context.read<AuthProvider>().currentUser?.preferences ??
+    final prefs =
+        context.read<AuthProvider>().currentUser?.preferences ??
         const UserPreferences();
     _selectedWritingTypes = List.from(prefs.preferredWritingTypes);
     _selectedSubtypes = List.from(prefs.preferredGenres);
@@ -94,8 +95,10 @@ class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
             Padding(
               padding: const EdgeInsets.only(right: 16),
               child: CupertinoButton(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 color: isDark ? Colors.white : Colors.black,
                 borderRadius: BorderRadius.circular(20),
                 onPressed: _saving ? null : _save,
@@ -122,7 +125,7 @@ class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
       ),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
+          constraints: const BoxConstraints(maxWidth: 1080),
           child: ListView(
             padding: const EdgeInsets.all(24),
             children: [
@@ -247,9 +250,7 @@ class _ChipButton extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: selected
-              ? (isDark ? Colors.white : Colors.black)
-              : cardColor,
+          color: selected ? (isDark ? Colors.white : Colors.black) : cardColor,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: selected

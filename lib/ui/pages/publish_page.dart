@@ -24,15 +24,32 @@ class PublishPage extends StatefulWidget {
 
 class _PublishPageState extends State<PublishPage> {
   late final TextEditingController _titleController;
+  late final TextEditingController _descriptionController;
+  late final TextEditingController _tagInputController;
   Uint8List? _coverBytes;
   final Set<String> _selectedSectionIds = {};
+  final List<String> _tags = [];
   bool _isDraft = false;
   bool _isPublishing = false;
+
+  List<String> get _suggestedTags {
+    final subtypes = getDisplaySubtypesForWritingType(widget.book.writingType);
+    final all = [
+      widget.book.writingType.displayName,
+      if (widget.book.subtype.isNotEmpty) widget.book.subtype,
+      ...subtypes,
+    ];
+    return all.where((t) => !_tags.contains(t)).toList();
+  }
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.book.title);
+    _descriptionController = TextEditingController(
+      text: widget.book.description,
+    );
+    _tagInputController = TextEditingController();
     if (widget.preselectedSection != null) {
       _selectedSectionIds.add(widget.preselectedSection!.id);
     }
@@ -41,7 +58,19 @@ class _PublishPageState extends State<PublishPage> {
   @override
   void dispose() {
     _titleController.dispose();
+    _descriptionController.dispose();
+    _tagInputController.dispose();
     super.dispose();
+  }
+
+  void _addCustomTag(String value) {
+    final tag = value.trim();
+    if (tag.isNotEmpty && !_tags.contains(tag)) {
+      setState(() {
+        _tags.add(tag);
+        _tagInputController.clear();
+      });
+    }
   }
 
   bool get _hasCover =>
@@ -83,9 +112,16 @@ class _PublishPageState extends State<PublishPage> {
         );
       }
 
+      final desc = _descriptionController.text.trim();
       for (final sId in _selectedSectionIds) {
         final section = widget.book.sections.firstWhere((s) => s.id == sId);
-        await provider.publishSection(widget.book, section);
+        await provider.publishSection(
+          widget.book,
+          section,
+          tags: _tags,
+          descriptionOverride: desc.isNotEmpty ? desc : null,
+          isDraft: _isDraft,
+        );
       }
 
       if (mounted) {
@@ -93,13 +129,15 @@ class _PublishPageState extends State<PublishPage> {
         showCupertinoDialog(
           context: context,
           builder: (ctx) => CupertinoAlertDialog(
-            title: const Text("Published"),
+            title: Text(_isDraft ? "Saved as Draft" : "Published"),
             content: Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                _selectedSectionIds.length == 1
-                    ? "Your section is now live on the feed."
-                    : "${_selectedSectionIds.length} sections are now live on the feed.",
+                _isDraft
+                    ? "Your draft has been saved. You can publish it later from Settings."
+                    : _selectedSectionIds.length == 1
+                        ? "Your section is now live on the feed."
+                        : "${_selectedSectionIds.length} sections are now live on the feed.",
                 style: GoogleFonts.inter(),
               ),
             ),
@@ -301,6 +339,183 @@ class _PublishPageState extends State<PublishPage> {
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 28),
+
+                // --- DESCRIPTION ---
+                _buildSectionLabel("DESCRIPTION", textColor),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _descriptionController,
+                  style: GoogleFonts.inter(color: textColor, fontSize: 15),
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: "A brief summary for readers...",
+                    hintStyle: GoogleFonts.inter(color: mutedColor),
+                    filled: true,
+                    fillColor: cardColor,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: borderColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: borderColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: textColor.withValues(alpha: 0.3),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                // --- TAGS ---
+                _buildSectionLabel("TAGS", textColor),
+                const SizedBox(height: 4),
+                Text(
+                  "Add tags to help readers discover your work",
+                  style: GoogleFonts.inter(color: mutedColor, fontSize: 13),
+                ),
+                const SizedBox(height: 12),
+                if (_tags.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _tags.map((tag) {
+                        return Chip(
+                          label: Text(
+                            tag,
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: textColor,
+                            ),
+                          ),
+                          deleteIcon: Icon(
+                            CupertinoIcons.xmark,
+                            size: 14,
+                            color: mutedColor,
+                          ),
+                          onDeleted: () => setState(() => _tags.remove(tag)),
+                          backgroundColor: cardColor,
+                          side: BorderSide(color: borderColor),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _tagInputController,
+                        style: GoogleFonts.inter(
+                          color: textColor,
+                          fontSize: 14,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: "Add a custom tag...",
+                          hintStyle: GoogleFonts.inter(color: mutedColor),
+                          filled: true,
+                          fillColor: cardColor,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          isDense: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: borderColor),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: borderColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: textColor.withValues(alpha: 0.3),
+                            ),
+                          ),
+                        ),
+                        onSubmitted: _addCustomTag,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () => _addCustomTag(_tagInputController.text),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.white : Colors.black,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          CupertinoIcons.add,
+                          size: 18,
+                          color: isDark ? Colors.black : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (_suggestedTags.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _suggestedTags.map((tag) {
+                      return GestureDetector(
+                        onTap: () => setState(() => _tags.add(tag)),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.06)
+                                : Colors.black.withValues(alpha: 0.04),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: borderColor,
+                              strokeAlign: BorderSide.strokeAlignOutside,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                CupertinoIcons.add,
+                                size: 14,
+                                color: mutedColor,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                tag,
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  color: textColor.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
 
                 const SizedBox(height: 28),
 

@@ -111,30 +111,56 @@ class FirestoreService {
   Future<void> publishSection(
     WritingModel book,
     SectionModel section,
-    User author,
-  ) async {
+    User author, {
+    List<String> tags = const [],
+    String? descriptionOverride,
+    bool isDraft = false,
+  }) async {
     final docId = '${book.id}_${section.id}';
     final feedItem = FeedItemModel(
       id: docId,
       title: section.title,
       author: author.name,
       authorId: author.id,
-      description: book.description,
+      description: descriptionOverride ?? book.description,
       imageUrl: book.coverImagePath,
       genres: book.subtype.isNotEmpty ? [book.subtype] : [],
       writingTypes: [book.writingType.displayName],
-      tags: [],
+      tags: tags,
       createdAt: DateTime.now(),
       likesCount: 0,
       content: section.content,
       bookTitle: book.title,
       bookId: book.id,
+      isDraft: isDraft,
     );
 
     await _firestore
         .collection(_feedItems)
         .doc(docId)
         .set(feedItem.toJson());
+  }
+
+  Future<List<FeedItemModel>> getDrafts(String userId) async {
+    final snap = await _firestore
+        .collection(_feedItems)
+        .where('authorId', isEqualTo: userId)
+        .where('isDraft', isEqualTo: true)
+        .orderBy('createdAt', descending: true)
+        .get();
+    return snap.docs
+        .map((d) => FeedItemModel.fromJson(d.data()))
+        .toList();
+  }
+
+  Future<void> publishDraft(String feedItemId) async {
+    await _firestore.collection(_feedItems).doc(feedItemId).update({
+      'isDraft': false,
+    });
+  }
+
+  Future<void> deleteDraft(String feedItemId) async {
+    await _firestore.collection(_feedItems).doc(feedItemId).delete();
   }
 
   /// Add like - batch: update user.likes + feed_item.likesCount.
@@ -382,7 +408,8 @@ class FirestoreService {
       if (seen.add(item.id)) all.add(item);
     }
 
-    // 5. Exclude current user's own posts
+    // 5. Exclude drafts and current user's own posts
+    all.removeWhere((item) => item.isDraft);
     if (currentUserId != null) {
       all.removeWhere((item) => item.authorId == currentUserId);
     }

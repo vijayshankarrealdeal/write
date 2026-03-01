@@ -22,6 +22,9 @@ class FeedItemModel {
   /// The parent book's ID so we can group posts by book.
   final String bookId;
 
+  /// Whether this post is a draft (not visible in the public feed).
+  final bool isDraft;
+
   const FeedItemModel({
     required this.id,
     required this.title,
@@ -38,6 +41,7 @@ class FeedItemModel {
     this.content = '',
     this.bookTitle = '',
     this.bookId = '',
+    this.isDraft = false,
   });
 
   factory FeedItemModel.fromJson(Map<String, dynamic> json) {
@@ -59,6 +63,7 @@ class FeedItemModel {
       content: json['content'] ?? '',
       bookTitle: json['bookTitle'] ?? '',
       bookId: json['bookId'] ?? '',
+      isDraft: json['isDraft'] ?? false,
     );
   }
 
@@ -78,5 +83,6 @@ class FeedItemModel {
         'content': content,
         'bookTitle': bookTitle,
         'bookId': bookId,
+        'isDraft': isDraft,
       };
 }

@@ -10,6 +10,7 @@ import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/provider/nav_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
 import 'package:inkspacex/ui/pages/feed_preferences_page.dart';
+import 'package:inkspacex/ui/pages/drafts_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -166,6 +167,18 @@ class SettingsPage extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (_) => const FeedPreferencesPage(),
+                      ),
+                    ),
+                  ),
+                  _buildDivider(subtleBorder),
+                  SettingsTile(
+                    icon: CupertinoIcons.doc_text,
+                    title: "My Drafts",
+                    subtitle: "Unpublished posts saved for later",
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const DraftsPage(),
                       ),
                     ),
                   ),
