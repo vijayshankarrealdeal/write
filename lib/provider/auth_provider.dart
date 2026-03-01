@@ -30,17 +30,20 @@ class AuthProvider extends ChangeNotifier {
   }
 
   bool get isAuthenticated => _isAuthenticated;
-  bool get isOnboardingComplete =>
-      _currentUser?.onboardingComplete ?? false;
+  bool get isOnboardingComplete => _currentUser?.onboardingComplete ?? false;
   app.User? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
+
   /// True once Firebase has reported auth state (logged in or not).
   bool get authStateKnown => _authStateKnown;
+
   /// True while restoring session (syncing user from Firebase on app start).
   bool get isRestoringSession => _isRestoringSession;
 
   void _initAuthListener() {
-    firebase_auth.FirebaseAuth.instance.authStateChanges().listen((firebase_auth.User? fbUser) async {
+    firebase_auth.FirebaseAuth.instance.authStateChanges().listen((
+      firebase_auth.User? fbUser,
+    ) async {
       _authTimeout?.cancel();
       _authTimeout = null;
       if (fbUser != null) {
@@ -100,10 +103,8 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final cred = await firebase_auth.FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final cred = await firebase_auth.FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
       if (cred.user != null) await _syncUserFromFirebase(cred.user!);
     } on firebase_auth.FirebaseAuthException catch (e) {
       _isLoading = false;
@@ -122,10 +123,8 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final cred = await firebase_auth.FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final cred = await firebase_auth.FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
       if (cred.user != null) {
         await cred.user!.updateDisplayName(name);
         await _syncUserFromFirebase(cred.user!);
@@ -148,6 +147,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId:
+            "769888184610-8dbhulriuoccftjfk4jj1ke0to3fohnu.apps.googleusercontent.com",
         scopes: ['email', 'profile'],
       );
 
@@ -165,7 +166,8 @@ class AuthProvider extends ChangeNotifier {
         idToken: googleAuth.idToken,
       );
 
-      final cred = await firebase_auth.FirebaseAuth.instance.signInWithCredential(credential);
+      final cred = await firebase_auth.FirebaseAuth.instance
+          .signInWithCredential(credential);
       if (cred.user != null) await _syncUserFromFirebase(cred.user!);
     } on firebase_auth.FirebaseAuthException catch (e) {
       _isLoading = false;
@@ -195,7 +197,9 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      await firebase_auth.FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      await firebase_auth.FirebaseAuth.instance.sendPasswordResetEmail(
+        email: email,
+      );
     } on firebase_auth.FirebaseAuthException catch (e) {
       _isLoading = false;
       notifyListeners();

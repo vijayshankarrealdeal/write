@@ -895,9 +895,13 @@ void _showRenameProjectDialog(
               await provider.renameBookById(book, name);
             } catch (e) {
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(e.toString().replaceFirst('Exception: ', '')),
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    content: Text(
+                      e.toString().replaceFirst('Exception: ', ''),
+                      style: GoogleFonts.inter(),
+                    ),
                   ),
                 );
               }
@@ -940,9 +944,13 @@ void _showDeleteProjectDialog(
               await provider.deleteBook(book);
             } catch (e) {
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(e.toString().replaceFirst('Exception: ', '')),
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    content: Text(
+                      e.toString().replaceFirst('Exception: ', ''),
+                      style: GoogleFonts.inter(),
+                    ),
                   ),
                 );
               }

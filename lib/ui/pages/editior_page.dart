@@ -322,26 +322,55 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                               if (provider.activeBook == null) return;
 
                               try {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Publishing..."),
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text("Publishing"),
+                                    content: Text(
+                                      "Publishing.",
+                                      style: GoogleFonts.inter(),
+                                    ),
                                   ),
                                 );
+
                                 await provider.publishActiveBook();
                                 if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text("Published to Feed!"),
-                                      backgroundColor: Colors.green,
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      title: const Text("Success"),
+                                      content: Text(
+                                        "Published successfully!",
+                                        style: GoogleFonts.inter(),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(ctx),
+                                          child: const Text("OK"),
+                                        ),
+                                      ],
                                     ),
                                   );
                                 }
                               } catch (e) {
                                 if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text("Failed to publish: $e"),
-                                      backgroundColor: Colors.red,
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      title: const Text("Error"),
+                                      content: Text(
+                                        e.toString().replaceFirst(
+                                          'Exception: ',
+                                          '',
+                                        ),
+                                        style: GoogleFonts.inter(),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(ctx),
+                                          child: const Text("OK"),
+                                        ),
+                                      ],
                                     ),
                                   );
                                 }

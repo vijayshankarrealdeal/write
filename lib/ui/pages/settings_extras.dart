@@ -1,5 +1,6 @@
 // --- USER PROFILE PAGE ---
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -40,9 +41,15 @@ class ProfilePage extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text("Profile Updated")));
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  content: Text(
+                    "Profile updated successfully!",
+                    style: GoogleFonts.inter(),
+                  ),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),

@@ -22,9 +22,19 @@ class _SignupPageState extends State<SignupPage> {
 
   void _signup() async {
     if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text("Error"),
+          content: Text("Passwords do not match", style: GoogleFonts.inter()),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
       return;
     }
     setState(() => _isLoading = true);
@@ -42,8 +52,22 @@ class _SignupPageState extends State<SignupPage> {
       }
     } catch (e) {
       if (mounted) {
-        final msg = e.toString().replaceFirst('Exception: ', '');
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text("Error"),
+            content: Text(
+              e.toString().replaceFirst('Exception: ', ''),
+              style: GoogleFonts.inter(),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -64,108 +88,108 @@ class _SignupPageState extends State<SignupPage> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
             child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                CupertinoIcons.square_pencil,
-                size: 64,
-                color: Colors.blueAccent,
-              ),
-              const SizedBox(height: 32),
-              Text(
-                "Create Account",
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  CupertinoIcons.square_pencil,
+                  size: 64,
+                  color: Colors.blueAccent,
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "Join the writer community",
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  color: textColor.withOpacity(0.6),
-                ),
-              ),
-              const SizedBox(height: 48),
-              _buildTextField(
-                controller: _nameController,
-                label: "Full Name",
-                isDark: isDark,
-                icon: CupertinoIcons.person,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _emailController,
-                label: "Email",
-                isDark: isDark,
-                icon: CupertinoIcons.mail,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _passwordController,
-                label: "Password",
-                isDark: isDark,
-                isPassword: true,
-                icon: CupertinoIcons.lock,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _confirmPasswordController,
-                label: "Confirm Password",
-                isDark: isDark,
-                isPassword: true,
-                icon: CupertinoIcons.lock,
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _signup,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark ? Colors.white : Colors.black87,
-                    foregroundColor: isDark ? Colors.black : Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                const SizedBox(height: 32),
+                Text(
+                  "Create Account",
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
                   ),
-                  child: _isLoading
-                      ? const CupertinoActivityIndicator(color: Colors.white)
-                      : const Text(
-                          "Sign Up",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Already have an account? ",
-                    style: TextStyle(color: textColor.withOpacity(0.7)),
+                const SizedBox(height: 8),
+                Text(
+                  "Join the writer community",
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    color: textColor.withOpacity(0.6),
                   ),
-                  InkWell(
-                    onTap: () => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                    ),
-                    child: Text(
-                      "Login",
-                      style: TextStyle(
-                        color: isDark ? Colors.white70 : Colors.black87,
-                        fontWeight: FontWeight.bold,
+                ),
+                const SizedBox(height: 48),
+                _buildTextField(
+                  controller: _nameController,
+                  label: "Full Name",
+                  isDark: isDark,
+                  icon: CupertinoIcons.person,
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  controller: _emailController,
+                  label: "Email",
+                  isDark: isDark,
+                  icon: CupertinoIcons.mail,
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  controller: _passwordController,
+                  label: "Password",
+                  isDark: isDark,
+                  isPassword: true,
+                  icon: CupertinoIcons.lock,
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  controller: _confirmPasswordController,
+                  label: "Confirm Password",
+                  isDark: isDark,
+                  isPassword: true,
+                  icon: CupertinoIcons.lock,
+                ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _signup,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDark ? Colors.white : Colors.black87,
+                      foregroundColor: isDark ? Colors.black : Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
+                    child: _isLoading
+                        ? const CupertinoActivityIndicator(color: Colors.white)
+                        : const Text(
+                            "Sign Up",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Already have an account? ",
+                      style: TextStyle(color: textColor.withOpacity(0.7)),
+                    ),
+                    InkWell(
+                      onTap: () => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginPage()),
+                      ),
+                      child: Text(
+                        "Login",
+                        style: TextStyle(
+                          color: isDark ? Colors.white70 : Colors.black87,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
