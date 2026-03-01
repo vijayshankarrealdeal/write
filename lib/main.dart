@@ -319,23 +319,33 @@ class _DesktopHomePage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 16),
-                          GestureDetector(
-                            onTap: () {
-                              context.read<NavProvider>().setIndex(
-                                SelectedPage.settings,
+                          Consumer<AuthProvider>(
+                            builder: (context, auth, _) {
+                              final user = auth.currentUser;
+                              return GestureDetector(
+                                onTap: () {
+                                  context.read<NavProvider>().setIndex(
+                                    SelectedPage.settings,
+                                  );
+                                },
+                                child: CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: isDark
+                                      ? Colors.white12
+                                      : Colors.black12,
+                                  backgroundImage: user?.photoUrl != null
+                                      ? NetworkImage(user!.photoUrl!)
+                                      : null,
+                                  child: user?.photoUrl == null
+                                      ? Icon(
+                                          CupertinoIcons.person,
+                                          size: 18,
+                                          color: textColor,
+                                        )
+                                      : null,
+                                ),
                               );
                             },
-                            child: CircleAvatar(
-                              radius: 18,
-                              backgroundColor: isDark
-                                  ? Colors.white12
-                                  : Colors.black12,
-                              child: Icon(
-                                CupertinoIcons.person,
-                                size: 18,
-                                color: textColor,
-                              ),
-                            ),
                           ),
                         ],
                       ),

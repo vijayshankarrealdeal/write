@@ -1,6 +1,8 @@
+import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
@@ -329,8 +331,23 @@ class SettingsTile extends StatelessWidget {
 }
 
 // --- SUB PAGES (Adapting dynamically to Light/Dark mode) ---
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  Future<void> _pickAndUploadPhoto() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery, maxWidth: 512);
+    if (picked == null) return;
+    final Uint8List bytes = await picked.readAsBytes();
+    if (!mounted) return;
+    await context.read<AuthProvider>().updateProfilePhoto(bytes);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -372,30 +389,38 @@ class ProfilePage extends StatelessWidget {
                         backgroundColor: isDark
                             ? Colors.white.withValues(alpha: 0.2)
                             : Colors.black.withValues(alpha: 0.08),
-                        child: Text(
-                          user?.name.substring(0, 1).toUpperCase() ?? 'U',
-                          style: GoogleFonts.inter(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white70 : Colors.black87,
-                          ),
-                        ),
+                        backgroundImage: user?.photoUrl != null
+                            ? NetworkImage(user!.photoUrl!)
+                            : null,
+                        child: user?.photoUrl == null
+                            ? Text(
+                                user?.name.substring(0, 1).toUpperCase() ?? 'U',
+                                style: GoogleFonts.inter(
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white70 : Colors.black87,
+                                ),
+                              )
+                            : null,
                       ),
                     ),
                     Positioned(
                       bottom: 0,
                       right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: isDark ? Colors.white : Colors.black87,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: bgColor, width: 3),
-                        ),
-                        child: const Icon(
-                          CupertinoIcons.camera,
-                          size: 16,
-                          color: Colors.white,
+                      child: GestureDetector(
+                        onTap: _pickAndUploadPhoto,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.white : Colors.black87,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: bgColor, width: 3),
+                          ),
+                          child: Icon(
+                            CupertinoIcons.camera,
+                            size: 16,
+                            color: isDark ? Colors.black : Colors.white,
+                          ),
                         ),
                       ),
                     ),

@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:inkspacex/models/comment_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
+import 'package:inkspacex/models/reading_progress_model.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/services/firestore_service.dart';
 
@@ -13,9 +15,18 @@ class FeedProvider extends ChangeNotifier {
   UserPreferences? _lastPreferences;
   String? _currentUserId;
 
+  DocumentSnapshot? _lastDocument;
+  bool _hasMore = true;
+  bool _isLoadingMore = false;
+
+  List<ReadingProgressModel> _readingProgress = [];
+
   List<FeedItemModel> get items => _items;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  bool get hasMore => _hasMore;
+  bool get isLoadingMore => _isLoadingMore;
+  List<ReadingProgressModel> get readingProgress => _readingProgress;
 
   /// Load feed only when empty.
   Future<void> loadFeedIfNeeded(
@@ -24,6 +35,8 @@ class FeedProvider extends ChangeNotifier {
   }) async {
     _currentUserId = userId;
     if (_items.isNotEmpty) return;
+    _lastDocument = null;
+    _hasMore = true;
     await loadFeed(preferences, userId: userId);
   }
 
@@ -36,33 +49,58 @@ class FeedProvider extends ChangeNotifier {
     if (!forceRefresh && _items.isNotEmpty) return;
     _currentUserId = userId ?? _currentUserId;
 
+    _lastDocument = null;
+    _hasMore = true;
     _isLoading = true;
     _error = null;
     notifyListeners();
     try {
-      _items = await _firestore.getPersonalizedFeed(
+      final result = await _firestore.getPersonalizedFeed(
         preferences,
         currentUserId: _currentUserId,
       );
+      _items = result.items;
+      _lastDocument = result.lastDoc;
+      _hasMore = result.items.isNotEmpty;
       _lastPreferences = preferences;
     } catch (e) {
       _error = e.toString();
       if (forceRefresh) _items = [];
     }
     _isLoading = false;
+    if (_currentUserId != null) {
+      await loadReadingProgress(_currentUserId!);
+    }
     notifyListeners();
+  }
+
+  Future<void> loadReadingProgress(String userId) async {
+    try {
+      _readingProgress = await _firestore.getAllReadingProgress(userId);
+    } catch (_) {
+      _readingProgress = [];
+    }
+    notifyListeners();
+  }
+
+  List<FeedItemModel> getContinueReadingItems() {
+    if (_readingProgress.isEmpty || _items.isEmpty) return [];
+    final progressIds =
+        _readingProgress.where((p) => !p.completed).map((p) => p.feedItemId).toSet();
+    return _items.where((item) => progressIds.contains(item.id)).toList();
   }
 
   /// Silent background refresh: prepend new items without loading indicator.
   Future<void> silentRefresh() async {
     if (_items.isEmpty || _lastPreferences == null) return;
     try {
-      final fresh = await _firestore.getPersonalizedFeed(
+      final result = await _firestore.getPersonalizedFeed(
         _lastPreferences!,
         currentUserId: _currentUserId,
       );
       final existingIds = _items.map((e) => e.id).toSet();
-      final newItems = fresh.where((e) => !existingIds.contains(e.id)).toList();
+      final newItems =
+          result.items.where((e) => !existingIds.contains(e.id)).toList();
       if (newItems.isEmpty) return;
       _items = [...newItems, ..._items];
       notifyListeners();
@@ -75,14 +113,33 @@ class FeedProvider extends ChangeNotifier {
     _lastPreferences = null;
     _currentUserId = null;
     _error = null;
+    _lastDocument = null;
+    _hasMore = true;
+    _isLoadingMore = false;
+    _readingProgress = [];
     notifyListeners();
   }
 
-  /// Ensure feed has seed data (call once on first launch).
-  Future<void> ensureSeedData() async {
+  /// Load the next page of feed items (cursor-based pagination).
+  Future<void> loadMore({String? userId}) async {
+    if (_isLoadingMore || !_hasMore) return;
+    _isLoadingMore = true;
+    notifyListeners();
     try {
-      await _firestore.seedDefaultFeedItems();
-    } catch (_) {}
+      final result = await _firestore.getPersonalizedFeed(
+        _lastPreferences ?? const UserPreferences(),
+        lastDocument: _lastDocument,
+        currentUserId: userId ?? _currentUserId,
+      );
+      _lastDocument = result.lastDoc;
+      _hasMore = result.items.isNotEmpty;
+      _items.addAll(result.items);
+    } catch (_) {
+      // silently fail on loadMore
+    } finally {
+      _isLoadingMore = false;
+      notifyListeners();
+    }
   }
 
   // ── Comments ──

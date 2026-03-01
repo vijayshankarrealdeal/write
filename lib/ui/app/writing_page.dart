@@ -1,6 +1,8 @@
+import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import 'package:inkspacex/provider/editor_provider.dart';
@@ -1070,6 +1072,15 @@ class _PublishSectionPickerState extends State<_PublishSectionPicker> {
   Future<void> _publish(SectionModel section) async {
     setState(() => _publishingId = section.id);
     try {
+      if (widget.book.coverImagePath.isEmpty) {
+        final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+        if (picked == null) {
+          setState(() => _publishingId = null);
+          return;
+        }
+        final Uint8List bytes = await picked.readAsBytes();
+        await widget.provider.updateBookCoverImage(widget.book, bytes);
+      }
       await widget.provider.publishSection(widget.book, section);
       if (mounted) {
         Navigator.pop(context);

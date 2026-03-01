@@ -2,8 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/services/firebase_storage_service.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 
 class EditiorPage extends StatefulWidget {
@@ -48,6 +51,24 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
       context.read<EditorProvider>().initEditor();
       if (mounted) setState(() => _isReady = true);
     }
+  }
+
+  Future<void> _insertImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+    if (picked == null) return;
+    final bytes = await picked.readAsBytes();
+    final auth = context.read<AuthProvider>();
+    if (auth.currentUser == null) return;
+    final storageService = FirebaseStorageService();
+    final url = await storageService.uploadEditorImage(auth.currentUser!.id, bytes);
+    final controller = context.read<EditorProvider>().controller;
+    final index = controller.selection.baseOffset;
+    controller.document.insert(index, BlockEmbed.image(url));
+    controller.updateSelection(
+      TextSelection.collapsed(offset: index + 1),
+      ChangeSource.local,
+    );
   }
 
   @override
@@ -201,6 +222,16 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                                         height: 24,
                                         margin: const EdgeInsets.only(right: 8),
                                         color: subtleBorder,
+                                      ),
+
+                                      IconButton(
+                                        icon: Icon(
+                                          CupertinoIcons.photo,
+                                          size: 20,
+                                          color: textColor,
+                                        ),
+                                        tooltip: 'Insert Image',
+                                        onPressed: _insertImage,
                                       ),
 
                                       // Quill Toolbar (Takes remaining space and scrolls itself)
@@ -424,7 +455,18 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                         clipBehavior: Clip.antiAlias,
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
-                          child: Padding(
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  CupertinoIcons.photo,
+                                  size: 20,
+                                  color: textColor,
+                                ),
+                                tooltip: 'Insert Image',
+                                onPressed: _insertImage,
+                              ),
+                              Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: Container(
                               decoration: BoxDecoration(
@@ -475,6 +517,8 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                                 ),
                               ),
                             ),
+                          ),
+                            ],
                           ),
                         ),
                       ),

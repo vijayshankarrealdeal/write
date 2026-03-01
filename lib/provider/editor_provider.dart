@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/services/firebase_storage_service.dart';
 import 'package:inkspacex/services/firestore_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 
@@ -12,6 +14,7 @@ class EditorProvider extends ChangeNotifier {
   final StorageService _storage;
   final AuthProvider _auth;
   final FirestoreService _firestore = FirestoreService();
+  final FirebaseStorageService _storageService = FirebaseStorageService();
 
   EditorProvider(this._storage, this._auth) {
     loadBooks();
@@ -218,6 +221,20 @@ class EditorProvider extends ChangeNotifier {
     }
     await _storage.saveBooks(allBooks);
     notifyListeners();
+  }
+
+  Future<String> updateBookCoverImage(WritingModel book, Uint8List bytes) async {
+    final uid = _userId;
+    if (uid == null) throw Exception("User not logged in");
+    final url = await _storageService.uploadCoverImage(uid, book.id, bytes);
+    book.coverImagePath = url;
+    await _storage.saveBooks(allBooks);
+    final writeUid = _userId;
+    if (writeUid != null) {
+      await _firestore.updateWritingMetadata(writeUid, book.id, coverImagePath: url);
+    }
+    notifyListeners();
+    return url;
   }
 
   Future<void> deleteBook(WritingModel book) async {

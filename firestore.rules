@@ -31,7 +31,8 @@ service cloud.firestore {
                     && (resource.data.authorId == request.auth.uid
                         || onlyCounterChanged(['likesCount'])
                         || onlyCounterChanged(['commentsCount'])
-                        || onlyCounterChanged(['likesCount', 'commentsCount']));
+                        || onlyCounterChanged(['likesCount', 'commentsCount'])
+                        || onlyCounterChanged(['rankScore', 'rankUpdatedAt']));
 
       allow delete: if isSignedIn()
                     && resource.data.authorId == request.auth.uid;

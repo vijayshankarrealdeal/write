@@ -2,6 +2,9 @@
   "firestore": {
     "rules": "firestore.rules"
   },
+  "storage": {
+    "rules": "storage.rules"
+  },
   "flutter": {
     "platforms": {
       "android": {
@@ -40,6 +43,9 @@
         }
       }
     }
+  },
+  "functions": {
+    "source": "functions"
   },
   "hosting": {
     "public": "build/web",

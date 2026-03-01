@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -11,6 +12,7 @@ import 'package:inkspacex/models/comment_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
+import 'package:inkspacex/services/firestore_service.dart';
 
 class PostDetailPage extends StatefulWidget {
   final FeedItemModel item;
@@ -24,13 +26,45 @@ class _PostDetailPageState extends State<PostDetailPage> {
   late quill.QuillController _quillController;
   final _commentController = TextEditingController();
   final _commentFocus = FocusNode();
+  final _scrollController = ScrollController();
   bool _sendingComment = false;
   bool _hasContent = false;
+
+  final _firestoreService = FirestoreService();
+  Timer? _debounce;
+  String? _userId;
 
   @override
   void initState() {
     super.initState();
     _initQuill();
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadProgress());
+  }
+
+  void _onScroll() {
+    if (_userId == null || !_scrollController.hasClients) return;
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      _firestoreService.updateReadingProgress(
+        _userId!,
+        widget.item.id,
+        _scrollController.offset,
+      );
+    });
+  }
+
+  Future<void> _loadProgress() async {
+    final auth = context.read<AuthProvider>();
+    _userId = auth.currentUser?.id;
+    if (_userId == null) return;
+    final progress = await _firestoreService.getReadingProgress(
+      _userId!,
+      widget.item.id,
+    );
+    if (progress != null && _scrollController.hasClients && mounted) {
+      _scrollController.jumpTo(progress.scrollPosition);
+    }
   }
 
   void _initQuill() {
@@ -52,6 +86,15 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
+    if (_userId != null && _scrollController.hasClients) {
+      _firestoreService.updateReadingProgress(
+        _userId!,
+        widget.item.id,
+        _scrollController.offset,
+      );
+    }
+    _scrollController.dispose();
     _quillController.dispose();
     _commentController.dispose();
     _commentFocus.dispose();
@@ -99,6 +142,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
         children: [
           Expanded(
             child: CustomScrollView(
+              controller: _scrollController,
               slivers: [
                 // App bar
                 CupertinoSliverNavigationBar(

@@ -1,13 +1,30 @@
+import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 
-class NewBookAddition extends StatelessWidget {
+class NewBookAddition extends StatefulWidget {
   const NewBookAddition({super.key});
+
+  @override
+  State<NewBookAddition> createState() => _NewBookAdditionState();
+}
+
+class _NewBookAdditionState extends State<NewBookAddition> {
+  Uint8List? _imageBytes;
+
+  Future<void> _pickImage() async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      final bytes = await picked.readAsBytes();
+      setState(() => _imageBytes = bytes);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +81,47 @@ class NewBookAddition extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        height: 180,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withOpacity(0.04)
+                              : Colors.black.withOpacity(0.03),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: subtleBorder),
+                          image: _imageBytes != null
+                              ? DecorationImage(
+                                  image: MemoryImage(_imageBytes!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: _imageBytes == null
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.photo,
+                                    size: 36,
+                                    color: textColor.withOpacity(0.3),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    "Tap to add cover image",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: textColor.withOpacity(0.4),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                     Text(
                       "Space Details",
                       style: GoogleFonts.playfairDisplay(
@@ -190,6 +248,12 @@ class NewBookAddition extends StatelessWidget {
                         onTap: () async {
                           try {
                             await editorProvider.addNewBook();
+                            if (_imageBytes != null && editorProvider.activeBook != null) {
+                              await editorProvider.updateBookCoverImage(
+                                editorProvider.activeBook!,
+                                _imageBytes!,
+                              );
+                            }
                             if (context.mounted) Navigator.of(context).pop();
                           } catch (e) {
                             if (context.mounted) _showError(context, e);

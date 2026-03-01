@@ -1,15 +1,18 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inkspacex/models/user_model.dart' as app;
 import 'package:inkspacex/models/user_preferences_model.dart';
+import 'package:inkspacex/services/firebase_storage_service.dart';
 import 'package:inkspacex/services/firestore_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final StorageService _storage;
   final FirestoreService _firestore = FirestoreService();
+  final FirebaseStorageService _storageService = FirebaseStorageService();
 
   bool _isAuthenticated = false;
   app.User? _currentUser;
@@ -245,6 +248,15 @@ class AuthProvider extends ChangeNotifier {
         likes: [..._currentUser!.likes, feedItemId],
       );
     }
+    notifyListeners();
+  }
+
+  Future<void> updateProfilePhoto(Uint8List bytes) async {
+    if (_currentUser == null) return;
+    final url = await _storageService.uploadProfilePhoto(_currentUser!.id, bytes);
+    await _firestore.setUser(_currentUser!.copyWith(photoUrl: url));
+    _currentUser = _currentUser!.copyWith(photoUrl: url);
+    await _storage.saveUser(_currentUser!.toJson());
     notifyListeners();
   }
 

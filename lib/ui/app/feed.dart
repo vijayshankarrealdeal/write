@@ -31,13 +31,14 @@ class _FeedState extends State<Feed> {
     final feed = context.read<FeedProvider>();
     final prefs = auth.currentUser?.preferences ?? const UserPreferences();
     final userId = auth.currentUser?.id;
-    feed.ensureSeedData().then((_) async {
-      if (feed.items.isNotEmpty) {
-        feed.silentRefresh();
-      } else {
-        await feed.loadFeedIfNeeded(prefs, userId: userId);
-      }
-    });
+    if (feed.items.isNotEmpty) {
+      feed.silentRefresh();
+    } else {
+      feed.loadFeedIfNeeded(prefs, userId: userId);
+    }
+    if (userId != null) {
+      feed.loadReadingProgress(userId);
+    }
   }
 
   Future<void> _onRefresh() async {
@@ -78,39 +79,107 @@ class _FeedState extends State<Feed> {
           );
         }
 
+        if (feed.items.isEmpty && !feed.isLoading) {
+          return Scaffold(
+            backgroundColor: bgColor,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    CupertinoIcons.book,
+                    size: 64,
+                    color: textColor.withOpacity(0.3),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "No posts yet",
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Follow writers or explore categories to see posts here",
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: textColor.withOpacity(0.5),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
         return Scaffold(
           backgroundColor: bgColor,
-          body: RefreshIndicator(
-            onRefresh: _onRefresh,
-            color: textColor,
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                SliverPadding(
-                  padding: EdgeInsets.fromLTRB(
-                    horizontalPadding,
-                    topPadding,
-                    horizontalPadding,
-                    24.0,
+          body: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification.metrics.pixels >=
+                  notification.metrics.maxScrollExtent - 200) {
+                feed.loadMore(userId: auth.currentUser?.id);
+              }
+              return false;
+            },
+            child: RefreshIndicator(
+              onRefresh: _onRefresh,
+              color: textColor,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverPadding(
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      topPadding,
+                      horizontalPadding,
+                      24.0,
+                    ),
+                    sliver: SliverToBoxAdapter(
+                      child: _buildActionRow(textColor, isMobile, auth),
+                    ),
                   ),
-                  sliver: SliverToBoxAdapter(
-                    child: _buildActionRow(textColor, isMobile, auth),
+                  if (feed.getContinueReadingItems().isNotEmpty)
+                    SliverPadding(
+                      padding: EdgeInsets.fromLTRB(
+                        horizontalPadding,
+                        0,
+                        horizontalPadding,
+                        16.0,
+                      ),
+                      sliver: SliverToBoxAdapter(
+                        child: _buildContinueReadingSection(
+                          textColor,
+                          feed.getContinueReadingItems(),
+                        ),
+                      ),
+                    ),
+                  SliverPadding(
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      0,
+                      horizontalPadding,
+                      48.0,
+                    ),
+                    sliver: SliverToBoxAdapter(
+                      child: isMobile
+                          ? _buildMobileLayout(textColor, feed, auth)
+                          : _buildDesktopLayout(
+                              textColor, isTablet, feed, auth),
+                    ),
                   ),
-                ),
-                SliverPadding(
-                  padding: EdgeInsets.fromLTRB(
-                    horizontalPadding,
-                    0,
-                    horizontalPadding,
-                    48.0,
-                  ),
-                  sliver: SliverToBoxAdapter(
-                    child: isMobile
-                        ? _buildMobileLayout(textColor, feed, auth)
-                        : _buildDesktopLayout(textColor, isTablet, feed, auth),
-                  ),
-                ),
-              ],
+                  if (feed.isLoadingMore)
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 32),
+                        child: Center(child: CupertinoActivityIndicator()),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         );
@@ -189,7 +258,6 @@ class _FeedState extends State<Feed> {
         ? Colors.white.withOpacity(0.06)
         : Colors.black.withOpacity(0.04);
     final hintColor = isDark ? Colors.white54 : Colors.black54;
-    final user = auth.currentUser;
 
     if (isMobile) {
       return Column(
@@ -267,19 +335,6 @@ class _FeedState extends State<Feed> {
           flex: 2,
           child: _buildPillButton("Your Reading List", boxColor, textColor),
         ),
-        if (user != null) ...[
-          const SizedBox(width: 16),
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: isDark ? Colors.white12 : Colors.black12,
-            backgroundImage: user.photoUrl != null
-                ? NetworkImage(user.photoUrl!)
-                : null,
-            child: user.photoUrl == null
-                ? Icon(CupertinoIcons.person, size: 18, color: textColor)
-                : null,
-          ),
-        ],
       ],
     );
   }
@@ -304,6 +359,89 @@ class _FeedState extends State<Feed> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildContinueReadingSection(
+    Color textColor,
+    List<FeedItemModel> items,
+  ) {
+    final cardColor = isDark
+        ? Colors.white.withOpacity(0.06)
+        : Colors.black.withOpacity(0.04);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Continue Reading",
+          style: GoogleFonts.inter(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: textColor,
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 72,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: items.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (_) => PostDetailPage(item: item),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 220,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        item.title,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: textColor,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Continue",
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: isDark
+                              ? const Color(0xFFFFCC00)
+                              : const Color(0xFF1982C4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -551,42 +689,34 @@ class _FeedState extends State<Feed> {
   }
 
   Widget _buildBottomGallery(List<FeedItemModel> items) {
+    if (items.isEmpty) return const SizedBox.shrink();
+
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = Breakpoints.isMobile(width);
-
-    final fallbackUrls = [
-      "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1604076913837-52ab5629fba9?fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?fit=crop&w=400&q=80",
-    ];
-    final urls = items.isNotEmpty
-        ? items.take(4).map((e) => e.imageUrl).toList()
-        : fallbackUrls;
-    while (urls.length < 4) urls.add(fallbackUrls[urls.length % 4]);
+    final displayItems = items.take(4).toList();
 
     if (isMobile) {
       return ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: urls.length,
+        itemCount: displayItems.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
+          final item = displayItems[index];
           return SizedBox(
             width: 140,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: CachedNetworkImage(
-                imageUrl: urls[index],
-                fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
-                  color: Colors.grey[300],
-                  child: const Center(child: CupertinoActivityIndicator()),
-                ),
-                errorWidget: (_, __, ___) => Container(
-                  color: Colors.grey[300],
-                  child: Icon(CupertinoIcons.photo),
-                ),
-              ),
+              child: item.imageUrl.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: item.imageUrl,
+                      fit: BoxFit.cover,
+                      placeholder: (_, __) => Container(
+                        color: Colors.grey[300],
+                        child: const Center(child: CupertinoActivityIndicator()),
+                      ),
+                      errorWidget: (_, __, ___) => _buildGalleryPlaceholder(item.title),
+                    )
+                  : _buildGalleryPlaceholder(item.title),
             ),
           );
         },
@@ -595,28 +725,45 @@ class _FeedState extends State<Feed> {
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: urls.map((url) {
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(right: url == urls.last ? 0 : 20.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: CachedNetworkImage(
-                imageUrl: url,
-                fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
-                  color: Colors.grey[300],
-                  child: const Center(child: CupertinoActivityIndicator()),
-                ),
-                errorWidget: (_, __, ___) => Container(
-                  color: Colors.grey[300],
-                  child: Icon(CupertinoIcons.photo),
-                ),
+      children: [
+        for (int i = 0; i < displayItems.length; i++)
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(right: i == displayItems.length - 1 ? 0 : 20.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: displayItems[i].imageUrl.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: displayItems[i].imageUrl,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) => Container(
+                          color: Colors.grey[300],
+                          child: const Center(child: CupertinoActivityIndicator()),
+                        ),
+                        errorWidget: (_, __, ___) =>
+                            _buildGalleryPlaceholder(displayItems[i].title),
+                      )
+                    : _buildGalleryPlaceholder(displayItems[i].title),
               ),
             ),
           ),
-        );
-      }).toList(),
+      ],
+    );
+  }
+
+  Widget _buildGalleryPlaceholder(String title) {
+    final initial = title.isNotEmpty ? title[0].toUpperCase() : '?';
+    return Container(
+      color: Colors.grey[200],
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: GoogleFonts.playfairDisplay(
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey[500],
+        ),
+      ),
     );
   }
 

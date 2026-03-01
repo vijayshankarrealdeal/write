@@ -2,10 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:inkspacex/models/comment_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:flutter/material.dart' show Color;
+import 'package:inkspacex/models/reading_progress_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/user_model.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
+
+class FeedPage {
+  final List<FeedItemModel> items;
+  final DocumentSnapshot? lastDoc;
+  const FeedPage({required this.items, this.lastDoc});
+}
 
 /// Firestore structure (optimized for reads):
 ///
@@ -297,16 +304,18 @@ class FirestoreService {
 
   /// Recommendation engine: merges personalized + trending + recent,
   /// deduplicates, excludes the current user's own posts, then ranks
-  /// by a composite score.
-  Future<List<FeedItemModel>> getPersonalizedFeed(
+  /// by a composite score. Supports cursor-based pagination.
+  Future<FeedPage> getPersonalizedFeed(
     UserPreferences preferences, {
-    int limit = 30,
+    int pageSize = 10,
+    DocumentSnapshot? lastDocument,
     String? currentUserId,
   }) async {
     final genres = preferences.preferredGenres.take(10).toList();
     final writingTypes = preferences.preferredWritingTypes.take(10).toList();
     final seen = <String>{};
     final all = <FeedItemModel>[];
+    DocumentSnapshot? lastDoc;
 
     List<FeedItemModel> parse(QuerySnapshot<Map<String, dynamic>> snap) {
       return snap.docs.map((d) {
@@ -315,14 +324,23 @@ class FirestoreService {
       }).toList();
     }
 
+    Query<Map<String, dynamic>> _applyPagination(
+      Query<Map<String, dynamic>> query,
+    ) {
+      var q = query.limit(pageSize);
+      if (lastDocument != null) q = q.startAfterDocument(lastDocument);
+      return q;
+    }
+
     // 1. Fetch by preferred genres
     if (genres.isNotEmpty) {
-      final snap = await _firestore
-          .collection(_feedItems)
-          .where('genres', arrayContainsAny: genres)
-          .orderBy('createdAt', descending: true)
-          .limit(limit)
-          .get();
+      final snap = await _applyPagination(
+        _firestore
+            .collection(_feedItems)
+            .where('genres', arrayContainsAny: genres)
+            .orderBy('createdAt', descending: true),
+      ).get();
+      if (snap.docs.isNotEmpty) lastDoc = snap.docs.last;
       for (final item in parse(snap)) {
         if (seen.add(item.id)) all.add(item);
       }
@@ -330,33 +348,36 @@ class FirestoreService {
 
     // 2. Fetch by preferred writing types
     if (writingTypes.isNotEmpty) {
-      final snap = await _firestore
-          .collection(_feedItems)
-          .where('writingTypes', arrayContainsAny: writingTypes)
-          .orderBy('createdAt', descending: true)
-          .limit(limit)
-          .get();
+      final snap = await _applyPagination(
+        _firestore
+            .collection(_feedItems)
+            .where('writingTypes', arrayContainsAny: writingTypes)
+            .orderBy('createdAt', descending: true),
+      ).get();
+      if (snap.docs.isNotEmpty) lastDoc = snap.docs.last;
       for (final item in parse(snap)) {
         if (seen.add(item.id)) all.add(item);
       }
     }
 
     // 3. Trending (by engagement: likes + comments)
-    final trendingSnap = await _firestore
-        .collection(_feedItems)
-        .orderBy('likesCount', descending: true)
-        .limit(limit)
-        .get();
+    final trendingSnap = await _applyPagination(
+      _firestore
+          .collection(_feedItems)
+          .orderBy('likesCount', descending: true),
+    ).get();
+    if (trendingSnap.docs.isNotEmpty) lastDoc = trendingSnap.docs.last;
     for (final item in parse(trendingSnap)) {
       if (seen.add(item.id)) all.add(item);
     }
 
     // 4. Recent posts (catch new content regardless of genre)
-    final recentSnap = await _firestore
-        .collection(_feedItems)
-        .orderBy('createdAt', descending: true)
-        .limit(limit)
-        .get();
+    final recentSnap = await _applyPagination(
+      _firestore
+          .collection(_feedItems)
+          .orderBy('createdAt', descending: true),
+    ).get();
+    if (recentSnap.docs.isNotEmpty) lastDoc = recentSnap.docs.last;
     for (final item in parse(recentSnap)) {
       if (seen.add(item.id)) all.add(item);
     }
@@ -377,7 +398,7 @@ class FirestoreService {
       return scoreB.compareTo(scoreA);
     });
 
-    return all.take(limit).toList();
+    return FeedPage(items: all, lastDoc: lastDoc);
   }
 
   /// Composite score: preference match + engagement + freshness.
@@ -413,113 +434,6 @@ class FirestoreService {
   }
 
   static double _log2(double x) => x > 0 ? x.toStringAsFixed(0).length.toDouble() : 0;
-
-  /// Seed default feed items (run once when collection is empty).
-  Future<void> seedDefaultFeedItems() async {
-    final snap = await _firestore.collection(_feedItems).limit(1).get();
-    if (snap.docs.isNotEmpty) return; // Already seeded
-    final batch = _firestore.batch();
-    final items = _defaultFeedItems();
-    for (final item in items) {
-      final ref = _firestore.collection(_feedItems).doc(item.id);
-      final json = item.toJson();
-      json['createdAt'] = Timestamp.fromDate(item.createdAt);
-      batch.set(ref, json);
-    }
-    await batch.commit();
-  }
-
-  static List<FeedItemModel> _defaultFeedItems() {
-    final now = DateTime.now();
-    return [
-      FeedItemModel(
-        id: 'paper-faces',
-        title: "Paper Faces, Real Skin: On the Mask We Choose",
-        author: "Nina Abraham",
-        authorId: 'demo-author-1',
-        description:
-            "You are not your reflection. You are not your bio. You're not even your favourite book. This essay explores the absurdity of identity in a world where we curate ourselves more than we understand ourselves.",
-        imageUrl:
-            "https://images.unsplash.com/photo-1544502062-f82887f03d1c?fit=crop&w=400&q=80",
-        genres: ['creative', 'personal', 'essay'],
-        writingTypes: ['creative', 'personal'],
-        tags: ['identity', 'reflection'],
-        createdAt: now,
-        likesCount: 42,
-      ),
-      FeedItemModel(
-        id: 'soft-apocalypse',
-        title: "Soft Apocalypse: How We Fall Apart Quietly",
-        author: "Rayan V",
-        authorId: 'demo-author-2',
-        description:
-            "Some days, your thoughts feel like bubblegum caught in a microwave. This isn't a piece about breakdowns—it's about breakthroughs that look like breakdowns.",
-        imageUrl:
-            "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?fit=crop&w=400&q=80",
-        genres: ['creative', 'personal', 'poetry'],
-        writingTypes: ['creative', 'personal'],
-        tags: ['mental health', 'growth'],
-        createdAt: now,
-        likesCount: 38,
-      ),
-      FeedItemModel(
-        id: 'gallery-1',
-        title: "Morning Pages",
-        author: "Anonymous",
-        authorId: 'demo-author-3',
-        description: "A journey through journaling and self-discovery.",
-        imageUrl:
-            "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?fit=crop&w=400&q=80",
-        genres: ['personal', 'journal'],
-        writingTypes: ['personal'],
-        tags: ['journaling'],
-        createdAt: now,
-        likesCount: 15,
-      ),
-      FeedItemModel(
-        id: 'gallery-2',
-        title: "Digital Detox",
-        author: "Anonymous",
-        authorId: 'demo-author-4',
-        description: "Finding peace in a connected world.",
-        imageUrl:
-            "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?fit=crop&w=400&q=80",
-        genres: ['digitalContent', 'personal'],
-        writingTypes: ['digitalContent'],
-        tags: ['wellness'],
-        createdAt: now,
-        likesCount: 22,
-      ),
-      FeedItemModel(
-        id: 'gallery-3',
-        title: "Creative Block",
-        author: "Anonymous",
-        authorId: 'demo-author-5',
-        description: "Breaking through when words won't come.",
-        imageUrl:
-            "https://images.unsplash.com/photo-1604076913837-52ab5629fba9?fit=crop&w=400&q=80",
-        genres: ['creative', 'personal'],
-        writingTypes: ['creative'],
-        tags: ['creativity'],
-        createdAt: now,
-        likesCount: 31,
-      ),
-      FeedItemModel(
-        id: 'gallery-4',
-        title: "Storytelling",
-        author: "Anonymous",
-        authorId: 'demo-author-6',
-        description: "The art of narrative in everyday life.",
-        imageUrl:
-            "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?fit=crop&w=400&q=80",
-        genres: ['creative', 'essay'],
-        writingTypes: ['creative'],
-        tags: ['narrative'],
-        createdAt: now,
-        likesCount: 19,
-      ),
-    ];
-  }
 
   // =========================================================================
   // WRITINGS (optimized: metadata + sections subcollection)
@@ -712,12 +626,14 @@ class FirestoreService {
     String writingId, {
     String? title,
     String? description,
+    String? coverImagePath,
   }) async {
     final updates = <String, dynamic>{
       'updatedAt': FieldValue.serverTimestamp(),
     };
     if (title != null) updates['title'] = title;
     if (description != null) updates['description'] = description;
+    if (coverImagePath != null) updates['coverImagePath'] = coverImagePath;
     await _firestore
         .doc('$_users/$userId/$_writings/$writingId')
         .update(updates);
@@ -736,5 +652,57 @@ class FirestoreService {
     }
     batch.delete(_firestore.doc('$_users/$userId/$_writings/$writingId'));
     await batch.commit();
+  }
+
+  // =========================================================================
+  // READING PROGRESS
+  // =========================================================================
+
+  Future<void> updateReadingProgress(
+    String userId,
+    String feedItemId,
+    double scrollPosition, {
+    bool completed = false,
+  }) async {
+    await _firestore
+        .collection(_users)
+        .doc(userId)
+        .collection('reading_progress')
+        .doc(feedItemId)
+        .set({
+      'feedItemId': feedItemId,
+      'scrollPosition': scrollPosition,
+      'lastReadAt': DateTime.now().toIso8601String(),
+      'completed': completed,
+    }, SetOptions(merge: true));
+  }
+
+  Future<ReadingProgressModel?> getReadingProgress(
+    String userId,
+    String feedItemId,
+  ) async {
+    final doc = await _firestore
+        .collection(_users)
+        .doc(userId)
+        .collection('reading_progress')
+        .doc(feedItemId)
+        .get();
+    if (!doc.exists || doc.data() == null) return null;
+    return ReadingProgressModel.fromJson(doc.data()!);
+  }
+
+  Future<List<ReadingProgressModel>> getAllReadingProgress(
+    String userId,
+  ) async {
+    final snap = await _firestore
+        .collection(_users)
+        .doc(userId)
+        .collection('reading_progress')
+        .orderBy('lastReadAt', descending: true)
+        .limit(50)
+        .get();
+    return snap.docs
+        .map((d) => ReadingProgressModel.fromJson(d.data()))
+        .toList();
   }
 }
