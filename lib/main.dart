@@ -48,7 +48,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NavProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider(storage)),
         ChangeNotifierProxyProvider<AuthProvider, EditorProvider>(
-          create: (context) => EditorProvider(storage, context.read<AuthProvider>()),
+          create: (context) =>
+              EditorProvider(storage, context.read<AuthProvider>()),
           update: (context, auth, previous) {
             final provider = previous ?? EditorProvider(storage, auth);
             if (previous != null && auth.isAuthenticated) {
@@ -320,7 +321,9 @@ class _DesktopHomePage extends StatelessWidget {
                           const SizedBox(width: 16),
                           GestureDetector(
                             onTap: () {
-                              context.read<NavProvider>().setIndex(SelectedPage.settings);
+                              context.read<NavProvider>().setIndex(
+                                SelectedPage.settings,
+                              );
                             },
                             child: CircleAvatar(
                               radius: 18,
@@ -338,7 +341,9 @@ class _DesktopHomePage extends StatelessWidget {
                       ),
                     ),
                   if (selectedPage == SelectedPage.write &&
-                      context.select<EditorProvider, bool>((p) => p.allBooks.isNotEmpty))
+                      context.select<EditorProvider, bool>(
+                        (p) => p.allBooks.isNotEmpty,
+                      ))
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32.0),
                       child: CupertinoButton(
@@ -353,7 +358,7 @@ class _DesktopHomePage extends StatelessWidget {
                             Icon(CupertinoIcons.add, size: 16, color: bgColor),
                             const SizedBox(width: 6),
                             Text(
-                              "New Project",
+                              "New Space",
                               style: GoogleFonts.inter(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -374,10 +379,7 @@ class _DesktopHomePage extends StatelessWidget {
                     ),
                 ],
               ),
-              body: IndexedStack(
-                index: selectedPage.index,
-                children: pages,
-              ),
+              body: IndexedStack(index: selectedPage.index, children: pages),
             ),
           ),
         ],

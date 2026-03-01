@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:writer/models/writing_model.dart';
 import 'package:writer/provider/editor_provider.dart';
+import 'package:writer/ui/utilities/responsive_layout.dart';
 
 class NewBookAddition extends StatelessWidget {
   const NewBookAddition({super.key});
@@ -12,7 +13,7 @@ class NewBookAddition extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
-    final cardColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+    final cardColor = isDark ? const Color(0xFF070707) : Colors.white;
     final textColor = isDark ? Colors.white : Colors.black;
     final subtleBorder = isDark
         ? Colors.white.withOpacity(0.08)
@@ -29,7 +30,7 @@ class NewBookAddition extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          "New Project",
+          "New Space",
           style: GoogleFonts.inter(
             fontWeight: FontWeight.w600,
             fontSize: 16,
@@ -41,7 +42,9 @@ class NewBookAddition extends StatelessWidget {
       body: Center(
         child: SingleChildScrollView(
           child: Container(
-            width: 500, // Fixed optimal width for forms on web/desktop
+            width: Breakpoints.isMobile(MediaQuery.of(context).size.width)
+                ? MediaQuery.of(context).size.width * 0.95
+                : MediaQuery.of(context).size.width * 0.4,
             padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
               color: cardColor,
@@ -62,7 +65,7 @@ class NewBookAddition extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Project Details",
+                      "Space Details",
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
@@ -73,14 +76,14 @@ class NewBookAddition extends StatelessWidget {
 
                     FieldForm(
                       label: "Title",
-                      hint: "Enter project title...",
+                      hint: "Enter space title...",
                       controller: editorProvider.titleController,
                     ),
                     const SizedBox(height: 20),
 
                     FieldForm(
                       label: "Description",
-                      hint: "A brief summary of this project...",
+                      hint: "A brief summary of this space...",
                       controller: editorProvider.descriptionController,
                     ),
                     const SizedBox(height: 20),

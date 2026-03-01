@@ -59,14 +59,14 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
+    final bgColor = isDark ? const Color(0xFF010101) : const Color(0xFFFAFAFA);
     final sidebarColor = isDark
-        ? const Color(0xFF1A1A1A)
+        ? const Color(0xFF121212)
         : const Color(0xFFF0F0F3);
     final textColor = isDark ? Colors.white : Colors.black;
     final subtleBorder = isDark
-        ? Colors.white.withValues(alpha: 0.1)
-        : Colors.black.withValues(alpha: 0.1);
+        ? Colors.white.withAlpha(25)
+        : Colors.black.withAlpha(25);
 
     return PopScope(
       canPop: true,
@@ -414,16 +414,27 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                         ),
                         decoration: BoxDecoration(
                           color: bgColor,
+                          borderRadius: BorderRadius.circular(25),
                           border: Border(
                             bottom: BorderSide(color: subtleBorder),
                           ),
                         ),
+                        clipBehavior: Clip.antiAlias,
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: SizedBox(
-                              width: 650,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: bgColor,
+                                borderRadius: BorderRadius.circular(25),
+                                border: Border(
+                                  bottom: BorderSide(color: subtleBorder),
+                                ),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+
+                              width: MediaQuery.sizeOf(context).width,
                               child: QuillSimpleToolbar(
                                 controller: context
                                     .read<EditorProvider>()
@@ -459,9 +470,13 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                                 : 0,
                             decoration: BoxDecoration(
                               color: sidebarColor,
-                              border: Border(
-                                right: BorderSide(color: subtleBorder),
+                              borderRadius: const BorderRadius.only(
+                                topRight: Radius.circular(24),
+                                bottomRight: Radius.circular(24),
                               ),
+                              // border: Border(
+                              //   right: BorderSide(color: subtleBorder),
+                              // ),
                             ),
                             child: ClipRect(
                               child: SingleChildScrollView(
@@ -635,10 +650,10 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
             return Material(
               color: isActive
                   ? (isDark
-                        ? Colors.white.withValues(alpha: 0.1)
-                        : Colors.black.withValues(alpha: 0.06))
+                        ? Colors.white.withAlpha(25)
+                        : Colors.black.withAlpha(15))
                   : Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(20),
               child: InkWell(
                 borderRadius: BorderRadius.circular(10),
                 onTap: () {
@@ -727,15 +742,13 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                         itemBuilder: (BuildContext context) => [
                           PopupMenuItem(
                             value: 'rename',
-                            child:
-                                Text('Rename', style: GoogleFonts.inter()),
+                            child: Text('Rename', style: GoogleFonts.inter()),
                           ),
                           PopupMenuItem(
                             value: 'delete',
                             child: Text(
                               'Delete',
-                              style:
-                                  GoogleFonts.inter(color: Colors.redAccent),
+                              style: GoogleFonts.inter(color: Colors.redAccent),
                             ),
                           ),
                         ],

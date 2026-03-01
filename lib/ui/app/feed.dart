@@ -84,23 +84,31 @@ class _FeedState extends State<Feed> {
             child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
-              SliverPadding(
-                padding: EdgeInsets.fromLTRB(
-                    horizontalPadding, topPadding, horizontalPadding, 24.0),
-                sliver: SliverToBoxAdapter(
-                  child: _buildActionRow(textColor, isMobile, auth),
+                SliverPadding(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPadding,
+                    topPadding,
+                    horizontalPadding,
+                    24.0,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    child: _buildActionRow(textColor, isMobile, auth),
+                  ),
                 ),
-              ),
-              SliverPadding(
-                padding: EdgeInsets.fromLTRB(
-                    horizontalPadding, 0, horizontalPadding, 48.0),
-                sliver: SliverToBoxAdapter(
-                  child: isMobile
-                      ? _buildMobileLayout(textColor, feed, auth)
-                      : _buildDesktopLayout(textColor, isTablet, feed, auth),
+                SliverPadding(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPadding,
+                    0,
+                    horizontalPadding,
+                    48.0,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    child: isMobile
+                        ? _buildMobileLayout(textColor, feed, auth)
+                        : _buildDesktopLayout(textColor, isTablet, feed, auth),
+                  ),
                 ),
-              ),
-            ],
+              ],
             ),
           ),
         );
@@ -109,24 +117,37 @@ class _FeedState extends State<Feed> {
   }
 
   Widget _buildMobileLayout(
-      Color textColor, FeedProvider feed, AuthProvider auth) {
+    Color textColor,
+    FeedProvider feed,
+    AuthProvider auth,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildTrendingSection(
-            feed.items.take(2).toList(), isMobile: true, auth: auth),
+          feed.items.take(2).toList(),
+          isMobile: true,
+          auth: auth,
+        ),
         const SizedBox(height: 20),
         SizedBox(
-            height: 200,
-            child: _buildBottomGallery(feed.items.length > 2 ? feed.items.sublist(2) : [])),
+          height: 200,
+          child: _buildBottomGallery(
+            feed.items.length > 2 ? feed.items.sublist(2) : [],
+          ),
+        ),
         const SizedBox(height: 24),
         _buildSidebar(textColor, isMobile: true),
       ],
     );
   }
 
-  Widget _buildDesktopLayout(Color textColor, bool isTablet, FeedProvider feed,
-      AuthProvider auth) {
+  Widget _buildDesktopLayout(
+    Color textColor,
+    bool isTablet,
+    FeedProvider feed,
+    AuthProvider auth,
+  ) {
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -137,29 +158,34 @@ class _FeedState extends State<Feed> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildTrendingSection(
-                    feed.items.take(2).toList(),
-                    isMobile: false,
-                    auth: auth),
+                  feed.items.take(2).toList(),
+                  isMobile: false,
+                  auth: auth,
+                ),
                 const SizedBox(height: 20),
                 SizedBox(
-                    height: isTablet ? 280 : 340,
-                    child: _buildBottomGallery(
-                        feed.items.length > 2 ? feed.items.sublist(2) : [])),
+                  height: isTablet ? 280 : 340,
+                  child: _buildBottomGallery(
+                    feed.items.length > 2 ? feed.items.sublist(2) : [],
+                  ),
+                ),
               ],
             ),
           ),
           SizedBox(width: isTablet ? 16 : 24),
           Expanded(
-              flex: isTablet ? 1 : 10,
-              child: _buildSidebar(textColor, isMobile: false)),
+            flex: isTablet ? 1 : 10,
+            child: _buildSidebar(textColor, isMobile: false),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildActionRow(Color textColor, bool isMobile, AuthProvider auth) {
-    final boxColor =
-        isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04);
+    final boxColor = isDark
+        ? Colors.white.withOpacity(0.06)
+        : Colors.black.withOpacity(0.04);
     final hintColor = isDark ? Colors.white54 : Colors.black54;
     final user = auth.currentUser;
 
@@ -199,10 +225,16 @@ class _FeedState extends State<Feed> {
           Row(
             children: [
               Expanded(
-                  child: _buildPillButton("Continue Reading", boxColor, textColor)),
+                child: _buildPillButton(
+                  "Continue Reading",
+                  boxColor,
+                  textColor,
+                ),
+              ),
               const SizedBox(width: 12),
               Expanded(
-                  child: _buildPillButton("Reading List", boxColor, textColor)),
+                child: _buildPillButton("Reading List", boxColor, textColor),
+              ),
             ],
           ),
         ],
@@ -213,50 +245,34 @@ class _FeedState extends State<Feed> {
       children: [
         Expanded(
           flex: 4,
-          child: Container(
-            height: 52,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: boxColor,
-              borderRadius: BorderRadius.circular(26),
-            ),
-            child: Row(
-              children: [
-                Icon(CupertinoIcons.search, color: hintColor, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    style: TextStyle(color: textColor, fontSize: 15),
-                    decoration: InputDecoration(
-                      hintText: "Search",
-                      hintStyle: GoogleFonts.inter(
-                        color: hintColor,
-                        fontSize: 15,
-                      ),
-                      border: InputBorder.none,
-                      isDense: true,
-                    ),
-                  ),
-                ),
-              ],
+          child: TextField(
+            style: TextStyle(color: textColor, fontSize: 15),
+            decoration: InputDecoration(
+              hintText: "Search",
+              hintStyle: GoogleFonts.inter(color: hintColor, fontSize: 15),
+              border: InputBorder.none,
+              isDense: true,
             ),
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
-            flex: 2,
-            child: _buildPillButton("Continue Reading", boxColor, textColor)),
+          flex: 2,
+          child: _buildPillButton("Continue Reading", boxColor, textColor),
+        ),
         const SizedBox(width: 16),
         Expanded(
-            flex: 2,
-            child: _buildPillButton("Your Reading List", boxColor, textColor)),
+          flex: 2,
+          child: _buildPillButton("Your Reading List", boxColor, textColor),
+        ),
         if (user != null) ...[
           const SizedBox(width: 16),
           CircleAvatar(
             radius: 18,
             backgroundColor: isDark ? Colors.white12 : Colors.black12,
-            backgroundImage:
-                user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+            backgroundImage: user.photoUrl != null
+                ? NetworkImage(user.photoUrl!)
+                : null,
             child: user.photoUrl == null
                 ? Icon(CupertinoIcons.person, size: 18, color: textColor)
                 : null,
@@ -289,8 +305,11 @@ class _FeedState extends State<Feed> {
     );
   }
 
-  Widget _buildTrendingSection(List<FeedItemModel> items,
-      {required bool isMobile, required AuthProvider auth}) {
+  Widget _buildTrendingSection(
+    List<FeedItemModel> items, {
+    required bool isMobile,
+    required AuthProvider auth,
+  }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Column(
@@ -314,10 +333,7 @@ class _FeedState extends State<Feed> {
                 const SizedBox(width: 8),
                 Text(
                   "• Based on your preferences",
-                  style: GoogleFonts.inter(
-                    color: Colors.white54,
-                    fontSize: 12,
-                  ),
+                  style: GoogleFonts.inter(color: Colors.white54, fontSize: 12),
                 ),
               ],
             ),
@@ -337,37 +353,38 @@ class _FeedState extends State<Feed> {
                     ),
                   )
                 : isMobile
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          for (final item in items)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: _buildArticleCard(
-                                item: item,
-                                isMobile: true,
-                                auth: auth,
-                              ),
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final item in items)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: _buildArticleCard(
+                            item: item,
+                            isMobile: true,
+                            auth: auth,
+                          ),
+                        ),
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final item in items)
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              right: item != items.last ? 32 : 0,
                             ),
-                        ],
-                      )
-                    : Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          for (final item in items)
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                    right: item != items.last ? 32 : 0),
-                                child: _buildArticleCard(
-                                  item: item,
-                                  isMobile: false,
-                                  auth: auth,
-                                ),
-                              ),
+                            child: _buildArticleCard(
+                              item: item,
+                              isMobile: false,
+                              auth: auth,
                             ),
-                        ],
-                      ),
+                          ),
+                        ),
+                    ],
+                  ),
           ),
         ],
       ),
@@ -542,10 +559,12 @@ class _FeedState extends State<Feed> {
   }
 
   Widget _buildSidebar(Color textColor, {required bool isMobile}) {
-    final cardColor =
-        isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.02);
-    final borderColor =
-        isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05);
+    final cardColor = isDark
+        ? Colors.white.withOpacity(0.04)
+        : Colors.black.withOpacity(0.02);
+    final borderColor = isDark
+        ? Colors.white.withOpacity(0.05)
+        : Colors.black.withOpacity(0.05);
 
     final dropZone = Container(
       width: double.infinity,
@@ -579,9 +598,7 @@ class _FeedState extends State<Feed> {
                     bottom: -2,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? const Color(0xFF1E1E20)
-                            : Colors.white,
+                        color: isDark ? const Color(0xFF1E1E20) : Colors.white,
                         shape: BoxShape.circle,
                       ),
                       padding: const EdgeInsets.all(2),

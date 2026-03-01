@@ -42,7 +42,7 @@ class _MobileWritingPage extends StatelessWidget {
         slivers: [
           CupertinoSliverNavigationBar(
             largeTitle: Text(
-              'My Projects',
+              'My Spaces',
               style: GoogleFonts.playfairDisplay(
                 fontWeight: FontWeight.bold,
                 color: textColor,
@@ -62,22 +62,21 @@ class _MobileWritingPage extends StatelessWidget {
               builder: (context, provider, _) {
                 if (provider.bookLoadingData) {
                   return SliverFillRemaining(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CupertinoActivityIndicator(color: textColor),
-                          const SizedBox(height: 16),
-                          Text(
-                            "Loading projects...",
-                            style: GoogleFonts.inter(
-                              color: textColor.withValues(alpha: 0.6),
-                              fontSize: 14,
-                            ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CupertinoActivityIndicator(color: textColor),
+                        const SizedBox(height: 16),
+                        Text(
+                          "Loading projects...",
+                          style: GoogleFonts.inter(
+                            decoration: TextDecoration.none,
+                            color: textColor.withValues(alpha: 0.6),
+                            fontSize: 14,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   );
                 }
@@ -165,6 +164,7 @@ class _MobileProjectCard extends StatelessWidget {
                   child: Text(
                     book.title,
                     style: GoogleFonts.inter(
+                      decoration: TextDecoration.none,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: textColor,
@@ -346,7 +346,7 @@ class _DesktopWritingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFF8FAFC);
-    final sidebarColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+    final sidebarColor = isDark ? const Color(0xFF121212) : Colors.white;
     final dividerColor = isDark
         ? Colors.white.withValues(alpha: 0.05)
         : Colors.black.withValues(alpha: 0.05);
@@ -392,10 +392,14 @@ class _DesktopWritingPage extends StatelessWidget {
                 // SIDEBAR (Projects) - only show when there are projects
                 if (hasProjects)
                   Container(
-                    width: isTablet ? 260 : 300,
+                    width: isTablet ? 260 : 400,
                     decoration: BoxDecoration(
                       color: sidebarColor,
                       border: Border(right: BorderSide(color: dividerColor)),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(24),
+                        bottomRight: Radius.circular(24),
+                      ),
                     ),
                     child: _buildSidebar(context, isDark),
                   ),
@@ -415,7 +419,7 @@ class _DesktopWritingPage extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                "MY PROJECTS",
+                "My Spaces",
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -999,6 +1003,7 @@ class _SidebarItem extends StatelessWidget {
               child: Text(
                 book.title,
                 style: GoogleFonts.inter(
+                  decoration: TextDecoration.none,
                   fontSize: 14,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   color: isSelected ? activeText : inactiveText,
@@ -1012,7 +1017,7 @@ class _SidebarItem extends StatelessWidget {
                 CupertinoIcons.ellipsis,
                 size: 18,
                 color: isSelected
-                    ? activeText.withValues(alpha: 0.7)
+                    ? activeText.withAlpha(178)
                     : (isDark ? Colors.white38 : Colors.black38),
               ),
               onPressed: () => _showProjectMenu(context),
