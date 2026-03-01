@@ -391,12 +391,14 @@ class FirestoreService {
   }
 
   SectionModel _sectionDocToModel(Map<String, dynamic> data, String id) {
+    final updatedAt = _parseTimestamp(data['updatedAt']) ?? DateTime.now();
     return SectionModel(
       id: id,
       title: data['title'] ?? '',
       content: data['content'] ?? '',
       sectionColor: Color((data['sectionColor'] as num?)?.toInt() ?? 0xFF1982C4),
-      createdAt: _parseTimestamp(data['updatedAt']) ?? DateTime.now(),
+      createdAt: _parseTimestamp(data['createdAt']) ?? updatedAt,
+      updatedAt: updatedAt,
       isSynced: true,
     );
   }

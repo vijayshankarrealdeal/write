@@ -59,31 +59,109 @@ class EditorProvider extends ChangeNotifier {
   }
 
   Timer? _autoSaveTimer;
+  Timer? _periodicSyncTimer;
   StreamSubscription? _docSubscription;
   String saveStatus = "";
+  String _lastSavedContent = "";
+  String _lastSyncedContent = "";
+  bool _needsFirestoreSync = false;
 
   Future<void> loadBooks() async {
     bookLoadingData = true;
     notifyListeners();
 
+    final localBooks = _storage.getBooks();
     final uid = _userId;
     if (uid != null) {
       try {
-        allBooks = await _firestore.getWritings(uid);
+        final remoteBooks = await _firestore.getWritings(uid);
+        allBooks = _mergeBooks(localBooks, remoteBooks);
         await _storage.saveBooks(allBooks);
+        _syncUnsyncedSections(uid);
       } catch (e) {
-        allBooks = _storage.getBooks();
+        allBooks = localBooks;
       }
     } else {
-      allBooks = _storage.getBooks();
+      allBooks = localBooks;
     }
 
-    // Auto-select first project when we have books but none selected
     if (allBooks.isNotEmpty && activeBook == null) {
       setActiveBook(allBooks.first);
     }
     bookLoadingData = false;
     notifyListeners();
+  }
+
+  /// Merge local and remote books. For each section present in both,
+  /// keep whichever has the later updatedAt timestamp.
+  List<WritingModel> _mergeBooks(
+    List<WritingModel> local,
+    List<WritingModel> remote,
+  ) {
+    final localMap = {for (final b in local) b.id: b};
+    final merged = <WritingModel>[];
+
+    for (final remoteBook in remote) {
+      final localBook = localMap.remove(remoteBook.id);
+      if (localBook == null) {
+        merged.add(remoteBook);
+        continue;
+      }
+      final mergedSections = _mergeSections(
+        localBook.sections,
+        remoteBook.sections,
+      );
+      remoteBook.sections = mergedSections;
+      merged.add(remoteBook);
+    }
+    // Local-only books (created offline, not yet in Firestore)
+    merged.addAll(localMap.values);
+    return merged;
+  }
+
+  List<SectionModel> _mergeSections(
+    List<SectionModel> local,
+    List<SectionModel> remote,
+  ) {
+    final localMap = {for (final s in local) s.id: s};
+    final merged = <SectionModel>[];
+
+    for (final remoteSection in remote) {
+      final localSection = localMap.remove(remoteSection.id);
+      if (localSection == null) {
+        merged.add(remoteSection);
+        continue;
+      }
+      // Keep whichever was updated more recently
+      if (localSection.updatedAt.isAfter(remoteSection.updatedAt) &&
+          !localSection.isSynced) {
+        merged.add(localSection);
+      } else {
+        merged.add(remoteSection);
+      }
+    }
+    // Local-only sections (created offline)
+    merged.addAll(localMap.values);
+    return merged;
+  }
+
+  /// Push any unsynced local sections to Firestore in background.
+  void _syncUnsyncedSections(String uid) async {
+    for (final book in allBooks) {
+      for (final section in book.sections) {
+        if (!section.isSynced) {
+          try {
+            await _firestore.updateSectionContent(
+              uid, book.id, section.id, section.content,
+            );
+            section.isSynced = true;
+          } catch (_) {
+            // Will retry next load
+          }
+        }
+      }
+    }
+    await _storage.saveBooks(allBooks);
   }
 
   void setActiveBook(WritingModel book) {
@@ -313,10 +391,26 @@ class EditorProvider extends ChangeNotifier {
       );
     }
 
+    _lastSavedContent = dumpData();
+    _lastSyncedContent = _lastSavedContent;
+    _needsFirestoreSync = false;
     _docSubscription?.cancel();
     _docSubscription = controller.document.changes.listen((event) {
       _onUserTyped();
     });
+    _startPeriodicSync();
+  }
+
+  void _startPeriodicSync() {
+    _periodicSyncTimer?.cancel();
+    _periodicSyncTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      _syncToFirestore();
+    });
+  }
+
+  void _stopPeriodicSync() {
+    _periodicSyncTimer?.cancel();
+    _periodicSyncTimer = null;
   }
 
   void _onUserTyped() {
@@ -325,41 +419,78 @@ class EditorProvider extends ChangeNotifier {
       notifyListeners();
     }
     _autoSaveTimer?.cancel();
-    _autoSaveTimer = Timer(const Duration(milliseconds: 1000), () {
-      _performAutoSave();
+    _autoSaveTimer = Timer(const Duration(seconds: 3), () {
+      _saveToLocal();
     });
   }
 
-  Future<void> _performAutoSave() async {
+  /// Save to local storage immediately. Fast, offline-safe.
+  Future<void> _saveToLocal() async {
     if (activeSection == null || activeBook == null) return;
-    saveStatus = "Saving...";
-    notifyListeners();
-    activeSection!.content = dumpData();
-
-    try {
-      final uid = _userId;
-      if (uid != null) {
-        await _firestore.updateSectionContent(
-          uid,
-          activeBook!.id,
-          activeSection!.id,
-          activeSection!.content,
-        );
-      } else {
-        await _storage.saveBooks(allBooks);
+    final currentContent = dumpData();
+    if (currentContent == _lastSavedContent) {
+      if (saveStatus != "Saved") {
+        saveStatus = "Saved";
+        notifyListeners();
       }
-    } catch (e) {
-      await _storage.saveBooks(allBooks);
+      return;
     }
+    activeSection!.content = currentContent;
+    activeSection!.updatedAt = DateTime.now();
+    activeSection!.isSynced = false;
+    await _storage.saveBooks(allBooks);
+    _lastSavedContent = currentContent;
+    _needsFirestoreSync = true;
     saveStatus = "Saved";
     notifyListeners();
   }
 
+  /// Sync to Firestore in background. Skips if nothing changed since last sync.
+  Future<void> _syncToFirestore() async {
+    if (!_needsFirestoreSync) return;
+    if (activeSection == null || activeBook == null) return;
+    final content = activeSection!.content;
+    if (content == _lastSyncedContent) {
+      _needsFirestoreSync = false;
+      return;
+    }
+    final uid = _userId;
+    if (uid == null) return;
+    try {
+      await _firestore.updateSectionContent(
+        uid,
+        activeBook!.id,
+        activeSection!.id,
+        content,
+      );
+      _lastSyncedContent = content;
+      activeSection!.isSynced = true;
+      _needsFirestoreSync = false;
+      await _storage.saveBooks(allBooks);
+    } catch (_) {
+      // Will retry on next periodic tick or on exit
+    }
+  }
+
+  /// Called on back press / page exit. Saves local immediately, then syncs.
   void forceSaveImmediately() {
     _autoSaveTimer?.cancel();
-    if (saveStatus == "Typing..." || saveStatus == "Saving...") {
-      _performAutoSave();
+    _stopPeriodicSync();
+    if (activeSection == null || activeBook == null) return;
+    final currentContent = dumpData();
+    if (currentContent != _lastSavedContent) {
+      activeSection!.content = currentContent;
+      activeSection!.updatedAt = DateTime.now();
+      activeSection!.isSynced = false;
+      _storage.saveBooks(allBooks);
+      _lastSavedContent = currentContent;
+      _needsFirestoreSync = true;
     }
+    if (_needsFirestoreSync) {
+      _syncToFirestore();
+    }
+    saveStatus = "Saved";
+    notifyListeners();
   }
 
   String dumpData() {
@@ -367,9 +498,29 @@ class EditorProvider extends ChangeNotifier {
     return jsonEncode(deltaJson);
   }
 
+  /// Reset all editor state on logout so stale data doesn't linger.
+  void clearData() {
+    _autoSaveTimer?.cancel();
+    _stopPeriodicSync();
+    _docSubscription?.cancel();
+    allBooks = [];
+    activeBook = null;
+    activeSection = null;
+    allBooksSection = [];
+    showSectionsList = false;
+    saveStatus = "";
+    _lastSavedContent = "";
+    _lastSyncedContent = "";
+    _needsFirestoreSync = false;
+    controller = QuillController.basic();
+    _storage.clearBooks();
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _autoSaveTimer?.cancel();
+    _periodicSyncTimer?.cancel();
     _docSubscription?.cancel();
     controller.dispose();
     super.dispose();

@@ -17,6 +17,7 @@ import 'package:writer/ui/app/feed.dart';
 import 'package:writer/ui/app/settings.dart';
 import 'package:writer/ui/app/writing_page.dart';
 import 'package:writer/ui/auth/auth_gate.dart';
+import 'package:writer/ui/pages/feed_preferences_page.dart';
 import 'package:writer/ui/pages/new_book_addition.dart';
 import 'package:writer/ui/theme/app_theme.dart';
 import 'package:writer/ui/utilities/responsive_layout.dart';
@@ -50,7 +51,9 @@ class MyApp extends StatelessWidget {
           create: (context) => EditorProvider(storage, context.read<AuthProvider>()),
           update: (context, auth, previous) {
             final provider = previous ?? EditorProvider(storage, auth);
-            if (previous != null) provider.loadBooks();
+            if (previous != null && auth.isAuthenticated) {
+              provider.loadBooks();
+            }
             return provider;
           },
         ),
@@ -221,7 +224,8 @@ class _DesktopHomePage extends StatelessWidget {
         ? Colors.white.withValues(alpha: 0.05)
         : Colors.black.withValues(alpha: 0.05);
 
-    final pages = [const Feed(), const WritingPageUI(), const SettingsPage()];
+    const pages = [Feed(), WritingPageUI(), SettingsPage()];
+    final selectedPage = context.watch<NavProvider>().selectedPage;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -248,9 +252,7 @@ class _DesktopHomePage extends StatelessWidget {
                 },
                 icon: Icon(
                   CupertinoIcons.settings,
-                  color:
-                      context.watch<NavProvider>().selectedPage ==
-                          SelectedPage.settings
+                  color: selectedPage == SelectedPage.settings
                       ? textColor
                       : textColor.withValues(alpha: 0.4),
                 ),
@@ -267,11 +269,9 @@ class _DesktopHomePage extends StatelessWidget {
                 label: Text("Write"),
               ),
             ],
-            selectedIndex:
-                context.watch<NavProvider>().selectedPage ==
-                    SelectedPage.settings
+            selectedIndex: selectedPage == SelectedPage.settings
                 ? null
-                : context.watch<NavProvider>().selectedPage.index,
+                : selectedPage.index,
             onDestinationSelected: (index) {
               context.read<NavProvider>().setIndex(SelectedPage.values[index]);
             },
@@ -288,7 +288,7 @@ class _DesktopHomePage extends StatelessWidget {
                 title: Padding(
                   padding: const EdgeInsets.only(left: 16.0),
                   child: Text(
-                    context.watch<NavProvider>().selectedPage.toName(),
+                    selectedPage.toName(),
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
@@ -299,8 +299,7 @@ class _DesktopHomePage extends StatelessWidget {
                 ),
                 centerTitle: false,
                 actions: [
-                  if (context.watch<NavProvider>().selectedPage ==
-                      SelectedPage.story)
+                  if (selectedPage == SelectedPage.story)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32.0),
                       child: Row(
@@ -310,26 +309,36 @@ class _DesktopHomePage extends StatelessWidget {
                               CupertinoIcons.slider_horizontal_3,
                               color: textColor.withValues(alpha: 0.7),
                             ),
-                            onPressed: () {},
+                            tooltip: "Feed preferences",
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const FeedPreferencesPage(),
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 16),
-                          CircleAvatar(
-                            radius: 18,
-                            backgroundColor: isDark
-                                ? Colors.white12
-                                : Colors.black12,
-                            child: Icon(
-                              CupertinoIcons.person,
-                              size: 18,
-                              color: textColor,
+                          GestureDetector(
+                            onTap: () {
+                              context.read<NavProvider>().setIndex(SelectedPage.settings);
+                            },
+                            child: CircleAvatar(
+                              radius: 18,
+                              backgroundColor: isDark
+                                  ? Colors.white12
+                                  : Colors.black12,
+                              child: Icon(
+                                CupertinoIcons.person,
+                                size: 18,
+                                color: textColor,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  if (context.watch<NavProvider>().selectedPage ==
-                          SelectedPage.write &&
-                      context.watch<EditorProvider>().allBooks.isNotEmpty)
+                  if (selectedPage == SelectedPage.write &&
+                      context.select<EditorProvider, bool>((p) => p.allBooks.isNotEmpty))
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32.0),
                       child: CupertinoButton(
@@ -365,7 +374,10 @@ class _DesktopHomePage extends StatelessWidget {
                     ),
                 ],
               ),
-              body: pages[context.watch<NavProvider>().selectedPage.index],
+              body: IndexedStack(
+                index: selectedPage.index,
+                children: pages,
+              ),
             ),
           ),
         ],

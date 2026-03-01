@@ -87,16 +87,13 @@ class _MobileWritingPage extends StatelessWidget {
                   );
                 }
                 return SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final book = provider.allBooks[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _MobileProjectCard(book: book, isDark: isDark),
-                      );
-                    },
-                    childCount: provider.allBooks.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final book = provider.allBooks[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _MobileProjectCard(book: book, isDark: isDark),
+                    );
+                  }, childCount: provider.allBooks.length),
                 );
               },
             ),
@@ -124,7 +121,7 @@ class _MobileProjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cardColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    
+
     final isActive = context.watch<EditorProvider>().activeBook?.id == book.id;
 
     return GestureDetector(
@@ -153,11 +150,16 @@ class _MobileProjectCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.black.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(CupertinoIcons.book_fill,
-                      color: isDark ? Colors.white : Colors.black, size: 20),
+                  child: Icon(
+                    CupertinoIcons.book_fill,
+                    color: isDark ? Colors.white : Colors.black,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -173,7 +175,11 @@ class _MobileProjectCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(CupertinoIcons.ellipsis, size: 20, color: textColor.withValues(alpha: 0.6)),
+                  icon: Icon(
+                    CupertinoIcons.ellipsis,
+                    size: 20,
+                    color: textColor.withValues(alpha: 0.6),
+                  ),
                   onPressed: () => _showProjectOptionsSheet(
                     context,
                     context.read<EditorProvider>(),
@@ -181,20 +187,27 @@ class _MobileProjectCard extends StatelessWidget {
                     isDark,
                   ),
                   padding: const EdgeInsets.all(4),
-                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
                 ),
                 if (isActive)
-                  Icon(CupertinoIcons.check_mark,
-                      color: isDark ? Colors.white : Colors.black),
+                  Icon(
+                    CupertinoIcons.check_mark,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
               ],
             ),
             if (isActive) ...[
               const SizedBox(height: 16),
               Divider(
-                  color: isDark ? Colors.white10 : Colors.black12, height: 1),
+                color: isDark ? Colors.white10 : Colors.black12,
+                height: 1,
+              ),
               const SizedBox(height: 12),
               _buildSectionsListMobile(context, book, isDark),
-            ]
+            ],
           ],
         ),
       ),
@@ -202,7 +215,10 @@ class _MobileProjectCard extends StatelessWidget {
   }
 
   Widget _buildSectionsListMobile(
-      BuildContext context, WritingModel book, bool isDark) {
+    BuildContext context,
+    WritingModel book,
+    bool isDark,
+  ) {
     final sections = context.watch<EditorProvider>().allBooksSection;
     if (sections.isEmpty) {
       return Padding(
@@ -210,7 +226,8 @@ class _MobileProjectCard extends StatelessWidget {
         child: Text(
           "No sections yet. Tap + to add one.",
           style: GoogleFonts.inter(
-              color: isDark ? Colors.white54 : Colors.black45),
+            color: isDark ? Colors.white54 : Colors.black45,
+          ),
         ),
       );
     }
@@ -231,8 +248,11 @@ class _MobileProjectCard extends StatelessWidget {
               },
               child: Row(
                 children: [
-                  Icon(CupertinoIcons.doc_text,
-                      size: 16, color: isDark ? Colors.white54 : Colors.black45),
+                  Icon(
+                    CupertinoIcons.doc_text,
+                    size: 16,
+                    color: isDark ? Colors.white54 : Colors.black45,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -245,8 +265,11 @@ class _MobileProjectCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Icon(CupertinoIcons.chevron_right,
-                      size: 14, color: isDark ? Colors.white24 : Colors.black26),
+                  Icon(
+                    CupertinoIcons.chevron_right,
+                    size: 14,
+                    color: isDark ? Colors.white24 : Colors.black26,
+                  ),
                 ],
               ),
             ),
@@ -265,8 +288,11 @@ Widget _buildEmptyStateMobile(BuildContext context, bool isDark) {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(CupertinoIcons.square_pencil,
-              size: 64, color: isDark ? Colors.white24 : Colors.black12),
+          Icon(
+            CupertinoIcons.square_pencil,
+            size: 64,
+            color: isDark ? Colors.white24 : Colors.black12,
+          ),
           const SizedBox(height: 16),
           Text(
             "Start Your Journey",
@@ -287,21 +313,21 @@ Widget _buildEmptyStateMobile(BuildContext context, bool isDark) {
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
-        const SizedBox(height: 24),
-        CupertinoButton(
-          color: isDark ? Colors.white : Colors.black,
-          onPressed: () => showCupertinoModalPopup(
-            context: context,
-            builder: (context) => const NewBookAddition(),
-          ),
-          child: Text(
-            "Create Project",
-            style: GoogleFonts.inter(
-              color: isDark ? Colors.black : Colors.white,
-              fontWeight: FontWeight.w600,
+          const SizedBox(height: 24),
+          CupertinoButton(
+            color: isDark ? Colors.white : Colors.black,
+            onPressed: () => showCupertinoModalPopup(
+              context: context,
+              builder: (context) => const NewBookAddition(),
+            ),
+            child: Text(
+              "Create Project",
+              style: GoogleFonts.inter(
+                color: isDark ? Colors.black : Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-        ),
         ],
       ),
     ),
@@ -320,10 +346,15 @@ class _DesktopWritingPage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFF8FAFC);
     final sidebarColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
-    final dividerColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
+    final dividerColor = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.05);
 
-    final bookLoading = context.select<EditorProvider, bool>((p) => p.bookLoadingData);
-    final hasProjects = context.select<EditorProvider, int>((p) => p.allBooks.length) > 0;
+    final bookLoading = context.select<EditorProvider, bool>(
+      (p) => p.bookLoadingData,
+    );
+    final hasProjects =
+        context.select<EditorProvider, int>((p) => p.allBooks.length) > 0;
     return Scaffold(
       backgroundColor: bgColor,
       body: bookLoading
@@ -337,16 +368,18 @@ class _DesktopWritingPage extends StatelessWidget {
                     height: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: (isDark ? Colors.white : Colors.black)
-                          .withValues(alpha: 0.6),
+                      color: (isDark ? Colors.white : Colors.black).withValues(
+                        alpha: 0.6,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     "Loading projects...",
                     style: GoogleFonts.inter(
-                      color: (isDark ? Colors.white : Colors.black)
-                          .withValues(alpha: 0.6),
+                      color: (isDark ? Colors.white : Colors.black).withValues(
+                        alpha: 0.6,
+                      ),
                       fontSize: 14,
                     ),
                   ),
@@ -366,9 +399,7 @@ class _DesktopWritingPage extends StatelessWidget {
                     child: _buildSidebar(context, isDark),
                   ),
                 // MAIN CONTENT (Sections Grid/List)
-                Expanded(
-                  child: _buildMainContent(context, isDark),
-                ),
+                Expanded(child: _buildMainContent(context, isDark)),
               ],
             ),
     );
@@ -393,31 +424,31 @@ class _DesktopWritingPage extends StatelessWidget {
               ),
               const Spacer(),
               _buildIconButton(
-                context, 
-                icon: CupertinoIcons.add, 
+                context,
+                icon: CupertinoIcons.add,
                 onTap: () => showDialog(
                   context: context,
                   builder: (_) => const NewBookAddition(),
                 ),
-                isDark: isDark
+                isDark: isDark,
               ),
             ],
           ),
         ),
-        
+
         // Projects List
         Expanded(
           child: Consumer<EditorProvider>(
             builder: (context, provider, _) {
               if (provider.allBooks.isEmpty) return const SizedBox.shrink();
-              
+
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: provider.allBooks.length,
                 itemBuilder: (context, index) {
                   final book = provider.allBooks[index];
                   final isActive = provider.activeBook?.id == book.id;
-                  
+
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: _SidebarItem(
@@ -425,11 +456,21 @@ class _DesktopWritingPage extends StatelessWidget {
                       isSelected: isActive,
                       isDark: isDark,
                       onTap: () {
-                         provider.setActiveBook(book);
-                         provider.allBooksSection = book.sections;
+                        provider.setActiveBook(book);
+                        provider.allBooksSection = book.sections;
                       },
-                      onRename: () => _showRenameProjectDialog(context, provider, book, isDark),
-                      onDelete: () => _showDeleteProjectDialog(context, provider, book, isDark),
+                      onRename: () => _showRenameProjectDialog(
+                        context,
+                        provider,
+                        book,
+                        isDark,
+                      ),
+                      onDelete: () => _showDeleteProjectDialog(
+                        context,
+                        provider,
+                        book,
+                        isDark,
+                      ),
                     ),
                   );
                 },
@@ -442,7 +483,9 @@ class _DesktopWritingPage extends StatelessWidget {
   }
 
   Widget _buildMainContent(BuildContext context, bool isDark) {
-    final activeBook = context.select<EditorProvider, WritingModel?>((p) => p.activeBook);
+    final activeBook = context.select<EditorProvider, WritingModel?>(
+      (p) => p.activeBook,
+    );
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
 
     if (activeBook == null) {
@@ -475,19 +518,19 @@ class _DesktopWritingPage extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(
-                            CupertinoIcons.ellipsis_circle,
-                            color: textColor.withValues(alpha: 0.6),
-                          ),
-                          tooltip: "Project options",
-                          onPressed: () => _showProjectOptionsSheet(
-                            context,
-                            context.read<EditorProvider>(),
-                            activeBook,
-                            isDark,
-                          ),
-                        ),
+                        // IconButton(
+                        //   icon: Icon(
+                        //     CupertinoIcons.ellipsis_circle,
+                        //     color: textColor.withValues(alpha: 0.6),
+                        //   ),
+                        //   tooltip: "Project options",
+                        //   onPressed: () => _showProjectOptionsSheet(
+                        //     context,
+                        //     context.read<EditorProvider>(),
+                        //     activeBook,
+                        //     isDark,
+                        //   ),
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -528,7 +571,9 @@ class _DesktopWritingPage extends StatelessWidget {
                           foregroundColor: isDark ? Colors.black : Colors.white,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 16),
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -564,7 +609,10 @@ class _DesktopWritingPage extends StatelessWidget {
 
               if (settings.sectionsGridView) {
                 return GridView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 0,
+                  ),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 300,
                     mainAxisSpacing: 20,
@@ -581,7 +629,9 @@ class _DesktopWritingPage extends StatelessWidget {
                         provider.setActiveSection(section);
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const EditiorPage()),
+                          MaterialPageRoute(
+                            builder: (_) => const EditiorPage(),
+                          ),
                         );
                       },
                     );
@@ -590,9 +640,13 @@ class _DesktopWritingPage extends StatelessWidget {
               }
 
               return ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 0,
+                ),
                 itemCount: provider.allBooksSection.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final section = provider.allBooksSection[index];
                   return _SectionListTile(
@@ -615,17 +669,28 @@ class _DesktopWritingPage extends StatelessWidget {
     );
   }
 
-  Widget _buildIconButton(BuildContext context, {required IconData icon, required VoidCallback onTap, required bool isDark}) {
+  Widget _buildIconButton(
+    BuildContext context, {
+    required IconData icon,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.black.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, size: 16, color: isDark ? Colors.white70 : Colors.black87),
+        child: Icon(
+          icon,
+          size: 16,
+          color: isDark ? Colors.white70 : Colors.black87,
+        ),
       ),
     );
   }
@@ -647,7 +712,9 @@ class _DesktopWritingPage extends StatelessWidget {
                 controller: controller,
                 placeholder: "Section Title",
                 autofocus: true,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
             ],
           ),
@@ -660,7 +727,9 @@ class _DesktopWritingPage extends StatelessWidget {
               isDefaultAction: true,
               onPressed: () {
                 if (controller.text.trim().isNotEmpty) {
-                  context.read<EditorProvider>().addSection(controller.text.trim());
+                  context.read<EditorProvider>().addSection(
+                    controller.text.trim(),
+                  );
                   Navigator.pop(context);
                 }
               },
@@ -685,7 +754,9 @@ class _DesktopWritingPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : Colors.black.withValues(alpha: 0.04),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -723,7 +794,10 @@ class _DesktopWritingPage extends StatelessWidget {
                 backgroundColor: isDark ? Colors.white : Colors.black,
                 foregroundColor: isDark ? Colors.black : Colors.white,
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 18,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -753,7 +827,10 @@ void _showProjectOptionsSheet(
   showCupertinoModalPopup(
     context: context,
     builder: (ctx) => CupertinoActionSheet(
-      title: Text(book.title, style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+      title: Text(
+        book.title,
+        style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+      ),
       actions: [
         CupertinoActionSheetAction(
           onPressed: () {
@@ -815,7 +892,9 @@ void _showRenameProjectDialog(
             } catch (e) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+                  SnackBar(
+                    content: Text(e.toString().replaceFirst('Exception: ', '')),
+                  ),
                 );
               }
             }
@@ -858,7 +937,9 @@ void _showDeleteProjectDialog(
             } catch (e) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+                  SnackBar(
+                    content: Text(e.toString().replaceFirst('Exception: ', '')),
+                  ),
                 );
               }
             }
@@ -889,7 +970,9 @@ class _SidebarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeBg = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05);
+    final activeBg = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : Colors.black.withValues(alpha: 0.05);
     final activeText = isDark ? Colors.white : Colors.black;
     final inactiveText = isDark ? Colors.white70 : Colors.black87;
 
@@ -907,7 +990,9 @@ class _SidebarItem extends StatelessWidget {
             Icon(
               isSelected ? CupertinoIcons.book_fill : CupertinoIcons.book,
               size: 18,
-              color: isSelected ? activeText : (isDark ? Colors.white38 : Colors.black38),
+              color: isSelected
+                  ? activeText
+                  : (isDark ? Colors.white38 : Colors.black38),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -926,7 +1011,9 @@ class _SidebarItem extends StatelessWidget {
               icon: Icon(
                 CupertinoIcons.ellipsis,
                 size: 18,
-                color: isSelected ? activeText.withValues(alpha: 0.7) : (isDark ? Colors.white38 : Colors.black38),
+                color: isSelected
+                    ? activeText.withValues(alpha: 0.7)
+                    : (isDark ? Colors.white38 : Colors.black38),
               ),
               onPressed: () => _showProjectMenu(context),
               padding: const EdgeInsets.all(4),
@@ -945,7 +1032,10 @@ class _SidebarItem extends StatelessWidget {
     showCupertinoModalPopup(
       context: context,
       builder: (ctx) => CupertinoActionSheet(
-        title: Text(book.title, style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+        title: Text(
+          book.title,
+          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+        ),
         actions: [
           CupertinoActionSheetAction(
             onPressed: () {
@@ -986,8 +1076,9 @@ class _SectionListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bgColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
-    final borderColor =
-        isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.05);
 
     return Material(
       color: bgColor,
@@ -1070,7 +1161,9 @@ class _SectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bgColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.05);
 
     return InkWell(
       onTap: onTap,

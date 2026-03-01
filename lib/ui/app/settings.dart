@@ -3,16 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:writer/provider/auth_provider.dart';
+import 'package:writer/provider/editor_provider.dart';
 import 'package:writer/provider/feed_provider.dart';
+import 'package:writer/provider/nav_provider.dart';
 import 'package:writer/provider/settings_provider.dart';
+import 'package:writer/ui/pages/feed_preferences_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   void _confirmLogout(BuildContext context) {
+    final auth = context.read<AuthProvider>();
+    final feed = context.read<FeedProvider>();
+    final editor = context.read<EditorProvider>();
+    final nav = context.read<NavProvider>();
+
     showCupertinoDialog(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
+      builder: (dialogCtx) => CupertinoAlertDialog(
         title: Text(
           "Logout",
           style: GoogleFonts.inter(fontWeight: FontWeight.w600),
@@ -26,15 +34,17 @@ class SettingsPage extends StatelessWidget {
         ),
         actions: [
           CupertinoDialogAction(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.of(dialogCtx).pop(),
             child: const Text("Cancel"),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () {
-              Navigator.pop(context);
-              context.read<FeedProvider>().clearFeed();
-              context.read<AuthProvider>().logout();
+              Navigator.of(dialogCtx).pop();
+              feed.clearFeed();
+              editor.clearData();
+              nav.setIndex(SelectedPage.story);
+              auth.logout();
             },
             child: const Text("Logout"),
           ),
@@ -137,6 +147,27 @@ class SettingsPage extends StatelessWidget {
                     ],
                   );
                 },
+              ),
+
+              const SizedBox(height: 32),
+
+              _buildSectionHeader("CONTENT", textColor),
+              _buildSettingsCard(
+                cardColor: cardColor,
+                borderColor: subtleBorder,
+                children: [
+                  SettingsTile(
+                    icon: CupertinoIcons.slider_horizontal_3,
+                    title: "Feed Preferences",
+                    subtitle: "Genres and writing types for your feed",
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const FeedPreferencesPage(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 48),

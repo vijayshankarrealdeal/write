@@ -13,8 +13,14 @@ class EditiorPage extends StatefulWidget {
   State<EditiorPage> createState() => _EditiorPageState();
 }
 
-class _EditiorPageState extends State<EditiorPage> {
+class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
   bool _isReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   @override
   void didChangeDependencies() {
@@ -22,6 +28,15 @@ class _EditiorPageState extends State<EditiorPage> {
     final route = ModalRoute.of(context);
     if (route is PageRoute) {
       route.animation?.addStatusListener(_routeAnimationListener);
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      context.read<EditorProvider>().forceSaveImmediately();
     }
   }
 
@@ -33,6 +48,12 @@ class _EditiorPageState extends State<EditiorPage> {
       context.read<EditorProvider>().initEditor();
       if (mounted) setState(() => _isReady = true);
     }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
