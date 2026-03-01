@@ -82,12 +82,10 @@ class WritingPageUI extends StatelessWidget {
                                   ),
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: theme.colorScheme.tertiaryContainer
-                                          .withAlpha(
-                                            editProvider.activeBook == book
-                                                ? 125
-                                                : 53,
-                                          ),
+                                      color: editProvider.activeBook == book
+                                          ? theme.colorScheme.secondaryContainer
+                                                .withAlpha(224)
+                                          : Colors.transparent,
                                       borderRadius: BorderRadius.circular(24),
                                     ),
                                     // 🔥 THIS IS THE MAGIC LINE THAT FIXES THE CORNER GLITCH 🔥

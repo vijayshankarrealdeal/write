@@ -166,6 +166,8 @@ class EditorProvider extends ChangeNotifier {
                 sectionColors.length], // Cycle colors
       );
       activeBook!.sections.add(newSection);
+      activeBook!.sections = activeBook!.sections
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       allBooksSection = activeBook!.sections;
       notifyListeners();
     }

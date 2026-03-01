@@ -55,9 +55,12 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final hintColor = isDark ? Colors.grey[400] : Colors.black87;
+
     final pages = [
       const Feed(),
-      const SearchPage(),
+      // const SearchPage(),
       const WritingPageUI(),
       const SettingsPage(),
     ];
@@ -71,7 +74,9 @@ class HomePage extends StatelessWidget {
             trailing: Padding(
               padding: const EdgeInsets.symmetric(vertical: 18.0),
               child: IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavProvider>().setIndex(SelectedPage.settings);
+                },
                 icon: Icon(CupertinoIcons.settings),
               ),
             ),
@@ -80,16 +85,20 @@ class HomePage extends StatelessWidget {
                 icon: Icon(CupertinoIcons.home),
                 label: Text("Home"),
               ),
-              const NavigationRailDestination(
-                icon: Icon(CupertinoIcons.search),
-                label: Text("Search"),
-              ),
+              // const NavigationRailDestination(
+              //   icon: Icon(CupertinoIcons.search),
+              //   label: Text("Search"),
+              // ),
               const NavigationRailDestination(
                 icon: Icon(CupertinoIcons.pen),
                 label: Text("Write"),
               ),
             ],
-            selectedIndex: context.watch<NavProvider>().selectedPage.index,
+            selectedIndex:
+                context.watch<NavProvider>().selectedPage ==
+                    SelectedPage.settings
+                ? null
+                : context.watch<NavProvider>().selectedPage.index,
             onDestinationSelected: (index) {
               context.read<NavProvider>().setIndex(SelectedPage.values[index]);
             },
@@ -101,6 +110,26 @@ class HomePage extends StatelessWidget {
                 title: Text(context.watch<NavProvider>().selectedPage.toName()),
                 centerTitle: false,
                 actions: [
+                  context.watch<NavProvider>().selectedPage ==
+                          SelectedPage.story
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18.0,
+                            vertical: 5,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                CupertinoIcons.slider_horizontal_3,
+                                color: hintColor,
+                              ),
+                              const SizedBox(width: 10),
+                              CircleAvatar(),
+                            ],
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+
                   context.watch<NavProvider>().selectedPage ==
                           SelectedPage.write
                       ? TextButton.icon(
