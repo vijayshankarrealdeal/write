@@ -75,30 +75,7 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
       },
       child: Scaffold(
         backgroundColor: bgColor,
-        floatingActionButton:
-            Breakpoints.isMobile(MediaQuery.sizeOf(context).width)
-            ? Padding(
-                padding: const EdgeInsets.only(bottom: 64),
-                child: FloatingActionButton(
-                  onPressed: () {
-                    final provider = context.read<EditorProvider>();
-                    _showTextInputDialog(
-                      context: context,
-                      title: "New Section Name",
-                      initialValue:
-                          "Section ${provider.allBooksSection.length + 1}",
-                      onSave: (val) =>
-                          provider.addSection(val, autoSelect: true),
-                    );
-                  },
-                  backgroundColor: isDark ? Colors.white : Colors.black87,
-                  foregroundColor: isDark ? Colors.black : Colors.white,
-                  child: const Icon(CupertinoIcons.add, size: 28),
-                ),
-              )
-            : null,
         body: SafeArea(
-          bottom: false,
           child: _isReady
               ? Column(
                   children: [
@@ -646,10 +623,10 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                                   maxWidth: 800,
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    40,
+                                  padding: EdgeInsets.fromLTRB(
+                                    Breakpoints.isMobile(MediaQuery.sizeOf(context).width) ? 16 : 40,
                                     24,
-                                    40,
+                                    Breakpoints.isMobile(MediaQuery.sizeOf(context).width) ? 16 : 40,
                                     0,
                                   ),
                                   child: Builder(
@@ -658,6 +635,9 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                                           .select<EditorProvider, String?>(
                                             (p) => p.activeSection?.id,
                                           );
+                                      final bottomPad = MediaQuery.of(ctx).padding.bottom +
+                                          MediaQuery.of(ctx).viewInsets.bottom +
+                                          120;
                                       return QuillEditor.basic(
                                         key: ValueKey(sectionId ?? 'none'),
                                         controller: ctx
@@ -665,8 +645,8 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
                                             .controller,
                                         config: QuillEditorConfig(
                                           placeholder: "Start typing here...",
-                                          padding: const EdgeInsets.only(
-                                            bottom: 100,
+                                          padding: EdgeInsets.only(
+                                            bottom: bottomPad,
                                           ),
                                           customStyles: DefaultStyles(
                                             placeHolder: DefaultTextBlockStyle(

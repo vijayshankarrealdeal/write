@@ -8,8 +8,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:writer/main.dart';
-import 'package:writer/services/storage_service.dart';
+import 'package:inkspacex/main.dart';
+import 'package:inkspacex/services/storage_service.dart';
 
 void main() {
   testWidgets('App initializes correctly', (WidgetTester tester) async {

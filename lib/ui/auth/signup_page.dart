@@ -106,7 +106,7 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Join the writer community",
+                  "Join the Inkspacex community",
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     color: textColor.withOpacity(0.6),
