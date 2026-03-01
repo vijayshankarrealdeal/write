@@ -1,8 +1,6 @@
-import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import 'package:inkspacex/provider/editor_provider.dart';
@@ -12,6 +10,7 @@ import 'package:inkspacex/ui/pages/new_book_addition.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
+import 'package:inkspacex/ui/pages/publish_page.dart';
 
 class WritingPageUI extends StatelessWidget {
   const WritingPageUI({super.key});
@@ -1039,248 +1038,12 @@ void _showPublishSheet(
     return;
   }
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (ctx) => _PublishSectionPicker(
-      book: book,
-      provider: provider,
-      isDark: isDark,
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => PublishPage(book: book),
     ),
   );
-}
-
-class _PublishSectionPicker extends StatefulWidget {
-  final WritingModel book;
-  final EditorProvider provider;
-  final bool isDark;
-
-  const _PublishSectionPicker({
-    required this.book,
-    required this.provider,
-    required this.isDark,
-  });
-
-  @override
-  State<_PublishSectionPicker> createState() => _PublishSectionPickerState();
-}
-
-class _PublishSectionPickerState extends State<_PublishSectionPicker> {
-  String? _publishingId;
-
-  Future<void> _publish(SectionModel section) async {
-    setState(() => _publishingId = section.id);
-    try {
-      if (widget.book.coverImagePath.isEmpty) {
-        final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-        if (picked == null) {
-          setState(() => _publishingId = null);
-          return;
-        }
-        final Uint8List bytes = await picked.readAsBytes();
-        await widget.provider.updateBookCoverImage(widget.book, bytes);
-      }
-      await widget.provider.publishSection(widget.book, section);
-      if (mounted) {
-        Navigator.pop(context);
-        showCupertinoDialog(
-          context: context,
-          builder: (ctx) => CupertinoAlertDialog(
-            title: const Text("Posted"),
-            content: Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                '"${section.title}" is now live on the feed.',
-                style: GoogleFonts.inter(),
-              ),
-            ),
-            actions: [
-              CupertinoDialogAction(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text("OK"),
-              ),
-            ],
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _publishingId = null);
-        showCupertinoDialog(
-          context: context,
-          builder: (ctx) => CupertinoAlertDialog(
-            title: const Text("Error"),
-            content: Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                e.toString().replaceFirst('Exception: ', ''),
-                style: GoogleFonts.inter(),
-              ),
-            ),
-            actions: [
-              CupertinoDialogAction(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text("OK"),
-              ),
-            ],
-          ),
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = widget.isDark;
-    final bgColor = isDark ? const Color(0xFF1C1C1E) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final subtleColor = isDark ? Colors.white54 : Colors.black45;
-    final sections = widget.book.sections;
-
-    return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.7,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 8),
-          Container(
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: isDark ? Colors.white24 : Colors.black12,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Post to Feed",
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "Choose a section from \"${widget.book.title}\" to share",
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: subtleColor,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          Divider(
-            height: 1,
-            color: isDark
-                ? Colors.white10
-                : Colors.black.withValues(alpha: 0.06),
-          ),
-          Flexible(
-            child: ListView.separated(
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              itemCount: sections.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 4),
-              itemBuilder: (context, index) {
-                final section = sections[index];
-                final isPublishing = _publishingId == section.id;
-
-                return Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: _publishingId != null
-                        ? null
-                        : () => _publish(section),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 14,
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: section.sectionColor
-                                  .withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              CupertinoIcons.doc_text,
-                              size: 18,
-                              color: section.sectionColor,
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Text(
-                              section.title,
-                              style: GoogleFonts.inter(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                color: textColor,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (isPublishing)
-                            SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: textColor.withValues(alpha: 0.6),
-                              ),
-                            )
-                          else
-                            Icon(
-                              CupertinoIcons.arrow_up_circle,
-                              size: 22,
-                              color: isDark ? Colors.white60 : Colors.black45,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-              child: Text(
-                "Tap a section to post it to the public feed",
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: subtleColor,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _SidebarItem extends StatelessWidget {

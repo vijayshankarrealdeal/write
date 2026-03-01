@@ -55,7 +55,7 @@ class _EditiorPageState extends State<EditiorPage> with WidgetsBindingObserver {
 
   Future<void> _insertImage() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+    final picked = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1200, imageQuality: 70);
     if (picked == null) return;
     final bytes = await picked.readAsBytes();
     final auth = context.read<AuthProvider>();
