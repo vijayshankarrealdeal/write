@@ -1,4 +1,4 @@
-/// Feed article/item for personalized suggestions.
+/// A feed post – one published section from a book.
 class FeedItemModel {
   final String id;
   final String title;
@@ -12,6 +12,15 @@ class FeedItemModel {
   final DateTime createdAt;
   final int likesCount;
 
+  /// The Quill delta JSON of the section content.
+  final String content;
+
+  /// The parent book's title (for context, e.g. "From: My Poetry Book").
+  final String bookTitle;
+
+  /// The parent book's ID so we can group posts by book.
+  final String bookId;
+
   const FeedItemModel({
     required this.id,
     required this.title,
@@ -24,6 +33,9 @@ class FeedItemModel {
     this.tags = const [],
     required this.createdAt,
     this.likesCount = 0,
+    this.content = '',
+    this.bookTitle = '',
+    this.bookId = '',
   });
 
   factory FeedItemModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +53,9 @@ class FeedItemModel {
           ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
           : DateTime.now(),
       likesCount: json['likesCount'] ?? 0,
+      content: json['content'] ?? '',
+      bookTitle: json['bookTitle'] ?? '',
+      bookId: json['bookId'] ?? '',
     );
   }
 
@@ -56,5 +71,8 @@ class FeedItemModel {
         'tags': tags,
         'createdAt': createdAt.toIso8601String(),
         'likesCount': likesCount,
+        'content': content,
+        'bookTitle': bookTitle,
+        'bookId': bookId,
       };
 }

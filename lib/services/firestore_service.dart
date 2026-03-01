@@ -98,25 +98,33 @@ class FirestoreService {
     });
   }
 
-  /// Publish a writing to the public feed.
-  Future<void> publishToFeed(WritingModel writing, User author) async {
+  /// Publish a single section from a book as a feed post.
+  Future<void> publishSection(
+    WritingModel book,
+    SectionModel section,
+    User author,
+  ) async {
+    final docId = '${book.id}_${section.id}';
     final feedItem = FeedItemModel(
-      id: writing.id,
-      title: writing.title,
+      id: docId,
+      title: section.title,
       author: author.name,
       authorId: author.id,
-      description: writing.description,
-      imageUrl: writing.coverImagePath,
-      genres: writing.subtype.isNotEmpty ? [writing.subtype] : [],
-      writingTypes: [writing.writingType.displayName],
+      description: book.description,
+      imageUrl: book.coverImagePath,
+      genres: book.subtype.isNotEmpty ? [book.subtype] : [],
+      writingTypes: [book.writingType.displayName],
       tags: [],
       createdAt: DateTime.now(),
       likesCount: 0,
+      content: section.content,
+      bookTitle: book.title,
+      bookId: book.id,
     );
 
     await _firestore
         .collection(_feedItems)
-        .doc(feedItem.id) // Use writing ID as feed item ID for easy updates
+        .doc(docId)
         .set(feedItem.toJson());
   }
 

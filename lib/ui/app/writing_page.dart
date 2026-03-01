@@ -463,6 +463,12 @@ class _DesktopWritingPage extends StatelessWidget {
                       onTap: () {
                         provider.setActiveBook(book);
                       },
+                      onPublish: () => _showPublishSheet(
+                        context,
+                        provider,
+                        book,
+                        isDark,
+                      ),
                       onRename: () => _showRenameProjectDialog(
                         context,
                         provider,
@@ -566,6 +572,37 @@ class _DesktopWritingPage extends StatelessWidget {
                         tooltip: settings.sectionsGridView
                             ? "Switch to list view"
                             : "Switch to grid view",
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton.icon(
+                        onPressed: () => _showPublishSheet(
+                          context,
+                          context.read<EditorProvider>(),
+                          activeBook,
+                          isDark,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: textColor,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.15)
+                                  : Colors.black.withValues(alpha: 0.12),
+                            ),
+                          ),
+                        ),
+                        icon: const Icon(CupertinoIcons.share_up, size: 18),
+                        label: Text(
+                          "Publish",
+                          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                        ),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton.icon(
@@ -839,6 +876,13 @@ void _showProjectOptionsSheet(
         CupertinoActionSheetAction(
           onPressed: () {
             Navigator.pop(ctx);
+            _showPublishSheet(context, provider, book, isDark);
+          },
+          child: const Text("Publish"),
+        ),
+        CupertinoActionSheetAction(
+          onPressed: () {
+            Navigator.pop(ctx);
             _showRenameProjectDialog(context, provider, book, isDark);
           },
           child: const Text("Rename"),
@@ -963,6 +1007,271 @@ void _showDeleteProjectDialog(
   );
 }
 
+void _showPublishSheet(
+  BuildContext context,
+  EditorProvider provider,
+  WritingModel book,
+  bool isDark,
+) {
+  final sections = book.sections;
+  if (sections.isEmpty) {
+    showCupertinoDialog(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: const Text("No Sections"),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(
+            "Add at least one section before publishing.",
+            style: GoogleFonts.inter(),
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+    return;
+  }
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) => _PublishSectionPicker(
+      book: book,
+      provider: provider,
+      isDark: isDark,
+    ),
+  );
+}
+
+class _PublishSectionPicker extends StatefulWidget {
+  final WritingModel book;
+  final EditorProvider provider;
+  final bool isDark;
+
+  const _PublishSectionPicker({
+    required this.book,
+    required this.provider,
+    required this.isDark,
+  });
+
+  @override
+  State<_PublishSectionPicker> createState() => _PublishSectionPickerState();
+}
+
+class _PublishSectionPickerState extends State<_PublishSectionPicker> {
+  String? _publishingId;
+
+  Future<void> _publish(SectionModel section) async {
+    setState(() => _publishingId = section.id);
+    try {
+      await widget.provider.publishSection(widget.book, section);
+      if (mounted) {
+        Navigator.pop(context);
+        showCupertinoDialog(
+          context: context,
+          builder: (ctx) => CupertinoAlertDialog(
+            title: const Text("Posted"),
+            content: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                '"${section.title}" is now live on the feed.',
+                style: GoogleFonts.inter(),
+              ),
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _publishingId = null);
+        showCupertinoDialog(
+          context: context,
+          builder: (ctx) => CupertinoAlertDialog(
+            title: const Text("Error"),
+            content: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                e.toString().replaceFirst('Exception: ', ''),
+                style: GoogleFonts.inter(),
+              ),
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = widget.isDark;
+    final bgColor = isDark ? const Color(0xFF1C1C1E) : Colors.white;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtleColor = isDark ? Colors.white54 : Colors.black45;
+    final sections = widget.book.sections;
+
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.7,
+      ),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 8),
+          Container(
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: isDark ? Colors.white24 : Colors.black12,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Post to Feed",
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Choose a section from \"${widget.book.title}\" to share",
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: subtleColor,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Divider(
+            height: 1,
+            color: isDark
+                ? Colors.white10
+                : Colors.black.withValues(alpha: 0.06),
+          ),
+          Flexible(
+            child: ListView.separated(
+              shrinkWrap: true,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              itemCount: sections.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 4),
+              itemBuilder: (context, index) {
+                final section = sections[index];
+                final isPublishing = _publishingId == section.id;
+
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _publishingId != null
+                        ? null
+                        : () => _publish(section),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: section.sectionColor
+                                  .withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              CupertinoIcons.doc_text,
+                              size: 18,
+                              color: section.sectionColor,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              section.title,
+                              style: GoogleFonts.inter(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: textColor,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (isPublishing)
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: textColor.withValues(alpha: 0.6),
+                              ),
+                            )
+                          else
+                            Icon(
+                              CupertinoIcons.arrow_up_circle,
+                              size: 22,
+                              color: isDark ? Colors.white60 : Colors.black45,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+              child: Text(
+                "Tap a section to post it to the public feed",
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: subtleColor,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _SidebarItem extends StatelessWidget {
   final WritingModel book;
   final bool isSelected;
@@ -970,6 +1279,7 @@ class _SidebarItem extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onRename;
   final VoidCallback onDelete;
+  final VoidCallback onPublish;
 
   const _SidebarItem({
     required this.book,
@@ -978,6 +1288,7 @@ class _SidebarItem extends StatelessWidget {
     required this.onTap,
     required this.onRename,
     required this.onDelete,
+    required this.onPublish,
   });
 
   @override
@@ -1050,6 +1361,13 @@ class _SidebarItem extends StatelessWidget {
           style: GoogleFonts.inter(fontWeight: FontWeight.w600),
         ),
         actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(ctx);
+              onPublish();
+            },
+            child: const Text("Publish"),
+          ),
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.pop(ctx);

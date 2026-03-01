@@ -512,15 +512,12 @@ class EditorProvider extends ChangeNotifier {
     return jsonEncode(deltaJson);
   }
 
-  /// Publsh the current book to the public feed.
-  Future<void> publishActiveBook() async {
+  /// Publish a single section from a book to the public feed.
+  Future<void> publishSection(WritingModel book, SectionModel section) async {
     final user = _auth.currentUser;
-    final book = activeBook;
-
     if (user == null) throw Exception("User not logged in");
-    if (book == null) throw Exception("No active book");
 
-    await _firestore.publishToFeed(book, user);
+    await _firestore.publishSection(book, section, user);
   }
 
   /// Reset all editor state on logout so stale data doesn't linger.
