@@ -1,9 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:writer/firebase_options.dart';
 
 import 'package:writer/provider/auth_provider.dart';
 import 'package:writer/provider/editor_provider.dart';
@@ -19,6 +21,7 @@ import 'package:writer/ui/theme/app_theme.dart';
 import 'package:writer/ui/utilities/responsive_layout.dart';
 
 void main() async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   WidgetsFlutterBinding.ensureInitialized();
   final storage = StorageService();
   await storage.init();
@@ -82,7 +85,7 @@ class _MobileHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Consumer<NavProvider>(
       builder: (context, nav, _) {
         return CupertinoTabScaffold(
@@ -134,7 +137,9 @@ class _MobileFeedWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final navBg = isDark ? const Color(0xFF000000) : CupertinoColors.systemBackground.resolveFrom(context);
+    final navBg = isDark
+        ? const Color(0xFF000000)
+        : CupertinoColors.systemBackground.resolveFrom(context);
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         backgroundColor: navBg,
@@ -167,7 +172,9 @@ class _MobileSettingsWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final navBg = isDark ? const Color(0xFF000000) : CupertinoColors.systemBackground.resolveFrom(context);
+    final navBg = isDark
+        ? const Color(0xFF000000)
+        : CupertinoColors.systemBackground.resolveFrom(context);
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         backgroundColor: navBg,
@@ -228,9 +235,9 @@ class _DesktopHomePage extends StatelessWidget {
                   CupertinoIcons.settings,
                   color:
                       context.watch<NavProvider>().selectedPage ==
-                              SelectedPage.settings
-                          ? textColor
-                          : textColor.withValues(alpha: 0.4),
+                          SelectedPage.settings
+                      ? textColor
+                      : textColor.withValues(alpha: 0.4),
                 ),
               ),
             ),
@@ -246,9 +253,10 @@ class _DesktopHomePage extends StatelessWidget {
               ),
             ],
             selectedIndex:
-                context.watch<NavProvider>().selectedPage == SelectedPage.settings
-                    ? null
-                    : context.watch<NavProvider>().selectedPage.index,
+                context.watch<NavProvider>().selectedPage ==
+                    SelectedPage.settings
+                ? null
+                : context.watch<NavProvider>().selectedPage.index,
             onDestinationSelected: (index) {
               context.read<NavProvider>().setIndex(SelectedPage.values[index]);
             },
@@ -292,8 +300,9 @@ class _DesktopHomePage extends StatelessWidget {
                           const SizedBox(width: 16),
                           CircleAvatar(
                             radius: 18,
-                            backgroundColor:
-                                isDark ? Colors.white12 : Colors.black12,
+                            backgroundColor: isDark
+                                ? Colors.white12
+                                : Colors.black12,
                             child: Icon(
                               CupertinoIcons.person,
                               size: 18,
@@ -317,11 +326,7 @@ class _DesktopHomePage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                         child: Row(
                           children: [
-                            Icon(
-                              CupertinoIcons.add,
-                              size: 16,
-                              color: bgColor,
-                            ),
+                            Icon(CupertinoIcons.add, size: 16, color: bgColor),
                             const SizedBox(width: 6),
                             Text(
                               "New Project",
