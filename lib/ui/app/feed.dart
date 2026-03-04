@@ -31,13 +31,18 @@ class _FeedState extends State<Feed> {
     final feed = context.read<FeedProvider>();
     final prefs = auth.currentUser?.preferences ?? const UserPreferences();
     final userId = auth.currentUser?.id;
-    if (feed.items.isNotEmpty) {
-      feed.silentRefresh();
-    } else {
-      feed.loadFeedIfNeeded(prefs, userId: userId);
-    }
-    if (userId != null) {
-      feed.loadReadingProgress(userId);
+    try {
+      if (feed.items.isNotEmpty) {
+        feed.silentRefresh();
+      } else {
+        feed.loadFeedIfNeeded(prefs, userId: userId);
+      }
+      if (userId != null) {
+        feed.loadReadingProgress(userId);
+      }
+    } catch (e) {
+      // Handle any errors that might occur during feed loading
+      debugPrint("Error loading feed: $e");
     }
   }
 
@@ -45,7 +50,11 @@ class _FeedState extends State<Feed> {
     final auth = context.read<AuthProvider>();
     final feed = context.read<FeedProvider>();
     final prefs = auth.currentUser?.preferences ?? const UserPreferences();
-    await feed.loadFeed(prefs, forceRefresh: true, userId: auth.currentUser?.id);
+    await feed.loadFeed(
+      prefs,
+      forceRefresh: true,
+      userId: auth.currentUser?.id,
+    );
   }
 
   @override
@@ -168,7 +177,11 @@ class _FeedState extends State<Feed> {
                       child: isMobile
                           ? _buildMobileLayout(textColor, feed, auth)
                           : _buildDesktopLayout(
-                              textColor, isTablet, feed, auth),
+                              textColor,
+                              isTablet,
+                              feed,
+                              auth,
+                            ),
                     ),
                   ),
                   if (feed.isLoadingMore)
@@ -712,9 +725,12 @@ class _FeedState extends State<Feed> {
                       fit: BoxFit.cover,
                       placeholder: (_, __) => Container(
                         color: Colors.grey[300],
-                        child: const Center(child: CupertinoActivityIndicator()),
+                        child: const Center(
+                          child: CupertinoActivityIndicator(),
+                        ),
                       ),
-                      errorWidget: (_, __, ___) => _buildGalleryPlaceholder(item.title),
+                      errorWidget: (_, __, ___) =>
+                          _buildGalleryPlaceholder(item.title),
                     )
                   : _buildGalleryPlaceholder(item.title),
             ),
@@ -729,7 +745,9 @@ class _FeedState extends State<Feed> {
         for (int i = 0; i < displayItems.length; i++)
           Expanded(
             child: Padding(
-              padding: EdgeInsets.only(right: i == displayItems.length - 1 ? 0 : 20.0),
+              padding: EdgeInsets.only(
+                right: i == displayItems.length - 1 ? 0 : 20.0,
+              ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: displayItems[i].imageUrl.isNotEmpty
@@ -738,7 +756,9 @@ class _FeedState extends State<Feed> {
                         fit: BoxFit.cover,
                         placeholder: (_, __) => Container(
                           color: Colors.grey[300],
-                          child: const Center(child: CupertinoActivityIndicator()),
+                          child: const Center(
+                            child: CupertinoActivityIndicator(),
+                          ),
                         ),
                         errorWidget: (_, __, ___) =>
                             _buildGalleryPlaceholder(displayItems[i].title),

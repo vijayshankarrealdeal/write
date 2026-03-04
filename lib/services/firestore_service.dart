@@ -135,10 +135,7 @@ class FirestoreService {
       isDraft: isDraft,
     );
 
-    await _firestore
-        .collection(_feedItems)
-        .doc(docId)
-        .set(feedItem.toJson());
+    await _firestore.collection(_feedItems).doc(docId).set(feedItem.toJson());
   }
 
   Future<List<FeedItemModel>> getDrafts(String userId) async {
@@ -148,9 +145,7 @@ class FirestoreService {
         .where('isDraft', isEqualTo: true)
         .orderBy('createdAt', descending: true)
         .get();
-    return snap.docs
-        .map((d) => FeedItemModel.fromJson(d.data()))
-        .toList();
+    return snap.docs.map((d) => FeedItemModel.fromJson(d.data())).toList();
   }
 
   Future<void> publishDraft(String feedItemId) async {
@@ -263,10 +258,12 @@ class FirestoreService {
         .collection(_comments)
         .orderBy('createdAt', descending: false)
         .snapshots()
-        .map((snap) => snap.docs.map((d) {
-              final data = _convertTimestamps(d.data());
-              return CommentModel.fromJson({...data, 'id': d.id});
-            }).toList());
+        .map(
+          (snap) => snap.docs.map((d) {
+            final data = _convertTimestamps(d.data());
+            return CommentModel.fromJson({...data, 'id': d.id});
+          }).toList(),
+        );
   }
 
   // =========================================================================
@@ -337,8 +334,8 @@ class FirestoreService {
     DocumentSnapshot? lastDocument,
     String? currentUserId,
   }) async {
-    final genres = preferences.preferredGenres.take(10).toList();
-    final writingTypes = preferences.preferredWritingTypes.take(10).toList();
+    final genres = preferences.preferredGenres.take(30).toList();
+    final writingTypes = preferences.preferredWritingTypes.take(30).toList();
     final seen = <String>{};
     final all = <FeedItemModel>[];
     DocumentSnapshot? lastDoc;
@@ -360,72 +357,85 @@ class FirestoreService {
 
     // 1. Fetch by preferred genres
     if (genres.isNotEmpty) {
-      final snap = await _applyPagination(
-        _firestore
-            .collection(_feedItems)
-            .where('genres', arrayContainsAny: genres)
-            .orderBy('createdAt', descending: true),
-      ).get();
-      if (snap.docs.isNotEmpty) lastDoc = snap.docs.last;
-      for (final item in parse(snap)) {
-        if (seen.add(item.id)) all.add(item);
+      try {
+        final snap = await _applyPagination(
+          _firestore
+              .collection(_feedItems)
+              .where('genres', arrayContainsAny: genres)
+              .orderBy('createdAt', descending: true),
+        ).get();
+        if (snap.docs.isNotEmpty) lastDoc = snap.docs.last;
+        for (final item in parse(snap)) {
+          if (seen.add(item.id)) all.add(item);
+        }
+      } catch (e) {
+        print('Error fetching by genres: $e');
       }
     }
 
     // 2. Fetch by preferred writing types
     if (writingTypes.isNotEmpty) {
-      final snap = await _applyPagination(
-        _firestore
-            .collection(_feedItems)
-            .where('writingTypes', arrayContainsAny: writingTypes)
-            .orderBy('createdAt', descending: true),
-      ).get();
-      if (snap.docs.isNotEmpty) lastDoc = snap.docs.last;
-      for (final item in parse(snap)) {
-        if (seen.add(item.id)) all.add(item);
+      try {
+        final snap = await _applyPagination(
+          _firestore
+              .collection(_feedItems)
+              .where('writingTypes', arrayContainsAny: writingTypes)
+              .orderBy('createdAt', descending: true),
+        ).get();
+        if (snap.docs.isNotEmpty) lastDoc = snap.docs.last;
+        for (final item in parse(snap)) {
+          if (seen.add(item.id)) all.add(item);
+        }
+      } catch (e) {
+        print('Error fetching by writing types: $e');
       }
     }
 
     // 3. Trending (by engagement: likes + comments)
-    final trendingSnap = await _applyPagination(
-      _firestore
-          .collection(_feedItems)
-          .orderBy('likesCount', descending: true),
-    ).get();
-    if (trendingSnap.docs.isNotEmpty) lastDoc = trendingSnap.docs.last;
-    for (final item in parse(trendingSnap)) {
-      if (seen.add(item.id)) all.add(item);
+    try {
+      final trendingSnap = await _applyPagination(
+        _firestore
+            .collection(_feedItems)
+            .orderBy('likesCount', descending: true),
+      ).get();
+      if (trendingSnap.docs.isNotEmpty) lastDoc = trendingSnap.docs.last;
+      for (final item in parse(trendingSnap)) {
+        if (seen.add(item.id)) all.add(item);
+      }
+
+      // 4. Recent posts (catch new content regardless of genre)
+      final recentSnap = await _applyPagination(
+        _firestore
+            .collection(_feedItems)
+            .orderBy('createdAt', descending: true),
+      ).get();
+      if (recentSnap.docs.isNotEmpty) lastDoc = recentSnap.docs.last;
+      for (final item in parse(recentSnap)) {
+        if (seen.add(item.id)) all.add(item);
+      }
+
+      // 5. Exclude drafts and current user's own posts
+      all.removeWhere((item) => item.isDraft);
+      if (currentUserId != null) {
+        all.removeWhere((item) => item.authorId == currentUserId);
+      }
+
+      // 6. Score and rank
+      final now = DateTime.now();
+      final genreSet = genres.map((g) => g.toLowerCase()).toSet();
+      final typeSet = writingTypes.map((t) => t.toLowerCase()).toSet();
+
+      all.sort((a, b) {
+        final scoreA = _scoreItem(a, now, genreSet, typeSet);
+        final scoreB = _scoreItem(b, now, genreSet, typeSet);
+        return scoreB.compareTo(scoreA);
+      });
+
+      return FeedPage(items: all, lastDoc: lastDoc);
+    } catch (e) {
+      print('Error fetching trending: $e');
     }
-
-    // 4. Recent posts (catch new content regardless of genre)
-    final recentSnap = await _applyPagination(
-      _firestore
-          .collection(_feedItems)
-          .orderBy('createdAt', descending: true),
-    ).get();
-    if (recentSnap.docs.isNotEmpty) lastDoc = recentSnap.docs.last;
-    for (final item in parse(recentSnap)) {
-      if (seen.add(item.id)) all.add(item);
-    }
-
-    // 5. Exclude drafts and current user's own posts
-    all.removeWhere((item) => item.isDraft);
-    if (currentUserId != null) {
-      all.removeWhere((item) => item.authorId == currentUserId);
-    }
-
-    // 6. Score and rank
-    final now = DateTime.now();
-    final genreSet = genres.map((g) => g.toLowerCase()).toSet();
-    final typeSet = writingTypes.map((t) => t.toLowerCase()).toSet();
-
-    all.sort((a, b) {
-      final scoreA = _scoreItem(a, now, genreSet, typeSet);
-      final scoreB = _scoreItem(b, now, genreSet, typeSet);
-      return scoreB.compareTo(scoreA);
-    });
-
-    return FeedPage(items: all, lastDoc: lastDoc);
+    return Future.error('Failed to fetch feed');
   }
 
   /// Composite score: preference match + engagement + freshness.
@@ -460,7 +470,8 @@ class FirestoreService {
     return score;
   }
 
-  static double _log2(double x) => x > 0 ? x.toStringAsFixed(0).length.toDouble() : 0;
+  static double _log2(double x) =>
+      x > 0 ? x.toStringAsFixed(0).length.toDouble() : 0;
 
   // =========================================================================
   // WRITINGS (optimized: metadata + sections subcollection)
@@ -697,11 +708,11 @@ class FirestoreService {
         .collection('reading_progress')
         .doc(feedItemId)
         .set({
-      'feedItemId': feedItemId,
-      'scrollPosition': scrollPosition,
-      'lastReadAt': DateTime.now().toIso8601String(),
-      'completed': completed,
-    }, SetOptions(merge: true));
+          'feedItemId': feedItemId,
+          'scrollPosition': scrollPosition,
+          'lastReadAt': DateTime.now().toIso8601String(),
+          'completed': completed,
+        }, SetOptions(merge: true));
   }
 
   Future<ReadingProgressModel?> getReadingProgress(

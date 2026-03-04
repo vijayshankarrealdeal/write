@@ -18,6 +18,8 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - run: flutter clean  # ← ensures no stale build artifacts
+
       - run: flutter pub get
 
       - run: flutter build web --release --base-href "/" --dart-define=BUILD_SHA=${{ github.sha }}
