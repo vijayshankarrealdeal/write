@@ -1,6 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script>
+    const APP_VERSION = "1.0.1"; 
+    const currentVersion = localStorage.getItem("app_version");
+
+    if (currentVersion !== APP_VERSION) {
+      // 1. Unregister old Flutter service workers
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+
+      // 2. Clear the browser's Cache Storage (where old main.dart.js is hiding)
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) {
+            caches.delete(name);
+          }
+        });
+      }
+
+      // 3. Save the new version so this only runs once
+      localStorage.setItem("app_version", APP_VERSION);
+
+      // 4. Force reload the page with a timestamp to bust the HTTP cache
+      const newUrl = window.location.origin + window.location.pathname + "?v=" + new Date().getTime() + window.location.hash;
+      window.location.replace(newUrl);
+    }
+  </script>
   <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
