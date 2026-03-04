@@ -1,37 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script>
-    const APP_VERSION = "1.0.1"; 
-    const currentVersion = localStorage.getItem("app_version");
-
-    if (currentVersion !== APP_VERSION) {
-      // 1. Unregister old Flutter service workers
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for (let registration of registrations) {
-            registration.unregister();
+ <script>
+    (async function() {
+      // ⚠️ Change this string ONLY when you want to force all users to refresh globally
+      const APP_VERSION = "1.0.1"; 
+      
+      try {
+        const currentVersion = localStorage.getItem("app_version");
+        if (currentVersion !== APP_VERSION) {
+          
+          // 1. Force kill stuck Service Workers
+          if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (let reg of registrations) {
+              await reg.unregister();
+            }
           }
-        });
-      }
-
-      // 2. Clear the browser's Cache Storage (where old main.dart.js is hiding)
-      if ('caches' in window) {
-        caches.keys().then(function(names) {
-          for (let name of names) {
-            caches.delete(name);
+          
+          // 2. Completely wipe the browser's old stored files
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            for (let key of keys) {
+              await caches.delete(key);
+            }
           }
-        });
-      }
-
-      // 3. Save the new version so this only runs once
-      localStorage.setItem("app_version", APP_VERSION);
-
-      // 4. Force reload the page with a timestamp to bust the HTTP cache
-      const newUrl = window.location.origin + window.location.pathname + "?v=" + new Date().getTime() + window.location.hash;
-      window.location.replace(newUrl);
-    }
+          
+          // 3. Record the new version so this only runs once per update
+          localStorage.setItem("app_version", APP_VERSION);
+          
+          // 4. Force hard reload from server
+          const newUrl = window.location.origin + window.location.pathname + "?v=" + new Date().getTime() + window.location.hash;
+          window.location.replace(newUrl);
+        }
+      } catch (e) { console.error("Auto-update failed:", e); }
+    })();
   </script>
+
   <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.

@@ -54,7 +54,7 @@
       "**/.*",
       "**/node_modules/**"
     ],
-   "headers": [
+    "headers": [
       {
         "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|ico)",
         "headers": [
