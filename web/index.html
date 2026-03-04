@@ -1,77 +1,43 @@
 <!DOCTYPE html>
 <html>
+
 <head>
- <script>
-    (async function() {
-      // ⚠️ Change to 1.0.2 to force Chrome to run the newly fixed script
-      const APP_VERSION = "1.0.2"; 
-      
+  <script>
+    (async function () {
+      const APP_VERSION = "__BUILD_SHA__";
       try {
         const currentVersion = localStorage.getItem("app_version");
         if (currentVersion !== APP_VERSION) {
           if ('serviceWorker' in navigator) {
             const registrations = await navigator.serviceWorker.getRegistrations();
-            for (let reg of registrations) {
-              await reg.unregister();
-            }
+            for (let reg of registrations) await reg.unregister();
           }
           if ('caches' in window) {
             const keys = await caches.keys();
-            for (let key of keys) {
-              await caches.delete(key);
-            }
+            for (let key of keys) await caches.delete(key);
           }
           localStorage.setItem("app_version", APP_VERSION);
-          
-          // Safer reload that doesn't break Flutter routing:
-          window.location.reload(true); 
+          window.location.reload();
         }
       } catch (e) { console.error("Auto-update failed:", e); }
     })();
   </script>
 
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
-
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Inkspacex - Write, create, share.">
-
-  <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="inkspacex">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
+  <link rel="icon" type="image/png" href="favicon.png" />
   <title>Inkspacex</title>
   <link rel="manifest" href="manifest.json">
 </head>
+
 <body>
-  <script>
-    // Force service worker update on every visit so new deploys are picked up immediately.
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for (var reg of registrations) {
-          reg.update();
-        }
-      });
-    }
-  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
+
 </html>

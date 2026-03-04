@@ -22,7 +22,7 @@ jobs:
 
       - run: flutter pub get
 
-      - run: flutter build web --release --base-href "/" --dart-define=BUILD_SHA=${{ github.sha }}
+      - run: flutter build web --release --base-href "/" --pwa-strategy=none --dart-define=BUILD_SHA=${{ github.sha }}
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
