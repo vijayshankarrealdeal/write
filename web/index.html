@@ -3,22 +3,30 @@
 
 <head>
   <script>
-    (async function () {
-      const APP_VERSION = "__BUILD_SHA__"; 
-      const currentVersion = localStorage.getItem("app_version");
-      
-      if (currentVersion !== APP_VERSION) {
-        // Clear everything
-        if ('serviceWorker' in navigator) {
-          const regs = await navigator.serviceWorker.getRegistrations();
-          for (let reg of regs) await reg.unregister();
+    // 1. NUCLEAR UNREGISTER: This runs before anything else loads
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) {
+          registration.unregister().then(function() {
+            console.log("Old Service Worker Unregistered");
+            // Force reload after unregistering
+            window.location.reload(true);
+          });
         }
+      });
+    }
+
+    // 2. VERSION CHECK (The cache buster)
+    (async function () {
+      const APP_VERSION = "__BUILD_SHA__";
+      const currentVersion = localStorage.getItem("app_version");
+      if (currentVersion !== APP_VERSION) {
         if ('caches' in window) {
           const keys = await caches.keys();
           for (let key of keys) await caches.delete(key);
         }
         localStorage.setItem("app_version", APP_VERSION);
-        window.location.reload(); 
+        window.location.reload(true);
       }
     })();
   </script>
