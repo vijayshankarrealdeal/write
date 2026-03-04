@@ -21,8 +21,14 @@ import 'package:inkspacex/ui/pages/feed_preferences_page.dart';
 import 'package:inkspacex/ui/pages/new_book_addition.dart';
 import 'package:inkspacex/ui/theme/app_theme.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
+import 'package:web/web.dart' as web;
+import 'package:flutter/foundation.dart';
+import 'dart:js_interop';
 
 void main() async {
+  if (kIsWeb) {
+    _listenForUpdates();
+  }
   WidgetsFlutterBinding.ensureInitialized();
   // Suppress Hive's "Got object store box" debug message on web
   final originalDebugPrint = debugPrint;
@@ -34,6 +40,15 @@ void main() async {
   final storage = StorageService();
   await storage.init();
   runApp(MyApp(storage: storage));
+}
+
+void _listenForUpdates() {
+  web.window.navigator.serviceWorker.addEventListener(
+    'controllerchange',
+    (web.Event event) {
+      web.window.location.reload();
+    }.toJS,
+  );
 }
 
 class MyApp extends StatelessWidget {
