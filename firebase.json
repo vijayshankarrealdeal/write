@@ -54,22 +54,19 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
     "headers": [
       {
         "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|ico)",
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "public, max-age=0"
-          }
-        ]
-      },
-      {
-        "source": "/assets/**",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "public, max-age=0"
+            "value": "public, max-age=604800"
           }
         ]
       },
@@ -78,7 +75,7 @@
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "no-cache"
+            "value": "no-cache, no-store, must-revalidate"
           }
         ]
       },
@@ -87,15 +84,9 @@
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "no-cache"
+            "value": "no-cache, no-store, must-revalidate"
           }
         ]
-      }
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
       }
     ]
   }

@@ -4,22 +4,22 @@
 <head>
   <script>
     (async function () {
-      const APP_VERSION = "__BUILD_SHA__";
-      try {
-        const currentVersion = localStorage.getItem("app_version");
-        if (currentVersion !== APP_VERSION) {
-          if ('serviceWorker' in navigator) {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            for (let reg of registrations) await reg.unregister();
-          }
-          if ('caches' in window) {
-            const keys = await caches.keys();
-            for (let key of keys) await caches.delete(key);
-          }
-          localStorage.setItem("app_version", APP_VERSION);
-          window.location.reload();
+      const APP_VERSION = "__BUILD_SHA__"; 
+      const currentVersion = localStorage.getItem("app_version");
+      
+      if (currentVersion !== APP_VERSION) {
+        // Clear everything
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (let reg of regs) await reg.unregister();
         }
-      } catch (e) { console.error("Auto-update failed:", e); }
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          for (let key of keys) await caches.delete(key);
+        }
+        localStorage.setItem("app_version", APP_VERSION);
+        window.location.reload(); 
+      }
     })();
   </script>
 

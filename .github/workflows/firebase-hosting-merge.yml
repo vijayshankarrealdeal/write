@@ -1,26 +1,16 @@
 name: Deploy to Firebase Hosting on merge
 on:
   push:
-    branches:
-      - main
-
+    branches: [main]
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-
-      - run: flutter clean  # ← ensures no stale build artifacts
-
+        with: {channel: 'stable', cache: true}
       - run: flutter pub get
-
-      - run: flutter build web --release --base-href "/" --pwa-strategy=none --dart-define=BUILD_SHA=${{ github.sha }}
-
+      - run: flutter build web --release --base-href "/" --pwa-strategy=none
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

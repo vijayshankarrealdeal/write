@@ -1,29 +1,16 @@
 name: Deploy to Firebase Hosting on PR
 on: pull_request
-
-permissions:
-  checks: write
-  contents: read
-  pull-requests: write
-
 jobs:
   build_and_preview:
-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-
-      - run: flutter clean  # ← ensures no stale build artifacts
-
+        with: {channel: 'stable', cache: true}
       - run: flutter pub get
-
-      - run: flutter build web --release --base-href "/" --pwa-strategy=none --dart-define=BUILD_SHA=${{ github.sha }}
-
+      - run: |
+                flutter build web --release --base-href "/" --pwa-strategy=none --dart-define=BUILD_SHA=${{ github.sha }}
+                sed -i 's/__BUILD_SHA__/${{ github.sha }}/g' build/web/index.html
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
