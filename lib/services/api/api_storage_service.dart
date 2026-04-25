@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:inkspacex/services/api/api_client.dart';
 
-/// Storage service backed by FastAPI + MinIO (replaces FirebaseStorageService).
+/// Storage service backed by FastAPI + MinIO.
 class ApiStorageService {
   final ApiClient _client;
 

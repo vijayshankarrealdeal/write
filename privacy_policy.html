@@ -40,7 +40,7 @@
 
 <p><strong>Account Information:</strong> When you create an account, we collect your name, email address, and profile photo (if provided via Google Sign-In).</p>
 
-<p><strong>Content You Create:</strong> We store the writing, creative canvas layouts, images, and other content you create within the app. This content is stored on our servers (Google Firebase) to enable syncing across your devices.</p>
+<p><strong>Content You Create:</strong> We store the writing, creative canvas layouts, images, and other content you create within the app. This content is stored on our self-hosted servers to enable syncing across your devices.</p>
 
 <p><strong>Usage Data:</strong> We collect anonymous usage data such as reading progress, feature usage patterns, and app performance metrics to improve the Service.</p>
 
@@ -63,15 +63,14 @@
 <p>We do <strong>not</strong> sell, rent, or trade your personal information. We may share data only in these limited circumstances:</p>
 <ul>
   <li><strong>Published content:</strong> Spaces you publish are visible to other authenticated users on the feed.</li>
-  <li><strong>Service providers:</strong> We use Google Firebase for authentication, storage, and database services. Google's privacy policy applies to their infrastructure.</li>
+  <li><strong>Service providers:</strong> We use Google Sign-In for optional social login. Google's privacy policy applies to that integration. All other authentication, storage, and database services run on our own infrastructure.</li>
   <li><strong>Legal requirements:</strong> We may disclose information if required by law, court order, or to protect our legal rights.</li>
 </ul>
 
 <h2>5. Data Storage and Security</h2>
-<p>Your data is stored on Google Firebase servers. We implement industry-standard security measures including:</p>
+<p>Your data is stored on our self-hosted servers. We implement industry-standard security measures including:</p>
 <ul>
   <li>Encryption in transit (TLS/HTTPS)</li>
-  <li>Firebase Security Rules restricting data access</li>
   <li>Authentication-gated API access</li>
   <li>Owner-only access to private content</li>
 </ul>
@@ -95,7 +94,6 @@
 <h2>9. Third-Party Services</h2>
 <p>InkSpaceX integrates with:</p>
 <ul>
-  <li><strong>Google Firebase</strong> — Authentication, database, storage, hosting</li>
   <li><strong>Google Sign-In</strong> — Optional authentication method</li>
   <li><strong>Google Fonts</strong> — Font rendering (loaded at runtime)</li>
 </ul>

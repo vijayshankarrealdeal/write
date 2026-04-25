@@ -45,10 +45,10 @@ class AuthProvider extends ChangeNotifier {
   app.User? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
 
-  /// True once Firebase has reported auth state (logged in or not).
+  /// True once auth state is known (logged in or not).
   bool get authStateKnown => _authStateKnown;
 
-  /// True while restoring session (syncing user from Firebase on app start).
+  /// True while restoring session on app start.
   bool get isRestoringSession => _isRestoringSession;
 
   /// Stores the URL the user was trying to reach before being sent to login.
@@ -231,7 +231,7 @@ class AuthProvider extends ChangeNotifier {
     }
     notifyListeners();
 
-    // Fire to Firebase in background; revert on failure
+    // Fire to backend in background; revert on failure
     try {
       if (liked) {
         await _dataService.removeLike(_currentUser!.id, feedItemId);

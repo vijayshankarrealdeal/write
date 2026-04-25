@@ -1,0 +1,67 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate required secrets
+        env:
+          DOTENV: ${{ secrets.DOTENV }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          missing=()
+          [[ -z "$DOTENV" ]] && missing+=("DOTENV")
+          [[ -z "$SSH_HOST" ]] && missing+=("SSH_HOST")
+          [[ -z "$SSH_PRIVATE_KEY" ]] && missing+=("SSH_PRIVATE_KEY")
+          if (( ${#missing[@]} > 0 )); then
+            echo "::error::Missing GitHub secrets: ${missing[*]}"
+            echo "Set them with: gh secret set <NAME>"
+            exit 1
+          fi
+          if grep -q '__REPLACE_ME' <<<"$DOTENV"; then
+            echo "::error::DOTENV still contains __REPLACE_ME placeholders. Update with: gh secret set DOTENV < .env"
+            exit 1
+          fi
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: admin/package-lock.json
+
+      - name: Write .env from DOTENV secret
+        env:
+          DOTENV: ${{ secrets.DOTENV }}
+        run: printf '%s' "$DOTENV" > .env
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s' "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+
+      - name: Deploy to VM
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_KEY: /home/runner/.ssh/id_deploy
+        run: bash ./deploy.sh

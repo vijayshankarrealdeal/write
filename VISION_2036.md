@@ -19,7 +19,7 @@ InkSpaceX already has the DNA of something different — it's a creation-first p
 | Community feed | → Context-aware discovery mesh |
 | Genres & preferences | → Identity-driven creative graph |
 | Comments & likes | → Deep interaction layers |
-| Firebase backend | → Edge-native distributed backend |
+| Self-hosted FastAPI backend | → Edge-native distributed backend |
 
 ---
 
@@ -283,16 +283,16 @@ Instead:
 |---|---|---|
 | **Frontend** | Flutter (mobile + web) | Flutter + Spatial Computing SDK (Apple Vision, Meta, etc.) + AR layer |
 | **State** | Provider | Reactive state with offline-first CRDT sync |
-| **Backend** | Firebase (Firestore, Auth, Storage) | Edge-native backend (Cloudflare Workers / Fly.io) + Firebase for auth |
-| **Database** | Firestore | Hybrid: Firestore (user data) + ScyllaDB (feed/content at scale) + Vector DB (AI embeddings) |
+| **Backend** | FastAPI (Python) self-hosted | Edge-native backend (Cloudflare Workers / Fly.io) |
+| **Database** | PostgreSQL | Hybrid: PostgreSQL (user data) + ScyllaDB (feed/content at scale) + Vector DB (AI embeddings) |
 | **AI** | Azure OpenAI API calls | On-device models (style/emotion) + Cloud models (generation) + Federated learning |
-| **Real-time** | Firestore listeners | Custom WebSocket mesh + CRDT for collaborative editing |
-| **Media** | Firebase Storage | Edge CDN + adaptive streaming + on-device processing |
+| **Real-time** | Polled REST | Custom WebSocket mesh + CRDT for collaborative editing |
+| **Media** | MinIO (S3-compatible) | Edge CDN + adaptive streaming + on-device processing |
 | **AR** | None | ARKit/ARCore → WebXR → Spatial Computing APIs |
 | **Audio** | None | WebRTC (voice rooms) + Audio processing pipeline + AI voice synthesis |
-| **Search** | Firestore queries | Vector search (semantic) + emotion-weighted ranking |
-| **Identity** | Firebase Auth + Google | Decentralized identity (DID) + biometric + traditional auth |
-| **Privacy** | Standard Firebase rules | Zero-knowledge proofs for anonymous features + on-device AI + E2E encryption |
+| **Search** | PostgreSQL queries | Vector search (semantic) + emotion-weighted ranking |
+| **Identity** | JWT + Google Sign-In | Decentralized identity (DID) + biometric + traditional auth |
+| **Privacy** | App-level authorization | Zero-knowledge proofs for anonymous features + on-device AI + E2E encryption |
 
 ### New Infrastructure Needed
 

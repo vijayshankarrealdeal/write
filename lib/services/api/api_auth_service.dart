@@ -5,7 +5,7 @@ import 'package:inkspacex/models/user_model.dart' as app;
 import 'package:inkspacex/services/api/api_client.dart';
 import 'package:inkspacex/services/storage_service.dart';
 
-/// Auth service backed by the FastAPI backend (replaces Firebase Auth).
+/// Auth service backed by the FastAPI backend.
 class ApiAuthService {
   final ApiClient _client;
   final StorageService _storage;

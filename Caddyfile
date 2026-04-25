@@ -1,4 +1,4 @@
-inkspacex.com, www.inkspacex.com {
+{$DOMAIN}, www.{$DOMAIN} {
 	# Security headers that can't be set via <meta> — handled here.
 	header {
 		X-Frame-Options SAMEORIGIN

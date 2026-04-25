@@ -56,13 +56,6 @@ lib/config/api_keys.dart
 *.jks
 key.properties
 
-# Firebase auto-generated configs (contain API keys)
-# Re-generate with `flutterfire configure` on each machine.
-# lib/firebase_options.dart        # uncomment after first setup
-# android/app/google-services.json # uncomment after first setup
-# ios/Runner/GoogleService-Info.plist
-# macos/Runner/GoogleService-Info.plist
-
 # Android signing
 android/key.properties
 android/app/*.keystore
@@ -72,10 +65,6 @@ android/app/*.jks
 *.p12
 *.cer
 *.mobileprovision
-
-# Node (Cloud Functions)
-functions/node_modules/
-functions/.env
 
 # OS files
 Thumbs.db

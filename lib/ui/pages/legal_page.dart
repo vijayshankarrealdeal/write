@@ -206,7 +206,7 @@ const _privacyBlocks = <_LegalBlock>[
   ),
   _LegalBlock(
     _BlockType.paragraph,
-    'Content You Create: We store the writing, creative canvas layouts, images, and other content you create within the app. This content is stored on our servers (Google Firebase) to enable syncing across your devices.',
+    'Content You Create: We store the writing, creative canvas layouts, images, and other content you create within the app. This content is stored on our self-hosted servers to enable syncing across your devices.',
   ),
   _LegalBlock(
     _BlockType.paragraph,
@@ -251,7 +251,7 @@ const _privacyBlocks = <_LegalBlock>[
   ),
   _LegalBlock(
     _BlockType.bullet,
-    'Service providers: We use Google Firebase for authentication, storage, and database services. Google\'s privacy policy applies to their infrastructure.',
+    'Service providers: We use Google Sign-In for optional social login. Google\'s privacy policy applies to that integration. All other authentication, storage, and database services run on our own infrastructure.',
   ),
   _LegalBlock(
     _BlockType.bullet,
@@ -260,13 +260,9 @@ const _privacyBlocks = <_LegalBlock>[
   _LegalBlock(_BlockType.heading, '5. Data Storage & Security'),
   _LegalBlock(
     _BlockType.paragraph,
-    'Your data is stored on Google Firebase servers. We implement industry-standard security measures including:',
+    'Your data is stored on our self-hosted servers. We implement industry-standard security measures including:',
   ),
   _LegalBlock(_BlockType.bullet, 'Encryption in transit (TLS/HTTPS)'),
-  _LegalBlock(
-    _BlockType.bullet,
-    'Firebase Security Rules restricting data access',
-  ),
   _LegalBlock(_BlockType.bullet, 'Authentication-gated API access'),
   _LegalBlock(_BlockType.bullet, 'Owner-only access to private content'),
   _LegalBlock(_BlockType.heading, '6. Your Rights'),
@@ -294,10 +290,6 @@ const _privacyBlocks = <_LegalBlock>[
   ),
   _LegalBlock(_BlockType.heading, '9. Third-Party Services'),
   _LegalBlock(_BlockType.paragraph, 'InkSpaceX integrates with:'),
-  _LegalBlock(
-    _BlockType.bullet,
-    'Google Firebase — Authentication, database, storage, hosting',
-  ),
   _LegalBlock(
     _BlockType.bullet,
     'Google Sign-In — Optional authentication method',
@@ -439,7 +431,7 @@ const _termsBlocks = <_LegalBlock>[
   _LegalBlock(_BlockType.heading, '8. Third-Party Services'),
   _LegalBlock(
     _BlockType.paragraph,
-    'InkSpaceX uses third-party services including Google Firebase and Google Sign-In. Your use of these services is subject to their respective terms of service and privacy policies.',
+    'InkSpaceX uses third-party services including Google Sign-In. Your use of these services is subject to their respective terms of service and privacy policies.',
   ),
   _LegalBlock(_BlockType.heading, '9. Disclaimer of Warranties'),
   _LegalBlock(
