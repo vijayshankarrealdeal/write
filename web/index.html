@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description" content="InkSpaceX - Write, create, share your stories with the world.">
+  <meta name="theme-color" content="#000000">
+
+  <!-- PWA -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="InkSpaceX">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Referrer policy (the only security directive that actually works as a meta tag;
+       X-Frame-Options / X-Content-Type-Options must be set as HTTP headers by Caddy). -->
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
+  <title>InkSpaceX</title>
+
+  <!-- Loading indicator while Flutter boots -->
+  <style>
+    body { margin: 0; background: #000; overflow: hidden; }
+    .loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+    .loading span { color: rgba(255,255,255,0.3); font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; letter-spacing: 2px; }
+  </style>
+</head>
+
+<body>
+  <div class="loading" id="loading"><span>INKSPACEX</span></div>
+  <script>
+    // Unregister all old service workers so new deploys are always fresh
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        for (var r of regs) r.unregister();
+      });
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (var n of names) caches.delete(n);
+        });
+      }
+    }
+
+    window.addEventListener('flutter-first-frame', function () {
+      var el = document.getElementById('loading');
+      if (el) el.remove();
+    });
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+
+  <!-- Auto-update: detect new deploy and reload -->
+  <script>
+    (function() {
+      var currentVersion = null;
+
+      async function checkForUpdate() {
+        try {
+          var resp = await fetch('/version.json?t=' + Date.now(), { cache: 'no-store' });
+          if (!resp.ok) return;
+          var data = await resp.json();
+          if (currentVersion === null) {
+            currentVersion = data.version;
+            return;
+          }
+          if (data.version !== currentVersion) {
+            window.location.reload();
+          }
+        } catch (e) { /* ignore */ }
+      }
+
+      checkForUpdate();
+      setInterval(checkForUpdate, 30000);
+
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') checkForUpdate();
+      });
+    })();
+  </script>
+</body>
+
+</html>

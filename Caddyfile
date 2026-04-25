@@ -1,0 +1,39 @@
+inkspacex.com, www.inkspacex.com {
+	# Security headers that can't be set via <meta> — handled here.
+	header {
+		X-Frame-Options SAMEORIGIN
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+
+	handle /api/* {
+		reverse_proxy fastapi:8000
+	}
+
+	# If an upstream is down or errors on /api, never fall through to the
+	# Flutter SPA's index.html — the client would try to JSON.parse it and crash.
+	handle_errors {
+		@api path /api/*
+		header @api Content-Type application/json
+		respond @api `{"detail":"Upstream API unavailable","status":{err.status_code}}` {err.status_code}
+	}
+
+	handle /admin* {
+		reverse_proxy fastapi:8000
+	}
+
+	handle /storage/* {
+		uri strip_prefix /storage
+		reverse_proxy minio:9000
+	}
+
+	handle {
+		root * /srv/web
+		# index.html must revalidate on every load so new deploys are picked up
+		# immediately. Hashed assets can still cache via their own headers.
+		@html path /index.html /
+		header @html Cache-Control "no-cache, must-revalidate"
+		try_files {path} /index.html
+		file_server
+	}
+}

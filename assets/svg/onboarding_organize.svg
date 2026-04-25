@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <!-- Abstract organize/structure illustration - nested cards & folders -->
+  <defs>
+    <linearGradient id="glow2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.12"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.02"/>
+    </linearGradient>
+    <linearGradient id="card1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.12"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.04"/>
+    </linearGradient>
+    <linearGradient id="card2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.18"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.06"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Subtle background -->
+  <circle cx="200" cy="195" r="140" fill="url(#glow2)" />
+
+  <!-- Back card (chapter/section) -->
+  <rect x="100" y="115" width="200" height="60" rx="10"
+        fill="url(#card1)" stroke="white" stroke-opacity="0.12" stroke-width="1"/>
+  <line x1="125" y1="140" x2="195" y2="140" stroke="white" stroke-opacity="0.3" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="125" y1="155" x2="170" y2="155" stroke="white" stroke-opacity="0.15" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="275" cy="145" r="8" stroke="white" stroke-opacity="0.2" stroke-width="1" fill="white" fill-opacity="0.05"/>
+  <path d="M272 145 L275 148 L279 142" stroke="white" stroke-opacity="0.4" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Middle card -->
+  <rect x="100" y="190" width="200" height="60" rx="10"
+        fill="url(#card2)" stroke="white" stroke-opacity="0.18" stroke-width="1"/>
+  <line x1="125" y1="215" x2="210" y2="215" stroke="white" stroke-opacity="0.4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="125" y1="230" x2="180" y2="230" stroke="white" stroke-opacity="0.2" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="275" cy="220" r="8" stroke="white" stroke-opacity="0.25" stroke-width="1" fill="white" fill-opacity="0.06"/>
+
+  <!-- Front card (active) -->
+  <rect x="100" y="265" width="200" height="60" rx="10"
+        fill="url(#card2)" stroke="white" stroke-opacity="0.25" stroke-width="1.2"/>
+  <line x1="125" y1="290" x2="220" y2="290" stroke="white" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="125" y1="305" x2="185" y2="305" stroke="white" stroke-opacity="0.25" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="275" cy="295" r="8" stroke="white" stroke-opacity="0.3" stroke-width="1" fill="white" fill-opacity="0.08"/>
+
+  <!-- Folder tab at top -->
+  <path d="M120 95 L120 115 L100 115 L100 105 Q100 95 110 95 Z"
+        fill="white" fill-opacity="0.06" stroke="white" stroke-opacity="0.12" stroke-width="1"/>
+  <path d="M120 95 L170 95 Q180 95 180 105 L180 115"
+        fill="white" fill-opacity="0.06" stroke="white" stroke-opacity="0.12" stroke-width="1"/>
+
+  <!-- Connection lines between cards -->
+  <line x1="85" y1="145" x2="85" y2="295" stroke="white" stroke-opacity="0.08" stroke-width="1" stroke-dasharray="4,4"/>
+  <circle cx="85" cy="145" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="85" cy="220" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="85" cy="295" r="3" fill="white" fill-opacity="0.15"/>
+
+  <!-- Sparkle dots -->
+  <circle cx="320" cy="130" r="2" fill="white" fill-opacity="0.4"/>
+  <circle cx="330" cy="280" r="1.5" fill="white" fill-opacity="0.25"/>
+  <circle cx="70" cy="200" r="2" fill="white" fill-opacity="0.2"/>
+</svg>

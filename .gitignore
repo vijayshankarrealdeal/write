@@ -1,0 +1,83 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+*.swo
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code
+.vscode/
+
+# Flutter / Dart / Pub
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio build artifacts
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# ─────────────────────────────────────────────
+# SECRETS & CREDENTIALS — never commit these
+# ─────────────────────────────────────────────
+.env
+.env.*
+*.env
+secrets/
+credentials/
+lib/config/api_keys.dart
+*.keystore
+*.jks
+key.properties
+
+# Firebase auto-generated configs (contain API keys)
+# Re-generate with `flutterfire configure` on each machine.
+# lib/firebase_options.dart        # uncomment after first setup
+# android/app/google-services.json # uncomment after first setup
+# ios/Runner/GoogleService-Info.plist
+# macos/Runner/GoogleService-Info.plist
+
+# Android signing
+android/key.properties
+android/app/*.keystore
+android/app/*.jks
+
+# iOS / macOS certificates
+*.p12
+*.cer
+*.mobileprovision
+
+# Node (Cloud Functions)
+functions/node_modules/
+functions/.env
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini

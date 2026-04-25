@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <!-- Abstract writing illustration - flowing pen with paper -->
+  <defs>
+    <linearGradient id="glow1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.03"/>
+    </linearGradient>
+    <linearGradient id="line1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.6"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.1"/>
+    </linearGradient>
+    <linearGradient id="pen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Subtle background circle -->
+  <circle cx="200" cy="190" r="130" fill="url(#glow1)" />
+
+  <!-- Paper/document shape -->
+  <rect x="120" y="100" width="160" height="200" rx="8"
+        stroke="white" stroke-opacity="0.2" stroke-width="1.5" fill="none"/>
+  <!-- Folded corner -->
+  <path d="M248 100 L280 132 L248 132 Z"
+        stroke="white" stroke-opacity="0.15" stroke-width="1" fill="white" fill-opacity="0.05"/>
+
+  <!-- Text lines on paper -->
+  <line x1="145" y1="155" x2="255" y2="155" stroke="url(#line1)" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="145" y1="175" x2="240" y2="175" stroke="url(#line1)" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="145" y1="195" x2="250" y2="195" stroke="url(#line1)" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="145" y1="215" x2="220" y2="215" stroke="url(#line1)" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="145" y1="235" x2="235" y2="235" stroke="url(#line1)" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="145" y1="255" x2="200" y2="255" stroke="url(#line1)" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Pen / pencil -->
+  <g transform="translate(230, 230) rotate(-45)">
+    <rect x="0" y="-5" width="80" height="10" rx="2"
+          stroke="url(#pen)" stroke-width="1.5" fill="white" fill-opacity="0.08"/>
+    <polygon points="-12,-5 0,-5 0,5 -12,5 -18,0"
+             stroke="url(#pen)" stroke-width="1.5" fill="white" fill-opacity="0.12"/>
+    <!-- Pen tip -->
+    <polygon points="-18,0 -24,0 -18,-3 -18,3"
+             fill="white" fill-opacity="0.7"/>
+  </g>
+
+  <!-- Sparkle dots -->
+  <circle cx="310" cy="120" r="2.5" fill="white" fill-opacity="0.5"/>
+  <circle cx="100" cy="280" r="2" fill="white" fill-opacity="0.35"/>
+  <circle cx="320" cy="250" r="1.5" fill="white" fill-opacity="0.3"/>
+  <circle cx="90" cy="150" r="2" fill="white" fill-opacity="0.25"/>
+
+  <!-- Flowing ink curve from pen -->
+  <path d="M215 250 Q200 270 180 275 Q160 280 150 290 Q140 300 145 310"
+        stroke="white" stroke-opacity="0.25" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+</svg>
