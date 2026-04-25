@@ -75,6 +75,14 @@ for tool in ssh rsync; do
   command -v "$tool" >/dev/null || { echo "Missing tool: $tool"; exit 1; }
 done
 
+# Auto-detect missing Docker on first deploy and treat it as an implicit bootstrap.
+if [[ "${BOOTSTRAP:-0}" != "1" ]]; then
+  if ! ssh_exec 'command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1' </dev/null >/dev/null 2>&1; then
+    echo "→ Docker not found on $SSH_HOST — bootstrapping..."
+    BOOTSTRAP=1
+  fi
+fi
+
 # Bootstrap remote (install Docker if needed).
 if [[ "${BOOTSTRAP:-0}" == "1" ]]; then
   echo "→ Bootstrapping Docker on $SSH_HOST..."
