@@ -71,6 +71,11 @@ class EditorProvider extends ChangeNotifier {
   String _lastSyncedContent = "";
   bool _needsFirestoreSync = false;
 
+  // Books that adopted a server UUID during ghost-duplicate reconciliation.
+  // Each entry records the now-promoted book ID and the empty server-side
+  // sections that should be deleted before local sections get pushed.
+  final List<_GhostFix> _pendingGhostFixes = [];
+
   Future<void> loadBooks() async {
     bookLoadingData = true;
     notifyListeners();
@@ -80,8 +85,12 @@ class EditorProvider extends ChangeNotifier {
     if (uid != null) {
       try {
         final remoteBooks = await _dataService.getWritings(uid);
+        _pendingGhostFixes.clear();
         allBooks = _mergeBooks(localBooks, remoteBooks);
         await _storage.saveBooks(allBooks);
+        if (_pendingGhostFixes.isNotEmpty) {
+          unawaited(_runGhostFixes(uid));
+        }
         _syncUnsyncedSections(uid);
       } catch (e) {
         allBooks = localBooks;
@@ -103,10 +112,48 @@ class EditorProvider extends ChangeNotifier {
     List<WritingModel> local,
     List<WritingModel> remote,
   ) {
+    // Detect "ghost" duplicates produced by an old createWriting bug:
+    // a local book kept its client-generated timestamp ID instead of the
+    // server's UUID, so subsequent fetches saw the same book under both
+    // IDs. Pair each legacy local book with a same-title remote book that
+    // only contains untouched default sections, then promote the local
+    // book to the server's UUID so it dedupes by ID from now on.
+    final remoteByTitle = <String, List<WritingModel>>{};
+    for (final r in remote) {
+      remoteByTitle.putIfAbsent(_titleKey(r.title), () => []).add(r);
+    }
+    final claimedRemoteIds = <String>{};
+    for (final localBook in local) {
+      if (!_isLegacyLocalBookId(localBook.id)) continue;
+      final candidates =
+          remoteByTitle[_titleKey(localBook.title)] ?? const <WritingModel>[];
+      WritingModel? ghost;
+      for (final r in candidates) {
+        if (claimedRemoteIds.contains(r.id)) continue;
+        if (_looksLikeGhostBook(r)) {
+          ghost = r;
+          break;
+        }
+      }
+      if (ghost == null) continue;
+      claimedRemoteIds.add(ghost.id);
+      _pendingGhostFixes.add(_GhostFix(
+        adoptedBookId: ghost.id,
+        ghostSectionIds: ghost.sections.map((s) => s.id).toList(),
+      ));
+      localBook.id = ghost.id;
+      for (final s in localBook.sections) {
+        s.isSynced = false;
+      }
+    }
+
+    final filteredRemote =
+        remote.where((r) => !claimedRemoteIds.contains(r.id)).toList();
+
     final localMap = {for (final b in local) b.id: b};
     final merged = <WritingModel>[];
 
-    for (final remoteBook in remote) {
+    for (final remoteBook in filteredRemote) {
       final localBook = localMap.remove(remoteBook.id);
       if (localBook == null) {
         merged.add(remoteBook);
@@ -122,6 +169,72 @@ class EditorProvider extends ChangeNotifier {
     // Local-only books (created offline, not yet in Firestore)
     merged.addAll(localMap.values);
     return merged;
+  }
+
+  static String _titleKey(String title) => title.trim().toLowerCase();
+
+  // The buggy createWriting used DateTime.now().millisecondsSinceEpoch, so
+  // legacy book IDs are pure digits. Real server IDs are UUIDs.
+  static final RegExp _legacyIdPattern = RegExp(r'^\d+$');
+  static bool _isLegacyLocalBookId(String id) =>
+      _legacyIdPattern.hasMatch(id);
+
+  static bool _looksLikeGhostBook(WritingModel b) {
+    if (b.sections.isEmpty) return true;
+    return b.sections.every(_isEmptyDefaultSection);
+  }
+
+  static bool _isEmptyDefaultSection(SectionModel s) {
+    if (s.canvasData.isNotEmpty && s.canvasData != '[]') return false;
+    if (s.content.isEmpty) return true;
+    try {
+      final ops = jsonDecode(s.content);
+      if (ops is List) {
+        if (ops.isEmpty) return true;
+        if (ops.length == 1 && ops[0] is Map) {
+          final insert = ops[0]['insert'];
+          if (insert == '\n' || insert == '' || insert == null) return true;
+        }
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  /// Finish ghost reconciliation by deleting the empty server sections and
+  /// re-pushing the local sections under their now-server-known book IDs.
+  /// Runs in the background; failures are tolerated and retried next load.
+  Future<void> _runGhostFixes(String uid) async {
+    final fixes = List<_GhostFix>.from(_pendingGhostFixes);
+    _pendingGhostFixes.clear();
+    var changed = false;
+    for (final fix in fixes) {
+      WritingModel? book;
+      for (final b in allBooks) {
+        if (b.id == fix.adoptedBookId) {
+          book = b;
+          break;
+        }
+      }
+      if (book == null) continue;
+
+      for (final ghostSectionId in fix.ghostSectionIds) {
+        try {
+          await _dataService.deleteSection(
+              uid, fix.adoptedBookId, ghostSectionId);
+        } catch (_) {}
+      }
+
+      for (final section in book.sections) {
+        try {
+          await _dataService.addSection(uid, fix.adoptedBookId, section);
+          changed = true;
+        } catch (_) {}
+      }
+    }
+    if (changed) {
+      await _storage.saveBooks(allBooks);
+      notifyListeners();
+    }
   }
 
   List<SectionModel> _mergeSections(
@@ -598,4 +711,10 @@ class EditorProvider extends ChangeNotifier {
     controller.dispose();
     super.dispose();
   }
+}
+
+class _GhostFix {
+  _GhostFix({required this.adoptedBookId, required this.ghostSectionIds});
+  final String adoptedBookId;
+  final List<String> ghostSectionIds;
 }
