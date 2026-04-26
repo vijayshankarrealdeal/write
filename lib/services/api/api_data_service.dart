@@ -9,6 +9,7 @@ import 'package:inkspacex/models/user_model.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/services/api/api_client.dart';
+import 'package:inkspacex/services/sync/sync_dispatcher.dart';
 import 'package:flutter/material.dart' show Color;
 
 /// Cursor-based feed page (replaces Firestore DocumentSnapshot cursor).
@@ -40,7 +41,7 @@ String _encodeJsonField(dynamic value) {
 }
 
 /// Data service backed by the FastAPI backend (replaces FirestoreService).
-class ApiDataService {
+class ApiDataService implements SyncDispatcher {
   final ApiClient _client;
 
   ApiDataService(this._client);
@@ -412,6 +413,7 @@ class ApiDataService {
     return writings;
   }
 
+  @override
   Future<WritingModel> createWriting(String userId, WritingModel book) async {
     final response = await _client.post('/api/writings/', data: {
       'title': book.title,
@@ -439,6 +441,7 @@ class ApiDataService {
     return book;
   }
 
+  @override
   Future<void> updateSectionContent(
     String userId,
     String writingId,
@@ -454,6 +457,7 @@ class ApiDataService {
         data: data);
   }
 
+  @override
   Future<void> addSection(
     String userId,
     String writingId,
@@ -470,6 +474,7 @@ class ApiDataService {
     section.isSynced = true;
   }
 
+  @override
   Future<void> renameSection(
     String userId,
     String writingId,
@@ -481,6 +486,7 @@ class ApiDataService {
     });
   }
 
+  @override
   Future<void> deleteSection(
     String userId,
     String writingId,
@@ -489,6 +495,7 @@ class ApiDataService {
     await _client.delete('/api/writings/$writingId/sections/$sectionId');
   }
 
+  @override
   Future<void> updateWritingMetadata(
     String userId,
     String writingId, {
@@ -503,6 +510,7 @@ class ApiDataService {
     await _client.put('/api/writings/$writingId', data: data);
   }
 
+  @override
   Future<void> deleteWriting(String userId, String writingId) async {
     await _client.delete('/api/writings/$writingId');
   }

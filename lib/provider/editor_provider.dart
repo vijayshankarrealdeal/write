@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
@@ -11,26 +12,96 @@ import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
+import 'package:inkspacex/services/sync/outbox.dart';
+import 'package:inkspacex/services/sync/outbox_drainer.dart';
+import 'package:inkspacex/services/sync/pending_op.dart';
 
 class EditorProvider extends ChangeNotifier {
   final StorageService _storage;
   final AuthProvider _auth;
   final ConnectivityService _connectivity;
+  final Outbox _outbox;
+  final OutboxDrainer _drainer;
   ApiDataService get _dataService => _auth.dataService;
   ApiStorageService get _storageService => _auth.storageService;
 
-  EditorProvider(this._storage, this._auth, this._connectivity) {
+  EditorProvider(
+    this._storage,
+    this._auth,
+    this._connectivity,
+    this._outbox,
+    this._drainer,
+  ) {
     loadBooks();
     _connectivitySub = _connectivity.onChange.listen((online) {
-      if (online && _needsFirestoreSync) {
-        _syncToFirestore();
-      }
+      if (online) _drainer.kick();
     });
+    _remapSub = _drainer.onRemap.listen(_applyRemap);
+    _ackSub = _drainer.onAck.listen(_applyAck);
+    // Drain anything left over from a previous run.
+    _drainer.kick();
   }
 
   StreamSubscription<bool>? _connectivitySub;
+  StreamSubscription<IdRemapEvent>? _remapSub;
+  StreamSubscription<PendingOp>? _ackSub;
 
-  bool get _isOnline => _connectivity.isOnlineNow;
+  /// Reactive count of unsynced operations (for UI badges and the logout
+  /// guard). Forwarded straight from the underlying outbox.
+  ValueListenable<int> get pendingOpsCount => _outbox.pendingCount;
+  bool get hasPendingOps => !_outbox.isEmpty;
+
+  Future<void> _enqueue(PendingOp op) async {
+    await _outbox.enqueue(op);
+    _drainer.kick();
+  }
+
+  void _applyRemap(IdRemapEvent event) {
+    if (event.isWriting) {
+      for (final b in allBooks) {
+        if (b.id == event.localId) b.id = event.serverId;
+      }
+      if (activeBook?.id == event.localId) activeBook!.id = event.serverId;
+    } else {
+      final wid = event.writingId!;
+      for (final b in allBooks) {
+        if (b.id != wid) continue;
+        for (final s in b.sections) {
+          if (s.id == event.localId) {
+            s.id = event.serverId;
+            s.isSynced = true;
+          }
+        }
+      }
+      if (activeSection?.id == event.localId) {
+        activeSection!.id = event.serverId;
+        activeSection!.isSynced = true;
+      }
+    }
+    _storage.saveBooks(allBooks);
+    notifyListeners();
+  }
+
+  void _applyAck(PendingOp op) {
+    if (op.kind != PendingOpKind.upsertSection) return;
+    final wid = op.payload['writingId'] as String?;
+    final sid = op.payload['sectionId'] as String?;
+    if (wid == null || sid == null) return;
+    var changed = false;
+    for (final b in allBooks) {
+      if (b.id != wid) continue;
+      for (final s in b.sections) {
+        if (s.id == sid && !s.isSynced) {
+          s.isSynced = true;
+          changed = true;
+        }
+      }
+    }
+    if (changed) {
+      _storage.saveBooks(allBooks);
+      notifyListeners();
+    }
+  }
 
   List<WritingModel> allBooks = [];
   List<SectionModel> allBooksSection = [];
@@ -274,27 +345,36 @@ class EditorProvider extends ChangeNotifier {
     return merged;
   }
 
-  /// Push any unsynced local sections to Firestore in background.
+  /// Enqueue any locally-modified, unsynced sections so the drainer pushes
+  /// them. Cheap to call repeatedly — duplicates would just produce extra
+  /// PUTs (idempotent on the server side). For now we only enqueue if the
+  /// outbox doesn't already have a same-target upsert pending.
   void _syncUnsyncedSections(String uid) async {
+    final pendingTargets = <String>{
+      for (final op in _outbox.snapshot())
+        if (op.kind == PendingOpKind.upsertSection)
+          '${op.payload['writingId']}/${op.payload['sectionId']}',
+    };
     for (final book in allBooks) {
       for (final section in book.sections) {
-        if (!section.isSynced) {
-          try {
-            await _dataService.updateSectionContent(
-              uid,
-              book.id,
-              section.id,
-              section.content,
-              canvasData: section.canvasData,
-            );
-            section.isSynced = true;
-          } catch (_) {
-            // Will retry next load
-          }
-        }
+        if (section.isSynced) continue;
+        final key = '${book.id}/${section.id}';
+        if (pendingTargets.contains(key)) continue;
+        await _enqueue(PendingOp(
+          kind: PendingOpKind.upsertSection,
+          payload: {
+            'writingId': book.id,
+            'sectionId': section.id,
+            'isNew': false,
+            'fields': {
+              'content': section.content,
+              if (section.canvasData.isNotEmpty)
+                'canvas_data': section.canvasData,
+            },
+          },
+        ));
       }
     }
-    await _storage.saveBooks(allBooks);
   }
 
   void setActiveBook(WritingModel book) {
@@ -336,29 +416,64 @@ class EditorProvider extends ChangeNotifier {
     activeBook = newBook;
     allBooksSection = newBook.sections;
 
-    final uid = _userId;
-    if (uid != null) {
-      try {
-        await _dataService.createWriting(uid, newBook);
-      } catch (e) {
-        await _storage.saveBooks(allBooks);
-        rethrow;
+    await _storage.saveBooks(allBooks);
+
+    if (_userId != null) {
+      // Queue create-writing first; the drainer rewrites the queued
+      // create-section's writingId once the server returns the canonical
+      // id, so order matters here.
+      await _enqueue(PendingOp(
+        kind: PendingOpKind.upsertWriting,
+        payload: {
+          'writingId': newBook.id,
+          'isNew': true,
+          'fields': {
+            'title': newBook.title,
+            'description': newBook.description,
+            'coverImagePath': newBook.coverImagePath,
+            'writingType': newBook.writingType.index,
+            'subtype': newBook.subtype,
+            'author': newBook.author,
+          },
+        },
+      ));
+      for (final section in newBook.sections) {
+        await _enqueue(PendingOp(
+          kind: PendingOpKind.upsertSection,
+          payload: {
+            'writingId': newBook.id,
+            'sectionId': section.id,
+            'isNew': true,
+            'fields': {
+              'title': section.title,
+              'content': section.content,
+              'canvas_data': section.canvasData,
+              'section_color': section.sectionColor.toARGB32(),
+            },
+          },
+        ));
       }
     }
-    await _storage.saveBooks(allBooks);
     notifyListeners();
   }
 
   Future<String> updateBookCoverImage(WritingModel book, Uint8List bytes) async {
     final uid = _userId;
     if (uid == null) throw Exception("User not logged in");
+    // The upload itself is online-only — there's no useful offline shape for
+    // a binary blob upload (we don't want to buffer raw bytes in Hive). The
+    // metadata update that follows IS queued so it survives a crash.
     final url = await _storageService.uploadCoverImage(uid, book.id, bytes);
     book.coverImagePath = url;
     await _storage.saveBooks(allBooks);
-    final writeUid = _userId;
-    if (writeUid != null) {
-      await _dataService.updateWritingMetadata(writeUid, book.id, coverImagePath: url);
-    }
+    await _enqueue(PendingOp(
+      kind: PendingOpKind.upsertWriting,
+      payload: {
+        'writingId': book.id,
+        'isNew': false,
+        'fields': {'coverImagePath': url},
+      },
+    ));
     notifyListeners();
     return url;
   }
@@ -375,16 +490,13 @@ class EditorProvider extends ChangeNotifier {
       }
     }
 
-    final uid = _userId;
-    if (uid != null) {
-      try {
-        await _dataService.deleteWriting(uid, book.id);
-      } catch (e) {
-        await _storage.saveBooks(allBooks);
-        rethrow;
-      }
-    }
     await _storage.saveBooks(allBooks);
+    if (_userId != null) {
+      await _enqueue(PendingOp(
+        kind: PendingOpKind.deleteWriting,
+        payload: {'writingId': book.id},
+      ));
+    }
     notifyListeners();
   }
 
@@ -395,17 +507,17 @@ class EditorProvider extends ChangeNotifier {
 
   Future<void> renameBookById(WritingModel book, String newTitle) async {
     book.title = newTitle;
-
-    final uid = _userId;
-    if (uid != null) {
-      try {
-        await _dataService.updateWritingMetadata(uid, book.id, title: newTitle);
-      } catch (e) {
-        await _storage.saveBooks(allBooks);
-        rethrow;
-      }
-    }
     await _storage.saveBooks(allBooks);
+    if (_userId != null) {
+      await _enqueue(PendingOp(
+        kind: PendingOpKind.upsertWriting,
+        payload: {
+          'writingId': book.id,
+          'isNew': false,
+          'fields': {'title': newTitle},
+        },
+      ));
+    }
     notifyListeners();
   }
 
@@ -469,13 +581,23 @@ class EditorProvider extends ChangeNotifier {
   }
 
   Future<void> _persistSectionAdd(SectionModel section) async {
-    final uid = _userId;
-    if (uid != null && activeBook != null) {
-      try {
-        await _dataService.addSection(uid, activeBook!.id, section);
-      } catch (_) {}
-    }
     await _storage.saveBooks(allBooks);
+    if (_userId != null && activeBook != null) {
+      await _enqueue(PendingOp(
+        kind: PendingOpKind.upsertSection,
+        payload: {
+          'writingId': activeBook!.id,
+          'sectionId': section.id,
+          'isNew': true,
+          'fields': {
+            'title': section.title,
+            'content': section.content,
+            'canvas_data': section.canvasData,
+            'section_color': section.sectionColor.toARGB32(),
+          },
+        },
+      ));
+    }
   }
 
   void addSectionToActiveBook(String title) {
@@ -484,24 +606,24 @@ class EditorProvider extends ChangeNotifier {
 
   Future<void> renameSection(SectionModel section, String newTitle) async {
     section.title = newTitle;
-
-    final uid = _userId;
-    if (uid != null && activeBook != null) {
-      try {
-        await _dataService.renameSection(
-          uid,
-          activeBook!.id,
-          section.id,
-          newTitle,
-        );
-      } catch (_) {}
-    }
     await _storage.saveBooks(allBooks);
+    if (_userId != null && activeBook != null) {
+      await _enqueue(PendingOp(
+        kind: PendingOpKind.upsertSection,
+        payload: {
+          'writingId': activeBook!.id,
+          'sectionId': section.id,
+          'isNew': false,
+          'fields': {'title': newTitle},
+        },
+      ));
+    }
     notifyListeners();
   }
 
   Future<void> deleteSection(SectionModel section) async {
     if (activeBook == null) return;
+    final writingId = activeBook!.id;
     activeBook!.sections.removeWhere((c) => c.id == section.id);
     allBooksSection = activeBook!.sections;
 
@@ -515,13 +637,13 @@ class EditorProvider extends ChangeNotifier {
       }
     }
 
-    final uid = _userId;
-    if (uid != null) {
-      try {
-        await _dataService.deleteSection(uid, activeBook!.id, section.id);
-      } catch (_) {}
-    }
     await _storage.saveBooks(allBooks);
+    if (_userId != null) {
+      await _enqueue(PendingOp(
+        kind: PendingOpKind.deleteSection,
+        payload: {'writingId': writingId, 'sectionId': section.id},
+      ));
+    }
     notifyListeners();
   }
 
@@ -602,7 +724,9 @@ class EditorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Sync to Firestore in background. Skips if nothing changed since last sync.
+  /// Enqueue the active section's pending content as an outbox upsert.
+  /// Returns immediately — the drainer pushes asynchronously and the
+  /// connectivity listener kicks it again when the link is back.
   Future<void> _syncToFirestore() async {
     if (!_needsFirestoreSync) return;
     if (activeSection == null || activeBook == null) return;
@@ -612,26 +736,27 @@ class EditorProvider extends ChangeNotifier {
       _needsFirestoreSync = false;
       return;
     }
-    final uid = _userId;
-    if (uid == null) return;
-    // Offline: leave _needsFirestoreSync set so the connectivity listener
-    // (and the next periodic tick) retries when the link returns.
-    if (!_isOnline) return;
-    try {
-      await _dataService.updateSectionContent(
-        uid,
-        activeBook!.id,
-        activeSection!.id,
-        content,
-        canvasData: canvasData,
-      );
-      _lastSyncedContent = content;
-      activeSection!.isSynced = true;
-      _needsFirestoreSync = false;
-      await _storage.saveBooks(allBooks);
-    } catch (_) {
-      // Will retry on next periodic tick or on exit
-    }
+    if (_userId == null) return;
+    await _enqueue(PendingOp(
+      kind: PendingOpKind.upsertSection,
+      payload: {
+        'writingId': activeBook!.id,
+        'sectionId': activeSection!.id,
+        'isNew': false,
+        'fields': {
+          'content': content,
+          if (canvasData.isNotEmpty) 'canvas_data': canvasData,
+        },
+      },
+    ));
+    _lastSyncedContent = content;
+    _needsFirestoreSync = false;
+    // The op is durable; treat the local section as "queued" for the
+    // purpose of the merge logic — actual server-acked state flips via
+    // the drainer's success path (which doesn't need to write back here
+    // because the merge logic on next loadBooks honours updatedAt).
+    activeSection!.isSynced = false;
+    await _storage.saveBooks(allBooks);
   }
 
   /// Called on back press / page exit. Saves local immediately, then syncs.
@@ -699,6 +824,12 @@ class EditorProvider extends ChangeNotifier {
   }
 
   /// Reset all editor state on logout so stale data doesn't linger.
+  ///
+  /// Callers are responsible for confirming any unsynced ops with the
+  /// user via [hasPendingOps] before invoking this — by the time we get
+  /// here, the user has already chosen to discard or has acknowledged
+  /// that pending ops will not push (they require an authenticated
+  /// session, and we're about to clear that).
   void clearData() {
     _autoSaveTimer?.cancel();
     _stopPeriodicSync();
@@ -717,12 +848,20 @@ class EditorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Drop every queued op without sending it. Used by the logout-with-
+  /// pending-ops dialog when the user explicitly chooses "discard".
+  Future<void> discardPendingOps() async {
+    await _outbox.clear();
+  }
+
   @override
   void dispose() {
     _autoSaveTimer?.cancel();
     _periodicSyncTimer?.cancel();
     _docSubscription?.cancel();
     _connectivitySub?.cancel();
+    _remapSub?.cancel();
+    _ackSub?.cancel();
     controller.dispose();
     super.dispose();
   }

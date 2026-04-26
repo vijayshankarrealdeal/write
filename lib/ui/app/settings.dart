@@ -20,6 +20,58 @@ class SettingsPage extends StatelessWidget {
     final editor = context.read<EditorProvider>();
     final nav = context.read<NavProvider>();
 
+    void doLogout() {
+      feed.clearFeed();
+      editor.clearData();
+      nav.setIndex(SelectedPage.story);
+      auth.logout();
+    }
+
+    final pending = editor.pendingOpsCount.value;
+    if (pending > 0) {
+      showCupertinoDialog(
+        context: context,
+        builder: (dialogCtx) => CupertinoAlertDialog(
+          title: Text(
+            "$pending unsynced edit${pending == 1 ? '' : 's'}",
+            style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+          ),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              "You have changes that haven't reached the server yet. "
+              "Logging out now will keep them queued locally — they'll "
+              "push the next time you sign in. Discard to drop them.",
+              style: GoogleFonts.inter(),
+            ),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.of(dialogCtx).pop(),
+              child: const Text("Cancel"),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              onPressed: () async {
+                Navigator.of(dialogCtx).pop();
+                await editor.discardPendingOps();
+                doLogout();
+              },
+              child: const Text("Discard & log out"),
+            ),
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(dialogCtx).pop();
+                doLogout();
+              },
+              child: const Text("Keep & log out"),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     showCupertinoDialog(
       context: context,
       builder: (dialogCtx) => CupertinoAlertDialog(
@@ -43,10 +95,7 @@ class SettingsPage extends StatelessWidget {
             isDestructiveAction: true,
             onPressed: () {
               Navigator.of(dialogCtx).pop();
-              feed.clearFeed();
-              editor.clearData();
-              nav.setIndex(SelectedPage.story);
-              auth.logout();
+              doLogout();
             },
             child: const Text("Logout"),
           ),

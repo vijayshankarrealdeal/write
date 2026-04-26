@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:inkspacex/main.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
+import 'package:inkspacex/services/sync/outbox.dart';
 
 void main() {
   testWidgets('App initializes correctly', (WidgetTester tester) async {
@@ -19,10 +20,12 @@ void main() {
     await storage.init();
     final connectivity = ConnectivityService();
     connectivity.debugSet(true);
+    final outbox = Outbox(boxName: 'sync_outbox_test');
+    await outbox.init();
 
     // Build our app and trigger a frame.
     await tester.pumpWidget(
-      MyApp(storage: storage, connectivity: connectivity),
+      MyApp(storage: storage, connectivity: connectivity, outbox: outbox),
     );
 
     // Verify the app loads

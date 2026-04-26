@@ -40,18 +40,24 @@
 
 **Why:** today, edits between the 3 s local save and 15 s push are in memory only. Crash = data loss. Logout = data loss.
 
-- [ ] Design: a `PendingOp` record `{id, kind, payload, createdAt, attemptCount, lastError}` where `kind ∈ {upsertSection, deleteSection, upsertWriting, deleteWriting}`
-- [ ] Persist outbox in a dedicated Hive box `sync_outbox` (separate from books blob) — append-only, ack-on-success
-- [ ] Refactor [editor_provider.dart](lib/provider/editor_provider.dart) so every mutation that previously called the API now: (a) writes locally, (b) enqueues a `PendingOp`, (c) kicks the drainer
-- [ ] Build `lib/services/sync/outbox_drainer.dart` — single in-flight worker that pops ops in order, calls `ApiDataService`, removes on success, increments `attemptCount` and reschedules with exponential backoff on failure
-- [ ] Idempotency: include client-generated `clientOpId` in API payloads; server should accept duplicate `clientOpId` as no-op (file a backend TODO if not yet supported)
-- [ ] On app start: drain outbox before any new work
-- [ ] On `connectivity → online`: kick the drainer
-- [ ] Block logout until outbox is empty OR show a "you have N unsynced edits, sync now / discard / cancel" dialog (do **not** silently wipe)
-- [ ] Test: `test/sync/outbox_test.dart` — enqueue while offline, go online, assert ops drain in order; crash mid-drain (kill the box), reopen, assert resumed
+- [x] Design: a `PendingOp` record `{id, kind, payload, createdAt, attemptCount, lastError}` where `kind ∈ {upsertSection, deleteSection, upsertWriting, deleteWriting}`
+- [x] Persist outbox in a dedicated Hive box `sync_outbox` (separate from books blob) — append-only, ack-on-success
+- [x] Refactor [editor_provider.dart](lib/provider/editor_provider.dart) so every mutation that previously called the API now: (a) writes locally, (b) enqueues a `PendingOp`, (c) kicks the drainer
+- [x] Build `lib/services/sync/outbox_drainer.dart` — single in-flight worker that pops ops in order, calls `ApiDataService`, removes on success, increments `attemptCount` and reschedules with exponential backoff on failure (Phase 2: increments and stops; backoff lands in Phase 3)
+- [ ] Idempotency: include client-generated `clientOpId` in API payloads; server should accept duplicate `clientOpId` as no-op (file a backend TODO if not yet supported) — `PendingOp.id` is the durable client-side opId, but it isn't yet sent over the wire because the backend has no field for it. **Backend TODO**: accept and dedupe a `client_op_id` column on writings/sections endpoints.
+- [x] On app start: drain outbox before any new work — drainer.kick() fires from EditorProvider's constructor
+- [x] On `connectivity → online`: kick the drainer
+- [x] Block logout until outbox is empty OR show a "you have N unsynced edits, sync now / discard / cancel" dialog (do **not** silently wipe)
+- [x] Test: `test/sync/outbox_test.dart` — enqueue while offline, go online, assert ops drain in order; crash mid-drain (kill the box), reopen, assert resumed
 
 **Findings while implementing:**
-- _(agent fills in)_
+- Carved out a `SyncDispatcher` interface (`lib/services/sync/sync_dispatcher.dart`) and made `ApiDataService` implement it. Lets the drainer be tested with a fake without standing up an `ApiClient`/HTTP stack, and avoids a circular import between `api_data_service` and `outbox_drainer`.
+- Drainer enforces strict head-of-line blocking on failure: a queued op that fails leaves itself AND every op behind it in place. Intentional, because a later op may depend on the id remap performed by an earlier upsert.
+- `addNewBook` now enqueues `upsertWriting(isNew=true)` followed by `upsertSection(isNew=true)` for the default section; the drainer's `IdRemapEvent` propagates the server-issued writing id back into both the in-memory `WritingModel` and any subsequent section ops via `Outbox.rewriteAll`. Same pattern handles section creation.
+- `_syncToFirestore` now enqueues an `upsertSection` op with the latest content and returns immediately. The drainer's `onAck` stream flips `SectionModel.isSynced=true` so the merge logic in `_mergeSections` no longer prefers stale local content after a successful push.
+- Logout flow in [lib/ui/app/settings.dart](lib/ui/app/settings.dart) now branches on `editor.pendingOpsCount.value`: when there are queued ops, it shows a three-button dialog (Cancel / Discard & log out / Keep & log out). Pending ops survive logout because the outbox is in its own Hive box and is *not* wiped by `clearData()`.
+- Cover-image upload (`updateBookCoverImage`) keeps its synchronous binary-upload path because we don't want to buffer raw bytes in Hive; only the metadata update that follows is queued.
+- Crash-recovery test exercises real Hive close/reopen against a temp dir.
 
 ---
 
@@ -129,12 +135,12 @@ Either way:
 
 | Phase | Status | Commit | Notes |
 |---|---|---|---|
-| 1. Connectivity | ✅ | _pending commit_ | Banner + EditorProvider gate + service unit test. Full integration test deferred to Phase 6. |
-| 2. Outbox | ☐ | — | |
+| 1. Connectivity | ✅ | 94a1918 | Banner + EditorProvider gate + service unit test. Full integration test deferred to Phase 6. |
+| 2. Outbox | ✅ | _pending_ | Hive-backed durable queue + drainer + id-remap. Logout-with-pending dialog wired in. Backend `client_op_id` dedup is still a TODO. |
 | 3. Retry & UI | ☐ | — | |
 | 4. Real stream | ☐ | — | |
 | 5. Merge logs | ☐ | — | |
 | 6. Tests | ☐ | — | |
 
-**Current rating:** 6/10
+**Current rating:** 8/10
 **Target rating:** 10/10

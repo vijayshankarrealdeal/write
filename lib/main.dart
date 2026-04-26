@@ -21,6 +21,8 @@ import 'package:inkspacex/router.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
+import 'package:inkspacex/services/sync/outbox.dart';
+import 'package:inkspacex/services/sync/outbox_drainer.dart';
 import 'package:inkspacex/ui/widgets/offline_banner.dart';
 import 'package:inkspacex/ui/app/feed.dart';
 import 'package:inkspacex/ui/app/writing_page.dart';
@@ -70,7 +72,13 @@ void main() {
     await storage.init();
     final connectivity = ConnectivityService();
     await connectivity.init();
-    runApp(MyApp(storage: storage, connectivity: connectivity));
+    final outbox = Outbox();
+    await outbox.init();
+    runApp(MyApp(
+      storage: storage,
+      connectivity: connectivity,
+      outbox: outbox,
+    ));
   }, (error, stack) {
     // Top-level zone fallback — anything uncaught (including bare `print` errors).
     log.e('[zone] uncaught: $error', error: error, stackTrace: stack);
@@ -88,7 +96,13 @@ void main() {
 class MyApp extends StatelessWidget {
   final StorageService storage;
   final ConnectivityService connectivity;
-  const MyApp({super.key, required this.storage, required this.connectivity});
+  final Outbox outbox;
+  const MyApp({
+    super.key,
+    required this.storage,
+    required this.connectivity,
+    required this.outbox,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -96,17 +110,44 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider<StorageService>.value(value: storage),
         Provider<ConnectivityService>.value(value: connectivity),
+        Provider<Outbox>.value(value: outbox),
         ChangeNotifierProvider(create: (_) => NavProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider(storage)),
+        // The drainer needs AuthProvider's dataService — it's created
+        // alongside AuthProvider in the constructor (eagerly), so it's safe
+        // to read here.
+        ProxyProvider<AuthProvider, OutboxDrainer>(
+          create: (context) => OutboxDrainer(
+            outbox: outbox,
+            dataService: context.read<AuthProvider>().dataService,
+            connectivity: connectivity,
+          ),
+          update: (context, auth, previous) =>
+              previous ??
+              OutboxDrainer(
+                outbox: outbox,
+                dataService: auth.dataService,
+                connectivity: connectivity,
+              ),
+          dispose: (_, drainer) => drainer.dispose(),
+        ),
         ChangeNotifierProxyProvider<AuthProvider, EditorProvider>(
           create: (context) => EditorProvider(
             storage,
             context.read<AuthProvider>(),
             connectivity,
+            outbox,
+            context.read<OutboxDrainer>(),
           ),
           update: (context, auth, previous) {
-            final provider =
-                previous ?? EditorProvider(storage, auth, connectivity);
+            final provider = previous ??
+                EditorProvider(
+                  storage,
+                  auth,
+                  connectivity,
+                  outbox,
+                  context.read<OutboxDrainer>(),
+                );
             if (previous != null && auth.isAuthenticated) {
               provider.loadBooks();
             }
