@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.ai.client import ensure_ai_configured
 from app.ai.recommendation import recommend_for_user
 from app.ai.schemas import (
     CanvasGenerateRequest,
@@ -43,6 +44,7 @@ async def chat(
     user: User = Depends(get_current_user),
 ):
     """Free-form chat with the writing assistant."""
+    ensure_ai_configured()
     deps = WritingDeps(
         user_id=str(user.id),
         writing_title=body.writing_title,
@@ -58,6 +60,7 @@ async def feedback(
     user: User = Depends(get_current_user),
 ):
     """Get structured editorial feedback on a piece of writing."""
+    ensure_ai_configured()
     deps = WritingDeps(
         user_id=str(user.id),
         writing_title=body.writing_title,
@@ -82,6 +85,7 @@ async def generate(
     user: User = Depends(get_current_user),
 ):
     """Generate or expand writing content from a prompt."""
+    ensure_ai_configured()
     deps = WritingDeps(
         user_id=str(user.id),
         writing_title=body.writing_title,
@@ -98,6 +102,7 @@ async def embed(
     _user: User = Depends(get_current_user),
 ):
     """Generate an embedding vector for the given text."""
+    ensure_ai_configured()
     result = await get_embedding(body.text)
     return EmbeddingResponse(text=result.text, embedding=result.embedding)
 
@@ -138,6 +143,7 @@ async def text_edit(
     _user: User = Depends(get_current_user),
 ):
     """Perform a text editing action (fix spelling, rewrite, shorten, etc.)."""
+    ensure_ai_configured()
     from app.ai.client import chat_client
     from app.config import settings
 
@@ -167,6 +173,7 @@ async def canvas_generate(
     _user: User = Depends(get_current_user),
 ):
     """Generate a canvas/scrapbook layout as JSON."""
+    ensure_ai_configured()
     from app.ai.client import chat_client
     from app.config import settings
 
