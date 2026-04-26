@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:inkspacex/main.dart';
+import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 
 void main() {
@@ -16,9 +17,13 @@ void main() {
     // Initialize storage service
     final storage = StorageService();
     await storage.init();
+    final connectivity = ConnectivityService();
+    connectivity.debugSet(true);
 
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp(storage: storage));
+    await tester.pumpWidget(
+      MyApp(storage: storage, connectivity: connectivity),
+    );
 
     // Verify the app loads
     await tester.pumpAndSettle();

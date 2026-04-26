@@ -19,7 +19,9 @@ import 'package:inkspacex/provider/nav_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
 import 'package:inkspacex/router.dart';
 import 'package:inkspacex/services/app_log.dart';
+import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
+import 'package:inkspacex/ui/widgets/offline_banner.dart';
 import 'package:inkspacex/ui/app/feed.dart';
 import 'package:inkspacex/ui/app/writing_page.dart';
 import 'package:inkspacex/ui/pages/profile_hub_page.dart';
@@ -66,7 +68,9 @@ void main() {
 
     final storage = StorageService();
     await storage.init();
-    runApp(MyApp(storage: storage));
+    final connectivity = ConnectivityService();
+    await connectivity.init();
+    runApp(MyApp(storage: storage, connectivity: connectivity));
   }, (error, stack) {
     // Top-level zone fallback — anything uncaught (including bare `print` errors).
     log.e('[zone] uncaught: $error', error: error, stackTrace: stack);
@@ -83,20 +87,26 @@ void main() {
 
 class MyApp extends StatelessWidget {
   final StorageService storage;
-  const MyApp({super.key, required this.storage});
+  final ConnectivityService connectivity;
+  const MyApp({super.key, required this.storage, required this.connectivity});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         Provider<StorageService>.value(value: storage),
+        Provider<ConnectivityService>.value(value: connectivity),
         ChangeNotifierProvider(create: (_) => NavProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider(storage)),
         ChangeNotifierProxyProvider<AuthProvider, EditorProvider>(
-          create: (context) =>
-              EditorProvider(storage, context.read<AuthProvider>()),
+          create: (context) => EditorProvider(
+            storage,
+            context.read<AuthProvider>(),
+            connectivity,
+          ),
           update: (context, auth, previous) {
-            final provider = previous ?? EditorProvider(storage, auth);
+            final provider =
+                previous ?? EditorProvider(storage, auth, connectivity);
             if (previous != null && auth.isAuthenticated) {
               provider.loadBooks();
             }
@@ -161,6 +171,8 @@ class _AppWithRouterState extends State<_AppWithRouter> {
           themeMode: settingsProvider.themeMode,
           theme: MonochromeTheme.lightTheme,
           darkTheme: MonochromeTheme.darkTheme,
+          builder: (context, child) =>
+              OfflineBanner(child: child ?? const SizedBox.shrink()),
         );
       },
     );

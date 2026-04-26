@@ -9,17 +9,28 @@ import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/api/api_storage_service.dart';
+import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 
 class EditorProvider extends ChangeNotifier {
   final StorageService _storage;
   final AuthProvider _auth;
+  final ConnectivityService _connectivity;
   ApiDataService get _dataService => _auth.dataService;
   ApiStorageService get _storageService => _auth.storageService;
 
-  EditorProvider(this._storage, this._auth) {
+  EditorProvider(this._storage, this._auth, this._connectivity) {
     loadBooks();
+    _connectivitySub = _connectivity.onChange.listen((online) {
+      if (online && _needsFirestoreSync) {
+        _syncToFirestore();
+      }
+    });
   }
+
+  StreamSubscription<bool>? _connectivitySub;
+
+  bool get _isOnline => _connectivity.isOnlineNow;
 
   List<WritingModel> allBooks = [];
   List<SectionModel> allBooksSection = [];
@@ -603,6 +614,9 @@ class EditorProvider extends ChangeNotifier {
     }
     final uid = _userId;
     if (uid == null) return;
+    // Offline: leave _needsFirestoreSync set so the connectivity listener
+    // (and the next periodic tick) retries when the link returns.
+    if (!_isOnline) return;
     try {
       await _dataService.updateSectionContent(
         uid,
@@ -708,6 +722,7 @@ class EditorProvider extends ChangeNotifier {
     _autoSaveTimer?.cancel();
     _periodicSyncTimer?.cancel();
     _docSubscription?.cancel();
+    _connectivitySub?.cancel();
     controller.dispose();
     super.dispose();
   }
