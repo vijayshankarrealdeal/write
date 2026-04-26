@@ -2431,7 +2431,11 @@ class _PostDetailPageState extends State<PostDetailPage>
                   autoFocus: false,
                   expands: false,
                   customStyleBuilder: _customStyleBuilder,
-                  embedBuilders: [ImageEmbedBuilder()],
+                  embedBuilders: [
+                    ImageEmbedBuilder(
+                      controller: _quillControllers[sectionIndex]!,
+                    ),
+                  ],
                   padding: EdgeInsets.zero,
                   customStyles: styles,
                   contextMenuBuilder: (ctx, rawState) =>
