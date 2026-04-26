@@ -6,10 +6,10 @@ import 'package:inkspacex/services/sync/outbox.dart';
 
 import '_helpers.dart';
 
-/// The contract: the outbox lives in its own Hive box and is **not**
-/// wiped by the books-store clear-down that runs on logout. Logout is
-/// silent (no "unsynced edits" prompt) — the queue persists and drains
-/// the next time the user signs in.
+/// The contract: each user has their own outbox slot, keyed by uid. On
+/// logout the slot is closed (not wiped) — the same user resumes on next
+/// sign-in. A different user signing in opens a different slot, so one
+/// user's queued ops can never be drained under another user's auth.
 void main() {
   late Directory tmp;
 
@@ -23,35 +23,54 @@ void main() {
     if (await tmp.exists()) await tmp.delete(recursive: true);
   });
 
-  test('outbox survives a clearBooks-equivalent (the books-blob wipe)',
-      () async {
-    // The outbox uses its own Hive box, so wiping the books box must not
-    // touch the queue.
-    final outbox = Outbox(boxName: 'logout_pending');
+  test('outbox slot survives logout and resumes for the same user', () async {
+    final outbox = Outbox();
     await outbox.init();
-    final booksBox = await Hive.openBox('writer_app_box');
-
+    await outbox.switchUser('user-a');
     await outbox.enqueue(contentOp('w1', 's1', '"unsynced edit"'));
-    await booksBox.put('user_books_json', <String>['some payload']);
     expect(outbox.length, 1);
-    expect(booksBox.get('user_books_json'), isNotEmpty);
 
-    // Simulate StorageService.clearBooks() — it deletes the books key,
-    // not the box.
-    await booksBox.delete('user_books_json');
+    // Logout closes the slot but leaves the on-disk box untouched.
+    await outbox.switchUser(null);
+    expect(outbox.isOpen, isFalse);
+    expect(outbox.length, 0);
 
-    // Outbox is untouched.
+    // Same user signs back in — the queued op is still there.
+    await outbox.switchUser('user-a');
     expect(outbox.length, 1);
-    final survivor = outbox.snapshot().single;
-    expect(survivor.payload['sectionId'], 's1');
-
-    await booksBox.close();
-    await outbox.dispose();
+    expect(outbox.snapshot().single.payload['sectionId'], 's1');
   });
 
-  test('Outbox.clear() wipes pending ops', () async {
-    final outbox = Outbox(boxName: 'logout_discard');
+  test('a different user signing in opens a different slot', () async {
+    final outbox = Outbox();
     await outbox.init();
+
+    // User A queues an op, then logs out.
+    await outbox.switchUser('user-a');
+    await outbox.enqueue(contentOp('w1', 's1', '"A wrote this"'));
+    await outbox.switchUser(null);
+
+    // User B signs in on the same device. Their outbox is empty —
+    // User A's queued op is invisible to them.
+    await outbox.switchUser('user-b');
+    expect(outbox.length, 0,
+        reason: 'user-b must not see user-a\'s queued ops');
+
+    // User B's own queue is independent.
+    await outbox.enqueue(contentOp('w2', 's2', '"B wrote this"'));
+    expect(outbox.length, 1);
+    expect(outbox.snapshot().single.payload['sectionId'], 's2');
+
+    // And user A's slot is untouched on disk.
+    await outbox.switchUser('user-a');
+    expect(outbox.length, 1);
+    expect(outbox.snapshot().single.payload['sectionId'], 's1');
+  });
+
+  test('Outbox.clear() wipes pending ops in the current slot only', () async {
+    final outbox = Outbox();
+    await outbox.init();
+    await outbox.switchUser('user-a');
     await outbox.enqueue(contentOp('w1', 's1', '"unsynced"'));
     await outbox.enqueue(contentOp('w1', 's2', '"unsynced 2"'));
     expect(outbox.length, 2);
@@ -59,7 +78,14 @@ void main() {
     await outbox.clear();
     expect(outbox.isEmpty, isTrue);
     expect(outbox.pendingCount.value, 0);
+  });
 
-    await outbox.dispose();
+  test('enqueue with no user scope throws', () async {
+    final outbox = Outbox();
+    await outbox.init();
+    expect(
+      () => outbox.enqueue(contentOp('w1', 's1', '"oops"')),
+      throwsA(isA<StateError>()),
+    );
   });
 }

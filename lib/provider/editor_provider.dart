@@ -922,9 +922,10 @@ class EditorProvider extends ChangeNotifier {
     );
   }
 
-  /// Reset editor state on logout. The outbox lives in its own Hive box
-  /// and is intentionally left untouched — any unsynced edits stay queued
-  /// and push the next time the user signs in.
+  /// Reset editor in-memory state on logout. The user's books and the
+  /// outbox live in per-user Hive slots and are intentionally left on disk
+  /// — both resume on next sign-in as that same user. Wiping the persisted
+  /// books here would defeat the sandbox.
   void clearData() {
     _autoSaveTimer?.cancel();
     _stopPeriodicSync();
@@ -942,7 +943,6 @@ class EditorProvider extends ChangeNotifier {
     _saving = false;
     _recomputeSyncStatus();
     controller = QuillController.basic();
-    _storage.clearBooks();
     notifyListeners();
   }
 

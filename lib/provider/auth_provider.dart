@@ -10,18 +10,22 @@ import 'package:inkspacex/services/api/api_push_token_service.dart';
 import 'package:inkspacex/services/api/api_realtime_service.dart';
 import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
+import 'package:inkspacex/services/sync/outbox.dart';
+import 'package:inkspacex/services/sync/outbox_drainer.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/services/gemini_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final StorageService _storage;
+  final Outbox _outbox;
   late final ApiClient _apiClient;
   late final ApiAuthService _authService;
   late final ApiDataService _dataService;
   late final ApiStorageService _storageService;
   // Recreated on logout so the next user starts with fresh sockets.
   late ApiRealtimeService _realtimeService;
+  OutboxDrainer? _drainer;
 
   bool _isAuthenticated = false;
   app.User? _currentUser;
@@ -37,7 +41,7 @@ class AuthProvider extends ChangeNotifier {
   ApiRealtimeService get realtimeService => _realtimeService;
   ApiPushTokenService get pushTokenService => ApiPushTokenService(_apiClient);
 
-  AuthProvider(this._storage) {
+  AuthProvider(this._storage, this._outbox) {
     _apiClient = ApiClient(_storage);
     _authService = ApiAuthService(_apiClient, _storage);
     _dataService = ApiDataService(_apiClient);
@@ -46,6 +50,28 @@ class AuthProvider extends ChangeNotifier {
     _dataService.attachRealtime(_realtimeService);
     GeminiService().init(_apiClient);
     _restoreSession();
+  }
+
+  /// The OutboxDrainer is created downstream (in the provider tree); it
+  /// hands itself back here so logout can give it a final kick before the
+  /// auth token gets cleared.
+  void attachDrainer(OutboxDrainer drainer) {
+    _drainer = drainer;
+  }
+
+  /// Open the per-user sandbox for [uid]. Called on every successful
+  /// login/restore so books and the outbox land in the right slot before
+  /// the UI starts reading.
+  Future<void> _openUserScope(String uid) async {
+    _storage.setUserScope(uid);
+    await _outbox.switchUser(uid);
+  }
+
+  /// Close the per-user sandbox without wiping it on disk — pending ops
+  /// stay queued until the same user signs in again.
+  Future<void> _closeUserScope() async {
+    await _outbox.switchUser(null);
+    _storage.setUserScope(null);
   }
 
   bool get isAuthenticated => _isAuthenticated;
@@ -78,6 +104,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final user = await _authService.restoreSession();
       if (user != null) {
+        await _openUserScope(user.id);
         _currentUser = user;
         _isAuthenticated = true;
         log.i('[auth] Session restored (uid=${user.id})');
@@ -115,6 +142,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final user = await _authService.login(email, password);
+      await _openUserScope(user.id);
       _currentUser = user;
       _isAuthenticated = true;
       log.i('[auth] Login succeeded (uid=${user.id})');
@@ -134,6 +162,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final user = await _authService.signup(name, email, password);
+      await _openUserScope(user.id);
       _currentUser = user;
       _isAuthenticated = true;
       log.i('[auth] Signup succeeded (uid=${user.id})');
@@ -153,6 +182,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final user = await _authService.signInWithGoogle();
+      await _openUserScope(user.id);
       _currentUser = user;
       _isAuthenticated = true;
       log.i('[auth] Google sign-in succeeded (uid=${user.id})');
@@ -169,6 +199,20 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     log.i('[auth] Logout');
+
+    // Best-effort final drain while the auth token is still valid. Bounded
+    // so a slow network can't block the sign-out flow indefinitely; any ops
+    // that don't make it in time stay queued in the user's sandbox and
+    // resume on next sign-in as that user.
+    final drainer = _drainer;
+    if (drainer != null) {
+      try {
+        await drainer.drain().timeout(const Duration(seconds: 3));
+      } catch (e) {
+        log.w('[auth] pre-logout drain skipped: $e');
+      }
+    }
+
     // Tear down any open realtime channels — they were authenticated as
     // the user we're signing out, so reusing them after sign-in would
     // leak the previous session's stream.
@@ -179,6 +223,9 @@ class AuthProvider extends ChangeNotifier {
     // Drop any onboarding-prefs blob staged for the previous session — otherwise
     // it gets replayed onto the next user that signs in on this device.
     await _storage.clearOnboardingPreferences();
+    // Close the per-user sandbox last so the drainer can never read or write
+    // the previous user's box under the new (or absent) auth token.
+    await _closeUserScope();
     _isAuthenticated = false;
     _currentUser = null;
     notifyListeners();

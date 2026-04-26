@@ -79,6 +79,9 @@ void main() {
     await storage.init();
     final connectivity = ConnectivityService();
     await connectivity.init();
+    // The outbox stays closed until AuthProvider opens the per-user sandbox
+    // after auth resolves — this is what guarantees one user's queued ops
+    // can never be drained under another user's auth token.
     final outbox = Outbox();
     await outbox.init();
     final mergeLog = MergeLog();
@@ -133,23 +136,32 @@ class MyApp extends StatelessWidget {
         Provider<Outbox>.value(value: outbox),
         Provider<MergeLog>.value(value: mergeLog),
         ChangeNotifierProvider(create: (_) => NavProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider(storage)),
+        ChangeNotifierProvider(create: (_) => AuthProvider(storage, outbox)),
         // The drainer needs AuthProvider's dataService — it's created
         // alongside AuthProvider in the constructor (eagerly), so it's safe
-        // to read here.
+        // to read here. We hand the drainer back to AuthProvider so logout
+        // can do a final best-effort drain before tokens get cleared.
         ProxyProvider<AuthProvider, OutboxDrainer>(
-          create: (context) => OutboxDrainer(
-            outbox: outbox,
-            dataService: context.read<AuthProvider>().dataService,
-            connectivity: connectivity,
-          ),
-          update: (context, auth, previous) =>
-              previous ??
-              OutboxDrainer(
-                outbox: outbox,
-                dataService: auth.dataService,
-                connectivity: connectivity,
-              ),
+          create: (context) {
+            final auth = context.read<AuthProvider>();
+            final drainer = OutboxDrainer(
+              outbox: outbox,
+              dataService: auth.dataService,
+              connectivity: connectivity,
+            );
+            auth.attachDrainer(drainer);
+            return drainer;
+          },
+          update: (context, auth, previous) {
+            if (previous != null) return previous;
+            final drainer = OutboxDrainer(
+              outbox: outbox,
+              dataService: auth.dataService,
+              connectivity: connectivity,
+            );
+            auth.attachDrainer(drainer);
+            return drainer;
+          },
           dispose: (_, drainer) => drainer.dispose(),
         ),
         ChangeNotifierProxyProvider<AuthProvider, EditorProvider>(
