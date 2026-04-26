@@ -151,7 +151,7 @@ Either way:
 | 3. Retry & UI | ✅ | f017197 | Backoff + jitter + 10-attempt cap. Status chip enum + failed-ops sheet wired in. |
 | 4. Real stream | ✅ | e0cfe37 | Polling-based stream w/ duplicate suppression. Backend WebSocket deferred. |
 | 5. Merge logs | ✅ | 3fcdae9 | Hive-backed ring buffer + hidden debug page (long-press version label). |
-| 6. Tests | ✅ | _pending_ | All 5 named test files plus shared helpers — 32 tests passing in `test/sync/`. |
+| 6. Tests | ✅ | 98047f9 | All 5 named test files plus shared helpers — 32 tests passing in `test/sync/`. |
 
 **Current rating:** 10/10
 **Target rating:** 10/10
