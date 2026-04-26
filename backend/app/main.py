@@ -7,6 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 from starlette.routing import Match
 
 from app.config import settings
@@ -27,6 +28,16 @@ async def lifespan(app: FastAPI):
     # Create tables on startup (use Alembic migrations in production)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # One-shot widen: existing DBs created before BigInteger have INTEGER here,
+        # which can't hold Flutter's unsigned ARGB color values. Idempotent.
+        current = await conn.execute(text(
+            "SELECT data_type FROM information_schema.columns "
+            "WHERE table_name='sections' AND column_name='section_color'"
+        ))
+        if current.scalar() == 'integer':
+            await conn.execute(text(
+                "ALTER TABLE sections ALTER COLUMN section_color TYPE BIGINT"
+            ))
     await start_drain()
     log.info("InkSpaceX API started")
     yield
