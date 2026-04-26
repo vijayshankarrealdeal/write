@@ -90,18 +90,59 @@ if [[ "${BOOTSTRAP:-0}" == "1" ]]; then
 set -e
 if ! command -v docker >/dev/null 2>&1; then
   echo "  installing docker..."
-  curl -fsSL https://get.docker.com | sudo sh
+  curl -fsSL https://get.docker.com | sudo -n sh
 fi
 if ! docker compose version >/dev/null 2>&1; then
   echo "  installing docker-compose-plugin..."
-  sudo apt-get update -qq
-  sudo apt-get install -y docker-compose-plugin
+  sudo -n apt-get update -qq
+  sudo -n apt-get install -y docker-compose-plugin
 fi
-sudo systemctl enable --now docker
-sudo usermod -aG docker "$USER" || true
-echo "  done. (log out + back in if docker still needs sudo)"
+sudo -n systemctl enable --now docker
+sudo -n usermod -aG docker "$USER" || true
+echo "  done."
 BOOTSTRAP_EOF
 fi
+
+# ── Pick a docker invocation that works in this non-interactive SSH session ──
+# Order: direct (user already in docker group) → `sg docker -c` (group set
+# but not active in this session, e.g. just-added by usermod) → `sudo -n`
+# (passwordless sudo). If none work, surface a one-line fix and bail — better
+# than hanging on a sudo password prompt that no one can answer.
+echo "→ Probing docker access on $SSH_HOST..."
+DOCKER_MODE=$(ssh_exec bash <<'PROBE_EOF'
+set +e
+if docker compose version >/dev/null 2>&1; then
+  echo direct
+elif sg docker -c 'docker compose version' >/dev/null 2>&1; then
+  echo sg
+elif sudo -n docker compose version >/dev/null 2>&1; then
+  echo sudo
+else
+  echo none
+fi
+PROBE_EOF
+)
+
+if [[ "$DOCKER_MODE" == "none" ]]; then
+  cat >&2 <<EOF
+✗ Cannot run docker on $SSH_HOST as $SSH_USER.
+  The user is not in the 'docker' group and passwordless sudo is unavailable,
+  so this non-interactive deploy cannot proceed.
+
+  Run this once on the VM (interactive sudo prompt is fine):
+    ssh $SSH_HOST 'sudo usermod -aG docker $SSH_USER'
+
+  Then re-run the deploy. No password will be needed afterwards.
+EOF
+  exit 1
+fi
+
+case "$DOCKER_MODE" in
+  direct) docker_run() { ssh_exec "cd $REMOTE_DIR && $*"; } ;;
+  sg)     docker_run() { ssh_exec "cd $REMOTE_DIR && sg docker -c '$*'"; } ;;
+  sudo)   docker_run() { ssh_exec "cd $REMOTE_DIR && sudo -n $*"; } ;;
+esac
+echo "  using: $DOCKER_MODE"
 
 # Sync to remote.
 echo "→ Syncing to $SSH_HOST:$REMOTE_DIR..."
@@ -117,10 +158,10 @@ rsync_to Caddyfile docker-compose.yml .env "$SSH_HOST:$REMOTE_DIR/"
 
 # Bring up the stack.
 echo "→ Bringing up the stack on $SSH_HOST..."
-ssh_exec "cd $REMOTE_DIR && (docker compose up -d --build 2>/dev/null || sudo docker compose up -d --build)"
+docker_run "docker compose up -d --build"
 
 echo "→ Status:"
-ssh_exec "cd $REMOTE_DIR && (docker compose ps 2>/dev/null || sudo docker compose ps)"
+docker_run "docker compose ps"
 
 cat <<EOF
 
