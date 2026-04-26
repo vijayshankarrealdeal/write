@@ -98,7 +98,7 @@ CORS_ORIGINS=https://inkspacex.com,https://www.inkspacex.com
 AZURE_OPENAI_API_KEY=<rotate any leaked key first>
 AZURE_OPENAI_ENDPOINT=https://clarity-analytic.cognitiveservices.azure.com/
 AZURE_OPENAI_API_VERSION=2024-12-01-preview
-AZURE_OPENAI_CHAT_DEPLOYMENT=gpt-4o
+AZURE_OPENAI_CHAT_DEPLOYMENT=gpt-5.4-mini
 AZURE_OPENAI_EMBEDDING_DEPLOYMENT=text-embedding-ada-002
 ```
 
