@@ -5,27 +5,73 @@ import 'package:inkspacex/models/writing_model.dart';
 
 class StorageService {
   static const String _boxName = 'writer_app_box';
-  static const String _keyBooks = 'user_books_json';
+  // Legacy un-namespaced keys, deleted once on first run after the
+  // per-user-sandbox change. Listed here so the migration is in one place.
+  static const String _legacyKeyBooks = 'user_books_json';
+  static const String _legacyKeyRecentSearches = 'recent_searches';
+  static const String _legacyOutboxBoxName = 'sync_outbox';
   static const String _keyTheme = 'app_theme_mode';
   static const String _keyOnboarding = 'onboarding_complete';
   static const String _keyAuthToken = 'auth_token';
   static const String _keyRefreshToken = 'refresh_token';
   static const String _keyOnboardingPrefs = 'onboarding_preferences';
   static const String _keySectionsViewMode = 'sections_view_mode';
-  static const String _keyRecentSearches = 'recent_searches';
+  static const String _keyMigrationDoneV1 = 'migration_user_sandbox_v1';
   static const int _recentSearchesMax = 8;
 
   late Box _box;
+  String? _currentUid;
 
   Future<void> init() async {
     await Hive.initFlutter();
     _box = await Hive.openBox(_boxName);
+    await _runUserSandboxMigration();
+  }
+
+  /// One-shot deletion of pre-sandbox data. The shipped contract changed
+  /// (books and outbox went per-user), so the old un-namespaced keys are
+  /// no longer reachable through any code path — wiping them avoids dead
+  /// disk usage.
+  Future<void> _runUserSandboxMigration() async {
+    if (_box.get(_keyMigrationDoneV1) == true) return;
+    await _box.delete(_legacyKeyBooks);
+    await _box.delete(_legacyKeyRecentSearches);
+    if (await Hive.boxExists(_legacyOutboxBoxName)) {
+      await Hive.deleteBoxFromDisk(_legacyOutboxBoxName);
+    }
+    await _box.put(_keyMigrationDoneV1, true);
+  }
+
+  /// Set the current user's sandbox. All per-user reads/writes (books,
+  /// recent searches) are scoped under this uid. Pass `null` on logout —
+  /// reads return empty and writes throw.
+  void setUserScope(String? uid) {
+    _currentUid = uid;
+  }
+
+  String _userKey(String prefix) {
+    final uid = _currentUid;
+    if (uid == null) {
+      throw StateError(
+        'StorageService has no user scope. Call setUserScope(uid) after '
+        'auth resolves before reading/writing per-user data.',
+      );
+    }
+    return '${prefix}__$uid';
+  }
+
+  String? _userKeyOrNull(String prefix) {
+    final uid = _currentUid;
+    if (uid == null) return null;
+    return '${prefix}__$uid';
   }
 
   // --- Books Storage ---
 
   List<WritingModel> getBooks() {
-    final rawList = _box.get(_keyBooks, defaultValue: <String>[]);
+    final key = _userKeyOrNull('user_books_json');
+    if (key == null) return const [];
+    final rawList = _box.get(key, defaultValue: <String>[]);
     if (rawList is List) {
       try {
         return rawList
@@ -50,11 +96,13 @@ class StorageService {
     final List<String> encodedList = books
         .map((book) => jsonEncode(book.toJson()))
         .toList();
-    await _box.put(_keyBooks, encodedList);
+    await _box.put(_userKey('user_books_json'), encodedList);
   }
 
   Future<void> clearBooks() async {
-    await _box.delete(_keyBooks);
+    final key = _userKeyOrNull('user_books_json');
+    if (key == null) return;
+    await _box.delete(key);
   }
 
   // --- Settings Storage ---
@@ -128,7 +176,9 @@ class StorageService {
   // --- Recent Searches ---
 
   List<String> getRecentSearches() {
-    final raw = _box.get(_keyRecentSearches);
+    final key = _userKeyOrNull('recent_searches');
+    if (key == null) return const [];
+    final raw = _box.get(key);
     if (raw is List) {
       return raw.whereType<String>().toList();
     }
@@ -146,7 +196,7 @@ class StorageService {
     if (filtered.length > _recentSearchesMax) {
       filtered.removeRange(_recentSearchesMax, filtered.length);
     }
-    await _box.put(_keyRecentSearches, filtered);
+    await _box.put(_userKey('recent_searches'), filtered);
   }
 
   Future<void> removeRecentSearch(String query) async {
@@ -154,11 +204,15 @@ class StorageService {
     final filtered = current
         .where((s) => s.toLowerCase() != query.trim().toLowerCase())
         .toList();
-    await _box.put(_keyRecentSearches, filtered);
+    final key = _userKeyOrNull('recent_searches');
+    if (key == null) return;
+    await _box.put(key, filtered);
   }
 
   Future<void> clearRecentSearches() async {
-    await _box.delete(_keyRecentSearches);
+    final key = _userKeyOrNull('recent_searches');
+    if (key == null) return;
+    await _box.delete(key);
   }
 
   Future<void> saveUser(Map<String, dynamic> userJson) async {

@@ -134,6 +134,12 @@ class ProfileHubPage extends StatelessWidget {
                     label: "Bookmarks",
                     onTap: () => context.push('/bookmarks'),
                   ),
+                  _buildDivider(context),
+                  _HubTile(
+                    icon: CupertinoIcons.cloud_download,
+                    label: "Manage downloads",
+                    onTap: () => context.push('/manage-downloads'),
+                  ),
                 ],
               ),
 

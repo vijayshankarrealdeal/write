@@ -23,6 +23,7 @@ import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/bookmark_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
+import 'package:inkspacex/provider/offline_provider.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 
 // ---------------------------------------------------------------------------
@@ -1439,16 +1440,66 @@ class _PostDetailPageState extends State<PostDetailPage>
                   );
                 },
               ),
-            ] else if (item.sections.length > 1 && _selectedSectionIndex != null)
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-                child: Icon(
-                  CupertinoIcons.list_bullet,
-                  color: textColor,
-                  size: 22,
-                ),
+            ] else ...[
+              // Phase 4: download for offline reading. Hidden when this
+              // build wasn't shipped with a license public key (the
+              // provider tells us so via [unavailableReason]).
+              Consumer<OfflineProvider>(
+                builder: (context, offline, _) {
+                  // First touch initialises the on-disk store; safe to
+                  // call repeatedly because [ensureReady] short-circuits.
+                  if (offline.status == OfflineStatus.idle) {
+                    Future.microtask(() => offline.ensureReady());
+                  }
+                  if (offline.unavailableReason != null) {
+                    return const SizedBox.shrink();
+                  }
+                  final s = offline.stateOf(item.id);
+                  IconData icon;
+                  bool busy = false;
+                  switch (s) {
+                    case BookDownloadState.downloading:
+                      busy = true;
+                      icon = CupertinoIcons.cloud_download;
+                      break;
+                    case BookDownloadState.downloaded:
+                      icon = CupertinoIcons.checkmark_alt_circle_fill;
+                      break;
+                    case BookDownloadState.failed:
+                      icon = CupertinoIcons.exclamationmark_circle;
+                      break;
+                    case BookDownloadState.idle:
+                      icon = CupertinoIcons.cloud_download;
+                  }
+                  return CupertinoButton(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    onPressed: busy
+                        ? null
+                        : () => _onTapOfflineDownload(offline, isDark),
+                    child: busy
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CupertinoActivityIndicator(
+                              color: textColor,
+                              radius: 9,
+                            ),
+                          )
+                        : Icon(icon, color: textColor, size: 22),
+                  );
+                },
               ),
+              if (item.sections.length > 1 && _selectedSectionIndex != null)
+                CupertinoButton(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+                  child: Icon(
+                    CupertinoIcons.list_bullet,
+                    color: textColor,
+                    size: 22,
+                  ),
+                ),
+            ],
             const SizedBox(width: 4),
           ],
         ),
@@ -2655,6 +2706,53 @@ class _PostDetailPageState extends State<PostDetailPage>
         ),
       ],
     );
+  }
+
+  Future<void> _onTapOfflineDownload(
+      OfflineProvider offline, bool isDark) async {
+    final item = widget.item;
+    if (offline.hasOffline(item.id)) {
+      final remove = await showCupertinoDialog<bool>(
+        context: context,
+        builder: (ctx) => CupertinoAlertDialog(
+          title: Text(item.title),
+          content: const Text('This book is available offline.\nRemove the offline copy?'),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Remove'),
+            ),
+          ],
+        ),
+      );
+      if (remove == true) {
+        await offline.evict(item.id);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Offline copy removed.')),
+          );
+        }
+      }
+      return;
+    }
+    final ok = await offline.download(item.id);
+    if (!mounted) return;
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('"${item.title}" saved for offline reading.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(offline.errorMessage ?? 'Download failed.'),
+        ),
+      );
+    }
   }
 
   /// Bottom sheet for naming + colouring a bookmark at the current

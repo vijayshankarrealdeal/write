@@ -6,9 +6,7 @@ Create Date: 2026-04-26
 """
 from __future__ import annotations
 
-import sqlalchemy as sa
 from alembic import op
-from pgvector.sqlalchemy import Vector
 
 revision = "20260426_01"
 down_revision = None
@@ -17,10 +15,11 @@ depends_on = None
 
 
 def upgrade() -> None:
+    # Idempotent: prod DBs were created by `Base.metadata.create_all` before
+    # this migration existed, so the column may or may not be present.
     op.execute("CREATE EXTENSION IF NOT EXISTS vector")
-    op.add_column(
-        "feed_items",
-        sa.Column("embedding", Vector(1536), nullable=True),
+    op.execute(
+        "ALTER TABLE feed_items ADD COLUMN IF NOT EXISTS embedding vector(1536)"
     )
     op.execute(
         "CREATE INDEX IF NOT EXISTS idx_feed_items_embedding "

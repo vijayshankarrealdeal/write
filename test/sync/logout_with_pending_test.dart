@@ -6,11 +6,10 @@ import 'package:inkspacex/services/sync/outbox.dart';
 
 import '_helpers.dart';
 
-/// The Phase 2 contract is: the outbox lives in its own Hive box and is
-/// **not** wiped by the books-store clear-down that runs on logout. The
-/// settings page logout flow shows a dialog when `hasPendingOps` is true
-/// (cancel / discard-and-logout / keep-and-logout); these tests pin the
-/// data-layer half of that contract.
+/// The contract: the outbox lives in its own Hive box and is **not**
+/// wiped by the books-store clear-down that runs on logout. Logout is
+/// silent (no "unsynced edits" prompt) — the queue persists and drains
+/// the next time the user signs in.
 void main() {
   late Directory tmp;
 
@@ -50,9 +49,7 @@ void main() {
     await outbox.dispose();
   });
 
-  test('explicit discard via Outbox.clear() wipes pending ops', () async {
-    // The "Discard & log out" branch of the dialog calls
-    // EditorProvider.discardPendingOps(), which forwards to clear().
+  test('Outbox.clear() wipes pending ops', () async {
     final outbox = Outbox(boxName: 'logout_discard');
     await outbox.init();
     await outbox.enqueue(contentOp('w1', 's1', '"unsynced"'));

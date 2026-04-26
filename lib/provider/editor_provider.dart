@@ -922,13 +922,9 @@ class EditorProvider extends ChangeNotifier {
     );
   }
 
-  /// Reset all editor state on logout so stale data doesn't linger.
-  ///
-  /// Callers are responsible for confirming any unsynced ops with the
-  /// user via [hasPendingOps] before invoking this — by the time we get
-  /// here, the user has already chosen to discard or has acknowledged
-  /// that pending ops will not push (they require an authenticated
-  /// session, and we're about to clear that).
+  /// Reset editor state on logout. The outbox lives in its own Hive box
+  /// and is intentionally left untouched — any unsynced edits stay queued
+  /// and push the next time the user signs in.
   void clearData() {
     _autoSaveTimer?.cancel();
     _stopPeriodicSync();
@@ -948,12 +944,6 @@ class EditorProvider extends ChangeNotifier {
     controller = QuillController.basic();
     _storage.clearBooks();
     notifyListeners();
-  }
-
-  /// Drop every queued op without sending it. Used by the logout-with-
-  /// pending-ops dialog when the user explicitly chooses "discard".
-  Future<void> discardPendingOps() async {
-    await _outbox.clear();
   }
 
   @override

@@ -64,6 +64,13 @@ dependencies:
   # foreground. Background/killed-app push needs FCM/APNS native config
   # in addition to this package — see LocalNotificationService.
   flutter_local_notifications: ^17.2.4
+  # Phase 4 (offline `.inkx`): pure-Dart crypto for AES-GCM, HKDF, HMAC,
+  # and Ed25519 signature verify. The package falls back to pure Dart in
+  # unit tests; production builds may later layer `cryptography_flutter`
+  # on top for native acceleration.
+  cryptography: ^2.7.0
+  # Phase 4: resolve <appSupport> for the on-disk offline store.
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:

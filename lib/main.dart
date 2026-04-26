@@ -18,6 +18,7 @@ import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/provider/nav_provider.dart';
 import 'package:inkspacex/provider/notification_provider.dart';
+import 'package:inkspacex/provider/offline_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
 import 'package:inkspacex/router.dart';
 import 'package:inkspacex/services/app_log.dart';
@@ -190,6 +191,21 @@ class MyApp extends StatelessWidget {
               BookshelfProvider(context.read<AuthProvider>()),
           update: (context, auth, previous) =>
               previous ?? BookshelfProvider(auth),
+        ),
+        // Phase 4 (offline `.inkx`): lazy-init store + downloader. The
+        // provider lives at the app shell so any read/library page can
+        // consult the local cache without a fresh init pass.
+        ChangeNotifierProxyProvider<AuthProvider, OfflineProvider>(
+          create: (context) => OfflineProvider(
+            storage: storage,
+            apiClient: context.read<AuthProvider>().apiClient,
+          ),
+          update: (context, auth, previous) =>
+              previous ??
+              OfflineProvider(
+                storage: storage,
+                apiClient: auth.apiClient,
+              ),
         ),
         ChangeNotifierProxyProvider<AuthProvider, BookmarkProvider>(
           create: (context) => BookmarkProvider(
