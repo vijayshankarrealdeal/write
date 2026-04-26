@@ -354,22 +354,34 @@ class EditorProvider extends ChangeNotifier {
     List<SectionModel> local,
     List<SectionModel> remote,
   ) {
+    return mergeSectionsLww(local, remote, onMergeDecision: _maybeRecordMerge);
+  }
+
+  /// Pure last-write-wins merge of two section lists, exposed for tests.
+  /// Local sections win when their `updatedAt` is strictly later than the
+  /// remote AND they're marked unsynced (i.e. they have unsent edits);
+  /// otherwise the remote wins. Local-only sections (no remote match)
+  /// are appended at the end.
+  static List<SectionModel> mergeSectionsLww(
+    List<SectionModel> local,
+    List<SectionModel> remote, {
+    void Function(SectionModel local, SectionModel remote, bool localWins)?
+        onMergeDecision,
+  }) {
     final localMap = {for (final s in local) s.id: s};
     final merged = <SectionModel>[];
-
     for (final remoteSection in remote) {
       final localSection = localMap.remove(remoteSection.id);
       if (localSection == null) {
         merged.add(remoteSection);
         continue;
       }
-      // Keep whichever was updated more recently
-      final localWins = localSection.updatedAt.isAfter(remoteSection.updatedAt)
-          && !localSection.isSynced;
-      _maybeRecordMerge(localSection, remoteSection, localWins);
+      final localWins =
+          localSection.updatedAt.isAfter(remoteSection.updatedAt) &&
+              !localSection.isSynced;
+      onMergeDecision?.call(localSection, remoteSection, localWins);
       merged.add(localWins ? localSection : remoteSection);
     }
-    // Local-only sections (created offline)
     merged.addAll(localMap.values);
     return merged;
   }
