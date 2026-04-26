@@ -21,6 +21,34 @@ class ApiResponse {
 
 enum ApiErrorType { timeout, connection, badResponse, unknown }
 
+/// Extracts a human-readable message from a parsed API error body.
+/// Handles FastAPI's two error shapes:
+///   - Plain HTTPException:        {"detail": "string"}
+///   - Pydantic validation (422):  {"detail": [{"loc": [...], "msg": "..."}, ...]}
+String _extractErrorMessage(dynamic parsed, int status, {String? fallback}) {
+  if (parsed is Map) {
+    final detail = parsed['detail'];
+    if (detail is String && detail.isNotEmpty) return detail;
+    if (detail is List && detail.isNotEmpty) {
+      final parts = <String>[];
+      for (final entry in detail) {
+        if (entry is Map) {
+          final msg = entry['msg'];
+          final loc = entry['loc'];
+          final field = (loc is List && loc.length > 1)
+              ? loc.skip(1).join('.')
+              : null;
+          if (msg is String && msg.isNotEmpty) {
+            parts.add(field != null ? '$field: $msg' : msg);
+          }
+        }
+      }
+      if (parts.isNotEmpty) return parts.join('; ');
+    }
+  }
+  return fallback ?? 'HTTP $status';
+}
+
 class ApiException implements Exception {
   final int? statusCode;
   final dynamic data;
@@ -179,13 +207,10 @@ class ApiClient {
     }
 
     if (status >= 400) {
-      final detail = parsed is Map && parsed['detail'] is String
-          ? parsed['detail'] as String
-          : 'HTTP $status';
       throw ApiException(
         statusCode: status,
         data: parsed,
-        message: detail,
+        message: _extractErrorMessage(parsed, status),
         path: path,
         type: ApiErrorType.badResponse,
       );
@@ -294,13 +319,11 @@ class ApiClient {
     }
 
     if (resp.statusCode >= 400) {
-      final detail = parsed is Map && parsed['detail'] is String
-          ? parsed['detail'] as String
-          : 'Upload failed';
       throw ApiException(
         statusCode: resp.statusCode,
         data: parsed,
-        message: detail,
+        message: _extractErrorMessage(parsed, resp.statusCode,
+            fallback: 'Upload failed'),
         path: path,
         type: ApiErrorType.badResponse,
       );

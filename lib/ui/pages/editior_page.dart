@@ -1485,70 +1485,13 @@ class _EditiorPageState extends State<EditiorPage>
     );
   }
 
-  // ─── Quill Toolbar (shared) ───
+  // ─── Quill Toolbar (compact, Word-style) ───
   Widget _buildQuillToolbar({required bool isDark, required Color textColor}) {
-    return QuillSimpleToolbar(
-      controller: context.read<EditorProvider>().controller,
-      config: QuillSimpleToolbarConfig(
-        multiRowsDisplay: false,
-        showAlignmentButtons: true,
-        showCenterAlignment: true,
-        showLink: true,
-        showInlineCode: true,
-        showSearchButton: false,
-        showFontFamily: true,
-        showFontSize: true,
-        showBackgroundColorButton: true,
-        showColorButton: true,
-        showDividers: true,
-        buttonOptions: QuillSimpleToolbarButtonOptions(
-          fontFamily: QuillToolbarFontFamilyButtonOptions(
-            items: _editorFonts,
-            renderFontFamilies: true,
-          ),
-          fontSize: QuillToolbarFontSizeButtonOptions(
-            items: const {
-              '12px': '12',
-              '14px': '14',
-              '16px': '16',
-              '18px': '18',
-              '20px': '20',
-              '24px': '24',
-              '28px': '28',
-              '32px': '32',
-              '36px': '36',
-              '42px': '42',
-              '48px': '48',
-              '64px': '64',
-            },
-          ),
-          base: QuillToolbarBaseButtonOptions(
-            iconTheme: QuillIconTheme(
-              iconButtonSelectedData: IconButtonData(
-                style: IconButton.styleFrom(
-                  backgroundColor: (isDark
-                          ? Colors.white
-                          : const Color(0xFF5B8DEF))
-                      .withValues(alpha: 0.12),
-                  foregroundColor:
-                      isDark ? Colors.white : const Color(0xFF5B8DEF),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                color: isDark ? Colors.white : const Color(0xFF5B8DEF),
-              ),
-              iconButtonUnselectedData: IconButtonData(
-                style: IconButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+    final controller = context.read<EditorProvider>().controller;
+    return _WordStyleToolbar(
+      controller: controller,
+      isDark: isDark,
+      textColor: textColor,
     );
   }
 
@@ -3156,6 +3099,324 @@ class _AIBottomSheetState extends State<_AIBottomSheet> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Word-style compact toolbar ───
+const List<double> _wordFontSizes = [
+  8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72,
+];
+
+class _WordStyleToolbar extends StatefulWidget {
+  const _WordStyleToolbar({
+    required this.controller,
+    required this.isDark,
+    required this.textColor,
+  });
+
+  final QuillController controller;
+  final bool isDark;
+  final Color textColor;
+
+  @override
+  State<_WordStyleToolbar> createState() => _WordStyleToolbarState();
+}
+
+class _WordStyleToolbarState extends State<_WordStyleToolbar> {
+  static const double _defaultSize = 12;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onSelectionChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onSelectionChanged);
+    super.dispose();
+  }
+
+  void _onSelectionChanged() {
+    if (mounted) setState(() {});
+  }
+
+  String get _currentFontFamily {
+    final attr =
+        widget.controller.getSelectionStyle().attributes[Attribute.font.key];
+    if (attr?.value is String && (attr!.value as String).isNotEmpty) {
+      for (final entry in _editorFonts.entries) {
+        if (entry.value == attr.value) return entry.key;
+      }
+      return attr.value as String;
+    }
+    return 'Sans Serif';
+  }
+
+  double get _currentFontSize {
+    final attr =
+        widget.controller.getSelectionStyle().attributes[Attribute.size.key];
+    final raw = attr?.value;
+    if (raw == null) return _defaultSize;
+    final parsed = double.tryParse(raw.toString());
+    return parsed ?? _defaultSize;
+  }
+
+  void _setFontFamily(String label) {
+    final family = _editorFonts[label];
+    if (family == null) return;
+    widget.controller.formatSelection(Attribute.fromKeyValue(
+      Attribute.font.key,
+      family,
+    ));
+    setState(() {});
+  }
+
+  void _setFontSize(double size) {
+    widget.controller.formatSelection(Attribute.fromKeyValue(
+      Attribute.size.key,
+      size.toStringAsFixed(0),
+    ));
+    setState(() {});
+  }
+
+  void _stepFontSize(int direction) {
+    final current = _currentFontSize;
+    int idx = _wordFontSizes.indexWhere((s) => s >= current);
+    if (idx < 0) idx = _wordFontSizes.length - 1;
+    if (direction > 0) {
+      if (_wordFontSizes[idx] == current && idx < _wordFontSizes.length - 1) {
+        idx++;
+      } else if (_wordFontSizes[idx] < current &&
+          idx < _wordFontSizes.length - 1) {
+        idx++;
+      }
+    } else {
+      if (_wordFontSizes[idx] >= current && idx > 0) idx--;
+    }
+    _setFontSize(_wordFontSizes[idx]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final borderColor = widget.isDark
+        ? Colors.white.withValues(alpha: 0.18)
+        : const Color(0xFFB8BCC4);
+    final fillColor =
+        widget.isDark ? const Color(0xFF2A2D33) : const Color(0xFFFAFAFA);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _FontFamilyDropdown(
+            current: _currentFontFamily,
+            items: _editorFonts.keys.toList(),
+            borderColor: borderColor,
+            fillColor: fillColor,
+            textColor: widget.textColor,
+            onSelected: _setFontFamily,
+          ),
+          const SizedBox(width: 6),
+          _FontSizeDropdown(
+            current: _currentFontSize,
+            items: _wordFontSizes,
+            borderColor: borderColor,
+            fillColor: fillColor,
+            textColor: widget.textColor,
+            onSelected: _setFontSize,
+          ),
+          const SizedBox(width: 6),
+          _GrowShrinkButton(
+            grow: true,
+            textColor: widget.textColor,
+            onPressed: () => _stepFontSize(1),
+          ),
+          _GrowShrinkButton(
+            grow: false,
+            textColor: widget.textColor,
+            onPressed: () => _stepFontSize(-1),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FontFamilyDropdown extends StatelessWidget {
+  const _FontFamilyDropdown({
+    required this.current,
+    required this.items,
+    required this.borderColor,
+    required this.fillColor,
+    required this.textColor,
+    required this.onSelected,
+  });
+
+  final String current;
+  final List<String> items;
+  final Color borderColor;
+  final Color fillColor;
+  final Color textColor;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      tooltip: 'Font',
+      position: PopupMenuPosition.under,
+      onSelected: onSelected,
+      itemBuilder: (_) => items
+          .map((label) => PopupMenuItem<String>(
+                value: label,
+                height: 32,
+                child: Text(
+                  label,
+                  style: GoogleFonts.getFont(
+                    _editorFonts[label] ?? 'Inter',
+                    fontSize: 13,
+                  ),
+                ),
+              ))
+          .toList(),
+      child: Container(
+        height: 28,
+        width: 168,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: fillColor,
+          border: Border.all(color: borderColor),
+          borderRadius: BorderRadius.circular(2),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                current,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 13, color: textColor),
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, size: 18, color: textColor),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FontSizeDropdown extends StatelessWidget {
+  const _FontSizeDropdown({
+    required this.current,
+    required this.items,
+    required this.borderColor,
+    required this.fillColor,
+    required this.textColor,
+    required this.onSelected,
+  });
+
+  final double current;
+  final List<double> items;
+  final Color borderColor;
+  final Color fillColor;
+  final Color textColor;
+  final ValueChanged<double> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<double>(
+      tooltip: 'Font size',
+      position: PopupMenuPosition.under,
+      onSelected: onSelected,
+      itemBuilder: (_) => items
+          .map((size) => PopupMenuItem<double>(
+                value: size,
+                height: 30,
+                child: Text(
+                  size.toStringAsFixed(0),
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ))
+          .toList(),
+      child: Container(
+        height: 28,
+        width: 56,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: fillColor,
+          border: Border.all(color: borderColor),
+          borderRadius: BorderRadius.circular(2),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                current.toStringAsFixed(0),
+                style: TextStyle(fontSize: 13, color: textColor),
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, size: 18, color: textColor),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GrowShrinkButton extends StatelessWidget {
+  const _GrowShrinkButton({
+    required this.grow,
+    required this.textColor,
+    required this.onPressed,
+  });
+
+  final bool grow;
+  final Color textColor;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: grow ? 'Grow font' : 'Shrink font',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(4),
+        onTap: onPressed,
+        child: SizedBox(
+          width: 32,
+          height: 28,
+          child: Center(
+            child: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: TextStyle(color: textColor),
+                children: [
+                  TextSpan(
+                    text: 'A',
+                    style: TextStyle(
+                      fontSize: grow ? 16 : 11,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                  ),
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.top,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 1, top: 1),
+                      child: Icon(
+                        grow ? Icons.arrow_upward : Icons.arrow_downward,
+                        size: 10,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
