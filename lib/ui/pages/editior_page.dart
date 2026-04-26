@@ -109,6 +109,7 @@ class _EditiorPageState extends State<EditiorPage>
   bool _focusMode = false;
   bool _typewriterMode = false;
   bool _showOutline = false;
+  bool _findReplaceOpen = false;
   PaperTheme _paperTheme = PaperTheme.defaultTheme;
   int _sessionStartWords = 0;
   bool _sessionStarted = false;
@@ -981,11 +982,25 @@ class _EditiorPageState extends State<EditiorPage>
               ? KeyboardListener(
                   focusNode: FocusNode(),
                   onKeyEvent: (event) {
-                    // Escape exits focus mode
-                    if (event is KeyDownEvent &&
-                        event.logicalKey == LogicalKeyboardKey.escape &&
-                        _focusMode) {
-                      _toggleFocusMode();
+                    if (event is! KeyDownEvent) return;
+                    // Escape exits focus mode (or closes find bar).
+                    if (event.logicalKey == LogicalKeyboardKey.escape) {
+                      if (_findReplaceOpen) {
+                        setState(() => _findReplaceOpen = false);
+                        return;
+                      }
+                      if (_focusMode) {
+                        _toggleFocusMode();
+                        return;
+                      }
+                    }
+                    // Ctrl/Cmd + F → toggle Find & Replace.
+                    final isF = event.logicalKey == LogicalKeyboardKey.keyF;
+                    final ctrlOrCmd = HardwareKeyboard
+                            .instance.isControlPressed ||
+                        HardwareKeyboard.instance.isMetaPressed;
+                    if (isF && ctrlOrCmd && !_isCanvasMode) {
+                      setState(() => _findReplaceOpen = !_findReplaceOpen);
                     }
                   },
                   child: Stack(
@@ -1068,11 +1083,29 @@ class _EditiorPageState extends State<EditiorPage>
                                           surfaceColor: surfaceColor,
                                         ),
                                       Expanded(
-                                        child: _buildEditorArea(
-                                          isDark: isDark,
-                                          bgColor: bgColor,
-                                          textColor: textColor,
-                                          isMobile: isMobile,
+                                        child: Column(
+                                          children: [
+                                            if (_findReplaceOpen && !_focusMode)
+                                              _FindReplaceBar(
+                                                controller: context
+                                                    .read<EditorProvider>()
+                                                    .controller,
+                                                isDark: isDark,
+                                                textColor: textColor,
+                                                borderColor: borderColor,
+                                                bgColor: bgColor,
+                                                onClose: () => setState(() =>
+                                                    _findReplaceOpen = false),
+                                              ),
+                                            Expanded(
+                                              child: _buildEditorArea(
+                                                isDark: isDark,
+                                                bgColor: bgColor,
+                                                textColor: textColor,
+                                                isMobile: isMobile,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
@@ -1585,6 +1618,9 @@ class _EditiorPageState extends State<EditiorPage>
       controller: controller,
       isDark: isDark,
       textColor: textColor,
+      onToggleFindReplace: () =>
+          setState(() => _findReplaceOpen = !_findReplaceOpen),
+      findReplaceOpen: _findReplaceOpen,
     );
   }
 
@@ -3620,11 +3656,15 @@ class _WordStyleToolbar extends StatefulWidget {
     required this.controller,
     required this.isDark,
     required this.textColor,
+    required this.onToggleFindReplace,
+    required this.findReplaceOpen,
   });
 
   final QuillController controller;
   final bool isDark;
   final Color textColor;
+  final VoidCallback onToggleFindReplace;
+  final bool findReplaceOpen;
 
   @override
   State<_WordStyleToolbar> createState() => _WordStyleToolbarState();
@@ -3782,6 +3822,129 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
     setState(() {});
   }
 
+  // ── Heading / paragraph style ──
+  String get _currentHeadingLabel {
+    final attrs = widget.controller.getSelectionStyle().attributes;
+    final h = attrs[Attribute.header.key]?.value;
+    if (h == 1) return 'Heading 1';
+    if (h == 2) return 'Heading 2';
+    if (h == 3) return 'Heading 3';
+    return 'Body';
+  }
+
+  void _applyHeading(int? level) {
+    if (level == null) {
+      widget.controller
+          .formatSelection(Attribute.clone(Attribute.header, null));
+    } else if (level == 1) {
+      widget.controller.formatSelection(Attribute.h1);
+    } else if (level == 2) {
+      widget.controller.formatSelection(Attribute.h2);
+    } else if (level == 3) {
+      widget.controller.formatSelection(Attribute.h3);
+    }
+    setState(() {});
+  }
+
+  // ── Color / highlight ──
+  Color? _currentColorOf(Attribute<String?> attr) {
+    final raw =
+        widget.controller.getSelectionStyle().attributes[attr.key]?.value;
+    if (raw is String && raw.isNotEmpty) return _hexToColor(raw);
+    return null;
+  }
+
+  void _applyColor(Attribute<String?> attr, Color? color) {
+    if (color == null) {
+      widget.controller.formatSelection(Attribute.clone(attr, null));
+    } else {
+      final hex = '#${_colorToHex(color)}';
+      final next = attr.key == Attribute.color.key
+          ? ColorAttribute(hex)
+          : BackgroundAttribute(hex);
+      widget.controller.formatSelection(next);
+    }
+    setState(() {});
+  }
+
+  // ── Script (sub/super) ──
+  String? _currentScript() {
+    final attr = widget.controller
+        .getSelectionStyle()
+        .attributes[Attribute.script.key];
+    return attr?.value as String?;
+  }
+
+  void _toggleScript(ScriptAttributes value) {
+    final current = _currentScript();
+    final target = value.value;
+    if (current == target) {
+      widget.controller
+          .formatSelection(Attribute.clone(Attribute.script, null));
+    } else {
+      widget.controller.formatSelection(ScriptAttribute(value));
+    }
+    setState(() {});
+  }
+
+  // ── Link ──
+  Future<void> _openLinkDialog() async {
+    final selStyle = widget.controller.getSelectionStyle();
+    final existing =
+        selStyle.attributes[Attribute.link.key]?.value as String?;
+    final selection = widget.controller.selection;
+    String selectedText = '';
+    if (selection.isValid && !selection.isCollapsed) {
+      final start = math.min(selection.baseOffset, selection.extentOffset);
+      final end = math.max(selection.baseOffset, selection.extentOffset);
+      selectedText =
+          widget.controller.document.getPlainText(start, end - start);
+    }
+
+    final result = await showDialog<_LinkDialogResult>(
+      context: context,
+      builder: (ctx) => _LinkDialog(
+        initialText: selectedText,
+        initialUrl: existing ?? '',
+        canRemove: existing != null,
+        isDark: widget.isDark,
+      ),
+    );
+    if (result == null) return;
+    if (result.remove) {
+      widget.controller
+          .formatSelection(Attribute.clone(Attribute.link, null));
+      setState(() {});
+      return;
+    }
+    final url = result.url.trim();
+    if (url.isEmpty) return;
+    if (selection.isCollapsed) {
+      final insertText =
+          result.text.trim().isEmpty ? url : result.text;
+      final start = selection.baseOffset.clamp(
+          0, widget.controller.document.length);
+      widget.controller.replaceText(
+        start,
+        0,
+        insertText,
+        TextSelection.collapsed(offset: start + insertText.length),
+      );
+      widget.controller
+          .formatText(start, insertText.length, LinkAttribute(url));
+    } else {
+      widget.controller.formatSelection(LinkAttribute(url));
+    }
+    setState(() {});
+  }
+
+  bool get _hasLink {
+    return widget.controller
+        .getSelectionStyle()
+        .attributes
+        .containsKey(Attribute.link.key);
+  }
+
   @override
   Widget build(BuildContext context) {
     final borderColor = widget.isDark
@@ -3813,6 +3976,25 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            _UndoRedoButton(
+              controller: widget.controller,
+              undo: true,
+              textColor: widget.textColor,
+            ),
+            _UndoRedoButton(
+              controller: widget.controller,
+              undo: false,
+              textColor: widget.textColor,
+            ),
+            divider(),
+            _HeadingMenu(
+              current: _currentHeadingLabel,
+              borderColor: borderColor,
+              fillColor: fillColor,
+              textColor: widget.textColor,
+              onSelected: _applyHeading,
+            ),
+            const SizedBox(width: 6),
             _FontFamilyDropdown(
               current: _currentFontFamily,
               items: _editorFonts.keys.toList(),
@@ -3886,6 +4068,50 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
               activeBg: activeBg,
               activeColor: accentColor,
               onPressed: () => _toggleInline(Attribute.inlineCode),
+            ),
+            _FormatToggleButton(
+              icon: Icons.subscript,
+              tooltip: 'Subscript',
+              isActive: _currentScript() == ScriptAttributes.sub.value,
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _toggleScript(ScriptAttributes.sub),
+            ),
+            _FormatToggleButton(
+              icon: Icons.superscript,
+              tooltip: 'Superscript',
+              isActive: _currentScript() == ScriptAttributes.sup.value,
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _toggleScript(ScriptAttributes.sup),
+            ),
+            divider(),
+            _ColorSwatchButton(
+              icon: Icons.format_color_text,
+              tooltip: 'Text color',
+              currentColor: _currentColorOf(Attribute.color),
+              textColor: widget.textColor,
+              isDark: widget.isDark,
+              onSelected: (c) => _applyColor(Attribute.color, c),
+            ),
+            _ColorSwatchButton(
+              icon: Icons.format_color_fill,
+              tooltip: 'Highlight',
+              currentColor: _currentColorOf(Attribute.background),
+              textColor: widget.textColor,
+              isDark: widget.isDark,
+              onSelected: (c) => _applyColor(Attribute.background, c),
+            ),
+            _FormatToggleButton(
+              icon: Icons.link,
+              tooltip: 'Insert link',
+              isActive: _hasLink,
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: _openLinkDialog,
             ),
             divider(),
             _FormatToggleButton(
@@ -3989,8 +4215,769 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
               activeColor: accentColor,
               onPressed: _clearFormatting,
             ),
+            divider(),
+            _FormatToggleButton(
+              icon: Icons.search,
+              tooltip: 'Find & Replace (Ctrl+F)',
+              isActive: widget.findReplaceOpen,
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: widget.onToggleFindReplace,
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── Hex / Color helpers (local copy of flutter_quill internals) ──
+Color _hexToColor(String? hexString) {
+  if (hexString == null) return Colors.black;
+  final hex = hexString.replaceAll('#', '');
+  if (!RegExp(r'^([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$').hasMatch(hex)) {
+    return Colors.black;
+  }
+  final buffer = StringBuffer();
+  if (hex.length == 6) buffer.write('ff');
+  buffer.write(hex);
+  return Color(int.tryParse(buffer.toString(), radix: 16) ?? 0xFF000000);
+}
+
+String _colorToHex(Color color) {
+  int toInt(double x) => (x * 255.0).round() & 0xff;
+  final a = toInt(color.a);
+  final r = toInt(color.r);
+  final g = toInt(color.g);
+  final b = toInt(color.b);
+  return '${a.toRadixString(16).padLeft(2, '0')}'
+          '${r.toRadixString(16).padLeft(2, '0')}'
+          '${g.toRadixString(16).padLeft(2, '0')}'
+          '${b.toRadixString(16).padLeft(2, '0')}'
+      .toUpperCase();
+}
+
+// ── Heading menu (Body / H1 / H2 / H3) ──
+class _HeadingMenu extends StatelessWidget {
+  const _HeadingMenu({
+    required this.current,
+    required this.borderColor,
+    required this.fillColor,
+    required this.textColor,
+    required this.onSelected,
+  });
+
+  final String current;
+  final Color borderColor;
+  final Color fillColor;
+  final Color textColor;
+  final ValueChanged<int?> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final items = <(int?, String, double, FontWeight)>[
+      (null, 'Body', 13, FontWeight.normal),
+      (1, 'Heading 1', 20, FontWeight.w700),
+      (2, 'Heading 2', 17, FontWeight.w700),
+      (3, 'Heading 3', 14, FontWeight.w600),
+    ];
+    return PopupMenuButton<int?>(
+      tooltip: 'Paragraph style',
+      position: PopupMenuPosition.under,
+      onSelected: onSelected,
+      itemBuilder: (_) => items
+          .map((it) => PopupMenuItem<int?>(
+                value: it.$1,
+                height: 38,
+                child: Text(
+                  it.$2,
+                  style: GoogleFonts.inter(
+                    fontSize: it.$3,
+                    fontWeight: it.$4,
+                  ),
+                ),
+              ))
+          .toList(),
+      child: Container(
+        height: 28,
+        width: 110,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: fillColor,
+          border: Border.all(color: borderColor),
+          borderRadius: BorderRadius.circular(2),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                current,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 13, color: textColor),
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, size: 18, color: textColor),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Undo / Redo ──
+class _UndoRedoButton extends StatefulWidget {
+  const _UndoRedoButton({
+    required this.controller,
+    required this.undo,
+    required this.textColor,
+  });
+
+  final QuillController controller;
+  final bool undo;
+  final Color textColor;
+
+  @override
+  State<_UndoRedoButton> createState() => _UndoRedoButtonState();
+}
+
+class _UndoRedoButtonState extends State<_UndoRedoButton> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_listener);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_listener);
+    super.dispose();
+  }
+
+  void _listener() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = widget.undo
+        ? widget.controller.hasUndo
+        : widget.controller.hasRedo;
+    return Tooltip(
+      message: widget.undo ? 'Undo (Ctrl+Z)' : 'Redo (Ctrl+Y)',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(4),
+        onTap: enabled
+            ? () {
+                if (widget.undo) {
+                  widget.controller.undo();
+                } else {
+                  widget.controller.redo();
+                }
+              }
+            : null,
+        child: Container(
+          width: 30,
+          height: 28,
+          margin: const EdgeInsets.symmetric(horizontal: 1),
+          alignment: Alignment.center,
+          child: Icon(
+            widget.undo ? Icons.undo : Icons.redo,
+            size: 17,
+            color: widget.textColor.withValues(alpha: enabled ? 1 : 0.3),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Color swatch picker (text color / highlight) ──
+const List<Color> _swatchColors = <Color>[
+  // Row 1 — neutrals
+  Color(0xFF000000), Color(0xFF434343), Color(0xFF666666),
+  Color(0xFF999999), Color(0xFFCCCCCC), Color(0xFFFFFFFF),
+  // Row 2 — saturated
+  Color(0xFFE53935), Color(0xFFFB8C00), Color(0xFFFDD835),
+  Color(0xFF43A047), Color(0xFF1E88E5), Color(0xFF8E24AA),
+  // Row 3 — pastels
+  Color(0xFFFFCDD2), Color(0xFFFFE0B2), Color(0xFFFFF9C4),
+  Color(0xFFC8E6C9), Color(0xFFBBDEFB), Color(0xFFE1BEE7),
+];
+
+class _ColorSwatchButton extends StatelessWidget {
+  const _ColorSwatchButton({
+    required this.icon,
+    required this.tooltip,
+    required this.currentColor,
+    required this.textColor,
+    required this.isDark,
+    required this.onSelected,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final Color? currentColor;
+  final Color textColor;
+  final bool isDark;
+  final ValueChanged<Color?> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final indicator = currentColor ??
+        (icon == Icons.format_color_text
+            ? textColor
+            : Colors.transparent);
+    return PopupMenuButton<int>(
+      tooltip: tooltip,
+      position: PopupMenuPosition.under,
+      padding: EdgeInsets.zero,
+      itemBuilder: (popupCtx) => [
+        PopupMenuItem<int>(
+          enabled: false,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: SizedBox(
+            width: 188,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  borderRadius: BorderRadius.circular(4),
+                  onTap: () {
+                    Navigator.pop(popupCtx);
+                    onSelected(null);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 6, horizontal: 4),
+                    child: Row(
+                      children: [
+                        Icon(Icons.format_color_reset,
+                            size: 16,
+                            color: isDark ? Colors.white70 : Colors.black87),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Reset',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color:
+                                isDark ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const Divider(height: 10),
+                for (var row = 0; row < 3; row++)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Row(
+                      children: [
+                        for (var col = 0; col < 6; col++)
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(popupCtx);
+                              onSelected(_swatchColors[row * 6 + col]);
+                            },
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              margin: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: _swatchColors[row * 6 + col],
+                                borderRadius: BorderRadius.circular(3),
+                                border: Border.all(
+                                    color: Colors.black.withValues(
+                                        alpha: 0.15),
+                                    width: 0.5),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+      child: SizedBox(
+        width: 30,
+        height: 28,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Icon(icon, size: 17, color: textColor),
+            Positioned(
+              bottom: 3,
+              left: 6,
+              right: 6,
+              child: Container(
+                height: 3,
+                decoration: BoxDecoration(
+                  color: indicator,
+                  borderRadius: BorderRadius.circular(1),
+                  border: indicator == Colors.transparent
+                      ? null
+                      : Border.all(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          width: 0.5),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Insert / edit link dialog ──
+class _LinkDialogResult {
+  const _LinkDialogResult({
+    required this.url,
+    required this.text,
+    required this.remove,
+  });
+  final String url;
+  final String text;
+  final bool remove;
+}
+
+class _LinkDialog extends StatefulWidget {
+  const _LinkDialog({
+    required this.initialText,
+    required this.initialUrl,
+    required this.canRemove,
+    required this.isDark,
+  });
+
+  final String initialText;
+  final String initialUrl;
+  final bool canRemove;
+  final bool isDark;
+
+  @override
+  State<_LinkDialog> createState() => _LinkDialogState();
+}
+
+class _LinkDialogState extends State<_LinkDialog> {
+  late final TextEditingController _urlCtrl;
+  late final TextEditingController _textCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _urlCtrl = TextEditingController(text: widget.initialUrl);
+    _textCtrl = TextEditingController(text: widget.initialText);
+  }
+
+  @override
+  void dispose() {
+    _urlCtrl.dispose();
+    _textCtrl.dispose();
+    super.dispose();
+  }
+
+  bool get _isValid {
+    final v = _urlCtrl.text.trim();
+    return v.isNotEmpty && Uri.tryParse(v) != null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = widget.isDark;
+    return AlertDialog(
+      backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+      title: Text(
+        widget.canRemove ? 'Edit Link' : 'Insert Link',
+        style: GoogleFonts.inter(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: isDark ? Colors.white : Colors.black87,
+        ),
+      ),
+      content: SizedBox(
+        width: 380,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _textCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Text to display',
+                isDense: true,
+              ),
+              style: GoogleFonts.inter(fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _urlCtrl,
+              autofocus: true,
+              keyboardType: TextInputType.url,
+              decoration: const InputDecoration(
+                labelText: 'URL',
+                hintText: 'https://example.com',
+                isDense: true,
+              ),
+              style: GoogleFonts.inter(fontSize: 14),
+              onChanged: (_) => setState(() {}),
+              onSubmitted: (_) {
+                if (_isValid) {
+                  Navigator.pop(
+                    context,
+                    _LinkDialogResult(
+                      url: _urlCtrl.text,
+                      text: _textCtrl.text,
+                      remove: false,
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        if (widget.canRemove)
+          TextButton(
+            onPressed: () => Navigator.pop(
+              context,
+              const _LinkDialogResult(url: '', text: '', remove: true),
+            ),
+            child: Text(
+              'Remove',
+              style: GoogleFonts.inter(color: Colors.redAccent),
+            ),
+          ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(
+            'Cancel',
+            style: GoogleFonts.inter(
+              color: isDark ? Colors.white70 : Colors.black54,
+            ),
+          ),
+        ),
+        FilledButton(
+          onPressed: _isValid
+              ? () => Navigator.pop(
+                    context,
+                    _LinkDialogResult(
+                      url: _urlCtrl.text,
+                      text: _textCtrl.text,
+                      remove: false,
+                    ),
+                  )
+              : null,
+          child: Text(widget.canRemove ? 'Update' : 'Insert'),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Find & Replace bar ──
+class _FindReplaceBar extends StatefulWidget {
+  const _FindReplaceBar({
+    required this.controller,
+    required this.isDark,
+    required this.textColor,
+    required this.borderColor,
+    required this.bgColor,
+    required this.onClose,
+  });
+
+  final QuillController controller;
+  final bool isDark;
+  final Color textColor;
+  final Color borderColor;
+  final Color bgColor;
+  final VoidCallback onClose;
+
+  @override
+  State<_FindReplaceBar> createState() => _FindReplaceBarState();
+}
+
+class _FindReplaceBarState extends State<_FindReplaceBar> {
+  final _findCtrl = TextEditingController();
+  final _replaceCtrl = TextEditingController();
+  final _findFocus = FocusNode();
+  bool _showReplace = false;
+  bool _caseSensitive = false;
+  List<int> _matches = const [];
+  int _index = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _findFocus.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _findCtrl.dispose();
+    _replaceCtrl.dispose();
+    _findFocus.dispose();
+    super.dispose();
+  }
+
+  void _recompute() {
+    final query = _findCtrl.text;
+    if (query.isEmpty) {
+      setState(() {
+        _matches = const [];
+        _index = -1;
+      });
+      return;
+    }
+    final text = widget.controller.document.toPlainText();
+    final pattern = RegExp(
+      RegExp.escape(query),
+      caseSensitive: _caseSensitive,
+    );
+    final found = pattern.allMatches(text).map((m) => m.start).toList();
+    setState(() {
+      _matches = found;
+      _index = found.isEmpty ? -1 : 0;
+    });
+    if (_index >= 0) _select(_index);
+  }
+
+  void _select(int i) {
+    if (i < 0 || i >= _matches.length) return;
+    final start = _matches[i];
+    final len = _findCtrl.text.length;
+    widget.controller.updateSelection(
+      TextSelection(baseOffset: start, extentOffset: start + len),
+      ChangeSource.local,
+    );
+  }
+
+  void _next() {
+    if (_matches.isEmpty) return;
+    setState(() => _index = (_index + 1) % _matches.length);
+    _select(_index);
+  }
+
+  void _prev() {
+    if (_matches.isEmpty) return;
+    setState(() => _index = (_index - 1 + _matches.length) % _matches.length);
+    _select(_index);
+  }
+
+  void _replaceOne() {
+    if (_index < 0 || _matches.isEmpty) return;
+    final start = _matches[_index];
+    final len = _findCtrl.text.length;
+    final repl = _replaceCtrl.text;
+    widget.controller.replaceText(
+      start,
+      len,
+      repl,
+      TextSelection.collapsed(offset: start + repl.length),
+    );
+    _recompute();
+  }
+
+  void _replaceAll() {
+    if (_matches.isEmpty) return;
+    final len = _findCtrl.text.length;
+    final repl = _replaceCtrl.text;
+    // Replace from end to start so earlier offsets stay valid.
+    for (var i = _matches.length - 1; i >= 0; i--) {
+      widget.controller.replaceText(_matches[i], len, repl, null);
+    }
+    _recompute();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final mutedColor = widget.textColor.withValues(alpha: 0.55);
+    final fieldFill = widget.isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.03);
+    final countText = _matches.isEmpty
+        ? (_findCtrl.text.isEmpty ? '' : 'No results')
+        : '${_index + 1} of ${_matches.length}';
+
+    Widget field({
+      required TextEditingController controller,
+      required String hint,
+      required FocusNode? focus,
+      ValueChanged<String>? onSubmitted,
+    }) {
+      return Container(
+        height: 32,
+        decoration: BoxDecoration(
+          color: fieldFill,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: widget.borderColor),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Center(
+          child: TextField(
+            controller: controller,
+            focusNode: focus,
+            onChanged: (_) {
+              if (controller == _findCtrl) _recompute();
+            },
+            onSubmitted: onSubmitted,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              isCollapsed: true,
+              hintText: hint,
+              hintStyle: GoogleFonts.inter(
+                fontSize: 13,
+                color: mutedColor,
+              ),
+            ),
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: widget.textColor,
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget iconBtn({
+      required IconData icon,
+      required String tooltip,
+      VoidCallback? onTap,
+      bool active = false,
+    }) {
+      return Tooltip(
+        message: tooltip,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(4),
+          onTap: onTap,
+          child: Container(
+            width: 30,
+            height: 30,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: active
+                  ? widget.textColor.withValues(alpha: 0.08)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Icon(
+              icon,
+              size: 17,
+              color: onTap == null
+                  ? widget.textColor.withValues(alpha: 0.25)
+                  : widget.textColor.withValues(alpha: 0.85),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: widget.bgColor,
+        border: Border(
+          bottom: BorderSide(color: widget.borderColor),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              iconBtn(
+                icon: _showReplace
+                    ? CupertinoIcons.chevron_down
+                    : CupertinoIcons.chevron_right,
+                tooltip:
+                    _showReplace ? 'Hide replace' : 'Show replace',
+                onTap: () =>
+                    setState(() => _showReplace = !_showReplace),
+              ),
+              const SizedBox(width: 4),
+              SizedBox(
+                width: 240,
+                child: field(
+                  controller: _findCtrl,
+                  hint: 'Find',
+                  focus: _findFocus,
+                  onSubmitted: (_) => _next(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                countText,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: mutedColor,
+                ),
+              ),
+              const Spacer(),
+              iconBtn(
+                icon: Icons.text_fields,
+                tooltip: 'Match case',
+                active: _caseSensitive,
+                onTap: () {
+                  setState(() => _caseSensitive = !_caseSensitive);
+                  _recompute();
+                },
+              ),
+              iconBtn(
+                icon: CupertinoIcons.chevron_up,
+                tooltip: 'Previous match',
+                onTap: _matches.isEmpty ? null : _prev,
+              ),
+              iconBtn(
+                icon: CupertinoIcons.chevron_down,
+                tooltip: 'Next match',
+                onTap: _matches.isEmpty ? null : _next,
+              ),
+              iconBtn(
+                icon: CupertinoIcons.xmark,
+                tooltip: 'Close (Esc)',
+                onTap: widget.onClose,
+              ),
+            ],
+          ),
+          if (_showReplace) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const SizedBox(width: 34),
+                SizedBox(
+                  width: 240,
+                  child: field(
+                    controller: _replaceCtrl,
+                    hint: 'Replace with',
+                    focus: null,
+                    onSubmitted: (_) => _replaceOne(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: _matches.isEmpty ? null : _replaceOne,
+                  child: Text(
+                    'Replace',
+                    style: GoogleFonts.inter(fontSize: 12),
+                  ),
+                ),
+                TextButton(
+                  onPressed: _matches.isEmpty ? null : _replaceAll,
+                  child: Text(
+                    'Replace All',
+                    style: GoogleFonts.inter(fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }
