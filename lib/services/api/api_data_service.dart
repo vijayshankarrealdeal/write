@@ -260,12 +260,27 @@ class ApiDataService implements SyncDispatcher {
     int pageSize = 20,
     String? cursor,
     String? currentUserId,
+    Iterable<String>? genres,
+    Iterable<String>? tags,
+    Iterable<String>? writingTypes,
+    String sort = 'recent',
   }) async {
     final params = <String, dynamic>{
-      'sort': 'recent',
+      'sort': sort,
       'limit': pageSize,
     };
     if (cursor != null) params['cursor'] = cursor;
+    // Repeated `?genres=a&genres=b` matches the FastAPI `list[str]`
+    // declaration; ApiClient passes lists through verbatim.
+    if (genres != null && genres.isNotEmpty) {
+      params['genres'] = genres.toList(growable: false);
+    }
+    if (tags != null && tags.isNotEmpty) {
+      params['tags'] = tags.toList(growable: false);
+    }
+    if (writingTypes != null && writingTypes.isNotEmpty) {
+      params['writing_types'] = writingTypes.toList(growable: false);
+    }
 
     final response = await _client.get('/api/feed/', queryParams: params);
     final items = (response.data as List)

@@ -10,6 +10,7 @@ import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/feed_filter_chip_row.dart';
 import 'package:inkspacex/ui/widgets/skeleton.dart';
 
 class Feed extends StatefulWidget {
@@ -254,6 +255,10 @@ class _FeedState extends State<Feed> {
     final rankedShelfHeight =
         ((rankedCardWidth - rankedNumeralWidth) * 4 / 3) + 64;
 
+    if (feed.hasActiveFilters) {
+      return _buildFilteredView(feed, auth, textColor, hPadding, isMobile);
+    }
+
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
@@ -262,6 +267,13 @@ class _FeedState extends State<Feed> {
             padding: EdgeInsets.fromLTRB(
                 hPadding, isMobile ? 12 : 24, hPadding, 8),
             child: _buildHero(all.first, auth, feed, isMobile),
+          ),
+        ),
+
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.only(top: 12, bottom: 4),
+            child: FeedFilterChipRow(),
           ),
         ),
 
@@ -375,6 +387,155 @@ class _FeedState extends State<Feed> {
 
         const SliverToBoxAdapter(child: SizedBox(height: 80)),
       ],
+    );
+  }
+
+  /// Single-list view shown while one or more filter chips are active.
+  /// We collapse the multi-shelf layout because shelves like "Trending"
+  /// and "Editor's picks" stop being meaningful inside a filtered slice.
+  Widget _buildFilteredView(
+    FeedProvider feed,
+    AuthProvider auth,
+    Color textColor,
+    double hPadding,
+    bool isMobile,
+  ) {
+    final filtered = feed.filteredItems;
+    final isEmpty = filtered.isEmpty &&
+        !feed.isLoadingFiltered &&
+        feed.filteredError == null;
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (n) {
+        if (n.metrics.pixels >= n.metrics.maxScrollExtent - 800) {
+          feed.loadMoreFiltered();
+        }
+        return false;
+      },
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                  hPadding, isMobile ? 12 : 24, hPadding, 4),
+              child: _buildFilterSummary(feed, textColor, isMobile),
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.only(top: 4, bottom: 8),
+              child: FeedFilterChipRow(),
+            ),
+          ),
+          if (feed.isLoadingFiltered && filtered.isEmpty)
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: CupertinoActivityIndicator()),
+            )
+          else if (isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _buildFilteredEmpty(feed, textColor, isMobile),
+            )
+          else if (isMobile)
+            SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: hPadding),
+              sliver: _buildMobileList(filtered, auth, feed),
+            )
+          else
+            SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: hPadding),
+              sliver: _buildDesktopGrid(
+                filtered,
+                auth,
+                feed,
+                MediaQuery.sizeOf(context).width,
+              ),
+            ),
+          if (feed.isLoadingMoreFiltered)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 32, top: 16),
+                child: Center(child: CupertinoActivityIndicator()),
+              ),
+            ),
+          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterSummary(
+    FeedProvider feed,
+    Color textColor,
+    bool isMobile,
+  ) {
+    final n = feed.filterGenres.length +
+        feed.filterTags.length +
+        feed.filterWritingTypes.length;
+    final count = feed.filteredItems.length;
+    final loading = feed.isLoadingFiltered && count == 0;
+    final summary = loading
+        ? 'Loading…'
+        : '$count result${count == 1 ? '' : 's'} for $n filter${n == 1 ? '' : 's'}';
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Text(
+            summary,
+            style: GoogleFonts.inter(
+              fontSize: isMobile ? 14 : 15,
+              fontWeight: FontWeight.w600,
+              color: textColor.withValues(alpha: 0.75),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilteredEmpty(
+    FeedProvider feed,
+    Color textColor,
+    bool isMobile,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            CupertinoIcons.tray,
+            size: 48,
+            color: textColor.withValues(alpha: 0.35),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'No matches',
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Try fewer filters, or a different combination.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: textColor.withValues(alpha: 0.5),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: feed.clearFilters,
+            child: const Text('Clear all'),
+          ),
+        ],
+      ),
     );
   }
 

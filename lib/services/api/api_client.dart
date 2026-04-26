@@ -92,10 +92,15 @@ class ApiClient {
     Map<String, dynamic>? queryParams,
     bool isRetry = false,
   }) async {
+    // Iterable values pass through as repeated `?k=a&k=b` (Uri.replace
+    // recognises Iterable<String>). Everything else gets stringified.
     final uri = Uri.parse('$baseUrl$path').replace(
-      queryParameters: queryParams?.map(
-        (k, v) => MapEntry(k, v?.toString() ?? ''),
-      ),
+      queryParameters: queryParams?.map((k, v) {
+        if (v is Iterable && v is! String) {
+          return MapEntry(k, v.map((e) => e?.toString() ?? '').toList());
+        }
+        return MapEntry(k, v?.toString() ?? '');
+      }),
     );
 
     final token = _storage.getAuthToken();

@@ -26,6 +26,28 @@ class FeedProvider extends ChangeNotifier {
 
   List<ReadingProgressModel> _readingProgress = [];
 
+  // ── Persistent filter chip row state ─────────────────────────────
+  // When any of these sets are non-empty, the feed surface collapses
+  // its multi-shelf layout into a single filtered list. Filters are
+  // OR within a column (overlap on `genres`, `tags`, `writing_types`)
+  // and AND across columns — same semantics the backend applies at
+  // `/api/feed/?genres=…&tags=…&writing_types=…`.
+  final Set<String> _filterGenres = <String>{};
+  final Set<String> _filterTags = <String>{};
+  final Set<String> _filterTypes = <String>{};
+
+  // Cache `/api/feed/facets` so the chip strip doesn't refetch on
+  // every rebuild. Loaded lazily on first chip-row render.
+  FeedFacets? _facets;
+  Future<FeedFacets>? _facetsInflight;
+
+  List<FeedItemModel> _filteredItems = const [];
+  String? _filteredCursor;
+  bool _hasMoreFiltered = true;
+  bool _isLoadingFiltered = false;
+  bool _isLoadingMoreFiltered = false;
+  String? _filteredError;
+
   // ── Recommendation engine state ───────────────────────────────────
   // Items returned by /api/ai/recommendations. Each carries a
   // [RecommendationMeta] with the engine score, optional LLM-generated
@@ -50,6 +72,20 @@ class FeedProvider extends ChangeNotifier {
   List<FeedItemModel> get recommendedItems => _recommended;
   bool get isLoadingRecommendations => _isLoadingRecommendations;
   String? get recommendationSessionId => _recommendationSessionId;
+
+  Set<String> get filterGenres => Set.unmodifiable(_filterGenres);
+  Set<String> get filterTags => Set.unmodifiable(_filterTags);
+  Set<String> get filterWritingTypes => Set.unmodifiable(_filterTypes);
+  bool get hasActiveFilters =>
+      _filterGenres.isNotEmpty ||
+      _filterTags.isNotEmpty ||
+      _filterTypes.isNotEmpty;
+  List<FeedItemModel> get filteredItems => _filteredItems;
+  bool get isLoadingFiltered => _isLoadingFiltered;
+  bool get isLoadingMoreFiltered => _isLoadingMoreFiltered;
+  bool get hasMoreFiltered => _hasMoreFiltered;
+  String? get filteredError => _filteredError;
+  FeedFacets? get cachedFacets => _facets;
 
   /// Feed items grouped by same author + same cover image.
   /// Merges sections from duplicate entries into one combined item.
@@ -182,6 +218,17 @@ class FeedProvider extends ChangeNotifier {
     _pendingImpressionEvents.clear();
     _impressionFlushTimer?.cancel();
     _impressionFlushTimer = null;
+    _filterGenres.clear();
+    _filterTags.clear();
+    _filterTypes.clear();
+    _facets = null;
+    _facetsInflight = null;
+    _filteredItems = const [];
+    _filteredCursor = null;
+    _hasMoreFiltered = true;
+    _isLoadingFiltered = false;
+    _isLoadingMoreFiltered = false;
+    _filteredError = null;
     notifyListeners();
   }
 
@@ -339,6 +386,134 @@ class FeedProvider extends ChangeNotifier {
       _items[idx] = _items[idx].copyWith(
         commentsCount: (_items[idx].commentsCount - 1).clamp(0, 999999),
       );
+      notifyListeners();
+    }
+  }
+
+  // ── Persistent filter chip row ───────────────────────────────────
+
+  /// Lazy-load and cache the top-N facets used by the persistent chip
+  /// strip on the feed. Subsequent calls return the cached value; any
+  /// concurrent loads share a single in-flight future so the endpoint
+  /// is hit at most once per app session (until `clearFeed()`).
+  Future<FeedFacets> ensureFacets() {
+    if (_facets != null) return Future.value(_facets!);
+    if (_facetsInflight != null) return _facetsInflight!;
+    if (_dataService == null) {
+      return Future.value(
+          const FeedFacets(genres: [], tags: [], writingTypes: []));
+    }
+    final inflight = _dataService!.getFeedFacets();
+    _facetsInflight = inflight;
+    return inflight.then((f) {
+      _facets = f;
+      _facetsInflight = null;
+      notifyListeners();
+      return f;
+    }).catchError((Object _) {
+      _facetsInflight = null;
+      return const FeedFacets(genres: [], tags: [], writingTypes: []);
+    });
+  }
+
+  /// Toggle a filter chip. `kind` is one of `'genre' | 'tag' | 'type'`.
+  /// Triggers a filtered fetch (debounced via the in-flight guard) when
+  /// any filter remains active; clears `_filteredItems` when the last
+  /// filter is removed.
+  void toggleFilter(String kind, String value) {
+    final set = _setFor(kind);
+    if (set == null) return;
+    if (set.contains(value)) {
+      set.remove(value);
+    } else {
+      set.add(value);
+    }
+    if (hasActiveFilters) {
+      _reloadFiltered();
+    } else {
+      _filteredItems = const [];
+      _filteredCursor = null;
+      _hasMoreFiltered = true;
+      _filteredError = null;
+    }
+    notifyListeners();
+  }
+
+  void clearFilters() {
+    if (!hasActiveFilters) return;
+    _filterGenres.clear();
+    _filterTags.clear();
+    _filterTypes.clear();
+    _filteredItems = const [];
+    _filteredCursor = null;
+    _hasMoreFiltered = true;
+    _filteredError = null;
+    notifyListeners();
+  }
+
+  Set<String>? _setFor(String kind) {
+    switch (kind) {
+      case 'genre':
+        return _filterGenres;
+      case 'tag':
+        return _filterTags;
+      case 'type':
+        return _filterTypes;
+      default:
+        return null;
+    }
+  }
+
+  Future<void> _reloadFiltered() async {
+    if (_dataService == null || !hasActiveFilters) return;
+    _isLoadingFiltered = true;
+    _filteredError = null;
+    _filteredCursor = null;
+    _hasMoreFiltered = true;
+    notifyListeners();
+    try {
+      final result = await _dataService!.getPersonalizedFeed(
+        _lastPreferences ?? const UserPreferences(),
+        currentUserId: _currentUserId,
+        genres: _filterGenres,
+        tags: _filterTags,
+        writingTypes: _filterTypes,
+      );
+      _filteredItems = result.items;
+      _filteredCursor = result.nextCursor;
+      _hasMoreFiltered = result.items.isNotEmpty;
+    } catch (e) {
+      _filteredItems = const [];
+      _filteredError = e.toString();
+    } finally {
+      _isLoadingFiltered = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadMoreFiltered() async {
+    if (_dataService == null) return;
+    if (!hasActiveFilters) return;
+    if (_isLoadingMoreFiltered || !_hasMoreFiltered) return;
+    _isLoadingMoreFiltered = true;
+    notifyListeners();
+    try {
+      final result = await _dataService!.getPersonalizedFeed(
+        _lastPreferences ?? const UserPreferences(),
+        cursor: _filteredCursor,
+        currentUserId: _currentUserId,
+        genres: _filterGenres,
+        tags: _filterTags,
+        writingTypes: _filterTypes,
+      );
+      _filteredCursor = result.nextCursor;
+      _hasMoreFiltered = result.items.isNotEmpty;
+      _filteredItems = [..._filteredItems, ...result.items];
+    } catch (_) {
+      // Silent on paging failure — leave the existing list intact so
+      // the user can retry by scrolling again.
+    } finally {
+      _isLoadingMoreFiltered = false;
       notifyListeners();
     }
   }
