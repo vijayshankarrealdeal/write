@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     azure_openai_api_key: str = ""
     azure_openai_endpoint: str = ""
     azure_openai_api_version: str = "2024-12-01-preview"
-    azure_openai_chat_deployment: str = "gpt-5.4-min"
+    azure_openai_chat_deployment: str = "gpt-5.4-mini"
     azure_openai_embedding_deployment: str = "text-embedding-ada-002"
 
     model_config = {"env_file": ".env"}
