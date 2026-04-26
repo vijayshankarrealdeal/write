@@ -3200,6 +3200,83 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
     _setFontSize(_wordFontSizes[idx]);
   }
 
+  bool _isInlineActive(Attribute attr) {
+    return widget.controller
+        .getSelectionStyle()
+        .attributes
+        .containsKey(attr.key);
+  }
+
+  void _toggleInline(Attribute attr) {
+    final active = _isInlineActive(attr);
+    widget.controller
+        .formatSelection(active ? Attribute.clone(attr, null) : attr);
+    setState(() {});
+  }
+
+  String? _currentListValue() {
+    final attr =
+        widget.controller.getSelectionStyle().attributes[Attribute.list.key];
+    return attr?.value as String?;
+  }
+
+  void _toggleList(String value) {
+    final current = _currentListValue();
+    widget.controller.formatSelection(
+      current == value
+          ? Attribute.clone(Attribute.list, null)
+          : Attribute.fromKeyValue(Attribute.list.key, value),
+    );
+    setState(() {});
+  }
+
+  String? _currentAlignValue() {
+    final attr =
+        widget.controller.getSelectionStyle().attributes[Attribute.align.key];
+    return attr?.value as String?;
+  }
+
+  void _setAlign(String value) {
+    final current = _currentAlignValue();
+    widget.controller.formatSelection(
+      current == value
+          ? Attribute.clone(Attribute.align, null)
+          : Attribute.fromKeyValue(Attribute.align.key, value),
+    );
+    setState(() {});
+  }
+
+  int _currentIndentLevel() {
+    final attr =
+        widget.controller.getSelectionStyle().attributes[Attribute.indent.key];
+    final value = attr?.value;
+    if (value is int) return value;
+    return 0;
+  }
+
+  void _stepIndent(int direction) {
+    final level = _currentIndentLevel();
+    final next = level + direction;
+    if (next <= 0) {
+      widget.controller
+          .formatSelection(Attribute.clone(Attribute.indent, null));
+    } else {
+      widget.controller.formatSelection(Attribute.getIndentLevel(next));
+    }
+    setState(() {});
+  }
+
+  void _clearFormatting() {
+    final selection = widget.controller.selection;
+    if (!selection.isValid) return;
+    final attrs =
+        widget.controller.getSelectionStyle().attributes.values.toList();
+    for (final a in attrs) {
+      widget.controller.formatSelection(Attribute.clone(a, null));
+    }
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final borderColor = widget.isDark
@@ -3207,41 +3284,253 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
         : const Color(0xFFB8BCC4);
     final fillColor =
         widget.isDark ? const Color(0xFF2A2D33) : const Color(0xFFFAFAFA);
+    final accentColor = widget.isDark
+        ? const Color(0xFF93B4F5)
+        : const Color(0xFF5B8DEF);
+    final activeBg = widget.isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : const Color(0xFFE3EBFB);
+
+    final listValue = _currentListValue();
+    final alignValue = _currentAlignValue();
+
+    Widget divider() => Container(
+          width: 1,
+          height: 18,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          color: borderColor,
+        );
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _FontFamilyDropdown(
-            current: _currentFontFamily,
-            items: _editorFonts.keys.toList(),
-            borderColor: borderColor,
-            fillColor: fillColor,
-            textColor: widget.textColor,
-            onSelected: _setFontFamily,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _FontFamilyDropdown(
+              current: _currentFontFamily,
+              items: _editorFonts.keys.toList(),
+              borderColor: borderColor,
+              fillColor: fillColor,
+              textColor: widget.textColor,
+              onSelected: _setFontFamily,
+            ),
+            const SizedBox(width: 6),
+            _FontSizeDropdown(
+              current: _currentFontSize,
+              items: _wordFontSizes,
+              borderColor: borderColor,
+              fillColor: fillColor,
+              textColor: widget.textColor,
+              onSelected: _setFontSize,
+            ),
+            const SizedBox(width: 6),
+            _GrowShrinkButton(
+              grow: true,
+              textColor: widget.textColor,
+              onPressed: () => _stepFontSize(1),
+            ),
+            _GrowShrinkButton(
+              grow: false,
+              textColor: widget.textColor,
+              onPressed: () => _stepFontSize(-1),
+            ),
+            divider(),
+            _FormatToggleButton(
+              icon: Icons.format_bold,
+              tooltip: 'Bold',
+              isActive: _isInlineActive(Attribute.bold),
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _toggleInline(Attribute.bold),
+            ),
+            _FormatToggleButton(
+              icon: Icons.format_italic,
+              tooltip: 'Italic',
+              isActive: _isInlineActive(Attribute.italic),
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _toggleInline(Attribute.italic),
+            ),
+            _FormatToggleButton(
+              icon: Icons.format_underline,
+              tooltip: 'Underline',
+              isActive: _isInlineActive(Attribute.underline),
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _toggleInline(Attribute.underline),
+            ),
+            _FormatToggleButton(
+              icon: Icons.format_strikethrough,
+              tooltip: 'Strikethrough',
+              isActive: _isInlineActive(Attribute.strikeThrough),
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _toggleInline(Attribute.strikeThrough),
+            ),
+            _FormatToggleButton(
+              icon: Icons.code,
+              tooltip: 'Inline code',
+              isActive: _isInlineActive(Attribute.inlineCode),
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _toggleInline(Attribute.inlineCode),
+            ),
+            divider(),
+            _FormatToggleButton(
+              icon: Icons.format_list_bulleted,
+              tooltip: 'Bulleted list',
+              isActive: listValue == 'bullet',
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _toggleList('bullet'),
+            ),
+            _FormatToggleButton(
+              icon: Icons.format_list_numbered,
+              tooltip: 'Numbered list',
+              isActive: listValue == 'ordered',
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _toggleList('ordered'),
+            ),
+            _FormatToggleButton(
+              icon: Icons.checklist,
+              tooltip: 'Checklist',
+              isActive: listValue == 'unchecked' || listValue == 'checked',
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _toggleList('unchecked'),
+            ),
+            _FormatToggleButton(
+              icon: Icons.format_indent_decrease,
+              tooltip: 'Decrease indent',
+              isActive: false,
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _stepIndent(-1),
+            ),
+            _FormatToggleButton(
+              icon: Icons.format_indent_increase,
+              tooltip: 'Increase indent',
+              isActive: false,
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _stepIndent(1),
+            ),
+            divider(),
+            _FormatToggleButton(
+              icon: Icons.format_align_left,
+              tooltip: 'Align left',
+              isActive: alignValue == null || alignValue == 'left',
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _setAlign('left'),
+            ),
+            _FormatToggleButton(
+              icon: Icons.format_align_center,
+              tooltip: 'Align center',
+              isActive: alignValue == 'center',
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _setAlign('center'),
+            ),
+            _FormatToggleButton(
+              icon: Icons.format_align_right,
+              tooltip: 'Align right',
+              isActive: alignValue == 'right',
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _setAlign('right'),
+            ),
+            _FormatToggleButton(
+              icon: Icons.format_align_justify,
+              tooltip: 'Justify',
+              isActive: alignValue == 'justify',
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _setAlign('justify'),
+            ),
+            divider(),
+            _FormatToggleButton(
+              icon: Icons.format_quote,
+              tooltip: 'Quote',
+              isActive: _isInlineActive(Attribute.blockQuote),
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: () => _toggleInline(Attribute.blockQuote),
+            ),
+            _FormatToggleButton(
+              icon: Icons.format_clear,
+              tooltip: 'Clear formatting',
+              isActive: false,
+              textColor: widget.textColor,
+              activeBg: activeBg,
+              activeColor: accentColor,
+              onPressed: _clearFormatting,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FormatToggleButton extends StatelessWidget {
+  const _FormatToggleButton({
+    required this.icon,
+    required this.tooltip,
+    required this.isActive,
+    required this.textColor,
+    required this.activeBg,
+    required this.activeColor,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final bool isActive;
+  final Color textColor;
+  final Color activeBg;
+  final Color activeColor;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(4),
+        onTap: onPressed,
+        child: Container(
+          width: 30,
+          height: 28,
+          margin: const EdgeInsets.symmetric(horizontal: 1),
+          decoration: BoxDecoration(
+            color: isActive ? activeBg : Colors.transparent,
+            borderRadius: BorderRadius.circular(4),
           ),
-          const SizedBox(width: 6),
-          _FontSizeDropdown(
-            current: _currentFontSize,
-            items: _wordFontSizes,
-            borderColor: borderColor,
-            fillColor: fillColor,
-            textColor: widget.textColor,
-            onSelected: _setFontSize,
+          child: Icon(
+            icon,
+            size: 17,
+            color: isActive ? activeColor : textColor,
           ),
-          const SizedBox(width: 6),
-          _GrowShrinkButton(
-            grow: true,
-            textColor: widget.textColor,
-            onPressed: () => _stepFontSize(1),
-          ),
-          _GrowShrinkButton(
-            grow: false,
-            textColor: widget.textColor,
-            onPressed: () => _stepFontSize(-1),
-          ),
-        ],
+        ),
       ),
     );
   }
