@@ -113,6 +113,7 @@ jobs:
         env:
           DOTENV: ${{ secrets.DOTENV }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
         run: |
           printf '%s\n' "$DOTENV" > .env
           # Overlay individual secrets so they can be rotated without touching DOTENV.
@@ -121,6 +122,14 @@ jobs:
             grep -v '^AZURE_OPENAI_API_KEY=' .env > .env.tmp || true
             mv .env.tmp .env
             printf 'AZURE_OPENAI_API_KEY=%s\n' "$AZURE_OPENAI_API_KEY" >> .env
+          fi
+          # Always strip any DOTENV-baked chat deployment so the docker-compose
+          # default (or the optional secret below) wins. Lets us rotate the
+          # deployment name without re-publishing DOTENV.
+          grep -v '^AZURE_OPENAI_CHAT_DEPLOYMENT=' .env > .env.tmp || true
+          mv .env.tmp .env
+          if [[ -n "$AZURE_OPENAI_CHAT_DEPLOYMENT" ]]; then
+            printf 'AZURE_OPENAI_CHAT_DEPLOYMENT=%s\n' "$AZURE_OPENAI_CHAT_DEPLOYMENT" >> .env
           fi
 
       - name: Configure SSH
