@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:inkspacex/models/bookshelf_model.dart';
 import 'package:inkspacex/models/comment_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
@@ -14,6 +16,27 @@ class ApiFeedPage {
   final List<FeedItemModel> items;
   final String? nextCursor;
   const ApiFeedPage({required this.items, this.nextCursor});
+}
+
+/// SectionModel stores `content` and `canvasData` as JSON-encoded strings,
+/// but the backend column is JSONB and Pydantic validates the value's shape.
+/// Decode the string into a real list/map before sending; send null for empty.
+dynamic _decodeJsonField(String raw) {
+  if (raw.isEmpty) return null;
+  try {
+    return jsonDecode(raw);
+  } catch (_) {
+    // Not valid JSON — pass it through as a string and let the server reject.
+    return raw;
+  }
+}
+
+/// Inverse of [_decodeJsonField] for response parsing — re-encode a JSON
+/// value back to the string the local model expects.
+String _encodeJsonField(dynamic value) {
+  if (value == null) return '';
+  if (value is String) return value;
+  return jsonEncode(value);
 }
 
 /// Data service backed by the FastAPI backend (replaces FirestoreService).
@@ -405,8 +428,8 @@ class ApiDataService {
     for (final section in book.sections) {
       await _client.post('/api/writings/$writingId/sections', data: {
         'title': section.title,
-        'content': section.content,
-        'canvas_data': section.canvasData,
+        'content': _decodeJsonField(section.content),
+        'canvas_data': _decodeJsonField(section.canvasData),
         'section_color': section.sectionColor.toARGB32(),
       });
     }
@@ -421,8 +444,10 @@ class ApiDataService {
     String content, {
     String canvasData = '',
   }) async {
-    final data = <String, dynamic>{'content': content};
-    if (canvasData.isNotEmpty) data['canvas_data'] = canvasData;
+    final data = <String, dynamic>{'content': _decodeJsonField(content)};
+    if (canvasData.isNotEmpty) {
+      data['canvas_data'] = _decodeJsonField(canvasData);
+    }
     await _client.put('/api/writings/$writingId/sections/$sectionId',
         data: data);
   }
@@ -434,8 +459,8 @@ class ApiDataService {
   ) async {
     await _client.post('/api/writings/$writingId/sections', data: {
       'title': section.title,
-      'content': section.content,
-      'canvas_data': section.canvasData,
+      'content': _decodeJsonField(section.content),
+      'canvas_data': _decodeJsonField(section.canvasData),
       'section_color': section.sectionColor.toARGB32(),
     });
   }
@@ -656,8 +681,8 @@ class ApiDataService {
     return SectionModel(
       id: json['id'],
       title: json['title'] ?? '',
-      content: json['content'] ?? '',
-      canvasData: json['canvas_data'] ?? '',
+      content: _encodeJsonField(json['content']),
+      canvasData: _encodeJsonField(json['canvas_data']),
       sectionColor: Color((json['section_color'] as num?)?.toInt() ?? 0xFF1982C4),
       updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
       isSynced: true,

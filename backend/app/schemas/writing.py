@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -42,15 +43,17 @@ class WritingResponse(BaseModel):
 
 class SectionCreate(BaseModel):
     title: str | None = None
-    content: dict | None = None
-    canvas_data: dict | None = None
+    # Quill deltas are JSON arrays (not dicts), and canvas data may be either —
+    # accept anything JSON-serializable; the column is JSONB.
+    content: Any | None = None
+    canvas_data: Any | None = None
     section_color: int | None = None
 
 
 class SectionUpdate(BaseModel):
     title: str | None = None
-    content: dict | None = None
-    canvas_data: dict | None = None
+    content: Any | None = None
+    canvas_data: Any | None = None
     section_color: int | None = None
 
 
@@ -58,8 +61,8 @@ class SectionResponse(BaseModel):
     id: UUID
     writing_id: UUID
     title: str | None
-    content: dict | None
-    canvas_data: dict | None
+    content: Any | None
+    canvas_data: Any | None
     section_color: int | None
     updated_at: datetime
 
