@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
+import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
@@ -66,6 +67,18 @@ class _FakeDispatcher implements SyncDispatcher {
   Future<void> deleteSection(
       String userId, String writingId, String sectionId) async {
     calls.add('deleteSection:$writingId/$sectionId');
+  }
+
+  @override
+  Future<String> upsertBookmark(BookmarkModel bookmark,
+      {String? clientOpId}) async {
+    calls.add('upsertBookmark:${bookmark.id}');
+    return bookmark.id;
+  }
+
+  @override
+  Future<void> deleteBookmark(String bookmarkId) async {
+    calls.add('deleteBookmark:$bookmarkId');
   }
 }
 

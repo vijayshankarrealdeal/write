@@ -128,6 +128,12 @@ class ProfileHubPage extends StatelessWidget {
                     label: "Reading Statistics",
                     onTap: () => context.push('/reading-statistics'),
                   ),
+                  _buildDivider(context),
+                  _HubTile(
+                    icon: CupertinoIcons.bookmark,
+                    label: "Bookmarks",
+                    onTap: () => context.push('/bookmarks'),
+                  ),
                 ],
               ),
 

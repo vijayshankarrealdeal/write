@@ -20,6 +20,7 @@ from app.middleware import RequestLoggingMiddleware
 from app.routers import (
     admin,
     auth,
+    bookmarks,
     bookshelves,
     comments,
     crashes,
@@ -68,6 +69,16 @@ async def lifespan(app: FastAPI):
             await conn.execute(text(
                 f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col} JSONB"
             ))
+        # Phase 3 (P2): paragraph-precise resume anchor columns on
+        # reading_progress. Idempotent for dev DBs that bypass Alembic.
+        await conn.execute(text(
+            "ALTER TABLE reading_progress "
+            "ADD COLUMN IF NOT EXISTS last_section_id VARCHAR(64)"
+        ))
+        await conn.execute(text(
+            "ALTER TABLE reading_progress "
+            "ADD COLUMN IF NOT EXISTS last_anchor JSONB"
+        ))
     await start_drain()
     log.info("InkSpaceX API started")
     yield
@@ -103,6 +114,7 @@ app.include_router(comments.router)
 app.include_router(highlights.router)
 app.include_router(bookshelves.router)
 app.include_router(reading.router)
+app.include_router(bookmarks.router)
 app.include_router(upload.router)
 app.include_router(ai_router)
 app.include_router(admin.router)

@@ -1,4 +1,5 @@
 /// Shared test fakes for Phase 6 sync scenario tests.
+import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
@@ -86,6 +87,24 @@ class RecordingDispatcher implements SyncDispatcher {
       String userId, String writingId, String sectionId) async {
     calls.add('deleteSection:$writingId/$sectionId');
     _maybeThrow('deleteSection');
+  }
+
+  /// Records the call and returns the local id by default — tests that
+  /// want to exercise the id-remap path can override `bookmarkServerIds`.
+  Map<String, String> bookmarkServerIds = const {};
+
+  @override
+  Future<String> upsertBookmark(BookmarkModel bookmark,
+      {String? clientOpId}) async {
+    calls.add('upsertBookmark:${bookmark.id}');
+    _maybeThrow('upsertBookmark');
+    return bookmarkServerIds[bookmark.id] ?? bookmark.id;
+  }
+
+  @override
+  Future<void> deleteBookmark(String bookmarkId) async {
+    calls.add('deleteBookmark:$bookmarkId');
+    _maybeThrow('deleteBookmark');
   }
 }
 

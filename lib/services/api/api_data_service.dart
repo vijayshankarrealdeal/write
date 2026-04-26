@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/bookshelf_model.dart';
 import 'package:inkspacex/models/comment_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
@@ -742,6 +743,56 @@ class ApiDataService implements SyncDispatcher {
   }
 
   // =========================================================================
+  // BOOKMARKS (Phase 3 / P2 — paragraph-precise marks the user can resume to)
+  // =========================================================================
+
+  /// Idempotent server-side: the (user, feed_item, section_index, anchor)
+  /// tuple dedupes, so the outbox can replay this op without producing
+  /// duplicates. Returns the server-issued bookmark id; the drainer will
+  /// remap any pending follow-up patches/deletes to this id.
+  @override
+  Future<String> upsertBookmark(
+    BookmarkModel bookmark, {
+    String? clientOpId,
+  }) async {
+    final response = await _client.post(
+      '/api/bookmarks/',
+      data: bookmark.toCreateJson(clientOpId: clientOpId),
+    );
+    return (response.data['id'] ?? '').toString();
+  }
+
+  @override
+  Future<void> deleteBookmark(String bookmarkId) async {
+    await _client.delete('/api/bookmarks/$bookmarkId');
+  }
+
+  Future<List<BookmarkModel>> listBookmarks({String? feedItemId}) async {
+    final query = <String, dynamic>{};
+    if (feedItemId != null) query['feed_item_id'] = feedItemId;
+    final response = await _client.get(
+      '/api/bookmarks/',
+      queryParams: query.isEmpty ? null : query,
+    );
+    final raw = response.data;
+    if (raw is! List) return const [];
+    return raw
+        .map((e) => BookmarkModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<BookmarkModel>> listBookmarksForFeedItem(
+      String feedItemId) async {
+    final response =
+        await _client.get('/api/bookmarks/by-feed-item/$feedItemId');
+    final raw = response.data;
+    if (raw is! List) return const [];
+    return raw
+        .map((e) => BookmarkModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  // =========================================================================
   // WRITINGS
   // =========================================================================
 
@@ -879,11 +930,36 @@ class ApiDataService implements SyncDispatcher {
     String feedItemId,
     double scrollPosition, {
     bool completed = false,
+    String? lastSectionId,
+    int? lastParagraphIdx,
+    int? lastCharOffset,
   }) async {
-    await _client.put('/api/reading-progress/$feedItemId', data: {
+    final body = <String, dynamic>{
       'scroll_position': scrollPosition,
       'completed': completed,
-    });
+    };
+    if (lastSectionId != null) body['last_section_id'] = lastSectionId;
+    if (lastParagraphIdx != null && lastCharOffset != null) {
+      body['last_anchor'] = {
+        'paragraph_idx': lastParagraphIdx,
+        'char_offset': lastCharOffset,
+      };
+    }
+    await _client.put('/api/reading-progress/$feedItemId', data: body);
+  }
+
+  /// Items the user started but hasn't finished, newest activity first.
+  /// Drives the "Continue reading" rail on the home shell.
+  Future<List<ContinueReadingItem>> getContinueReading({int limit = 8}) async {
+    final response = await _client.get(
+      '/api/reading-progress/continue-reading',
+      queryParams: {'limit': limit},
+    );
+    final raw = response.data;
+    if (raw is! List) return const [];
+    return raw
+        .map((e) => ContinueReadingItem.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<ReadingProgressModel?> getReadingProgress(
@@ -906,9 +982,24 @@ class ApiDataService implements SyncDispatcher {
 
   Future<List<ReadingProgressModel>> getAllReadingProgress(
       String userId) async {
-    // The API doesn't have a list-all endpoint yet; return empty for now.
-    // TODO: Add GET /api/reading-progress/ endpoint.
-    return [];
+    // Backed by the Phase 3 (P2) `/continue-reading` endpoint — that
+    // route already filters out completed items and joins enough feed
+    // metadata to render the rail, so we adapt its shape into the
+    // legacy ReadingProgressModel rather than maintaining a separate
+    // `/list-all` endpoint that nobody else needs.
+    try {
+      final items = await getContinueReading(limit: 24);
+      return items
+          .map((it) => ReadingProgressModel(
+                feedItemId: it.feedItemId,
+                scrollPosition: it.scrollPosition,
+                lastReadAt: it.lastReadAt ?? DateTime.now(),
+                completed: it.completed,
+              ))
+          .toList();
+    } catch (_) {
+      return const [];
+    }
   }
 
   // =========================================================================

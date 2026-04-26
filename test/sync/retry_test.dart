@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
+import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
@@ -60,6 +61,13 @@ class _ScriptedDispatcher implements SyncDispatcher {
   @override
   Future<void> deleteSection(
           String userId, String writingId, String sectionId) =>
+      throw UnimplementedError();
+  @override
+  Future<String> upsertBookmark(BookmarkModel bookmark,
+          {String? clientOpId}) =>
+      throw UnimplementedError();
+  @override
+  Future<void> deleteBookmark(String bookmarkId) =>
       throw UnimplementedError();
 }
 

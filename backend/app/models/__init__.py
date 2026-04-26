@@ -1,5 +1,6 @@
 from app.models.analytics import AppLog, CrashReport, PageVisit, RecommendationEvent
 from app.models.base import Base
+from app.models.bookmark import Bookmark
 from app.models.bookshelf import Bookshelf
 from app.models.comment import Comment
 from app.models.feed_item import FeedItem
@@ -14,6 +15,7 @@ from app.models.writing import Writing
 __all__ = [
     "AppLog",
     "Base",
+    "Bookmark",
     "Bookshelf",
     "Comment",
     "CrashReport",

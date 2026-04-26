@@ -21,6 +21,7 @@ import 'package:inkspacex/models/comment_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/provider/bookmark_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 
@@ -2617,6 +2618,36 @@ class _PostDetailPageState extends State<PostDetailPage>
                       ),
                     ),
                   ),
+                  const SizedBox(width: 6),
+                  // Bookmark this paragraph. Lives on the highlight bar
+                  // because the user is already in "I want to mark this
+                  // bit" mode — adding a separate long-press path would
+                  // double the discovery surface for no extra value.
+                  GestureDetector(
+                    onTap: () {
+                      try {
+                        state.hideToolbar();
+                      } catch (_) {}
+                      _openBookmarkSheet(sectionIndex, controller);
+                    },
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: palette.text.withValues(alpha: 0.06),
+                        border: Border.all(
+                          color: palette.text.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: Icon(
+                        CupertinoIcons.bookmark,
+                        size: 14,
+                        color: palette.text.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -2624,6 +2655,192 @@ class _PostDetailPageState extends State<PostDetailPage>
         ),
       ],
     );
+  }
+
+  /// Bottom sheet for naming + colouring a bookmark at the current
+  /// selection. Anchor is derived from the selection start: paragraph =
+  /// number of newline characters before the cursor; char_offset = chars
+  /// since the most recent newline. That maps cleanly to the server's
+  /// `(paragraph_idx, char_offset)` schema and survives reflow.
+  Future<void> _openBookmarkSheet(
+    int sectionIndex,
+    quill.QuillController controller,
+  ) async {
+    final sel = controller.selection;
+    final fullText = controller.document.toPlainText();
+    final cursor = sel.isValid ? sel.start.clamp(0, fullText.length) : 0;
+    final before = fullText.substring(0, cursor);
+    final paragraphIdx = '\n'.allMatches(before).length;
+    final lastBreak = before.lastIndexOf('\n');
+    final charOffset = lastBreak == -1 ? cursor : cursor - lastBreak - 1;
+
+    final defaultLabel = _selectionPreview(controller, max: 60);
+    final labelCtl = TextEditingController(text: defaultLabel);
+    final palette = _readerPalette();
+    String pickedColor = '#FFB300';
+    const swatches = <String>[
+      '#FFB300', '#7E57C2', '#26A69A', '#EC407A', '#42A5F5', '#66BB6A',
+    ];
+
+    final saved = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: palette.bg,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setSheet) {
+            final mq = MediaQuery.of(ctx);
+            return Padding(
+              padding: EdgeInsets.fromLTRB(
+                  20, 16, 20, 16 + mq.viewInsets.bottom),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: palette.text.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Bookmark this paragraph',
+                    style: GoogleFonts.inter(
+                      color: palette.text,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  TextField(
+                    controller: labelCtl,
+                    style: GoogleFonts.inter(
+                        color: palette.text, fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'Optional label',
+                      hintStyle: GoogleFonts.inter(color: palette.subtle),
+                      filled: true,
+                      fillColor: palette.text.withValues(alpha: 0.05),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      for (final hex in swatches) ...[
+                        GestureDetector(
+                          onTap: () => setSheet(() => pickedColor = hex),
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            margin: const EdgeInsets.only(right: 8),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _hexToColor(hex),
+                              border: Border.all(
+                                width: pickedColor == hex ? 3 : 1,
+                                color: pickedColor == hex
+                                    ? palette.text
+                                    : palette.text.withValues(alpha: 0.2),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(ctx).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: palette.text,
+                        foregroundColor: palette.bg,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        'Save bookmark',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (saved != true || !mounted) {
+      labelCtl.dispose();
+      return;
+    }
+
+    final raw = labelCtl.text.trim();
+    final label = raw.isEmpty ? null : raw;
+    labelCtl.dispose();
+
+    final feedItemId = widget.item.id;
+    try {
+      await context.read<BookmarkProvider>().addBookmark(
+            feedItemId: feedItemId,
+            sectionIndex: sectionIndex,
+            paragraphIdx: paragraphIdx,
+            charOffset: charOffset,
+            label: label,
+            color: pickedColor,
+          );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Bookmark saved',
+            style: GoogleFonts.inter(fontSize: 13),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Could not save bookmark — will retry when online',
+            style: GoogleFonts.inter(fontSize: 13),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  String _selectionPreview(quill.QuillController controller, {int max = 60}) {
+    final sel = controller.selection;
+    if (!sel.isValid || sel.isCollapsed) return '';
+    final text = controller.document.toPlainText();
+    final start = sel.start.clamp(0, text.length);
+    final end = sel.end.clamp(0, text.length);
+    final raw = text.substring(start, end).replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (raw.length <= max) return raw;
+    return '${raw.substring(0, max)}…';
   }
 
   // --------------------------------------------------------------------------

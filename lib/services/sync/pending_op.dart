@@ -7,6 +7,8 @@ enum PendingOpKind {
   deleteWriting, // DELETE /api/writings/{id}
   upsertSection, // POST /api/writings/{wid}/sections (isNew=true) or PUT /api/writings/{wid}/sections/{sid}
   deleteSection, // DELETE /api/writings/{wid}/sections/{sid}
+  upsertBookmark, // POST /api/bookmarks/  (idempotent — server dedupes)
+  deleteBookmark, // DELETE /api/bookmarks/{id}
 }
 
 PendingOpKind _kindFromString(String s) =>

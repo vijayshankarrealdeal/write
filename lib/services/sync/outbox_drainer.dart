@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show ValueListenable, ValueNotifier;
 import 'package:flutter/material.dart' show Color;
+import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
@@ -17,21 +18,31 @@ import 'package:inkspacex/services/sync/sync_dispatcher.dart';
 /// resource. The owner of the data model (currently EditorProvider) listens
 /// and rewrites in-memory + on-disk references so subsequent mutations
 /// target the canonical server id.
+///
+/// `kind` distinguishes writing vs. section vs. bookmark remaps so a
+/// listener can target the right model without a switch on `isWriting`.
 class IdRemapEvent {
   IdRemapEvent.writing({required this.localId, required this.serverId})
-      : isWriting = true,
+      : kind = IdRemapKind.writing,
         writingId = null;
   IdRemapEvent.section({
     required this.localId,
     required this.serverId,
     required this.writingId,
-  }) : isWriting = false;
+  }) : kind = IdRemapKind.section;
+  IdRemapEvent.bookmark({required this.localId, required this.serverId})
+      : kind = IdRemapKind.bookmark,
+        writingId = null;
 
   final String localId;
   final String serverId;
-  final bool isWriting;
+  final IdRemapKind kind;
   final String? writingId;
+
+  bool get isWriting => kind == IdRemapKind.writing;
 }
+
+enum IdRemapKind { writing, section, bookmark }
 
 /// Worker that drains the [Outbox], one op at a time, in queue order.
 ///
@@ -208,6 +219,12 @@ class OutboxDrainer {
         case PendingOpKind.deleteSection:
           await _dispatchDeleteSection(op);
           break;
+        case PendingOpKind.upsertBookmark:
+          await _dispatchUpsertBookmark(op);
+          break;
+        case PendingOpKind.deleteBookmark:
+          await _dispatchDeleteBookmark(op);
+          break;
       }
       await _outbox.remove(op.id);
       _failedCount.value = _countFailed();
@@ -383,6 +400,48 @@ class OutboxDrainer {
       op.payload['writingId'] as String,
       op.payload['sectionId'] as String,
     );
+  }
+
+  Future<void> _dispatchUpsertBookmark(PendingOp op) async {
+    final p = op.payload;
+    final localId = p['bookmarkId'] as String;
+    final fields = Map<String, dynamic>.from(p['fields'] as Map);
+    final anchor = Map<String, dynamic>.from(fields['anchor'] as Map);
+    final bookmark = BookmarkModel(
+      id: localId,
+      feedItemId: fields['feed_item_id'] as String,
+      sectionId: fields['section_id'] as String?,
+      sectionIndex: (fields['section_index'] as num?)?.toInt() ?? 0,
+      paragraphIdx: (anchor['paragraph_idx'] as num?)?.toInt() ?? 0,
+      charOffset: (anchor['char_offset'] as num?)?.toInt() ?? 0,
+      label: fields['label'] as String?,
+      color: (fields['color'] as String?) ?? '#FFB300',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    final serverId =
+        await _dataService.upsertBookmark(bookmark, clientOpId: op.id);
+    if (serverId.isNotEmpty && serverId != localId) {
+      await _propagateBookmarkRemap(localId, serverId);
+    }
+  }
+
+  Future<void> _dispatchDeleteBookmark(PendingOp op) async {
+    await _dataService.deleteBookmark(op.payload['bookmarkId'] as String);
+  }
+
+  Future<void> _propagateBookmarkRemap(String localId, String serverId) async {
+    await _outbox.rewriteAll((op) {
+      final p = op.payload;
+      if (p['bookmarkId'] == localId) {
+        return op.copyWith(payload: {...p, 'bookmarkId': serverId});
+      }
+      return op;
+    });
+    _remapController.add(IdRemapEvent.bookmark(
+      localId: localId,
+      serverId: serverId,
+    ));
   }
 
   Future<void> _propagateWritingRemap(String localId, String serverId) async {

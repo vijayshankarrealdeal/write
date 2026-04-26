@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/provider/bookmark_provider.dart';
 import 'package:inkspacex/provider/bookshelf_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
@@ -189,6 +190,20 @@ class MyApp extends StatelessWidget {
               BookshelfProvider(context.read<AuthProvider>()),
           update: (context, auth, previous) =>
               previous ?? BookshelfProvider(auth),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, BookmarkProvider>(
+          create: (context) => BookmarkProvider(
+            auth: context.read<AuthProvider>(),
+            outbox: outbox,
+            drainer: context.read<OutboxDrainer>(),
+          ),
+          update: (context, auth, previous) =>
+              previous ??
+              BookmarkProvider(
+                auth: auth,
+                outbox: outbox,
+                drainer: context.read<OutboxDrainer>(),
+              ),
         ),
         Provider<LocalNotificationService>.value(value: localNotifications),
         // Notifications: rebuilt when the user logs out (which swaps
