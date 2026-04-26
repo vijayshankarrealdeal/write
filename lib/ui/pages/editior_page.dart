@@ -462,16 +462,35 @@ class _EditiorPageState extends State<EditiorPage>
         surfaceColor: surfaceColor,
         onApply: (result) {
           Navigator.pop(ctx);
+          // Capture inline formatting (font, size, bold, color, …) at the
+          // selection start so the AI-generated replacement keeps it.
+          final styleOffset = hasSelection ? selection.baseOffset : 0;
+          final preservedAttrs = controller.document
+              .collectStyle(styleOffset, 0)
+              .attributes
+              .values
+              .where((a) => a.isInline)
+              .toList();
+
+          final int replaceIndex;
+          final int replaceLength;
           if (hasSelection) {
-            controller.replaceText(
-              selection.baseOffset,
-              selection.extentOffset - selection.baseOffset,
-              result,
-              null,
-            );
+            replaceIndex = selection.baseOffset;
+            replaceLength = selection.extentOffset - selection.baseOffset;
           } else {
-            final docLen = controller.document.length;
-            controller.replaceText(0, docLen - 1, result, null);
+            replaceIndex = 0;
+            replaceLength = controller.document.length - 1;
+          }
+
+          controller.replaceText(
+            replaceIndex,
+            replaceLength,
+            result,
+            TextSelection.collapsed(offset: replaceIndex + result.length),
+          );
+
+          for (final attr in preservedAttrs) {
+            controller.formatText(replaceIndex, result.length, attr);
           }
         },
       ),
