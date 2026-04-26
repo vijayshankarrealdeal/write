@@ -28,8 +28,14 @@ class ImageEmbedBuilder extends EmbedBuilder {
   @override
   String get key => BlockEmbed.imageType;
 
+  // Render as a block-level embed when the image is the only thing on its
+  // line. Inline mode (`expanded: false`) makes the line's caret stretch to
+  // the full image height — the user sees that tall caret as a "scrollbar"
+  // and can't click to place the cursor next to the image, and Enter won't
+  // reliably split a paragraph below it. Block mode lets Quill treat the
+  // image as its own line so Enter inserts a normal paragraph above/below.
   @override
-  bool get expanded => false;
+  bool get expanded => true;
 
   @override
   Widget build(BuildContext context, EmbedContext embedContext) {

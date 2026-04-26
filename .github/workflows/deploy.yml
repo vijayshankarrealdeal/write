@@ -113,6 +113,7 @@ jobs:
         env:
           DOTENV: ${{ secrets.DOTENV }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
         run: |
           printf '%s\n' "$DOTENV" > .env
@@ -122,6 +123,11 @@ jobs:
             grep -v '^AZURE_OPENAI_API_KEY=' .env > .env.tmp || true
             mv .env.tmp .env
             printf 'AZURE_OPENAI_API_KEY=%s\n' "$AZURE_OPENAI_API_KEY" >> .env
+          fi
+          if [[ -n "$AZURE_OPENAI_ENDPOINT" ]]; then
+            grep -v '^AZURE_OPENAI_ENDPOINT=' .env > .env.tmp || true
+            mv .env.tmp .env
+            printf 'AZURE_OPENAI_ENDPOINT=%s\n' "$AZURE_OPENAI_ENDPOINT" >> .env
           fi
           # Always strip any DOTENV-baked chat deployment so the docker-compose
           # default (or the optional secret below) wins. Lets us rotate the

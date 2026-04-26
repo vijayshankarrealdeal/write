@@ -70,3 +70,5 @@ android/app/*.jks
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+*.ipynb
+.ipynb_checkpoints/

@@ -37,6 +37,11 @@ class Settings(BaseSettings):
     azure_openai_embedding_deployment: str = "text-embedding-ada-002"
     embedding_dim: int = 1536
 
+    # Offline downloads (Phase 4): base64-encoded 32-byte Ed25519 seed.
+    # Empty disables the feature — the offline router returns 503 in
+    # that case so a misconfigured deployment fails loudly, not quietly.
+    inkx_license_signing_key: str = ""
+
     model_config = {"env_file": ".env"}
 
     @field_validator("jwt_secret")

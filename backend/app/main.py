@@ -17,6 +17,7 @@ from app.models import Base
 from app.models.analytics import CrashReport
 from app.ai.router import router as ai_router
 from app.middleware import RequestLoggingMiddleware
+from app.offline.router import router as offline_router
 from app.routers import (
     admin,
     auth,
@@ -117,6 +118,7 @@ app.include_router(reading.router)
 app.include_router(bookmarks.router)
 app.include_router(upload.router)
 app.include_router(ai_router)
+app.include_router(offline_router)
 app.include_router(admin.router)
 app.include_router(crashes.router)
 app.include_router(logs.router)
