@@ -317,10 +317,16 @@ class _EditiorPageState extends State<EditiorPage>
         final insert = op['insert'];
         if (insert is Map) {
           final embed = insert;
-          if (embed['image'] == tempUri) {
-            embed['image'] = url;
-            replaced = true;
-            break;
+          final imgVal = embed['image'];
+          if (imgVal is String) {
+            final hashIdx = imgVal.indexOf('#');
+            final base = hashIdx == -1 ? imgVal : imgVal.substring(0, hashIdx);
+            final frag = hashIdx == -1 ? '' : imgVal.substring(hashIdx);
+            if (base == tempUri) {
+              embed['image'] = '$url$frag';
+              replaced = true;
+              break;
+            }
           }
         }
       }
@@ -1749,7 +1755,11 @@ class _EditiorPageState extends State<EditiorPage>
                 controller: ctx.read<EditorProvider>().controller,
                 config: QuillEditorConfig(
                   placeholder: 'Start writing...',
-                  embedBuilders: [ImageEmbedBuilder()],
+                  embedBuilders: [
+                    ImageEmbedBuilder(
+                      controller: ctx.read<EditorProvider>().controller,
+                    ),
+                  ],
                   padding: EdgeInsets.only(bottom: bottomPad),
                   customStyleBuilder: _customStyleBuilder,
                   customStyles: DefaultStyles(
