@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/ph.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
@@ -1363,7 +1365,11 @@ class _EditiorPageState extends State<EditiorPage>
         children: [
           // Image insert
           _ToolbarIconButton(
-            icon: CupertinoIcons.photo,
+            iconWidget: Iconify(
+              Ph.google_photos_logo_bold,
+              size: 19,
+              color: textColor,
+            ),
             tooltip: 'Insert Image',
             color: textColor,
             onPressed: _insertImage,
@@ -1458,7 +1464,11 @@ class _EditiorPageState extends State<EditiorPage>
       child: Row(
         children: [
           _ToolbarIconButton(
-            icon: CupertinoIcons.photo,
+            iconWidget: Iconify(
+              Ph.google_photos_logo_bold,
+              size: 19,
+              color: textColor,
+            ),
             tooltip: 'Insert Image',
             color: textColor,
             onPressed: _insertImage,
@@ -2553,22 +2563,25 @@ class _OutlineHeading {
 }
 
 class _ToolbarIconButton extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final Widget? iconWidget;
   final String tooltip;
   final Color color;
   final VoidCallback onPressed;
 
   const _ToolbarIconButton({
-    required this.icon,
+    this.icon,
+    this.iconWidget,
     required this.tooltip,
     required this.color,
     required this.onPressed,
-  });
+  }) : assert(icon != null || iconWidget != null,
+            'Provide either icon or iconWidget');
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(icon, size: 19, color: color),
+      icon: iconWidget ?? Icon(icon, size: 19, color: color),
       tooltip: tooltip,
       onPressed: onPressed,
       splashRadius: 18,
