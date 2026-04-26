@@ -341,7 +341,7 @@ class _MobileSettingsWrapper extends StatelessWidget {
   }
 }
 
-/// Desktop/tablet shell: NavigationRail + content.
+/// Desktop/tablet shell: custom sidebar + content.
 class _DesktopHomePage extends StatelessWidget {
   final bool isTablet;
 
@@ -352,7 +352,6 @@ class _DesktopHomePage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFF9F9FB);
     final textColor = isDark ? Colors.white : Colors.black;
-    final railBg = isDark ? const Color(0xFF0A0A0A) : const Color(0xFFF2F2F5);
 
     const pages = [Feed(), WritingPageUI(), MyBooksPage(), ProfileHubPage()];
     final selectedPage = context.watch<NavProvider>().selectedPage;
@@ -361,73 +360,7 @@ class _DesktopHomePage extends StatelessWidget {
       backgroundColor: bgColor,
       body: Row(
         children: [
-          NavigationRail(
-            backgroundColor: railBg,
-            labelType: NavigationRailLabelType.selected,
-            selectedLabelTextStyle: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: textColor,
-            ),
-            unselectedLabelTextStyle: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: textColor.withValues(alpha: 0.4),
-            ),
-            minWidth: isTablet ? 72 : 80,
-            groupAlignment: 0,
-            selectedIconTheme: IconThemeData(color: textColor, size: 22),
-            unselectedIconTheme: IconThemeData(
-              color: textColor.withValues(alpha: 0.35),
-              size: 22,
-            ),
-            indicatorColor: isDark
-                ? Colors.white.withValues(alpha: 0.12)
-                : Colors.black.withValues(alpha: 0.07),
-            indicatorShape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            trailing: Expanded(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 24.0),
-                  child: _RailProfileButton(
-                    isSelected: selectedPage == SelectedPage.settings,
-                    isDark: isDark,
-                    textColor: textColor,
-                    onTap: () {
-                      context
-                          .read<NavProvider>()
-                          .setIndex(SelectedPage.settings);
-                    },
-                  ),
-                ),
-              ),
-            ),
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(CupertinoIcons.home),
-                selectedIcon: Icon(CupertinoIcons.house_fill),
-                label: Text("Home"),
-              ),
-              NavigationRailDestination(
-                icon: Icon(CupertinoIcons.pen),
-                label: Text("Write"),
-              ),
-              NavigationRailDestination(
-                icon: Icon(CupertinoIcons.heart),
-                selectedIcon: Icon(CupertinoIcons.heart_fill),
-                label: Text("Library"),
-              ),
-            ],
-            selectedIndex: selectedPage == SelectedPage.settings
-                ? null
-                : selectedPage.index,
-            onDestinationSelected: (index) {
-              context.read<NavProvider>().setIndex(SelectedPage.values[index]);
-            },
-          ),
+          _AppSidebar(isDark: isDark, isTablet: isTablet),
           Expanded(
             child: Scaffold(
               backgroundColor: Colors.transparent,
@@ -486,52 +419,522 @@ class _DesktopHomePage extends StatelessWidget {
   }
 }
 
-class _RailProfileButton extends StatelessWidget {
-  const _RailProfileButton({
-    required this.isSelected,
-    required this.isDark,
-    required this.textColor,
-    required this.onTap,
-  });
+class _AppSidebar extends StatelessWidget {
+  const _AppSidebar({required this.isDark, required this.isTablet});
 
-  final bool isSelected;
   final bool isDark;
-  final Color textColor;
-  final VoidCallback onTap;
+  final bool isTablet;
+
+  static const double _expandedWidth = 232;
+  static const double _collapsedWidth = 76;
 
   @override
   Widget build(BuildContext context) {
+    final width = isTablet ? _collapsedWidth : _expandedWidth;
+    final expanded = !isTablet;
+    final selectedPage = context.watch<NavProvider>().selectedPage;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final railBg = isDark ? const Color(0xFF0A0A0A) : Colors.white;
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.06);
+
+    final destinations = <_NavItem>[
+      _NavItem(
+        icon: CupertinoIcons.home,
+        activeIcon: CupertinoIcons.house_fill,
+        label: 'Discover',
+        page: SelectedPage.story,
+      ),
+      _NavItem(
+        icon: CupertinoIcons.pencil_outline,
+        activeIcon: CupertinoIcons.pencil,
+        label: 'Write',
+        page: SelectedPage.write,
+      ),
+      _NavItem(
+        icon: CupertinoIcons.book,
+        activeIcon: CupertinoIcons.book_fill,
+        label: 'Library',
+        page: SelectedPage.library,
+      ),
+    ];
+
+    return Container(
+      width: width,
+      decoration: BoxDecoration(
+        color: railBg,
+        border: Border(right: BorderSide(color: borderColor)),
+      ),
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _SidebarBrand(expanded: expanded, isDark: isDark),
+            const SizedBox(height: 8),
+            _SidebarSearchButton(
+              expanded: expanded,
+              isDark: isDark,
+              onTap: () => context.push('/search'),
+            ),
+            const SizedBox(height: 16),
+            _SidebarSectionLabel(text: 'NAVIGATE', expanded: expanded, isDark: isDark),
+            ...destinations.map(
+              (d) => _SidebarItem(
+                icon: d.icon,
+                activeIcon: d.activeIcon,
+                label: d.label,
+                expanded: expanded,
+                isDark: isDark,
+                isSelected: selectedPage == d.page,
+                onTap: () => context.read<NavProvider>().setIndex(d.page),
+              ),
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Divider(color: borderColor, height: 1),
+            ),
+            const SizedBox(height: 12),
+            _SidebarProfileTile(
+              expanded: expanded,
+              isDark: isDark,
+              textColor: textColor,
+              isSelected: selectedPage == SelectedPage.settings,
+              onTap: () =>
+                  context.read<NavProvider>().setIndex(SelectedPage.settings),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final SelectedPage page;
+
+  const _NavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.page,
+  });
+}
+
+class _SidebarBrand extends StatelessWidget {
+  const _SidebarBrand({required this.expanded, required this.isDark});
+
+  final bool expanded;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = isDark ? Colors.white : const Color(0xFF0F172A);
+    return Padding(
+      padding: EdgeInsets.fromLTRB(expanded ? 20 : 0, 18, expanded ? 20 : 0, 8),
+      child: Row(
+        mainAxisAlignment:
+            expanded ? MainAxisAlignment.start : MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: fg,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              'I',
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: isDark ? Colors.black : Colors.white,
+                height: 1,
+              ),
+            ),
+          ),
+          if (expanded) ...[
+            const SizedBox(width: 10),
+            Text(
+              'InkSpaceX',
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: fg,
+                letterSpacing: -0.4,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SidebarSectionLabel extends StatelessWidget {
+  const _SidebarSectionLabel({
+    required this.text,
+    required this.expanded,
+    required this.isDark,
+  });
+
+  final String text;
+  final bool expanded;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!expanded) return const SizedBox(height: 4);
+    final color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.35);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 6),
+      child: Text(
+        text,
+        style: GoogleFonts.inter(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: color,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+}
+
+class _SidebarSearchButton extends StatefulWidget {
+  const _SidebarSearchButton({
+    required this.expanded,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  final bool expanded;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  @override
+  State<_SidebarSearchButton> createState() => _SidebarSearchButtonState();
+}
+
+class _SidebarSearchButtonState extends State<_SidebarSearchButton> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = widget.isDark ? Colors.white : const Color(0xFF0F172A);
+    final bg = widget.isDark
+        ? Colors.white.withValues(alpha: _hover ? 0.08 : 0.05)
+        : Colors.black.withValues(alpha: _hover ? 0.06 : 0.04);
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: widget.expanded ? 12 : 14),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            height: 36,
+            padding: EdgeInsets.symmetric(horizontal: widget.expanded ? 12 : 0),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: widget.expanded
+                  ? MainAxisAlignment.start
+                  : MainAxisAlignment.center,
+              children: [
+                Icon(
+                  CupertinoIcons.search,
+                  size: 16,
+                  color: fg.withValues(alpha: 0.55),
+                ),
+                if (widget.expanded) ...[
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Search',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: fg.withValues(alpha: 0.55),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: widget.isDark
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      '⌘K',
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: fg.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SidebarItem extends StatefulWidget {
+  const _SidebarItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.expanded,
+    required this.isDark,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool expanded;
+  final bool isDark;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  State<_SidebarItem> createState() => _SidebarItemState();
+}
+
+class _SidebarItemState extends State<_SidebarItem> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = widget.isDark ? Colors.white : const Color(0xFF0F172A);
+    final selectedBg = widget.isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.black.withValues(alpha: 0.06);
+    final hoverBg = widget.isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.035);
+    final iconColor = widget.isSelected
+        ? fg
+        : fg.withValues(alpha: _hover ? 0.75 : 0.55);
+    final labelColor = widget.isSelected
+        ? fg
+        : fg.withValues(alpha: _hover ? 0.85 : 0.65);
+
+    final tile = AnimatedContainer(
+      duration: const Duration(milliseconds: 120),
+      height: 38,
+      padding: EdgeInsets.symmetric(horizontal: widget.expanded ? 12 : 0),
+      decoration: BoxDecoration(
+        color: widget.isSelected
+            ? selectedBg
+            : (_hover ? hoverBg : Colors.transparent),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: widget.expanded
+            ? MainAxisAlignment.start
+            : MainAxisAlignment.center,
+        children: [
+          Icon(
+            widget.isSelected ? widget.activeIcon : widget.icon,
+            size: 18,
+            color: iconColor,
+          ),
+          if (widget.expanded) ...[
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                widget.label,
+                style: GoogleFonts.inter(
+                  fontSize: 13.5,
+                  fontWeight:
+                      widget.isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: labelColor,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        widget.expanded ? 12 : 14,
+        2,
+        widget.expanded ? 12 : 14,
+        2,
+      ),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          behavior: HitTestBehavior.opaque,
+          child: widget.expanded
+              ? tile
+              : Tooltip(
+                  message: widget.label,
+                  preferBelow: false,
+                  child: tile,
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SidebarProfileTile extends StatefulWidget {
+  const _SidebarProfileTile({
+    required this.expanded,
+    required this.isDark,
+    required this.textColor,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final bool expanded;
+  final bool isDark;
+  final Color textColor;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  State<_SidebarProfileTile> createState() => _SidebarProfileTileState();
+}
+
+class _SidebarProfileTileState extends State<_SidebarProfileTile> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedBg = widget.isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.black.withValues(alpha: 0.06);
+    final hoverBg = widget.isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.035);
+    final subtle = widget.textColor.withValues(alpha: 0.55);
+
     return Consumer<AuthProvider>(
       builder: (context, auth, _) {
         final user = auth.currentUser;
-        final pillColor = isDark
-            ? Colors.white.withValues(alpha: 0.12)
-            : Colors.black.withValues(alpha: 0.07);
-        return GestureDetector(
-          onTap: onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: isSelected ? pillColor : Colors.transparent,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundColor:
-                  isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.06),
-              backgroundImage: user?.photoUrl != null
-                  ? CachedNetworkImageProvider(user!.photoUrl!)
-                  : null,
-              child: user?.photoUrl == null
-                  ? Icon(
-                      CupertinoIcons.person_fill,
-                      size: 16,
-                      color: isSelected
-                          ? textColor
-                          : textColor.withValues(alpha: 0.35),
-                    )
-                  : null,
+        final name = user?.name ?? '';
+        final email = user?.email ?? '';
+        final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
+        final avatar = CircleAvatar(
+          radius: 14,
+          backgroundColor: widget.isDark
+              ? Colors.white.withValues(alpha: 0.12)
+              : Colors.black.withValues(alpha: 0.08),
+          backgroundImage: user?.photoUrl != null
+              ? CachedNetworkImageProvider(user!.photoUrl!)
+              : null,
+          child: user?.photoUrl == null
+              ? Text(
+                  initial,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: widget.textColor,
+                  ),
+                )
+              : null,
+        );
+
+        final tile = AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          padding: EdgeInsets.symmetric(
+            horizontal: widget.expanded ? 8 : 0,
+            vertical: 6,
+          ),
+          decoration: BoxDecoration(
+            color: widget.isSelected
+                ? selectedBg
+                : (_hover ? hoverBg : Colors.transparent),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: widget.expanded
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
+            children: [
+              avatar,
+              if (widget.expanded) ...[
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name.isNotEmpty ? name : 'Sign in',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: widget.textColor,
+                        ),
+                      ),
+                      Text(
+                        email.isNotEmpty ? email : 'Profile & settings',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: subtle,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  CupertinoIcons.chevron_up_chevron_down,
+                  size: 14,
+                  color: subtle,
+                ),
+              ],
+            ],
+          ),
+        );
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: widget.expanded ? 12 : 14),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onEnter: (_) => setState(() => _hover = true),
+            onExit: (_) => setState(() => _hover = false),
+            child: GestureDetector(
+              onTap: widget.onTap,
+              behavior: HitTestBehavior.opaque,
+              child: widget.expanded
+                  ? tile
+                  : Tooltip(
+                      message: name.isNotEmpty ? name : 'Profile',
+                      preferBelow: false,
+                      child: tile,
+                    ),
             ),
           ),
         );
@@ -539,3 +942,4 @@ class _RailProfileButton extends StatelessWidget {
     );
   }
 }
+

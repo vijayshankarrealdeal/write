@@ -159,7 +159,7 @@ class ApiDataService {
     };
     if (cursor != null) params['cursor'] = cursor;
 
-    final response = await _client.get('/api/feed', queryParams: params);
+    final response = await _client.get('/api/feed/', queryParams: params);
     final items = (response.data as List)
         .map((d) => _feedItemFromJson(d))
         .where((item) => currentUserId == null || item.authorId != currentUserId)
@@ -171,7 +171,7 @@ class ApiDataService {
   }
 
   Future<List<FeedItemModel>> getPopularFeedItems({int limit = 12}) async {
-    final response = await _client.get('/api/feed', queryParams: {
+    final response = await _client.get('/api/feed/', queryParams: {
       'sort': 'trending',
       'limit': limit,
     });
@@ -182,7 +182,7 @@ class ApiDataService {
       {int limit = 50}) async {
     // For now, use the feed endpoint with client-side filtering
     // In future, add a dedicated search endpoint
-    final response = await _client.get('/api/feed', queryParams: {
+    final response = await _client.get('/api/feed/', queryParams: {
       'sort': 'recent',
       'limit': 200,
     });
@@ -258,7 +258,7 @@ class ApiDataService {
       });
     } else {
       // Create new
-      await _client.post('/api/feed', data: {
+      await _client.post('/api/feed/', data: {
         'title': book.title,
         'description': descriptionOverride ?? book.description,
         'image_url': book.coverImagePath,

@@ -5,8 +5,9 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.routing import Match
 
 from app.config import settings
 from app.database import async_session, engine
@@ -114,12 +115,27 @@ async def health():
 # Catch-all for unknown /api/* paths. Without this, an unmatched /api/... would
 # fall through to the admin SPA below and return index.html — which the Flutter
 # client would then try to JSON.parse and crash on. Always return JSON 404.
+#
+# Before 404'ing, we replicate FastAPI's built-in redirect_slashes behavior:
+# this catch-all is registered as a real route, so it short-circuits the
+# framework's automatic /foo ↔ /foo/ redirect. We do that check ourselves.
 @app.api_route(
     "/api/{rest_of_path:path}",
     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     include_in_schema=False,
 )
-async def api_not_found(rest_of_path: str):
+async def api_not_found(request: Request, rest_of_path: str):
+    current_path = request.url.path
+    alt_path = current_path[:-1] if current_path.endswith("/") else current_path + "/"
+    alt_scope = {**request.scope, "path": alt_path}
+    for route in app.routes:
+        if getattr(route, "endpoint", None) is api_not_found:
+            continue
+        if not hasattr(route, "matches"):
+            continue
+        match, _ = route.matches(alt_scope)
+        if match == Match.FULL:
+            return RedirectResponse(url=str(request.url.replace(path=alt_path)), status_code=307)
     return JSONResponse(
         status_code=404,
         content={"detail": f"API endpoint not found: /api/{rest_of_path}"},
