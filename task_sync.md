@@ -103,13 +103,15 @@ Either way:
 
 **Why:** LWW silently drops changes today. Need to *see* it happen before deciding whether to upgrade to per-field merge.
 
-- [ ] In the merge logic at [editor_provider.dart:254-259](lib/provider/editor_provider.dart#L254-L259), when local wins over remote (or vice versa) **with non-trivial diff**, log a structured event `{sectionId, localTs, remoteTs, localLen, remoteLen, winner}`
-- [ ] Persist last 50 merge events to a `sync_merge_log` Hive box for debugging
-- [ ] Hidden debug screen (long-press app version in settings) showing the merge log
-- [ ] Decide afterwards (not in this phase) whether to escalate to CRDT / per-paragraph merge
+- [x] In the merge logic at [editor_provider.dart:254-259](lib/provider/editor_provider.dart#L254-L259), when local wins over remote (or vice versa) **with non-trivial diff**, log a structured event `{sectionId, localTs, remoteTs, localLen, remoteLen, winner}`
+- [x] Persist last 50 merge events to a `sync_merge_log` Hive box for debugging
+- [x] Hidden debug screen (long-press app version in settings) showing the merge log
+- [ ] Decide afterwards (not in this phase) whether to escalate to CRDT / per-paragraph merge — **deferred** as planned. Need a few weeks of observed merge events before this is informed.
 
 **Findings while implementing:**
-- _(agent fills in)_
+- "Non-trivial diff" interpretation: only record when `localSection.content != remoteSection.content`. Same-content merges (e.g. user reopens an already-synced section) would otherwise drown the log.
+- The version label was missing from the existing settings UI — added a tiny `InkSpaceX · v1.0.0` line at the bottom of `ProfileHubPage` whose long-press routes to `/debug/merge-log`. Casual taps are no-op.
+- `MergeLog.snapshot()` initially returned a `const []` literal which `.add()` couldn't mutate; switched to `<MergeLogEntry>[]` after a test exposed the issue.
 
 ---
 
@@ -144,9 +146,9 @@ Either way:
 | 1. Connectivity | ✅ | 94a1918 | Banner + EditorProvider gate + service unit test. Full integration test deferred to Phase 6. |
 | 2. Outbox | ✅ | bbbd1a6 | Hive-backed durable queue + drainer + id-remap. Logout-with-pending dialog wired in. Backend `client_op_id` dedup is still a TODO. |
 | 3. Retry & UI | ✅ | f017197 | Backoff + jitter + 10-attempt cap. Status chip enum + failed-ops sheet wired in. |
-| 4. Real stream | ✅ | _pending_ | Polling-based stream w/ duplicate suppression. Backend WebSocket deferred. |
-| 5. Merge logs | ☐ | — | |
+| 4. Real stream | ✅ | e0cfe37 | Polling-based stream w/ duplicate suppression. Backend WebSocket deferred. |
+| 5. Merge logs | ✅ | _pending_ | Hive-backed ring buffer + hidden debug page (long-press version label). |
 | 6. Tests | ☐ | — | |
 
-**Current rating:** 9/10
+**Current rating:** 9.5/10
 **Target rating:** 10/10

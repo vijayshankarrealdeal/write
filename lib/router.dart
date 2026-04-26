@@ -19,6 +19,7 @@ import 'package:inkspacex/ui/pages/publish_page.dart';
 import 'package:inkspacex/ui/pages/feed_preferences_page.dart';
 import 'package:inkspacex/ui/pages/drafts_page.dart';
 import 'package:inkspacex/ui/pages/legal_page.dart';
+import 'package:inkspacex/ui/pages/merge_log_page.dart';
 import 'package:inkspacex/ui/pages/saved_favorites_page.dart';
 import 'package:inkspacex/ui/pages/reading_statistics_page.dart';
 import 'package:inkspacex/ui/pages/subscription_page.dart';
@@ -188,6 +189,10 @@ GoRouter createRouter(AuthProvider authProvider) {
           ),
           body: const SafeArea(child: SettingsPage()),
         ),
+      ),
+      GoRoute(
+        path: '/debug/merge-log',
+        builder: (_, __) => const MergeLogPage(),
       ),
       GoRoute(
         path: '/privacy-policy',

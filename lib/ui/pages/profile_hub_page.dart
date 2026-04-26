@@ -140,6 +140,28 @@ class ProfileHubPage extends StatelessWidget {
                   ),
                 ],
               ),
+
+              const SizedBox(height: 24),
+
+              // Hidden debug entry: long-press the version line to open
+              // the merge log. Tap is intentionally a no-op so casual
+              // users don't stumble into it.
+              Center(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onLongPress: () => context.push('/debug/merge-log'),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      'InkSpaceX · v1.0.0',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: textColor.withValues(alpha: 0.35),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

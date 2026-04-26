@@ -21,6 +21,7 @@ import 'package:inkspacex/router.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
+import 'package:inkspacex/services/sync/merge_log.dart';
 import 'package:inkspacex/services/sync/outbox.dart';
 import 'package:inkspacex/services/sync/outbox_drainer.dart';
 import 'package:inkspacex/ui/widgets/offline_banner.dart';
@@ -74,10 +75,13 @@ void main() {
     await connectivity.init();
     final outbox = Outbox();
     await outbox.init();
+    final mergeLog = MergeLog();
+    await mergeLog.init();
     runApp(MyApp(
       storage: storage,
       connectivity: connectivity,
       outbox: outbox,
+      mergeLog: mergeLog,
     ));
   }, (error, stack) {
     // Top-level zone fallback — anything uncaught (including bare `print` errors).
@@ -97,11 +101,13 @@ class MyApp extends StatelessWidget {
   final StorageService storage;
   final ConnectivityService connectivity;
   final Outbox outbox;
+  final MergeLog mergeLog;
   const MyApp({
     super.key,
     required this.storage,
     required this.connectivity,
     required this.outbox,
+    required this.mergeLog,
   });
 
   @override
@@ -111,6 +117,7 @@ class MyApp extends StatelessWidget {
         Provider<StorageService>.value(value: storage),
         Provider<ConnectivityService>.value(value: connectivity),
         Provider<Outbox>.value(value: outbox),
+        Provider<MergeLog>.value(value: mergeLog),
         ChangeNotifierProvider(create: (_) => NavProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider(storage)),
         // The drainer needs AuthProvider's dataService — it's created
@@ -138,6 +145,7 @@ class MyApp extends StatelessWidget {
             connectivity,
             outbox,
             context.read<OutboxDrainer>(),
+            mergeLog,
           ),
           update: (context, auth, previous) {
             final provider = previous ??
@@ -147,6 +155,7 @@ class MyApp extends StatelessWidget {
                   connectivity,
                   outbox,
                   context.read<OutboxDrainer>(),
+                  mergeLog,
                 );
             if (previous != null && auth.isAuthenticated) {
               provider.loadBooks();

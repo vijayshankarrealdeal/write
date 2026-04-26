@@ -12,6 +12,7 @@ import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
+import 'package:inkspacex/services/sync/merge_log.dart';
 import 'package:inkspacex/services/sync/outbox.dart';
 import 'package:inkspacex/services/sync/outbox_drainer.dart';
 import 'package:inkspacex/services/sync/pending_op.dart';
@@ -22,6 +23,7 @@ class EditorProvider extends ChangeNotifier {
   final ConnectivityService _connectivity;
   final Outbox _outbox;
   final OutboxDrainer _drainer;
+  final MergeLog _mergeLog;
   ApiDataService get _dataService => _auth.dataService;
   ApiStorageService get _storageService => _auth.storageService;
 
@@ -31,6 +33,7 @@ class EditorProvider extends ChangeNotifier {
     this._connectivity,
     this._outbox,
     this._drainer,
+    this._mergeLog,
   ) {
     loadBooks();
     _connectivitySub = _connectivity.onChange.listen((online) {
@@ -361,16 +364,32 @@ class EditorProvider extends ChangeNotifier {
         continue;
       }
       // Keep whichever was updated more recently
-      if (localSection.updatedAt.isAfter(remoteSection.updatedAt) &&
-          !localSection.isSynced) {
-        merged.add(localSection);
-      } else {
-        merged.add(remoteSection);
-      }
+      final localWins = localSection.updatedAt.isAfter(remoteSection.updatedAt)
+          && !localSection.isSynced;
+      _maybeRecordMerge(localSection, remoteSection, localWins);
+      merged.add(localWins ? localSection : remoteSection);
     }
     // Local-only sections (created offline)
     merged.addAll(localMap.values);
     return merged;
+  }
+
+  /// Record a merge decision when the two sides actually disagree on
+  /// content. Same-content "merges" are noise and would drown the log.
+  void _maybeRecordMerge(
+    SectionModel localSection,
+    SectionModel remoteSection,
+    bool localWins,
+  ) {
+    if (localSection.content == remoteSection.content) return;
+    unawaited(_mergeLog.record(MergeLogEntry(
+      sectionId: localSection.id,
+      localUpdatedAt: localSection.updatedAt,
+      remoteUpdatedAt: remoteSection.updatedAt,
+      localLen: localSection.content.length,
+      remoteLen: remoteSection.content.length,
+      winner: localWins ? 'local' : 'remote',
+    )));
   }
 
   /// Enqueue any locally-modified, unsynced sections so the drainer pushes
