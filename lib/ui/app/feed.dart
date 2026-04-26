@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +9,8 @@ import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/skeleton.dart';
 
 class Feed extends StatefulWidget {
   const Feed({super.key});
@@ -40,7 +41,10 @@ class _FeedState extends State<Feed> {
       if (userId != null) {
         feed.loadReadingProgress(userId);
       }
-
+      // Personalised recommendations are an additive layer over the
+      // generic feed — kicked off in parallel so the initial render
+      // never waits on the AI engine.
+      feed.loadRecommendations();
     } catch (e) {
       debugPrint("Error loading feed: $e");
     }
@@ -50,11 +54,14 @@ class _FeedState extends State<Feed> {
     final auth = context.read<AuthProvider>();
     final feed = context.read<FeedProvider>();
     final prefs = auth.currentUser?.preferences ?? const UserPreferences();
-    await feed.loadFeed(
-      prefs,
-      forceRefresh: true,
-      userId: auth.currentUser?.id,
-    );
+    await Future.wait([
+      feed.loadFeed(
+        prefs,
+        forceRefresh: true,
+        userId: auth.currentUser?.id,
+      ),
+      feed.loadRecommendations(),
+    ]);
   }
 
   @override
@@ -69,106 +76,19 @@ class _FeedState extends State<Feed> {
         if (feed.isLoading && feed.items.isEmpty) {
           return Scaffold(
             backgroundColor: bgColor,
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CupertinoActivityIndicator(color: textColor),
-                  const SizedBox(height: 16),
-                  Text(
-                    "Loading your feed...",
-                    style: GoogleFonts.inter(
-                      color: textColor.withValues(alpha: 0.5),
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            body: _buildShelfSkeleton(isMobile, width),
           );
         }
 
         if (feed.items.isEmpty && !feed.isLoading) {
           return Scaffold(
             backgroundColor: bgColor,
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.05)
-                            : Colors.black.withValues(alpha: 0.04),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                              CupertinoIcons.book,
-                              size: 48,
-                              color: textColor.withValues(alpha: 0.3),
-                            ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      "Your feed is empty",
-                      style: GoogleFonts.inter(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: textColor,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "Published stories from the community will appear here",
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: textColor.withValues(alpha: 0.5),
-                        height: 1.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    // Show error if any
-                    if (feed.error != null) ...[
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          feed.error!.length > 120
-                              ? '${feed.error!.substring(0, 120)}...'
-                              : feed.error!,
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: Colors.redAccent.withValues(alpha: 0.7),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ],
-
-                    const SizedBox(height: 24),
-                    CupertinoButton(
-                      color: isDark ? Colors.white : Colors.black,
-                      borderRadius: BorderRadius.circular(12),
-                      onPressed: _onRefresh,
-                      child: Text(
-                        "Refresh",
-                        style: GoogleFonts.inter(
-                          color: isDark ? Colors.black : Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            body: _FeedEmptyState(
+              isDark: isDark,
+              error: feed.error,
+              onRefresh: _onRefresh,
+              onCustomize: () => context.push('/feed-preferences'),
+              onWrite: () => context.push('/editor'),
             ),
           );
         }
@@ -195,6 +115,38 @@ class _FeedState extends State<Feed> {
   }
 
   // ==========================================================================
+  // Loading skeleton — mirrors the shelf layout so the transition to real
+  // content doesn't shift the page.
+  // ==========================================================================
+  Widget _buildShelfSkeleton(bool isMobile, double width) {
+    final hPadding = isMobile ? 16.0 : (width > 1400 ? 48.0 : 32.0);
+    final cardWidth = isMobile ? 130.0 : 180.0;
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+              hPadding, isMobile ? 12 : 24, hPadding, 8),
+          child: SkeletonContainer(
+            width: double.infinity,
+            height: isMobile ? 240 : 380,
+            borderRadius: BorderRadius.circular(isMobile ? 16 : 24),
+          ),
+        ),
+        BookShelfSkeleton(
+          cardWidth: cardWidth,
+          padding: EdgeInsets.symmetric(horizontal: hPadding),
+        ),
+        BookShelfSkeleton(
+          cardWidth: cardWidth,
+          titleWidthFactor: 0.4,
+          padding: EdgeInsets.symmetric(horizontal: hPadding),
+        ),
+      ],
+    );
+  }
+
+  // ==========================================================================
   // Shelf-based homepage (Apple Books style) — works for mobile & desktop
   // ==========================================================================
   Widget _buildShelfHome(
@@ -206,7 +158,9 @@ class _FeedState extends State<Feed> {
   ) {
     final all = feed.groupedItems;
     if (all.isEmpty) {
-      return const Center(child: CupertinoActivityIndicator());
+      // Items exist but the grouping pass produced none — fall back to
+      // the skeleton so we never flash a blank scaffold.
+      return _buildShelfSkeleton(isMobile, width);
     }
 
     final continueReading = feed.getContinueReadingItems();
@@ -215,13 +169,23 @@ class _FeedState extends State<Feed> {
             .toSet() ??
         <String>{};
 
-    final recommended = userGenres.isEmpty
-        ? all.take(12).toList()
-        : all
-            .where((i) =>
-                i.genres.any((g) => userGenres.contains(g.toLowerCase())))
-            .take(12)
-            .toList();
+    // Recommendations come from the AI engine when available. While
+    // they're loading (or if the call failed) we fall back to the
+    // genre-overlap heuristic so the shelf is never empty.
+    final engineRecommended = feed.recommendedItems;
+    final List<FeedItemModel> recommended;
+    if (engineRecommended.isNotEmpty) {
+      recommended = engineRecommended.take(12).toList();
+    } else if (userGenres.isEmpty) {
+      recommended = all.take(12).toList();
+    } else {
+      recommended = all
+          .where((i) =>
+              i.genres.any((g) => userGenres.contains(g.toLowerCase())))
+          .take(12)
+          .toList();
+    }
+    final hasEngineRecs = engineRecommended.isNotEmpty;
 
     final trending = [...all]
       ..sort((a, b) => b.likesCount.compareTo(a.likesCount));
@@ -277,18 +241,22 @@ class _FeedState extends State<Feed> {
         if (recommended.isNotEmpty)
           SliverToBoxAdapter(
             child: _buildShelf(
-              title: userGenres.isEmpty
-                  ? 'Featured picks'
-                  : 'Recommended for you',
-              subtitle: userGenres.isEmpty
-                  ? null
-                  : 'Based on your reading preferences',
+              title: hasEngineRecs || userGenres.isNotEmpty
+                  ? 'Recommended for you'
+                  : 'Featured picks',
+              subtitle: hasEngineRecs
+                  ? 'Personalised by your reading patterns'
+                  : (userGenres.isEmpty
+                      ? null
+                      : 'Based on your reading preferences'),
               items: recommended,
               textColor: textColor,
               hPadding: hPadding,
               cardWidth: cardWidth,
               shelfHeight: shelfHeight,
               isMobile: isMobile,
+              feed: feed,
+              logImpressions: hasEngineRecs,
             ),
           ),
 
@@ -505,17 +473,19 @@ class _FeedState extends State<Feed> {
 
     final cover = AspectRatio(
       aspectRatio: isMobile ? 16 / 10 : 4 / 5,
-      child: item.imageUrl.isNotEmpty
-          ? CachedNetworkImage(
-              imageUrl: item.imageUrl,
-              fit: BoxFit.cover,
-              placeholder: (_, __) => Container(
-                color: isDark ? Colors.white10 : Colors.grey[200],
-              ),
-              errorWidget: (_, __, ___) =>
-                  _buildPlaceholderCover(item.title, isMobile ? 180 : 380),
-            )
-          : _buildPlaceholderCover(item.title, isMobile ? 180 : 380),
+      child: LayoutBuilder(
+        builder: (ctx, c) => (item.imageUrl.isNotEmpty || item.imageMeta != null)
+            ? AppNetworkImage(
+                url: item.imageUrl,
+                meta: item.imageMeta,
+                width: c.maxWidth,
+                height: c.maxHeight,
+                fit: BoxFit.cover,
+                errorWidget:
+                    _buildPlaceholderCover(item.title, isMobile ? 180 : 380),
+              )
+            : _buildPlaceholderCover(item.title, isMobile ? 180 : 380),
+      ),
     );
 
     return GestureDetector(
@@ -597,6 +567,8 @@ class _FeedState extends State<Feed> {
     required double cardWidth,
     required double shelfHeight,
     required bool isMobile,
+    FeedProvider? feed,
+    bool logImpressions = false,
   }) {
     return Padding(
       padding: EdgeInsets.only(top: isMobile ? 24 : 32, bottom: 8),
@@ -670,13 +642,34 @@ class _FeedState extends State<Feed> {
               itemCount: items.length,
               separatorBuilder: (_, __) =>
                   SizedBox(width: isMobile ? 12 : 16),
-              itemBuilder: (context, index) => _BookCard(
-                item: items[index],
-                isDark: isDark,
-                width: cardWidth,
-                isMobile: isMobile,
-                onTap: () => _openPost(items[index]),
-              ),
+              itemBuilder: (context, index) {
+                final item = items[index];
+                // Recommendation telemetry: record one impression per
+                // (session, item) the first time the card is built.
+                // Per-render dedupe lives in FeedProvider so a
+                // re-build from a parent setState won't double-count.
+                if (logImpressions && feed != null) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    feed.recordRecommendationImpression(
+                      item,
+                      position: index + 1,
+                    );
+                  });
+                }
+                return _BookCard(
+                  item: item,
+                  isDark: isDark,
+                  width: cardWidth,
+                  isMobile: isMobile,
+                  showReason: logImpressions,
+                  onTap: () {
+                    if (logImpressions && feed != null) {
+                      feed.recordRecommendationClick(item, position: index + 1);
+                    }
+                    _openPost(item);
+                  },
+                );
+              },
             ),
           ),
         ],
@@ -861,19 +854,20 @@ class _FeedState extends State<Feed> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Cover image
-            if (item.imageUrl.isNotEmpty)
+            if (item.imageUrl.isNotEmpty || item.imageMeta != null)
               AspectRatio(
                 aspectRatio: isMobile ? 16 / 9 : 21 / 9,
-                child: CachedNetworkImage(
-                  imageUrl: item.imageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(
-                    color: isDark ? Colors.white10 : Colors.grey[200],
-                    child: const Center(child: CupertinoActivityIndicator()),
-                  ),
-                  errorWidget: (_, __, ___) => _buildPlaceholderCover(
-                    item.title,
-                    isMobile ? 200.0 : 280.0,
+                child: LayoutBuilder(
+                  builder: (ctx, c) => AppNetworkImage(
+                    url: item.imageUrl,
+                    meta: item.imageMeta,
+                    width: c.maxWidth,
+                    height: c.maxHeight,
+                    fit: BoxFit.cover,
+                    errorWidget: _buildPlaceholderCover(
+                      item.title,
+                      isMobile ? 200.0 : 280.0,
+                    ),
                   ),
                 ),
               )
@@ -1416,18 +1410,16 @@ class _FeedCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  item.imageUrl.isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: item.imageUrl,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => Container(
-                            color: isDark ? Colors.white10 : Colors.grey[200],
-                            child: const Center(
-                              child: CupertinoActivityIndicator(),
-                            ),
+                  (item.imageUrl.isNotEmpty || item.imageMeta != null)
+                      ? LayoutBuilder(
+                          builder: (ctx, c) => AppNetworkImage(
+                            url: item.imageUrl,
+                            meta: item.imageMeta,
+                            width: c.maxWidth,
+                            height: c.maxHeight,
+                            fit: BoxFit.cover,
+                            errorWidget: _buildPlaceholder(item.title),
                           ),
-                          errorWidget: (_, __, ___) =>
-                              _buildPlaceholder(item.title),
                         )
                       : _buildPlaceholder(item.title),
                   // Section count badge
@@ -1697,12 +1689,18 @@ class _BookCard extends StatefulWidget {
   final bool isMobile;
   final VoidCallback onTap;
 
+  /// When `true`, surface the recommendation's "why you'll like this"
+  /// reason underneath the title. Only set on the engine-driven
+  /// "Recommended for you" shelf.
+  final bool showReason;
+
   const _BookCard({
     required this.item,
     required this.isDark,
     required this.width,
     required this.isMobile,
     required this.onTap,
+    this.showReason = false,
   });
 
   @override
@@ -1741,17 +1739,17 @@ class _BookCardState extends State<_BookCard> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      widget.item.imageUrl.isNotEmpty
-                          ? CachedNetworkImage(
-                              imageUrl: widget.item.imageUrl,
-                              fit: BoxFit.cover,
-                              placeholder: (_, __) => Container(
-                                color: widget.isDark
-                                    ? Colors.white10
-                                    : Colors.grey[200],
+                      (widget.item.imageUrl.isNotEmpty ||
+                              widget.item.imageMeta != null)
+                          ? LayoutBuilder(
+                              builder: (ctx, c) => AppNetworkImage(
+                                url: widget.item.imageUrl,
+                                meta: widget.item.imageMeta,
+                                width: c.maxWidth,
+                                height: c.maxHeight,
+                                fit: BoxFit.cover,
+                                errorWidget: _buildPlaceholder(),
                               ),
-                              errorWidget: (_, __, ___) =>
-                                  _buildPlaceholder(),
                             )
                           : _buildPlaceholder(),
                       if (_hovering)
@@ -1833,6 +1831,21 @@ class _BookCardState extends State<_BookCard> {
                     letterSpacing: 1.0,
                   ),
                   maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+              if (widget.showReason &&
+                  (widget.item.recommendation?.reason ?? '').isNotEmpty) ...[
+                SizedBox(height: m ? 4 : 6),
+                Text(
+                  widget.item.recommendation!.reason!,
+                  style: GoogleFonts.inter(
+                    fontSize: m ? 10 : 11,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF2563EB),
+                    height: 1.3,
+                  ),
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -1945,17 +1958,17 @@ class _RankedBookCardState extends State<_RankedBookCard> {
                       borderRadius: BorderRadius.circular(m ? 8 : 10),
                       child: AspectRatio(
                         aspectRatio: 3 / 4,
-                        child: widget.item.imageUrl.isNotEmpty
-                            ? CachedNetworkImage(
-                                imageUrl: widget.item.imageUrl,
-                                fit: BoxFit.cover,
-                                placeholder: (_, __) => Container(
-                                  color: widget.isDark
-                                      ? Colors.white10
-                                      : Colors.grey[200],
+                        child: (widget.item.imageUrl.isNotEmpty ||
+                                widget.item.imageMeta != null)
+                            ? LayoutBuilder(
+                                builder: (ctx, c) => AppNetworkImage(
+                                  url: widget.item.imageUrl,
+                                  meta: widget.item.imageMeta,
+                                  width: c.maxWidth,
+                                  height: c.maxHeight,
+                                  fit: BoxFit.cover,
+                                  errorWidget: _buildPlaceholder(),
                                 ),
-                                errorWidget: (_, __, ___) =>
-                                    _buildPlaceholder(),
                               )
                             : _buildPlaceholder(),
                       ),
@@ -2025,6 +2038,284 @@ class _RankedBookCardState extends State<_RankedBookCard> {
           color: widget.isDark
               ? Colors.white.withValues(alpha: 0.2)
               : Colors.black.withValues(alpha: 0.15),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// Empty-state hero — replaces the old "Your feed is empty" stub. Surfaces
+// the two real next steps (refresh / customize) plus a write CTA.
+// ============================================================================
+class _FeedEmptyState extends StatelessWidget {
+  const _FeedEmptyState({
+    required this.isDark,
+    required this.error,
+    required this.onRefresh,
+    required this.onCustomize,
+    required this.onWrite,
+  });
+
+  final bool isDark;
+  final String? error;
+  final Future<void> Function() onRefresh;
+  final VoidCallback onCustomize;
+  final VoidCallback onWrite;
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final muted = textColor.withValues(alpha: 0.55);
+    final accent = const Color(0xFF2563EB);
+
+    return SafeArea(
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(32),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 460),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 88,
+                  height: 88,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: isDark
+                          ? [const Color(0xFF1E2535), const Color(0xFF0F172A)]
+                          : [const Color(0xFFEFF4FB), const Color(0xFFE0E8F4)],
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: accent.withValues(alpha: 0.12),
+                        blurRadius: 24,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    CupertinoIcons.book_circle_fill,
+                    size: 44,
+                    color: accent.withValues(alpha: 0.85),
+                  ),
+                ),
+                const SizedBox(height: 28),
+                Text(
+                  'A quiet shelf — for now',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
+                    letterSpacing: -0.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Once writers around you publish, their stories will land here. '
+                  'Tune your feed to bring more of what you love into view.',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: muted,
+                    height: 1.55,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                if (error != null) ...[
+                  const SizedBox(height: 18),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.red.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: Text(
+                      error!.length > 140
+                          ? '${error!.substring(0, 140)}…'
+                          : error!,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.redAccent.withValues(alpha: 0.85),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 28),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _PrimaryAction(
+                        label: 'Refresh',
+                        icon: CupertinoIcons.arrow_clockwise,
+                        isDark: isDark,
+                        onTap: onRefresh,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _SecondaryAction(
+                        label: 'Tune feed',
+                        icon: CupertinoIcons.slider_horizontal_3,
+                        isDark: isDark,
+                        onTap: onCustomize,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 22),
+                _GhostLink(
+                  label: 'or start writing your own story',
+                  icon: CupertinoIcons.pencil,
+                  isDark: isDark,
+                  onTap: onWrite,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PrimaryAction extends StatelessWidget {
+  const _PrimaryAction({
+    required this.label,
+    required this.icon,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool isDark;
+  final Future<void> Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoButton(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      color: isDark ? Colors.white : Colors.black,
+      borderRadius: BorderRadius.circular(12),
+      onPressed: () => onTap(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 16, color: isDark ? Colors.black : Colors.white),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.black : Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SecondaryAction extends StatelessWidget {
+  const _SecondaryAction({
+    required this.label,
+    required this.icon,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = isDark ? Colors.white : const Color(0xFF0F172A);
+    return CupertinoButton(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.06)
+          : Colors.black.withValues(alpha: 0.04),
+      borderRadius: BorderRadius.circular(12),
+      onPressed: onTap,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 16, color: fg),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: fg,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GhostLink extends StatefulWidget {
+  const _GhostLink({
+    required this.label,
+    required this.icon,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  @override
+  State<_GhostLink> createState() => _GhostLinkState();
+}
+
+class _GhostLinkState extends State<_GhostLink> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final base = widget.isDark
+        ? Colors.white.withValues(alpha: 0.55)
+        : Colors.black.withValues(alpha: 0.55);
+    final hover = widget.isDark ? Colors.white : Colors.black;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 160),
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: _hovering ? hover : base,
+            decoration: TextDecoration.none,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(widget.icon, size: 13, color: _hovering ? hover : base),
+              const SizedBox(width: 6),
+              Text(widget.label),
+            ],
+          ),
         ),
       ),
     );

@@ -150,6 +150,7 @@ class ApiAuthService {
       ...json,
       // Map backend field names to app model field names
       'photoUrl': json['photo_url'],
+      'photoMeta': json['photo_meta'],
       'onboardingComplete': json['onboarding_complete'] ?? false,
       'onboardingData': json['onboarding_data'],
       'readingList': json['reading_list'] ?? [],

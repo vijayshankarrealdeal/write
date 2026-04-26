@@ -16,6 +16,19 @@ import 'package:inkspacex/ui/editor/canvas_editor.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 
+// Resolved Google Fonts styles, keyed by family name. Quill calls the
+// custom style builder per styled span on every paint, and getFont() is
+// not free — caching the resolved TextStyle avoids the repeated lookup.
+final Map<String, TextStyle> _fontStyleCache = {};
+TextStyle _cachedFontStyle(String name) =>
+    _fontStyleCache.putIfAbsent(name, () {
+      try {
+        return GoogleFonts.getFont(name);
+      } catch (_) {
+        return TextStyle(fontFamily: name);
+      }
+    });
+
 // ─── Font families available in the editor ───
 const _editorFonts = <String, String>{
   'Sans Serif': 'Inter',
@@ -304,10 +317,11 @@ class _EditiorPageState extends State<EditiorPage>
   }) async {
     try {
       final auth = context.read<AuthProvider>();
-      final url = await auth.storageService.uploadEditorImage(
+      final result = await auth.storageService.uploadEditorImage(
         userId,
         bytes,
       );
+      final url = result.url;
       if (!mounted) return;
 
       final delta = editorProvider.controller.document.toDelta();
@@ -1194,12 +1208,14 @@ class _EditiorPageState extends State<EditiorPage>
 
           const SizedBox(width: 4),
 
-          // Section title
+          // Section title — narrowly scoped so typing-burst notifies don't
+          // rebuild this subtree.
           Expanded(
-            child: Consumer<EditorProvider>(
-              builder: (context, provider, _) {
+            child: Selector<EditorProvider, String>(
+              selector: (_, p) => p.activeSection?.title ?? '',
+              builder: (context, title, _) {
                 return Text(
-                  provider.activeSection?.title ?? '',
+                  title,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1248,11 +1264,24 @@ class _EditiorPageState extends State<EditiorPage>
 
           // Sync status chip — driven off outbox depth + connectivity, not
           // a single saveStatus string.
-          Consumer<EditorProvider>(
-            builder: (context, provider, _) {
-              final status = provider.syncStatus;
-              final pending = provider.pendingOpsCount.value;
-              final failed = provider.failedOpsCount.value;
+          //
+          // Listens to a small ValueListenable + the two outbox counters
+          // instead of the whole EditorProvider. That way the chip can
+          // flip "Saved → Typing" without rebuilding the rest of the
+          // editor scaffold on the first keystroke of every typing burst.
+          Builder(
+            builder: (context) {
+              final provider = context.read<EditorProvider>();
+              return ListenableBuilder(
+                listenable: Listenable.merge([
+                  provider.syncStatusListenable,
+                  provider.pendingOpsCount,
+                  provider.failedOpsCount,
+                ]),
+                builder: (context, _) {
+                  final status = provider.syncStatusListenable.value;
+                  final pending = provider.pendingOpsCount.value;
+                  final failed = provider.failedOpsCount.value;
               IconData icon;
               Color iconColor;
               String label;
@@ -1332,11 +1361,13 @@ class _EditiorPageState extends State<EditiorPage>
                 ],
               );
 
-              if (!tappable) return row;
-              return GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => _showFailedOpsSheet(context, provider),
-                child: row,
+                  if (!tappable) return row;
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _showFailedOpsSheet(context, provider),
+                    child: row,
+                  );
+                },
               );
             },
           ),
@@ -1602,10 +1633,12 @@ class _EditiorPageState extends State<EditiorPage>
       onUploadImage: (bytes) async {
         final auth = context.read<AuthProvider>();
         if (auth.currentUser == null) return null;
-        return await auth.storageService.uploadEditorImage(
+        final result = await auth.storageService.uploadEditorImage(
           auth.currentUser!.id,
           bytes,
         );
+        // Canvas elements store a single URL — pick the largest variant.
+        return result.meta?.largestUrl ?? result.url;
       },
     );
   }
@@ -1902,15 +1935,14 @@ class _EditiorPageState extends State<EditiorPage>
   }
 
   /// Handles Google Fonts rendering for the `font` attribute.
+  /// Resolved styles are cached: GoogleFonts.getFont does internal work
+  /// (font asset lookup, descriptor parsing) that's not free, and Quill
+  /// invokes this builder per styled-span on every paint of the editor.
   TextStyle _customStyleBuilder(Attribute attr) {
     if (attr.key == 'font') {
       final name = attr.value as String?;
       if (name != null && name.isNotEmpty && name != 'Clear') {
-        try {
-          return GoogleFonts.getFont(name);
-        } catch (_) {
-          return TextStyle(fontFamily: name);
-        }
+        return _cachedFontStyle(name);
       }
     }
     if (attr.key == 'size') {
@@ -2125,9 +2157,17 @@ class _EditiorPageState extends State<EditiorPage>
         color: bgColor,
         border: Border(top: BorderSide(color: borderColor)),
       ),
-      child: Consumer<EditorProvider>(
-        builder: (context, provider, _) {
-          final text = provider.controller.document.toPlainText().trim();
+      // Word/char counts. We listen to the QuillController directly so
+      // typing updates the counters live without rebuilding the rest of
+      // the editor through EditorProvider's broadcast.
+      // Selector picks up section switches (which replace the controller)
+      // and ListenableBuilder rebuilds locally on document edits.
+      child: Selector<EditorProvider, QuillController>(
+        selector: (_, p) => p.controller,
+        builder: (context, controller, _) => ListenableBuilder(
+          listenable: controller,
+          builder: (context, _) {
+          final text = controller.document.toPlainText().trim();
           final wordCount =
               text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
           final charCount = text.length;
@@ -2223,7 +2263,8 @@ class _EditiorPageState extends State<EditiorPage>
               ],
             ],
           );
-        },
+          },
+        ),
       ),
     );
   }
@@ -2325,9 +2366,14 @@ class _EditiorPageState extends State<EditiorPage>
     return Positioned(
       top: isMobile ? 56 : 100,
       right: isMobile ? 8 : 20,
-      child: Consumer<EditorProvider>(
-        builder: (context, provider, _) {
-          final text = provider.controller.document.toPlainText().trim();
+      // Live word count via direct controller listening (see status bar
+      // for the same pattern). Avoids per-keystroke EditorProvider rebuild.
+      child: Selector<EditorProvider, QuillController>(
+        selector: (_, p) => p.controller,
+        builder: (context, controller, _) => ListenableBuilder(
+          listenable: controller,
+          builder: (context, _) {
+          final text = controller.document.toPlainText().trim();
           final wordCount =
               text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
           final sessionWords = (wordCount - _sessionStartWords).clamp(0, _dailyGoal * 2);
@@ -2461,7 +2507,8 @@ class _EditiorPageState extends State<EditiorPage>
                     ],
                   ),
           );
-        },
+          },
+        ),
       ),
     );
   }
@@ -2833,27 +2880,39 @@ class _AIBottomSheet extends StatefulWidget {
   State<_AIBottomSheet> createState() => _AIBottomSheetState();
 }
 
+// Transform actions return replacement text → show diff + Accept/Decline.
+// Feedback actions return advice → show as a card, no diff, no apply.
+enum _AIMode { transform, feedback }
+
 class _AIBottomSheetState extends State<_AIBottomSheet> {
   bool _loading = false;
   String? _result;
   String? _error;
   String _activeAction = '';
   List<_DiffSpan>? _diffSpans;
+  _AIMode _mode = _AIMode.transform;
 
-  Future<void> _run(String label, Future<String> Function() action) async {
+  Future<void> _run(
+    String label,
+    Future<String> Function() action, {
+    _AIMode mode = _AIMode.transform,
+  }) async {
     setState(() {
       _loading = true;
       _error = null;
       _result = null;
       _diffSpans = null;
       _activeAction = label;
+      _mode = mode;
     });
     try {
       final result = await action();
       if (mounted) {
         setState(() {
           _result = result;
-          _diffSpans = _computeWordDiff(widget.text, result);
+          _diffSpans = mode == _AIMode.transform
+              ? _computeWordDiff(widget.text, result)
+              : null;
         });
       }
     } catch (e) {
@@ -2864,6 +2923,14 @@ class _AIBottomSheetState extends State<_AIBottomSheet> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  void _reset() {
+    setState(() {
+      _result = null;
+      _diffSpans = null;
+      _error = null;
+    });
   }
 
   @override
@@ -2915,12 +2982,9 @@ class _AIBottomSheetState extends State<_AIBottomSheet> {
                           ),
                         ),
                         const Spacer(),
-                        if (_diffSpans != null && !_loading)
+                        if (_result != null && !_loading)
                           GestureDetector(
-                            onTap: () => setState(() {
-                              _result = null;
-                              _diffSpans = null;
-                            }),
+                            onTap: _reset,
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -2950,70 +3014,109 @@ class _AIBottomSheetState extends State<_AIBottomSheet> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    if (_diffSpans == null || _loading) ...[
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _aiChip(
-                              'Fix spelling',
-                              CupertinoIcons.textformat_abc,
-                              () => _run('Fix spelling',
-                                  () => widget.gemini.fixSpelling(widget.text))),
-                          _aiChip(
-                              'Rewrite',
-                              CupertinoIcons.arrow_2_squarepath,
-                              () => _run('Rewrite',
-                                  () => widget.gemini.rewrite(widget.text))),
-                          _aiChip(
-                              'Make shorter',
-                              CupertinoIcons.minus_circle,
-                              () => _run('Make shorter',
-                                  () => widget.gemini.makeShorter(widget.text))),
-                          _aiChip(
-                              'Make longer',
-                              CupertinoIcons.plus_circle,
-                              () => _run('Make longer',
-                                  () => widget.gemini.makeLonger(widget.text))),
-                          _aiChip(
-                              'Continue writing',
-                              CupertinoIcons.arrow_right_circle,
-                              () => _run(
-                                  'Continue writing',
-                                  () => widget.gemini
-                                      .continueWriting(widget.text))),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      Text(
-                        'CHANGE TONE',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: widget.mutedColor,
-                          letterSpacing: 1,
-                        ),
-                      ),
+                    if (_result == null || _loading) ...[
+                      _sectionLabel('SHARPEN'),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          for (final tone in [
-                            'Casual',
-                            'Formal',
-                            'Poetic',
-                            'Academic',
-                            'Funny',
-                            'Dramatic',
-                          ])
-                            _aiChip(
-                                tone,
-                                null,
-                                () => _run(
-                                    tone,
-                                    () => widget.gemini
-                                        .changeTone(widget.text, tone))),
+                          _aiChip(
+                              'Tighten',
+                              CupertinoIcons.bolt,
+                              () => _run('Tighten',
+                                  () => widget.gemini.tighten(widget.text))),
+                          _aiChip(
+                              'Sharpen opening',
+                              CupertinoIcons.text_alignleft,
+                              () => _run(
+                                  'Sharpen opening',
+                                  () => widget.gemini
+                                      .sharpenOpening(widget.text))),
+                          _aiChip(
+                              'Lift the thesis',
+                              CupertinoIcons.arrow_up_circle,
+                              () => _run(
+                                  'Lift the thesis',
+                                  () =>
+                                      widget.gemini.liftThesis(widget.text))),
+                          _aiChip(
+                              'Cut throat-clearing',
+                              CupertinoIcons.scissors,
+                              () => _run(
+                                  'Cut throat-clearing',
+                                  () => widget.gemini
+                                      .cutThroatClearing(widget.text))),
+                          _aiChip(
+                              'Pick up where I left off',
+                              CupertinoIcons.arrow_right_circle,
+                              () => _run(
+                                  'Pick up where I left off',
+                                  () => widget.gemini
+                                      .continueWriting(widget.text))),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      _sectionLabel('REFRAME'),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _aiChip(
+                              'For a beginner',
+                              null,
+                              () => _run(
+                                  'For a beginner',
+                                  () =>
+                                      widget.gemini.forBeginner(widget.text))),
+                          _aiChip(
+                              'For an expert',
+                              null,
+                              () => _run('For an expert',
+                                  () => widget.gemini.forExpert(widget.text))),
+                          _aiChip(
+                              'Add an example',
+                              null,
+                              () => _run('Add an example',
+                                  () => widget.gemini.addExample(widget.text))),
+                          _aiChip(
+                              'Steel-man the other side',
+                              null,
+                              () => _run('Steel-man the other side',
+                                  () => widget.gemini.steelMan(widget.text))),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      _sectionLabel('FEEDBACK'),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _aiChip(
+                              'Critique honestly',
+                              CupertinoIcons.chat_bubble_text,
+                              () => _run(
+                                  'Critique honestly',
+                                  () => widget.gemini.critique(widget.text),
+                                  mode: _AIMode.feedback)),
+                          _aiChip(
+                              "What's missing?",
+                              CupertinoIcons.question_circle,
+                              () => _run(
+                                  "What's missing?",
+                                  () =>
+                                      widget.gemini.whatsMissing(widget.text),
+                                  mode: _AIMode.feedback)),
+                          _aiChip(
+                              'Three new openings',
+                              CupertinoIcons.list_number,
+                              () => _run(
+                                  'Three new openings',
+                                  () =>
+                                      widget.gemini.threeOpenings(widget.text),
+                                  mode: _AIMode.feedback)),
                         ],
                       ),
                       if (_loading) ...[
@@ -3063,7 +3166,10 @@ class _AIBottomSheetState extends State<_AIBottomSheet> {
                         ),
                       ],
                     ],
-                    if (_diffSpans != null && !_loading) ...[
+                    if (_result != null &&
+                        !_loading &&
+                        _mode == _AIMode.transform &&
+                        _diffSpans != null) ...[
                       Row(
                         children: [
                           Container(
@@ -3228,6 +3334,56 @@ class _AIBottomSheetState extends State<_AIBottomSheet> {
                         ],
                       ),
                     ],
+                    if (_result != null &&
+                        !_loading &&
+                        _mode == _AIMode.feedback) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: widget.surfaceColor,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: widget.isDark
+                                ? Colors.white.withValues(alpha: 0.06)
+                                : Colors.black.withValues(alpha: 0.06),
+                          ),
+                        ),
+                        child: SelectableText(
+                          _result!,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            height: 1.7,
+                            color: widget.textColor.withValues(alpha: 0.9),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      CupertinoButton(
+                        padding:
+                            const EdgeInsets.symmetric(vertical: 12),
+                        borderRadius: BorderRadius.circular(10),
+                        color: widget.surfaceColor,
+                        onPressed: _reset,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(CupertinoIcons.arrow_left,
+                                size: 14, color: widget.mutedColor),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Try another',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: widget.textColor
+                                    .withValues(alpha: 0.85),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -3237,6 +3393,16 @@ class _AIBottomSheetState extends State<_AIBottomSheet> {
       ),
     );
   }
+
+  Widget _sectionLabel(String text) => Text(
+        text,
+        style: GoogleFonts.inter(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: widget.mutedColor,
+          letterSpacing: 1,
+        ),
+      );
 
   Widget _aiChip(String label, IconData? icon, VoidCallback onTap) {
     final isActive = _loading && _activeAction == label;

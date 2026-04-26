@@ -9,6 +9,7 @@ class WritingCreate(BaseModel):
     title: str | None = None
     description: str | None = None
     cover_image_path: str | None = None
+    cover_image_meta: dict | None = None
     status: str | None = None
     writing_type: str | None = None
     subtype: str | None = None
@@ -18,6 +19,7 @@ class WritingUpdate(BaseModel):
     title: str | None = None
     description: str | None = None
     cover_image_path: str | None = None
+    cover_image_meta: dict | None = None
     status: str | None = None
     writing_type: str | None = None
     subtype: str | None = None
@@ -31,6 +33,7 @@ class WritingResponse(BaseModel):
     author: str | None
     description: str | None
     cover_image_path: str | None
+    cover_image_meta: dict | None = None
     status: str | None
     writing_type: str | None
     subtype: str | None

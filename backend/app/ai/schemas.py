@@ -1,6 +1,8 @@
 """Request / response schemas for all AI endpoints."""
 
-from pydantic import BaseModel
+from datetime import datetime
+
+from pydantic import BaseModel, Field
 
 
 # ---------------------------------------------------------------------------
@@ -54,9 +56,13 @@ class EmbeddingResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 class TextEditRequest(BaseModel):
-    action: str  # fix_spelling, rewrite, make_shorter, make_longer, change_tone, continue_writing
+    # Sharpen:  tighten, sharpen_opening, lift_thesis, cut_throat_clearing, continue_writing
+    # Reframe:  for_beginner, for_expert, add_example, steel_man
+    # Feedback: critique, whats_missing, three_openings
+    # Legacy:   fix_spelling
+    action: str
     text: str
-    tone: str | None = None  # only for change_tone
+    tone: str | None = None  # reserved; no current action consumes it
 
 
 class TextEditResponse(BaseModel):
@@ -85,13 +91,31 @@ class RecommendationRequest(BaseModel):
 
 
 class RecommendedItemResponse(BaseModel):
+    """A recommended feed item.
+
+    Carries every field the Flutter card needs so the client can render
+    the shelf without an N+1 fetch-by-id round-trip per recommendation.
+    """
+
     feed_item_id: str
     title: str | None
     author: str | None
-    genres: list[str]
-    tags: list[str]
+    author_id: str | None = None
+    description: str | None = None
+    image_url: str | None = None
+    image_meta: dict | None = None
+    genres: list[str] = []
+    writing_types: list[str] = []
+    tags: list[str] = []
+    likes_count: int = 0
+    comments_count: int = 0
+    sections: list[dict] | None = None
+    is_draft: bool = False
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
     score: float
     reason: str | None = None
+    source: str = "engine"  # "engine" | "cold_start" | "llm_rerank"
 
 
 class ProfileSummaryResponse(BaseModel):
@@ -100,8 +124,31 @@ class ProfileSummaryResponse(BaseModel):
     top_types: list[str]
     total_reads: int
     total_likes: int
+    is_cold_start: bool = False
 
 
 class RecommendationResponse(BaseModel):
     items: list[RecommendedItemResponse]
     profile_summary: ProfileSummaryResponse | None = None
+    # Opaque grouping id — the client echoes this back on impression /
+    # click events so we can correlate a render with its outcomes.
+    session_id: str
+
+
+class RecommendationEventRequest(BaseModel):
+    """Client-side event log for a recommendation card.
+
+    The client posts one batch per visible-card flush + one per click.
+    Position is 1-based to match the user-facing slot.
+    """
+
+    feed_item_id: str
+    event_type: str = Field(pattern=r"^(impression|click)$")
+    position: int | None = None
+    score: float | None = None
+    source: str | None = None
+    session_id: str | None = None
+
+
+class RecommendationEventBatchRequest(BaseModel):
+    events: list[RecommendationEventRequest]

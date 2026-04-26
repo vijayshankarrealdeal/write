@@ -16,6 +16,7 @@ import 'package:inkspacex/provider/bookshelf_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/provider/nav_provider.dart';
+import 'package:inkspacex/provider/notification_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
 import 'package:inkspacex/router.dart';
 import 'package:inkspacex/services/app_log.dart';
@@ -24,7 +25,9 @@ import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/services/sync/merge_log.dart';
 import 'package:inkspacex/services/sync/outbox.dart';
 import 'package:inkspacex/services/sync/outbox_drainer.dart';
+import 'package:inkspacex/ui/widgets/notification_badge.dart';
 import 'package:inkspacex/ui/widgets/offline_banner.dart';
+import 'package:inkspacex/ui/widgets/sync_conflict_banner.dart';
 import 'package:inkspacex/ui/app/feed.dart';
 import 'package:inkspacex/ui/app/writing_page.dart';
 import 'package:inkspacex/ui/pages/profile_hub_page.dart';
@@ -178,6 +181,22 @@ class MyApp extends StatelessWidget {
           update: (context, auth, previous) =>
               previous ?? BookshelfProvider(auth),
         ),
+        // Notifications: rebuilt when the user logs out (which swaps
+        // the realtime service) so the new session starts clean.
+        ChangeNotifierProxyProvider<AuthProvider, NotificationProvider>(
+          create: (context) => buildNotificationProvider(
+            context.read<AuthProvider>(),
+          ),
+          update: (context, auth, previous) {
+            // When the user becomes authenticated, ensureStarted() pulls
+            // history + opens the SSE channel. Safe to call repeatedly.
+            if (auth.isAuthenticated && previous != null) {
+              previous.ensureStarted();
+              return previous;
+            }
+            return previous ?? buildNotificationProvider(auth);
+          },
+        ),
       ],
       child: _AppWithRouter(),
     );
@@ -221,8 +240,11 @@ class _AppWithRouterState extends State<_AppWithRouter> {
           themeMode: settingsProvider.themeMode,
           theme: MonochromeTheme.lightTheme,
           darkTheme: MonochromeTheme.darkTheme,
-          builder: (context, child) =>
-              OfflineBanner(child: child ?? const SizedBox.shrink()),
+          builder: (context, child) => OfflineBanner(
+            child: SyncConflictBanner(
+              child: child ?? const SizedBox.shrink(),
+            ),
+          ),
         );
       },
     );
@@ -323,17 +345,27 @@ class _MobileFeedWrapper extends StatelessWidget {
             color: CupertinoColors.label.resolveFrom(context),
           ),
         ),
-        trailing: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => context.push('/search'),
-          child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: Icon(
-              CupertinoIcons.search,
-              color: CupertinoColors.label.resolveFrom(context),
-              size: 22,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            NotificationBellButton(
+              onTap: () => context.push('/notifications'),
+              size: 20,
             ),
-          ),
+            const SizedBox(width: 4),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => context.push('/search'),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  CupertinoIcons.search,
+                  color: CupertinoColors.label.resolveFrom(context),
+                  size: 22,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       child: const SafeArea(child: Feed()),
@@ -445,11 +477,11 @@ class _DesktopHomePage extends StatelessWidget {
                 ),
                 centerTitle: false,
                 actions: [
-                  if (selectedPage == SelectedPage.story)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                      child: Row(
-                        children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Row(
+                      children: [
+                        if (selectedPage == SelectedPage.story) ...[
                           IconButton(
                             icon: Icon(
                               CupertinoIcons.search,
@@ -468,8 +500,13 @@ class _DesktopHomePage extends StatelessWidget {
                                 context.push('/feed-preferences'),
                           ),
                         ],
-                      ),
+                        NotificationBellButton(
+                          onTap: () => context.push('/notifications'),
+                          color: textColor.withValues(alpha: 0.7),
+                        ),
+                      ],
                     ),
+                  ),
                 ],
               ),
               body: IndexedStack(index: selectedPage.index, children: pages),

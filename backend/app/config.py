@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     azure_openai_api_version: str = "2024-12-01-preview"
     azure_openai_chat_deployment: str = "gpt-5.4-mini"
     azure_openai_embedding_deployment: str = "text-embedding-ada-002"
+    # Both `text-embedding-ada-002` and `text-embedding-3-small` are 1536-dim;
+    # pinned in code so the column type and the runtime stay in lockstep.
+    embedding_dim: int = 1536
 
     model_config = {"env_file": ".env"}
 

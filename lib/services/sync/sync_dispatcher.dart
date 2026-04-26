@@ -1,3 +1,4 @@
+import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 
@@ -14,6 +15,7 @@ abstract class SyncDispatcher {
     String? title,
     String? description,
     String? coverImagePath,
+    ImageMeta? coverImageMeta,
   });
   Future<void> deleteWriting(String userId, String writingId);
   Future<void> addSection(

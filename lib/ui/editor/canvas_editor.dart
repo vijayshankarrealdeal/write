@@ -10,6 +10,31 @@ import 'package:image_picker/image_picker.dart';
 import 'package:inkspacex/models/canvas_element_model.dart';
 import 'package:inkspacex/services/gemini_service.dart';
 
+// Decoded image bytes cache for `data:image/...;base64,...` URIs used as
+// canvas image elements and the canvas background. The build path
+// re-evaluates these on every parent rebuild (e.g. selection change),
+// and base64Decode of a phone photo is a multi-MB allocation we should
+// not redo per frame. Capped to keep memory bounded.
+final Map<String, Uint8List> _canvasDataUriBytesCache = {};
+const int _canvasDataUriCacheMax = 32;
+
+Uint8List? _decodeDataUriCached(String url) {
+  final cached = _canvasDataUriBytesCache[url];
+  if (cached != null) return cached;
+  try {
+    final commaIdx = url.indexOf(',');
+    if (commaIdx == -1) return null;
+    final bytes = base64Decode(url.substring(commaIdx + 1));
+    if (_canvasDataUriBytesCache.length >= _canvasDataUriCacheMax) {
+      _canvasDataUriBytesCache.remove(_canvasDataUriBytesCache.keys.first);
+    }
+    _canvasDataUriBytesCache[url] = bytes;
+    return bytes;
+  } catch (_) {
+    return null;
+  }
+}
+
 /// Free-form canvas editor for scrapbook / slam-book / creative layouts.
 ///
 /// Allows placing images and text blocks anywhere on the page,
@@ -527,7 +552,16 @@ class CanvasEditorState extends State<CanvasEditor>
                       left: 0, right: 0, top: 0,
                       height: ch,
                       child: _bgImageUrl.startsWith('data:image')
-                          ? Image.memory(Uint8List.fromList(base64Decode(_bgImageUrl.substring(_bgImageUrl.indexOf(',') + 1))), fit: BoxFit.cover)
+                          ? () {
+                              final bytes =
+                                  _decodeDataUriCached(_bgImageUrl);
+                              if (bytes == null) return const SizedBox();
+                              return Image.memory(
+                                bytes,
+                                fit: BoxFit.cover,
+                                gaplessPlayback: true,
+                              );
+                            }()
                           : CachedNetworkImage(imageUrl: _bgImageUrl, fit: BoxFit.cover),
                     ),
 
@@ -1030,18 +1064,15 @@ class CanvasEditorState extends State<CanvasEditor>
     Widget imageWidget;
 
     if (e.imageUrl.startsWith('data:image')) {
-      try {
-        final commaIdx = e.imageUrl.indexOf(',');
-        final b64 = e.imageUrl.substring(commaIdx + 1);
-        final bytes = base64Decode(b64);
-        imageWidget = Image.memory(
-          Uint8List.fromList(bytes),
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _errorPlaceholder(isDark),
-        );
-      } catch (_) {
-        imageWidget = _errorPlaceholder(isDark);
-      }
+      final bytes = _decodeDataUriCached(e.imageUrl);
+      imageWidget = bytes == null
+          ? _errorPlaceholder(isDark)
+          : Image.memory(
+              bytes,
+              fit: BoxFit.cover,
+              gaplessPlayback: true,
+              errorBuilder: (_, __, ___) => _errorPlaceholder(isDark),
+            );
     } else if (e.imageUrl.startsWith('http')) {
       imageWidget = CachedNetworkImage(
         imageUrl: e.imageUrl,

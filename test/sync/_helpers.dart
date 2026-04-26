@@ -1,4 +1,5 @@
 /// Shared test fakes for Phase 6 sync scenario tests.
+import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/services/sync/pending_op.dart';
@@ -42,6 +43,7 @@ class RecordingDispatcher implements SyncDispatcher {
     String? title,
     String? description,
     String? coverImagePath,
+    ImageMeta? coverImageMeta,
   }) async {
     calls.add('updateWritingMetadata:$writingId');
     _maybeThrow('updateWritingMetadata');

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:inkspacex/models/preference_options.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
@@ -60,122 +61,13 @@ class _OnboardingPageState extends State<OnboardingPage>
     ),
   ];
 
-  // ── Preference step definitions ──
-  static const _roles = [
-    _OptionData(
-      value: 'writer',
-      label: 'Writer',
-      description: 'I come here to create',
-      icon: CupertinoIcons.pencil_outline,
-    ),
-    _OptionData(
-      value: 'reader',
-      label: 'Reader',
-      description: 'I come here to discover',
-      icon: CupertinoIcons.book,
-    ),
-    _OptionData(
-      value: 'both',
-      label: 'Both',
-      description: 'I write and I read',
-      icon: CupertinoIcons.sparkles,
-    ),
-  ];
-
-  static const _experienceLevels = [
-    _OptionData(
-      value: 'beginner',
-      label: 'Just starting',
-      description: 'New to writing',
-      icon: CupertinoIcons.leaf_arrow_circlepath,
-    ),
-    _OptionData(
-      value: 'hobbyist',
-      label: 'Hobbyist',
-      description: 'I write for fun',
-      icon: CupertinoIcons.heart,
-    ),
-    _OptionData(
-      value: 'experienced',
-      label: 'Experienced',
-      description: 'Been at it for years',
-      icon: CupertinoIcons.flame,
-    ),
-    _OptionData(
-      value: 'professional',
-      label: 'Professional',
-      description: 'Writing is my craft',
-      icon: CupertinoIcons.star_fill,
-    ),
-  ];
-
-  static const _goalOptions = [
-    _OptionData(
-      value: 'self_expression',
-      label: 'Express myself',
-      icon: CupertinoIcons.bubble_left,
-    ),
-    _OptionData(
-      value: 'audience',
-      label: 'Build an audience',
-      icon: CupertinoIcons.person_2,
-    ),
-    _OptionData(
-      value: 'craft',
-      label: 'Hone my craft',
-      icon: CupertinoIcons.wand_stars,
-    ),
-    _OptionData(
-      value: 'community',
-      label: 'Find a community',
-      icon: CupertinoIcons.group,
-    ),
-    _OptionData(
-      value: 'journal',
-      label: 'Journal my life',
-      icon: CupertinoIcons.book_circle,
-    ),
-    _OptionData(
-      value: 'income',
-      label: 'Earn from writing',
-      icon: CupertinoIcons.money_dollar_circle,
-    ),
-    _OptionData(
-      value: 'inspiration',
-      label: 'Find inspiration',
-      icon: CupertinoIcons.lightbulb,
-    ),
-    _OptionData(
-      value: 'unwind',
-      label: 'Unwind & reflect',
-      icon: CupertinoIcons.moon_stars,
-    ),
-  ];
-
-  static const _moodOptions = [
-    _OptionData(value: 'introspective', label: 'Introspective', icon: CupertinoIcons.cloud_moon),
-    _OptionData(value: 'uplifting', label: 'Uplifting', icon: CupertinoIcons.sun_max),
-    _OptionData(value: 'humorous', label: 'Humorous', icon: CupertinoIcons.smiley),
-    _OptionData(value: 'dark', label: 'Dark & moody', icon: CupertinoIcons.moon),
-    _OptionData(value: 'romantic', label: 'Romantic', icon: CupertinoIcons.heart_circle),
-    _OptionData(value: 'thoughtful', label: 'Thoughtful', icon: CupertinoIcons.book_circle),
-    _OptionData(value: 'raw', label: 'Raw & real', icon: CupertinoIcons.flame),
-    _OptionData(value: 'dreamy', label: 'Dreamy', icon: CupertinoIcons.sparkles),
-  ];
-
-  static const _frequencyOptions = [
-    _OptionData(value: 'daily', label: 'Daily', description: 'Writing is a ritual'),
-    _OptionData(value: 'weekly', label: 'Weekly', description: 'A few times a week'),
-    _OptionData(value: 'monthly', label: 'Monthly', description: 'When the muse calls'),
-    _OptionData(value: 'occasionally', label: 'Occasionally', description: 'Just here to explore'),
-  ];
-
-  static const _lengthOptions = [
-    _OptionData(value: 'short', label: 'Short', description: 'Under 5 min reads'),
-    _OptionData(value: 'medium', label: 'Medium', description: '5 – 15 min reads'),
-    _OptionData(value: 'long', label: 'Long', description: 'Deep, immersive pieces'),
-    _OptionData(value: 'mixed', label: 'A mix', description: 'Surprise me'),
-  ];
+  // ── Preference step definitions (shared with feed_preferences_page) ──
+  static const _roles = kRoleOptions;
+  static const _experienceLevels = kExperienceOptions;
+  static const _goalOptions = kGoalOptions;
+  static const _moodOptions = kMoodOptions;
+  static const _frequencyOptions = kFrequencyOptions;
+  static const _lengthOptions = kLengthOptions;
 
   // Total preference steps (role+exp, goals, craft, mood+length)
   static const int _prefStepCount = 4;
@@ -1448,16 +1340,3 @@ class _OnboardingData {
   });
 }
 
-class _OptionData {
-  final String value;
-  final String label;
-  final String? description;
-  final IconData? icon;
-
-  const _OptionData({
-    required this.value,
-    required this.label,
-    this.description,
-    this.icon,
-  });
-}

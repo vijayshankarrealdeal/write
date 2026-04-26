@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show ValueListenable, ValueNotifier;
 import 'package:flutter/material.dart' show Color;
+import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/services/api/api_client.dart' show ApiException, ApiErrorType;
@@ -303,6 +304,7 @@ class OutboxDrainer {
         author: fields['author'] as String? ?? '',
         description: fields['description'] as String? ?? '',
         coverImagePath: fields['coverImagePath'] as String? ?? '',
+        coverImageMeta: ImageMeta.tryFromJson(fields['coverImageMeta']),
         writingType: WritingType
             .values[(fields['writingType'] as num?)?.toInt() ?? 0],
         subtype: fields['subtype'] as String? ?? '',
@@ -319,6 +321,7 @@ class OutboxDrainer {
         title: fields['title'] as String?,
         description: fields['description'] as String?,
         coverImagePath: fields['coverImagePath'] as String?,
+        coverImageMeta: ImageMeta.tryFromJson(fields['coverImageMeta']),
       );
     }
   }

@@ -17,7 +17,22 @@ from app.models import Base
 from app.models.analytics import CrashReport
 from app.ai.router import router as ai_router
 from app.middleware import RequestLoggingMiddleware
-from app.routers import admin, auth, bookshelves, comments, crashes, feed, highlights, logs, reading, upload, users, writings
+from app.routers import (
+    admin,
+    auth,
+    bookshelves,
+    comments,
+    crashes,
+    feed,
+    highlights,
+    logs,
+    notifications,
+    reading,
+    realtime,
+    upload,
+    users,
+    writings,
+)
 
 setup_logging()
 log = get_logger("app.main")
@@ -27,6 +42,9 @@ log = get_logger("app.main")
 async def lifespan(app: FastAPI):
     # Create tables on startup (use Alembic migrations in production)
     async with engine.begin() as conn:
+        # pgvector must exist before `create_all` tries to instantiate the
+        # `embedding VECTOR(...)` column on `feed_items`. Idempotent.
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         await conn.run_sync(Base.metadata.create_all)
         # One-shot widen: existing DBs created before BigInteger have INTEGER here,
         # which can't hold Flutter's unsigned ARGB color values. Idempotent.
@@ -37,6 +55,18 @@ async def lifespan(app: FastAPI):
         if current.scalar() == 'integer':
             await conn.execute(text(
                 "ALTER TABLE sections ALTER COLUMN section_color TYPE BIGINT"
+            ))
+        # Image metadata sidecar columns. Idempotent — IF NOT EXISTS lets
+        # existing DBs pick up the new pipeline without an external migration.
+        for table, col in (
+            ("users", "photo_meta"),
+            ("bookshelves", "cover_image_meta"),
+            ("writings", "cover_image_meta"),
+            ("feed_items", "image_meta"),
+            ("comments", "author_photo_meta"),
+        ):
+            await conn.execute(text(
+                f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col} JSONB"
             ))
     await start_drain()
     log.info("InkSpaceX API started")
@@ -78,6 +108,8 @@ app.include_router(ai_router)
 app.include_router(admin.router)
 app.include_router(crashes.router)
 app.include_router(logs.router)
+app.include_router(notifications.router)
+app.include_router(realtime.router)
 
 # Request logging middleware
 app.add_middleware(RequestLoggingMiddleware)

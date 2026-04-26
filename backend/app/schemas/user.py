@@ -9,6 +9,7 @@ class UserResponse(BaseModel):
     email: str
     name: str | None
     photo_url: str | None
+    photo_meta: dict | None = None
     onboarding_complete: bool
     onboarding_data: dict | None
     likes: list[str]
@@ -25,6 +26,7 @@ class UserResponse(BaseModel):
 class UserUpdate(BaseModel):
     name: str | None = None
     photo_url: str | None = None
+    photo_meta: dict | None = None
     onboarding_complete: bool | None = None
     onboarding_data: dict | None = None
 

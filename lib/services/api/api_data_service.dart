@@ -4,12 +4,14 @@ import 'dart:convert';
 import 'package:inkspacex/models/bookshelf_model.dart';
 import 'package:inkspacex/models/comment_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
+import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/reading_progress_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/user_model.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/services/api/api_client.dart';
+import 'package:inkspacex/services/api/api_realtime_service.dart';
 import 'package:inkspacex/services/sync/sync_dispatcher.dart';
 import 'package:flutter/material.dart' show Color;
 
@@ -18,6 +20,69 @@ class ApiFeedPage {
   final List<FeedItemModel> items;
   final String? nextCursor;
   const ApiFeedPage({required this.items, this.nextCursor});
+}
+
+/// One bucket in the facet sidebar — a (label, count) pair.
+class FacetEntry {
+  final String value;
+  final int count;
+  const FacetEntry({required this.value, required this.count});
+}
+
+/// Top-N genres / tags / writing_types served by `/api/feed/facets`.
+class FeedFacets {
+  final List<FacetEntry> genres;
+  final List<FacetEntry> tags;
+  final List<FacetEntry> writingTypes;
+  const FeedFacets({
+    required this.genres,
+    required this.tags,
+    required this.writingTypes,
+  });
+
+  bool get isEmpty => genres.isEmpty && tags.isEmpty && writingTypes.isEmpty;
+}
+
+/// Result of a `/api/ai/recommendations` call. The `sessionId` ties
+/// every impression / click logged from this render back to the same
+/// recommendation batch, so we can compute per-render CTR.
+class RecommendationsResult {
+  final List<FeedItemModel> items;
+  final String sessionId;
+  const RecommendationsResult({
+    required this.items,
+    required this.sessionId,
+  });
+}
+
+/// Single impression / click event posted to
+/// `/api/ai/recommendations/events`. Echoes the engine's score and the
+/// recommendation source so analytics can segment CTR by both.
+class RecommendationEventPayload {
+  final String feedItemId;
+  final String eventType; // 'impression' | 'click'
+  final int? position;
+  final double? score;
+  final String? source;
+  final String? sessionId;
+
+  const RecommendationEventPayload({
+    required this.feedItemId,
+    required this.eventType,
+    this.position,
+    this.score,
+    this.source,
+    this.sessionId,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'feed_item_id': feedItemId,
+        'event_type': eventType,
+        if (position != null) 'position': position,
+        if (score != null) 'score': score,
+        if (source != null) 'source': source,
+        if (sessionId != null) 'session_id': sessionId,
+      };
 }
 
 /// SectionModel stores `content` and `canvasData` as JSON-encoded strings,
@@ -43,17 +108,25 @@ String _encodeJsonField(dynamic value) {
 
 /// Data service backed by the FastAPI backend (replaces FirestoreService).
 ///
-/// **Comment streaming (Phase 4):** [getCommentsStream] uses **polling**,
-/// not WebSockets. Once a minute (default 15s) we re-fetch the comments
-/// for the feed item and suppress duplicate payloads via a JSON-shape
-/// comparison. We chose this over a WebSocket endpoint because it's a
-/// pure client-side change and "live within 15 seconds" is fine for
-/// comments. If realtime expectations tighten, swap [pollComments]
-/// for a WebSocket subscription — call-sites already see a `Stream`.
+/// **Comment streaming:** [getCommentsStream] now prefers an SSE channel
+/// (`/api/stream/feed/{id}/comments`) and falls back to polling when
+/// realtime is unavailable or [_realtime] isn't wired up. A polling
+/// safety-net runs alongside SSE on a long interval so the list still
+/// converges if a single SSE event is dropped (the SSE stream is
+/// best-effort — see [ApiRealtimeService]).
 class ApiDataService implements SyncDispatcher {
   final ApiClient _client;
+  ApiRealtimeService? _realtime;
 
   ApiDataService(this._client);
+
+  /// Wires the realtime service after construction. Called by
+  /// [AuthProvider] once both services exist; if never set, the
+  /// comment stream silently falls back to polling-only.
+  // ignore: use_setters_to_change_properties
+  void attachRealtime(ApiRealtimeService realtime) {
+    _realtime = realtime;
+  }
 
   // =========================================================================
   // USER
@@ -72,6 +145,7 @@ class ApiDataService implements SyncDispatcher {
     await _client.put('/api/users/me', data: {
       'name': user.name,
       'photo_url': user.photoUrl,
+      if (user.photoMeta != null) 'photo_meta': user.photoMeta!.toJson(),
       'onboarding_complete': user.onboardingComplete,
       'onboarding_data': user.preferences.toJson(),
     });
@@ -203,6 +277,136 @@ class ApiDataService implements SyncDispatcher {
     return ApiFeedPage(items: items, nextCursor: nextCursor);
   }
 
+  /// Personalised list from the recommendation engine. Returns the
+  /// scored items plus a `sessionId` that ties impression / click
+  /// events back to this render.
+  Future<RecommendationsResult> getRecommendations({
+    int limit = 20,
+    bool? useLlmRerank,
+  }) async {
+    final params = <String, dynamic>{'limit': limit};
+    // Backend treats absent param as "auto"; only forward when the
+    // caller explicitly opts in or out so the auto path is the default.
+    if (useLlmRerank != null) {
+      params['use_llm_rerank'] = useLlmRerank;
+    }
+    final response =
+        await _client.get('/api/ai/recommendations', queryParams: params);
+    final data = response.data as Map<String, dynamic>;
+    final sessionId = (data['session_id'] ?? '') as String;
+    final rawItems = (data['items'] as List?) ?? const [];
+    final items = rawItems
+        .map((e) => _recommendedItemFromJson(
+              e as Map<String, dynamic>,
+              sessionId: sessionId,
+            ))
+        .toList();
+    return RecommendationsResult(items: items, sessionId: sessionId);
+  }
+
+  /// Drill-down — every item carrying `tag` (paginated).
+  Future<ApiFeedPage> getFeedByTag(
+    String tag, {
+    int pageSize = 20,
+    String sort = 'recent',
+    String? cursor,
+  }) async {
+    final params = <String, dynamic>{'sort': sort, 'limit': pageSize};
+    if (cursor != null) params['cursor'] = cursor;
+    final response =
+        await _client.get('/api/feed/by-tag/$tag', queryParams: params);
+    final items =
+        (response.data as List).map((d) => _feedItemFromJson(d)).toList();
+    final nextCursor = items.isNotEmpty ? items.last.id : null;
+    return ApiFeedPage(items: items, nextCursor: nextCursor);
+  }
+
+  /// Drill-down — every item in `genre` (paginated).
+  Future<ApiFeedPage> getFeedByGenre(
+    String genre, {
+    int pageSize = 20,
+    String sort = 'recent',
+    String? cursor,
+  }) async {
+    final params = <String, dynamic>{'sort': sort, 'limit': pageSize};
+    if (cursor != null) params['cursor'] = cursor;
+    final response =
+        await _client.get('/api/feed/by-genre/$genre', queryParams: params);
+    final items =
+        (response.data as List).map((d) => _feedItemFromJson(d)).toList();
+    final nextCursor = items.isNotEmpty ? items.last.id : null;
+    return ApiFeedPage(items: items, nextCursor: nextCursor);
+  }
+
+  /// Top-N facet buckets for the Explore tab + chip filters. Empty
+  /// `FeedFacets` on any failure — Explore should silently degrade
+  /// rather than show an empty error state.
+  Future<FeedFacets> getFeedFacets() async {
+    try {
+      final response = await _client.get('/api/feed/facets');
+      final data = response.data as Map<String, dynamic>;
+      List<FacetEntry> parse(String key) {
+        final raw = (data[key] as List?) ?? const [];
+        return raw
+            .map((e) => FacetEntry(
+                  value: (e as Map)['value'] as String,
+                  count: (e['count'] as num).toInt(),
+                ))
+            .toList();
+      }
+
+      return FeedFacets(
+        genres: parse('genres'),
+        tags: parse('tags'),
+        writingTypes: parse('writing_types'),
+      );
+    } catch (_) {
+      return const FeedFacets(genres: [], tags: [], writingTypes: []);
+    }
+  }
+
+  /// Semantic-neighbour list ("More like this") for a single feed item.
+  /// Returns the top-N nearest items by pgvector cosine distance. Empty
+  /// list when the seed has no embedding yet — the carousel hides itself
+  /// in that case rather than showing a stale fallback.
+  Future<List<FeedItemModel>> getSimilarFeedItems(
+    String feedItemId, {
+    int limit = 10,
+  }) async {
+    try {
+      final response = await _client.get(
+        '/api/ai/recommendations/similar/$feedItemId',
+        queryParams: {'limit': limit},
+      );
+      final raw = (response.data as List?) ?? const [];
+      return raw
+          .map((e) => _recommendedItemFromJson(
+                e as Map<String, dynamic>,
+                sessionId: '',
+              ))
+          .toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  /// Bulk-log impressions / clicks for the recommendation engine. Fire
+  /// and forget — analytics shouldn't block the UI, and a 4xx/5xx here
+  /// is silently swallowed.
+  Future<void> logRecommendationEvents(
+    List<RecommendationEventPayload> events,
+  ) async {
+    if (events.isEmpty) return;
+    try {
+      await _client.post(
+        '/api/ai/recommendations/events',
+        data: {'events': events.map((e) => e.toJson()).toList()},
+      );
+    } catch (_) {
+      // Drop — telemetry is best-effort.
+    }
+  }
+
   Future<List<FeedItemModel>> getPopularFeedItems({int limit = 12}) async {
     final response = await _client.get('/api/feed/', queryParams: {
       'sort': 'trending',
@@ -283,6 +487,8 @@ class ApiDataService implements SyncDispatcher {
         'title': book.title,
         'description': descriptionOverride ?? book.description,
         'image_url': book.coverImagePath,
+        if (book.coverImageMeta != null)
+          'image_meta': book.coverImageMeta!.toJson(),
         'genres': book.subtype.isNotEmpty ? [book.subtype] : [],
         'writing_types': [book.writingType.displayName],
         'tags': tags,
@@ -295,6 +501,8 @@ class ApiDataService implements SyncDispatcher {
         'title': book.title,
         'description': descriptionOverride ?? book.description,
         'image_url': book.coverImagePath,
+        if (book.coverImageMeta != null)
+          'image_meta': book.coverImageMeta!.toJson(),
         'genres': book.subtype.isNotEmpty ? [book.subtype] : [],
         'writing_types': [book.writingType.displayName],
         'tags': tags,
@@ -345,26 +553,100 @@ class ApiDataService implements SyncDispatcher {
     return (response.data as List).map((d) => _commentFromJson(d)).toList();
   }
 
-  /// Default polling interval for [getCommentsStream]. 15s is a sweet spot
-  /// for "feels live without hammering the API"; tune via the optional
-  /// `interval` parameter if a screen has tighter expectations.
+  /// Default polling interval for [getCommentsStream] when SSE isn't
+  /// available, and the safety-net interval when SSE is also active.
   static const Duration commentsPollInterval = Duration(seconds: 15);
 
-  /// Polling-backed live stream of comments for [feedItemId].
+  /// Live stream of comments for [feedItemId]. Strategy:
+  ///   * subscribe to the SSE channel — apply `comment.created` /
+  ///     `comment.deleted` events to a local list and emit the whole
+  ///     list each time it changes.
+  ///   * also poll on a long interval as a safety-net so the list
+  ///     converges even if an SSE event is dropped.
+  ///   * if no realtime service has been attached, fall back to the
+  ///     original polling-only stream.
   ///
-  /// Phase 4 chose **Option A (polling)** over a WebSocket endpoint to
-  /// keep the change client-only. Identical payloads (by JSON shape) are
-  /// suppressed via `distinct()` so the UI doesn't repaint when nothing
-  /// changed. If a WebSocket comments endpoint lands later, swap the
-  /// implementation here without touching call-sites.
+  /// Identical successive payloads (by JSON shape) are suppressed so
+  /// the UI doesn't repaint when nothing changed.
   Stream<List<CommentModel>> getCommentsStream(
     String feedItemId, {
     Duration interval = commentsPollInterval,
   }) {
-    return pollComments(
-      interval: interval,
-      fetch: () => getComments(feedItemId),
+    final realtime = _realtime;
+    if (realtime == null) {
+      return pollComments(
+        interval: interval,
+        fetch: () => getComments(feedItemId),
+      );
+    }
+
+    late StreamController<List<CommentModel>> controller;
+    StreamSubscription<Map<String, dynamic>>? sseSub;
+    Timer? pollTimer;
+    var current = <CommentModel>[];
+    String? lastSig;
+
+    void emit(List<CommentModel> next) {
+      final sig = jsonEncode(next.map((c) => c.toJson()).toList());
+      if (sig == lastSig) return;
+      lastSig = sig;
+      current = next;
+      if (!controller.isClosed) controller.add(next);
+    }
+
+    Future<void> initialFetch() async {
+      try {
+        final initial = await getComments(feedItemId);
+        emit(initial);
+      } catch (_) {
+        // surface nothing — UI shows "loading" until first emit
+      }
+    }
+
+    Future<void> safetyPoll() async {
+      try {
+        final fresh = await getComments(feedItemId);
+        emit(fresh);
+      } catch (_) {
+        // ignore — next tick will retry
+      }
+    }
+
+    void onSseEvent(Map<String, dynamic> event) {
+      switch (event['type']) {
+        case 'comment.created':
+          final raw = event['comment'];
+          if (raw is Map) {
+            final comment =
+                _commentFromJson(Map<String, dynamic>.from(raw));
+            if (current.any((c) => c.id == comment.id)) return;
+            // Newest-first matches the REST list ordering.
+            emit([comment, ...current]);
+          }
+          break;
+        case 'comment.deleted':
+          final id = event['comment_id']?.toString();
+          if (id == null) return;
+          emit(current.where((c) => c.id != id).toList());
+          break;
+        default:
+          break;
+      }
+    }
+
+    controller = StreamController<List<CommentModel>>(
+      onListen: () {
+        sseSub = realtime.commentsChannel(feedItemId).listen(onSseEvent);
+        pollTimer = Timer.periodic(interval, (_) => safetyPoll());
+        initialFetch();
+      },
+      onCancel: () async {
+        await sseSub?.cancel();
+        pollTimer?.cancel();
+        await realtime.closeCommentsChannel(feedItemId);
+      },
     );
+    return controller.stream;
   }
 
   /// Test seam: build a polling stream around any `fetch` callback. The
@@ -486,6 +768,8 @@ class ApiDataService implements SyncDispatcher {
       'title': book.title,
       'description': book.description,
       'cover_image_path': book.coverImagePath,
+      if (book.coverImageMeta != null)
+        'cover_image_meta': book.coverImageMeta!.toJson(),
       'status': book.status.index.toString(),
       'writing_type': book.writingType.index.toString(),
       'subtype': book.subtype,
@@ -569,11 +853,15 @@ class ApiDataService implements SyncDispatcher {
     String? title,
     String? description,
     String? coverImagePath,
+    ImageMeta? coverImageMeta,
   }) async {
     final data = <String, dynamic>{};
     if (title != null) data['title'] = title;
     if (description != null) data['description'] = description;
     if (coverImagePath != null) data['cover_image_path'] = coverImagePath;
+    if (coverImageMeta != null) {
+      data['cover_image_meta'] = coverImageMeta.toJson();
+    }
     await _client.put('/api/writings/$writingId', data: data);
   }
 
@@ -656,12 +944,16 @@ class ApiDataService implements SyncDispatcher {
     String? description,
     bool? isPrivate,
     String? coverImageUrl,
+    ImageMeta? coverImageMeta,
   }) async {
     final data = <String, dynamic>{};
     if (name != null) data['name'] = name;
     if (description != null) data['description'] = description;
     if (isPrivate != null) data['is_private'] = isPrivate;
     if (coverImageUrl != null) data['cover_image_url'] = coverImageUrl;
+    if (coverImageMeta != null) {
+      data['cover_image_meta'] = coverImageMeta.toJson();
+    }
     await _client.put('/api/bookshelves/$bookshelfId', data: data);
   }
 
@@ -705,6 +997,7 @@ class ApiDataService implements SyncDispatcher {
     return User.fromJson({
       ...json,
       'photoUrl': json['photo_url'],
+      'photoMeta': json['photo_meta'],
       'onboardingComplete': json['onboarding_complete'] ?? false,
       'onboardingData': json['onboarding_data'],
       'readingList': json['reading_list'] ?? [],
@@ -721,6 +1014,7 @@ class ApiDataService implements SyncDispatcher {
       ...json,
       'authorId': json['author_id'],
       'imageUrl': json['image_url'],
+      'imageMeta': json['image_meta'],
       'writingTypes': json['writing_types'] ?? [],
       'likesCount': json['likes_count'] ?? 0,
       'commentsCount': json['comments_count'] ?? 0,
@@ -730,6 +1024,28 @@ class ApiDataService implements SyncDispatcher {
     });
   }
 
+  /// Recommendation responses are shaped like a FeedItem with `feed_item_id`
+  /// (not `id`) plus `score` / `reason` / `source`. Re-key into the
+  /// FeedItem JSON shape and stamp the recommendation metadata.
+  FeedItemModel _recommendedItemFromJson(
+    Map<String, dynamic> json, {
+    required String sessionId,
+  }) {
+    final remapped = <String, dynamic>{
+      ...json,
+      'id': json['feed_item_id'],
+    };
+    final base = _feedItemFromJson(remapped);
+    return base.copyWith(
+      recommendation: RecommendationMeta(
+        score: ((json['score'] as num?) ?? 0).toDouble(),
+        reason: json['reason'] as String?,
+        source: (json['source'] as String?) ?? 'engine',
+        sessionId: sessionId,
+      ),
+    );
+  }
+
   CommentModel _commentFromJson(Map<String, dynamic> json) {
     return CommentModel.fromJson({
       ...json,
@@ -737,6 +1053,7 @@ class ApiDataService implements SyncDispatcher {
       'authorId': json['author_id'],
       'authorName': json['author_name'],
       'authorPhotoUrl': json['author_photo_url'],
+      'authorPhotoMeta': json['author_photo_meta'],
       'createdAt': json['created_at'],
     });
   }
@@ -749,6 +1066,7 @@ class ApiDataService implements SyncDispatcher {
       author: json['author'] ?? '',
       description: json['description'] ?? '',
       coverImagePath: json['cover_image_path'] ?? '',
+      coverImageMeta: ImageMeta.tryFromJson(json['cover_image_meta']),
       status: WritingStatus.values[int.tryParse(json['status'] ?? '0') ?? 0],
       writingType:
           WritingType.values[int.tryParse(json['writing_type'] ?? '0') ?? 0],
@@ -775,6 +1093,7 @@ class ApiDataService implements SyncDispatcher {
       'isPrivate': json['is_private'] ?? true,
       'itemIds': json['item_ids'] ?? [],
       'coverImageUrl': json['cover_image_url'],
+      'coverImageMeta': json['cover_image_meta'],
       'createdAt': json['created_at'],
       'updatedAt': json['updated_at'],
     });

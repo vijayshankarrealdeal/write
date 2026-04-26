@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:inkspacex/models/comment_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
@@ -24,12 +26,30 @@ class FeedProvider extends ChangeNotifier {
 
   List<ReadingProgressModel> _readingProgress = [];
 
+  // ── Recommendation engine state ───────────────────────────────────
+  // Items returned by /api/ai/recommendations. Each carries a
+  // [RecommendationMeta] with the engine score, optional LLM-generated
+  // "why" reason, and the session id for impression / click events.
+  List<FeedItemModel> _recommended = const [];
+  String? _recommendationSessionId;
+  bool _isLoadingRecommendations = false;
+  // Tracks which (sessionId, feedItemId) pairs already had an
+  // impression logged, so a card scrolling in and out of view doesn't
+  // double-count.
+  final Set<String> _loggedImpressions = <String>{};
+  // Pending impression events waiting to be flushed in a single batch.
+  final List<RecommendationEventPayload> _pendingImpressionEvents = [];
+  Timer? _impressionFlushTimer;
+
   List<FeedItemModel> get items => _items;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get hasMore => _hasMore;
   bool get isLoadingMore => _isLoadingMore;
   List<ReadingProgressModel> get readingProgress => _readingProgress;
+  List<FeedItemModel> get recommendedItems => _recommended;
+  bool get isLoadingRecommendations => _isLoadingRecommendations;
+  String? get recommendationSessionId => _recommendationSessionId;
 
   /// Feed items grouped by same author + same cover image.
   /// Merges sections from duplicate entries into one combined item.
@@ -155,7 +175,117 @@ class FeedProvider extends ChangeNotifier {
     _hasMore = true;
     _isLoadingMore = false;
     _readingProgress = [];
+    _recommended = const [];
+    _recommendationSessionId = null;
+    _isLoadingRecommendations = false;
+    _loggedImpressions.clear();
+    _pendingImpressionEvents.clear();
+    _impressionFlushTimer?.cancel();
+    _impressionFlushTimer = null;
     notifyListeners();
+  }
+
+  // ── Recommendations ──
+
+  /// Fetch personalised recommendations from the AI engine. Safe to
+  /// call repeatedly; in-flight requests are deduped, and a previous
+  /// list stays visible while a new one loads (no flash-of-empty).
+  Future<void> loadRecommendations({int limit = 24}) async {
+    if (_dataService == null || _isLoadingRecommendations) return;
+    _isLoadingRecommendations = true;
+    notifyListeners();
+    try {
+      final result = await _dataService!.getRecommendations(limit: limit);
+      _recommended = result.items;
+      _recommendationSessionId = result.sessionId;
+      // A new render starts a new impression set — old keys can't
+      // collide because they were namespaced by the prior session id,
+      // but clearing keeps the set bounded.
+      _loggedImpressions.clear();
+    } catch (_) {
+      // Recommendations are an enhancement; if the engine call fails
+      // the regular feed still renders. Stay silent.
+    } finally {
+      _isLoadingRecommendations = false;
+      notifyListeners();
+    }
+  }
+
+  /// Record that a recommendation card has been visible to the user.
+  /// Called once per (session, item) — repeats are deduped here so the
+  /// callsite can fire it from a viewport-visibility callback without
+  /// extra bookkeeping.
+  void recordRecommendationImpression(
+    FeedItemModel item, {
+    required int position,
+  }) {
+    if (_dataService == null) return;
+    final meta = item.recommendation;
+    if (meta == null) return;
+    final key = '${meta.sessionId}:${item.id}';
+    if (!_loggedImpressions.add(key)) return;
+
+    _pendingImpressionEvents.add(
+      RecommendationEventPayload(
+        feedItemId: item.id,
+        eventType: 'impression',
+        position: position,
+        score: meta.score,
+        source: meta.source,
+        sessionId: meta.sessionId,
+      ),
+    );
+    _scheduleImpressionFlush();
+  }
+
+  /// Flush queued impressions ~1s after the most recent one. Batching
+  /// keeps the network busy with at most one POST per scroll burst.
+  void _scheduleImpressionFlush() {
+    _impressionFlushTimer?.cancel();
+    _impressionFlushTimer = Timer(const Duration(seconds: 1), _flushImpressions);
+  }
+
+  Future<void> _flushImpressions() async {
+    if (_dataService == null) return;
+    if (_pendingImpressionEvents.isEmpty) return;
+    final batch = List<RecommendationEventPayload>.from(_pendingImpressionEvents);
+    _pendingImpressionEvents.clear();
+    await _dataService!.logRecommendationEvents(batch);
+  }
+
+  /// Record that the user opened a recommended item. Sent immediately
+  /// (no batching) since clicks are low-volume and high-signal.
+  Future<void> recordRecommendationClick(
+    FeedItemModel item, {
+    required int position,
+  }) async {
+    if (_dataService == null) return;
+    final meta = item.recommendation;
+    if (meta == null) return;
+    await _dataService!.logRecommendationEvents([
+      RecommendationEventPayload(
+        feedItemId: item.id,
+        eventType: 'click',
+        position: position,
+        score: meta.score,
+        source: meta.source,
+        sessionId: meta.sessionId,
+      ),
+    ]);
+  }
+
+  @override
+  void dispose() {
+    _impressionFlushTimer?.cancel();
+    // Best-effort drain of the last batch so a logout / app-kill
+    // doesn't lose the trailing scroll.
+    if (_pendingImpressionEvents.isNotEmpty) {
+      _dataService?.logRecommendationEvents(
+        List<RecommendationEventPayload>.from(_pendingImpressionEvents),
+      );
+      _pendingImpressionEvents.clear();
+    }
+    super.dispose();
   }
 
   /// Load the next page of feed items (cursor-based pagination).

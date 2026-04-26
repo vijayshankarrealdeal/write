@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, Float, ForeignKey, String, Text, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, UUIDMixin
@@ -19,6 +19,7 @@ class Comment(UUIDMixin, Base):
     )
     author_name: Mapped[str | None] = mapped_column(String(255))
     author_photo_url: Mapped[str | None] = mapped_column(Text)
+    author_photo_meta: Mapped[dict | None] = mapped_column(JSONB)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     rating: Mapped[float | None] = mapped_column(Float)
 

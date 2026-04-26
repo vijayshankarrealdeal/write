@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, text
+from sqlalchemy import DateTime, Float, ForeignKey, Index, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -41,6 +41,41 @@ class CrashReport(Base, UUIDMixin):
     resolved: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("now()")
+    )
+
+
+class RecommendationEvent(Base, UUIDMixin):
+    """Tracks impressions and clicks on recommended feed items.
+
+    Without this table, we have no way to measure whether the recommendation
+    engine is doing its job — CTR, dwell, A/B comparisons all need it.
+    """
+
+    __tablename__ = "recommendation_events"
+
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    feed_item_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("feed_items.id", ondelete="CASCADE"), nullable=False
+    )
+    # 'impression' = card was shown; 'click' = user opened the post.
+    event_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    # 1-based slot the item occupied in the recommendation list.
+    position: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # The score the engine assigned at serve time (so we can correlate score → CTR).
+    score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    # 'engine' (content-based score), 'cold_start', or 'llm_rerank'.
+    source: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    # Opaque request id grouping all impressions/clicks from one feed render.
+    session_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("now()")
+    )
+
+    __table_args__ = (
+        Index("ix_rec_events_user_created", "user_id", "created_at"),
+        Index("ix_rec_events_item_type", "feed_item_id", "event_type"),
     )
 
 

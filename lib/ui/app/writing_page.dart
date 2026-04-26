@@ -441,10 +441,10 @@ class _DesktopWritingPage extends StatelessWidget {
               Text(
                 "My Spaces",
                 style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                  color: isDark ? Colors.white54 : Colors.black45,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  letterSpacing: -0.1,
                 ),
               ),
               const Spacer(),
@@ -567,14 +567,13 @@ class _DesktopWritingPage extends StatelessWidget {
                     Builder(builder: (context) {
                       final count = context.select<EditorProvider, int>((p) => p.allBooksSection.length);
                       return Text(
-                      "$count ${count == 1 ? 'SECTION' : 'SECTIONS'}",
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.0,
-                        color: isDark ? Colors.white54 : Colors.black45,
-                      ),
-                    );
+                        "$count ${count == 1 ? 'section' : 'sections'}",
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white54 : Colors.black45,
+                        ),
+                      );
                     }),
                   ],
                 ),

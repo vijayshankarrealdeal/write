@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, func
-from sqlalchemy.dialects.postgresql import ARRAY, UUID
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, UUIDMixin
@@ -19,6 +19,7 @@ class Bookshelf(UUIDMixin, Base):
     is_private: Mapped[bool] = mapped_column(Boolean, default=True)
     item_ids: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     cover_image_url: Mapped[str | None] = mapped_column(Text)
+    cover_image_meta: Mapped[dict | None] = mapped_column(JSONB)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

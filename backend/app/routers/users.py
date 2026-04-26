@@ -84,4 +84,9 @@ async def _update_list(user: User, field: str, req: ListUpdateRequest, db: Async
 
     setattr(user, field, current)
     await db.commit()
+    # Any change to a recommendation-relevant list (likes, saved_posts,
+    # favorite_posts, reading_list) invalidates the cached profile.
+    if field in {"likes", "saved_posts", "favorite_posts", "reading_list"}:
+        from app.ai.recommendation import invalidate_user_profile_cache
+        invalidate_user_profile_cache(user.id)
     return {"ok": True, field: current}

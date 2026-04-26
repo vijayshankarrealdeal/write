@@ -1,9 +1,12 @@
+import 'package:inkspacex/models/image_meta.dart';
+
 class CommentModel {
   final String id;
   final String feedItemId;
   final String authorId;
   final String authorName;
   final String? authorPhotoUrl;
+  final ImageMeta? authorPhotoMeta;
   final String text;
   final DateTime createdAt;
   final int rating;
@@ -14,6 +17,7 @@ class CommentModel {
     required this.authorId,
     required this.authorName,
     this.authorPhotoUrl,
+    this.authorPhotoMeta,
     required this.text,
     required this.createdAt,
     this.rating = 0,
@@ -26,6 +30,8 @@ class CommentModel {
       authorId: json['authorId'] ?? '',
       authorName: json['authorName'] ?? '',
       authorPhotoUrl: json['authorPhotoUrl'],
+      authorPhotoMeta: ImageMeta.tryFromJson(
+          json['authorPhotoMeta'] ?? json['author_photo_meta']),
       text: json['text'] ?? '',
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
@@ -40,6 +46,7 @@ class CommentModel {
         'authorId': authorId,
         'authorName': authorName,
         'authorPhotoUrl': authorPhotoUrl,
+        'authorPhotoMeta': authorPhotoMeta?.toJson(),
         'text': text,
         'createdAt': createdAt.toIso8601String(),
         'rating': rating,

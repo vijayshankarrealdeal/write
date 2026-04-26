@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, String, Text, func
-from sqlalchemy.dialects.postgresql import ARRAY, UUID
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, UUIDMixin
@@ -18,6 +18,7 @@ class Writing(UUIDMixin, Base):
     author: Mapped[str | None] = mapped_column(String(255))
     description: Mapped[str | None] = mapped_column(Text)
     cover_image_path: Mapped[str | None] = mapped_column(Text)
+    cover_image_meta: Mapped[dict | None] = mapped_column(JSONB)
     status: Mapped[str | None] = mapped_column(String(50))
     writing_type: Mapped[str | None] = mapped_column(String(100))
     subtype: Mapped[str | None] = mapped_column(String(100))

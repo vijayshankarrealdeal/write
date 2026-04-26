@@ -1,3 +1,5 @@
+import 'package:inkspacex/models/image_meta.dart';
+
 class Bookshelf {
   final String id;
   final String name;
@@ -5,6 +7,7 @@ class Bookshelf {
   final bool isPrivate;
   final List<String> itemIds;
   final String? coverImageUrl;
+  final ImageMeta? coverImageMeta;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -15,6 +18,7 @@ class Bookshelf {
     this.isPrivate = false,
     this.itemIds = const [],
     this.coverImageUrl,
+    this.coverImageMeta,
     this.createdAt,
     this.updatedAt,
   });
@@ -29,6 +33,8 @@ class Bookshelf {
       isPrivate: json['isPrivate'] ?? false,
       itemIds: List<String>.from(json['itemIds'] ?? []),
       coverImageUrl: json['coverImageUrl'],
+      coverImageMeta: ImageMeta.tryFromJson(
+          json['coverImageMeta'] ?? json['cover_image_meta']),
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString())
           : null,
@@ -45,6 +51,7 @@ class Bookshelf {
         'isPrivate': isPrivate,
         'itemIds': itemIds,
         'coverImageUrl': coverImageUrl,
+        'coverImageMeta': coverImageMeta?.toJson(),
         'createdAt': createdAt?.toIso8601String(),
         'updatedAt': updatedAt?.toIso8601String(),
       };
@@ -56,6 +63,7 @@ class Bookshelf {
     bool? isPrivate,
     List<String>? itemIds,
     String? coverImageUrl,
+    ImageMeta? coverImageMeta,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) =>
@@ -66,6 +74,7 @@ class Bookshelf {
         isPrivate: isPrivate ?? this.isPrivate,
         itemIds: itemIds ?? this.itemIds,
         coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+        coverImageMeta: coverImageMeta ?? this.coverImageMeta,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );

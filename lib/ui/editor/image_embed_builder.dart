@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
 
 /// Renders image embeds inside the QuillEditor with tap-to-adjust
 /// resize/rotate controls and drag-to-reposition along the line.
@@ -128,6 +129,29 @@ class _EditableImageEmbed extends StatefulWidget {
 
 class _EditableImageEmbedState extends State<_EditableImageEmbed> {
   late _ImageTransform _t;
+
+  // Decoded bytes for `data:image/...;base64,...` sources. Cached by src
+  // so that every QuillEditor repaint (e.g. from a keystroke) doesn't
+  // re-run base64Decode on a multi-MB photo for every inline image.
+  Uint8List? _cachedBytes;
+  String? _cachedBytesSrc;
+
+  Uint8List? _bytesFor(String src) {
+    if (_cachedBytesSrc == src) return _cachedBytes;
+    if (!src.startsWith('data:image')) {
+      _cachedBytesSrc = src;
+      _cachedBytes = null;
+      return null;
+    }
+    try {
+      final commaIdx = src.indexOf(',');
+      _cachedBytes = base64Decode(src.substring(commaIdx + 1));
+    } catch (_) {
+      _cachedBytes = null;
+    }
+    _cachedBytesSrc = src;
+    return _cachedBytes;
+  }
 
   @override
   void initState() {
@@ -410,17 +434,6 @@ class _EditableImageEmbedState extends State<_EditableImageEmbed> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final src = _t.src;
 
-    final placeholder = Container(
-      height: 220,
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.05)
-            : Colors.black.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Center(child: CupertinoActivityIndicator()),
-    );
-
     final errorBox = Container(
       height: 180,
       decoration: BoxDecoration(
@@ -451,26 +464,24 @@ class _EditableImageEmbedState extends State<_EditableImageEmbed> {
 
     Widget imageWidget;
     if (src.startsWith('data:image')) {
-      try {
-        final commaIdx = src.indexOf(',');
-        final b64 = src.substring(commaIdx + 1);
-        final bytes = base64Decode(b64);
-        imageWidget = Image.memory(
-          Uint8List.fromList(bytes),
-          width: double.infinity,
-          fit: BoxFit.cover,
-          errorBuilder: (_, e, s) => errorBox,
-        );
-      } catch (_) {
-        imageWidget = errorBox;
-      }
+      final bytes = _bytesFor(src);
+      imageWidget = bytes == null
+          ? errorBox
+          : Image.memory(
+              bytes,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              gaplessPlayback: true,
+              errorBuilder: (_, e, s) => errorBox,
+            );
     } else {
-      imageWidget = CachedNetworkImage(
-        imageUrl: src,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        placeholder: (_, _) => placeholder,
-        errorWidget: (_, _, _) => errorBox,
+      imageWidget = LayoutBuilder(
+        builder: (ctx, c) => AppNetworkImage(
+          url: src,
+          width: c.maxWidth,
+          fit: BoxFit.cover,
+          errorWidget: errorBox,
+        ),
       );
     }
 

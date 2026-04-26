@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
+import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/services/api/api_client.dart';
@@ -40,7 +41,10 @@ class _ScriptedDispatcher implements SyncDispatcher {
       throw UnimplementedError();
   @override
   Future<void> updateWritingMetadata(String userId, String writingId,
-          {String? title, String? description, String? coverImagePath}) =>
+          {String? title,
+          String? description,
+          String? coverImagePath,
+          ImageMeta? coverImageMeta}) =>
       throw UnimplementedError();
   @override
   Future<void> deleteWriting(String userId, String writingId) =>

@@ -20,6 +20,7 @@ import 'package:inkspacex/ui/pages/feed_preferences_page.dart';
 import 'package:inkspacex/ui/pages/drafts_page.dart';
 import 'package:inkspacex/ui/pages/legal_page.dart';
 import 'package:inkspacex/ui/pages/merge_log_page.dart';
+import 'package:inkspacex/ui/pages/notifications_page.dart';
 import 'package:inkspacex/ui/pages/saved_favorites_page.dart';
 import 'package:inkspacex/ui/pages/reading_statistics_page.dart';
 import 'package:inkspacex/ui/pages/subscription_page.dart';
@@ -143,6 +144,12 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/feed-preferences',
         builder: (_, __) => const FeedPreferencesPage(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        pageBuilder: (_, __) => const CupertinoPage(
+          child: NotificationsPage(),
+        ),
       ),
       GoRoute(
         path: '/drafts',

@@ -1,3 +1,4 @@
+import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 
 class User {
@@ -5,6 +6,7 @@ class User {
   final String email;
   final String name;
   final String? photoUrl;
+  final ImageMeta? photoMeta;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final bool onboardingComplete;
@@ -20,6 +22,7 @@ class User {
     required this.email,
     required this.name,
     this.photoUrl,
+    this.photoMeta,
     this.createdAt,
     this.updatedAt,
     this.onboardingComplete = false,
@@ -42,6 +45,7 @@ class User {
       email: json['email'] ?? '',
       name: json['name'] ?? '',
       photoUrl: json['photoUrl'],
+      photoMeta: ImageMeta.tryFromJson(json['photoMeta'] ?? json['photo_meta']),
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString())
           : null,
@@ -65,6 +69,7 @@ class User {
         'email': email,
         'name': name,
         'photoUrl': photoUrl,
+        'photoMeta': photoMeta?.toJson(),
         'createdAt': createdAt?.toIso8601String(),
         'updatedAt': updatedAt?.toIso8601String(),
         'onboardingComplete': onboardingComplete,
@@ -81,6 +86,7 @@ class User {
     String? email,
     String? name,
     String? photoUrl,
+    ImageMeta? photoMeta,
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? onboardingComplete,
@@ -96,6 +102,7 @@ class User {
         email: email ?? this.email,
         name: name ?? this.name,
         photoUrl: photoUrl ?? this.photoUrl,
+        photoMeta: photoMeta ?? this.photoMeta,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         onboardingComplete: onboardingComplete ?? this.onboardingComplete,

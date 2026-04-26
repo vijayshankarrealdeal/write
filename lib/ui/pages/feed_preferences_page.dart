@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:inkspacex/models/preference_options.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
@@ -15,19 +16,38 @@ class FeedPreferencesPage extends StatefulWidget {
 }
 
 class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
+  late UserPreferences _initial;
+
   late List<String> _selectedWritingTypes;
   late List<String> _selectedSubtypes;
+  late List<String> _selectedGoals;
+  late List<String> _selectedMoodThemes;
+  String? _primaryRole;
+  String? _experienceLevel;
+  String? _writingFrequency;
+  String? _contentLength;
+
   bool _hasChanges = false;
   bool _saving = false;
 
   @override
   void initState() {
     super.initState();
-    final prefs =
+    _initial =
         context.read<AuthProvider>().currentUser?.preferences ??
-        const UserPreferences();
-    _selectedWritingTypes = List.from(prefs.preferredWritingTypes);
-    _selectedSubtypes = List.from(prefs.preferredGenres);
+            const UserPreferences();
+    _selectedWritingTypes = List.from(_initial.preferredWritingTypes);
+    _selectedSubtypes = List.from(_initial.preferredGenres);
+    _selectedGoals = List.from(_initial.goals);
+    _selectedMoodThemes = List.from(_initial.moodThemes);
+    _primaryRole = _initial.primaryRole;
+    _experienceLevel = _initial.experienceLevel;
+    _writingFrequency = _initial.writingFrequency;
+    _contentLength = _initial.contentLengthPreference;
+  }
+
+  void _markChanged() {
+    if (!_hasChanges) setState(() => _hasChanges = true);
   }
 
   void _toggleWritingType(String type) {
@@ -55,12 +75,28 @@ class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
     });
   }
 
+  void _toggleMulti(List<String> bucket, String value) {
+    setState(() {
+      if (bucket.contains(value)) {
+        bucket.remove(value);
+      } else {
+        bucket.add(value);
+      }
+      _hasChanges = true;
+    });
+  }
+
   Future<void> _save() async {
     setState(() => _saving = true);
-    final prefs = UserPreferences(
+    final prefs = _initial.copyWith(
       preferredGenres: _selectedSubtypes,
       preferredWritingTypes: _selectedWritingTypes,
-      interests: [],
+      primaryRole: _primaryRole,
+      experienceLevel: _experienceLevel,
+      goals: _selectedGoals,
+      moodThemes: _selectedMoodThemes,
+      writingFrequency: _writingFrequency,
+      contentLengthPreference: _contentLength,
     );
     await context.read<AuthProvider>().saveOnboardingPreferences(prefs);
     if (mounted) {
@@ -133,7 +169,7 @@ class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
             padding: const EdgeInsets.all(24),
             children: [
               Text(
-                "Choose topics you're interested in. This personalizes your feed.",
+                "Personalize your feed. Skipped a step at sign-up? Fill it in now — or remove anything that no longer fits.",
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: textColor.withValues(alpha: 0.6),
@@ -142,6 +178,52 @@ class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
               ),
               const SizedBox(height: 32),
 
+              _sectionHeader("PRIMARY ROLE", textColor),
+              const SizedBox(height: 12),
+              _singleSelectChips(
+                options: kRoleOptions,
+                selected: _primaryRole,
+                isDark: isDark,
+                cardColor: cardColor,
+                textColor: textColor,
+                onSelect: (v) {
+                  setState(() {
+                    _primaryRole = (_primaryRole == v) ? null : v;
+                  });
+                  _markChanged();
+                },
+              ),
+
+              const SizedBox(height: 32),
+              _sectionHeader("EXPERIENCE LEVEL", textColor),
+              const SizedBox(height: 12),
+              _singleSelectChips(
+                options: kExperienceOptions,
+                selected: _experienceLevel,
+                isDark: isDark,
+                cardColor: cardColor,
+                textColor: textColor,
+                onSelect: (v) {
+                  setState(() {
+                    _experienceLevel = (_experienceLevel == v) ? null : v;
+                  });
+                  _markChanged();
+                },
+              ),
+
+              const SizedBox(height: 32),
+              _sectionHeader("GOALS", textColor),
+              const SizedBox(height: 12),
+              _multiSelectChips(
+                options: kGoalOptions,
+                selected: _selectedGoals,
+                isDark: isDark,
+                cardColor: cardColor,
+                textColor: textColor,
+                onToggle: (v) => _toggleMulti(_selectedGoals, v),
+              ),
+
+              const SizedBox(height: 32),
               _sectionHeader("WRITING TYPES", textColor),
               const SizedBox(height: 12),
               Wrap(
@@ -167,10 +249,106 @@ class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
                 const SizedBox(height: 12),
                 ..._buildSubtypeSections(isDark, cardColor, textColor),
               ],
+
+              const SizedBox(height: 32),
+              _sectionHeader("VIBE", textColor),
+              const SizedBox(height: 12),
+              _multiSelectChips(
+                options: kMoodOptions,
+                selected: _selectedMoodThemes,
+                isDark: isDark,
+                cardColor: cardColor,
+                textColor: textColor,
+                onToggle: (v) => _toggleMulti(_selectedMoodThemes, v),
+              ),
+
+              const SizedBox(height: 32),
+              _sectionHeader("WRITING FREQUENCY", textColor),
+              const SizedBox(height: 12),
+              _singleSelectChips(
+                options: kFrequencyOptions,
+                selected: _writingFrequency,
+                isDark: isDark,
+                cardColor: cardColor,
+                textColor: textColor,
+                onSelect: (v) {
+                  setState(() {
+                    _writingFrequency = (_writingFrequency == v) ? null : v;
+                  });
+                  _markChanged();
+                },
+              ),
+
+              const SizedBox(height: 32),
+              _sectionHeader("PREFERRED READING LENGTH", textColor),
+              const SizedBox(height: 12),
+              _singleSelectChips(
+                options: kLengthOptions,
+                selected: _contentLength,
+                isDark: isDark,
+                cardColor: cardColor,
+                textColor: textColor,
+                onSelect: (v) {
+                  setState(() {
+                    _contentLength = (_contentLength == v) ? null : v;
+                  });
+                  _markChanged();
+                },
+              ),
+
+              const SizedBox(height: 48),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _singleSelectChips({
+    required List<PreferenceOption> options,
+    required String? selected,
+    required bool isDark,
+    required Color cardColor,
+    required Color textColor,
+    required ValueChanged<String> onSelect,
+  }) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: options.map((o) {
+        return _ChipButton(
+          label: o.label,
+          selected: selected == o.value,
+          isDark: isDark,
+          cardColor: cardColor,
+          textColor: textColor,
+          onTap: () => onSelect(o.value),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _multiSelectChips({
+    required List<PreferenceOption> options,
+    required List<String> selected,
+    required bool isDark,
+    required Color cardColor,
+    required Color textColor,
+    required ValueChanged<String> onToggle,
+  }) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: options.map((o) {
+        return _ChipButton(
+          label: o.label,
+          selected: selected.contains(o.value),
+          isDark: isDark,
+          cardColor: cardColor,
+          textColor: textColor,
+          onTap: () => onToggle(o.value),
+        );
+      }).toList(),
     );
   }
 
@@ -218,15 +396,25 @@ class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
   }
 
   Widget _sectionHeader(String title, Color textColor) {
+    // Title-case with a tiny weight bump reads like a section heading
+    // instead of a SCREAMING tag — kinder to long lists of preferences.
     return Text(
-      title,
+      _toTitleCase(title),
       style: GoogleFonts.inter(
-        fontSize: 12,
+        fontSize: 14,
         fontWeight: FontWeight.w700,
-        letterSpacing: 1.2,
-        color: textColor.withValues(alpha: 0.4),
+        color: textColor,
+        letterSpacing: -0.1,
       ),
     );
+  }
+
+  String _toTitleCase(String value) {
+    final lower = value.toLowerCase();
+    return lower
+        .split(' ')
+        .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
+        .join(' ');
   }
 }
 

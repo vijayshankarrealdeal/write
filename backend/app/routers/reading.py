@@ -59,4 +59,11 @@ async def upsert_reading_progress(
 
     await db.commit()
     await db.refresh(progress)
+
+    # Reading progress shifts the user's profile (completed boosts the
+    # genre weight; abandoned penalises it). Drop the cache so the next
+    # /api/ai/recommendations call rebuilds with fresh signals.
+    from app.ai.recommendation import invalidate_user_profile_cache
+    invalidate_user_profile_cache(user.id)
+
     return progress

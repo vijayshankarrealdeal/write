@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
 
 class ProfileHubPage extends StatelessWidget {
   const ProfileHubPage({super.key});
@@ -40,26 +40,35 @@ class ProfileHubPage extends StatelessWidget {
                           width: 1,
                         ),
                       ),
-                      child: CircleAvatar(
-                        radius: 54,
-                        backgroundColor: isDark
-                            ? Colors.white.withValues(alpha: 0.08)
-                            : Colors.black.withValues(alpha: 0.05),
-                        backgroundImage: user?.photoUrl != null
-                            ? CachedNetworkImageProvider(user!.photoUrl!)
-                            : null,
-                        child: user?.photoUrl == null
-                            ? Text(
-                                (user?.name.isNotEmpty == true)
-                                    ? user!.name[0].toUpperCase()
-                                    : 'U',
-                                style: GoogleFonts.inter(
-                                  fontSize: 34,
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor.withValues(alpha: 0.7),
+                      child: ClipOval(
+                        child: SizedBox(
+                          width: 108,
+                          height: 108,
+                          child: user?.photoUrl != null
+                              ? AppNetworkImage(
+                                  url: user!.photoUrl,
+                                  meta: user.photoMeta,
+                                  width: 108,
+                                  height: 108,
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(
+                                  alignment: Alignment.center,
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.08)
+                                      : Colors.black.withValues(alpha: 0.05),
+                                  child: Text(
+                                    (user?.name.isNotEmpty == true)
+                                        ? user!.name[0].toUpperCase()
+                                        : 'U',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 34,
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor.withValues(alpha: 0.7),
+                                    ),
+                                  ),
                                 ),
-                              )
-                            : null,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 14),

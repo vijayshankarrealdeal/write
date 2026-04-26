@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, String, Text, func
+from sqlalchemy import Boolean, DateTime, Index, String, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -15,6 +15,7 @@ class User(UUIDMixin, Base):
     name: Mapped[str | None] = mapped_column(String(255))
     password_hash: Mapped[str | None] = mapped_column(Text)
     photo_url: Mapped[str | None] = mapped_column(Text)
+    photo_meta: Mapped[dict | None] = mapped_column(JSONB)
     onboarding_complete: Mapped[bool] = mapped_column(Boolean, default=False)
     onboarding_data: Mapped[dict | None] = mapped_column(JSONB)
 
@@ -37,3 +38,9 @@ class User(UUIDMixin, Base):
     bookshelves: Mapped[list["Bookshelf"]] = relationship(back_populates="user", cascade="all, delete-orphan")  # noqa: F821
     highlights: Mapped[list["Highlight"]] = relationship(back_populates="user", cascade="all, delete-orphan")  # noqa: F821
     reading_progress: Mapped[list["ReadingProgress"]] = relationship(back_populates="user", cascade="all, delete-orphan")  # noqa: F821
+
+    __table_args__ = (
+        # Collaborative filtering pivots on "find users whose `likes` array
+        # overlaps with mine." Without GIN, that's a full table scan.
+        Index("ix_users_likes_gin", "likes", postgresql_using="gin"),
+    )

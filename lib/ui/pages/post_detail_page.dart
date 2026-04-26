@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
+import 'package:inkspacex/ui/widgets/more_like_this_carousel.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:inkspacex/models/canvas_element_model.dart';
@@ -2130,6 +2131,18 @@ class _PostDetailPageState extends State<PostDetailPage>
                     ),
                   );
                 },
+              ),
+
+              // ---- More like this (semantic neighbours) ----
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                    contentPadding, 32, contentPadding, 96),
+                child: MoreLikeThisCarousel(
+                  feedItemId: item.id,
+                  isDark: isDark,
+                  textColor: textColor,
+                  subtleColor: subtleColor,
+                ),
               ),
                     ],
                   ),

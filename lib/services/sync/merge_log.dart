@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
 /// One observed merge decision in [_mergeSections]. Captured for the
@@ -52,6 +54,10 @@ class MergeLogEntry {
 /// Keeps only the most recent [maxEntries] (default 50) so the box can't
 /// grow unboundedly. Reads are O(N) but N is small by construction; a
 /// proper time-ordered store isn't justified for a debug-only feature.
+///
+/// Also exposes a [latestEntry] [ValueListenable] and a [conflicts]
+/// stream so the UI can surface a "your edit was merged" toast the
+/// moment a conflict is observed — no polling, no debug-only scope.
 class MergeLog {
   MergeLog({String boxName = 'sync_merge_log', this.maxEntries = 50})
       : _boxName = boxName;
@@ -60,10 +66,27 @@ class MergeLog {
   final int maxEntries;
   static const String _key = 'entries_v1';
   Box? _box;
+  final ValueNotifier<MergeLogEntry?> _latest =
+      ValueNotifier<MergeLogEntry?>(null);
+  final StreamController<MergeLogEntry> _conflictController =
+      StreamController<MergeLogEntry>.broadcast();
+
+  /// Latest recorded merge event (or null if none yet). UI can listen
+  /// directly via [ValueListenableBuilder].
+  ValueListenable<MergeLogEntry?> get latestEntry => _latest;
+
+  /// Broadcast stream that fires once per recorded merge entry where
+  /// the *remote* side won — that's the case where a user's local edit
+  /// was overwritten and they deserve to know.
+  Stream<MergeLogEntry> get conflicts => _conflictController.stream;
 
   Future<void> init() async {
     if (_box != null) return;
     _box = await Hive.openBox(_boxName);
+    final existing = snapshot();
+    if (existing.isNotEmpty) {
+      _latest.value = existing.last;
+    }
   }
 
   List<MergeLogEntry> snapshot() {
@@ -89,11 +112,22 @@ class MergeLog {
       _key,
       jsonEncode(entries.map((e) => e.toJson()).toList()),
     );
+    _latest.value = entry;
+    // Only surface user-visible toasts when the *remote* side won —
+    // otherwise we'd flash a banner every time a sync round-trip
+    // confirms our own edit, which would be noise.
+    if (entry.winner == 'remote' && !_conflictController.isClosed) {
+      _conflictController.add(entry);
+    }
   }
 
-  Future<void> clear() async => _box?.delete(_key);
+  Future<void> clear() async {
+    await _box?.delete(_key);
+    _latest.value = null;
+  }
 
   Future<void> dispose() async {
+    await _conflictController.close();
     await _box?.close();
     _box = null;
   }

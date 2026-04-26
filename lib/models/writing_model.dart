@@ -1,3 +1,4 @@
+import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
 
 enum WritingStatus { ongoing, completed, paused }
@@ -163,6 +164,7 @@ class WritingModel {
   String author;
   String description;
   String coverImagePath;
+  ImageMeta? coverImageMeta;
   WritingStatus status;
   WritingType writingType; // 🔥 NEW
   String subtype; // 🔥 NEW (stores enum.name)
@@ -178,6 +180,7 @@ class WritingModel {
     required this.coverImagePath,
     required this.writingType, // 🔥 NEW
     required this.subtype, // 🔥 NEW
+    this.coverImageMeta,
     this.status = WritingStatus.ongoing,
   });
 
@@ -189,6 +192,8 @@ class WritingModel {
       status: WritingStatus.values[json['status']],
       description: json['description'],
       coverImagePath: json['coverImagePath'],
+      coverImageMeta: ImageMeta.tryFromJson(
+          json['coverImageMeta'] ?? json['cover_image_meta']),
       writingType: WritingType.values[json['writingType']], // 🔥
       subtype: json['subtype'], // 🔥
       sections: (json['sections'] as List)
@@ -205,6 +210,7 @@ class WritingModel {
       'author': author,
       'description': description,
       'coverImagePath': coverImagePath,
+      'coverImageMeta': coverImageMeta?.toJson(),
       'writingType': writingType.index, // 🔥
       'subtype': subtype, // 🔥
       'createdAt': createdAt.toIso8601String(),

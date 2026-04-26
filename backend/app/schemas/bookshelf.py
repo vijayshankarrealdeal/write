@@ -16,6 +16,7 @@ class BookshelfUpdate(BaseModel):
     is_private: bool | None = None
     item_ids: list[str] | None = None
     cover_image_url: str | None = None
+    cover_image_meta: dict | None = None
 
 
 class BookshelfResponse(BaseModel):
@@ -26,6 +27,7 @@ class BookshelfResponse(BaseModel):
     is_private: bool
     item_ids: list[str]
     cover_image_url: str | None
+    cover_image_meta: dict | None = None
     created_at: datetime
     updated_at: datetime
 

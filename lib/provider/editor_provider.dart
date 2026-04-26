@@ -38,7 +38,7 @@ class EditorProvider extends ChangeNotifier {
     loadBooks();
     _connectivitySub = _connectivity.onChange.listen((online) {
       if (online) _drainer.kick();
-      notifyListeners();
+      _recomputeSyncStatus();
     });
     _remapSub = _drainer.onRemap.listen(_applyRemap);
     _ackSub = _drainer.onAck.listen(_applyAck);
@@ -48,7 +48,35 @@ class EditorProvider extends ChangeNotifier {
     _drainer.kick();
   }
 
-  void _onSyncCounterChanged() => notifyListeners();
+  /// Sync/typing/saving micro-state surfaced for the status chip.
+  /// Updated independently from [notifyListeners] so per-keystroke status
+  /// flips do not rebuild every `Consumer<EditorProvider>` in the tree.
+  final ValueNotifier<SyncStatus> _syncStatusNotifier =
+      ValueNotifier(SyncStatus.idle);
+  ValueListenable<SyncStatus> get syncStatusListenable => _syncStatusNotifier;
+
+  void _recomputeSyncStatus() {
+    final next = _computeSyncStatus();
+    if (_syncStatusNotifier.value != next) {
+      _syncStatusNotifier.value = next;
+    }
+  }
+
+  SyncStatus _computeSyncStatus() {
+    if (_drainer.failedCount.value > 0) return SyncStatus.error;
+    if (!_connectivity.isOnlineNow && _outbox.pendingCount.value > 0) {
+      return SyncStatus.offline;
+    }
+    if (_typing) return SyncStatus.typing;
+    if (_outbox.pendingCount.value > 0) return SyncStatus.syncing;
+    if (_saving) return SyncStatus.saving;
+    return SyncStatus.idle;
+  }
+
+  void _onSyncCounterChanged() {
+    _recomputeSyncStatus();
+    notifyListeners();
+  }
 
   StreamSubscription<bool>? _connectivitySub;
   StreamSubscription<IdRemapEvent>? _remapSub;
@@ -62,16 +90,7 @@ class EditorProvider extends ChangeNotifier {
 
   /// Coarse-grained sync state suitable for a status chip. Computed off
   /// outbox depth + connectivity + the user's typing/saving micro-state.
-  SyncStatus get syncStatus {
-    if (_drainer.failedCount.value > 0) return SyncStatus.error;
-    if (!_connectivity.isOnlineNow && _outbox.pendingCount.value > 0) {
-      return SyncStatus.offline;
-    }
-    if (_typing) return SyncStatus.typing;
-    if (_outbox.pendingCount.value > 0) return SyncStatus.syncing;
-    if (_saving) return SyncStatus.saving;
-    return SyncStatus.idle;
-  }
+  SyncStatus get syncStatus => _computeSyncStatus();
 
   /// Snapshot of the failed ops queue for the failed-ops sheet UI.
   List<PendingOp> get failedOps => _drainer.snapshotFailed();
@@ -522,19 +541,23 @@ class EditorProvider extends ChangeNotifier {
     // The upload itself is online-only — there's no useful offline shape for
     // a binary blob upload (we don't want to buffer raw bytes in Hive). The
     // metadata update that follows IS queued so it survives a crash.
-    final url = await _storageService.uploadCoverImage(uid, book.id, bytes);
-    book.coverImagePath = url;
+    final result = await _storageService.uploadCoverImage(uid, book.id, bytes);
+    book.coverImagePath = result.url;
+    book.coverImageMeta = result.meta;
     await _storage.saveBooks(allBooks);
     await _enqueue(PendingOp(
       kind: PendingOpKind.upsertWriting,
       payload: {
         'writingId': book.id,
         'isNew': false,
-        'fields': {'coverImagePath': url},
+        'fields': {
+          'coverImagePath': result.url,
+          if (result.meta != null) 'coverImageMeta': result.meta!.toJson(),
+        },
       },
     ));
     notifyListeners();
-    return url;
+    return result.url;
   }
 
   Future<void> deleteBook(WritingModel book) async {
@@ -752,10 +775,14 @@ class EditorProvider extends ChangeNotifier {
   }
 
   void _onUserTyped() {
+    // Keystroke hot path. Do NOT call notifyListeners() here — that would
+    // rebuild every Consumer<EditorProvider> in the editor tree on the
+    // first keystroke of every typing burst. The status chip listens to
+    // [syncStatusListenable] directly, so a notifier flip is enough.
     if (!_typing) {
       _typing = true;
       saveStatus = "Typing...";
-      notifyListeners();
+      _recomputeSyncStatus();
     }
     _autoSaveTimer?.cancel();
     _autoSaveTimer = Timer(const Duration(seconds: 3), () {
@@ -771,11 +798,12 @@ class EditorProvider extends ChangeNotifier {
       if (saveStatus != "Saved") {
         _typing = false;
         saveStatus = "Saved";
-        notifyListeners();
+        _recomputeSyncStatus();
       }
       return;
     }
     _saving = true;
+    _recomputeSyncStatus();
     activeSection!.content = currentContent;
     activeSection!.updatedAt = DateTime.now();
     activeSection!.isSynced = false;
@@ -785,6 +813,10 @@ class EditorProvider extends ChangeNotifier {
     _saving = false;
     _typing = false;
     saveStatus = "Saved";
+    _recomputeSyncStatus();
+    // Section list previews and similar consumers should refresh after a
+    // save tick (every ~3s while typing) — much less noisy than fanning
+    // out on every keystroke.
     notifyListeners();
   }
 
@@ -842,6 +874,9 @@ class EditorProvider extends ChangeNotifier {
       _syncToFirestore();
     }
     saveStatus = "Saved";
+    _typing = false;
+    _saving = false;
+    _recomputeSyncStatus();
     notifyListeners();
   }
 
@@ -907,6 +942,9 @@ class EditorProvider extends ChangeNotifier {
     _lastSavedContent = "";
     _lastSyncedContent = "";
     _needsFirestoreSync = false;
+    _typing = false;
+    _saving = false;
+    _recomputeSyncStatus();
     controller = QuillController.basic();
     _storage.clearBooks();
     notifyListeners();
@@ -928,6 +966,7 @@ class EditorProvider extends ChangeNotifier {
     _ackSub?.cancel();
     _outbox.pendingCount.removeListener(_onSyncCounterChanged);
     _drainer.failedCount.removeListener(_onSyncCounterChanged);
+    _syncStatusNotifier.dispose();
     controller.dispose();
     super.dispose();
   }

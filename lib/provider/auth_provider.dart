@@ -6,6 +6,7 @@ import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/services/api/api_auth_service.dart';
 import 'package:inkspacex/services/api/api_client.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
+import 'package:inkspacex/services/api/api_realtime_service.dart';
 import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
@@ -18,6 +19,8 @@ class AuthProvider extends ChangeNotifier {
   late final ApiAuthService _authService;
   late final ApiDataService _dataService;
   late final ApiStorageService _storageService;
+  // Recreated on logout so the next user starts with fresh sockets.
+  late ApiRealtimeService _realtimeService;
 
   bool _isAuthenticated = false;
   app.User? _currentUser;
@@ -30,12 +33,15 @@ class AuthProvider extends ChangeNotifier {
   ApiClient get apiClient => _apiClient;
   ApiDataService get dataService => _dataService;
   ApiStorageService get storageService => _storageService;
+  ApiRealtimeService get realtimeService => _realtimeService;
 
   AuthProvider(this._storage) {
     _apiClient = ApiClient(_storage);
     _authService = ApiAuthService(_apiClient, _storage);
     _dataService = ApiDataService(_apiClient);
     _storageService = ApiStorageService(_apiClient);
+    _realtimeService = ApiRealtimeService(_storage);
+    _dataService.attachRealtime(_realtimeService);
     GeminiService().init(_apiClient);
     _restoreSession();
   }
@@ -161,7 +167,16 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     log.i('[auth] Logout');
+    // Tear down any open realtime channels — they were authenticated as
+    // the user we're signing out, so reusing them after sign-in would
+    // leak the previous session's stream.
+    await _realtimeService.dispose();
+    _realtimeService = ApiRealtimeService(_storage);
+    _dataService.attachRealtime(_realtimeService);
     await _authService.logout();
+    // Drop any onboarding-prefs blob staged for the previous session — otherwise
+    // it gets replayed onto the next user that signs in on this device.
+    await _storage.clearOnboardingPreferences();
     _isAuthenticated = false;
     _currentUser = null;
     notifyListeners();
@@ -382,11 +397,14 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> updateProfilePhoto(Uint8List bytes) async {
     if (_currentUser == null) return;
-    final url = await _storageService.uploadProfilePhoto(
+    final result = await _storageService.uploadProfilePhoto(
       _currentUser!.id,
       bytes,
     );
-    _currentUser = _currentUser!.copyWith(photoUrl: url);
+    _currentUser = _currentUser!.copyWith(
+      photoUrl: result.url,
+      photoMeta: result.meta,
+    );
     await _dataService.setUser(_currentUser!);
     await _storage.saveUser(_currentUser!.toJson());
     notifyListeners();

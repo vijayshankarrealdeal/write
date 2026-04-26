@@ -17,24 +17,31 @@ class GeminiService {
   bool get isConfigured => _apiClient != null;
 
   // ── AI Text Operations (via backend) ──
-
-  Future<String> fixSpelling(String text) =>
-      _textEdit('fix_spelling', text);
-
-  Future<String> rewrite(String text) =>
-      _textEdit('rewrite', text);
-
-  Future<String> makeShorter(String text) =>
-      _textEdit('make_shorter', text);
-
-  Future<String> makeLonger(String text) =>
-      _textEdit('make_longer', text);
-
-  Future<String> changeTone(String text, String tone) =>
-      _textEdit('change_tone', text, tone: tone);
-
+  // Sharpen — craft moves that return replacement text
+  Future<String> tighten(String text) => _textEdit('tighten', text);
+  Future<String> sharpenOpening(String text) =>
+      _textEdit('sharpen_opening', text);
+  Future<String> liftThesis(String text) => _textEdit('lift_thesis', text);
+  Future<String> cutThroatClearing(String text) =>
+      _textEdit('cut_throat_clearing', text);
   Future<String> continueWriting(String text) =>
       _textEdit('continue_writing', text);
+
+  // Reframe — aim the same piece at a different reader
+  Future<String> forBeginner(String text) => _textEdit('for_beginner', text);
+  Future<String> forExpert(String text) => _textEdit('for_expert', text);
+  Future<String> addExample(String text) => _textEdit('add_example', text);
+  Future<String> steelMan(String text) => _textEdit('steel_man', text);
+
+  // Feedback — read-only advice (caller should not apply as a replacement)
+  Future<String> critique(String text) => _textEdit('critique', text);
+  Future<String> whatsMissing(String text) =>
+      _textEdit('whats_missing', text);
+  Future<String> threeOpenings(String text) =>
+      _textEdit('three_openings', text);
+
+  // Legacy — kept for any non-panel caller that still uses it.
+  Future<String> fixSpelling(String text) => _textEdit('fix_spelling', text);
 
   /// Generate a canvas layout via the backend.
   Future<String> generateCanvasLayout({

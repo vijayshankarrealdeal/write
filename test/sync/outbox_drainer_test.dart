@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
+import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
@@ -26,7 +27,10 @@ class _FakeDispatcher implements SyncDispatcher {
 
   @override
   Future<void> updateWritingMetadata(String userId, String writingId,
-      {String? title, String? description, String? coverImagePath}) async {
+      {String? title,
+      String? description,
+      String? coverImagePath,
+      ImageMeta? coverImageMeta}) async {
     calls.add('updateWritingMetadata:$writingId');
   }
 
