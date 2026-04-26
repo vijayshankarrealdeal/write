@@ -136,6 +136,8 @@ void main() {
       outbox: outbox,
       dataService: dispatcher,
       connectivity: connectivity,
+      backoff: (_) => Duration.zero,
+      sleep: (_) async {},
     );
 
     await outbox.enqueue(_contentOp('w1', 's1', '"a"'));
@@ -193,6 +195,8 @@ void main() {
       outbox: outbox1,
       dataService: controlled,
       connectivity: connectivity,
+      backoff: (_) => Duration.zero,
+      sleep: (_) async {},
     );
     controlled.failNext = false;
     // We want: first op succeeds, second op fails, third op never seen.

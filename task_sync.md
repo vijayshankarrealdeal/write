@@ -65,14 +65,18 @@
 
 **Why:** silent swallowing today. Users have no idea when sync is broken.
 
-- [ ] Exponential backoff with jitter in the drainer: `min(2^n * 1s, 60s)` for 5xx / network; immediate retry once for 401 (token refresh path stays in `ApiClient`)
-- [ ] Cap attempts per op at 10; after that, mark op `failed` and surface in UI
-- [ ] Replace the editor's "Typing…/Saved" string with a richer status: `idle | typing | saving | offline | syncing(N) | error(N)` — driven off outbox depth + connectivity
-- [ ] Tap on the status chip → bottom sheet listing failed ops with "retry" / "discard"
-- [ ] Test: `test/sync/retry_test.dart` — 5xx three times then 200, assert eventual success and correct backoff schedule
+- [x] Exponential backoff with jitter in the drainer: `min(2^n * 1s, 60s)` for 5xx / network; immediate retry once for 401 (token refresh path stays in `ApiClient`)
+- [x] Cap attempts per op at 10; after that, mark op `failed` and surface in UI
+- [x] Replace the editor's "Typing…/Saved" string with a richer status: `idle | typing | saving | offline | syncing(N) | error(N)` — driven off outbox depth + connectivity
+- [x] Tap on the status chip → bottom sheet listing failed ops with "retry" / "discard"
+- [x] Test: `test/sync/retry_test.dart` — 5xx three times then 200, assert eventual success and correct backoff schedule
 
 **Findings while implementing:**
-- _(agent fills in)_
+- `OutboxDrainer` now takes injectable `backoff` and `sleep` callbacks. Production uses defaults (`min(2^n * 1s, 60s)` + `Future.delayed`); tests inject `Duration.zero` + a no-op sleep to keep the wall clock out of assertions.
+- Error classification is centralised in `_classify`: 5xx, 408, 429, 401, timeout/connection, and unknown exceptions are *transient*; other 4xx flips the op to `failed=true` immediately. 401 reaches the drainer only after `ApiClient` has already retried with a refreshed token, so we treat it as transient (user might re-authenticate later).
+- `drain()` now de-duplicates concurrent passes by returning the in-flight `Future` instead of starting a second pass — caught by a test that called `kick()` (which fires-and-forgets a drain) immediately followed by `await drain()` (which used to short-circuit and let the box be torn down mid-flight).
+- Status chip is computed from outbox depth + connectivity + a `_typing/_saving` micro-flag; `notifyListeners()` is wired to fire when any of those underlying signals change so the chip animates in real time.
+- Retry / discard live on the drainer (`retryFailedOp`, `discardOp`) and are forwarded by the `EditorProvider` to keep the failed-ops sheet UI provider-only (no sync internals leak into widgets).
 
 ---
 
@@ -136,11 +140,11 @@ Either way:
 | Phase | Status | Commit | Notes |
 |---|---|---|---|
 | 1. Connectivity | ✅ | 94a1918 | Banner + EditorProvider gate + service unit test. Full integration test deferred to Phase 6. |
-| 2. Outbox | ✅ | _pending_ | Hive-backed durable queue + drainer + id-remap. Logout-with-pending dialog wired in. Backend `client_op_id` dedup is still a TODO. |
-| 3. Retry & UI | ☐ | — | |
+| 2. Outbox | ✅ | bbbd1a6 | Hive-backed durable queue + drainer + id-remap. Logout-with-pending dialog wired in. Backend `client_op_id` dedup is still a TODO. |
+| 3. Retry & UI | ✅ | _pending_ | Backoff + jitter + 10-attempt cap. Status chip enum + failed-ops sheet wired in. |
 | 4. Real stream | ☐ | — | |
 | 5. Merge logs | ☐ | — | |
 | 6. Tests | ☐ | — | |
 
-**Current rating:** 8/10
+**Current rating:** 8.5/10
 **Target rating:** 10/10

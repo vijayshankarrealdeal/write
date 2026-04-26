@@ -21,8 +21,9 @@ const _uuid = Uuid();
 /// for idempotency once that's wired up; today the server ignores it but
 /// the value is durable so resumed drains can reference past attempts).
 ///
-/// `attemptCount` and `lastError` are mutated in place by the drainer so
-/// the persisted state reflects retry history.
+/// `attemptCount`, `lastError`, `nextAttemptAt`, and `failed` are mutated
+/// in place by the drainer so the persisted state reflects retry history
+/// across app restarts.
 class PendingOp {
   PendingOp({
     String? id,
@@ -31,6 +32,8 @@ class PendingOp {
     DateTime? createdAt,
     this.attemptCount = 0,
     this.lastError,
+    this.nextAttemptAt,
+    this.failed = false,
   })  : id = id ?? _uuid.v4(),
         createdAt = createdAt ?? DateTime.now();
 
@@ -41,10 +44,24 @@ class PendingOp {
   int attemptCount;
   String? lastError;
 
+  /// Earliest wall-clock time the drainer should try this op. Null means
+  /// "ready now". The drainer leaves later ops in place behind this one
+  /// (head-of-line blocking) until the timer fires.
+  DateTime? nextAttemptAt;
+
+  /// True once `attemptCount` exceeds the drainer's cap. The drainer
+  /// stops retrying; the UI is expected to surface failed ops and let
+  /// the user retry (resets the flag + count) or discard.
+  bool failed;
+
   PendingOp copyWith({
     Map<String, dynamic>? payload,
     int? attemptCount,
     String? lastError,
+    DateTime? nextAttemptAt,
+    bool? failed,
+    bool clearNextAttempt = false,
+    bool clearLastError = false,
   }) =>
       PendingOp(
         id: id,
@@ -52,7 +69,10 @@ class PendingOp {
         payload: payload ?? this.payload,
         createdAt: createdAt,
         attemptCount: attemptCount ?? this.attemptCount,
-        lastError: lastError ?? this.lastError,
+        lastError: clearLastError ? null : (lastError ?? this.lastError),
+        nextAttemptAt:
+            clearNextAttempt ? null : (nextAttemptAt ?? this.nextAttemptAt),
+        failed: failed ?? this.failed,
       );
 
   Map<String, dynamic> toJson() => {
@@ -62,6 +82,9 @@ class PendingOp {
         'createdAt': createdAt.toIso8601String(),
         'attemptCount': attemptCount,
         if (lastError != null) 'lastError': lastError,
+        if (nextAttemptAt != null)
+          'nextAttemptAt': nextAttemptAt!.toIso8601String(),
+        if (failed) 'failed': true,
       };
 
   factory PendingOp.fromJson(Map<String, dynamic> json) => PendingOp(
@@ -71,9 +94,13 @@ class PendingOp {
         createdAt: DateTime.parse(json['createdAt'] as String),
         attemptCount: (json['attemptCount'] as num?)?.toInt() ?? 0,
         lastError: json['lastError'] as String?,
+        nextAttemptAt: json['nextAttemptAt'] is String
+            ? DateTime.parse(json['nextAttemptAt'] as String)
+            : null,
+        failed: json['failed'] == true,
       );
 
   @override
   String toString() =>
-      'PendingOp(${kind.name}, id=$id, attempts=$attemptCount)';
+      'PendingOp(${kind.name}, id=$id, attempts=$attemptCount, failed=$failed)';
 }

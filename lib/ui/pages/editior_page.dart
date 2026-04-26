@@ -1246,26 +1246,51 @@ class _EditiorPageState extends State<EditiorPage>
 
           const SizedBox(width: 6),
 
-          // Save status
+          // Sync status chip — driven off outbox depth + connectivity, not
+          // a single saveStatus string.
           Consumer<EditorProvider>(
             builder: (context, provider, _) {
-              final status = provider.saveStatus;
-              IconData icon = CupertinoIcons.checkmark_alt_circle;
-              Color iconColor = Colors.green.withValues(alpha: 0.7);
-              String label = 'Saved';
-
-              if (status == 'Saving...') {
-                label = 'Saving';
-                iconColor = mutedColor;
-              } else if (status == 'Typing...') {
-                icon = CupertinoIcons.pencil;
-                iconColor = Colors.amber.withValues(alpha: 0.8);
-                label = '';
-              } else if (status != 'Saved') {
-                label = '';
+              final status = provider.syncStatus;
+              final pending = provider.pendingOpsCount.value;
+              final failed = provider.failedOpsCount.value;
+              IconData icon;
+              Color iconColor;
+              String label;
+              switch (status) {
+                case SyncStatus.idle:
+                  icon = CupertinoIcons.checkmark_alt_circle;
+                  iconColor = Colors.green.withValues(alpha: 0.7);
+                  label = 'Saved';
+                  break;
+                case SyncStatus.typing:
+                  icon = CupertinoIcons.pencil;
+                  iconColor = Colors.amber.withValues(alpha: 0.8);
+                  label = '';
+                  break;
+                case SyncStatus.saving:
+                  icon = CupertinoIcons.cloud_upload;
+                  iconColor = mutedColor;
+                  label = 'Saving';
+                  break;
+                case SyncStatus.offline:
+                  icon = CupertinoIcons.wifi_slash;
+                  iconColor = Colors.amber.withValues(alpha: 0.8);
+                  label = 'Offline · $pending pending';
+                  break;
+                case SyncStatus.syncing:
+                  icon = CupertinoIcons.arrow_2_circlepath;
+                  iconColor = mutedColor;
+                  label = 'Syncing $pending';
+                  break;
+                case SyncStatus.error:
+                  icon = CupertinoIcons.exclamationmark_circle;
+                  iconColor = Colors.red.withValues(alpha: 0.8);
+                  label = '$failed failed';
+                  break;
               }
 
-              return Row(
+              final tappable = status == SyncStatus.error;
+              final row = Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (_imageUploading)
@@ -1286,7 +1311,8 @@ class _EditiorPageState extends State<EditiorPage>
                         ],
                       ),
                     ),
-                  if (status == 'Saving...')
+                  if (status == SyncStatus.saving ||
+                      status == SyncStatus.syncing)
                     const CupertinoActivityIndicator(radius: 6)
                   else
                     Icon(icon, size: 14, color: iconColor),
@@ -1297,11 +1323,20 @@ class _EditiorPageState extends State<EditiorPage>
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
-                        color: mutedColor,
+                        color: status == SyncStatus.error
+                            ? Colors.red.withValues(alpha: 0.9)
+                            : mutedColor,
                       ),
                     ),
                   ],
                 ],
+              );
+
+              if (!tappable) return row;
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _showFailedOpsSheet(context, provider),
+                child: row,
               );
             },
           ),
@@ -2439,6 +2474,106 @@ class _EditiorPageState extends State<EditiorPage>
       title: 'New Section',
       initialValue: 'Section ${provider.allBooksSection.length + 1}',
       onSave: (val) => provider.addSection(val, autoSelect: true),
+    );
+  }
+
+  void _showFailedOpsSheet(BuildContext context, EditorProvider provider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sheetBg = isDark ? const Color(0xFF0C0C0C) : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black;
+    final muted = textColor.withValues(alpha: 0.6);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: sheetBg,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: AnimatedBuilder(
+            animation: provider,
+            builder: (ctx, _) {
+              final ops = provider.failedOps;
+              if (ops.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    'No failed operations.',
+                    style: GoogleFonts.inter(color: muted),
+                  ),
+                );
+              }
+              return ListView.separated(
+                shrinkWrap: true,
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                itemCount: ops.length,
+                separatorBuilder: (_, __) => Divider(
+                  color: textColor.withValues(alpha: 0.08),
+                  height: 24,
+                ),
+                itemBuilder: (ctx, i) {
+                  final op = ops[i];
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              op.kind.name,
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              op.lastError ?? 'unknown error',
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: muted,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${op.attemptCount} attempts',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                color: muted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      CupertinoButton(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        onPressed: () => provider.retryFailedOp(op.id),
+                        child: const Text('Retry'),
+                      ),
+                      CupertinoButton(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        onPressed: () => provider.discardFailedOp(op.id),
+                        child: Text(
+                          'Discard',
+                          style: TextStyle(
+                              color: Colors.red.withValues(alpha: 0.85)),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
     );
   }
 

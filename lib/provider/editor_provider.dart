@@ -35,12 +35,17 @@ class EditorProvider extends ChangeNotifier {
     loadBooks();
     _connectivitySub = _connectivity.onChange.listen((online) {
       if (online) _drainer.kick();
+      notifyListeners();
     });
     _remapSub = _drainer.onRemap.listen(_applyRemap);
     _ackSub = _drainer.onAck.listen(_applyAck);
+    _outbox.pendingCount.addListener(_onSyncCounterChanged);
+    _drainer.failedCount.addListener(_onSyncCounterChanged);
     // Drain anything left over from a previous run.
     _drainer.kick();
   }
+
+  void _onSyncCounterChanged() => notifyListeners();
 
   StreamSubscription<bool>? _connectivitySub;
   StreamSubscription<IdRemapEvent>? _remapSub;
@@ -49,7 +54,30 @@ class EditorProvider extends ChangeNotifier {
   /// Reactive count of unsynced operations (for UI badges and the logout
   /// guard). Forwarded straight from the underlying outbox.
   ValueListenable<int> get pendingOpsCount => _outbox.pendingCount;
+  ValueListenable<int> get failedOpsCount => _drainer.failedCount;
   bool get hasPendingOps => !_outbox.isEmpty;
+
+  /// Coarse-grained sync state suitable for a status chip. Computed off
+  /// outbox depth + connectivity + the user's typing/saving micro-state.
+  SyncStatus get syncStatus {
+    if (_drainer.failedCount.value > 0) return SyncStatus.error;
+    if (!_connectivity.isOnlineNow && _outbox.pendingCount.value > 0) {
+      return SyncStatus.offline;
+    }
+    if (_typing) return SyncStatus.typing;
+    if (_outbox.pendingCount.value > 0) return SyncStatus.syncing;
+    if (_saving) return SyncStatus.saving;
+    return SyncStatus.idle;
+  }
+
+  /// Snapshot of the failed ops queue for the failed-ops sheet UI.
+  List<PendingOp> get failedOps => _drainer.snapshotFailed();
+  Future<void> retryFailedOp(String opId) =>
+      _drainer.retryFailedOp(opId);
+  Future<void> discardFailedOp(String opId) => _drainer.discardOp(opId);
+
+  bool _typing = false;
+  bool _saving = false;
 
   Future<void> _enqueue(PendingOp op) async {
     await _outbox.enqueue(op);
@@ -693,7 +721,8 @@ class EditorProvider extends ChangeNotifier {
   }
 
   void _onUserTyped() {
-    if (saveStatus != "Typing...") {
+    if (!_typing) {
+      _typing = true;
       saveStatus = "Typing...";
       notifyListeners();
     }
@@ -709,17 +738,21 @@ class EditorProvider extends ChangeNotifier {
     final currentContent = dumpData();
     if (currentContent == _lastSavedContent) {
       if (saveStatus != "Saved") {
+        _typing = false;
         saveStatus = "Saved";
         notifyListeners();
       }
       return;
     }
+    _saving = true;
     activeSection!.content = currentContent;
     activeSection!.updatedAt = DateTime.now();
     activeSection!.isSynced = false;
     await _storage.saveBooks(allBooks);
     _lastSavedContent = currentContent;
     _needsFirestoreSync = true;
+    _saving = false;
+    _typing = false;
     saveStatus = "Saved";
     notifyListeners();
   }
@@ -862,10 +895,15 @@ class EditorProvider extends ChangeNotifier {
     _connectivitySub?.cancel();
     _remapSub?.cancel();
     _ackSub?.cancel();
+    _outbox.pendingCount.removeListener(_onSyncCounterChanged);
+    _drainer.failedCount.removeListener(_onSyncCounterChanged);
     controller.dispose();
     super.dispose();
   }
 }
+
+/// Coarse-grained sync state used by the editor's status chip.
+enum SyncStatus { idle, typing, saving, offline, syncing, error }
 
 class _GhostFix {
   _GhostFix({required this.adoptedBookId, required this.ghostSectionIds});
