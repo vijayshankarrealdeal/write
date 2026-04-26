@@ -9,13 +9,15 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Renders image embeds inside the QuillEditor with tap-to-adjust
-/// resize and rotate controls.
+/// resize/rotate controls and drag-to-reposition along the line.
 ///
 /// The image source string may carry transform metadata as a URL fragment:
-///   `<src>#w=0.75&r=0.523`
-/// where `w` is a width factor (0.25..1.0) and `r` is rotation in radians.
-/// Plain URLs / data URIs without a fragment render at full width and
-/// zero rotation, preserving backward compatibility.
+///   `<src>#w=0.75&r=0.523&x=-0.4`
+/// where `w` is a width factor (0.25..1.0), `r` is rotation in radians,
+/// and `x` is a horizontal alignment factor (-1.0 = left, 0 = center,
+/// 1.0 = right) within the leftover space on its line.
+/// Plain URLs / data URIs without a fragment render at full width,
+/// zero rotation, centered — preserving backward compatibility.
 class ImageEmbedBuilder extends EmbedBuilder {
   ImageEmbedBuilder({required this.controller});
 
@@ -41,22 +43,30 @@ class _ImageTransform {
     required this.src,
     required this.widthFactor,
     required this.rotation,
+    required this.xOffset,
   });
 
   final String src;
   final double widthFactor; // 0.25..1.0 of available content width
   final double rotation;    // radians, -pi..pi
+  final double xOffset;     // -1.0 (left) .. 0 (center) .. 1.0 (right)
 
   static _ImageTransform parse(String data) {
     // base64 data URIs cannot contain '#', so the last '#' is the fragment.
     final hashIdx = data.lastIndexOf('#');
     if (hashIdx == -1) {
-      return _ImageTransform(src: data, widthFactor: 1.0, rotation: 0.0);
+      return _ImageTransform(
+        src: data,
+        widthFactor: 1.0,
+        rotation: 0.0,
+        xOffset: 0.0,
+      );
     }
     final src = data.substring(0, hashIdx);
     final frag = data.substring(hashIdx + 1);
     double w = 1.0;
     double r = 0.0;
+    double x = 0.0;
     for (final part in frag.split('&')) {
       final eq = part.indexOf('=');
       if (eq == -1) continue;
@@ -65,8 +75,14 @@ class _ImageTransform {
       if (val == null) continue;
       if (key == 'w') w = val.clamp(0.1, 1.0);
       if (key == 'r') r = val.clamp(-math.pi, math.pi);
+      if (key == 'x') x = val.clamp(-1.0, 1.0);
     }
-    return _ImageTransform(src: src, widthFactor: w, rotation: r);
+    return _ImageTransform(
+      src: src,
+      widthFactor: w,
+      rotation: r,
+      xOffset: x,
+    );
   }
 
   String serialize() {
@@ -77,15 +93,23 @@ class _ImageTransform {
     if (rotation.abs() > 1e-4) {
       parts.add('r=${rotation.toStringAsFixed(3)}');
     }
+    if (xOffset.abs() > 1e-4) {
+      parts.add('x=${xOffset.toStringAsFixed(3)}');
+    }
     if (parts.isEmpty) return src;
     return '$src#${parts.join('&')}';
   }
 
-  _ImageTransform copyWith({double? widthFactor, double? rotation}) =>
+  _ImageTransform copyWith({
+    double? widthFactor,
+    double? rotation,
+    double? xOffset,
+  }) =>
       _ImageTransform(
         src: src,
         widthFactor: widthFactor ?? this.widthFactor,
         rotation: rotation ?? this.rotation,
+        xOffset: xOffset ?? this.xOffset,
       );
 }
 
@@ -117,7 +141,8 @@ class _EditableImageEmbedState extends State<_EditableImageEmbed> {
     final next = _ImageTransform.parse(_dataString);
     if (next.src != _t.src ||
         next.widthFactor != _t.widthFactor ||
-        next.rotation != _t.rotation) {
+        next.rotation != _t.rotation ||
+        next.xOffset != _t.xOffset) {
       _t = next;
     }
   }
@@ -128,7 +153,8 @@ class _EditableImageEmbedState extends State<_EditableImageEmbed> {
     final serialized = next.serialize();
     if (serialized == _dataString) {
       if (next.widthFactor != _t.widthFactor ||
-          next.rotation != _t.rotation) {
+          next.rotation != _t.rotation ||
+          next.xOffset != _t.xOffset) {
         setState(() => _t = next);
       }
       return;
@@ -242,7 +268,25 @@ class _EditableImageEmbedState extends State<_EditableImageEmbed> {
                           _commit(_t.copyWith(rotation: v)),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Icon(
+                        CupertinoIcons.hand_draw,
+                        size: 16,
+                        color: labelColor.withValues(alpha: 0.6),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Drag image left or right to reposition',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: labelColor.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
@@ -256,7 +300,7 @@ class _EditableImageEmbedState extends State<_EditableImageEmbed> {
                           },
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: _resetButton(
                           icon: CupertinoIcons.arrow_counterclockwise,
@@ -266,6 +310,16 @@ class _EditableImageEmbedState extends State<_EditableImageEmbed> {
                             setSheet(() => tempW = 1.0);
                             _commit(_t.copyWith(widthFactor: 1.0));
                           },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _resetButton(
+                          icon: CupertinoIcons.arrow_left_right,
+                          label: 'Center',
+                          color: accent,
+                          onTap: () =>
+                              _commit(_t.copyWith(xOffset: 0)),
                         ),
                       ),
                     ],
@@ -426,10 +480,24 @@ class _EditableImageEmbedState extends State<_EditableImageEmbed> {
         builder: (context, constraints) {
           final maxW = constraints.maxWidth;
           final targetW = maxW * _t.widthFactor;
-          return Center(
+          final freeSpace = math.max(0.0, maxW - targetW);
+          final canDrag = freeSpace > 0.5;
+          return Align(
+            alignment: Alignment(_t.xOffset, 0),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: _showAdjustSheet,
+              onHorizontalDragUpdate: !canDrag
+                  ? null
+                  : (d) {
+                      // Each unit of xOffset spans freeSpace/2 pixels.
+                      final delta = d.delta.dx * 2 / freeSpace;
+                      final next = (_t.xOffset + delta).clamp(-1.0, 1.0);
+                      if (next != _t.xOffset) {
+                        setState(() => _t = _t.copyWith(xOffset: next));
+                      }
+                    },
+              onHorizontalDragEnd: !canDrag ? null : (_) => _commit(_t),
               child: Transform.rotate(
                 angle: _t.rotation,
                 child: SizedBox(
