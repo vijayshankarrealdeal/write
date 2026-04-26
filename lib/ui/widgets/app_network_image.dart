@@ -110,6 +110,38 @@ class AppNetworkImage extends StatelessWidget {
     return SizedBox(width: width, height: height, child: body);
   }
 
+  /// Warm the image cache for an upcoming render. Call from list/feed scroll
+  /// handlers with the next few items so the user doesn't see the blurhash
+  /// → real-image swap when they actually reach those tiles.
+  ///
+  /// Picks the smallest variant that fits [width] at the device's DPR — same
+  /// logic as live rendering, so the cached entry is the exact one the
+  /// widget will request later. Best-effort: errors are swallowed.
+  static Future<void> precache(
+    BuildContext context, {
+    String? url,
+    ImageMeta? meta,
+    required double width,
+  }) async {
+    final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
+    String? target;
+    if (meta != null) {
+      target = meta.urlForWidth(width, devicePixelRatio: dpr);
+    } else {
+      target = url;
+    }
+    if (target == null || target.isEmpty) return;
+    try {
+      await precacheImage(
+        CachedNetworkImageProvider(target),
+        context,
+      );
+    } catch (_) {
+      // Network hiccups during prefetch shouldn't bubble up — the live
+      // render will retry and surface the error itself if it persists.
+    }
+  }
+
   static Color? _hexToColor(String? hex) {
     if (hex == null || hex.isEmpty) return null;
     final h = hex.replaceFirst('#', '');

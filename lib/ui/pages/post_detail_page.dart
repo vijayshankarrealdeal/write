@@ -13,12 +13,13 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/more_like_this_carousel.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:inkspacex/models/canvas_element_model.dart';
 import 'package:inkspacex/models/comment_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
+import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
@@ -1842,6 +1843,7 @@ class _PostDetailPageState extends State<PostDetailPage>
               // ---- Book header: backdrop + floating cover + title + author ----
               _BookHeader(
                 imageUrl: item.imageUrl,
+                imageMeta: item.imageMeta,
                 title: item.title,
                 author: item.author,
                 isDark: isDark,
@@ -2645,6 +2647,7 @@ class _PostDetailPageState extends State<PostDetailPage>
 // ============================================================================
 class _BookHeader extends StatelessWidget {
   final String imageUrl;
+  final ImageMeta? imageMeta;
   final String title;
   final String author;
   final bool isDark;
@@ -2653,6 +2656,7 @@ class _BookHeader extends StatelessWidget {
 
   const _BookHeader({
     required this.imageUrl,
+    this.imageMeta,
     required this.title,
     required this.author,
     required this.isDark,
@@ -2662,7 +2666,7 @@ class _BookHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasCover = imageUrl.isNotEmpty;
+    final hasCover = imageUrl.isNotEmpty || imageMeta != null;
     final screenWidth = MediaQuery.of(context).size.width;
     final coverWidth = screenWidth > 720 ? 200.0 : 160.0;
     final coverHeight = coverWidth * 1.45;
@@ -2676,11 +2680,12 @@ class _BookHeader extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 if (hasCover)
-                  CachedNetworkImage(
-                    imageUrl: imageUrl,
+                  AppNetworkImage(
+                    url: imageUrl,
+                    meta: imageMeta,
+                    width: MediaQuery.sizeOf(context).width,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => const SizedBox.shrink(),
-                    errorWidget: (_, __, ___) => const SizedBox.shrink(),
+                    errorWidget: const SizedBox.shrink(),
                   )
                 else
                   Container(
@@ -2749,25 +2754,23 @@ class _BookHeader extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: hasCover
-                        ? CachedNetworkImage(
-                            imageUrl: imageUrl,
-                            fit: BoxFit.cover,
-                            placeholder: (_, __) => Container(
-                              color: isDark
-                                  ? const Color(0xFF1E1E1E)
-                                  : const Color(0xFFEDEDED),
-                              child: const Center(
-                                  child: CupertinoActivityIndicator()),
-                            ),
-                            errorWidget: (_, __, ___) => Container(
-                              color: isDark
-                                  ? const Color(0xFF1E1E1E)
-                                  : const Color(0xFFEDEDED),
-                              child: Icon(CupertinoIcons.photo,
-                                  size: 36,
-                                  color: isDark
-                                      ? Colors.white24
-                                      : Colors.black26),
+                        ? LayoutBuilder(
+                            builder: (ctx, c) => AppNetworkImage(
+                              url: imageUrl,
+                              meta: imageMeta,
+                              width: c.maxWidth,
+                              height: c.maxHeight,
+                              fit: BoxFit.cover,
+                              errorWidget: Container(
+                                color: isDark
+                                    ? const Color(0xFF1E1E1E)
+                                    : const Color(0xFFEDEDED),
+                                child: Icon(CupertinoIcons.photo,
+                                    size: 36,
+                                    color: isDark
+                                        ? Colors.white24
+                                        : Colors.black26),
+                              ),
                             ),
                           )
                         : Container(
@@ -3431,35 +3434,34 @@ class _CommentTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: comment.authorPhotoUrl != null && comment.authorPhotoUrl!.isNotEmpty
-                  ? null
-                  : const Color(0xFF2563EB),
-              image: comment.authorPhotoUrl != null && comment.authorPhotoUrl!.isNotEmpty
-                  ? DecorationImage(
-                      image: CachedNetworkImageProvider(comment.authorPhotoUrl!),
+          ClipOval(
+            child: SizedBox(
+              width: 34,
+              height: 34,
+              child: (comment.authorPhotoUrl != null &&
+                      comment.authorPhotoUrl!.isNotEmpty)
+                  ? AppNetworkImage(
+                      url: comment.authorPhotoUrl,
+                      meta: comment.authorPhotoMeta,
+                      width: 34,
+                      height: 34,
                       fit: BoxFit.cover,
                     )
-                  : null,
-            ),
-            child: comment.authorPhotoUrl == null || comment.authorPhotoUrl!.isEmpty
-                ? Center(
-                    child: Text(
-                      comment.authorName.isNotEmpty
-                          ? comment.authorName[0].toUpperCase()
-                          : 'U',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                  : Container(
+                      color: const Color(0xFF2563EB),
+                      alignment: Alignment.center,
+                      child: Text(
+                        comment.authorName.isNotEmpty
+                            ? comment.authorName[0].toUpperCase()
+                            : 'U',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  )
-                : null,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -3640,11 +3642,13 @@ class _CanvasPreview extends StatelessWidget {
             children: [
               if (bgImageUrl.isNotEmpty && bgImageUrl.startsWith('http'))
                 Positioned.fill(
-                  child: CachedNetworkImage(
-                    imageUrl: bgImageUrl,
+                  child: AppNetworkImage(
+                    url: bgImageUrl,
+                    meta: ImageMeta.fromInlineUrl(bgImageUrl),
+                    width: canvasWidth,
+                    height: canvasHeight,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => const SizedBox.shrink(),
-                    errorWidget: (_, __, ___) => const SizedBox.shrink(),
+                    errorWidget: const SizedBox.shrink(),
                   ),
                 ),
               for (final e in elements)
@@ -3692,14 +3696,11 @@ class _CanvasPreview extends StatelessWidget {
         imageWidget = _placeholder();
       }
     } else if (e.imageUrl.startsWith('http')) {
-      imageWidget = CachedNetworkImage(
-        imageUrl: e.imageUrl,
+      imageWidget = AppNetworkImage(
+        url: e.imageUrl,
+        meta: ImageMeta.fromInlineUrl(e.imageUrl),
         fit: BoxFit.cover,
-        placeholder: (_, __) => Container(
-          color: isDark ? Colors.white10 : Colors.grey[200],
-          child: const Center(child: CupertinoActivityIndicator()),
-        ),
-        errorWidget: (_, __, ___) => _placeholder(),
+        errorWidget: _placeholder(),
       );
     } else {
       imageWidget = _placeholder();

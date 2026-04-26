@@ -22,12 +22,9 @@ from app.storage import minio_client
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 # ---------------------------------------------------------------------------
-# Admin authentication
+# Admin authentication — credentials sourced from env (ADMIN_USERNAME /
+# ADMIN_PASSWORD), validated at startup in app.config.
 # ---------------------------------------------------------------------------
-ADMIN_USERNAME = "inkspace"
-ADMIN_PASSWORD = "Google@99"
-
-# In-memory session tokens (reset on restart — fine for admin dashboard)
 _admin_sessions: dict[str, datetime] = {}
 SESSION_TTL = timedelta(hours=12)
 
@@ -50,7 +47,11 @@ async def admin_login(payload: dict):
     username = payload.get("username", "")
     password = payload.get("password", "")
 
-    if username != ADMIN_USERNAME or password != ADMIN_PASSWORD:
+    expected_user = settings.admin_username.encode()
+    expected_pass = settings.admin_password.encode()
+    user_ok = secrets.compare_digest(username.encode(), expected_user)
+    pass_ok = secrets.compare_digest(password.encode(), expected_pass)
+    if not (user_ok and pass_ok):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     token = secrets.token_urlsafe(32)

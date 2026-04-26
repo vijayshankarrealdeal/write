@@ -1,13 +1,24 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
+
+
+_INSECURE_JWT_PLACEHOLDERS = {
+    "",
+    "change-this-to-a-random-secret-in-production",
+    "changeme",
+}
 
 
 class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://inkspacex:changeme@localhost:5432/inkspacex"
 
-    jwt_secret: str = "change-this-to-a-random-secret-in-production"
+    jwt_secret: str
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 30
+
+    admin_username: str
+    admin_password: str
 
     minio_endpoint: str = "localhost:9000"
     minio_access_key: str = "minioadmin"
@@ -24,11 +35,28 @@ class Settings(BaseSettings):
     azure_openai_api_version: str = "2024-12-01-preview"
     azure_openai_chat_deployment: str = "gpt-5.4-mini"
     azure_openai_embedding_deployment: str = "text-embedding-ada-002"
-    # Both `text-embedding-ada-002` and `text-embedding-3-small` are 1536-dim;
-    # pinned in code so the column type and the runtime stay in lockstep.
     embedding_dim: int = 1536
 
     model_config = {"env_file": ".env"}
+
+    @field_validator("jwt_secret")
+    @classmethod
+    def _reject_placeholder_jwt(cls, v: str) -> str:
+        if v.strip().lower() in _INSECURE_JWT_PLACEHOLDERS or len(v) < 32:
+            raise ValueError(
+                "JWT_SECRET must be set to a random value of at least 32 characters "
+                "(e.g. `openssl rand -hex 32`)."
+            )
+        return v
+
+    @field_validator("admin_password")
+    @classmethod
+    def _reject_weak_admin_password(cls, v: str) -> str:
+        if len(v) < 12:
+            raise ValueError(
+                "ADMIN_PASSWORD must be at least 12 characters. Set it in .env."
+            )
+        return v
 
 
 settings = Settings()

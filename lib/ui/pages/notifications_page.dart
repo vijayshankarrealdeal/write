@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import 'package:inkspacex/models/notification_model.dart';
 import 'package:inkspacex/provider/notification_provider.dart';
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/skeleton.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -250,24 +250,33 @@ class _Avatar extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        CircleAvatar(
-          radius: 22,
-          backgroundColor: isDark
-              ? Colors.white.withValues(alpha: 0.08)
-              : Colors.black.withValues(alpha: 0.06),
-          backgroundImage: notif.actorPhotoUrl != null
-              ? CachedNetworkImageProvider(notif.actorPhotoUrl!)
-              : null,
-          child: notif.actorPhotoUrl == null
-              ? Text(
-                  initial,
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+        ClipOval(
+          child: SizedBox(
+            width: 44,
+            height: 44,
+            child: notif.actorPhotoUrl != null
+                ? AppNetworkImage(
+                    url: notif.actorPhotoUrl,
+                    width: 44,
+                    height: 44,
+                    fit: BoxFit.cover,
+                  )
+                : Container(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : Colors.black.withValues(alpha: 0.06),
+                    alignment: Alignment.center,
+                    child: Text(
+                      initial,
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color:
+                            isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
                   ),
-                )
-              : null,
+          ),
         ),
         Positioned(
           bottom: -2,

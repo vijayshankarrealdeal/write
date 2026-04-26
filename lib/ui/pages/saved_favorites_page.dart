@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
 enum CollectionType { saved, favorites }
 
 class SavedFavoritesPage extends StatefulWidget {
@@ -222,17 +221,17 @@ class _SavedItemCard extends StatelessWidget {
         child: Row(
           children: [
             // Cover image
-            if (item.imageUrl.isNotEmpty)
+            if (item.imageUrl.isNotEmpty || item.imageMeta != null)
               SizedBox(
                 width: 90,
                 height: 90,
-                child: CachedNetworkImage(
-                  imageUrl: item.imageUrl,
+                child: AppNetworkImage(
+                  url: item.imageUrl,
+                  meta: item.imageMeta,
+                  width: 90,
+                  height: 90,
                   fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(
-                    color: isDark ? Colors.white10 : Colors.grey[200],
-                  ),
-                  errorWidget: (_, __, ___) => Container(
+                  errorWidget: Container(
                     color: isDark ? Colors.white10 : Colors.grey[200],
                     child: Icon(CupertinoIcons.photo,
                         color: subtleColor, size: 24),

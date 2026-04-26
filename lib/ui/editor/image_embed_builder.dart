@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 
 /// Renders image embeds inside the QuillEditor with tap-to-adjust
@@ -45,12 +46,25 @@ class _ImageTransform {
     required this.widthFactor,
     required this.rotation,
     required this.xOffset,
+    this.imageMeta,
+    this.extraFragment = const <String, String>{},
   });
 
   final String src;
   final double widthFactor; // 0.25..1.0 of available content width
   final double rotation;    // radians, -pi..pi
   final double xOffset;     // -1.0 (left) .. 0 (center) .. 1.0 (right)
+  /// Pipeline metadata reconstructed from the URL fragment, when present.
+  /// Lets the embed render with a blurhash placeholder + DPR-aware variants
+  /// just like model-stored images.
+  final ImageMeta? imageMeta;
+  /// Any fragment params we don't know about — preserved verbatim across
+  /// serialize round-trips so future keys don't get clobbered when the user
+  /// drags or resizes.
+  final Map<String, String> extraFragment;
+
+  // Keys handled directly by this class — anything else lands in extraFragment.
+  static const Set<String> _knownKeys = {'w', 'r', 'x', 'bh', 'dc', 'iw', 'ih', 'vs'};
 
   static _ImageTransform parse(String data) {
     // base64 data URIs cannot contain '#', so the last '#' is the fragment.
@@ -68,21 +82,31 @@ class _ImageTransform {
     double w = 1.0;
     double r = 0.0;
     double x = 0.0;
+    final extras = <String, String>{};
     for (final part in frag.split('&')) {
       final eq = part.indexOf('=');
       if (eq == -1) continue;
       final key = part.substring(0, eq);
-      final val = double.tryParse(part.substring(eq + 1));
-      if (val == null) continue;
-      if (key == 'w') w = val.clamp(0.1, 1.0);
-      if (key == 'r') r = val.clamp(-math.pi, math.pi);
-      if (key == 'x') x = val.clamp(-1.0, 1.0);
+      final raw = part.substring(eq + 1);
+      if (key == 'w' || key == 'r' || key == 'x') {
+        final val = double.tryParse(raw);
+        if (val == null) continue;
+        if (key == 'w') w = val.clamp(0.1, 1.0);
+        if (key == 'r') r = val.clamp(-math.pi, math.pi);
+        if (key == 'x') x = val.clamp(-1.0, 1.0);
+      } else if (!_knownKeys.contains(key)) {
+        extras[key] = raw;
+      }
     }
     return _ImageTransform(
       src: src,
       widthFactor: w,
       rotation: r,
       xOffset: x,
+      // Pipeline meta (`bh/dc/iw/ih/vs`) is reconstructed from the *original*
+      // string so we don't have to thread the raw values through here.
+      imageMeta: ImageMeta.fromInlineUrl(data),
+      extraFragment: extras,
     );
   }
 
@@ -97,6 +121,23 @@ class _ImageTransform {
     if (xOffset.abs() > 1e-4) {
       parts.add('x=${xOffset.toStringAsFixed(3)}');
     }
+    // Preserve the pipeline meta keys so blurhash/DPR-awareness survive edits.
+    final m = imageMeta;
+    if (m != null) {
+      parts.add('bh=${m.blurhash}');
+      parts.add('dc=${m.color.replaceFirst('#', '')}');
+      parts.add('iw=${m.width}');
+      parts.add('ih=${m.height}');
+      // Round-trip the scope name verbatim if we know it; default is fine.
+      final vs = extraFragment['vs'];
+      if (vs != null && vs.isNotEmpty) {
+        parts.add('vs=$vs');
+      }
+    }
+    extraFragment.forEach((k, v) {
+      if (k == 'vs') return; // already handled above
+      parts.add('$k=$v');
+    });
     if (parts.isEmpty) return src;
     return '$src#${parts.join('&')}';
   }
@@ -111,6 +152,8 @@ class _ImageTransform {
         widthFactor: widthFactor ?? this.widthFactor,
         rotation: rotation ?? this.rotation,
         xOffset: xOffset ?? this.xOffset,
+        imageMeta: imageMeta,
+        extraFragment: extraFragment,
       );
 }
 
@@ -478,6 +521,7 @@ class _EditableImageEmbedState extends State<_EditableImageEmbed> {
       imageWidget = LayoutBuilder(
         builder: (ctx, c) => AppNetworkImage(
           url: src,
+          meta: _t.imageMeta,
           width: c.maxWidth,
           fit: BoxFit.cover,
           errorWidget: errorBox,

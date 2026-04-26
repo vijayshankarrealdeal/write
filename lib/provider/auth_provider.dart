@@ -6,6 +6,7 @@ import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/services/api/api_auth_service.dart';
 import 'package:inkspacex/services/api/api_client.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
+import 'package:inkspacex/services/api/api_push_token_service.dart';
 import 'package:inkspacex/services/api/api_realtime_service.dart';
 import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
@@ -34,6 +35,7 @@ class AuthProvider extends ChangeNotifier {
   ApiDataService get dataService => _dataService;
   ApiStorageService get storageService => _storageService;
   ApiRealtimeService get realtimeService => _realtimeService;
+  ApiPushTokenService get pushTokenService => ApiPushTokenService(_apiClient);
 
   AuthProvider(this._storage) {
     _apiClient = ApiClient(_storage);

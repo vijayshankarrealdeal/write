@@ -10,7 +10,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:inkspacex/main.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
+import 'package:inkspacex/services/local_notification_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
+import 'package:inkspacex/services/sync/merge_log.dart';
 import 'package:inkspacex/services/sync/outbox.dart';
 
 void main() {
@@ -22,10 +24,21 @@ void main() {
     connectivity.debugSet(true);
     final outbox = Outbox(boxName: 'sync_outbox_test');
     await outbox.init();
+    final mergeLog = MergeLog(boxName: 'sync_merge_log_test');
+    await mergeLog.init();
+    final localNotifications = LocalNotificationService();
+    // init() is a no-op in the test environment (no platform channels);
+    // we don't await it because plugin init isn't available offline.
 
     // Build our app and trigger a frame.
     await tester.pumpWidget(
-      MyApp(storage: storage, connectivity: connectivity, outbox: outbox),
+      MyApp(
+        storage: storage,
+        connectivity: connectivity,
+        outbox: outbox,
+        mergeLog: mergeLog,
+        localNotifications: localNotifications,
+      ),
     );
 
     // Verify the app loads

@@ -23,6 +23,8 @@ import 'package:inkspacex/ui/pages/merge_log_page.dart';
 import 'package:inkspacex/ui/pages/notifications_page.dart';
 import 'package:inkspacex/ui/pages/saved_favorites_page.dart';
 import 'package:inkspacex/ui/pages/reading_statistics_page.dart';
+import 'package:inkspacex/ui/pages/tag_feed_page.dart';
+import 'package:inkspacex/ui/pages/explore_page.dart';
 import 'package:inkspacex/ui/pages/subscription_page.dart';
 import 'package:inkspacex/ui/pages/create_bookshelf_page.dart';
 import 'package:inkspacex/ui/pages/view_bookshelf_page.dart';
@@ -144,6 +146,25 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/feed-preferences',
         builder: (_, __) => const FeedPreferencesPage(),
+      ),
+      GoRoute(
+        path: '/explore',
+        pageBuilder: (_, __) => const CupertinoPage(child: ExplorePage()),
+      ),
+      GoRoute(
+        path: '/tag-feed/:kind/:value',
+        pageBuilder: (_, state) {
+          final rawKind = state.pathParameters['kind'] ?? 'tag';
+          final value = Uri.decodeComponent(state.pathParameters['value'] ?? '');
+          final kind = switch (rawKind) {
+            'genre' => TagFeedKind.genre,
+            'type' => TagFeedKind.writingType,
+            _ => TagFeedKind.tag,
+          };
+          return CupertinoPage(
+            child: TagFeedPage(kind: kind, value: value),
+          );
+        },
       ),
       GoRoute(
         path: '/notifications',

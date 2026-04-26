@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +8,7 @@ import 'package:inkspacex/models/bookshelf_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/bookshelf_provider.dart';
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
 
 class ViewBookshelfPage extends StatefulWidget {
   final String bookshelfId;
@@ -404,14 +404,14 @@ class _ShelfItemCard extends StatelessWidget {
             SizedBox(
               width: 80,
               height: 80,
-              child: item.imageUrl.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: item.imageUrl,
+              child: (item.imageUrl.isNotEmpty || item.imageMeta != null)
+                  ? AppNetworkImage(
+                      url: item.imageUrl,
+                      meta: item.imageMeta,
+                      width: 80,
+                      height: 80,
                       fit: BoxFit.cover,
-                      placeholder: (_, __) => Container(
-                        color: isDark ? Colors.white10 : Colors.grey[200],
-                      ),
-                      errorWidget: (_, __, ___) => Container(
+                      errorWidget: Container(
                         color: isDark ? Colors.white10 : Colors.grey[200],
                         child: Icon(
                           CupertinoIcons.photo,

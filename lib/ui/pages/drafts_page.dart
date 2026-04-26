@@ -1,10 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
 
 class DraftsPage extends StatefulWidget {
   const DraftsPage({super.key});
@@ -194,17 +194,17 @@ class _DraftsPageState extends State<DraftsPage> {
                             children: [
                               Row(
                                 children: [
-                                  if (draft.imageUrl.isNotEmpty)
-                                    ClipRRect(
+                                  if (draft.imageUrl.isNotEmpty ||
+                                      draft.imageMeta != null)
+                                    AppNetworkImage(
+                                      url: draft.imageUrl,
+                                      meta: draft.imageMeta,
+                                      width: 48,
+                                      height: 48,
+                                      fit: BoxFit.cover,
                                       borderRadius: BorderRadius.circular(8),
-                                      child: CachedNetworkImage(
-                                        imageUrl: draft.imageUrl,
-                                        width: 48,
-                                        height: 48,
-                                        fit: BoxFit.cover,
-                                        errorWidget: (_, __, ___) =>
-                                            _placeholderIcon(draft, isDark),
-                                      ),
+                                      errorWidget:
+                                          _placeholderIcon(draft, isDark),
                                     )
                                   else
                                     _placeholderIcon(draft, isDark),

@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:inkspacex/models/canvas_element_model.dart';
+import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/services/gemini_service.dart';
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
 
 // Decoded image bytes cache for `data:image/...;base64,...` URIs used as
 // canvas image elements and the canvas background. The build path
@@ -562,7 +563,11 @@ class CanvasEditorState extends State<CanvasEditor>
                                 gaplessPlayback: true,
                               );
                             }()
-                          : CachedNetworkImage(imageUrl: _bgImageUrl, fit: BoxFit.cover),
+                          : AppNetworkImage(
+                              url: _bgImageUrl,
+                              meta: ImageMeta.fromInlineUrl(_bgImageUrl),
+                              fit: BoxFit.cover,
+                            ),
                     ),
 
                   // Background tap to deselect
@@ -1074,14 +1079,11 @@ class CanvasEditorState extends State<CanvasEditor>
               errorBuilder: (_, __, ___) => _errorPlaceholder(isDark),
             );
     } else if (e.imageUrl.startsWith('http')) {
-      imageWidget = CachedNetworkImage(
-        imageUrl: e.imageUrl,
+      imageWidget = AppNetworkImage(
+        url: e.imageUrl,
+        meta: ImageMeta.fromInlineUrl(e.imageUrl),
         fit: BoxFit.cover,
-        placeholder: (_, __) => Container(
-          color: isDark ? Colors.white10 : Colors.grey[200],
-          child: const Center(child: CupertinoActivityIndicator()),
-        ),
-        errorWidget: (_, __, ___) => _errorPlaceholder(isDark),
+        errorWidget: _errorPlaceholder(isDark),
       );
     } else {
       imageWidget = _errorPlaceholder(isDark);

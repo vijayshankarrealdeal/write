@@ -25,3 +25,19 @@ class UnreadCountResponse(BaseModel):
 
 class MarkReadRequest(BaseModel):
     ids: list[UUID] | None = None
+
+
+class PushSubscriptionCreate(BaseModel):
+    platform: str  # 'fcm' | 'apns' | 'web'
+    token: str
+    device_label: str | None = None
+
+
+class PushSubscriptionResponse(BaseModel):
+    id: UUID
+    platform: str
+    device_label: str | None
+    created_at: datetime
+    last_seen_at: datetime
+
+    model_config = {"from_attributes": True}

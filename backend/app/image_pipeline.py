@@ -1,9 +1,9 @@
 """Image processing pipeline.
 
 Takes an uploaded image, decodes it, fixes EXIF orientation, strips metadata,
-and emits a set of size variants in WebP (primary) + JPEG (fallback). Also
-computes a blurhash for instant placeholders and a dominant color hex for
-chrome (cards, splash backgrounds, etc.) before the image arrives.
+and emits a set of WebP size variants. Also computes a blurhash for instant
+placeholders and a dominant color hex for chrome (cards, splash backgrounds,
+etc.) before the image arrives.
 
 Variants are sized for: avatars/thumbnails (160), feed cards (400), full-width
 list items (800), hero/cover at retina (1600). Originals are kept (re-encoded
@@ -11,6 +11,11 @@ to WebP) for editor/zoom use.
 
 The processing runs in a thread pool (Pillow is sync) so it doesn't block the
 event loop.
+
+Decoder hardening:
+    * `pillow-heif` is registered so iPhone HEIC/HEIF uploads decode.
+    * `Image.MAX_IMAGE_PIXELS` is capped — Pillow raises `DecompressionBombError`
+      above the limit so a small malicious file can't OOM the worker.
 """
 from __future__ import annotations
 
@@ -21,6 +26,19 @@ from typing import Iterable
 
 import blurhash
 from PIL import Image, ImageOps
+
+# HEIC/HEIF support for iPhone uploads. Side-effect import.
+try:
+    from pillow_heif import register_heif_opener
+
+    register_heif_opener()
+except ImportError:  # pragma: no cover - keeps the module importable in dev
+    pass
+
+# Decompression-bomb cap. 50 MP comfortably covers a 50MP phone sensor while
+# rejecting the 100KB-PNG-that-decompresses-to-gigabytes attack class. Pillow
+# raises `Image.DecompressionBombError` above this limit; callers must catch.
+Image.MAX_IMAGE_PIXELS = 50_000_000
 
 
 # (variant key, max edge in CSS pixels). Width OR height, whichever is larger,
@@ -50,7 +68,6 @@ EDITOR_VARIANTS: tuple[tuple[str, int], ...] = (
 # Quality knobs. WebP at q=82 is visually indistinguishable from source for
 # most photographic content while ~30% smaller than equivalent JPEG.
 WEBP_QUALITY = 82
-JPEG_QUALITY = 85
 # Max edge for the "original" re-encode. Anything larger than this is downscaled
 # — protects against 12MP phone uploads bloating storage.
 MAX_ORIGINAL_EDGE = 2400
@@ -59,7 +76,7 @@ MAX_ORIGINAL_EDGE = 2400
 @dataclass(slots=True)
 class ProcessedVariant:
     key: str            # "thumb" | "small" | "medium" | "large" | "original"
-    fmt: str            # "webp" | "jpeg"
+    fmt: str            # "webp"
     data: bytes
     width: int
     height: int
@@ -79,7 +96,7 @@ class ImageMeta:
     blurhash: str           # 4x3 component blurhash for placeholder
     color: str              # dominant color hex like "#a37c4f"
     variants: dict[str, dict[str, int]]  # key -> {w, h}, present formats live next to each variant
-    formats: list[str]      # ["webp", "jpeg"] — what the server emitted
+    formats: list[str]      # ["webp"] — what the server emitted
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -111,34 +128,31 @@ def _resize(img: Image.Image, max_edge: int) -> Image.Image:
 
 
 def _encode(img: Image.Image, fmt: str) -> bytes:
-    buf = io.BytesIO()
-    save_kwargs: dict
-    if fmt == "webp":
-        save_kwargs = {"format": "WEBP", "quality": WEBP_QUALITY, "method": 4}
-    elif fmt == "jpeg":
-        # JPEG can't hold alpha — flatten onto white.
-        if img.mode in ("RGBA", "LA"):
-            bg = Image.new("RGB", img.size, (255, 255, 255))
-            bg.paste(img, mask=img.split()[-1])
-            img = bg
-        elif img.mode != "RGB":
-            img = img.convert("RGB")
-        save_kwargs = {
-            "format": "JPEG",
-            "quality": JPEG_QUALITY,
-            "optimize": True,
-            "progressive": True,
-        }
-    else:
+    if fmt != "webp":
         raise ValueError(f"unknown fmt: {fmt}")
-    img.save(buf, **save_kwargs)
+    buf = io.BytesIO()
+    img.save(buf, format="WEBP", quality=WEBP_QUALITY, method=4)
     return buf.getvalue()
 
 
 def _dominant_color(img: Image.Image) -> str:
-    # Downsample to 1px and read the average color — cheap, good enough for chrome.
-    small = img.convert("RGB").resize((1, 1), Image.Resampling.LANCZOS)
-    r, g, b = small.getpixel((0, 0))
+    """Return the most-common color via palette quantization.
+
+    A 1×1 average flattens "red apple on white background" into pinkish-grey;
+    quantizing to a small palette and taking the most-populated bucket gives
+    the actual eye-catching color. Median-cut (Pillow's default) handles
+    photographic content well.
+    """
+    # 64×64 is enough resolution to keep small accent regions in the palette
+    # without quantizing for thousands of pixels.
+    sample = img.convert("RGB").resize((64, 64), Image.Resampling.LANCZOS)
+    pal = sample.quantize(colors=8, method=Image.Quantize.MEDIANCUT)
+    palette = pal.getpalette() or []
+    counts = sorted(pal.getcolors() or [], key=lambda c: c[0], reverse=True)
+    if not counts or len(palette) < 3:
+        return "#cccccc"
+    idx = counts[0][1]
+    r, g, b = palette[idx * 3 : idx * 3 + 3]
     return f"#{r:02x}{g:02x}{b:02x}"
 
 
@@ -184,7 +198,7 @@ async def process_image(
     data: bytes,
     *,
     scope: str = "default",
-    formats: tuple[str, ...] = ("webp", "jpeg"),
+    formats: tuple[str, ...] = ("webp",),
     include_original: bool = True,
 ) -> tuple[list[ProcessedVariant], dict]:
     """Process raw upload bytes into variants + a JSON-ready meta dict.

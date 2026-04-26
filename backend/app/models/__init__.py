@@ -5,6 +5,7 @@ from app.models.comment import Comment
 from app.models.feed_item import FeedItem
 from app.models.highlight import Highlight
 from app.models.notification import Notification
+from app.models.push_subscription import PushSubscription
 from app.models.reading_progress import ReadingProgress
 from app.models.section import Section
 from app.models.user import User
@@ -20,6 +21,7 @@ __all__ = [
     "Highlight",
     "Notification",
     "PageVisit",
+    "PushSubscription",
     "ReadingProgress",
     "RecommendationEvent",
     "Section",

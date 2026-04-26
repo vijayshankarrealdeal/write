@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +10,7 @@ import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/provider/nav_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -504,28 +504,39 @@ class _ProfilePageState extends State<ProfilePage> {
                           : Colors.black.withValues(alpha: 0.05),
                       child: _isUploading
                           ? const CupertinoActivityIndicator()
-                          : CircleAvatar(
-                              radius: 55,
-                              backgroundColor: isDark
-                                  ? Colors.white.withValues(alpha: 0.2)
-                                  : Colors.black.withValues(alpha: 0.08),
-                              backgroundImage: user?.photoUrl != null
-                                  ? CachedNetworkImageProvider(user!.photoUrl!)
-                                  : null,
-                              child: user?.photoUrl == null
-                                  ? Text(
-                                      (user?.name.isNotEmpty == true)
-                                          ? user!.name[0].toUpperCase()
-                                          : 'U',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 40,
-                                        fontWeight: FontWeight.bold,
+                          : ClipOval(
+                              child: SizedBox(
+                                width: 110,
+                                height: 110,
+                                child: user?.photoUrl != null
+                                    ? AppNetworkImage(
+                                        url: user!.photoUrl,
+                                        meta: user.photoMeta,
+                                        width: 110,
+                                        height: 110,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Container(
                                         color: isDark
-                                            ? Colors.white70
-                                            : Colors.black87,
+                                            ? Colors.white
+                                                .withValues(alpha: 0.2)
+                                            : Colors.black
+                                                .withValues(alpha: 0.08),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          (user?.name.isNotEmpty == true)
+                                              ? user!.name[0].toUpperCase()
+                                              : 'U',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 40,
+                                            fontWeight: FontWeight.bold,
+                                            color: isDark
+                                                ? Colors.white70
+                                                : Colors.black87,
+                                          ),
+                                        ),
                                       ),
-                                    )
-                                  : null,
+                              ),
                             ),
                     ),
                     Positioned(

@@ -1110,37 +1110,29 @@ class _EditiorPageState extends State<EditiorPage>
                       // ── Focus Mode Exit Button ──
                       if (_focusMode)
                         Positioned(
-                          top: 8,
-                          right: 8,
+                          top: 14,
+                          right: 16,
                           child: FadeTransition(
-                            opacity: Tween<double>(begin: 0, end: 0.4)
-                                .animate(_focusModeAnimation),
-                            child: GestureDetector(
+                            opacity: _focusModeAnimation,
+                            child: _FocusExitButton(
+                              isDark: isDark,
                               onTap: _toggleFocusMode,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? Colors.white.withValues(alpha: 0.06)
-                                      : Colors.black.withValues(alpha: 0.04),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(CupertinoIcons.eye,
-                                        size: 14, color: mutedColor),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'Exit Focus',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 11,
-                                        color: mutedColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                            ),
+                          ),
+                        ),
+
+                      // ── Focus Mode Word Counter ──
+                      if (_focusMode)
+                        Positioned(
+                          bottom: 18,
+                          left: 0,
+                          right: 0,
+                          child: FadeTransition(
+                            opacity: _focusModeAnimation,
+                            child: Center(
+                              child: _FocusWordCounter(
+                                isDark: isDark,
+                                sessionStart: _sessionStartWords,
                               ),
                             ),
                           ),
@@ -1637,8 +1629,12 @@ class _EditiorPageState extends State<EditiorPage>
           auth.currentUser!.id,
           bytes,
         );
-        // Canvas elements store a single URL — pick the largest variant.
-        return result.meta?.largestUrl ?? result.url;
+        // Canvas elements store a single URL string. `result.url` is the
+        // medium variant with a `#bh=...` meta fragment — small enough for
+        // a thumbnail (no 2400 px memory regression) but still rehydratable
+        // back into ImageMeta if the canvas renderer ever wants the
+        // blurhash placeholder.
+        return result.url;
       },
     );
   }
@@ -1781,31 +1777,50 @@ class _EditiorPageState extends State<EditiorPage>
         ? Colors.white.withValues(alpha: 0.05)
         : Colors.black.withValues(alpha: 0.06);
 
+    final focusBorder = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.08);
+
     return Container(
-      color: _focusMode ? paperColor : bgColor,
+      color: bgColor,
       alignment: Alignment.topCenter,
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: _focusMode ? 720 : 820),
+        constraints: BoxConstraints(maxWidth: _focusMode ? 760 : 820),
         child: Container(
           height: double.infinity,
           margin: EdgeInsets.fromLTRB(
-            isMobile ? 0 : (_focusMode ? 0 : 20),
-            isMobile ? 0 : (_focusMode ? 0 : 12),
-            isMobile ? 0 : (_focusMode ? 0 : 20),
-            0,
+            isMobile ? 0 : (_focusMode ? 24 : 20),
+            isMobile ? 0 : (_focusMode ? 24 : 12),
+            isMobile ? 0 : (_focusMode ? 24 : 20),
+            isMobile ? 0 : (_focusMode ? 24 : 0),
           ),
-          decoration: isMobile || _focusMode
+          decoration: isMobile
               ? BoxDecoration(color: paperColor)
-              : BoxDecoration(
-                  color: paperColor,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16),
-                  ),
-                  border: Border.all(color: paperBorder),
-                ),
+              : _focusMode
+                  ? BoxDecoration(
+                      color: paperColor,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: focusBorder),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(
+                              alpha: isDark ? 0.45 : 0.10),
+                          blurRadius: 40,
+                          spreadRadius: -8,
+                          offset: const Offset(0, 12),
+                        ),
+                      ],
+                    )
+                  : BoxDecoration(
+                      color: paperColor,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
+                      border: Border.all(color: paperBorder),
+                    ),
           padding: EdgeInsets.fromLTRB(
             isMobile ? 18 : (_focusMode ? 64 : 48),
-            _focusMode ? 60 : 20,
+            _focusMode ? (isMobile ? 56 : 96) : 20,
             isMobile ? 18 : (_focusMode ? 64 : 48),
             0,
           ),
@@ -2779,6 +2794,153 @@ class _ToolbarIconButton extends StatelessWidget {
       splashRadius: 18,
       constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
       padding: const EdgeInsets.all(6),
+    );
+  }
+}
+
+// ─── Focus Mode: Exit Button (hover-aware, with ESC hint) ───
+class _FocusExitButton extends StatefulWidget {
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _FocusExitButton({required this.isDark, required this.onTap});
+
+  @override
+  State<_FocusExitButton> createState() => _FocusExitButtonState();
+}
+
+class _FocusExitButtonState extends State<_FocusExitButton> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final base = widget.isDark ? Colors.white : Colors.black;
+    final fg = base.withValues(alpha: _hover ? 0.85 : 0.35);
+    final bg = base.withValues(alpha: _hover ? 0.08 : 0.03);
+    final keyBg = base.withValues(alpha: _hover ? 0.12 : 0.06);
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding:
+              const EdgeInsets.fromLTRB(10, 6, 6, 6),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(CupertinoIcons.eye, size: 13, color: fg),
+              const SizedBox(width: 6),
+              Text(
+                'Exit Focus',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: fg,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: keyBg,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'ESC',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w600,
+                    color: fg,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Focus Mode: Subtle Word Counter (live, bottom-center) ───
+class _FocusWordCounter extends StatelessWidget {
+  final bool isDark;
+  final int sessionStart;
+
+  const _FocusWordCounter({
+    required this.isDark,
+    required this.sessionStart,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final base = isDark ? Colors.white : Colors.black;
+    return Selector<EditorProvider, QuillController>(
+      selector: (_, p) => p.controller,
+      builder: (context, controller, _) => ListenableBuilder(
+        listenable: controller,
+        builder: (context, _) {
+          final text = controller.document.toPlainText().trim();
+          final words = text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
+          final session = words - sessionStart;
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$words',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: base.withValues(alpha: 0.32),
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              Text(
+                ' words',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: base.withValues(alpha: 0.22),
+                ),
+              ),
+              if (session > 0) ...[
+                Text(
+                  '   ·   ',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: base.withValues(alpha: 0.15),
+                  ),
+                ),
+                Text(
+                  '+$session',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.green.withValues(alpha: 0.5),
+                    fontWeight: FontWeight.w500,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+                Text(
+                  ' session',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: base.withValues(alpha: 0.22),
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
+      ),
     );
   }
 }

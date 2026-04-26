@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +11,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
 
 const double _kMaxContentWidth = 1080;
 
@@ -909,12 +909,16 @@ class _SearchPageState extends State<SearchPage> {
         color: isDark ? Colors.white24 : Colors.black26,
       ),
     );
-    if (item.imageUrl.isEmpty) return placeholder;
-    return CachedNetworkImage(
-      imageUrl: item.imageUrl,
-      fit: BoxFit.cover,
-      placeholder: (_, __) => placeholder,
-      errorWidget: (_, __, ___) => placeholder,
+    if (item.imageUrl.isEmpty && item.imageMeta == null) return placeholder;
+    return LayoutBuilder(
+      builder: (ctx, c) => AppNetworkImage(
+        url: item.imageUrl,
+        meta: item.imageMeta,
+        width: c.maxWidth,
+        height: c.maxHeight.isFinite ? c.maxHeight : null,
+        fit: BoxFit.cover,
+        errorWidget: placeholder,
+      ),
     );
   }
 

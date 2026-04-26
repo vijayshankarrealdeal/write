@@ -45,9 +45,33 @@ class _FeedState extends State<Feed> {
       // generic feed — kicked off in parallel so the initial render
       // never waits on the AI engine.
       feed.loadRecommendations();
+      _precacheTop(feed);
     } catch (e) {
       debugPrint("Error loading feed: $e");
     }
+  }
+
+  /// Warm the cache for the first slice of feed covers so the user never
+  /// sees a blurhash placeholder for above-the-fold content. Runs after the
+  /// next frame so we use the live MediaQuery (DPR + width) as ground truth.
+  void _precacheTop(FeedProvider feed) {
+    if (!mounted || feed.items.isEmpty) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final width = MediaQuery.sizeOf(context).width;
+      // Cards on a phone fill the column; on desktop the grid splits the
+      // viewport so the per-card render is narrower. 720 matches the same
+      // breakpoint the feed renderer uses elsewhere.
+      final perCardWidth = width >= 720 ? width / 2 : width;
+      for (final item in feed.items.take(6)) {
+        AppNetworkImage.precache(
+          context,
+          url: item.imageUrl,
+          meta: item.imageMeta,
+          width: perCardWidth,
+        );
+      }
+    });
   }
 
   Future<void> _onRefresh() async {
@@ -62,6 +86,7 @@ class _FeedState extends State<Feed> {
       ),
       feed.loadRecommendations(),
     ]);
+    _precacheTop(feed);
   }
 
   @override
@@ -98,8 +123,23 @@ class _FeedState extends State<Feed> {
           body: NotificationListener<ScrollNotification>(
             onNotification: (notification) {
               if (notification.metrics.pixels >=
-                  notification.metrics.maxScrollExtent - 200) {
-                feed.loadMore(userId: auth.currentUser?.id);
+                  notification.metrics.maxScrollExtent - 800) {
+                // 800px lookahead gives loadMore + precache time to complete
+                // before the user actually scrolls into the new tiles.
+                final before = feed.items.length;
+                feed.loadMore(userId: auth.currentUser?.id).then((_) {
+                  if (!mounted || feed.items.length <= before) return;
+                  final width = MediaQuery.sizeOf(context).width;
+                  final perCardWidth = width >= 720 ? width / 2 : width;
+                  for (final item in feed.items.skip(before).take(6)) {
+                    AppNetworkImage.precache(
+                      context,
+                      url: item.imageUrl,
+                      meta: item.imageMeta,
+                      width: perCardWidth,
+                    );
+                  }
+                });
               }
               return false;
             },
@@ -891,8 +931,10 @@ class _FeedState extends State<Feed> {
                         spacing: 6,
                         runSpacing: 6,
                         children: [
-                          ...item.writingTypes.map((t) => _buildTag(t)),
-                          ...item.genres.map((g) => _buildTag(g)),
+                          ...item.writingTypes.map((t) => _buildTag(t,
+                              kind: 'type')),
+                          ...item.genres.map((g) => _buildTag(g,
+                              kind: 'genre')),
                         ],
                       ),
                     ),
@@ -1114,22 +1156,27 @@ class _FeedState extends State<Feed> {
     );
   }
 
-  Widget _buildTag(String label) {
+  Widget _buildTag(String label, {String kind = 'tag'}) {
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.08)
-            : Colors.black.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(6),
+    return GestureDetector(
+      onTap: () => context.push(
+        '/tag-feed/$kind/${Uri.encodeComponent(label)}',
       ),
-      child: Text(
-        label,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: textColor.withValues(alpha: 0.6),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: textColor.withValues(alpha: 0.6),
+          ),
         ),
       ),
     );
@@ -1472,10 +1519,12 @@ class _FeedCard extends StatelessWidget {
                         children: [
                           ...item.writingTypes
                               .take(1)
-                              .map((t) => _tag(t, textColor)),
+                              .map((t) =>
+                                  _tag(context, t, textColor, kind: 'type')),
                           ...item.genres
                               .take(1)
-                              .map((g) => _tag(g, textColor)),
+                              .map((g) =>
+                                  _tag(context, g, textColor, kind: 'genre')),
                         ],
                       ),
                     ),
@@ -1632,21 +1681,31 @@ class _FeedCard extends StatelessWidget {
     );
   }
 
-  Widget _tag(String label, Color textColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.08)
-            : Colors.black.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(4),
+  Widget _tag(
+    BuildContext context,
+    String label,
+    Color textColor, {
+    String kind = 'tag',
+  }) {
+    return GestureDetector(
+      onTap: () => context.push(
+        '/tag-feed/$kind/${Uri.encodeComponent(label)}',
       ),
-      child: Text(
-        label,
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w500,
-          color: textColor.withValues(alpha: 0.5),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            color: textColor.withValues(alpha: 0.5),
+          ),
         ),
       ),
     );

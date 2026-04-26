@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -21,6 +21,7 @@ import 'package:inkspacex/provider/settings_provider.dart';
 import 'package:inkspacex/router.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
+import 'package:inkspacex/services/local_notification_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/services/sync/merge_log.dart';
 import 'package:inkspacex/services/sync/outbox.dart';
@@ -80,11 +81,17 @@ void main() {
     await outbox.init();
     final mergeLog = MergeLog();
     await mergeLog.init();
+    // Local notifications: best-effort init — on platforms where the
+    // package isn't supported (web, desktop) this is a no-op and the
+    // service simply never publishes anything.
+    final localNotifications = LocalNotificationService();
+    await localNotifications.init();
     runApp(MyApp(
       storage: storage,
       connectivity: connectivity,
       outbox: outbox,
       mergeLog: mergeLog,
+      localNotifications: localNotifications,
     ));
   }, (error, stack) {
     // Top-level zone fallback — anything uncaught (including bare `print` errors).
@@ -105,12 +112,14 @@ class MyApp extends StatelessWidget {
   final ConnectivityService connectivity;
   final Outbox outbox;
   final MergeLog mergeLog;
+  final LocalNotificationService localNotifications;
   const MyApp({
     super.key,
     required this.storage,
     required this.connectivity,
     required this.outbox,
     required this.mergeLog,
+    required this.localNotifications,
   });
 
   @override
@@ -181,6 +190,7 @@ class MyApp extends StatelessWidget {
           update: (context, auth, previous) =>
               previous ?? BookshelfProvider(auth),
         ),
+        Provider<LocalNotificationService>.value(value: localNotifications),
         // Notifications: rebuilt when the user logs out (which swaps
         // the realtime service) so the new session starts clean.
         ChangeNotifierProxyProvider<AuthProvider, NotificationProvider>(
@@ -192,6 +202,8 @@ class MyApp extends StatelessWidget {
             // history + opens the SSE channel. Safe to call repeatedly.
             if (auth.isAuthenticated && previous != null) {
               previous.ensureStarted();
+              // Mirror SSE notifications to the OS tray as well.
+              localNotifications.attachToSse(auth.realtimeService);
               return previous;
             }
             return previous ?? buildNotificationProvider(auth);
@@ -355,6 +367,19 @@ class _MobileFeedWrapper extends StatelessWidget {
             const SizedBox(width: 4),
             GestureDetector(
               behavior: HitTestBehavior.opaque,
+              onTap: () => context.push('/explore'),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  CupertinoIcons.compass,
+                  color: CupertinoColors.label.resolveFrom(context),
+                  size: 22,
+                ),
+              ),
+            ),
+            const SizedBox(width: 4),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () => context.push('/search'),
               child: Padding(
                 padding: const EdgeInsets.all(4),
@@ -482,6 +507,14 @@ class _DesktopHomePage extends StatelessWidget {
                     child: Row(
                       children: [
                         if (selectedPage == SelectedPage.story) ...[
+                          IconButton(
+                            icon: Icon(
+                              CupertinoIcons.compass,
+                              color: textColor.withValues(alpha: 0.7),
+                            ),
+                            tooltip: "Explore",
+                            onPressed: () => context.push('/explore'),
+                          ),
                           IconButton(
                             icon: Icon(
                               CupertinoIcons.search,
@@ -903,24 +936,33 @@ class _SidebarProfileTileState extends State<_SidebarProfileTile> {
         final name = user?.name ?? '';
         final email = user?.email ?? '';
         final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
-        final avatar = CircleAvatar(
-          radius: 14,
-          backgroundColor: widget.isDark
-              ? Colors.white.withValues(alpha: 0.12)
-              : Colors.black.withValues(alpha: 0.08),
-          backgroundImage: user?.photoUrl != null
-              ? CachedNetworkImageProvider(user!.photoUrl!)
-              : null,
-          child: user?.photoUrl == null
-              ? Text(
-                  initial,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: widget.textColor,
+        final avatar = ClipOval(
+          child: SizedBox(
+            width: 28,
+            height: 28,
+            child: user?.photoUrl != null
+                ? AppNetworkImage(
+                    url: user!.photoUrl,
+                    meta: user.photoMeta,
+                    width: 28,
+                    height: 28,
+                    fit: BoxFit.cover,
+                  )
+                : Container(
+                    color: widget.isDark
+                        ? Colors.white.withValues(alpha: 0.12)
+                        : Colors.black.withValues(alpha: 0.08),
+                    alignment: Alignment.center,
+                    child: Text(
+                      initial,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: widget.textColor,
+                      ),
+                    ),
                   ),
-                )
-              : null,
+          ),
         );
 
         final tile = AnimatedContainer(

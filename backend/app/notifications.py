@@ -16,6 +16,7 @@ from app.logger import get_logger
 from app.models.feed_item import FeedItem
 from app.models.notification import Notification
 from app.models.user import User
+from app.push_dispatcher import dispatch_push, push_enabled
 from app.realtime import hub
 
 log = get_logger("app.notifications")
@@ -68,6 +69,45 @@ async def create_notification(
     try:
         await hub.send_to_user(recipient_id, payload)
     except Exception as exc:  # don't let realtime hiccups break the route
-        log.warning("notification websocket dispatch failed: %s", exc)
+        log.warning("notification SSE dispatch failed: %s", exc)
+
+    # OS-level push (FCM / APNS) — best-effort; no-op when not configured.
+    if push_enabled():
+        try:
+            title = _push_title(notif)
+            body = _push_body(notif)
+            await dispatch_push(
+                db,
+                user_id=recipient_id,
+                title=title,
+                body=body,
+                data={
+                    "notification_id": str(notif.id),
+                    "kind": notif.kind,
+                    "feed_item_id": str(notif.feed_item_id)
+                    if notif.feed_item_id
+                    else "",
+                },
+            )
+        except Exception as exc:
+            log.warning("push dispatch failed: %s", exc)
 
     return notif
+
+
+def _push_title(notif: Notification) -> str:
+    actor = notif.actor_name or "Someone"
+    if notif.kind == "like":
+        return f"{actor} liked your story"
+    if notif.kind == "comment":
+        return f"{actor} commented on your story"
+    if notif.kind == "reply":
+        return f"{actor} replied to your comment"
+    return "InkSpaceX"
+
+
+def _push_body(notif: Notification) -> str:
+    excerpt = (notif.data or {}).get("excerpt") if notif.data else None
+    if isinstance(excerpt, str) and excerpt:
+        return excerpt
+    return notif.feed_item_title or ""

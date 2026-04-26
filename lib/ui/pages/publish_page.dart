@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,6 +9,7 @@ import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/ui/utilities/writing_type_style.dart';
+import 'package:inkspacex/ui/widgets/app_network_image.dart';
 
 class PublishPage extends StatefulWidget {
   final WritingModel book;
@@ -440,55 +440,32 @@ class _PublishPageState extends State<PublishPage> {
 
   // ── COVER ──
   Widget _buildCover({required bool isDark, required Color mutedColor}) {
+    final hasNetCover = widget.book.coverImagePath.isNotEmpty ||
+        widget.book.coverImageMeta != null;
     return GestureDetector(
       onTap: _pickCoverImage,
       child: AspectRatio(
         aspectRatio: 21 / 9,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            image: _coverBytes != null
-                ? DecorationImage(
-                    image: MemoryImage(_coverBytes!), fit: BoxFit.cover)
-                : widget.book.coverImagePath.isNotEmpty
-                    ? DecorationImage(
-                        image: CachedNetworkImageProvider(
-                            widget.book.coverImagePath),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-          ),
-          child: _hasCover
-              ? Stack(
-                  children: [
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withValues(alpha: 0.4),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: 12,
-                      bottom: 10,
-                      child: _buildSmallChip(
-                        icon: CupertinoIcons.camera,
-                        label: "Change",
-                      ),
-                    ),
-                  ],
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (_coverBytes != null)
+                Image.memory(_coverBytes!, fit: BoxFit.cover)
+              else if (hasNetCover)
+                LayoutBuilder(
+                  builder: (ctx, c) => AppNetworkImage(
+                    url: widget.book.coverImagePath,
+                    meta: widget.book.coverImageMeta,
+                    width: c.maxWidth,
+                    height: c.maxHeight,
+                    fit: BoxFit.cover,
+                  ),
                 )
-              : Container(
+              else
+                Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.1)
@@ -520,6 +497,32 @@ class _PublishPageState extends State<PublishPage> {
                     ),
                   ),
                 ),
+              if (_hasCover) ...[
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withValues(alpha: 0.4),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 12,
+                  bottom: 10,
+                  child: _buildSmallChip(
+                    icon: CupertinoIcons.camera,
+                    label: "Change",
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );

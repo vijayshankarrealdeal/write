@@ -60,6 +60,10 @@ dependencies:
   go_router: ^14.8.1
   logger: ^2.7.0
   connectivity_plus: ^6.0.5
+  # OS-level notifications when an SSE notification arrives in the
+  # foreground. Background/killed-app push needs FCM/APNS native config
+  # in addition to this package — see LocalNotificationService.
+  flutter_local_notifications: ^17.2.4
 
 dev_dependencies:
   flutter_test:

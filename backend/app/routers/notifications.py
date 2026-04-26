@@ -9,17 +9,20 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import get_current_user
 from app.database import get_db
 from app.models.notification import Notification
+from app.models.push_subscription import PushSubscription
 from app.models.user import User
 from app.schemas.notification import (
     MarkReadRequest,
     NotificationResponse,
+    PushSubscriptionCreate,
+    PushSubscriptionResponse,
     UnreadCountResponse,
 )
 
@@ -95,4 +98,68 @@ async def delete_notification(
     notif = result.scalar_one_or_none()
     if notif:
         await db.delete(notif)
+        await db.commit()
+
+
+# ---------------------------------------------------------------------------
+# Push subscription registration
+# ---------------------------------------------------------------------------
+
+
+_VALID_PLATFORMS = {"fcm", "apns", "web"}
+
+
+@router.post("/push-token", response_model=PushSubscriptionResponse, status_code=201)
+async def register_push_token(
+    data: PushSubscriptionCreate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if data.platform not in _VALID_PLATFORMS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"platform must be one of {sorted(_VALID_PLATFORMS)}",
+        )
+    if not data.token.strip():
+        raise HTTPException(status_code=400, detail="token is required")
+
+    # Upsert: same (user_id, token) → bump last_seen_at and update label.
+    existing_q = await db.execute(
+        select(PushSubscription).where(
+            PushSubscription.user_id == user.id,
+            PushSubscription.token == data.token,
+        )
+    )
+    sub = existing_q.scalar_one_or_none()
+    if sub:
+        sub.platform = data.platform
+        sub.device_label = data.device_label or sub.device_label
+    else:
+        sub = PushSubscription(
+            user_id=user.id,
+            platform=data.platform,
+            token=data.token,
+            device_label=data.device_label,
+        )
+        db.add(sub)
+    await db.commit()
+    await db.refresh(sub)
+    return sub
+
+
+@router.delete("/push-token", status_code=204)
+async def unregister_push_token(
+    token: str = Query(..., min_length=1),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(PushSubscription).where(
+            PushSubscription.user_id == user.id,
+            PushSubscription.token == token,
+        )
+    )
+    sub = result.scalar_one_or_none()
+    if sub:
+        await db.delete(sub)
         await db.commit()
