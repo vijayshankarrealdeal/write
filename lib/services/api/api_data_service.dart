@@ -422,16 +422,18 @@ class ApiDataService {
       'subtype': book.subtype,
     });
 
-    final writingId = response.data['id'];
+    book.id = response.data['id'] as String;
 
-    // Create sections
     for (final section in book.sections) {
-      await _client.post('/api/writings/$writingId/sections', data: {
+      final sectionResp =
+          await _client.post('/api/writings/${book.id}/sections', data: {
         'title': section.title,
         'content': _decodeJsonField(section.content),
         'canvas_data': _decodeJsonField(section.canvasData),
         'section_color': section.sectionColor.toARGB32(),
       });
+      section.id = sectionResp.data['id'] as String;
+      section.isSynced = true;
     }
 
     return book;
@@ -457,12 +459,15 @@ class ApiDataService {
     String writingId,
     SectionModel section,
   ) async {
-    await _client.post('/api/writings/$writingId/sections', data: {
+    final response =
+        await _client.post('/api/writings/$writingId/sections', data: {
       'title': section.title,
       'content': _decodeJsonField(section.content),
       'canvas_data': _decodeJsonField(section.canvasData),
       'section_color': section.sectionColor.toARGB32(),
     });
+    section.id = response.data['id'] as String;
+    section.isSynced = true;
   }
 
   Future<void> renameSection(
