@@ -161,8 +161,7 @@ async def text_edit(
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
-        max_tokens=4096,
-        temperature=0.8,
+        max_completion_tokens=4096,
     )
     return TextEditResponse(result=resp.choices[0].message.content.strip())
 
@@ -212,8 +211,7 @@ async def canvas_generate(
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
-        max_tokens=8192,
-        temperature=0.8,
+        max_completion_tokens=8192,
         response_format={"type": "json_object"},
     )
     return CanvasGenerateResponse(layout_json=resp.choices[0].message.content.strip())
