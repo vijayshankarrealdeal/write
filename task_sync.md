@@ -85,15 +85,17 @@
 **Why:** [api_data_service.dart:338-343](lib/services/api/api_data_service.dart#L338-L343) currently returns `Stream.fromFuture` and pretends to be live.
 
 Pick **one** of:
-- [ ] **Option A (cheap):** polling — `Stream.periodic(15s).asyncMap(getComments)` with `distinct()` so identical payloads don't redraw
-- [ ] **Option B (right):** add WebSocket endpoint in [backend/](backend/) for comments-by-feed-item, subscribe from client, fall back to polling when socket dead
+- [x] **Option A (cheap):** polling — `Stream.periodic(15s).asyncMap(getComments)` with `distinct()` so identical payloads don't redraw
+- [ ] **Option B (right):** add WebSocket endpoint in [backend/](backend/) for comments-by-feed-item, subscribe from client, fall back to polling when socket dead — chose Option A because it's client-only and "live within 15s" is acceptable for comments. The implementation hides behind a single `Stream<List<CommentModel>>` so swapping to Option B later is a one-file change.
 
 Either way:
-- [ ] Document the choice at the top of `api_data_service.dart`
-- [ ] Test: `test/sync/comments_stream_test.dart` — assert stream emits on new comment
+- [x] Document the choice at the top of `api_data_service.dart`
+- [x] Test: `test/sync/comments_stream_test.dart` — assert stream emits on new comment
 
 **Findings while implementing:**
-- _(agent fills in)_
+- First pass used `async*` with `while (true)` + `await Future.delayed`. Cancelling the subscription deadlocked because the awaited delay never returned to a yield-checkpoint. Rewrote with `StreamController` + `Timer.periodic` so cancellation cleanly tears down the timer in `onCancel`.
+- Per-tick failures are swallowed (logged behaviour: same as a noisy network) so a single 5xx doesn't kill the whole stream — next tick retries.
+- Duplicate-suppression compares JSON of the response, not Dart object identity, since `CommentModel` lacks `==`.
 
 ---
 
@@ -141,10 +143,10 @@ Either way:
 |---|---|---|---|
 | 1. Connectivity | ✅ | 94a1918 | Banner + EditorProvider gate + service unit test. Full integration test deferred to Phase 6. |
 | 2. Outbox | ✅ | bbbd1a6 | Hive-backed durable queue + drainer + id-remap. Logout-with-pending dialog wired in. Backend `client_op_id` dedup is still a TODO. |
-| 3. Retry & UI | ✅ | _pending_ | Backoff + jitter + 10-attempt cap. Status chip enum + failed-ops sheet wired in. |
-| 4. Real stream | ☐ | — | |
+| 3. Retry & UI | ✅ | f017197 | Backoff + jitter + 10-attempt cap. Status chip enum + failed-ops sheet wired in. |
+| 4. Real stream | ✅ | _pending_ | Polling-based stream w/ duplicate suppression. Backend WebSocket deferred. |
 | 5. Merge logs | ☐ | — | |
 | 6. Tests | ☐ | — | |
 
-**Current rating:** 8.5/10
+**Current rating:** 9/10
 **Target rating:** 10/10

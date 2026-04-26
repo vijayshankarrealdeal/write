@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:inkspacex/models/bookshelf_model.dart';
@@ -41,6 +42,14 @@ String _encodeJsonField(dynamic value) {
 }
 
 /// Data service backed by the FastAPI backend (replaces FirestoreService).
+///
+/// **Comment streaming (Phase 4):** [getCommentsStream] uses **polling**,
+/// not WebSockets. Once a minute (default 15s) we re-fetch the comments
+/// for the feed item and suppress duplicate payloads via a JSON-shape
+/// comparison. We chose this over a WebSocket endpoint because it's a
+/// pure client-side change and "live within 15 seconds" is fine for
+/// comments. If realtime expectations tighten, swap [pollComments]
+/// for a WebSocket subscription — call-sites already see a `Stream`.
 class ApiDataService implements SyncDispatcher {
   final ApiClient _client;
 
@@ -336,11 +345,69 @@ class ApiDataService implements SyncDispatcher {
     return (response.data as List).map((d) => _commentFromJson(d)).toList();
   }
 
-  // Note: Real-time comment streaming is not available with REST.
-  // For live updates, use polling or add WebSocket support later.
-  Stream<List<CommentModel>> getCommentsStream(String feedItemId) {
-    // Simulate with a single-event stream for now
-    return Stream.fromFuture(getComments(feedItemId));
+  /// Default polling interval for [getCommentsStream]. 15s is a sweet spot
+  /// for "feels live without hammering the API"; tune via the optional
+  /// `interval` parameter if a screen has tighter expectations.
+  static const Duration commentsPollInterval = Duration(seconds: 15);
+
+  /// Polling-backed live stream of comments for [feedItemId].
+  ///
+  /// Phase 4 chose **Option A (polling)** over a WebSocket endpoint to
+  /// keep the change client-only. Identical payloads (by JSON shape) are
+  /// suppressed via `distinct()` so the UI doesn't repaint when nothing
+  /// changed. If a WebSocket comments endpoint lands later, swap the
+  /// implementation here without touching call-sites.
+  Stream<List<CommentModel>> getCommentsStream(
+    String feedItemId, {
+    Duration interval = commentsPollInterval,
+  }) {
+    return pollComments(
+      interval: interval,
+      fetch: () => getComments(feedItemId),
+    );
+  }
+
+  /// Test seam: build a polling stream around any `fetch` callback. The
+  /// stream emits the initial payload immediately, then a fresh payload
+  /// at every [interval] tick — but only when the JSON shape differs
+  /// from the previous emission. Cancelling the subscription stops the
+  /// timer; transient fetch failures are swallowed and retried on the
+  /// next tick.
+  static Stream<List<CommentModel>> pollComments({
+    required Duration interval,
+    required Future<List<CommentModel>> Function() fetch,
+  }) {
+    late StreamController<List<CommentModel>> controller;
+    Timer? timer;
+    String? lastSig;
+
+    Future<void> tick() async {
+      if (controller.isClosed) return;
+      try {
+        final result = await fetch();
+        if (controller.isClosed) return;
+        final sig = jsonEncode(result.map((c) => c.toJson()).toList());
+        if (sig != lastSig) {
+          lastSig = sig;
+          controller.add(result);
+        }
+      } catch (_) {
+        // Per-tick failures are swallowed: next tick retries. The whole
+        // stream only closes when the consumer cancels.
+      }
+    }
+
+    controller = StreamController<List<CommentModel>>(
+      onListen: () {
+        tick();
+        timer = Timer.periodic(interval, (_) => tick());
+      },
+      onCancel: () {
+        timer?.cancel();
+        timer = null;
+      },
+    );
+    return controller.stream;
   }
 
   // =========================================================================
