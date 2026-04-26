@@ -426,13 +426,14 @@ class _AppSidebar extends StatelessWidget {
   final bool isTablet;
 
   static const double _expandedWidth = 232;
-  static const double _collapsedWidth = 76;
+  static const double _collapsedWidth = 72;
 
   @override
   Widget build(BuildContext context) {
-    final width = isTablet ? _collapsedWidth : _expandedWidth;
-    final expanded = !isTablet;
-    final selectedPage = context.watch<NavProvider>().selectedPage;
+    final nav = context.watch<NavProvider>();
+    // Tablet width forces collapsed; otherwise honor the user's toggle.
+    final expanded = !isTablet && !nav.sidebarCollapsed;
+    final selectedPage = nav.selectedPage;
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final railBg = isDark ? const Color(0xFF0A0A0A) : Colors.white;
     final borderColor = isDark
@@ -460,52 +461,56 @@ class _AppSidebar extends StatelessWidget {
       ),
     ];
 
-    return Container(
-      width: width,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      width: expanded ? _expandedWidth : _collapsedWidth,
       decoration: BoxDecoration(
         color: railBg,
         border: Border(right: BorderSide(color: borderColor)),
       ),
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _SidebarBrand(expanded: expanded, isDark: isDark),
-            const SizedBox(height: 8),
-            _SidebarSearchButton(
-              expanded: expanded,
-              isDark: isDark,
-              onTap: () => context.push('/search'),
-            ),
-            const SizedBox(height: 16),
-            _SidebarSectionLabel(text: 'NAVIGATE', expanded: expanded, isDark: isDark),
-            ...destinations.map(
-              (d) => _SidebarItem(
-                icon: d.icon,
-                activeIcon: d.activeIcon,
-                label: d.label,
+      child: ClipRect(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _SidebarBrand(
                 expanded: expanded,
                 isDark: isDark,
-                isSelected: selectedPage == d.page,
-                onTap: () => context.read<NavProvider>().setIndex(d.page),
+                onToggle: isTablet ? null : nav.toggleSidebar,
               ),
-            ),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Divider(color: borderColor, height: 1),
-            ),
-            const SizedBox(height: 12),
-            _SidebarProfileTile(
-              expanded: expanded,
-              isDark: isDark,
-              textColor: textColor,
-              isSelected: selectedPage == SelectedPage.settings,
-              onTap: () =>
-                  context.read<NavProvider>().setIndex(SelectedPage.settings),
-            ),
-            const SizedBox(height: 12),
-          ],
+              const SizedBox(height: 12),
+              _SidebarSectionLabel(
+                  text: 'NAVIGATE', expanded: expanded, isDark: isDark),
+              ...destinations.map(
+                (d) => _SidebarItem(
+                  icon: d.icon,
+                  activeIcon: d.activeIcon,
+                  label: d.label,
+                  expanded: expanded,
+                  isDark: isDark,
+                  isSelected: selectedPage == d.page,
+                  onTap: () => context.read<NavProvider>().setIndex(d.page),
+                ),
+              ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Divider(color: borderColor, height: 1),
+              ),
+              const SizedBox(height: 12),
+              _SidebarProfileTile(
+                expanded: expanded,
+                isDark: isDark,
+                textColor: textColor,
+                isSelected: selectedPage == SelectedPage.settings,
+                onTap: () => context
+                    .read<NavProvider>()
+                    .setIndex(SelectedPage.settings),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
         ),
       ),
     );
@@ -527,42 +532,72 @@ class _NavItem {
 }
 
 class _SidebarBrand extends StatelessWidget {
-  const _SidebarBrand({required this.expanded, required this.isDark});
+  const _SidebarBrand({
+    required this.expanded,
+    required this.isDark,
+    required this.onToggle,
+  });
 
   final bool expanded;
   final bool isDark;
+  final VoidCallback? onToggle;
 
   @override
   Widget build(BuildContext context) {
     final fg = isDark ? Colors.white : const Color(0xFF0F172A);
+    final mark = Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        color: fg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        'I',
+        style: GoogleFonts.playfairDisplay(
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
+          color: isDark ? Colors.black : Colors.white,
+          height: 1,
+        ),
+      ),
+    );
+
+    if (!expanded) {
+      // Collapsed: brand mark doubles as the expand button.
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(0, 18, 0, 8),
+        child: Center(
+          child: onToggle == null
+              ? mark
+              : Tooltip(
+                  message: 'Expand sidebar',
+                  preferBelow: false,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: onToggle,
+                      behavior: HitTestBehavior.opaque,
+                      child: mark,
+                    ),
+                  ),
+                ),
+        ),
+      );
+    }
+
     return Padding(
-      padding: EdgeInsets.fromLTRB(expanded ? 20 : 0, 18, expanded ? 20 : 0, 8),
+      padding: const EdgeInsets.fromLTRB(20, 18, 8, 8),
       child: Row(
-        mainAxisAlignment:
-            expanded ? MainAxisAlignment.start : MainAxisAlignment.center,
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: fg,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            alignment: Alignment.center,
+          mark,
+          const SizedBox(width: 10),
+          Expanded(
             child: Text(
-              'I',
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: isDark ? Colors.black : Colors.white,
-                height: 1,
-              ),
-            ),
-          ),
-          if (expanded) ...[
-            const SizedBox(width: 10),
-            Text(
               'InkSpaceX',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.playfairDisplay(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -570,7 +605,24 @@ class _SidebarBrand extends StatelessWidget {
                 letterSpacing: -0.4,
               ),
             ),
-          ],
+          ),
+          if (onToggle != null)
+            Tooltip(
+              message: 'Collapse sidebar',
+              preferBelow: false,
+              child: IconButton(
+                onPressed: onToggle,
+                splashRadius: 16,
+                padding: EdgeInsets.zero,
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+                icon: Icon(
+                  CupertinoIcons.sidebar_left,
+                  size: 16,
+                  color: fg.withValues(alpha: 0.55),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -601,96 +653,6 @@ class _SidebarSectionLabel extends StatelessWidget {
           fontWeight: FontWeight.w700,
           color: color,
           letterSpacing: 1.2,
-        ),
-      ),
-    );
-  }
-}
-
-class _SidebarSearchButton extends StatefulWidget {
-  const _SidebarSearchButton({
-    required this.expanded,
-    required this.isDark,
-    required this.onTap,
-  });
-
-  final bool expanded;
-  final bool isDark;
-  final VoidCallback onTap;
-
-  @override
-  State<_SidebarSearchButton> createState() => _SidebarSearchButtonState();
-}
-
-class _SidebarSearchButtonState extends State<_SidebarSearchButton> {
-  bool _hover = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final fg = widget.isDark ? Colors.white : const Color(0xFF0F172A);
-    final bg = widget.isDark
-        ? Colors.white.withValues(alpha: _hover ? 0.08 : 0.05)
-        : Colors.black.withValues(alpha: _hover ? 0.06 : 0.04);
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: widget.expanded ? 12 : 14),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _hover = true),
-        onExit: (_) => setState(() => _hover = false),
-        child: GestureDetector(
-          onTap: widget.onTap,
-          behavior: HitTestBehavior.opaque,
-          child: Container(
-            height: 36,
-            padding: EdgeInsets.symmetric(horizontal: widget.expanded ? 12 : 0),
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              mainAxisAlignment: widget.expanded
-                  ? MainAxisAlignment.start
-                  : MainAxisAlignment.center,
-              children: [
-                Icon(
-                  CupertinoIcons.search,
-                  size: 16,
-                  color: fg.withValues(alpha: 0.55),
-                ),
-                if (widget.expanded) ...[
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Search',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: fg.withValues(alpha: 0.55),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: widget.isDark
-                          ? Colors.white.withValues(alpha: 0.08)
-                          : Colors.black.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      '⌘K',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: fg.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
         ),
       ),
     );

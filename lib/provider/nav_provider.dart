@@ -19,8 +19,15 @@ extension SelectedPageTitle on SelectedPage {
 
 class NavProvider extends ChangeNotifier {
   SelectedPage selectedPage = SelectedPage.story;
+  bool sidebarCollapsed = true;
+
   void setIndex(SelectedPage i) {
     selectedPage = i;
+    notifyListeners();
+  }
+
+  void toggleSidebar() {
+    sidebarCollapsed = !sidebarCollapsed;
     notifyListeners();
   }
 }
