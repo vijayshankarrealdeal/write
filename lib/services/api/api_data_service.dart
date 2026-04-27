@@ -30,6 +30,31 @@ class FacetEntry {
   const FacetEntry({required this.value, required this.count});
 }
 
+/// Slim author record returned by `/api/users/search` and the public
+/// profile endpoint. Excludes private fields (email, lists, onboarding).
+class PublicUser {
+  final String id;
+  final String? name;
+  final String? photoUrl;
+  final ImageMeta? photoMeta;
+  final int postsCount;
+  const PublicUser({
+    required this.id,
+    required this.name,
+    required this.photoUrl,
+    required this.photoMeta,
+    required this.postsCount,
+  });
+
+  factory PublicUser.fromJson(Map<String, dynamic> j) => PublicUser(
+        id: j['id'] as String,
+        name: j['name'] as String?,
+        photoUrl: j['photo_url'] as String?,
+        photoMeta: ImageMeta.tryFromJson(j['photo_meta']),
+        postsCount: (j['posts_count'] as num?)?.toInt() ?? 0,
+      );
+}
+
 /// Top-N genres / tags / writing_types served by `/api/feed/facets`.
 class FeedFacets {
   final List<FacetEntry> genres;
@@ -458,6 +483,40 @@ class ApiDataService implements SyncDispatcher {
     return (response.data as List).map((d) => _feedItemFromJson(d)).toList();
   }
 
+  /// Author search by display name. Hits `/api/users/search` — ranked
+  /// by published-post count so productive writers float above empty
+  /// profiles. Never throws on transport error: empty list is safer
+  /// than killing the whole search surface for a flaky network blip.
+  Future<List<PublicUser>> searchUsers(String query, {int limit = 20}) async {
+    final q = query.trim();
+    if (q.isEmpty) return const [];
+    try {
+      final response = await _client.get('/api/users/search', queryParams: {
+        'q': q,
+        'limit': limit,
+      });
+      final raw = (response.data as List?) ?? const [];
+      return raw
+          .map((d) => PublicUser.fromJson(d as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  /// Public profile fetch — same shape as a search hit. 404 returns null
+  /// so the caller can render an inline "user not found" instead of a
+  /// crash.
+  Future<PublicUser?> getPublicUser(String userId) async {
+    try {
+      final response = await _client.get('/api/users/$userId');
+      final data = response.data as Map<String, dynamic>;
+      return PublicUser.fromJson(data);
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Diversified search across title / author / description / tag / genre /
   /// writing-type. Hits `/api/feed/search`, which ranks server-side and
   /// caps per-author so a single prolific writer can't dominate the page.
@@ -536,6 +595,20 @@ class ApiDataService implements SyncDispatcher {
         .map((d) => _feedItemFromJson(d))
         .where((item) => item.isDraft)
         .toList();
+  }
+
+  /// Published items for an author. Used by the public profile page —
+  /// drafts are filtered server-side because `include_drafts=false` is
+  /// the default unless the requesting user is the author themselves.
+  Future<List<FeedItemModel>> getFeedItemsByAuthor(String authorId) async {
+    try {
+      final response = await _client.get('/api/feed/by-author/$authorId');
+      return (response.data as List)
+          .map((d) => _feedItemFromJson(d as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return const [];
+    }
   }
 
   Future<void> publishDraft(String feedItemId) async {

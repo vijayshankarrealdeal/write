@@ -1,17 +1,107 @@
-from fastapi import APIRouter, Depends, HTTPException
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import get_current_user
 from app.database import get_db
+from app.models.feed_item import FeedItem
 from app.models.user import User
 from app.schemas.user import ListUpdateRequest, UserResponse, UserUpdate
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
 
+class PublicUser(BaseModel):
+    """Slim user record for search results / public profile listings.
+
+    Excludes private fields (email, lists, onboarding state) that are
+    only relevant to the user themselves.
+    """
+
+    id: UUID
+    name: str | None
+    photo_url: str | None
+    photo_meta: dict | None = None
+    posts_count: int = 0
+
+    model_config = {"from_attributes": True}
+
+
 @router.get("/me", response_model=UserResponse)
 async def get_profile(user: User = Depends(get_current_user)):
     return user
+
+
+@router.get("/search", response_model=list[PublicUser])
+async def search_users(
+    q: str = Query(..., min_length=1, max_length=200),
+    limit: int = Query(20, ge=1, le=50),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Fuzzy author search by display name. Joins published-post counts
+    so the client can surface "X stories" next to each result and rank
+    productive authors above empty profiles."""
+    term = q.strip()
+    if not term:
+        return []
+    pattern = f"%{term}%"
+    posts_count = (
+        select(func.count(FeedItem.id))
+        .where(FeedItem.author_id == User.id)
+        .where(FeedItem.is_draft == False)  # noqa: E712
+        .correlate(User)
+        .scalar_subquery()
+    )
+    stmt = (
+        select(User, posts_count.label("posts_count"))
+        .where(User.name.is_not(None))
+        .where(User.name.ilike(pattern))
+        .order_by(posts_count.desc(), User.name.asc())
+        .limit(limit)
+    )
+    rows = (await db.execute(stmt)).all()
+    return [
+        PublicUser(
+            id=u.id,
+            name=u.name,
+            photo_url=u.photo_url,
+            photo_meta=u.photo_meta,
+            posts_count=int(c or 0),
+        )
+        for u, c in rows
+    ]
+
+
+@router.get("/{user_id}", response_model=PublicUser)
+async def get_public_user(
+    user_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Public profile view — the slim, non-sensitive subset of the user
+    record, used by the in-app author profile page."""
+    posts_count = (
+        select(func.count(FeedItem.id))
+        .where(FeedItem.author_id == user_id)
+        .where(FeedItem.is_draft == False)  # noqa: E712
+        .scalar_subquery()
+    )
+    stmt = select(User, posts_count.label("posts_count")).where(User.id == user_id)
+    row = (await db.execute(stmt)).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="User not found")
+    u, c = row
+    return PublicUser(
+        id=u.id,
+        name=u.name,
+        photo_url=u.photo_url,
+        photo_meta=u.photo_meta,
+        posts_count=int(c or 0),
+    )
 
 
 @router.put("/me", response_model=UserResponse)

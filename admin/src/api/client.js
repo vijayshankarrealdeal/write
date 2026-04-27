@@ -67,6 +67,21 @@ export const api = {
   pageVisits: (days = 7) => request(`/analytics/page-visits?days=${days}`),
   topPages: (days = 7) => request(`/analytics/top-pages?days=${days}`),
   userActivity: (days = 7) => request(`/analytics/user-activity?days=${days}`),
+  deviceBreakdown: (days = 30) => request(`/analytics/devices?days=${days}`),
+
+  // Users (admin-managed)
+  users: (page = 1, perPage = 25, search = "") => {
+    const params = new URLSearchParams({ page, per_page: perPage });
+    if (search) params.set("search", search);
+    return request(`/users?${params}`);
+  },
+  createUser: (payload) =>
+    request(`/users`, { method: "POST", body: JSON.stringify(payload) }),
+  resetUserPassword: (id, password) =>
+    request(`/users/${id}/reset-password`, {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    }),
 
   // Crashes
   crashes: (page = 1, perPage = 20, resolved = null) => {

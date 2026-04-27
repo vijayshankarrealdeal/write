@@ -13,6 +13,7 @@ import 'package:inkspacex/ui/auth/splash_screen.dart';
 import 'package:inkspacex/ui/onboarding/onboarding_page.dart';
 import 'package:inkspacex/ui/app/search_page.dart';
 import 'package:inkspacex/ui/app/settings.dart';
+import 'package:inkspacex/ui/pages/author_profile_page.dart';
 import 'package:inkspacex/ui/pages/post_detail_page.dart';
 import 'package:inkspacex/ui/pages/editior_page.dart';
 import 'package:inkspacex/ui/pages/publish_page.dart';
@@ -32,6 +33,7 @@ import 'package:inkspacex/ui/pages/view_bookshelf_page.dart';
 import 'package:inkspacex/ui/pages/add_books_to_shelf_page.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
+import 'package:inkspacex/services/api/api_data_service.dart' show PublicUser;
 GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
     refreshListenable: authProvider,
@@ -153,6 +155,17 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/explore',
         redirect: (_, __) => '/search',
+      ),
+      GoRoute(
+        path: '/u/:id',
+        pageBuilder: (_, state) {
+          final id = state.pathParameters['id'] ?? '';
+          final extra = state.extra;
+          final seed = extra is PublicUser ? extra : null;
+          return CupertinoPage(
+            child: AuthorProfilePage(userId: id, seed: seed),
+          );
+        },
       ),
       GoRoute(
         path: '/tag-feed/:kind/:value',

@@ -10,7 +10,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import func, inspect, select, text
+from passlib.context import CryptContext
+from sqlalchemy import func, inspect, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -18,6 +19,8 @@ from app.database import engine, get_db
 from app.models.analytics import AppLog, CrashReport, PageVisit
 from app.models.user import User
 from app.storage import minio_client
+
+_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -398,6 +401,177 @@ async def user_activity(
     platforms = [{"platform": r[0] or "unknown", "count": r[1]} for r in platform_result.fetchall()]
 
     return {"daily_active_users": dau, "new_users": new_users, "platforms": platforms}
+
+
+@router.get("/analytics/devices")
+async def device_breakdown(
+    days: int = Query(30, ge=1, le=365),
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Counts grouped by platform and device, plus signups over time.
+
+    Region is derived from PageVisit.referrer host as a proxy until a real
+    geo-IP pipeline is wired up.
+    """
+    since = datetime.now(timezone.utc) - timedelta(days=days)
+
+    platform_rows = (
+        await db.execute(
+            select(PageVisit.platform, func.count().label("count"))
+            .where(PageVisit.visited_at >= since)
+            .group_by(PageVisit.platform)
+            .order_by(text("count DESC"))
+        )
+    ).fetchall()
+
+    device_rows = (
+        await db.execute(
+            select(PageVisit.device, func.count().label("count"))
+            .where(PageVisit.visited_at >= since)
+            .group_by(PageVisit.device)
+            .order_by(text("count DESC"))
+            .limit(15)
+        )
+    ).fetchall()
+
+    referrer_rows = (
+        await db.execute(
+            select(PageVisit.referrer, func.count().label("count"))
+            .where(PageVisit.visited_at >= since, PageVisit.referrer.isnot(None))
+            .group_by(PageVisit.referrer)
+            .order_by(text("count DESC"))
+            .limit(15)
+        )
+    ).fetchall()
+
+    signup_rows = (
+        await db.execute(
+            select(
+                func.date_trunc("day", User.created_at).label("day"),
+                func.count().label("count"),
+            )
+            .where(User.created_at >= since)
+            .group_by("day")
+            .order_by(text("day"))
+        )
+    ).fetchall()
+
+    return {
+        "platforms": [{"label": r[0] or "unknown", "count": r[1]} for r in platform_rows],
+        "devices": [{"label": r[0] or "unknown", "count": r[1]} for r in device_rows],
+        "referrers": [{"label": r[0] or "direct", "count": r[1]} for r in referrer_rows],
+        "signups_per_day": [
+            {"day": r[0].isoformat() if r[0] else None, "count": r[1]} for r in signup_rows
+        ],
+    }
+
+
+# ── Users (admin-managed) ──────────────────────────────────────────────────
+
+@router.get("/users")
+async def list_users(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(25, ge=1, le=200),
+    search: str | None = Query(None, description="Match email or name"),
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Paginated user directory for the admin console."""
+    q = select(User).order_by(User.created_at.desc())
+    count_q = select(func.count(User.id))
+    if search:
+        like = f"%{search}%"
+        q = q.where(or_(User.email.ilike(like), User.name.ilike(like)))
+        count_q = count_q.where(or_(User.email.ilike(like), User.name.ilike(like)))
+
+    total = (await db.execute(count_q)).scalar() or 0
+    result = await db.execute(q.offset((page - 1) * per_page).limit(per_page))
+    users = result.scalars().all()
+
+    return {
+        "users": [
+            {
+                "id": str(u.id),
+                "email": u.email,
+                "name": u.name,
+                "photo_url": u.photo_url,
+                "onboarding_complete": u.onboarding_complete,
+                "has_password": bool(u.password_hash),
+                "created_at": u.created_at.isoformat() if u.created_at else None,
+            }
+            for u in users
+        ],
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": (total + per_page - 1) // per_page if total else 0,
+    }
+
+
+@router.post("/users")
+async def create_user(
+    payload: dict,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Create a user with email/name/password from the admin console."""
+    from fastapi import HTTPException
+
+    email = (payload.get("email") or "").strip().lower()
+    password = payload.get("password") or ""
+    name = (payload.get("name") or "").strip() or None
+
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Valid email required")
+    if len(password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+
+    existing = await db.execute(select(User).where(User.email == email))
+    if existing.scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="Email already registered")
+
+    user = User(
+        email=email,
+        name=name,
+        password_hash=_pwd_context.hash(password),
+        onboarding_complete=bool(payload.get("onboarding_complete", False)),
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+
+    return {
+        "id": str(user.id),
+        "email": user.email,
+        "name": user.name,
+        "created_at": user.created_at.isoformat() if user.created_at else None,
+    }
+
+
+@router.post("/users/{user_id}/reset-password")
+async def admin_reset_password(
+    user_id: str,
+    payload: dict,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Force-reset a user's password from the admin console."""
+    from fastapi import HTTPException
+    from uuid import UUID as _UUID
+
+    password = payload.get("password") or ""
+    if len(password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+
+    result = await db.execute(select(User).where(User.id == _UUID(user_id)))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.password_hash = _pwd_context.hash(password)
+    await db.commit()
+    return {"status": "ok"}
 
 
 # ── Crash Reports ──────────────────────────────────────────────────────────

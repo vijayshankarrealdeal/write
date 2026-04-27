@@ -47,8 +47,8 @@ class _SearchPageState extends State<SearchPage> {
   bool _loadingPopular = true;
   bool _searching = false;
   List<FeedItemModel> _popular = const [];
-  List<FeedItemModel> _rawResults = const [];
   List<FeedItemModel> _results = const [];
+  List<PublicUser> _users = const [];
   List<String> _recent = const [];
   FeedFacets _facets = const FeedFacets(genres: [], tags: [], writingTypes: []);
 
@@ -96,8 +96,8 @@ class _SearchPageState extends State<SearchPage> {
     if (q.isEmpty) {
       setState(() {
         _query = '';
-        _rawResults = const [];
         _results = const [];
+        _users = const [];
         _searching = false;
       });
       return;
@@ -110,12 +110,21 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _runSearch(String q) async {
+    final api = context.read<AuthProvider>().dataService;
     try {
-      final results = await context.read<AuthProvider>().dataService.searchFeedItems(q);
+      // Fire stories + authors in parallel — they're independent and the
+      // result panes render side-by-side, so waiting sequentially would
+      // double the perceived latency for no reason.
+      final results = await Future.wait([
+        api.searchFeedItems(q),
+        api.searchUsers(q),
+      ]);
       if (!mounted || _controller.text.trim() != q) return;
+      final stories = results[0] as List<FeedItemModel>;
+      final users = results[1] as List<PublicUser>;
       setState(() {
-        _rawResults = results;
-        _results = _applyScope(results);
+        _users = users;
+        _results = stories;
         _searching = false;
       });
     } catch (_) {
@@ -124,29 +133,16 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  List<FeedItemModel> _applyScope(List<FeedItemModel> items) {
-    switch (_scope) {
-      case _SearchScope.all:
-        return items;
-      case _SearchScope.stories:
-        return items;
-      case _SearchScope.authors:
-        final seen = <String>{};
-        return items.where((i) {
-          final key = i.author.toLowerCase();
-          if (key.isEmpty || seen.contains(key)) return false;
-          seen.add(key);
-          return true;
-        }).toList();
-    }
-  }
-
   void _setScope(_SearchScope s) {
     setState(() {
       _scope = s;
-      _results = _applyScope(_rawResults);
     });
   }
+
+  bool get _showStories =>
+      _scope == _SearchScope.all || _scope == _SearchScope.stories;
+  bool get _showAuthors =>
+      _scope == _SearchScope.all || _scope == _SearchScope.authors;
 
   Future<void> _commitSearch(String q) async {
     final term = q.trim();
@@ -788,83 +784,170 @@ class _SearchPageState extends State<SearchPage> {
   // Results
   // ---------------------------------------------------------------------------
 
+  /// Universal results: matching tag/genre chips → People → Stories,
+  /// each as its own section with a header and count. Mirrors the
+  /// pattern Slack / Linear / GitHub use for command-bar search —
+  /// information scent first, drill-down second.
   Widget _buildResults(
     bool isDark,
     Color textColor,
     double hPad,
     double width,
   ) {
-    if (_searching && _results.isEmpty) {
+    if (_searching && _results.isEmpty && _users.isEmpty) {
       return const Center(child: CupertinoActivityIndicator());
     }
     final matchingFacets = _matchingFacetSuggestions();
-    if (_results.isEmpty && matchingFacets.isEmpty) {
+    final hasAnything =
+        _results.isNotEmpty || _users.isNotEmpty || matchingFacets.isNotEmpty;
+    if (!hasAnything) {
       return _buildNoResults(textColor);
     }
 
     final isMobile = Breakpoints.isMobile(width);
-    final header = matchingFacets.isEmpty
-        ? const SizedBox.shrink()
-        : _buildFacetSuggestionStrip(matchingFacets, isDark, textColor, hPad);
-
-    if (_scope == _SearchScope.authors) {
-      final cols = isMobile ? 1 : 2;
-      return CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(child: header),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(hPad, 12, hPad, 32),
-            sliver: SliverGrid.builder(
-              itemCount: _results.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: cols,
-                mainAxisSpacing: isMobile ? 0 : 10,
-                crossAxisSpacing: 20,
-                mainAxisExtent: 72,
-              ),
-              itemBuilder: (context, i) =>
-                  _buildAuthorRow(_results[i], isDark, textColor),
-            ),
-          ),
-        ],
-      );
-    }
-
-    if (isMobile) {
-      return CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(child: header),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 32),
-            sliver: SliverList.separated(
-              itemCount: _results.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 14),
-              itemBuilder: (context, i) =>
-                  _buildStoryRow(_results[i], isDark, textColor),
-            ),
-          ),
-        ],
-      );
-    }
+    final showFacets = matchingFacets.isNotEmpty;
+    final showAuthors = _showAuthors && _users.isNotEmpty;
+    final showStories = _showStories && _results.isNotEmpty;
 
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(child: header),
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(hPad, 12, hPad, 32),
-          sliver: SliverGrid.builder(
-            itemCount: _results.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 20,
-              mainAxisSpacing: 14,
-              mainAxisExtent: 118,
-            ),
-            itemBuilder: (context, i) =>
-                _buildStoryCard(_results[i], isDark, textColor),
+        if (showFacets)
+          SliverToBoxAdapter(
+            child: _buildSectionHeader('Browse', null, textColor, hPad),
           ),
-        ),
+        if (showFacets)
+          SliverToBoxAdapter(
+            child: _buildFacetSuggestionStrip(
+                matchingFacets, isDark, textColor, hPad),
+          ),
+        if (showAuthors)
+          SliverToBoxAdapter(
+            child: _buildSectionHeader(
+                'People', _users.length, textColor, hPad),
+          ),
+        if (showAuthors)
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(hPad, 4, hPad, 12),
+            sliver: SliverList.separated(
+              itemCount: _users.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 4),
+              itemBuilder: (context, i) =>
+                  _buildUserRow(_users[i], isDark, textColor),
+            ),
+          ),
+        if (showStories)
+          SliverToBoxAdapter(
+            child: _buildSectionHeader(
+                'Stories', _results.length, textColor, hPad),
+          ),
+        if (showStories)
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(hPad, 4, hPad, 32),
+            sliver: isMobile
+                ? SliverList.separated(
+                    itemCount: _results.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 14),
+                    itemBuilder: (context, i) =>
+                        _buildStoryRow(_results[i], isDark, textColor),
+                  )
+                : SliverGrid.builder(
+                    itemCount: _results.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 14,
+                      mainAxisExtent: 118,
+                    ),
+                    itemBuilder: (context, i) =>
+                        _buildStoryCard(_results[i], isDark, textColor),
+                  ),
+          ),
       ],
+    );
+  }
+
+  /// Section header with optional count badge — used to break the result
+  /// list into Browse / People / Stories.
+  Widget _buildSectionHeader(
+    String title,
+    int? count,
+    Color textColor,
+    double hPad,
+  ) {
+    final subtle = textColor.withValues(alpha: 0.5);
+    return Padding(
+      padding: EdgeInsets.fromLTRB(hPad, 16, hPad, 8),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.4,
+              color: textColor.withValues(alpha: 0.85),
+            ),
+          ),
+          if (count != null) ...[
+            const SizedBox(width: 8),
+            Text(
+              '$count',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: subtle,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserRow(PublicUser user, bool isDark, Color textColor) {
+    final subtle = textColor.withValues(alpha: 0.55);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        _commitSearch(_query.isEmpty ? (user.name ?? '') : _query);
+        context.push('/u/${user.id}', extra: user);
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            _UserAvatar(
+                user: user, isDark: isDark, textColor: textColor, size: 40),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.name ?? 'Unnamed',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    user.postsCount == 1
+                        ? '1 story'
+                        : '${user.postsCount} stories',
+                    style: GoogleFonts.inter(fontSize: 12, color: subtle),
+                  ),
+                ],
+              ),
+            ),
+            Icon(CupertinoIcons.chevron_right, size: 14, color: subtle),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1016,55 +1099,6 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _buildAuthorRow(FeedItemModel item, bool isDark, Color textColor) {
-    final subtle = textColor.withValues(alpha: 0.55);
-    return GestureDetector(
-      onTap: () => _openPost(item),
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: isDark ? Colors.white12 : Colors.black12,
-              child: Text(
-                _initials(item.author),
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: textColor,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.author,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Author',
-                    style: GoogleFonts.inter(fontSize: 12, color: subtle),
-                  ),
-                ],
-              ),
-            ),
-            Icon(CupertinoIcons.chevron_right, size: 14, color: subtle),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildNoResults(Color textColor) {
     return Padding(
       padding: const EdgeInsets.all(32),
@@ -1126,18 +1160,73 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
-    if (parts.isEmpty) return '?';
-    final first = parts.first.substring(0, 1).toUpperCase();
-    final last = parts.length > 1
-        ? parts.last.substring(0, 1).toUpperCase()
-        : '';
-    return '$first$last';
-  }
-
   /// Returns the title as-is; kept as a seam for future inline highlight styling.
   String _highlightedTitle(String title) => title;
+}
+
+/// Round avatar for a `PublicUser` — falls back to monogrammed initials
+/// when no photo is set. Matches the avatar treatment on the author
+/// profile page so the user sees the same identity affordance both
+/// places.
+class _UserAvatar extends StatelessWidget {
+  final PublicUser user;
+  final bool isDark;
+  final Color textColor;
+  final double size;
+  const _UserAvatar({
+    required this.user,
+    required this.isDark,
+    required this.textColor,
+    required this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final url = user.photoUrl;
+    final hasImage = url != null && url.isNotEmpty;
+    final placeholder = Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isDark ? Colors.white12 : Colors.black12,
+      ),
+      child: Text(
+        _initialsOf(user.name ?? '?'),
+        style: GoogleFonts.inter(
+          fontSize: size * 0.36,
+          fontWeight: FontWeight.w700,
+          color: textColor,
+        ),
+      ),
+    );
+    if (!hasImage) return placeholder;
+    return ClipOval(
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: AppNetworkImage(
+          url: url,
+          meta: user.photoMeta,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorWidget: placeholder,
+        ),
+      ),
+    );
+  }
+
+  static String _initialsOf(String name) {
+    final parts =
+        name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return '?';
+    final first = parts.first.substring(0, 1).toUpperCase();
+    final last =
+        parts.length > 1 ? parts.last.substring(0, 1).toUpperCase() : '';
+    return '$first$last';
+  }
 }
 
 /// Subtle lift-on-hover affordance for desktop/web pointer input.

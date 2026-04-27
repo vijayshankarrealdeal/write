@@ -3,6 +3,7 @@ import { api } from "./api/client";
 import DashboardLayout from "./components/DashboardLayout";
 import Login from "./pages/Login";
 import Overview from "./pages/Overview";
+import Console from "./pages/Console";
 import DatabaseTables from "./pages/DatabaseTables";
 import TableDetail from "./pages/TableDetail";
 import Storage from "./pages/Storage";
@@ -30,6 +31,7 @@ export default function App() {
         }
       >
         <Route index element={<Overview />} />
+        <Route path="console" element={<Console />} />
         <Route path="database" element={<DatabaseTables />} />
         <Route path="database/:name" element={<TableDetail />} />
         <Route path="storage" element={<Storage />} />

@@ -9,12 +9,14 @@ import {
   ScrollText,
   PenTool,
   LogOut,
+  ShieldCheck,
 } from "lucide-react";
 import { api } from "../api/client";
 import clsx from "clsx";
 
 const links = [
   { to: "/", icon: LayoutDashboard, label: "Overview" },
+  { to: "/console", icon: ShieldCheck, label: "Console" },
   { to: "/database", icon: Database, label: "Database" },
   { to: "/storage", icon: HardDrive, label: "Storage" },
   { to: "/activity", icon: Users, label: "User Activity" },
