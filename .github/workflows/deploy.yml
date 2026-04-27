@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Pin the Flutter version. Pubspec needs Dart ^3.10.8; Flutter 3.41.8
       # ships Dart 3.10.x. With a fixed version, subosito/flutter-action's
@@ -63,7 +63,7 @@ jobs:
           echo "{\"version\": \"$TS\"}" > build/web/version.json
           cp privacy_policy.html terms_of_service.html build/web/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: flutter-web
           path: build/web
@@ -76,9 +76,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '20'
           cache: npm
@@ -90,7 +90,7 @@ jobs:
           npm install --silent
           npm run build
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: admin-dist
           path: backend/admin-dist
@@ -102,14 +102,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: flutter-web
           path: build/web
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: admin-dist
           path: backend/admin-dist
