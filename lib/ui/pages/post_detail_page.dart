@@ -2544,28 +2544,58 @@ class _PostDetailPageState extends State<PostDetailPage>
         isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06);
     final currentIndex = _selectedSectionIndex ?? 0;
 
+    final isWide = MediaQuery.of(context).size.width >= 900;
+
     return Column(
       key: const ValueKey('sections_carousel'),
       children: [
         // Swipeable section content
         Expanded(
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: totalSections,
-            onPageChanged: (index) {
-              setState(() => _selectedSectionIndex = index);
-              _saveProgress(index);
-              // Lazy-load this section's body if it wasn't inlined in the
-              // initial feed-item response, plus the next two for prefetch.
-              _ensureSectionLoaded(index);
-              _ensureSectionLoaded(index + 1);
-              _ensureSectionLoaded(index + 2);
-            },
-            itemBuilder: (context, index) {
-              return _buildSingleSectionPage(
-                index, isDark, textColor, subtleColor,
-              );
-            },
+          child: Stack(
+            children: [
+              PageView.builder(
+                controller: _pageController,
+                itemCount: totalSections,
+                onPageChanged: (index) {
+                  setState(() => _selectedSectionIndex = index);
+                  _saveProgress(index);
+                  // Lazy-load this section's body if it wasn't inlined in the
+                  // initial feed-item response, plus the next two for prefetch.
+                  _ensureSectionLoaded(index);
+                  _ensureSectionLoaded(index + 1);
+                  _ensureSectionLoaded(index + 2);
+                },
+                itemBuilder: (context, index) {
+                  return _buildSingleSectionPage(
+                    index, isDark, textColor, subtleColor,
+                  );
+                },
+              ),
+              if (isWide && currentIndex > 0)
+                _ReaderSideChevron(
+                  alignment: Alignment.centerLeft,
+                  icon: CupertinoIcons.chevron_left,
+                  textColor: textColor,
+                  subtleColor: subtleColor,
+                  isDark: isDark,
+                  onTap: () => _pageController?.previousPage(
+                    duration: const Duration(milliseconds: 280),
+                    curve: Curves.easeOutCubic,
+                  ),
+                ),
+              if (isWide && currentIndex < totalSections - 1)
+                _ReaderSideChevron(
+                  alignment: Alignment.centerRight,
+                  icon: CupertinoIcons.chevron_right,
+                  textColor: textColor,
+                  subtleColor: subtleColor,
+                  isDark: isDark,
+                  onTap: () => _pageController?.nextPage(
+                    duration: const Duration(milliseconds: 280),
+                    curve: Curves.easeOutCubic,
+                  ),
+                ),
+            ],
           ),
         ),
 
@@ -2602,106 +2632,109 @@ class _PostDetailPageState extends State<PostDetailPage>
     final remainingLabel = remaining <= 0
         ? 'Last page'
         : '$remaining more page${remaining == 1 ? '' : 's'}';
+    final isWide = MediaQuery.of(context).size.width >= 900;
+
+    final listenButton = SizedBox(
+      width: isWide ? 280 : double.infinity,
+      height: 48,
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        color: _paperAccent,
+        borderRadius: BorderRadius.circular(28),
+        onPressed: _onListenPressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              CupertinoIcons.play_circle_fill,
+              color: Colors.white,
+              size: 22,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Listen',
+              style: GoogleFonts.inter(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
 
     return Container(
+      color: bgColor,
       padding: EdgeInsets.only(
-        top: 12,
         bottom: MediaQuery.of(context).padding.bottom + 12,
         left: 20,
         right: 20,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        border: Border(top: BorderSide(color: dividerColor)),
       ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),
           child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Chapter pill
-              GestureDetector(
-                onTap: totalSections > 1
-                    ? () => _scaffoldKey.currentState?.openEndDrawer()
-                    : null,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: pillBg,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    'Chapter ${currentIndex + 1}',
-                    style: GoogleFonts.lora(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: textColor,
+              // Column-width hairline divider so the footer feels like a book
+              // page footer instead of full-bleed browser chrome.
+              Container(height: 1, color: dividerColor),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: totalSections > 1
+                        ? () => _scaffoldKey.currentState?.openEndDrawer()
+                        : null,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: pillBg,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'Chapter ${currentIndex + 1}',
+                        style: GoogleFonts.lora(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: textColor,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              const Spacer(),
-              // Page counter
-              Text(
-                '${currentIndex + 1} of $totalSections',
-                style: GoogleFonts.lora(
-                  fontSize: 13,
-                  color: subtleColor,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                width: 1,
-                height: 14,
-                color: subtleColor.withValues(alpha: 0.4),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                remainingLabel,
-                style: GoogleFonts.lora(
-                  fontSize: 13,
-                  color: subtleColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Listen button (full width, accent blue)
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: CupertinoButton(
-              padding: EdgeInsets.zero,
-              color: _paperAccent,
-              borderRadius: BorderRadius.circular(28),
-              onPressed: _onListenPressed,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    CupertinoIcons.play_circle_fill,
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                  const SizedBox(width: 8),
+                  const Spacer(),
                   Text(
-                    'Listen',
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                    '${currentIndex + 1} of $totalSections',
+                    style: GoogleFonts.lora(
+                      fontSize: 13,
+                      color: subtleColor,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 1,
+                    height: 14,
+                    color: subtleColor.withValues(alpha: 0.4),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    remainingLabel,
+                    style: GoogleFonts.lora(
+                      fontSize: 13,
+                      color: subtleColor,
                     ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.center,
+                child: listenButton,
+              ),
+            ],
           ),
-        ],
-      ),
         ),
       ),
     );
@@ -2717,8 +2750,10 @@ class _PostDetailPageState extends State<PostDetailPage>
     Color subtleColor,
   ) {
     final section = widget.item.sections[sectionIndex];
-    const contentPadding = 24.0;
+    final isWide = MediaQuery.of(context).size.width >= 900;
+    final contentPadding = isWide ? 32.0 : 24.0;
     const maxContentWidth = 720.0;
+    final canvasMaxWidth = isWide ? 560.0 : 600.0;
     final styles = _quillStyles(
       textColor,
       isDark,
@@ -2761,7 +2796,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                   contentPadding, 0, contentPadding, 20),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
+                  constraints: BoxConstraints(maxWidth: canvasMaxWidth),
                   child: _CanvasPreview(
                     canvasData: section.canvasData,
                     isDark: isDark,
@@ -4494,4 +4529,68 @@ class _Highlight {
     required this.length,
     required this.colorHex,
   });
+}
+
+// ============================================================================
+// Side-gutter chevron used to advance/retreat chapters on wide screens.
+// Lives outside the reading column so it never crowds the prose.
+// ============================================================================
+class _ReaderSideChevron extends StatefulWidget {
+  final Alignment alignment;
+  final IconData icon;
+  final Color textColor;
+  final Color subtleColor;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _ReaderSideChevron({
+    required this.alignment,
+    required this.icon,
+    required this.textColor,
+    required this.subtleColor,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  State<_ReaderSideChevron> createState() => _ReaderSideChevronState();
+}
+
+class _ReaderSideChevronState extends State<_ReaderSideChevron> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = widget.isDark
+        ? Colors.white.withValues(alpha: _hover ? 0.10 : 0.04)
+        : Colors.black.withValues(alpha: _hover ? 0.08 : 0.03);
+    return Align(
+      alignment: widget.alignment,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _hover = true),
+          onExit: (_) => setState(() => _hover = false),
+          child: GestureDetector(
+            onTap: widget.onTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: bg,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                widget.icon,
+                size: 22,
+                color: _hover ? widget.textColor : widget.subtleColor,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
