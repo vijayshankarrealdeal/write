@@ -138,6 +138,9 @@ class _PostDetailPageState extends State<PostDetailPage>
   // -- PageView controller for section carousel --
   PageController? _pageController;
 
+  // -- Reader hover state: drives chevron visibility on desktop (mouse only) --
+  final ValueNotifier<bool> _readerHover = ValueNotifier(false);
+
   // -- Reader font scale (for Aa text size button in reading mode) --
   double _readerFontScale = 1.0;
 
@@ -1635,6 +1638,7 @@ class _PostDetailPageState extends State<PostDetailPage>
       );
     }
     _pageController?.dispose();
+    _readerHover.dispose();
     _likeAnimController.dispose();
     for (final c in _quillControllers.values) {
       c.dispose();
@@ -1720,7 +1724,9 @@ class _PostDetailPageState extends State<PostDetailPage>
           ),
           title: inReader
               ? null
-              : Text(
+              : (MediaQuery.of(context).size.width >= 1024
+                  ? null
+                  : Text(
                   item.title,
                   style: GoogleFonts.inter(
                     fontSize: 14,
@@ -1729,7 +1735,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                ),
+                )),
           centerTitle: true,
           actions: [
             if (inReader) ...[
@@ -2233,6 +2239,19 @@ class _PostDetailPageState extends State<PostDetailPage>
         (_lastReadSection != null && _lastReadSection! < item.sections.length)
             ? _lastReadSection!
             : 0;
+    final isWideOverview = MediaQuery.of(context).size.width >= 1024;
+    final genreLabel = item.genres.isNotEmpty
+        ? item.genres.first
+        : (item.writingTypes.isNotEmpty ? item.writingTypes.first : null);
+    final allTags = <String>[
+      ...item.writingTypes,
+      ...item.genres,
+      ...item.tags,
+    ];
+    final progressFraction = item.sections.isEmpty
+        ? 0.0
+        : ((_lastReadSection ?? 0) + (_lastReadSection != null ? 1 : 0)) /
+            item.sections.length;
 
     return Stack(
       key: const ValueKey('overview'),
@@ -2249,16 +2268,35 @@ class _PostDetailPageState extends State<PostDetailPage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ---- Book header: backdrop + floating cover + title + author ----
-              _BookHeader(
-                imageUrl: item.imageUrl,
-                imageMeta: item.imageMeta,
-                title: item.title,
-                author: item.author,
-                isDark: isDark,
-                textColor: textColor,
-                subtleColor: subtleColor,
-              ),
+              // ---- Book header ----
+              if (isWideOverview)
+                _OverviewHeroDesktop(
+                  item: item,
+                  isDark: isDark,
+                  textColor: textColor,
+                  subtleColor: subtleColor,
+                  accent: accentColor,
+                  readingMinutes: readingMinutes,
+                  genre: genreLabel,
+                  tags: allTags,
+                  resumeIndex: _lastReadSection,
+                  resumeTitle: (_lastReadSection != null &&
+                          _lastReadSection! < item.sections.length)
+                      ? item.sections[_lastReadSection!].title
+                      : null,
+                  progressFraction: progressFraction.clamp(0.0, 1.0),
+                  onContinue: () => _enterSectionDetail(startIndex),
+                )
+              else
+                _BookHeader(
+                  imageUrl: item.imageUrl,
+                  imageMeta: item.imageMeta,
+                  title: item.title,
+                  author: item.author,
+                  isDark: isDark,
+                  textColor: textColor,
+                  subtleColor: subtleColor,
+                ),
 
               // ---- Constrained content column (centered on desktop) ----
               Center(
@@ -2267,64 +2305,39 @@ class _PostDetailPageState extends State<PostDetailPage>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-              // ---- Stats row (sections · reading time · date) ----
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                    contentPadding, 24, contentPadding, 0),
-                child: _StatsRow(
-                  sections: item.sections.length,
-                  readingMinutes: readingMinutes,
-                  createdAt: item.createdAt,
-                  genre: item.genres.isNotEmpty
-                      ? item.genres.first
-                      : (item.writingTypes.isNotEmpty
-                          ? item.writingTypes.first
-                          : null),
-                  isDark: isDark,
-                  textColor: textColor,
-                  subtleColor: subtleColor,
-                ),
-              ),
-
-              // ---- Tags (horizontal scroll) ----
-              if (item.genres.isNotEmpty ||
-                  item.writingTypes.isNotEmpty ||
-                  item.tags.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: SizedBox(
-                    height: 30,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: contentPadding),
-                      children: [
-                        ...item.writingTypes
-                            .map((t) => _TagPill(label: t, isDark: isDark)),
-                        ...item.genres
-                            .map((g) => _TagPill(label: g, isDark: isDark)),
-                        ...item.tags
-                            .map((t) => _TagPill(label: t, isDark: isDark)),
-                      ]
-                          .map((w) => Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: w))
-                          .toList(),
-                    ),
-                  ),
-                ),
-
-              // ---- Description ----
-              if (item.description.isNotEmpty)
+              // ---- Stats / tags / description (mobile only — desktop hero
+              // already carries them in the right column).
+              if (!isWideOverview) ...[
                 Padding(
                   padding: EdgeInsets.fromLTRB(
                       contentPadding, 24, contentPadding, 0),
-                  child: _ExpandableDescription(
-                    text: item.description,
+                  child: _StatsRow(
+                    sections: item.sections.length,
+                    readingMinutes: readingMinutes,
+                    createdAt: item.createdAt,
+                    genre: genreLabel,
+                    isDark: isDark,
                     textColor: textColor,
                     subtleColor: subtleColor,
                   ),
                 ),
+                if (allTags.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                        contentPadding, 16, contentPadding, 0),
+                    child: _TagWrap(tags: allTags, isDark: isDark),
+                  ),
+                if (item.description.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                        contentPadding, 24, contentPadding, 0),
+                    child: _ExpandableDescription(
+                      text: item.description,
+                      textColor: textColor,
+                      subtleColor: subtleColor,
+                    ),
+                  ),
+              ],
 
               // ---- Action row (like, comment, bookmark, share) ----
               Padding(
@@ -2487,8 +2500,8 @@ class _PostDetailPageState extends State<PostDetailPage>
         ),
         ),
 
-        // ---- Sticky bottom Read CTA ----
-        if (item.sections.isNotEmpty)
+        // ---- Sticky bottom Read CTA (mobile only — desktop hero has its own pill)
+        if (item.sections.isNotEmpty && !isWideOverview)
           Positioned(
             left: 0,
             right: 0,
@@ -2544,62 +2557,88 @@ class _PostDetailPageState extends State<PostDetailPage>
         isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06);
     final currentIndex = _selectedSectionIndex ?? 0;
 
-    final isWide = MediaQuery.of(context).size.width >= 900;
+    final width = MediaQuery.of(context).size.width;
+    final isWide = width >= 900;
+    final isXWide = width >= 1280;
+    final showChapterRail = isXWide && totalSections > 1;
+    final progress = totalSections <= 1
+        ? 1.0
+        : (currentIndex + 1) / totalSections;
 
-    return Column(
-      key: const ValueKey('sections_carousel'),
+    Widget chevron(Alignment alignment, IconData icon, VoidCallback onTap) {
+      return ValueListenableBuilder<bool>(
+        valueListenable: _readerHover,
+        builder: (_, hovered, child) => _ReaderSideChevron(
+          alignment: alignment,
+          icon: icon,
+          textColor: textColor,
+          subtleColor: subtleColor,
+          isDark: isDark,
+          visible: hovered,
+          onTap: onTap,
+        ),
+      );
+    }
+
+    final readerColumn = Column(
       children: [
-        // Swipeable section content
-        Expanded(
+        // Hairline reading-progress bar — replaces the need to glance at "X of Y".
+        SizedBox(
+          height: 2,
           child: Stack(
             children: [
-              PageView.builder(
-                controller: _pageController,
-                itemCount: totalSections,
-                onPageChanged: (index) {
-                  setState(() => _selectedSectionIndex = index);
-                  _saveProgress(index);
-                  // Lazy-load this section's body if it wasn't inlined in the
-                  // initial feed-item response, plus the next two for prefetch.
-                  _ensureSectionLoaded(index);
-                  _ensureSectionLoaded(index + 1);
-                  _ensureSectionLoaded(index + 2);
-                },
-                itemBuilder: (context, index) {
-                  return _buildSingleSectionPage(
-                    index, isDark, textColor, subtleColor,
-                  );
-                },
+              Container(color: dividerColor),
+              FractionallySizedBox(
+                widthFactor: progress.clamp(0.0, 1.0),
+                child: Container(color: _paperAccent),
               ),
-              if (isWide && currentIndex > 0)
-                _ReaderSideChevron(
-                  alignment: Alignment.centerLeft,
-                  icon: CupertinoIcons.chevron_left,
-                  textColor: textColor,
-                  subtleColor: subtleColor,
-                  isDark: isDark,
-                  onTap: () => _pageController?.previousPage(
-                    duration: const Duration(milliseconds: 280),
-                    curve: Curves.easeOutCubic,
-                  ),
-                ),
-              if (isWide && currentIndex < totalSections - 1)
-                _ReaderSideChevron(
-                  alignment: Alignment.centerRight,
-                  icon: CupertinoIcons.chevron_right,
-                  textColor: textColor,
-                  subtleColor: subtleColor,
-                  isDark: isDark,
-                  onTap: () => _pageController?.nextPage(
-                    duration: const Duration(milliseconds: 280),
-                    curve: Curves.easeOutCubic,
-                  ),
-                ),
             ],
           ),
         ),
-
-        // Bottom bar: chapter pill + page count + Listen button (book reader style)
+        Expanded(
+          child: MouseRegion(
+            onEnter: (_) => _readerHover.value = true,
+            onExit: (_) => _readerHover.value = false,
+            child: Stack(
+              children: [
+                PageView.builder(
+                  controller: _pageController,
+                  itemCount: totalSections,
+                  onPageChanged: (index) {
+                    setState(() => _selectedSectionIndex = index);
+                    _saveProgress(index);
+                    _ensureSectionLoaded(index);
+                    _ensureSectionLoaded(index + 1);
+                    _ensureSectionLoaded(index + 2);
+                  },
+                  itemBuilder: (context, index) {
+                    return _buildSingleSectionPage(
+                      index, isDark, textColor, subtleColor,
+                    );
+                  },
+                ),
+                if (isWide && currentIndex > 0)
+                  chevron(
+                    Alignment.centerLeft,
+                    CupertinoIcons.chevron_left,
+                    () => _pageController?.previousPage(
+                      duration: const Duration(milliseconds: 280),
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
+                if (isWide && currentIndex < totalSections - 1)
+                  chevron(
+                    Alignment.centerRight,
+                    CupertinoIcons.chevron_right,
+                    () => _pageController?.nextPage(
+                      duration: const Duration(milliseconds: 280),
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
         _buildReaderBottomBar(
           isDark: isDark,
           textColor: textColor,
@@ -2608,8 +2647,52 @@ class _PostDetailPageState extends State<PostDetailPage>
           dividerColor: dividerColor,
           currentIndex: currentIndex,
           totalSections: totalSections,
+          // FAB takes over Listen at xwide so the bar stays calm.
+          showListen: !isXWide,
         ),
       ],
+    );
+
+    if (!showChapterRail) {
+      return KeyedSubtree(
+        key: const ValueKey('sections_carousel'),
+        child: readerColumn,
+      );
+    }
+
+    // Two-pane reading view at >=1280px: persistent chapter rail on the left,
+    // reader in the middle, soft Listen FAB floating bottom-right.
+    return KeyedSubtree(
+      key: const ValueKey('sections_carousel'),
+      child: Stack(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _ReaderChapterRail(
+                sections: item.sections,
+                currentIndex: currentIndex,
+                isDark: isDark,
+                textColor: textColor,
+                subtleColor: subtleColor,
+                accent: _paperAccent,
+                dividerColor: dividerColor,
+                onTap: _navigateToSection,
+              ),
+              Container(width: 1, color: dividerColor),
+              Expanded(child: readerColumn),
+            ],
+          ),
+          Positioned(
+            right: 28,
+            bottom: 28 + MediaQuery.of(context).padding.bottom,
+            child: _ReaderListenFab(
+              accent: _paperAccent,
+              onTap: _onListenPressed,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -2624,6 +2707,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     required Color dividerColor,
     required int currentIndex,
     required int totalSections,
+    bool showListen = true,
   }) {
     final pillBg = isDark
         ? Colors.white.withValues(alpha: 0.08)
@@ -2728,11 +2812,13 @@ class _PostDetailPageState extends State<PostDetailPage>
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.center,
-                child: listenButton,
-              ),
+              if (showListen) ...[
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.center,
+                  child: listenButton,
+                ),
+              ],
             ],
           ),
         ),
@@ -2754,11 +2840,16 @@ class _PostDetailPageState extends State<PostDetailPage>
     final contentPadding = isWide ? 32.0 : 24.0;
     const maxContentWidth = 720.0;
     final canvasMaxWidth = isWide ? 560.0 : 600.0;
+    // Desktop reading distance is farther than a phone — bump effective scale
+    // ~8% so the body text sits at a comfortable eye-level size without the
+    // user needing to crank the Aa control.
+    final effectiveScale = _readerFontScale * (isWide ? 1.08 : 1.0);
+    final titleScale = isWide ? 1.08 : 1.0;
     final styles = _quillStyles(
       textColor,
       isDark,
       paperMode: true,
-      scale: _readerFontScale,
+      scale: effectiveScale,
     );
 
     final body = SingleChildScrollView(
@@ -2779,7 +2870,7 @@ class _PostDetailPageState extends State<PostDetailPage>
             child: Text(
               section.title,
               style: _readerTextStyle(
-                fontSize: 22 * _readerFontScale,
+                fontSize: 22 * _readerFontScale * titleScale,
                 fontStyle: FontStyle.italic,
                 fontWeight: FontWeight.w600,
                 color: textColor,
@@ -3494,6 +3585,427 @@ class _BookHeader extends StatelessWidget {
 }
 
 // ============================================================================
+// DESKTOP HERO — Row(cover left, content right) sharing one cinematic
+// backdrop. Carries title, author, stats inline, tag cloud, synopsis preview
+// and a centered Continue pill with a thin progress sliver. Replaces the
+// mobile `_BookHeader` on >=1024px viewports.
+// ============================================================================
+class _OverviewHeroDesktop extends StatelessWidget {
+  final FeedItemModel item;
+  final bool isDark;
+  final Color textColor;
+  final Color subtleColor;
+  final Color accent;
+  final int readingMinutes;
+  final String? genre;
+  final List<String> tags;
+  final int? resumeIndex;
+  final String? resumeTitle;
+  final double progressFraction;
+  final VoidCallback onContinue;
+
+  const _OverviewHeroDesktop({
+    required this.item,
+    required this.isDark,
+    required this.textColor,
+    required this.subtleColor,
+    required this.accent,
+    required this.readingMinutes,
+    required this.genre,
+    required this.tags,
+    required this.resumeIndex,
+    required this.resumeTitle,
+    required this.progressFraction,
+    required this.onContinue,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasCover = item.imageUrl.isNotEmpty || item.imageMeta != null;
+    const coverWidth = 240.0;
+    const coverHeight = coverWidth * 1.45;
+
+    final hasResume = resumeIndex != null && resumeIndex! > 0;
+    final ctaLabel = hasResume
+        ? 'Resume · Chapter ${resumeIndex! + 1}'
+        : (resumeIndex != null ? 'Continue reading' : 'Start reading');
+    final ctaSub = hasResume && resumeTitle != null && resumeTitle!.isNotEmpty
+        ? resumeTitle!
+        : null;
+
+    return Stack(
+      children: [
+        // Cinematic blurred backdrop derived from the cover.
+        Positioned.fill(
+          child: ClipRect(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (hasCover)
+                  AppNetworkImage(
+                    url: item.imageUrl,
+                    meta: item.imageMeta,
+                    width: MediaQuery.sizeOf(context).width,
+                    fit: BoxFit.cover,
+                    errorWidget: const SizedBox.shrink(),
+                  )
+                else
+                  Container(
+                    color: isDark
+                        ? const Color(0xFF1A1A1A)
+                        : const Color(0xFFE8EAF0),
+                  ),
+                BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+                  child: Container(
+                    color: (isDark ? Colors.black : Colors.white)
+                        .withValues(alpha: 0.62),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        (isDark ? Colors.black : Colors.white)
+                            .withValues(alpha: 0.0),
+                        (isDark
+                                ? const Color(0xFF000000)
+                                : const Color(0xFFFAFAFA))
+                            .withValues(alpha: 0.92),
+                      ],
+                      stops: const [0.55, 1.0],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Foreground row.
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1080),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(40, 36, 40, 36),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: coverWidth,
+                    height: coverHeight,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(
+                              alpha: isDark ? 0.6 : 0.25),
+                          blurRadius: 36,
+                          offset: const Offset(0, 18),
+                          spreadRadius: -4,
+                        ),
+                        BoxShadow(
+                          color: Colors.black.withValues(
+                              alpha: isDark ? 0.4 : 0.12),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: hasCover
+                          ? LayoutBuilder(
+                              builder: (ctx, c) => AppNetworkImage(
+                                url: item.imageUrl,
+                                meta: item.imageMeta,
+                                width: c.maxWidth,
+                                height: c.maxHeight,
+                                fit: BoxFit.cover,
+                                errorWidget: Container(
+                                  color: isDark
+                                      ? const Color(0xFF1E1E1E)
+                                      : const Color(0xFFEDEDED),
+                                  child: Icon(CupertinoIcons.photo,
+                                      size: 36,
+                                      color: isDark
+                                          ? Colors.white24
+                                          : Colors.black26),
+                                ),
+                              ),
+                            )
+                          : Container(
+                              color: isDark
+                                  ? const Color(0xFF1E1E1E)
+                                  : const Color(0xFFEDEDED),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Text(
+                                    item.title,
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.playfairDisplay(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: textColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 36),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.title,
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w700,
+                            color: textColor,
+                            height: 1.1,
+                            letterSpacing: -0.6,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          item.author,
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: accent,
+                            letterSpacing: -0.2,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 18),
+                        _HeroInlineStats(
+                          sections: item.sections.length,
+                          readingMinutes: readingMinutes,
+                          createdAt: item.createdAt,
+                          genre: genre,
+                          subtleColor: subtleColor,
+                        ),
+                        if (tags.isNotEmpty) ...[
+                          const SizedBox(height: 18),
+                          _TagWrap(tags: tags, isDark: isDark, maxVisible: 10),
+                        ],
+                        if (item.description.isNotEmpty) ...[
+                          const SizedBox(height: 18),
+                          _ExpandableDescription(
+                            text: item.description,
+                            textColor: textColor,
+                            subtleColor: subtleColor,
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        _HeroContinueCta(
+                          label: ctaLabel,
+                          subLabel: ctaSub,
+                          accent: accent,
+                          progress: progressFraction,
+                          isDark: isDark,
+                          onTap: onContinue,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HeroInlineStats extends StatelessWidget {
+  final int sections;
+  final int readingMinutes;
+  final DateTime createdAt;
+  final String? genre;
+  final Color subtleColor;
+
+  const _HeroInlineStats({
+    required this.sections,
+    required this.readingMinutes,
+    required this.createdAt,
+    required this.genre,
+    required this.subtleColor,
+  });
+
+  String _shortDate(DateTime d) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${months[d.month - 1]} ${d.day}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final parts = <String>[
+      '$sections section${sections == 1 ? '' : 's'}',
+      '$readingMinutes min',
+      _shortDate(createdAt),
+      if (genre != null && genre!.isNotEmpty) genre!,
+    ];
+    final style = GoogleFonts.inter(
+      fontSize: 13,
+      fontWeight: FontWeight.w500,
+      color: subtleColor,
+      letterSpacing: 0.1,
+    );
+    final children = <Widget>[];
+    for (var i = 0; i < parts.length; i++) {
+      children.add(Text(parts[i], style: style));
+      if (i < parts.length - 1) {
+        children.add(Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Text('·', style: style),
+        ));
+      }
+    }
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: children,
+    );
+  }
+}
+
+class _HeroContinueCta extends StatefulWidget {
+  final String label;
+  final String? subLabel;
+  final Color accent;
+  final double progress;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _HeroContinueCta({
+    required this.label,
+    required this.subLabel,
+    required this.accent,
+    required this.progress,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  State<_HeroContinueCta> createState() => _HeroContinueCtaState();
+}
+
+class _HeroContinueCtaState extends State<_HeroContinueCta> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final trackColor = widget.isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.black.withValues(alpha: 0.08);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _hover = true),
+          onExit: (_) => setState(() => _hover = false),
+          child: GestureDetector(
+            onTap: widget.onTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              width: 320,
+              height: 52,
+              decoration: BoxDecoration(
+                color: widget.accent,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.accent
+                        .withValues(alpha: _hover ? 0.45 : 0.28),
+                    blurRadius: _hover ? 26 : 16,
+                    offset: const Offset(0, 8),
+                    spreadRadius: -2,
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    CupertinoIcons.book_fill,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    widget.label,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (widget.progress > 0) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: 320,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: SizedBox(
+                    height: 3,
+                    child: Stack(
+                      children: [
+                        Container(color: trackColor),
+                        FractionallySizedBox(
+                          widthFactor: widget.progress.clamp(0.0, 1.0),
+                          child: Container(color: widget.accent),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '${(widget.progress * 100).round()}% read'
+                  '${widget.subLabel != null ? '  ·  ${widget.subLabel}' : ''}',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: widget.isDark
+                        ? Colors.white.withValues(alpha: 0.55)
+                        : Colors.black.withValues(alpha: 0.50),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+// ============================================================================
 // STATS ROW — divided metric tiles (sections, reading time, genre/date)
 // ============================================================================
 class _StatsRow extends StatelessWidget {
@@ -3916,6 +4428,39 @@ class _TagPill extends StatelessWidget {
 }
 
 // ============================================================================
+// TAG WRAP — replaces the old horizontal scroll. Caps at 8 visible pills with a
+// "+N more" trailing chip when the list overflows so we never clip mid-word.
+// ============================================================================
+class _TagWrap extends StatelessWidget {
+  final List<String> tags;
+  final bool isDark;
+  final int maxVisible;
+
+  const _TagWrap({
+    required this.tags,
+    required this.isDark,
+    this.maxVisible = 8,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (tags.isEmpty) return const SizedBox.shrink();
+    final visible =
+        tags.length > maxVisible ? tags.take(maxVisible).toList() : tags;
+    final overflow = tags.length - visible.length;
+    final pills = <Widget>[
+      for (final t in visible) _TagPill(label: t, isDark: isDark),
+      if (overflow > 0) _TagPill(label: '+$overflow more', isDark: isDark),
+    ];
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: pills,
+    );
+  }
+}
+
+// ============================================================================
 // ACTION ROW (Like / Comment / Bookmark / Share)
 // ============================================================================
 class _ActionRow extends StatelessWidget {
@@ -4267,10 +4812,26 @@ class _CanvasPreview extends StatelessWidget {
 
     elements.sort((a, b) => a.zIndex.compareTo(b.zIndex));
 
+    // Optional explicit aspect ratio (height / width). When canvas authors
+    // set this we trust them; otherwise we keep the legacy 4:3 portrait frame
+    // that existing element positions were laid out against.
+    double heightOverWidth = 4 / 3;
+    final ratioRaw = data['aspectRatio'];
+    if (ratioRaw is num && ratioRaw > 0) {
+      heightOverWidth = ratioRaw.toDouble();
+    } else if (ratioRaw is String && ratioRaw.contains(':')) {
+      final parts = ratioRaw.split(':');
+      final w = double.tryParse(parts[0]);
+      final h = parts.length > 1 ? double.tryParse(parts[1]) : null;
+      if (w != null && h != null && w > 0 && h > 0) {
+        heightOverWidth = h / w;
+      }
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final canvasWidth = constraints.maxWidth;
-        final canvasHeight = canvasWidth * 4 / 3;
+        final canvasHeight = canvasWidth * heightOverWidth;
 
         final paperColor = bgColor != 0
             ? Color(bgColor)
@@ -4533,7 +5094,8 @@ class _Highlight {
 
 // ============================================================================
 // Side-gutter chevron used to advance/retreat chapters on wide screens.
-// Lives outside the reading column so it never crowds the prose.
+// Hidden until the reader area is hovered so the page stays calm at rest.
+// The hover state is owned by the parent (the whole reader pane).
 // ============================================================================
 class _ReaderSideChevron extends StatefulWidget {
   final Alignment alignment;
@@ -4541,6 +5103,7 @@ class _ReaderSideChevron extends StatefulWidget {
   final Color textColor;
   final Color subtleColor;
   final bool isDark;
+  final bool visible;
   final VoidCallback onTap;
 
   const _ReaderSideChevron({
@@ -4549,6 +5112,7 @@ class _ReaderSideChevron extends StatefulWidget {
     required this.textColor,
     required this.subtleColor,
     required this.isDark,
+    required this.visible,
     required this.onTap,
   });
 
@@ -4562,32 +5126,324 @@ class _ReaderSideChevronState extends State<_ReaderSideChevron> {
   @override
   Widget build(BuildContext context) {
     final bg = widget.isDark
-        ? Colors.white.withValues(alpha: _hover ? 0.10 : 0.04)
-        : Colors.black.withValues(alpha: _hover ? 0.08 : 0.03);
+        ? Colors.white.withValues(alpha: _hover ? 0.12 : 0.05)
+        : Colors.black.withValues(alpha: _hover ? 0.10 : 0.04);
     return Align(
       alignment: widget.alignment,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          onEnter: (_) => setState(() => _hover = true),
-          onExit: (_) => setState(() => _hover = false),
-          child: GestureDetector(
-            onTap: widget.onTap,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: bg,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                widget.icon,
-                size: 22,
-                color: _hover ? widget.textColor : widget.subtleColor,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 200),
+          opacity: widget.visible ? 1.0 : 0.0,
+          child: IgnorePointer(
+            ignoring: !widget.visible,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              onEnter: (_) => setState(() => _hover = true),
+              onExit: (_) => setState(() => _hover = false),
+              child: GestureDetector(
+                onTap: widget.onTap,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 160),
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: bg,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    widget.icon,
+                    size: 22,
+                    color: _hover ? widget.textColor : widget.subtleColor,
+                  ),
+                ),
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// Persistent chapter rail shown on >=1280px viewports. Surfaces the
+// table-of-contents that's otherwise hidden behind the end-drawer so the
+// reader can jump chapters without leaving the page.
+// ============================================================================
+class _ReaderChapterRail extends StatefulWidget {
+  final List<FeedItemSection> sections;
+  final int currentIndex;
+  final bool isDark;
+  final Color textColor;
+  final Color subtleColor;
+  final Color accent;
+  final Color dividerColor;
+  final ValueChanged<int> onTap;
+
+  const _ReaderChapterRail({
+    required this.sections,
+    required this.currentIndex,
+    required this.isDark,
+    required this.textColor,
+    required this.subtleColor,
+    required this.accent,
+    required this.dividerColor,
+    required this.onTap,
+  });
+
+  @override
+  State<_ReaderChapterRail> createState() => _ReaderChapterRailState();
+}
+
+class _ReaderChapterRailState extends State<_ReaderChapterRail> {
+  final ScrollController _scroll = ScrollController();
+
+  @override
+  void didUpdateWidget(covariant _ReaderChapterRail old) {
+    super.didUpdateWidget(old);
+    if (old.currentIndex != widget.currentIndex) {
+      _scrollToActive();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActive());
+  }
+
+  void _scrollToActive() {
+    if (!_scroll.hasClients) return;
+    const rowHeight = 52.0;
+    final target = (widget.currentIndex * rowHeight) - 120;
+    _scroll.animateTo(
+      target.clamp(0.0, _scroll.position.maxScrollExtent),
+      duration: const Duration(milliseconds: 240),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 268,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+            child: Text(
+              'Chapters',
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                color: widget.textColor,
+                letterSpacing: -0.2,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: Text(
+              '${widget.sections.length} sections',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: widget.subtleColor,
+              ),
+            ),
+          ),
+          Container(height: 1, color: widget.dividerColor),
+          Expanded(
+            child: ListView.builder(
+              controller: _scroll,
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              itemCount: widget.sections.length,
+              itemBuilder: (_, i) {
+                final isActive = i == widget.currentIndex;
+                return _ReaderChapterRailRow(
+                  index: i,
+                  title: widget.sections[i].title,
+                  isActive: isActive,
+                  isDark: widget.isDark,
+                  textColor: widget.textColor,
+                  subtleColor: widget.subtleColor,
+                  accent: widget.accent,
+                  onTap: () => widget.onTap(i),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReaderChapterRailRow extends StatefulWidget {
+  final int index;
+  final String title;
+  final bool isActive;
+  final bool isDark;
+  final Color textColor;
+  final Color subtleColor;
+  final Color accent;
+  final VoidCallback onTap;
+
+  const _ReaderChapterRailRow({
+    required this.index,
+    required this.title,
+    required this.isActive,
+    required this.isDark,
+    required this.textColor,
+    required this.subtleColor,
+    required this.accent,
+    required this.onTap,
+  });
+
+  @override
+  State<_ReaderChapterRailRow> createState() => _ReaderChapterRailRowState();
+}
+
+class _ReaderChapterRailRowState extends State<_ReaderChapterRailRow> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = widget.isActive
+        ? widget.accent.withValues(alpha: 0.10)
+        : (_hover
+            ? (widget.isDark
+                ? Colors.white.withValues(alpha: 0.04)
+                : Colors.black.withValues(alpha: 0.03))
+            : Colors.transparent);
+    final color = widget.isActive
+        ? widget.accent
+        : (_hover ? widget.textColor : widget.subtleColor);
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 140),
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 22,
+                child: Text(
+                  '${widget.index + 1}',
+                  style: GoogleFonts.lora(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: color.withValues(alpha: widget.isActive ? 1.0 : 0.7),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  widget.title.isEmpty
+                      ? 'Section ${widget.index + 1}'
+                      : widget.title,
+                  style: GoogleFonts.lora(
+                    fontSize: 13.5,
+                    fontWeight:
+                        widget.isActive ? FontWeight.w600 : FontWeight.w500,
+                    color: color,
+                    height: 1.35,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// Soft floating Listen action shown on >=1280px viewports. Replaces the
+// bottom-bar Listen pill so the bar can stay quiet on long, wide screens.
+// ============================================================================
+class _ReaderListenFab extends StatefulWidget {
+  final Color accent;
+  final VoidCallback onTap;
+
+  const _ReaderListenFab({required this.accent, required this.onTap});
+
+  @override
+  State<_ReaderListenFab> createState() => _ReaderListenFabState();
+}
+
+class _ReaderListenFabState extends State<_ReaderListenFab> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.symmetric(
+            horizontal: _hover ? 22 : 18,
+            vertical: 14,
+          ),
+          decoration: BoxDecoration(
+            color: widget.accent,
+            borderRadius: BorderRadius.circular(40),
+            boxShadow: [
+              BoxShadow(
+                color: widget.accent
+                    .withValues(alpha: _hover ? 0.45 : 0.30),
+                blurRadius: _hover ? 28 : 18,
+                offset: const Offset(0, 8),
+                spreadRadius: -2,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                CupertinoIcons.play_circle_fill,
+                color: Colors.white,
+                size: 22,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Listen',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ),
       ),
