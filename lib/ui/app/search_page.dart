@@ -46,6 +46,8 @@ class _SearchPageState extends State<SearchPage> {
 
   bool _loadingPopular = true;
   bool _searching = false;
+  bool _allTagsExpanded = false;
+  bool _searchFocused = false;
   List<FeedItemModel> _popular = const [];
   List<FeedItemModel> _results = const [];
   List<PublicUser> _users = const [];
@@ -56,6 +58,7 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     super.initState();
     _controller.addListener(_onQueryChanged);
+    _focusNode.addListener(_onFocusChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
       _loadInitial();
@@ -65,9 +68,17 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void dispose() {
     _debounce?.cancel();
+    _focusNode.removeListener(_onFocusChanged);
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _onFocusChanged() {
+    if (!mounted) return;
+    if (_searchFocused != _focusNode.hasFocus) {
+      setState(() => _searchFocused = _focusNode.hasFocus);
+    }
   }
 
   void _loadInitial() {
@@ -245,99 +256,131 @@ class _SearchPageState extends State<SearchPage> {
   ) {
     final muted = isDark ? Colors.white54 : Colors.black45;
     final fieldBg = isDark
-        ? Colors.white.withValues(alpha: 0.06)
+        ? Colors.white.withValues(alpha: _searchFocused ? 0.08 : 0.06)
         : Colors.white;
-    final fontSize = isMobile ? 15.0 : 16.0;
-    final vInner = isMobile ? 12.0 : 16.0;
+    final fontSize = isMobile ? 15.0 : 17.0;
+    final vInner = isMobile ? 12.0 : 18.0;
+    const accent = Color(0xFF2563EB);
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        hPad,
-        isMobile ? 10 : 20,
-        hPad,
-        isMobile ? 10 : 16,
+    final field = AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(isMobile ? 12 : 16),
+        boxShadow: _searchFocused
+            ? [
+                BoxShadow(
+                  color: accent.withValues(alpha: 0.18),
+                  blurRadius: 28,
+                  spreadRadius: 1,
+                ),
+              ]
+            : const [],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: CupertinoTextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              placeholder: 'Search stories, authors, or tags',
-              placeholderStyle: GoogleFonts.inter(
-                color: muted,
-                fontSize: fontSize,
-              ),
-              style: GoogleFonts.inter(
-                color: textColor,
-                fontSize: fontSize,
-              ),
-              cursorColor: textColor,
-              textInputAction: TextInputAction.search,
-              onSubmitted: (v) => _commitSearch(v),
-              prefix: Padding(
-                padding: EdgeInsets.only(left: isMobile ? 12 : 16),
-                child: Icon(
-                  CupertinoIcons.search,
-                  size: isMobile ? 18 : 20,
-                  color: muted,
+      child: CupertinoTextField(
+        controller: _controller,
+        focusNode: _focusNode,
+        placeholder: 'Search stories, authors, or tags',
+        placeholderStyle: GoogleFonts.inter(
+          color: muted,
+          fontSize: fontSize,
+          letterSpacing: -0.1,
+        ),
+        style: GoogleFonts.inter(
+          color: textColor,
+          fontSize: fontSize,
+          letterSpacing: -0.1,
+        ),
+        cursorColor: accent,
+        textInputAction: TextInputAction.search,
+        onSubmitted: (v) => _commitSearch(v),
+        prefix: Padding(
+          padding: EdgeInsets.only(left: isMobile ? 12 : 18),
+          child: Icon(
+            CupertinoIcons.search,
+            size: isMobile ? 18 : 20,
+            color: _searchFocused ? accent : muted,
+          ),
+        ),
+        suffix: _controller.text.isNotEmpty
+            ? GestureDetector(
+                onTap: () {
+                  _controller.clear();
+                  _focusNode.requestFocus();
+                },
+                child: Padding(
+                  padding: EdgeInsets.only(right: isMobile ? 10 : 14),
+                  child: Icon(
+                    CupertinoIcons.clear_circled_solid,
+                    size: isMobile ? 18 : 20,
+                    color: muted,
+                  ),
                 ),
-              ),
-              suffix: _controller.text.isNotEmpty
-                  ? GestureDetector(
-                      onTap: () {
-                        _controller.clear();
-                        _focusNode.requestFocus();
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.only(right: isMobile ? 10 : 14),
-                        child: Icon(
-                          CupertinoIcons.clear_circled_solid,
-                          size: isMobile ? 18 : 20,
-                          color: muted,
-                        ),
-                      ),
-                    )
-                  : (!isMobile
-                      ? Padding(
-                          padding: const EdgeInsets.only(right: 14),
-                          child: _KeyboardHint(isDark: isDark),
-                        )
-                      : null),
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 10 : 14,
-                vertical: vInner,
-              ),
-              decoration: BoxDecoration(
-                color: fieldBg,
-                borderRadius: BorderRadius.circular(isMobile ? 12 : 14),
-                border: Border.all(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.08)
-                      : Colors.black.withValues(alpha: 0.08),
+              )
+            : (!isMobile
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 14),
+                    child: _KeyboardHint(isDark: isDark),
+                  )
+                : null),
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 10 : 14,
+          vertical: vInner,
+        ),
+        decoration: BoxDecoration(
+          color: fieldBg,
+          borderRadius: BorderRadius.circular(isMobile ? 12 : 16),
+          border: Border.all(
+            color: _searchFocused
+                ? accent.withValues(alpha: 0.55)
+                : (isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.08)),
+            width: _searchFocused ? 1.4 : 1.0,
+          ),
+        ),
+      ),
+    );
+
+    if (isMobile) {
+      // Mobile keeps the explicit Cancel since esc isn't reachable on touch.
+      return Padding(
+        padding: EdgeInsets.fromLTRB(hPad, 10, hPad, 10),
+        child: Row(
+          children: [
+            Expanded(child: field),
+            const SizedBox(width: 8),
+            CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              onPressed: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/');
+                }
+              },
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.inter(
+                  fontSize: fontSize,
+                  color: textColor,
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          CupertinoButton(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            onPressed: () {
-              if (context.canPop()) {
-                context.pop();
-              } else {
-                context.go('/');
-              }
-            },
-            child: Text(
-              'Cancel',
-              style: GoogleFonts.inter(
-                fontSize: fontSize,
-                color: textColor,
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
+      );
+    }
+
+    // Desktop: centered, max 720, generous breathing room — esc hint is
+    // already inside the field so the trailing Cancel link disappears.
+    return Padding(
+      padding: EdgeInsets.fromLTRB(hPad, 28, hPad, 8),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: field,
+        ),
       ),
     );
   }
@@ -401,41 +444,65 @@ class _SearchPageState extends State<SearchPage> {
     double hPad,
     double width,
   ) {
+    final isMobile = Breakpoints.isMobile(width);
+    final authors = _authorsFromPopular();
     return ListView(
-      padding: const EdgeInsets.only(bottom: 40),
+      padding: const EdgeInsets.only(top: 4, bottom: 60),
       children: [
         if (_recent.isNotEmpty) _buildRecentSection(isDark, textColor, hPad),
+
+        // Lead with covers — books are the product, taxonomy is a service.
+        _buildPopularSection(isDark, textColor, hPad, width),
+
+        if (authors.isNotEmpty)
+          _buildAuthorsStrip(authors, isDark, textColor, hPad, isMobile),
+
         if (_facets.genres.isNotEmpty)
-          _buildFacetSection(
-            title: 'Genres',
+          _buildGenreCards(
             entries: _facets.genres,
             isDark: isDark,
             textColor: textColor,
             hPad: hPad,
-            kind: 'genre',
+            isMobile: isMobile,
           ),
+
         if (_facets.tags.isNotEmpty)
-          _buildFacetSection(
-            title: 'Tags',
+          _buildTagCloudSection(
             entries: _facets.tags,
             isDark: isDark,
             textColor: textColor,
             hPad: hPad,
-            kind: 'tag',
-            prefix: '#',
           ),
+
         if (_facets.writingTypes.isNotEmpty)
           _buildFacetSection(
-            title: 'Writing types',
+            title: 'Forms',
             entries: _facets.writingTypes,
             isDark: isDark,
             textColor: textColor,
             hPad: hPad,
             kind: 'type',
           ),
-        _buildPopularSection(isDark, textColor, hPad, width),
       ],
     );
+  }
+
+  /// De-duplicates `_popular` by authorId and returns up to 8 unique authors
+  /// for the discovery "Authors to follow" strip. We don't have a dedicated
+  /// "popular authors" endpoint yet, so a soft surface from the popular feed
+  /// is good enough — the same authors that wrote the popular stories *are*
+  /// the popular authors.
+  List<({String id, String name})> _authorsFromPopular() {
+    final seen = <String>{};
+    final out = <({String id, String name})>[];
+    for (final p in _popular) {
+      if (p.authorId.isEmpty || p.author.isEmpty) continue;
+      if (seen.contains(p.authorId)) continue;
+      seen.add(p.authorId);
+      out.add((id: p.authorId, name: p.author));
+      if (out.length >= 8) break;
+    }
+    return out;
   }
 
   // Browse-by-facet rows. Tapping a chip opens TagFeedPage for the picked
@@ -635,38 +702,19 @@ class _SearchPageState extends State<SearchPage> {
   ) {
     final isMobile = Breakpoints.isMobile(width);
     return Padding(
-      padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 8),
+      padding: EdgeInsets.fromLTRB(hPad, isMobile ? 12 : 28, hPad, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(
-                CupertinoIcons.flame_fill,
-                size: 16,
-                color: Color(0xFFFF6B35),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Popular',
-                style: GoogleFonts.inter(
-                  fontSize: isMobile ? 15 : 17,
-                  fontWeight: FontWeight.w700,
-                  color: textColor,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                _popular.isEmpty ? '' : '${_popular.length}',
-                style: GoogleFonts.inter(
-                  fontSize: isMobile ? 13 : 14,
-                  fontWeight: FontWeight.w500,
-                  color: textColor.withValues(alpha: 0.35),
-                ),
-              ),
-            ],
+          _DiscoveryHeader(
+            icon: CupertinoIcons.flame_fill,
+            iconColor: const Color(0xFFFF6B35),
+            title: 'Popular',
+            subtitle: 'Reader-favourite stories right now',
+            isMobile: isMobile,
+            textColor: textColor,
           ),
-          SizedBox(height: isMobile ? 14 : 18),
+          SizedBox(height: isMobile ? 14 : 22),
           if (_loadingPopular)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 40),
@@ -696,13 +744,15 @@ class _SearchPageState extends State<SearchPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final w = constraints.maxWidth;
-        final cols = w >= 960
-            ? 6
-            : w >= 720
-                ? 5
-                : w >= 520
-                    ? 4
-                    : w >= 360
+        // Larger, more cinematic cards on desktop — fewer columns so each
+        // cover earns its space.
+        final cols = w >= 1200
+            ? 5
+            : w >= 900
+                ? 4
+                : w >= 600
+                    ? 3
+                    : w >= 380
                         ? 3
                         : 2;
         return GridView.builder(
@@ -711,8 +761,8 @@ class _SearchPageState extends State<SearchPage> {
           itemCount: _popular.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: cols,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 22,
+            crossAxisSpacing: w >= 600 ? 22 : 14,
+            mainAxisSpacing: w >= 600 ? 30 : 22,
             childAspectRatio: 0.58,
           ),
           itemBuilder: (context, i) =>
@@ -737,45 +787,258 @@ class _SearchPageState extends State<SearchPage> {
               aspectRatio: 3 / 4,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.12),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
+                      color: Colors.black
+                          .withValues(alpha: isDark ? 0.55 : 0.18),
+                      blurRadius: 28,
+                      offset: const Offset(0, 14),
+                      spreadRadius: -4,
+                    ),
+                    BoxShadow(
+                      color: Colors.black
+                          .withValues(alpha: isDark ? 0.35 : 0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                   child: _coverImage(item, isDark),
                 ),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 14),
             Text(
               item.title,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
                 color: textColor,
-                height: 1.3,
+                height: 1.25,
+                letterSpacing: -0.2,
               ),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 4),
             Text(
               item.author,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
                 color: textColor.withValues(alpha: 0.55),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Authors strip — derived from popular feed for now (no dedicated endpoint).
+  // ---------------------------------------------------------------------------
+  Widget _buildAuthorsStrip(
+    List<({String id, String name})> authors,
+    bool isDark,
+    Color textColor,
+    double hPad,
+    bool isMobile,
+  ) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(hPad, isMobile ? 18 : 28, hPad, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _DiscoveryHeader(
+            icon: CupertinoIcons.person_2_fill,
+            iconColor: const Color(0xFF8B5CF6),
+            title: 'Authors to follow',
+            subtitle: 'Voices behind the popular stories',
+            isMobile: isMobile,
+            textColor: textColor,
+          ),
+          SizedBox(height: isMobile ? 14 : 18),
+          SizedBox(
+            height: 116,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.zero,
+              itemCount: authors.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 14),
+              itemBuilder: (_, i) {
+                final a = authors[i];
+                return _AuthorChip(
+                  authorId: a.id,
+                  name: a.name,
+                  isDark: isDark,
+                  textColor: textColor,
+                  onTap: () => context.push('/u/${a.id}'),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Genre cards — visual tiles with palette-derived gradients, replacing the
+  // bare-pill list. Each tile is tappable and routes into the same tag-feed.
+  // ---------------------------------------------------------------------------
+  Widget _buildGenreCards({
+    required List<FacetEntry> entries,
+    required bool isDark,
+    required Color textColor,
+    required double hPad,
+    required bool isMobile,
+  }) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(hPad, isMobile ? 22 : 32, hPad, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _DiscoveryHeader(
+            icon: CupertinoIcons.square_grid_2x2_fill,
+            iconColor: const Color(0xFF10B981),
+            title: 'Browse genres',
+            subtitle: 'Tap a world and explore everything in it',
+            isMobile: isMobile,
+            textColor: textColor,
+          ),
+          SizedBox(height: isMobile ? 14 : 20),
+          LayoutBuilder(
+            builder: (context, c) {
+              final w = c.maxWidth;
+              final cols = w >= 1100
+                  ? 4
+                  : w >= 720
+                      ? 3
+                      : 2;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: entries.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: cols,
+                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 14,
+                  mainAxisExtent: isMobile ? 86 : 104,
+                ),
+                itemBuilder: (context, i) {
+                  final e = entries[i];
+                  return _GenreTile(
+                    label: e.value,
+                    count: e.count,
+                    isDark: isDark,
+                    onTap: () => context.push(
+                      '/tag-feed/genre/${Uri.encodeComponent(e.value)}',
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Topic cloud — top 12 visible by default, "Show all" reveals the rest.
+  // No # prefix; the section header carries the meaning.
+  // ---------------------------------------------------------------------------
+  Widget _buildTagCloudSection({
+    required List<FacetEntry> entries,
+    required bool isDark,
+    required Color textColor,
+    required double hPad,
+  }) {
+    const initial = 12;
+    final overflow = entries.length - initial;
+    final visible = _allTagsExpanded || entries.length <= initial
+        ? entries
+        : entries.take(initial).toList();
+    return Padding(
+      padding: EdgeInsets.fromLTRB(hPad, 28, hPad, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _DiscoveryHeader(
+            icon: CupertinoIcons.number,
+            iconColor: const Color(0xFFEC4899),
+            title: 'Topics',
+            subtitle: 'Find stories by what they\'re about',
+            isMobile: false,
+            textColor: textColor,
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final e in visible)
+                _buildFacetChip(
+                  label: e.value,
+                  count: e.count,
+                  isDark: isDark,
+                  textColor: textColor,
+                  onTap: () => context.push(
+                    '/tag-feed/tag/${Uri.encodeComponent(e.value)}',
+                  ),
+                ),
+              if (overflow > 0)
+                GestureDetector(
+                  onTap: () =>
+                      setState(() => _allTagsExpanded = !_allTagsExpanded),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.04)
+                          : Colors.black.withValues(alpha: 0.03),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.10)
+                            : Colors.black.withValues(alpha: 0.10),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _allTagsExpanded
+                              ? 'Show fewer'
+                              : 'Show all $overflow more',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: textColor.withValues(alpha: 0.75),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          _allTagsExpanded
+                              ? CupertinoIcons.chevron_up
+                              : CupertinoIcons.chevron_down,
+                          size: 12,
+                          color: textColor.withValues(alpha: 0.6),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -1253,6 +1516,312 @@ class _HoverLiftState extends State<_HoverLift> {
         curve: Curves.easeOut,
         scale: _hovering ? 1.02 : 1.0,
         child: widget.child,
+      ),
+    );
+  }
+}
+
+/// Section header used across the discovery surface — leads with a colored
+/// icon, title in serif Display weight, and a one-line "why care" subtitle.
+class _DiscoveryHeader extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final bool isMobile;
+  final Color textColor;
+
+  const _DiscoveryHeader({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.isMobile,
+    required this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final subtle = textColor.withValues(alpha: 0.55);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: isMobile ? 28 : 34,
+          height: isMobile ? 28 : 34,
+          decoration: BoxDecoration(
+            color: iconColor.withValues(alpha: 0.14),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: isMobile ? 15 : 17, color: iconColor),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: isMobile ? 19 : 23,
+                  fontWeight: FontWeight.w700,
+                  color: textColor,
+                  letterSpacing: -0.4,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: GoogleFonts.inter(
+                  fontSize: isMobile ? 12 : 13,
+                  fontWeight: FontWeight.w500,
+                  color: subtle,
+                  letterSpacing: -0.05,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Single author chip used in the discovery "Authors to follow" strip.
+/// Renders an initials avatar in a soft palette derived from the name so the
+/// strip never looks monochromatic, even without uploaded photos.
+class _AuthorChip extends StatefulWidget {
+  final String authorId;
+  final String name;
+  final bool isDark;
+  final Color textColor;
+  final VoidCallback onTap;
+
+  const _AuthorChip({
+    required this.authorId,
+    required this.name,
+    required this.isDark,
+    required this.textColor,
+    required this.onTap,
+  });
+
+  @override
+  State<_AuthorChip> createState() => _AuthorChipState();
+}
+
+class _AuthorChipState extends State<_AuthorChip> {
+  bool _hover = false;
+
+  static const _palette = <List<Color>>[
+    [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+    [Color(0xFFEC4899), Color(0xFFF97316)],
+    [Color(0xFF10B981), Color(0xFF06B6D4)],
+    [Color(0xFFF59E0B), Color(0xFFEF4444)],
+    [Color(0xFF8B5CF6), Color(0xFF3B82F6)],
+    [Color(0xFF14B8A6), Color(0xFF22C55E)],
+  ];
+
+  String _initials(String n) {
+    final parts =
+        n.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return '?';
+    final first = parts.first.substring(0, 1).toUpperCase();
+    final last =
+        parts.length > 1 ? parts.last.substring(0, 1).toUpperCase() : '';
+    return '$first$last';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = _palette[widget.authorId.hashCode.abs() % _palette.length];
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: SizedBox(
+          width: 88,
+          child: Column(
+            children: [
+              AnimatedScale(
+                scale: _hover ? 1.05 : 1.0,
+                duration: const Duration(milliseconds: 160),
+                curve: Curves.easeOut,
+                child: Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: colors,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colors.first
+                            .withValues(alpha: _hover ? 0.45 : 0.25),
+                        blurRadius: _hover ? 22 : 14,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    _initials(widget.name),
+                    style: GoogleFonts.inter(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                widget.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: widget.textColor,
+                  height: 1.25,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Visual genre tile — replaces the bare-pill row. Each tile gets a soft
+/// gradient sourced from a name-hashed palette so the grid feels editorial
+/// rather than algorithmic. Tap routes to the same tag-feed page the chips
+/// used.
+class _GenreTile extends StatefulWidget {
+  final String label;
+  final int count;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _GenreTile({
+    required this.label,
+    required this.count,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  State<_GenreTile> createState() => _GenreTileState();
+}
+
+class _GenreTileState extends State<_GenreTile> {
+  bool _hover = false;
+
+  static const _palettes = <List<Color>>[
+    [Color(0xFF6366F1), Color(0xFF1E1B4B)],
+    [Color(0xFFEC4899), Color(0xFF500724)],
+    [Color(0xFF10B981), Color(0xFF064E3B)],
+    [Color(0xFFF59E0B), Color(0xFF78350F)],
+    [Color(0xFF06B6D4), Color(0xFF164E63)],
+    [Color(0xFF8B5CF6), Color(0xFF4C1D95)],
+    [Color(0xFFEF4444), Color(0xFF7F1D1D)],
+    [Color(0xFF22C55E), Color(0xFF14532D)],
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final p = _palettes[widget.label.hashCode.abs() % _palettes.length];
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.fromLTRB(18, 14, 16, 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: p,
+            ),
+            boxShadow: _hover
+                ? [
+                    BoxShadow(
+                      color: p.first.withValues(alpha: 0.40),
+                      blurRadius: 26,
+                      offset: const Offset(0, 14),
+                      spreadRadius: -4,
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: p.last.withValues(alpha: 0.30),
+                      blurRadius: 14,
+                      offset: const Offset(0, 8),
+                      spreadRadius: -4,
+                    ),
+                  ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      widget.label[0].toUpperCase() + widget.label.substring(1),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        letterSpacing: -0.3,
+                        height: 1.15,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.count == 1
+                          ? '1 story'
+                          : '${widget.count} stories',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withValues(alpha: 0.72),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: _hover ? 0.22 : 0.14),
+                ),
+                child: const Icon(
+                  CupertinoIcons.arrow_right,
+                  size: 14,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
