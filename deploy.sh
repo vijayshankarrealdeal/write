@@ -161,11 +161,13 @@ echo "→ Bringing up the stack on $SSH_HOST..."
 docker_run "docker compose up -d --build"
 
 # Caddy mounts Caddyfile as a volume; `up -d` doesn't recreate the container
-# when only the mount target changed, so config edits stay dormant until a
-# reload. Issue one explicitly so cache-control / header changes ship on
-# every deploy without manual intervention.
-echo "→ Reloading Caddy config..."
-docker_run "docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile" || true
+# when only the mount target changed, so config edits stay dormant. We tried
+# `caddy reload` but it sometimes returns success without actually swapping
+# the live ruleset (header directives in particular were persisting at old
+# values). Force-recreate the container instead — slightly heavier (briefly
+# drops the listener) but deterministic.
+echo "→ Restarting Caddy to pick up Caddyfile changes..."
+docker_run "docker compose up -d --force-recreate --no-deps caddy"
 
 echo "→ Status:"
 docker_run "docker compose ps"
