@@ -145,10 +145,12 @@ class _PostDetailPageState extends State<PostDetailPage>
   String _readerTheme = 'sepia';
 
   // -- Reader font family --
-  // Default = Georgia, a system serif available on every platform we ship to
-  // (web/iOS/Android/macOS). Avoids the runtime google_fonts fetch on first
-  // open of any chapter; user can still pick a Google font from the picker.
-  String _readerFont = 'Georgia';
+  // Default = Merriweather, bundled as a pubspec asset. Worldwide it's the
+  // most-used reading-grade serif on the web (Medium-style sites, news
+  // platforms, blogs), and shipping it as an asset means no Google Fonts
+  // CDN fetch on first chapter open and identical rendering on every
+  // platform (Android/iOS/web/desktop).
+  String _readerFont = 'Merriweather';
 
   // -- Reader brightness multiplier (0.4–1.0, applied as overlay) --
   double _readerBrightness = 1.0;
@@ -195,9 +197,24 @@ class _PostDetailPageState extends State<PostDetailPage>
     }
   }
 
-  // System (non-google_fonts) faces we treat as built-in. The default
-  // reader font is Georgia; users who pick something else (Lora, Inter,
-  // EB Garamond, etc.) still go through GoogleFonts.
+  // Faces we resolve via a plain TextStyle(fontFamily: …) — no GoogleFonts
+  // CDN fetch. Two groups:
+  //
+  //  1. Bundled assets declared in pubspec.yaml (the eight reading fonts
+  //     downloaded into `assets/fonts/`). These are the worldwide most-used
+  //     serif/sans faces for long-form articles.
+  //  2. OS-provided system serifs we keep as a fallback for the legacy
+  //     `Georgia` default that older user prefs may still hold.
+  static const Set<String> _bundledFontFamilies = {
+    'Merriweather',
+    'Lora',
+    'PT Serif',
+    'Source Serif 4',
+    'Playfair Display',
+    'Inter',
+    'Open Sans',
+    'Atkinson Hyperlegible',
+  };
   static const Set<String> _systemFontFamilies = {
     'Georgia', 'Times New Roman', 'Times', 'Iowan Old Style', 'Charter',
     'Palatino', 'Garamond', 'Baskerville', 'serif',
@@ -214,13 +231,14 @@ class _PostDetailPageState extends State<PostDetailPage>
     double? height,
     double? letterSpacing,
   }) {
-    // System fonts get a plain TextStyle — no google_fonts fetch on first
-    // chapter open, no network round-trip on web, identical look on
-    // mobile/desktop where Georgia is bundled.
-    if (_systemFontFamilies.contains(_readerFont)) {
+    // Bundled or system fonts get a plain TextStyle — no google_fonts
+    // fetch on first chapter open, no network round-trip on web, identical
+    // rendering across platforms because the .ttf travels with the app.
+    if (_bundledFontFamilies.contains(_readerFont) ||
+        _systemFontFamilies.contains(_readerFont)) {
       return TextStyle(
         fontFamily: _readerFont,
-        fontFamilyFallback: const ['Georgia', 'Times New Roman', 'serif'],
+        fontFamilyFallback: const ['Merriweather', 'Georgia', 'serif'],
         fontSize: fontSize,
         fontWeight: fontWeight,
         fontStyle: fontStyle,
@@ -288,9 +306,17 @@ class _PostDetailPageState extends State<PostDetailPage>
     try {
       final prefs = await SharedPreferences.getInstance();
       if (!mounted) return;
+      var savedFont = prefs.getString(_kPrefFont) ?? _readerFont;
+      // Migration: pre-bundled-fonts builds defaulted to system serifs
+      // ('Georgia', 'Iowan Old Style', 'Charter') which are no longer
+      // listed in the picker. Map them onto the closest bundled face so
+      // returning users see a font they can actually re-select.
+      if (!_bundledFontFamilies.contains(savedFont)) {
+        savedFont = 'Merriweather';
+      }
       setState(() {
         _readerTheme = prefs.getString(_kPrefTheme) ?? _readerTheme;
-        _readerFont = prefs.getString(_kPrefFont) ?? _readerFont;
+        _readerFont = savedFont;
         _readerFontScale =
             prefs.getDouble(_kPrefScale) ?? _readerFontScale;
         _readerBrightness =
@@ -528,10 +554,21 @@ class _PostDetailPageState extends State<PostDetailPage>
       ('black', 'Black', Color(0xFF000000), Color(0xFFE8E8E8)),
       ('grey', 'Grey', Color(0xFF2A2A2A), Color(0xFFE8E8E8)),
     ];
-    // Order: system serifs first (no google_fonts fetch), then a few
-    // popular Google web-fonts as opt-ins.
-    const fonts = ['Georgia', 'Iowan Old Style', 'Charter',
-                   'Lora', 'Merriweather', 'Playfair Display', 'Inter'];
+    // Bundled-asset reading fonts (declared in pubspec.yaml under
+    // `flutter > fonts`). Order matches the worldwide popularity of each
+    // face for long-form reading: Merriweather first as the default.
+    // Group 1 = serif (article body), Group 2 = sans (modern reads),
+    // Group 3 = accessibility.
+    const fonts = [
+      'Merriweather',         // most-used reading serif on the web
+      'Lora',                 // popular blog serif
+      'PT Serif',             // news-grade serif
+      'Source Serif 4',       // Adobe / Medium-style
+      'Playfair Display',     // magazine display serif
+      'Inter',                // modern sans, top web body face
+      'Open Sans',            // long-running #1 Google body sans
+      'Atkinson Hyperlegible',// accessibility / dyslexia-friendly
+    ];
 
     showModalBottomSheet(
       context: context,
