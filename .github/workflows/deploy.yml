@@ -46,8 +46,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Pin the Flutter version. Pubspec needs Dart ^3.10.8; Flutter 3.41.8
+      # ships Dart 3.10.x. With a fixed version, subosito/flutter-action's
+      # cache key is deterministic and we avoid the "stable channel moved,
+      # cache no longer reconciles" failure that broke run #25012595795.
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: 3.41.8
           channel: stable
           cache: true
 
