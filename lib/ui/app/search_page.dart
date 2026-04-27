@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
@@ -49,6 +50,7 @@ class _SearchPageState extends State<SearchPage> {
   List<FeedItemModel> _rawResults = const [];
   List<FeedItemModel> _results = const [];
   List<String> _recent = const [];
+  FeedFacets _facets = const FeedFacets(genres: [], tags: [], writingTypes: []);
 
   @override
   void initState() {
@@ -71,7 +73,8 @@ class _SearchPageState extends State<SearchPage> {
   void _loadInitial() {
     final storage = context.read<StorageService>();
     setState(() => _recent = storage.getRecentSearches());
-    context.read<AuthProvider>().dataService.getPopularFeedItems(limit: 12).then((items) {
+    final api = context.read<AuthProvider>().dataService;
+    api.getPopularFeedItems(limit: 12).then((items) {
       if (!mounted) return;
       setState(() {
         _popular = items;
@@ -80,6 +83,10 @@ class _SearchPageState extends State<SearchPage> {
     }).catchError((_) {
       if (!mounted) return;
       setState(() => _loadingPopular = false);
+    });
+    api.getFeedFacets().then((facets) {
+      if (!mounted) return;
+      setState(() => _facets = facets);
     });
   }
 
@@ -402,8 +409,133 @@ class _SearchPageState extends State<SearchPage> {
       padding: const EdgeInsets.only(bottom: 40),
       children: [
         if (_recent.isNotEmpty) _buildRecentSection(isDark, textColor, hPad),
+        if (_facets.genres.isNotEmpty)
+          _buildFacetSection(
+            title: 'Genres',
+            entries: _facets.genres,
+            isDark: isDark,
+            textColor: textColor,
+            hPad: hPad,
+            kind: 'genre',
+          ),
+        if (_facets.tags.isNotEmpty)
+          _buildFacetSection(
+            title: 'Tags',
+            entries: _facets.tags,
+            isDark: isDark,
+            textColor: textColor,
+            hPad: hPad,
+            kind: 'tag',
+            prefix: '#',
+          ),
+        if (_facets.writingTypes.isNotEmpty)
+          _buildFacetSection(
+            title: 'Writing types',
+            entries: _facets.writingTypes,
+            isDark: isDark,
+            textColor: textColor,
+            hPad: hPad,
+            kind: 'type',
+          ),
         _buildPopularSection(isDark, textColor, hPad, width),
       ],
+    );
+  }
+
+  // Browse-by-facet rows. Tapping a chip opens TagFeedPage for the picked
+  // value. Replaces the standalone Explore page so search and browse live
+  // on the same surface.
+  Widget _buildFacetSection({
+    required String title,
+    required List<FacetEntry> entries,
+    required bool isDark,
+    required Color textColor,
+    required double hPad,
+    required String kind,
+    String prefix = '',
+  }) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: entries
+                .map(
+                  (e) => _buildFacetChip(
+                    label: '$prefix${e.value}',
+                    count: e.count,
+                    isDark: isDark,
+                    textColor: textColor,
+                    onTap: () => context.push(
+                      '/tag-feed/$kind/${Uri.encodeComponent(e.value)}',
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFacetChip({
+    required String label,
+    required int count,
+    required bool isDark,
+    required Color textColor,
+    required VoidCallback onTap,
+  }) {
+    final subtle = textColor.withValues(alpha: 0.55);
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.07)
+              : Colors.black.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.06),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: textColor,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '$count',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: subtle,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -665,49 +797,121 @@ class _SearchPageState extends State<SearchPage> {
     if (_searching && _results.isEmpty) {
       return const Center(child: CupertinoActivityIndicator());
     }
-    if (_results.isEmpty) {
+    final matchingFacets = _matchingFacetSuggestions();
+    if (_results.isEmpty && matchingFacets.isEmpty) {
       return _buildNoResults(textColor);
     }
 
     final isMobile = Breakpoints.isMobile(width);
+    final header = matchingFacets.isEmpty
+        ? const SizedBox.shrink()
+        : _buildFacetSuggestionStrip(matchingFacets, isDark, textColor, hPad);
 
     if (_scope == _SearchScope.authors) {
       final cols = isMobile ? 1 : 2;
-      return GridView.builder(
-        padding: EdgeInsets.fromLTRB(hPad, 12, hPad, 32),
-        itemCount: _results.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: cols,
-          mainAxisSpacing: isMobile ? 0 : 10,
-          crossAxisSpacing: 20,
-          mainAxisExtent: 72,
-        ),
-        itemBuilder: (context, i) =>
-            _buildAuthorRow(_results[i], isDark, textColor),
+      return CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: header),
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(hPad, 12, hPad, 32),
+            sliver: SliverGrid.builder(
+              itemCount: _results.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: cols,
+                mainAxisSpacing: isMobile ? 0 : 10,
+                crossAxisSpacing: 20,
+                mainAxisExtent: 72,
+              ),
+              itemBuilder: (context, i) =>
+                  _buildAuthorRow(_results[i], isDark, textColor),
+            ),
+          ),
+        ],
       );
     }
 
     if (isMobile) {
-      return ListView.separated(
-        padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 32),
-        itemCount: _results.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 14),
-        itemBuilder: (context, i) =>
-            _buildStoryRow(_results[i], isDark, textColor),
+      return CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: header),
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 32),
+            sliver: SliverList.separated(
+              itemCount: _results.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 14),
+              itemBuilder: (context, i) =>
+                  _buildStoryRow(_results[i], isDark, textColor),
+            ),
+          ),
+        ],
       );
     }
 
-    return GridView.builder(
-      padding: EdgeInsets.fromLTRB(hPad, 12, hPad, 32),
-      itemCount: _results.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 14,
-        mainAxisExtent: 118,
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(child: header),
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(hPad, 12, hPad, 32),
+          sliver: SliverGrid.builder(
+            itemCount: _results.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 14,
+              mainAxisExtent: 118,
+            ),
+            itemBuilder: (context, i) =>
+                _buildStoryCard(_results[i], isDark, textColor),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Genre / tag / type chips whose label substring-matches the query.
+  /// Shown above the result rows so a query like "fantasy" surfaces a
+  /// browse-the-genre jump-in next to the per-story hits — diversification
+  /// across kinds, not just within stories.
+  List<({String kind, String label, int count})> _matchingFacetSuggestions() {
+    final q = _query.toLowerCase();
+    if (q.isEmpty) return const [];
+    final out = <({String kind, String label, int count})>[];
+    void collect(String kind, List<FacetEntry> entries) {
+      for (final e in entries) {
+        if (e.value.toLowerCase().contains(q)) {
+          out.add((kind: kind, label: e.value, count: e.count));
+        }
+      }
+    }
+    collect('genre', _facets.genres);
+    collect('tag', _facets.tags);
+    collect('type', _facets.writingTypes);
+    return out.take(8).toList();
+  }
+
+  Widget _buildFacetSuggestionStrip(
+    List<({String kind, String label, int count})> entries,
+    bool isDark,
+    Color textColor,
+    double hPad,
+  ) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(hPad, 12, hPad, 4),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: entries
+            .map((e) => _buildFacetChip(
+                  label: e.kind == 'tag' ? '#${e.label}' : e.label,
+                  count: e.count,
+                  isDark: isDark,
+                  textColor: textColor,
+                  onTap: () => context.push(
+                    '/tag-feed/${e.kind}/${Uri.encodeComponent(e.label)}',
+                  ),
+                ))
+            .toList(),
       ),
-      itemBuilder: (context, i) =>
-          _buildStoryCard(_results[i], isDark, textColor),
     );
   }
 

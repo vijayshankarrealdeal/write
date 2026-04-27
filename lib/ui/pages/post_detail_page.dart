@@ -98,6 +98,14 @@ class _PostDetailPageState extends State<PostDetailPage>
   // -- Quill controllers (keyed by section index) --
   final Map<int, quill.QuillController> _quillControllers = {};
 
+  // -- Lazy-loaded section bodies for big books. The server returns the
+  // first N sections with full `content`; the rest come down with empty
+  // content and we fetch them on demand from /api/feed/{id}/sections/{i}.
+  // Keyed by section index; value is the raw Quill-Delta JSON string.
+  final Map<int, String> _lazyContent = {};
+  // Sections whose lazy fetch is currently in flight, to dedupe.
+  final Set<int> _lazyLoading = {};
+
   // -- Review input --
   final _commentController = TextEditingController();
   final _commentFocus = FocusNode();
@@ -113,6 +121,17 @@ class _PostDetailPageState extends State<PostDetailPage>
   // -- Last read section (for "continue reading" prompt) --
   int? _lastReadSection;
 
+  // -- Chapter-list virtualization. Long books (Mahābhārata: 1422 chapters)
+  // freeze the page if every row is laid out in a single shrinkWrap pass.
+  // We render `_chaptersShown` rows up front and auto-bump that count by
+  // `_kChaptersBatch` whenever the scroll viewport is within 800px of the
+  // bottom — feels like infinite scroll without the all-at-once layout cost.
+  static const int _kChaptersInitial = 50;
+  static const int _kChaptersBatch = 8;
+  static const double _kChaptersScrollTrigger = 800;
+  int _chaptersShown = _kChaptersInitial;
+  bool _chaptersBatchInFlight = false;
+
   // -- Scaffold key for endDrawer --
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -126,7 +145,10 @@ class _PostDetailPageState extends State<PostDetailPage>
   String _readerTheme = 'sepia';
 
   // -- Reader font family --
-  String _readerFont = 'Lora';
+  // Default = Georgia, a system serif available on every platform we ship to
+  // (web/iOS/Android/macOS). Avoids the runtime google_fonts fetch on first
+  // open of any chapter; user can still pick a Google font from the picker.
+  String _readerFont = 'Georgia';
 
   // -- Reader brightness multiplier (0.4–1.0, applied as overlay) --
   double _readerBrightness = 1.0;
@@ -173,6 +195,14 @@ class _PostDetailPageState extends State<PostDetailPage>
     }
   }
 
+  // System (non-google_fonts) faces we treat as built-in. The default
+  // reader font is Georgia; users who pick something else (Lora, Inter,
+  // EB Garamond, etc.) still go through GoogleFonts.
+  static const Set<String> _systemFontFamilies = {
+    'Georgia', 'Times New Roman', 'Times', 'Iowan Old Style', 'Charter',
+    'Palatino', 'Garamond', 'Baskerville', 'serif',
+  };
+
   // --------------------------------------------------------------------------
   // Resolve a TextStyle using the current reader font family
   // --------------------------------------------------------------------------
@@ -184,6 +214,21 @@ class _PostDetailPageState extends State<PostDetailPage>
     double? height,
     double? letterSpacing,
   }) {
+    // System fonts get a plain TextStyle — no google_fonts fetch on first
+    // chapter open, no network round-trip on web, identical look on
+    // mobile/desktop where Georgia is bundled.
+    if (_systemFontFamilies.contains(_readerFont)) {
+      return TextStyle(
+        fontFamily: _readerFont,
+        fontFamilyFallback: const ['Georgia', 'Times New Roman', 'serif'],
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        fontStyle: fontStyle,
+        color: color,
+        height: height,
+        letterSpacing: letterSpacing,
+      );
+    }
     try {
       return GoogleFonts.getFont(
         _readerFont,
@@ -197,6 +242,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     } catch (_) {
       return TextStyle(
         fontFamily: _readerFont,
+        fontFamilyFallback: const ['Georgia', 'Times New Roman', 'serif'],
         fontSize: fontSize,
         fontWeight: fontWeight,
         fontStyle: fontStyle,
@@ -218,9 +264,13 @@ class _PostDetailPageState extends State<PostDetailPage>
     final platformBrightness =
         WidgetsBinding.instance.platformDispatcher.platformBrightness;
     _readerTheme = platformBrightness == Brightness.dark ? 'black' : 'white';
-    _initQuillControllers();
+    // Defer Quill parsing off the first frame — for the Mahābhārata's
+    // first chapter (an 11K-char Translator's Preface) parsing the delta
+    // costs ~80ms which would otherwise stall the page transition.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _dataService = context.read<AuthProvider>().dataService;
+      _initQuillControllers();
+      if (mounted) setState(() {}); // surface controllers as they land
       _loadProgress();
       _loadReaderPrefs();
     });
@@ -261,21 +311,62 @@ class _PostDetailPageState extends State<PostDetailPage>
 
   // --------------------------------------------------------------------------
   // Quill controller setup
+  //
+  // For long books (e.g. the Mahābhārata's 1422 sections) the server inlines
+  // only the first ~10 section bodies in the feed-item response; the rest
+  // arrive as title-only stubs. We mirror that here: build controllers only
+  // for sections whose content actually arrived, and lazy-fetch the others
+  // on demand via `_ensureSectionLoaded` when the reader navigates to one.
   // --------------------------------------------------------------------------
   void _initQuillControllers() {
     for (int i = 0; i < widget.item.sections.length; i++) {
       final section = widget.item.sections[i];
-      try {
-        if (section.content.isNotEmpty) {
-          final delta = quill.Document.fromJson(jsonDecode(section.content));
-          _quillControllers[i] = quill.QuillController(
-            document: delta,
-            selection: const TextSelection.collapsed(offset: 0),
-          );
-        }
-      } catch (_) {
-        // Skip sections with invalid/empty content
-      }
+      if (section.content.isEmpty) continue;
+      _buildController(i, section.content);
+    }
+  }
+
+  void _buildController(int index, String contentJson) {
+    try {
+      final delta = quill.Document.fromJson(jsonDecode(contentJson));
+      _quillControllers[index] = quill.QuillController(
+        document: delta,
+        selection: const TextSelection.collapsed(offset: 0),
+      );
+    } catch (_) {
+      // Malformed content — skip; the reader will show the empty placeholder.
+    }
+  }
+
+  /// Fetch a section's body from the server if we don't already have it.
+  /// Idempotent — returns immediately when the controller already exists
+  /// or a fetch for this index is already in flight.
+  Future<void> _ensureSectionLoaded(int index) async {
+    if (_quillControllers.containsKey(index)) return;
+    if (_lazyLoading.contains(index)) return;
+    if (index < 0 || index >= widget.item.sections.length) return;
+
+    final cached = _lazyContent[index];
+    if (cached != null && cached.isNotEmpty) {
+      _buildController(index, cached);
+      if (mounted) setState(() {});
+      return;
+    }
+
+    _lazyLoading.add(index);
+    try {
+      final body = await _dataService.getFeedItemSection(widget.item.id, index);
+      if (body == null) return;
+      final raw = body['content'];
+      // Server returns content as a Quill-Delta list; encode back to a JSON
+      // string so it lines up with how FeedItemSection stores it locally.
+      final asJson = raw is String ? raw : jsonEncode(raw ?? const []);
+      if (asJson.isEmpty || asJson == '[]') return;
+      _lazyContent[index] = asJson;
+      _buildController(index, asJson);
+      if (mounted) setState(() {});
+    } finally {
+      _lazyLoading.remove(index);
     }
   }
 
@@ -377,6 +468,12 @@ class _PostDetailPageState extends State<PostDetailPage>
     _pageController = PageController(initialPage: index);
     setState(() => _selectedSectionIndex = index);
     _saveProgress(index);
+    // Pre-warm the body for the section we're opening + the next two so
+    // forward swipes feel instant. Fire-and-forget; UI shows a spinner
+    // until each one resolves.
+    _ensureSectionLoaded(index);
+    _ensureSectionLoaded(index + 1);
+    _ensureSectionLoaded(index + 2);
   }
 
   // --------------------------------------------------------------------------
@@ -385,6 +482,8 @@ class _PostDetailPageState extends State<PostDetailPage>
   void _navigateToSection(int index) {
     setState(() => _selectedSectionIndex = index);
     _saveProgress(index);
+    _ensureSectionLoaded(index);
+    _ensureSectionLoaded(index + 1);
     if (_pageController?.hasClients == true) {
       _pageController!.animateToPage(
         index,
@@ -429,7 +528,10 @@ class _PostDetailPageState extends State<PostDetailPage>
       ('black', 'Black', Color(0xFF000000), Color(0xFFE8E8E8)),
       ('grey', 'Grey', Color(0xFF2A2A2A), Color(0xFFE8E8E8)),
     ];
-    const fonts = ['Lora', 'Georgia', 'Merriweather', 'Inter', 'Playfair Display'];
+    // Order: system serifs first (no google_fonts fetch), then a few
+    // popular Google web-fonts as opt-ins.
+    const fonts = ['Georgia', 'Iowan Old Style', 'Charter',
+                   'Lora', 'Merriweather', 'Playfair Display', 'Inter'];
 
     showModalBottomSheet(
       context: context,
@@ -1267,6 +1369,222 @@ class _PostDetailPageState extends State<PostDetailPage>
   }
 
   // --------------------------------------------------------------------------
+  // Chapter list (with image-dot marker + capped initial render).
+  // Renders only the first `_kChaptersInitial` rows up front; an "Show all"
+  // tile reveals the rest. The dot marker tells readers which sections
+  // contain illustrations without parsing any Quill content.
+  // --------------------------------------------------------------------------
+  Widget _buildChaptersList({
+    required FeedItemModel item,
+    required double contentPadding,
+    required Color cardColor,
+    required Color accentColor,
+    required Color textColor,
+    required Color subtleColor,
+    required bool isDark,
+  }) {
+    final total = item.sections.length;
+    final visible = _chaptersShown.clamp(0, total);
+    final remaining = total - visible;
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.05);
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: contentPadding),
+      child: Column(
+        children: [
+          for (int index = 0; index < visible; index++) ...[
+            _buildChapterRow(
+              item.sections[index],
+              index: index,
+              cardColor: cardColor,
+              accentColor: accentColor,
+              textColor: textColor,
+              subtleColor: subtleColor,
+              borderColor: borderColor,
+            ),
+            const SizedBox(height: 10),
+          ],
+          if (remaining > 0)
+            // Auto-fetched as the user scrolls into the trigger zone — see
+            // the NotificationListener wrapping the overview SingleChildScrollView.
+            // Tappable as a manual fallback for accessibility / desktop.
+            GestureDetector(
+              onTap: _chaptersBatchInFlight ? null : _bumpChaptersShown,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: borderColor),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: accentColor,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Loading more · $remaining remaining',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: subtleColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Append `_kChaptersBatch` more rows on the next frame. Idempotent for
+  /// the duration of the bump so a rapid scroll doesn't queue up multiple
+  /// setState calls. Frame-throttled (~60fps) so the layout cost of each
+  /// new batch can settle before the next one is requested.
+  void _bumpChaptersShown() {
+    if (_chaptersBatchInFlight) return;
+    final total = widget.item.sections.length;
+    if (_chaptersShown >= total) return;
+    _chaptersBatchInFlight = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        _chaptersShown = (_chaptersShown + _kChaptersBatch).clamp(0, total);
+      });
+      // Release the latch after a couple of frames so layout settles
+      // before we accept another bump request from a still-scrolling user.
+      Future.delayed(const Duration(milliseconds: 80), () {
+        _chaptersBatchInFlight = false;
+      });
+    });
+  }
+
+  /// Listens to the overview ScrollView and triggers `_bumpChaptersShown`
+  /// when the user is within the trigger zone of the current bottom.
+  bool _onOverviewScroll(ScrollNotification n) {
+    if (n is ScrollUpdateNotification || n is ScrollEndNotification) {
+      final m = n.metrics;
+      if (m.pixels >= m.maxScrollExtent - _kChaptersScrollTrigger) {
+        if (_chaptersShown < widget.item.sections.length) {
+          _bumpChaptersShown();
+        }
+      }
+    }
+    return false;
+  }
+
+  Widget _buildChapterRow(
+    FeedItemSection section, {
+    required int index,
+    required Color cardColor,
+    required Color accentColor,
+    required Color textColor,
+    required Color subtleColor,
+    required Color borderColor,
+  }) {
+    final snippet = _sectionSnippet(section);
+    return GestureDetector(
+      onTap: () => _enterSectionDetail(index),
+      child: Container(
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: borderColor),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Center(
+                child: Text(
+                  '${index + 1}',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: accentColor,
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4, 14, 16, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            section.title,
+                            style: GoogleFonts.inter(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                              height: 1.3,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (section.hasImage) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            width: 7,
+                            height: 7,
+                            decoration: BoxDecoration(
+                              color: accentColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    if (snippet.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        snippet,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: subtleColor,
+                          height: 1.4,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 14),
+              child: Icon(
+                CupertinoIcons.chevron_right,
+                size: 16,
+                color: subtleColor.withValues(alpha: 0.4),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --------------------------------------------------------------------------
   // Dispose
   // --------------------------------------------------------------------------
   @override
@@ -1882,7 +2200,9 @@ class _PostDetailPageState extends State<PostDetailPage>
     return Stack(
       key: const ValueKey('overview'),
       children: [
-        SingleChildScrollView(
+        NotificationListener<ScrollNotification>(
+          onNotification: _onOverviewScroll,
+          child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(
             parent: AlwaysScrollableScrollPhysics(),
           ),
@@ -2096,95 +2416,18 @@ class _PostDetailPageState extends State<PostDetailPage>
               ),
 
               // ---- Section cards ----
-              ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                padding: EdgeInsets.symmetric(horizontal: contentPadding),
-                itemCount: item.sections.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  final section = item.sections[index];
-                  final snippet = _sectionSnippet(section);
-
-                  return GestureDetector(
-                    onTap: () => _enterSectionDetail(index),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: cardColor,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.06)
-                              : Colors.black.withValues(alpha: 0.05),
-                        ),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 48,
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 20),
-                            child: Center(
-                              child: Text(
-                                '${index + 1}',
-                                style: GoogleFonts.playfairDisplay(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w700,
-                                  color: accentColor,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(4, 14, 16, 14),
-                              child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    section.title,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                      color: textColor,
-                                      height: 1.3,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  if (snippet.isNotEmpty) ...[
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      snippet,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 13,
-                                        color: subtleColor,
-                                        height: 1.4,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 14),
-                            child: Icon(
-                              CupertinoIcons.chevron_right,
-                              size: 16,
-                              color: subtleColor.withValues(alpha: 0.4),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+              // For long books (1000+ sections) rendering every row in one
+              // pass freezes the page — `shrinkWrap: true` forces the list
+              // to lay out *every* child to size itself. We cap the initial
+              // render at 50 and reveal the rest behind a "Show all" tap.
+              _buildChaptersList(
+                item: item,
+                contentPadding: contentPadding,
+                cardColor: cardColor,
+                accentColor: accentColor,
+                textColor: textColor,
+                subtleColor: subtleColor,
+                isDark: isDark,
               ),
 
               // ---- More like this (semantic neighbours) ----
@@ -2204,6 +2447,7 @@ class _PostDetailPageState extends State<PostDetailPage>
               ),
             ],
           ),
+        ),
         ),
 
         // ---- Sticky bottom Read CTA ----
@@ -2274,6 +2518,11 @@ class _PostDetailPageState extends State<PostDetailPage>
             onPageChanged: (index) {
               setState(() => _selectedSectionIndex = index);
               _saveProgress(index);
+              // Lazy-load this section's body if it wasn't inlined in the
+              // initial feed-item response, plus the next two for prefetch.
+              _ensureSectionLoaded(index);
+              _ensureSectionLoaded(index + 1);
+              _ensureSectionLoaded(index + 2);
             },
             itemBuilder: (context, index) {
               return _buildSingleSectionPage(
@@ -2484,6 +2733,33 @@ class _PostDetailPageState extends State<PostDetailPage>
               ),
             ),
 
+          // While the section body is being lazy-fetched (long books only
+          // inline the first ~10 sections; the rest stream in on demand),
+          // show a spinner so the page never appears empty.
+          if (!_quillControllers.containsKey(sectionIndex) &&
+              section.content.isEmpty)
+            Padding(
+              padding:
+                  EdgeInsets.fromLTRB(contentPadding, 32, contentPadding, 32),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: subtleColor),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Loading section…',
+                      style: TextStyle(color: subtleColor, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           // Quill content (serif body, highlight-on-select)
           if (_quillControllers.containsKey(sectionIndex))
             Padding(

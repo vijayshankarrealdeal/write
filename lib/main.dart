@@ -410,19 +410,6 @@ class _MobileFeedWrapper extends StatelessWidget {
             const SizedBox(width: 4),
             GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () => context.push('/explore'),
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: Icon(
-                  CupertinoIcons.compass,
-                  color: CupertinoColors.label.resolveFrom(context),
-                  size: 22,
-                ),
-              ),
-            ),
-            const SizedBox(width: 4),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
               onTap: () => context.push('/search'),
               child: Padding(
                 padding: const EdgeInsets.all(4),
@@ -550,14 +537,6 @@ class _DesktopHomePage extends StatelessWidget {
                     child: Row(
                       children: [
                         if (selectedPage == SelectedPage.story) ...[
-                          IconButton(
-                            icon: Icon(
-                              CupertinoIcons.compass,
-                              color: textColor.withValues(alpha: 0.7),
-                            ),
-                            tooltip: "Explore",
-                            onPressed: () => context.push('/explore'),
-                          ),
                           IconButton(
                             icon: Icon(
                               CupertinoIcons.search,

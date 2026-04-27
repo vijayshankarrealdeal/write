@@ -232,10 +232,37 @@ class ApiDataService implements SyncDispatcher {
   // FEED ITEMS
   // =========================================================================
 
-  Future<FeedItemModel?> getFeedItem(String feedItemId) async {
+  /// Fetches a feed item. By default the server inlines only the first
+  /// [sectionsLimit] section bodies; remaining sections come down as
+  /// title-only stubs (`content: []`) so the response stays small for
+  /// long books. Use [getFeedItemSection] to lazy-load a missing body.
+  Future<FeedItemModel?> getFeedItem(
+    String feedItemId, {
+    int sectionsLimit = 10,
+  }) async {
     try {
-      final response = await _client.get('/api/feed/$feedItemId');
+      final response = await _client.get(
+        '/api/feed/$feedItemId',
+        queryParams: {'sections_limit': sectionsLimit.toString()},
+      );
       return _feedItemFromJson(response.data);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Lazy-fetch a single section's full content by index. Returns the
+  /// raw map ({title, content, canvasData}) so the caller can fold it
+  /// back into the FeedItem's sections list.
+  Future<Map<String, dynamic>?> getFeedItemSection(
+    String feedItemId,
+    int index,
+  ) async {
+    try {
+      final response = await _client.get(
+        '/api/feed/$feedItemId/sections/$index',
+      );
+      return Map<String, dynamic>.from(response.data as Map);
     } catch (_) {
       return null;
     }
@@ -431,51 +458,23 @@ class ApiDataService implements SyncDispatcher {
     return (response.data as List).map((d) => _feedItemFromJson(d)).toList();
   }
 
+  /// Diversified search across title / author / description / tag / genre /
+  /// writing-type. Hits `/api/feed/search`, which ranks server-side and
+  /// caps per-author so a single prolific writer can't dominate the page.
   Future<List<FeedItemModel>> searchFeedItems(String query,
       {int limit = 50}) async {
-    // For now, use the feed endpoint with client-side filtering
-    // In future, add a dedicated search endpoint
-    final response = await _client.get('/api/feed/', queryParams: {
-      'sort': 'recent',
-      'limit': 200,
-    });
-    final items =
-        (response.data as List).map((d) => _feedItemFromJson(d)).toList();
-    final q = query.trim().toLowerCase();
-    if (q.isEmpty) return [];
-    final tokens = q.split(RegExp(r'\s+')).where((t) => t.isNotEmpty).toList();
-    final scored = <({FeedItemModel item, int score})>[];
-    for (final item in items) {
-      final score = _scoreMatch(item, tokens);
-      if (score > 0) scored.add((item: item, score: score));
+    final q = query.trim();
+    if (q.isEmpty) return const [];
+    try {
+      final response = await _client.get('/api/feed/search', queryParams: {
+        'q': q,
+        'limit': limit,
+      });
+      final raw = (response.data as List?) ?? const [];
+      return raw.map((d) => _feedItemFromJson(d as Map<String, dynamic>)).toList();
+    } catch (_) {
+      return const [];
     }
-    scored.sort((a, b) => b.score.compareTo(a.score));
-    return scored.take(limit).map((s) => s.item).toList();
-  }
-
-  int _scoreMatch(FeedItemModel item, List<String> tokens) {
-    final title = item.title.toLowerCase();
-    final author = item.author.toLowerCase();
-    final desc = item.description.toLowerCase();
-    final tagLine = item.tags.join(' ').toLowerCase();
-    final genreLine = item.genres.join(' ').toLowerCase();
-    int score = 0;
-    for (final t in tokens) {
-      if (title.startsWith(t)) {
-        score += 100;
-      } else if (title.contains(t)) {
-        score += 60;
-      }
-      if (author.startsWith(t)) {
-        score += 50;
-      } else if (author.contains(t)) {
-        score += 30;
-      }
-      if (tagLine.contains(t)) score += 20;
-      if (genreLine.contains(t)) score += 15;
-      if (desc.contains(t)) score += 5;
-    }
-    return score;
   }
 
   Future<void> publishCover(

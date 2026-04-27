@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 
 import '../../models/image_meta.dart';
+import '../../services/image_cache_manager.dart';
 
 /// One widget for every network image in the app.
 ///
@@ -60,6 +61,7 @@ class AppNetworkImage extends StatelessWidget {
       // a 1600px image into a 200px slot and burn 12x the memory needed.
       memCacheWidth: width != null ? (width! * dpr).round() : null,
       memCacheHeight: height != null ? (height! * dpr).round() : null,
+      cacheManager: AppImageCacheManager(),
       placeholder: (ctx, _) => _buildPlaceholder(ctx, isError: false),
       errorWidget: (ctx, _, __) => errorWidget ?? _buildPlaceholder(ctx, isError: true),
       fadeInDuration: const Duration(milliseconds: 180),
@@ -133,7 +135,10 @@ class AppNetworkImage extends StatelessWidget {
     if (target == null || target.isEmpty) return;
     try {
       await precacheImage(
-        CachedNetworkImageProvider(target),
+        CachedNetworkImageProvider(
+          target,
+          cacheManager: AppImageCacheManager(),
+        ),
         context,
       );
     } catch (_) {

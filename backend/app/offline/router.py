@@ -21,8 +21,11 @@ path so it can't be missed in a follow-up review.
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import binascii
+import time
+from collections import deque
 from typing import Any
 from uuid import UUID
 
@@ -39,9 +42,62 @@ from app.models.feed_item import FeedItem
 from app.models.user import User
 from app.offline import license as inkx_license
 from app.offline import packager as inkx_packager
+from app.offline.image_collector import collect_offline_images
 
 
 router = APIRouter(prefix="/api/offline", tags=["offline"])
+
+
+# ---------------------------------------------------------------------------
+# License issuance rate limit (single-process, in-memory)
+# ---------------------------------------------------------------------------
+#
+# p2.md §4.2 calls for a 10/hour/user cap on POST /api/offline/license.
+# A multi-worker deployment will eventually need Redis to share state,
+# but the API runs on a single uvicorn worker today and the spec calls
+# for this cap to land before public rollout. We keep the surface
+# simple: a sliding-window deque per user_id, gated by an asyncio lock
+# so concurrent issuance requests can't race past the cap.
+#
+# When Redis arrives, swap `_RateLimiter` for a Redis-backed counter
+# (INCR + EXPIRE on a `license:rate:<uid>` key). The router call site
+# stays identical.
+_RATE_LIMIT_MAX = 10
+_RATE_LIMIT_WINDOW_SEC = 60 * 60
+
+
+class _RateLimiter:
+    def __init__(self, *, max_events: int, window_seconds: int) -> None:
+        self._max = max_events
+        self._window = window_seconds
+        self._lock = asyncio.Lock()
+        self._events: dict[str, deque[float]] = {}
+
+    async def check_and_record(self, key: str, *, now: float | None = None) -> bool:
+        """Return True if the event is allowed, False if the cap is hit.
+
+        Records the event on success. Trims expired entries on every
+        call so the per-key deque stays bounded by the window.
+        """
+        ts = now if now is not None else time.monotonic()
+        cutoff = ts - self._window
+        async with self._lock:
+            bucket = self._events.get(key)
+            if bucket is None:
+                bucket = deque()
+                self._events[key] = bucket
+            while bucket and bucket[0] < cutoff:
+                bucket.popleft()
+            if len(bucket) >= self._max:
+                return False
+            bucket.append(ts)
+            return True
+
+
+_license_rate_limiter = _RateLimiter(
+    max_events=_RATE_LIMIT_MAX,
+    window_seconds=_RATE_LIMIT_WINDOW_SEC,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -158,9 +214,18 @@ async def issue_offline_license(
     if not _user_can_read(user, item):
         raise HTTPException(status_code=403, detail="Not allowed to download this book")
 
-    # TODO(rate-limit): cap at 10 issuances per (user, hour). Wire to
-    # Redis once available; until then this endpoint is unbounded —
-    # acceptable for the staging rollout, NOT for production.
+    # 10 issuances per user per hour. In-memory sliding window for now;
+    # swap for a Redis-backed counter when the API runs more than one
+    # worker (the cap is per-process today).
+    if not await _license_rate_limiter.check_and_record(str(user.id)):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=(
+                "Too many license requests — try again later. The cap is "
+                f"{_RATE_LIMIT_MAX} per hour per account."
+            ),
+            headers={"Retry-After": str(_RATE_LIMIT_WINDOW_SEC)},
+        )
 
     payload = inkx_license.LicensePayload.now(
         user_id=str(user.id),
@@ -208,10 +273,6 @@ async def download_offline_package(
 
     device_key = _decode_device_key(body.device_key_b64)
 
-    # Today images live in MinIO and the packager doesn't fetch them
-    # yet — we ship sections only and leave image embedding to a
-    # follow-up. This keeps the binary format stable from the first
-    # cut while we settle on the image-fetch + resize pipeline.
     sections_input: list[inkx_packager.SectionInput] = []
     for idx, section in enumerate(item.sections or []):
         sections_input.append(inkx_packager.SectionInput(
@@ -221,13 +282,23 @@ async def download_offline_package(
             content=section,
         ))
 
+    # Cover + inline section images get fetched, downsized to 1280px JPEG
+    # q80, and bundled into the encrypted package alongside the section
+    # text. Failure to fetch or decode any individual image is logged
+    # and skipped — the reader falls back to the blurhash placeholder.
+    images_input = await collect_offline_images(
+        cover_url=item.image_url,
+        cover_meta=item.image_meta,
+        sections=item.sections,
+    )
+
     blob = inkx_packager.pack_book(
         book_id=str(book_id),
         title=item.title or "",
         author=item.author or "",
         author_id=str(item.author_id),
         sections=sections_input,
-        images=[],
+        images=images_input,
         license_obj=body.license,
         license_signature=signature,
         device_key=device_key,

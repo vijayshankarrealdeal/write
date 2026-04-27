@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:inkspacex/models/image_meta.dart';
 
 /// A single page/section within a published cover.
@@ -6,20 +8,54 @@ class FeedItemSection {
   final String title;
   final String content; // Quill delta JSON
   final String canvasData; // Canvas JSON (creative/scrapbook layout)
+  /// Server-side flag: `true` if this section's Quill delta contains at
+  /// least one image embed. Set even when the body is lazy (content empty)
+  /// so the chapter list can paint an image-dot marker without parsing.
+  final bool hasImage;
 
   const FeedItemSection({
     required this.id,
     required this.title,
     this.content = '',
     this.canvasData = '',
+    this.hasImage = false,
   });
 
   factory FeedItemSection.fromJson(Map<String, dynamic> json) {
+    // `content` can arrive in two shapes:
+    //   - JSON-encoded string of a Quill delta (user-authored sections,
+    //     legacy editor save path)
+    //   - Raw Quill delta list (server-side ingested books like the
+    //     Mahābhārata, where the publisher stores the delta as JSONB
+    //     directly).
+    // Coerce to a single string form so `Document.fromJson(jsonDecode(...))`
+    // works in both cases without branching at every render site.
+    final rawContent = json['content'];
+    final String contentJson;
+    if (rawContent == null) {
+      contentJson = '';
+    } else if (rawContent is String) {
+      contentJson = rawContent;
+    } else {
+      contentJson = jsonEncode(rawContent);
+    }
+
+    final rawCanvas = json['canvasData'];
+    final String canvasJson;
+    if (rawCanvas == null) {
+      canvasJson = '';
+    } else if (rawCanvas is String) {
+      canvasJson = rawCanvas;
+    } else {
+      canvasJson = jsonEncode(rawCanvas);
+    }
+
     return FeedItemSection(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
-      content: json['content'] ?? '',
-      canvasData: json['canvasData'] ?? '',
+      content: contentJson,
+      canvasData: canvasJson,
+      hasImage: json['_has_image'] == true,
     );
   }
 
@@ -28,6 +64,7 @@ class FeedItemSection {
         'title': title,
         'content': content,
         if (canvasData.isNotEmpty) 'canvasData': canvasData,
+        if (hasImage) '_has_image': true,
       };
 }
 

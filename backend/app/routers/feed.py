@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, select
+from sqlalchemy import case, func, or_, select, text
 from sqlalchemy.dialects.postgresql import array as pg_array
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.types import String
@@ -154,8 +154,36 @@ _FACET_LIMIT = 32
 # live `array_agg + unnest` query as a last resort. Both code paths
 # return the same shape so the client doesn't care which fired.
 
-async def _facet_counts(db: AsyncSession, column) -> list[FacetEntry]:
-    # Live query: unnest the array column, group + count.
+# How long a cache row is "fresh enough" to serve. Past this, we fall
+# back to the live query — the nightly job is hourly-ish in practice
+# but a stale-by-multiple-days cache shouldn't be served either.
+_FACET_CACHE_MAX_AGE_HOURS = 48
+
+
+async def _facet_counts(
+    db: AsyncSession,
+    column,
+    *,
+    kind: str,
+) -> list[FacetEntry]:
+    # 1. Try the cache table first. Stale rows (older than 48h) are
+    # treated as missing — better to absorb the live query cost than
+    # serve a week-old facet list.
+    cache_rows = (await db.execute(
+        text(
+            "SELECT value, count FROM feed_facets "
+            "WHERE kind = :kind "
+            "  AND refreshed_at > NOW() - INTERVAL '48 hours' "
+            "ORDER BY count DESC LIMIT :lim"
+        ).bindparams(kind=kind, lim=_FACET_LIMIT)
+    )).all()
+    if cache_rows:
+        return [
+            FacetEntry(value=str(r[0]), count=int(r[1]))
+            for r in cache_rows if r[0]
+        ]
+
+    # 2. Live query fallback: unnest the array column, group + count.
     val = func.unnest(column).label("value")
     stmt = (
         select(val, func.count().label("count"))
@@ -180,10 +208,87 @@ async def list_feed_facets(
     a few thousand published items, hydrate from a nightly-built
     `feed_facets` cache table instead.
     """
-    genres = await _facet_counts(db, FeedItem.genres)
-    tags = await _facet_counts(db, FeedItem.tags)
-    types = await _facet_counts(db, FeedItem.writing_types)
+    genres = await _facet_counts(db, FeedItem.genres, kind="genre")
+    tags = await _facet_counts(db, FeedItem.tags, kind="tag")
+    types = await _facet_counts(db, FeedItem.writing_types, kind="writing_type")
     return FacetResponse(genres=genres, tags=tags, writing_types=types)
+
+
+# ===== Search ================================================================
+
+# Per-author cap for the diversified result list. Without it a single
+# prolific user with the query in every title can monopolise the page.
+_SEARCH_PER_AUTHOR_CAP = 3
+
+
+@router.get("/search", response_model=list[FeedItemResponse])
+async def search_feed_items(
+    q: str = Query(..., min_length=1, max_length=200),
+    limit: int = Query(30, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Diversified search across title, author, description, and the
+    tag/genre/writing-type arrays.
+
+    A query like "fantasy" should surface stories whose title contains
+    "fantasy", stories tagged with the genre, and authors named that —
+    not just title hits. We rank by a coarse relevance score (title >
+    author > tag/genre/type > description) and break ties by likes, then
+    cap each author at `_SEARCH_PER_AUTHOR_CAP` so one prolific writer
+    can't take over the page.
+    """
+    term = q.strip()
+    if not term:
+        return []
+    pattern = f"%{term}%"
+    tag_blob = func.array_to_string(FeedItem.tags, " ")
+    genre_blob = func.array_to_string(FeedItem.genres, " ")
+    type_blob = func.array_to_string(FeedItem.writing_types, " ")
+
+    score = case(
+        (FeedItem.title.ilike(pattern), 100),
+        (FeedItem.author.ilike(pattern), 60),
+        (tag_blob.ilike(pattern), 45),
+        (genre_blob.ilike(pattern), 40),
+        (type_blob.ilike(pattern), 35),
+        (FeedItem.description.ilike(pattern), 20),
+        else_=0,
+    ).label("score")
+
+    stmt = (
+        select(FeedItem, score)
+        .where(FeedItem.is_draft == False)  # noqa: E712
+        .where(
+            or_(
+                FeedItem.title.ilike(pattern),
+                FeedItem.author.ilike(pattern),
+                FeedItem.description.ilike(pattern),
+                tag_blob.ilike(pattern),
+                genre_blob.ilike(pattern),
+                type_blob.ilike(pattern),
+            )
+        )
+        .order_by(score.desc(), FeedItem.likes_count.desc(), FeedItem.created_at.desc())
+        .limit(limit * 4)
+    )
+    rows = (await db.execute(stmt)).all()
+
+    # Diversify: cap each author so a single user can't dominate. We keep
+    # the original score-ordered sequence and skip past the cap; this is
+    # cheaper than a SQL window function and the 4x over-fetch above
+    # leaves enough headroom to refill from later matches.
+    per_author: dict[str, int] = {}
+    out: list[FeedItem] = []
+    for item, _ in rows:
+        key = (item.author or "").lower()
+        if per_author.get(key, 0) >= _SEARCH_PER_AUTHOR_CAP:
+            continue
+        per_author[key] = per_author.get(key, 0) + 1
+        out.append(item)
+        if len(out) >= limit:
+            break
+    return out
 
 
 @router.get("/by-author/{author_id}", response_model=list[FeedItemResponse])
@@ -225,12 +330,80 @@ async def get_feed_item(
     item_id: UUID,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
+    sections_limit: int = Query(
+        10,
+        ge=0,
+        le=2000,
+        description=(
+            "Number of section bodies to inline. The rest are returned as "
+            "title-only stubs (with empty `content`) so the response stays "
+            "small for big books — fetch missing bodies via "
+            "`GET /api/feed/{id}/sections/{index}`. Pass 0 for titles-only, "
+            "or a high number to force full payload."
+        ),
+    ),
 ):
+    """Return a single feed item.
+
+    For long books (Mahābhārata: 1422 sections), inlining every section's
+    Quill content blows up the JSON to ~30 MB and stalls the client. By
+    default we now inline only the first `sections_limit` sections; the
+    rest are returned with empty content so titles + indices are still
+    available, and clients fetch each body lazily as the reader scrolls.
+    """
     result = await db.execute(select(FeedItem).where(FeedItem.id == item_id))
     item = result.scalar_one_or_none()
     if not item:
         raise HTTPException(status_code=404, detail="Feed item not found")
+    if item.sections:
+        # For every section, include a cheap `_has_image` boolean so the
+        # frontend can paint an image-dot marker in the chapter list
+        # without parsing Quill content. Image embeds in our pipeline are
+        # `{"insert": {"image": "..."}}` ops.
+        slimmed = list(item.sections)
+        for i, raw in enumerate(slimmed):
+            s = dict(raw or {})
+            ops = s.get("content") or []
+            has_img = any(
+                isinstance(op, dict)
+                and isinstance(op.get("insert"), dict)
+                and "image" in op["insert"]
+                for op in ops
+            )
+            s["_has_image"] = has_img
+            if sections_limit and i >= sections_limit:
+                # Stub out everything beyond `sections_limit` so the payload
+                # stays small. Title + has_image are kept; body fetched
+                # on demand from /sections/{i}.
+                s["content"] = []
+                s.pop("canvasData", None)
+                s["_lazy"] = True
+            slimmed[i] = s
+        # SQLAlchemy: mutating `sections` on a queried object would mark it
+        # dirty and risk a write-back. Setting via __dict__ keeps it
+        # transient on the response only.
+        item.__dict__["sections"] = slimmed
     return item
+
+
+@router.get("/{item_id}/sections/{index}")
+async def get_feed_item_section(
+    item_id: UUID,
+    index: int,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Return one section of a feed item by index. Used by the reader to
+    lazy-fetch section bodies for large books, instead of pulling all
+    1000+ sections in the initial feed-item response."""
+    result = await db.execute(select(FeedItem).where(FeedItem.id == item_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Feed item not found")
+    sections = item.sections or []
+    if index < 0 or index >= len(sections):
+        raise HTTPException(status_code=404, detail="Section index out of range")
+    return {"index": index, **(sections[index] or {})}
 
 
 @router.put("/{item_id}", response_model=FeedItemResponse)

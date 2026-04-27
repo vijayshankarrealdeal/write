@@ -80,6 +80,24 @@ async def lifespan(app: FastAPI):
             "ALTER TABLE reading_progress "
             "ADD COLUMN IF NOT EXISTS last_anchor JSONB"
         ))
+        # Phase 2 (P2): facet count cache table. Idempotent for dev DBs
+        # that bypass Alembic. Populated by the nightly script in
+        # `backend/scripts/refresh_feed_facets.py`.
+        await conn.execute(text(
+            """
+            CREATE TABLE IF NOT EXISTS feed_facets (
+                kind VARCHAR(16) NOT NULL,
+                value VARCHAR(64) NOT NULL,
+                count INTEGER NOT NULL,
+                refreshed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                PRIMARY KEY (kind, value)
+            )
+            """
+        ))
+        await conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_feed_facets_kind_count "
+            "ON feed_facets (kind, count DESC)"
+        ))
     await start_drain()
     log.info("InkSpaceX API started")
     yield

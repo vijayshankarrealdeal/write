@@ -26,7 +26,6 @@ import 'package:inkspacex/ui/pages/manage_downloads_page.dart';
 import 'package:inkspacex/ui/pages/saved_favorites_page.dart';
 import 'package:inkspacex/ui/pages/reading_statistics_page.dart';
 import 'package:inkspacex/ui/pages/tag_feed_page.dart';
-import 'package:inkspacex/ui/pages/explore_page.dart';
 import 'package:inkspacex/ui/pages/subscription_page.dart';
 import 'package:inkspacex/ui/pages/create_bookshelf_page.dart';
 import 'package:inkspacex/ui/pages/view_bookshelf_page.dart';
@@ -149,9 +148,11 @@ GoRouter createRouter(AuthProvider authProvider) {
         path: '/feed-preferences',
         builder: (_, __) => const FeedPreferencesPage(),
       ),
+      // Explore was merged into the unified search surface — keep the
+      // path for any deep links / shortcuts and redirect through.
       GoRoute(
         path: '/explore',
-        pageBuilder: (_, __) => const CupertinoPage(child: ExplorePage()),
+        redirect: (_, __) => '/search',
       ),
       GoRoute(
         path: '/tag-feed/:kind/:value',

@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:inkspacex/provider/offline_provider.dart';
+import 'package:inkspacex/services/image_cache_manager.dart';
 import 'package:inkspacex/services/offline/offline_library.dart';
 
 class ManageDownloadsPage extends StatefulWidget {
@@ -74,6 +75,36 @@ class _ManageDownloadsPageState extends State<ManageDownloadsPage> {
     }
   }
 
+  Future<void> _confirmClearImageCache() async {
+    final ok = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: const Text('Clear image cache?'),
+        content: const Text(
+          'Removes cached covers and inline images. They will redownload '
+          'the next time you open a book or scroll the feed.',
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await AppImageCacheManager().emptyCache();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Image cache cleared')),
+    );
+  }
+
   Future<void> _confirmEvictAll(OfflineProvider offline) async {
     final ok = await showCupertinoDialog<bool>(
       context: context,
@@ -127,10 +158,21 @@ class _ManageDownloadsPageState extends State<ManageDownloadsPage> {
             child: offline.unavailableReason != null
                 ? _UnavailableState(reason: offline.unavailableReason!)
                 : books.isEmpty
-                    ? _EmptyState(textColor: textColor, subtle: subtle)
+                    ? ListView(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        children: [
+                          _EmptyState(textColor: textColor, subtle: subtle),
+                          const SizedBox(height: 24),
+                          _ClearImageCacheTile(
+                            textColor: textColor,
+                            subtle: subtle,
+                            onTap: _confirmClearImageCache,
+                          ),
+                        ],
+                      )
                     : ListView.separated(
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        itemCount: books.length + 1,
+                        itemCount: books.length + 2,
                         separatorBuilder: (_, __) => const Divider(height: 1),
                         itemBuilder: (context, i) {
                           if (i == books.length) {
@@ -138,6 +180,13 @@ class _ManageDownloadsPageState extends State<ManageDownloadsPage> {
                               total: offline.totalBytes(),
                               count: books.length,
                               fmt: _fmtSize,
+                            );
+                          }
+                          if (i == books.length + 1) {
+                            return _ClearImageCacheTile(
+                              textColor: textColor,
+                              subtle: subtle,
+                              onTap: _confirmClearImageCache,
                             );
                           }
                           final b = books[i];
@@ -223,6 +272,37 @@ class _UnavailableState extends StatelessWidget {
           style: GoogleFonts.inter(fontSize: 14),
         ),
       ),
+    );
+  }
+}
+
+class _ClearImageCacheTile extends StatelessWidget {
+  const _ClearImageCacheTile({
+    required this.textColor,
+    required this.subtle,
+    required this.onTap,
+  });
+  final Color textColor;
+  final Color subtle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(CupertinoIcons.photo, color: subtle),
+      title: Text(
+        'Clear image cache',
+        style: GoogleFonts.inter(
+          fontWeight: FontWeight.w600,
+          color: textColor,
+        ),
+      ),
+      subtitle: Text(
+        'Remove cached covers and inline images',
+        style: GoogleFonts.inter(fontSize: 12, color: subtle),
+      ),
+      trailing: const Icon(CupertinoIcons.chevron_right, size: 16),
+      onTap: onTap,
     );
   }
 }
