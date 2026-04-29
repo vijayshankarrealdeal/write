@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After the swayamvara fight ends, Kunti unknowingly tells her sons to share their ‘alms,’ creating the dilemma that Draupadi may become wife to all five Pandavas.",
+  "importance": 0.83,
+  "themes": [
+    "mistaken command",
+    "dharma dilemma",
+    "identity concealment",
+    "aftermath of swayamvara",
+    "family authority"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima lifts the powerful king Salya in his arms during their wrestling duel and hurls him across the arena while surrounding monarchs watch in shock.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Arjuna and Bhima, disguised as Brahmanas and surrounded by ascetics in deer skins, emerge from the crowd like the sun and moon breaking through clouds.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Inside the potter’s hut, Kunti unknowingly tells her unseen sons to share their alms, then turns and sees Draupadi standing there beside them in sudden realization.",
+      "visual_strength": 0.9
+    }
+  ]
+}

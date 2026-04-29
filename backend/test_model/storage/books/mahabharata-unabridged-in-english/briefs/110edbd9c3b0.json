@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After the war, the Pandavas rule while honoring the defeated Dhritarashtra and Gandhari, though Bhima still harbors resentment over past injustices.",
+  "importance": 0.55,
+  "themes": [
+    "postwar reconciliation",
+    "royal duty and respect",
+    "lingering resentment",
+    "elder reverence",
+    "aftermath of war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The Pandava brothers bow at the feet of the blind king Dhritarashtra seated on a throne while attendants and queens stand respectfully around him.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Yudhishthira presents rich robes, garlands, and food to the aged Dhritarashtra as Gandhari and Kunti sit nearby in a solemn royal hall.",
+      "visual_strength": 0.57
+    },
+    {
+      "scene_text": "Bhima stands apart with a stern expression while his brothers respectfully attend the old blind king Dhritarashtra.",
+      "visual_strength": 0.66
+    }
+  ]
+}

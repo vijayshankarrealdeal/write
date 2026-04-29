@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Drona and Arjuna fight an awe‑inspiring duel of celestial weapons, after which Dhrishtadyumna advances toward Drona amid fair battles among surrounding warriors.",
+  "importance": 0.78,
+  "themes": [
+    "guru vs disciple duel",
+    "celestial weapons",
+    "warrior honor and fair combat",
+    "cosmic spectators",
+    "escalation toward Drona"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Drona and Arjuna stand on their chariots unleashing blazing celestial weapons that illuminate the sky while gods and sages watch from the clouds.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The earth trembles and oceans surge as Drona raises the Brahma weapon, only for Arjuna to counter it with a radiant Brahma weapon of his own.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Dhrishtadyumna drives his chariot like a blazing fire toward Drona while Nakula and Sahadeva shield him, battling Kritavarman and his brothers.",
+      "visual_strength": 0.77
+    }
+  ]
+}

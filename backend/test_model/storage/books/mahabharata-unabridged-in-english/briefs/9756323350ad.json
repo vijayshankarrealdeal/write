@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A discourse on realizing the inner Brahman through mental discipline precedes the court assembling to hear Arjuna’s message.",
+  "importance": 0.45,
+  "themes": [
+    "Brahman realization",
+    "inner Self",
+    "yogic perception",
+    "detachment from ritual",
+    "royal court assembly"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yogins meditate with eyes closed, perceiving a thumb-sized radiant spirit dwelling within the human heart.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The Kuru kings enter a vast white hall with a golden floor sprinkled with sandal-water and lined with ivory and marble seats.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Bhishma, Drona, Karna, and Duryodhana stride together into the gleaming court behind the blind king Dhritarashtra.",
+      "visual_strength": 0.8
+    }
+  ]
+}

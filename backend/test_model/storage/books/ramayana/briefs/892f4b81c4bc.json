@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama hears the monkeys’ doubts about Vibhishana but declares that anyone seeking refuge—even an enemy—must be granted protection.",
+  "importance": 0.82,
+  "themes": [
+    "refuge and protection",
+    "kingship ethics",
+    "trust versus suspicion",
+    "dharma and compassion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama stands calmly among the gathered monkey chiefs as they argue, while the distant figure of Vibhishana waits in the sky seeking refuge.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Rama raises his hand in assurance, declaring protection for anyone who comes saying 'I am yours.'",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A lone pigeon offers its own flesh to a hawk that had taken refuge with it, illustrating Rama’s story of ultimate hospitality.",
+      "visual_strength": 0.77
+    }
+  ]
+}

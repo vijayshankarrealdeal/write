@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada learns the mythic origin of the Pitris and pindas from Vishnu’s Varaha act, affirming that honoring ancestors and beings is ultimately worship of Narayana.",
+  "importance": 0.6,
+  "themes": [
+    "origin of Pitris",
+    "ancestor rites",
+    "Vishnu supremacy",
+    "cosmic self-worship",
+    "devotion of Narada"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vishnu as the colossal boar Varaha lifts the Earth from the waters, three balls of mud dropping from his tusk onto kusa grass.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The god, facing east, places three round pindas on sacred grass and offers sesame seeds in a solemn rite to his own divine self.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Narada stands in reverence before the ascetics Nara and Narayana in their Himalayan hermitage of Badari.",
+      "visual_strength": 0.66
+    }
+  ]
+}

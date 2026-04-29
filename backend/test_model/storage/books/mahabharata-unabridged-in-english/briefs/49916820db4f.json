@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Garuda angrily confronts Indra over Sumukha’s protection, boasts of his strength, is humbled by Vishnu’s weight, and the tale warns Duryodhana against fighting the Pandavas.",
+  "importance": 0.63,
+  "themes": [
+    "pride and humility",
+    "divine power",
+    "conflict over destiny",
+    "warning against war",
+    "Krishna as Vishnu"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vishnu calmly places his single arm on Garuda’s shoulders, and the mighty bird collapses under its unimaginable weight.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Garuda, wings beating like a storm, descends from the sky in fury before Indra to protest the protection granted to the naga Sumukha.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Duryodhana laughs loudly in the court, slapping his elephant-like thigh as he dismisses the sage’s warning of the Pandavas’ divine allies.",
+      "visual_strength": 0.6
+    }
+  ]
+}

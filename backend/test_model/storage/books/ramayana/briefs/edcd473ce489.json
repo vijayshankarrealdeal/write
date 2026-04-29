@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Nikumbha attacks Hanuman to avenge Kumbha, but Hanuman withstands his mace, overpowers him in combat, and finally kills him by tearing off his head.",
+  "importance": 0.6,
+  "themes": [
+    "heroic combat",
+    "vengeance",
+    "strength and resilience",
+    "divine warfare"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Nikumbha whirls his विशाल golden mace like a storm, the sky seeming to spin as Hanuman stands bare-chested before him.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Nikumbha smashes his mace onto Hanuman’s chest, the weapon shattering into a hundred blazing fragments while Hanuman stands unmoved like a mountain.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Hanuman leaps upon the fallen Nikumbha, grips his neck with both hands, and tears off the titan’s massive head amid the chaos of battle.",
+      "visual_strength": 0.86
+    }
+  ]
+}

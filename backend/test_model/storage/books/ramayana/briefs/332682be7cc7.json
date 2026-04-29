@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After a long battle, Rama uses Brahma’s divine weapon to strike Ravana in the chest, killing him and routing the remaining Rakshasas.",
+  "importance": 0.95,
+  "themes": [
+    "final battle",
+    "divine weapons",
+    "fate and prophecy",
+    "death of Ravana",
+    "triumph of Rama"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama draws his bow and releases the blazing Brahma weapon, a serpent-like arrow of fire and wind, straight toward Ravana’s chest.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The divine arrow pierces Ravana’s chest and the ten-headed king collapses from his chariot like Vritra struck by Indra’s thunderbolt.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "As Ravana’s body lies on the ground, terrified Rakshasas flee toward Lanka while monkeys charge after them wielding uprooted trees.",
+      "visual_strength": 0.8
+    }
+  ]
+}

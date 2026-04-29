@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Rama informs Sita of his fourteen-year exile and instructs her to remain in Ayodhya, serve the royal family, and obey Bharata.",
+  "importance": 0.73,
+  "themes": [
+    "dharma and duty",
+    "exile",
+    "marital devotion",
+    "obedience to parents",
+    "renunciation of kingship"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita rises trembling from her seat as she sees Rama enter unadorned, his face pale and sorrowful instead of crowned for coronation.",
+      "visual_strength": 0.79
+    },
+    {
+      "scene_text": "Inside the richly decorated palace prepared for coronation, Rama stands with bowed head before Sita while announcing his exile to the forest.",
+      "visual_strength": 0.74
+    }
+  ]
+}

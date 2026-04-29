@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section connects the story of King Swetaki’s immense sacrifice to the famous burning of the Khandava forest. After Swetaki completes a twelve‑year sacrifice assisted by the sage Durvasa, Agni (the fire god) becomes ill from consuming an endless stream of clarified butter offered in the ritual. Weak and unable to shine, Agni seeks help from Brahma, who advises him that only by devouring the creatures of the vast Khandava forest can he restore his strength. Agni repeatedly attempts to burn the forest but its inhabitants—elephants, serpents, and other creatures—extinguish the flames. Frustrated, he again consults Brahma, who directs him to seek the aid of the incarnate heroes Nara and Narayana, now living as Arjuna and Krishna, setting the stage for the legendary Khandava forest conflagration.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "Rudra’s instruction to Swetaki frames the religious discipline and divine approval that leads to the great sacrifice."
+    },
+    {
+      "start": 930,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Agni’s condition after consuming butter for twelve years introduces the central problem that drives the episode."
+    },
+    {
+      "start": 1540,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Brahma’s explanation that Agni must burn the Khandava forest establishes the mythic purpose behind the coming destruction."
+    },
+    {
+      "start": 2050,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "The vivid description of animals—elephants and serpents—trying desperately to extinguish the fire adds emotional tension and scale."
+    },
+    {
+      "start": 2730,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Brahma reveals that Nara and Narayana are incarnated as Arjuna and Krishna, linking cosmic divinity with the human heroes."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Agni blazing across the vast Khandava forest while elephants spray water from their trunks and giant multi‑hooded serpents pour streams to extinguish the flames.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Agni, pale and weakened from excess sacrificial butter, kneeling before Brahma in the radiant celestial court seeking a cure for his strange illness.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Brahma revealing that the divine sages Nara and Narayana walk the earth as Krishna and Arjuna, directing Agni toward the heroes in the shadow of Khandava forest.",
+      "visual_strength": 0.82
+    }
+  ]
+}

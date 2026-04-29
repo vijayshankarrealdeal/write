@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Lakshmana poetically describes the arrival of winter in the forest and reflects on nature’s changes and Bharata’s austere devotion to Rama.",
+  "importance": 0.45,
+  "themes": [
+    "seasonal imagery",
+    "nature in exile",
+    "devotion of Bharata",
+    "austerity and duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "At dawn on the misty Godavari, Rama walks to bathe while Lakshmana carries a water pitcher and Sita follows beside them.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "A wild elephant touches the frozen river with its trunk and recoils while cranes and waterfowl hesitate on the icy bank.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Fields of barley and wheat glitter with frost in the rising sun as cranes call across the mist-covered woodland.",
+      "visual_strength": 0.72
+    }
+  ]
+}

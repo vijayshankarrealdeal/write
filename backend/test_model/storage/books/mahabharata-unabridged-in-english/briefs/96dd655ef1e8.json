@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Jamadagni spares the sun after Surya supplicates him, leading to the origin and religious merit of gifting umbrellas and sandals.",
+  "importance": 0.34,
+  "themes": [
+    "supplication and mercy",
+    "origins of ritual gifts",
+    "ascetic power",
+    "charity and merit"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "At blazing midday, the sage Jamadagni stands with bow drawn, aiming an arrow at the radiant sun in the sky.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Surya disguised as a humble Brahmana bows with folded hands before the fiery sage Jamadagni.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "The sun-god presents an umbrella and a pair of sandals to the sage as gifts to protect people from the sun’s heat.",
+      "visual_strength": 0.68
+    }
+  ]
+}

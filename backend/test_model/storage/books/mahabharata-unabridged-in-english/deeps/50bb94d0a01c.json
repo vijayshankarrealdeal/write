@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section recounts the continuation of the royal line of Sagara and the origin of Bhagiratha’s famous quest. After Ansuman and his son Dilipa fail to bring the sacred river Ganga to earth to redeem Sagara’s sixty thousand sons—burned to ashes by the sage Kapila—Bhagiratha becomes king. Learning of his ancestors’ tragic fate, he renounces royal comfort and undertakes severe austerities in the Himalayas. The narrative dwells on the grandeur of the mountain landscape, emphasizing the sacred setting of his penance. After a thousand years of ascetic practice, the goddess Ganga appears and offers him a boon. Bhagiratha asks her to descend to earth so her waters may purify his forefathers’ remains and grant them heaven. Ganga agrees but warns that only the god Siva can withstand the force of her descent, sending Bhagiratha to seek Siva’s aid.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Establishes the royal lineage and moral continuity from Ansuman to Bhagiratha, grounding the sacred mission in dynastic duty."
+    },
+    {
+      "start": 900,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "A vivid poetic description of the Himalayas that frames Bhagiratha’s austerities within a majestic and sacred natural world."
+    },
+    {
+      "start": 1500,
+      "length": 80,
+      "color_hex": "#FFEB3B",
+      "why": "Marks the extremity of Bhagiratha’s penance—living for a thousand years on water, fruit, and roots—which leads to divine revelation."
+    },
+    {
+      "start": 1750,
+      "length": 90,
+      "color_hex": "#F48FB1",
+      "why": "Ganga’s direct address to Bhagiratha is the emotional turning point where the goddess acknowledges his devotion and offers a boon."
+    },
+    {
+      "start": 2100,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The crucial theological point: Ganga reveals that only Siva can bear the force of her descent, setting up the next phase of Bhagiratha’s quest."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhagiratha standing in severe penance in the vast Himalayas surrounded by wild animals, clouds drifting across glittering peaks and sacred rivers.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The radiant goddess Ganga appearing in divine form before the ascetic Bhagiratha after a thousand years of austerities.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Lord Siva on the snowy Kailasa mountain promising to catch the crashing descent of the celestial river in his matted hair.",
+      "visual_strength": 0.95
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Drona receives Parashurama’s weapons, is humiliated by King Drupada, then reveals his skill to the Kuru princes and is recognized by Bhishma.",
+  "importance": 0.7,
+  "themes": [
+    "humiliation and revenge",
+    "guru–disciple tradition",
+    "social status and friendship",
+    "martial knowledge transfer",
+    "poverty and pride"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Drona stands by a dry well before the Kuru princes, launching blades of grass one after another to form a chain that lifts their lost ball.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "King Drupada sits proudly on his throne, brows furrowed and eyes red with anger as he scornfully rejects the poor Brahmana Drona claiming friendship.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Young Aswatthaman dances with joy holding a bowl of rice-water, believing it to be milk while other children laugh around him.",
+      "visual_strength": 0.86
+    }
+  ]
+}

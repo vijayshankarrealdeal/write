@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Dhaumya consoles the anxious Pandavas by describing sacred eastern pilgrimage sites—Naimisha, Gaya, Prayaga, and others—promising merit from hearing of or visiting them.",
+  "importance": 0.35,
+  "themes": [
+    "pilgrimage geography",
+    "sacred rivers and tirthas",
+    "consolation in exile",
+    "merit and ancestral rites"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "At Gayasira, pilgrims offer food beneath the great Eternal Banyan beside the sacred Phalgu river to honor their ancestors.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The holy confluence of the Ganga and Yamuna at Prayaga glitters as sages gather where the ancient sacrifice of the Grandsire was once performed.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "In the quiet forest of Naimisha, ascetics sit among sacred groves and rivers revered by gods and rishis.",
+      "visual_strength": 0.58
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhishma recounts a legend explaining the divine origin of royal chastisement (punitive authority) and its necessity for maintaining order and righteousness.",
+  "importance": 0.55,
+  "themes": [
+    "divine origin of law",
+    "kingship and punishment",
+    "cosmic order",
+    "Vedic justice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "On a Himalayan peak beneath a great banyan tree, the ascetic king Vasuhoma receives Mandhatri with ritual water and offerings.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Brahma sneezes after holding a divine fetus in his head for a thousand years, and the being Kshupa falls forth into the world.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rishis and kings gather on the sacred height of Munjaprishtha in the Himalayas, a holy retreat associated with Rudra.",
+      "visual_strength": 0.64
+    }
+  ]
+}

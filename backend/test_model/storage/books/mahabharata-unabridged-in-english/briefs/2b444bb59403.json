@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sisupala denounces Krishna’s first worship at Yudhishthira’s sacrifice; Yudhishthira appeases him, and Bhishma defends Krishna’s supreme worthiness.",
+  "importance": 0.72,
+  "themes": [
+    "honor and insult",
+    "Krishna’s supremacy",
+    "royal assembly conflict",
+    "defense of virtue",
+    "kshatriya hierarchy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sisupala rises angrily from his seat in the royal assembly, gesturing in accusation toward Krishna as gathered kings watch in tense silence.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Yudhishthira hurries after Sisupala outside the सभा, hands raised in conciliation while the offended king strides away.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Bhishma stands in the assembly hall pointing toward Krishna, proclaiming his greatness before rows of crowned monarchs.",
+      "visual_strength": 0.8
+    }
+  ]
+}

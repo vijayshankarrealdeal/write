@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Kushanabha’s daughters refuse Vayu, endure his curse with forbearance, and are later married by their father to King Brahmadatta.",
+  "importance": 0.45,
+  "themes": [
+    "forbearance",
+    "filial duty",
+    "divine wrath",
+    "marriage alliance",
+    "ascetic power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The wind god invisibly enters the princesses and their graceful bodies twist and bend as they cry out in distress.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "A hundred deformed princesses bow at their father King Kushanabha’s feet in the palace hall, pleading for justice.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The sage Chuli, radiant with ascetic power, grants Somada a son through the force of his mind during her devoted service.",
+      "visual_strength": 0.63
+    }
+  ]
+}

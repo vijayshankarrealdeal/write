@@ -1,0 +1,25 @@
+{
+  "summary_1line": "During a night battle, both armies illuminate the battlefield with thousands of lamps, creating a radiant spectacle as fighting resumes and Arjuna devastates Kaurava ranks.",
+  "importance": 0.55,
+  "themes": [
+    "night warfare",
+    "illumination amid darkness",
+    "divine spectators",
+    "battle spectacle",
+    "Arjuna's assault"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Thousands of oil lamps held by soldiers and mounted on chariots, elephants, and horses transform the dark battlefield into a blazing sea of light.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Drona in golden armor stands at the front of the illuminated Kaurava army, shining like the midday sun amid the glow of countless lamps.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Gods, Gandharvas, and celestial beings gather in the sky above the glowing battlefield, watching the armies clash beneath them.",
+      "visual_strength": 0.72
+    }
+  ]
+}

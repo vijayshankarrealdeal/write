@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This chapter centers on Parvati’s unwavering devotion to Shiva and the divine test that proves her worthiness. After the sages report her steadfast penance, Shiva disguises himself as an old monk to test her resolve. Parvati welcomes him but remains firm in her vow to marry Shiva alone, even attempting to enter fire when she believes her penance has failed—yet the fire turns cool, showing divine favor. When the disguised Shiva insults himself to provoke her, Parvati passionately defends the true nature of Shiva as the supreme Absolute. Satisfied, Shiva reveals himself and promises union. Their love continues through playful divine disguises and cosmic displays, while sages persuade Parvati’s parents to approve the wedding. The episode highlights bhakti, the metaphysical identity of Shiva with the Absolute, and the triumph of pure devotion over doubt and social convention.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 12,
+      "color_hex": "#A5D6A7",
+      "why": "Opening invocation situating the narrative within the Siva Puranam tradition."
+    },
+    {
+      "start": 900,
+      "length": 30,
+      "color_hex": "#F48FB1",
+      "why": "Parvati’s willingness to enter the fire shows the extreme depth of her devotion and despair."
+    },
+    {
+      "start": 1500,
+      "length": 43,
+      "color_hex": "#F48FB1",
+      "why": "Parvati fiercely rebukes the monk’s insult to Shiva, revealing the emotional intensity of her bhakti."
+    },
+    {
+      "start": 2000,
+      "length": 78,
+      "color_hex": "#FFEB3B",
+      "why": "The pivotal moment when Shiva reveals himself, acknowledging that Parvati’s devotion has conquered him."
+    },
+    {
+      "start": 3600,
+      "length": 69,
+      "color_hex": "#FFEB3B",
+      "why": "Shiva’s rapid transformations into divine forms (including Nataraja) display his cosmic nature and the unity of deities."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Parvati steps into a blazing sacrificial fire during her penance, yet the flames turn cool around her as the disguised Shiva watches in astonishment.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Shiva reveals his true radiant form before Parvati after her passionate defense of him, the forest hermitage glowing with divine light.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "In the palace courtyard, the disguised wandering monk dances and blows a conch while Parvati recognizes him as Shiva and bows amid astonished onlookers.",
+      "visual_strength": 0.86
+    }
+  ]
+}

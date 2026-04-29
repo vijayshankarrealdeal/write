@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa explains that the understanding creates perceived objects while the Soul remains a detached witness; through knowledge and sense-control one realizes the Self and attains freedom.",
+  "importance": 0.74,
+  "themes": [
+    "Self vs understanding",
+    "three gunas",
+    "sense control",
+    "yogic knowledge",
+    "detached witness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A yogin sits motionless in meditation while a small lamp dispels darkness, revealing a radiant inner soul.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "An aquatic bird glides across water without getting wet, symbolizing the sage untouched by the three qualities.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A person tightly holds the reins of restless horses representing the senses, bringing them under the command of the mind.",
+      "visual_strength": 0.77
+    }
+  ]
+}

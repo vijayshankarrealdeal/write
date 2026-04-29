@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After hearing Sita has been slain, Rama collapses in grief and Lakshmana delivers a fierce speech questioning dharma, fate, and the value of righteousness.",
+  "importance": 0.72,
+  "themes": [
+    "grief and despair",
+    "questioning dharma",
+    "fate vs justice",
+    "wealth and power",
+    "brotherly loyalty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama collapses to the ground like a felled tree as the monkey leaders rush to sprinkle lotus-scented water on him.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Lakshmana kneels beside the half-conscious Rama, gripping him in anguish while armies of monkeys gather around.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Hanuman returns from battle surrounded by grieving monkeys, announcing that Indrajit has slain the weeping Sita.",
+      "visual_strength": 0.71
+    }
+  ]
+}

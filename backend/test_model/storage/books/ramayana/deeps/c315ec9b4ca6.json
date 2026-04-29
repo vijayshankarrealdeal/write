@@ -1,0 +1,31 @@
+{
+  "rich_summary": "Rama, angered that the Ocean has not granted passage to Lanka, threatens to dry it up with a divine arrow. When he draws the terrifying missile—likened to Brahma’s rod—the cosmos trembles: winds roar, mountains shake, meteors fall, and the sea surges in chaos. At last the Ocean-god Sagara rises from the waters, richly adorned and attended by great rivers, and pleads that he cannot change his nature but will aid the crossing. He advises Rama to release the unstoppable arrow elsewhere, which Rama does, blasting a distant region and creating the desert of Maru. Sagara then reveals that Nala, son of the divine architect Vishvakarma, can build a bridge. Under Nala’s direction the monkey army hurls mountains, trees, and stones into the sea, constructing the vast causeway to Lanka as gods gather in awe and secretly bless Rama’s campaign.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 13,
+      "color_hex": "#A5D6A7",
+      "why": "Chapter heading marking the pivotal moment when Rama’s army finally gains passage across the ocean toward Lanka."
+    },
+    {
+      "start": 27,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Rama confronts the Ocean in anger, initiating the divine standoff that triggers cosmic upheaval and the eventual construction of the bridge."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Rama draws the terrible Brahma-like arrow as the sky darkens, meteors blaze, winds tear up forests, and the ocean heaves in terror.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "The Ocean-god Sagara rises from the waves in emerald radiance, crowned with flowers and pearls, surrounded by serpents and the rivers Ganga and Sindhu as he bows before Rama.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Thousands of monkeys hurl mountains, trees, and colossal stones into the sea while Nala directs the construction of the vast bridge stretching toward Lanka as gods watch from the sky.",
+      "visual_strength": 0.95
+    }
+  ]
+}

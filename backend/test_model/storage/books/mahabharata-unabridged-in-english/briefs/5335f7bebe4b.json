@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma consciously releases his life through yogic control, is cremated with royal rites, and Krishna consoles the grieving goddess Ganga about her son’s heavenly fate.",
+  "importance": 0.9,
+  "themes": [
+    "Bhishma's death",
+    "yogic self-release",
+    "funeral rites",
+    "divine consolation",
+    "mother's grief"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies on the bed of arrows as his life-breath rises through the crown of his head like a blazing meteor ascending into the sky.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Celestial drums sound and flowers rain from the heavens as sages and Krishna watch Bhishma’s spirit ascend.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The river goddess Ganga rises from the waters in sorrow, lamenting her fallen son before Krishna gently consoles her.",
+      "visual_strength": 0.9
+    }
+  ]
+}

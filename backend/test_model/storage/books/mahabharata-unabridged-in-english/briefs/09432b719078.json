@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts the divine origin of Kapila cows from Daksha and Surabhi, explaining their sacred status and why gifting them brings exceptional religious merit.",
+  "importance": 0.52,
+  "themes": [
+    "sacred cows",
+    "cosmic creation myth",
+    "ritual gift-giving",
+    "purity of milk",
+    "Rudra as lord of animals"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "From Daksha’s fragrant breath emerges the celestial cow Surabhi, glowing golden as the first mother of countless kine.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Mahadeva, seated upon the earth, opens his blazing third eye and its radiance streaks the herd of cows with many colors.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "King Yudhishthira and his brothers present vast herds of bulls and cows as gifts to gathered Brahmanas during grand sacrifices.",
+      "visual_strength": 0.68
+    }
+  ]
+}

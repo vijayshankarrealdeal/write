@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama and Sita enjoy peaceful royal life in a magnificent grove; Sita, now pregnant, asks to visit the hermitages of sages on the Ganges.",
+  "importance": 0.55,
+  "themes": [
+    "marital harmony",
+    "royal prosperity",
+    "nature paradise",
+    "pregnancy and desire",
+    "approaching turning point"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama leads Sita by the hand into the lush Ashoka grove filled with flowering trees, lotus pools, and humming bees.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Seated on a flower-decked throne in the grove, Rama offers Sita honey-wine while celestial nymphs dance and sing around them.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A radiant Sita adorned with jewels stands before Rama and shyly reveals her wish to visit the hermitages by the Ganges.",
+      "visual_strength": 0.62
+    }
+  ]
+}

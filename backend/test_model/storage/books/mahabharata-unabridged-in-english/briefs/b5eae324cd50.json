@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Usanas enters Shiva’s body through yogic power, emerges as Sukra after austerities, and Bhishma transitions to teachings on righteousness via Parasara and Janaka.",
+  "importance": 0.55,
+  "themes": [
+    "divine wrath and mercy",
+    "yogic power and austerity",
+    "mythic origin of Sukra",
+    "Shiva and Uma intervention",
+    "supremacy of righteousness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Shiva with blood-red eyes raises his lance in fury while the sage Usanas mystically stands upon the very tip of the weapon.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Shiva opens his mouth and swallows the glowing sage Usanas as the gods look on.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The radiant sage emerges from Shiva’s body while Uma stands between him and the enraged god holding his lifted lance.",
+      "visual_strength": 0.9
+    }
+  ]
+}

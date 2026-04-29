@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sanjaya meets Yudhishthira at Upaplavya, exchanges formal inquiries about the Kuru elders, and reports Dhritarashtra’s regret while recalling the Pandavas’ feared prowess.",
+  "importance": 0.45,
+  "themes": [
+    "diplomatic mission",
+    "mutual inquiry",
+    "reputation of warriors",
+    "regret and tension",
+    "prelude to conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sanjaya bows before Yudhishthira in the Pandava court at Upaplavya while the five brothers and Draupadi listen.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "Yudhishthira seated calmly among his brothers speaks of Arjuna’s thunderous Gandiva arrows and Bhima’s mace striking terror.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Messengers and warriors gather in the Pandava camp as Sanjaya delivers Dhritarashtra’s words of regret and caution.",
+      "visual_strength": 0.55
+    }
+  ]
+}

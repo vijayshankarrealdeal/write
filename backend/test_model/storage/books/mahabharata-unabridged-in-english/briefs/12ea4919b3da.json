@@ -1,0 +1,25 @@
+{
+  "summary_1line": "In the rigged dice game, Yudhishthira loses his wealth, kingdom, brothers, and himself to Shakuni, and finally stakes Draupadi amid horrified reactions.",
+  "importance": 0.92,
+  "themes": [
+    "gambling and deception",
+    "loss of honor",
+    "loyalty of brothers",
+    "moral downfall",
+    "fate and manipulation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the royal hall, Shakuni casts the dice with a sly smile while Yudhishthira sits tense as kings watch in silence.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Yudhishthira solemnly points to each of his brothers—Nakula, Sahadeva, Arjuna, and Bhima—staking them one by one before the shocked assembly.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "As Yudhishthira declares Draupadi as the final stake, the aged elders in the court rise in agitation, crying \"Fie!\" in outrage.",
+      "visual_strength": 0.88
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Urvasi, urged by Indra and Chitrasena and enamored of Arjuna, adorns herself and visits him at night, but he respectfully greets her with modest reverence.",
+  "importance": 0.6,
+  "themes": [
+    "divine desire",
+    "celestial court",
+    "temptation",
+    "virtue and modesty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Urvasi, adorned with flowers, gold chains, and fragrant sandal paste, walks through the moonlit heavens as celestial beings pause to admire her beauty.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arjuna, startled in his palace at night, bows with closed eyes before the radiant apsara Urvasi standing at his doorway.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Urvasi prepares herself after bathing, placing garlands and ornaments upon her body while thinking of Arjuna.",
+      "visual_strength": 0.65
+    }
+  ]
+}

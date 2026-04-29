@@ -1,0 +1,37 @@
+{
+  "rich_summary": "This section recounts the origin of two crucial figures of the Mahabharata: Dhrishtadyumna and Draupadi. King Drupada, humiliated by the warrior‑teacher Drona, seeks a son destined to kill him. With the help of the Brahmins Yaja and Upayaja, he performs a powerful fire sacrifice. From the sacrificial flames emerges a fully armed son, Dhrishtadyumna, prophesied to destroy Drona and restore Panchala’s honor. Immediately afterward a daughter, the dark‑complexioned and extraordinarily beautiful Panchali (Draupadi), is born, foretold to bring about the downfall of many Kshatriyas and great danger to the Kauravas. Ironically, Drona himself later trains the boy destined to kill him, accepting fate. Hearing this tale unsettles the Pandavas, and Kunti suggests they journey to Panchala.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 119,
+      "color_hex": "#FFEB3B",
+      "why": "Introduces Drona’s terrifying power and frames the motivation behind Drupada’s desperate quest for a son who can defeat him."
+    },
+    {
+      "start": 12,
+      "length": 35,
+      "color_hex": "#A5D6A7",
+      "why": "Emphasizes Drona’s Brahmin identity combined with martial force, a central theme in the conflict between spiritual and warrior power."
+    },
+    {
+      "start": 69,
+      "length": 30,
+      "color_hex": "#F48FB1",
+      "why": "Captures the destructive sweep of Drona’s power over the Kshatriyas, fueling Drupada’s emotional and political motive for revenge."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "From a blazing sacrificial fire, a fully armed warrior-child—Dhrishtadyumna—rises radiant like flame, crowned and roaring as astonished Panchalas watch.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The dark, luminous Draupadi emerges from the sacrificial altar amid sacred smoke, her beauty and lotus-like eyes stunning the gathered kings and priests.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Drona solemnly instructs the young prince Dhrishtadyumna in the arts of war, fully aware that destiny has chosen the boy to one day kill him.",
+      "visual_strength": 0.8
+    }
+  ]
+}

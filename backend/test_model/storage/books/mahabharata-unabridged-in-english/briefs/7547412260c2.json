@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains the arduous Yoga path and Sankhya philosophy, detailing the body's faults, cosmic impermanence, and the soul’s liberation into the Supreme.",
+  "importance": 0.72,
+  "themes": [
+    "Yoga discipline",
+    "Sankhya philosophy",
+    "impermanence of the world",
+    "faults of the body",
+    "path to emancipation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The path of Yoga is likened to a dark forest filled with snakes, hidden pits, thorns, and bandits, through which only a few travelers dare to pass.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "The ocean of life appears as a vast sea where disease and death are giant alligators and grief-filled waters churn around a small raft of wisdom.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Freed sages are carried upward by a cool, fragrant celestial wind through space toward the radiant presence of Narayana.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman reaches the Ashoka grove, tells Sita of Ravana’s death and Rama’s victory, and Sita responds with gratitude and compassion toward her former tormentors.",
+  "importance": 0.72,
+  "themes": [
+    "good news after war",
+    "devotion and loyalty",
+    "compassion toward enemies",
+    "messenger’s duty",
+    "virtue and restraint"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman bows before the sorrowful Sita sitting beneath a tree in the Ashoka grove, surrounded by grim demonesses.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Sita’s face brightens like the moon as Hanuman announces Rama’s victory and Ravana’s death.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Hanuman offers to attack the demoness guards while Sita calmly refuses, standing compassionate among them.",
+      "visual_strength": 0.68
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Jarasandha defends his conduct before Krishna, declaring that he never imprisons a king without first defeating him in battle and that subjugating rivals is the duty of a Kshatriya. Refusing to release the captive monarchs he intends to sacrifice, he offers to fight any of the three visitors—Krishna, Bhima, or Arjuna. Knowing Jarasandha is destined to die at Bhima’s hands, Krishna lets Bhima accept the challenge. Jarasandha prepares ceremonially for combat and chooses Bhima as his opponent, acknowledging it is honorable to fall before a superior warrior. The two titans engage in a ferocious wrestling match before a massive crowd, using only their bodies as weapons. Their contest—full of grappling holds, crushing blows, and earth‑shaking impacts—unfolds like a clash of wild beasts, emphasizing both heroic strength and the warrior code that governs their actions.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#FFEB3B",
+      "why": "Jarasandha states his principle that a king is only taken captive after defeat, framing his actions within the Kshatriya code."
+    },
+    {
+      "start": 110,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Explains the warrior ethic of conquering rivals and the justification Jarasandha gives for holding the captive kings."
+    },
+    {
+      "start": 900,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Jarasandha chooses Bhima as his opponent and declares that being defeated by a superior warrior is honorable."
+    },
+    {
+      "start": 1600,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "The vivid description of the wrestling clash between Bhima and Jarasandha captures the epic physical intensity of the duel."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Jarasandha removes his crown, ties back his hair, and stands towering in the arena as he prepares to face Bhima.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Bhima and Jarasandha grapple with bare arms in a thunderous wrestling match, their bodies colliding like enraged elephants before a packed crowd.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Krishna, calm and watchful, stands beside Arjuna as Bhima steps forward to accept Jarasandha’s challenge in the royal arena.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vibhishana warns Ravana of ominous signs and urges him to return Sita to Rama, but Ravana angrily rejects the counsel.",
+  "importance": 0.62,
+  "themes": [
+    "wise counsel ignored",
+    "omens of doom",
+    "dharma vs pride",
+    "loyalty and truth",
+    "impending conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vibhishana stands respectfully before Ravana’s golden throne in the jeweled palace hall, warning him while ministers watch in tense silence.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Ominous crows swarm over Lanka’s temple roofs while jackals howl at dusk outside the city gates beneath a darkening sky.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Ravana, towering and furious on his gilded throne, dismisses Vibhishana with anger as the court looks on.",
+      "visual_strength": 0.7
+    }
+  ]
+}

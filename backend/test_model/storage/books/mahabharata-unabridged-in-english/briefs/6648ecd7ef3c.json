@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The sage Chyavana relentlessly tests King Kusika and his queen’s patience and devotion through extreme demands, while they endure without anger or complaint.",
+  "importance": 0.63,
+  "themes": [
+    "ascetic power",
+    "royal humility",
+    "endurance and patience",
+    "tests of devotion",
+    "dharma and obedience"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The starving king and queen, bleeding from the sage’s goad, slowly drag a golden battle-chariot through the city while Chyavana sits upon it giving away treasures.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "For twenty-one days the king and queen sit beside the sleeping sage, gently pressing his feet without food or rest in a silent palace chamber.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Before the stunned royal couple, the ascetic suddenly sets the lavishly prepared feast ablaze, reducing the food and offerings to ashes.",
+      "visual_strength": 0.75
+    }
+  ]
+}

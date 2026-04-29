@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains true penance and disciplined living, then recounts Prahlada teaching Indra that wisdom comes from understanding Nature and non‑attachment to outcomes.",
+  "importance": 0.72,
+  "themes": [
+    "self-restraint",
+    "true penance",
+    "non-attachment",
+    "nature vs agency",
+    "path to emancipation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Prahlada sits calmly in a bare chamber with controlled senses while Indra approaches to question his serene indifference to misfortune.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A tranquil sage eats only after feeding gods, ancestors, servants, and guests gathered in his humble home.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Prahlada gazes equally at a lump of earth and a piece of gold, unmoved by either.",
+      "visual_strength": 0.7
+    }
+  ]
+}

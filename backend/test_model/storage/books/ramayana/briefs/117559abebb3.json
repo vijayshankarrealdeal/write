@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama angrily reproaches Lakshmana for leaving Sita unguarded, while Lakshmana explains Sita forced him to go after hearing a deceptive cry for help.",
+  "importance": 0.66,
+  "themes": [
+    "brotherly conflict",
+    "deception by demons",
+    "loyalty and duty",
+    "Sita's desperation",
+    "impending tragedy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama, pale and distraught, runs through the empty forest hermitage calling for Sita while Lakshmana follows behind in anguish.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Sita, weeping in terror in the forest hut, points outward and commands Lakshmana to go help Rama after hearing the false cry.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Lakshmana stands trembling with anger and hurt as he recounts Sita’s harsh accusation before the grief-stricken Rama.",
+      "visual_strength": 0.72
+    }
+  ]
+}

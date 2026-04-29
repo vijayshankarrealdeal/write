@@ -1,0 +1,31 @@
+{
+  "rich_summary": "This section continues the burning of the Khandava forest. A divine voice reveals that Krishna and Arjuna are the ancient sages Nara and Narayana, making them unconquerable even to the gods. Realizing this, Indra abandons the battle and retreats with the celestials. With no opposition left, Krishna and Arjuna aid Agni as the forest burns, Arjuna slaughtering countless creatures with unstoppable skill while Krishna destroys attacking demons with his discus. During the destruction, the Asura architect Maya begs Arjuna for protection; Arjuna grants him refuge, and both Krishna and Agni spare him. Agni devours the forest for fifteen days, leaving only a few survivors. The narrative then shifts as King Janamejaya asks why certain birds survived, leading into the story of the ascetic Mandapala and the importance of progeny in fulfilling spiritual obligations.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 62,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the claim that Krishna and Arjuna cannot be defeated, setting the theological frame for the episode."
+    },
+    {
+      "start": 63,
+      "length": 80,
+      "color_hex": "#FFEB3B",
+      "why": "The identification of Krishna and Arjuna with the divine pair Nara and Narayana explains why even Indra must withdraw."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna and Arjuna stand amid the blazing Khandava forest as Indra and the gathered gods retreat into the sky while flames rise behind the heroes.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arjuna in his chariot looses a storm of arrows into the burning forest while terrified animals and demons flee through smoke and fire.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The Asura Maya kneels before Arjuna in terror while Agni’s flames and Krishna’s raised discus threaten him from behind.",
+      "visual_strength": 0.88
+    }
+  ]
+}

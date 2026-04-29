@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Viradha’s burial, Rama visits sage Sharabhanga, witnesses Indra departing, and the sage declines heaven until meeting Rama before preparing to ascend to Brahmaloka.",
+  "importance": 0.52,
+  "themes": [
+    "divine recognition of Rama",
+    "ascetic renunciation",
+    "heavenly realms",
+    "meeting with sages",
+    "dharma and restraint"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the sky above the forest, Indra sits in a radiant chariot drawn by bay horses while celestial beings chant and wave yak‑tail fans beneath a white canopy.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama stands watching the heavens with Lakshmana as Indra’s brilliant chariot hovers above Sage Sharabhanga’s hermitage.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The aged sage Sharabhanga sits before the sacred fire in his forest hermitage as Rama, Sita, and Lakshmana bow at his feet.",
+      "visual_strength": 0.66
+    }
+  ]
+}

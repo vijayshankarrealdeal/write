@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhagadatta devastates the Pandava army atop his elephant while Arjuna, hearing the chaos, is diverted by the Samsaptakas into a strategic dilemma.",
+  "importance": 0.58,
+  "themes": [
+    "elephant warfare",
+    "battlefield chaos",
+    "heroic duels",
+    "strategic diversion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhagadatta, towering on his massive elephant, hurls Satyaki's chariot aside while surrounded by a ring of Pandava chariots and raining arrows.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The giant elephant charges through fleeing warriors as arrows pierce its body, shining like sunbeams through a dark storm cloud.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Arjuna, beside Krishna on their chariot beneath the ape-banner, gazes toward a distant dust cloud as the Samsaptaka army suddenly surrounds him with arrows.",
+      "visual_strength": 0.78
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Demons called Kalakeyas secretly slaughter sages at night; the gods appeal to Vishnu, who reveals they hide in the ocean and suggests Agastya can dry it.",
+  "importance": 0.63,
+  "themes": [
+    "cosmic disorder",
+    "divine intervention",
+    "ascetic sanctity",
+    "demons in hiding",
+    "appeal to Vishnu"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "At dawn, the forest hermitage is strewn with the mutilated bodies and white bones of ascetics beside shattered sacrificial jars and extinguished sacred fires.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The frightened gods gather around Vishnu in Vaikuntha, bowing and pleading for protection as the universe falls into chaos.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "The gods arrive at the radiant sage Agastya’s hermitage, where the resplendent seer sits surrounded by sages like Brahma among celestials.",
+      "visual_strength": 0.58
+    }
+  ]
+}

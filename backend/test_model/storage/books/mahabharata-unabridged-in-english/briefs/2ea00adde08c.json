@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Garuda spares a Brahmana he swallowed, meets his father Kasyapa, and learns of a cursed elephant and tortoise he can eat.",
+  "importance": 0.53,
+  "themes": [
+    "filial duty",
+    "respect for Brahmanas",
+    "hunger and survival",
+    "curse and transformation",
+    "family conflict over wealth"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Inside Garuda’s blazing throat, a Brahmana and his Nishada wife emerge alive as the giant bird opens his beak to release them.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Garuda, wings spanning the sky, speaks with the sage Kasyapa while hovering above a sacred lake.",
+      "visual_strength": 0.58
+    },
+    {
+      "scene_text": "A colossal elephant drags a massive tortoise from a sacred lake as the waters churn and the beasts prepare to fight.",
+      "visual_strength": 0.76
+    }
+  ]
+}

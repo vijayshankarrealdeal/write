@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Duryodhana urges his father Dhritarashtra to invite the Pandavas to a gambling match, arguing that dice involve no violence and could reduce the Pandavas’ superiority. Though Dhritarashtra senses the immorality and danger of the scheme—and recalls Vidura’s earlier warnings—he resigns himself to fate and orders the construction of a magnificent crystal-arched assembly hall where the game will occur. The dazzling palace is swiftly built, and Vidura is sent to summon Yudhishthira. Troubled, Vidura warns that gambling breeds misery and could destroy the Kuru line, but the king insists the invitation be delivered. When Vidura reaches Yudhishthira, the Pandava king immediately suspects quarrel and danger in a dice game. This moment sets the tragic machinery in motion: political envy, moral hesitation, and fatalism combine to lead the Kurus toward catastrophe.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 90,
+      "color_hex": "#A5D6A7",
+      "why": "Duryodhana frames gambling as harmless tradition, revealing the rationalization behind the coming plot."
+    },
+    {
+      "start": 180,
+      "length": 110,
+      "color_hex": "#FFEB3B",
+      "why": "Duryodhana’s claim that gambling will make the Pandavas 'equals' exposes the envy motivating the scheme."
+    },
+    {
+      "start": 640,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Dhritarashtra admits the act is immoral yet allows it, a pivotal moment showing his weakness and fatalism."
+    },
+    {
+      "start": 1450,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Vidura’s warning that the dice match could destroy the Kuru race introduces the moral prophecy at the heart of the episode."
+    },
+    {
+      "start": 2400,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Yudhishthira questions who would knowingly gamble when it leads to quarrel, highlighting his awareness of the danger."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Artificers construct the vast crystal-arched palace with a thousand golden columns and lapis lazuli decorations while Dhritarashtra’s command echoes through the court.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Vidura stands solemnly before Dhritarashtra, warning that the dice game will destroy the Kuru race while the blind king listens uneasily.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Vidura arrives in the splendid city of the Pandavas and meets Yudhishthira in a palace like Kuvera’s mansion, delivering the troubling invitation to gamble.",
+      "visual_strength": 0.8
+    }
+  ]
+}

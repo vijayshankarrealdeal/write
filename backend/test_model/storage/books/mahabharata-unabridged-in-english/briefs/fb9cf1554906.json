@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains karma and the fruits of actions, teaching that deeds, austerities, charity, and discipline yield corresponding results across lives.",
+  "importance": 0.6,
+  "themes": [
+    "karma and consequences",
+    "destiny vs effort",
+    "ascetic practices",
+    "charity and hospitality",
+    "afterlife rewards"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An ascetic lies beside a glowing sacrificial fire through the night while priests chant and sparks rise into the dark sky.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "A weary traveler is welcomed at a humble doorway where a host offers water to wash his feet, food, a lamp, and a bed.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A young calf in a crowded field of cows runs directly to its mother, symbolizing karma unfailingly finding its doer.",
+      "visual_strength": 0.8
+    }
+  ]
+}

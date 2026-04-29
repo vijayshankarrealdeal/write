@@ -1,0 +1,24 @@
+{
+  "summary_1line": "During exile Bhima encounters a colossal serpent in a mountain cave and is seized helplessly, prompting the story of how such a hero could be overcome.",
+  "importance": 0.58,
+  "themes": [
+    "exile wandering",
+    "hero humbled",
+    "serpent encounter",
+    "forest ascetic life"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a dark mountain cave, a gigantic yellow-speckled serpent coils around Bhima as the warrior struggles in its crushing grip.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhima roars in the snowy Himalayan forest, uprooting trees and frightening lions and elephants that flee from his shouts.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "The Pandavas dwell near the Saraswati among hermits, with fig and rudraksha trees lining the quiet riverbanks.",
+      "visual_strength": 0.55
+    }
+  ]
+}

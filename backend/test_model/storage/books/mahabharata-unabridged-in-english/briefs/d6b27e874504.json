@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Evening halts the day’s slaughter; both armies withdraw, then at dawn Bhishma and Dhrishtadyumna organize opposing battle arrays for renewed combat.",
+  "importance": 0.45,
+  "themes": [
+    "battlefield carnage",
+    "nightfall truce",
+    "war rituals",
+    "military formations"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "As the sun reddens at dusk, the battlefield becomes a river of blood while jackals howl and spirits gather among fallen warriors.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Dhrishtadyumna leaps from his shattered chariot and mounts Satyaki’s car amid a rain of arrows from the Avanti princes.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "At dawn Bhishma leads a vast ocean-like army of elephants, horses, banners, and white umbrellas advancing in formation.",
+      "visual_strength": 0.78
+    }
+  ]
+}

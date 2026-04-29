@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Stories praising Shiva’s power precede Yudhishthira’s question on marital duty, leading to the tale of Ashtavakra’s northern quest and temptations during a sacred journey.",
+  "importance": 0.55,
+  "themes": [
+    "devotion to Shiva",
+    "marital duty debate",
+    "ascetic discipline",
+    "spiritual testing",
+    "sacred pilgrimage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Galava returns home and his tearful father drops the sacrificial fuel and kusa grass to embrace him with joy.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "In Kuvera’s jeweled palace, radiant Apsaras dance while Gandharvas play instruments before the ascetic Ashtavakra.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Seven dazzling maidens emerge from a golden gem-studded palace in a mystical forest as the sage Ashtavakra struggles to control his mind.",
+      "visual_strength": 0.82
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The gods enlist Agni to produce a son who will defeat Taraka, leading to the miraculous birth of Kartikeya from Agni’s seed carried by Ganga.",
+  "importance": 0.78,
+  "themes": [
+    "divine birth",
+    "cosmic intervention",
+    "curses and boons",
+    "fire and creation",
+    "origin myths"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ganga, overwhelmed by the blazing seed of Agni, casts the radiant golden embryo onto Mount Meru where it illuminates the mountain like a second sun.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The gods discover Agni hidden within the heart of a Sami tree after a parrot reveals his secret hiding place.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "In a forest of reeds, the brilliant child Kartikeya shines like the rising sun as the goddess Krittika lifts him and nurses him as her son.",
+      "visual_strength": 0.86
+    }
+  ]
+}

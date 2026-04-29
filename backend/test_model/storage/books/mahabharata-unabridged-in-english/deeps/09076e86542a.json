@@ -1,0 +1,49 @@
+{
+  "rich_summary": "After withdrawing from his kingdom, Pandu lives in the mountains with Kunti and Madri, wandering through sacred Himalayan regions and eventually settling among ascetics. Through discipline and humility he earns the affection of Siddhas and Rishis, gaining the spiritual stature of a Brahmarshi despite being born a Kshatriya. When the sages prepare to journey northward to behold Brahman, they refuse to take Pandu and his wives because the path is too harsh for mortals. Pandu then reveals his anguish: he is sonless due to the curse he incurred when he slew a deer while it was mating. In Hindu thought, a man owes debts to gods, sages, ancestors, and humanity, and without children he cannot repay the debt to his ancestors. The sages foresee that he will indeed have divine-like offspring, prompting Pandu to confide in Kunti and seek a way to obtain sons despite his curse.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces Pandu’s withdrawal into the mountains and the beginning of his ascetic life, setting the spiritual backdrop for the events that follow."
+    },
+    {
+      "start": 350,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Describes how Pandu earns the respect and affection of the Siddhas and Rishis, emphasizing his transformation into a spiritually powerful ascetic."
+    },
+    {
+      "start": 900,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Part of the sages’ description of the perilous northern heights, highlighting the mythic geography and the limits of mortal travel."
+    },
+    {
+      "start": 1500,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Pandu’s discourse on the four debts of human life, a key philosophical moment explaining why having children is a sacred duty."
+    },
+    {
+      "start": 1900,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The emotional confession where Pandu admits his curse and sorrow at being unable to father children, motivating the coming events."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Pandu in simple ascetic garb standing among radiant sages on a high Himalayan slope, snowy peaks and celestial beings faintly visible in the distance.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "A gathering of ancient Rishis preparing to journey north toward the divine realms, with towering icy mountains and glowing celestial cities beyond.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Pandu speaking privately with Kunti in a quiet forest hermitage, his face troubled as he confesses the curse that prevents him from fathering children.",
+      "visual_strength": 0.9
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhima and Karna engage in a furious duel; Bhima wounds and disarms Karna, who returns on another chariot as their deadly rivalry intensifies.",
+  "importance": 0.6,
+  "themes": [
+    "heroic duel",
+    "vengeance",
+    "battle fury",
+    "honor and rivalry"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima, his body bristling with arrows like a porcupine and soaked in blood, stands blazing on his chariot while still firing at Karna.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Bhima smiling as he severs Karna’s bow, kills his horses and charioteer, and sends sun-bright arrows through Karna’s chest.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "The white swan-colored horses of Karna’s chariot mingle with Bhima’s dark bear-colored steeds amid a storm of arrows.",
+      "visual_strength": 0.74
+    }
+  ]
+}

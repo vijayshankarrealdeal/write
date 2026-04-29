@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Ravana orders Hanuman’s execution, but Vibhishana intervenes, arguing that killing a messenger violates justice and royal duty.",
+  "importance": 0.62,
+  "themes": [
+    "dharma vs anger",
+    "justice in warfare",
+    "wise counsel",
+    "envoy immunity",
+    "righteous governance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman stands bound before Ravana’s throne while the enraged ten‑headed king orders his death in the court of Lanka.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Vibhishana steps forward in Ravana’s royal hall, calmly pleading for justice as courtiers watch the furious king.",
+      "visual_strength": 0.72
+    }
+  ]
+}

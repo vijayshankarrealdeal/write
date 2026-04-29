@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna returns to the Kuru capital; Parikshit is born lifeless from Ashwatthama’s Brahma-weapon, and Kunti begs Krishna to revive the Pandava heir.",
+  "importance": 0.86,
+  "themes": [
+    "divine intervention",
+    "dynastic survival",
+    "grief after war",
+    "Krishna’s protection",
+    "birth of Parikshit"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna rushes into the inner palace chambers as Kunti, Draupadi, and Subhadra weep around the motionless newborn prince.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Kunti raises her arms in despair before Krishna and collapses to the floor while the royal women cry over the lifeless child.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "The infant Parikshit lies still after birth while the palace that had just echoed with celebratory shouts falls into sudden silence.",
+      "visual_strength": 0.71
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Markandeya describes Kalki restoring order after Kali Yuga, inaugurating a renewed Krita age of virtue, prosperity, and restored social-religious order.",
+  "importance": 0.78,
+  "themes": [
+    "Kalki avatar",
+    "end of Kali Yuga",
+    "cosmic renewal",
+    "restoration of dharma",
+    "cyclical time"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Kalki, a radiant warrior-sage, rides across the land as thieves scatter while Brahmanas watch and praise him.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "At a grand horse sacrifice, Kalki ceremonially gives the whole earth to gathered Brahmanas amid ritual fires and chanting.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Fields and gardens flourish again across the land as people perform sacrifices beside temples and ponds in the newly begun Krita age.",
+      "visual_strength": 0.62
+    }
+  ]
+}

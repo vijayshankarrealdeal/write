@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After the war, grieving Dhritarashtra tries to crush Bhima but is tricked; Gandhari confronts the Pandavas as women lament the devastation of Kurukshetra.",
+  "importance": 0.82,
+  "themes": [
+    "aftermath of war",
+    "grief and lamentation",
+    "wrath and forgiveness",
+    "moral responsibility",
+    "divine intervention"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Blind Dhritarashtra embraces and crushes an iron statue of Bhima, shattering it while Krishna secretly pulls the real Bhima away.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Gandhari lifts the edge of her blindfold and her gaze burns Yudhishthira’s toenail as he bows trembling before her.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "On the blood-soaked field of Kurukshetra, widows with disheveled hair wander among corpses while vultures and jackals feed on fallen warriors.",
+      "visual_strength": 0.94
+    }
+  ]
+}

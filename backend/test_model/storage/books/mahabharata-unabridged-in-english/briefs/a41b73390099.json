@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts a tale where a Brahmana learns that true sacrifice is non‑violence, as Dharma tests and guides him away from killing.",
+  "importance": 0.67,
+  "themes": [
+    "non-violence vs ritual sacrifice",
+    "tests by divine beings",
+    "virtue over wealth",
+    "asceticism and penance",
+    "moral transformation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a forest hermitage, a humble Brahmana embraces a talking deer that had begged to be sacrificed on the altar fire.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The radiant goddess Savitri appears beside a woodland sacrificial fire, urging the Brahmana to complete the ritual.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "The deer reveals celestial visions of Apsaras and Gandharva chariots shining in the sky before the astonished Brahmana.",
+      "visual_strength": 0.72
+    }
+  ]
+}

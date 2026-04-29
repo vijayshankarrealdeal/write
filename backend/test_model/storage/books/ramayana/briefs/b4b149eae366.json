@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bharata angrily condemns Kaikeyi for causing Dasharatha’s death and Rama’s exile, vows loyalty to Rama, and resolves to bring him back and serve him.",
+  "importance": 0.78,
+  "themes": [
+    "filial grief",
+    "righteous anger",
+    "maternal betrayal",
+    "devotion to Rama",
+    "dharma and kingship"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata stands in the royal chamber pointing accusingly at Kaikeyi while courtiers watch in shock.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "The celestial cow Kamadhenu weeps in the sky as her exhausted sons struggle under a plough in the scorching sun.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Bharata vows before the court that he will bring Rama back to Ayodhya and live in the forest himself.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Abhimanyu duels Jayadratha and repels surrounding kings before Bhima steps in to fight Salya in a fierce mace battle.",
+  "importance": 0.62,
+  "themes": [
+    "heroic duels",
+    "Abhimanyu's valor",
+    "war spectacle",
+    "mace combat",
+    "Kuru–Pandava rivalry"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Abhimanyu leaps up and catches Salya's blazing iron dart in midair like Garuda seizing a falling serpent.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Abhimanyu and Jayadratha clash on the ground with sword and shield, circling like a tiger and a lion amid watching armies.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Bhima and Salya whirl massive maces in a roaring duel, sparks flying as the weapons collide while warriors watch from all sides.",
+      "visual_strength": 0.87
+    }
+  ]
+}

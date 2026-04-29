@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The gods complain to Brahma about Ravana, leading Vishnu to resolve to incarnate as Dasaratha’s four sons to destroy the tyrant.",
+  "importance": 0.9,
+  "themes": [
+    "divine incarnation",
+    "cosmic justice",
+    "Ravana's tyranny",
+    "boons and loopholes",
+    "divine intervention"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The assembled gods with folded hands plead before Brahma while the radiant Vishnu, bearing conch, discus, and mace, appears in golden robes.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The gods stand in fear as they describe Ravana’s power, the sun dimmed and the wind stilled before the unseen tyrant.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Vishnu declares his vow before the gathered deities to be born as the four sons of King Dasaratha to destroy Ravana.",
+      "visual_strength": 0.78
+    }
+  ]
+}

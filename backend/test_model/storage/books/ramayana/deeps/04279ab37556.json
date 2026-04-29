@@ -1,0 +1,39 @@
+{
+  "rich_summary": "Rama, devastated by Sita’s abduction, erupts into a cosmic fury. Declaring that if he does not recover her he will unleash every weapon of destruction, he prepares himself like a god of annihilation—tightening his bark garments, taking up his bow, and resembling Rudra poised to destroy the triple cities. His wrath grows so immense that he threatens to destroy the entire universe—gods, spirits, humans, serpents, and mountains alike. Lakshmana, terrified at seeing a rage never before shown by his brother, steps forward with folded hands to restrain him. He reminds Rama of his true nature: gentle, self-controlled, and devoted to the welfare of all beings. Lakshmana argues that the sin of a single wrongdoer should not lead to the destruction of the worlds, appealing to Rama’s divine restraint and moral greatness.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 90,
+      "color_hex": "#F48FB1",
+      "why": "Rama’s grief-fueled vow to devastate the universe if Sita is not found sets the emotional and apocalyptic tone."
+    },
+    {
+      "start": 210,
+      "length": 95,
+      "color_hex": "#A5D6A7",
+      "why": "The comparison of Rama to Rudra destroying Tripura frames his anger in mythic, divine terms."
+    },
+    {
+      "start": 420,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Rama’s explicit threat to destroy the entire cosmos—gods, beings, and mountains—marks the chapter’s pivotal dramatic escalation."
+    },
+    {
+      "start": 650,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Lakshmana’s plea recalls Rama’s true nature—gentle, self-controlled, and cosmic in virtue—introducing the moral counterpoint to wrath."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Rama, blazing with anger, tightens his bark garments and draws a serpent-like arrow while standing like Rudra poised to destroy the universe.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Lakshmana, pale with fear and hands folded, pleads before the wrathful Rama who stands with drawn bow like the fire of cosmic dissolution.",
+      "visual_strength": 0.88
+    }
+  ]
+}

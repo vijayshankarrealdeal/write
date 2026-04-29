@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira honors Dhritarashtra, organizes his government, performs funeral rites and charities for the war dead, and offers a profound hymn of praise to Krishna.",
+  "importance": 0.62,
+  "themes": [
+    "righteous kingship",
+    "filial duty to Dhritarashtra",
+    "mourning and funeral rites",
+    "state administration",
+    "divinity of Krishna"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the royal court, Yudhishthira formally appoints Bhima as Yuvaraja while his brothers and elders stand around the throne.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Yudhishthira and Draupadi distribute cows, jewels, and garments to crowds of Brahmanas during grand funeral offerings for the fallen heroes.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "With folded hands before Krishna, Yudhishthira stands in reverence as he proclaims Krishna the cosmic lord of the universe.",
+      "visual_strength": 0.78
+    }
+  ]
+}

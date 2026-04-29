@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Monkey chiefs declare how far they can leap across the ocean while Angada and Jambavan assess their limits and leadership duties.",
+  "importance": 0.45,
+  "themes": [
+    "assessment of strength",
+    "leadership and duty",
+    "limits of age",
+    "mission to cross the ocean"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Angada stands before a vast assembly of monkeys on the seashore as the chiefs step forward one by one to proclaim how many miles they can leap.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "The aged bear-king Jambavan, bowing respectfully, speaks of his past glory while the gathered monkeys listen in solemn silence.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "Young Angada gazes over the roaring ocean, admitting he can leap across but is uncertain if he can return.",
+      "visual_strength": 0.7
+    }
+  ]
+}

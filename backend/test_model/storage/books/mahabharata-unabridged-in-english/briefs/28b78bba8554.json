@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Vamadeva instructs that a wise king consolidates power, avoids unnecessary war, rules justly, and expands only when his strength and resources are secure.",
+  "importance": 0.53,
+  "themes": [
+    "kingship ethics",
+    "statecraft strategy",
+    "power consolidation",
+    "just governance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A calm king restrains his anger while advisers stand around him, symbolizing the ruler who conquers his temper rather than his enemies.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "A small but disciplined army marches confidently under a royal banner, representing a well-governed kingdom capable of subduing greater lands.",
+      "visual_strength": 0.56
+    }
+  ]
+}

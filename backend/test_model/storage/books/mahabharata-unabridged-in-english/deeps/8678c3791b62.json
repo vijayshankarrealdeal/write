@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This concluding section of the Bhagavad Gita gathers its teachings into a final synthesis. Krishna explains the three qualities of nature—goodness, passion, and darkness—and shows how they shape penance, gifts, knowledge, action, agents, intellect, constancy, and happiness. True renunciation is not abandoning action but relinquishing attachment to its fruits. Every action arises from multiple causes, so the egoistic belief that the self alone acts is ignorance. People reach perfection by performing their own natural duties without attachment, offering their work to the divine. Through discipline, detachment, and devotion, one realizes Brahman and attains peace. Krishna’s ultimate teaching is surrender: taking refuge in him leads to liberation from sin. Arjuna’s confusion dissolves, he resolves to act, and Sanjaya closes by praising the sacred dialogue and declaring that where Krishna and Arjuna stand, victory and righteousness prevail.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the classification of spiritual practices by the three gunas, framing the moral psychology that guides the entire section."
+    },
+    {
+      "start": 500,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Discusses the sacred formula 'OM, TAT, SAT,' linking ritual action with the ultimate reality of Brahman."
+    },
+    {
+      "start": 1500,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna defines true renunciation as giving up attachment to the fruits of action rather than abandoning action itself."
+    },
+    {
+      "start": 3500,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Explains the vision of unity—seeing one eternal essence in all beings—which represents knowledge in the mode of goodness."
+    },
+    {
+      "start": 6500,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Contains the climactic call to surrender to Krishna as the sole refuge, promising liberation from all sin."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna and Arjuna stand in the chariot between the armies as Krishna reveals the final teaching of surrender and devotion.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Arjuna, previously troubled, now stands resolute with bow in hand as he declares that his delusion is destroyed and he will act.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Sanjaya recounts the divine dialogue to King Dhritarashtra, awestruck as he remembers Krishna’s words and the vision of Hari.",
+      "visual_strength": 0.72
+    }
+  ]
+}

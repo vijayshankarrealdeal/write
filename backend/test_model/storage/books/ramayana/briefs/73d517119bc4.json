@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Anshuman and Dilipa fail to bring Ganga to earth, Bhagiratha performs severe austerities and wins Brahma’s boon to liberate Sagara’s sons.",
+  "importance": 0.7,
+  "themes": [
+    "ancestral duty",
+    "austerity and penance",
+    "divine boon",
+    "descent of Ganga",
+    "dynastic continuity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhagiratha stands with arms raised amid five blazing fires under the scorching sun, performing severe penance for a thousand years.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Brahma descends from the heavens surrounded by devas to address the emaciated yet radiant Bhagiratha in meditation.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Prince Anshuman listens solemnly as Garuda explains that only the sacred Ganga’s waters can redeem the ashes of Sagara’s sixty thousand sons.",
+      "visual_strength": 0.65
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Nakula and Sahadeva argue that righteous action, sacrifice, and responsible householdership—especially for a king—surpass premature renunciation.",
+  "importance": 0.63,
+  "themes": [
+    "duty vs renunciation",
+    "householder supremacy",
+    "sacrifice and charity",
+    "kingship responsibility",
+    "detachment in action"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The four modes of life are imagined on a balance scale, with householdership alone outweighing the other three combined.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A wandering ascetic sleeps beneath a tree in silence while holding a begging bowl, renouncing possessions.",
+      "visual_strength": 0.56
+    },
+    {
+      "scene_text": "A king performs a grand sacrifice, gifting elephants, cows, gold, and villages to gathered Brahmanas before a sacred fire.",
+      "visual_strength": 0.78
+    }
+  ]
+}

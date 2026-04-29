@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhima returns empowered after the Nagas save him; Duryodhana’s plots continue; the princes begin training under Kripa, whose strange birth from Saradwat is introduced.",
+  "importance": 0.62,
+  "themes": [
+    "Bhima’s supernatural empowerment",
+    "Kaurava treachery",
+    "Pandava vigilance",
+    "martial education",
+    "miraculous birth"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima rises from the waters of the netherworld adorned in white garlands as serpent Nagas surround and bless him.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Bhima runs into Kunti’s arms while his brothers crowd around, all rejoicing at his miraculous return.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "In a forest hermitage, the ascetic Saradwat beholds a beautiful celestial damsel while his bow and arrows slip from his trembling hands.",
+      "visual_strength": 0.74
+    }
+  ]
+}

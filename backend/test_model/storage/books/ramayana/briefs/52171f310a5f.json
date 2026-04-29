@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Hanuman reassures Sita, receives her jewel as a token for Rama, and departs carrying her message and hope of imminent rescue.",
+  "importance": 0.7,
+  "themes": [
+    "hope amid captivity",
+    "message and token",
+    "loyalty and devotion",
+    "impending rescue"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita, tearful in the Ashoka grove, hands her shining pearl jewel to Hanuman as he bows before her.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Hanuman expands his form to leap away while Sita watches with tear-filled eyes, raising her hands in farewell.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Sita sitting beneath trees in the grove, clutching the jewel that once adorned her forehead as she speaks of Rama.",
+      "visual_strength": 0.66
+    }
+  ]
+}

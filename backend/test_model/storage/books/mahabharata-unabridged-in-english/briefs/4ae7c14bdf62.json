@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Santanu’s death, Chitrangada becomes king but is slain by a Gandharva; Bhishma installs Vichitravirya and later abducts the three princesses of Kasi for him.",
+  "importance": 0.72,
+  "themes": [
+    "dynastic succession",
+    "Bhishma’s duty",
+    "royal combat",
+    "abduction marriage",
+    "Kuru lineage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma stands alone on his chariot while thousands of kings surround him, arrows raining like storm clouds as he shields himself with a blazing counter-shower.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "The Gandharva king and Prince Chitrangada duel for years on the banks of the Saraswati at Kurukshetra beneath a sky thick with weapons.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Bhishma seizes the three princesses of Kasi onto his chariot at the swayamvara and rides away while enraged kings leap into their chariots to pursue.",
+      "visual_strength": 0.9
+    }
+  ]
+}

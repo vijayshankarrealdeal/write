@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A sage advises a dispossessed king on detachment from wealth and offers a pragmatic strategy to regain power through humility, alliances, and political cunning.",
+  "importance": 0.55,
+  "themes": [
+    "detachment from wealth",
+    "kingship and strategy",
+    "humility before enemies",
+    "renunciation vs political action",
+    "self-mastery"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A fallen king listens in the wilderness as a sage instructs him to humble himself before his enemies to regain his kingdom.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "The exiled king is imagined living alone in a deep forest among large-tusked elephants, surviving on fruits and roots.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Courtiers gather around King Janaka of Mithila while the humbled exile stands with folded hands seeking service and alliance.",
+      "visual_strength": 0.66
+    }
+  ]
+}

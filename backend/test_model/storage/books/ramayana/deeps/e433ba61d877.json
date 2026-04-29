@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Sita, declaring her unwavering fidelity to Rama and calling upon the cosmic Witness, enters the blazing fire to prove her purity before the assembled armies, sages, gods, and common people. The crowd erupts in grief as she vanishes into the flames like a sacred offering. As Rama stands sorrowful, the greatest gods—Indra, Yama, Varuna, Mahadeva, and Brahma—arrive in radiant chariots. They rebuke Rama for acting as though he were merely human and reveal his true identity. At Rama’s own request for clarity, Brahma proclaims the cosmic truth: Rama is none other than Narayana/Vishnu, the eternal Supreme Being who incarnated to destroy Ravana. Sita is Lakshmi herself. With Ravana slain, the divine mission is complete. The scene transforms the epic from heroic war story into cosmic revelation, declaring Rama’s divine nature and the theological meaning of his incarnation.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Sita’s solemn vow of purity and her fearless entry into the fire—one of the Ramayana’s most emotionally charged and controversial moments."
+    },
+    {
+      "start": 220,
+      "length": 260,
+      "color_hex": "#A5D6A7",
+      "why": "The crowd’s horrified reaction and the sacrificial imagery portraying Sita as a sacred offering, reinforcing ritual and cosmic symbolism."
+    },
+    {
+      "start": 700,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "The dramatic arrival of the assembled gods in radiant chariots at Lanka, marking the shift from human drama to divine revelation."
+    },
+    {
+      "start": 1100,
+      "length": 500,
+      "color_hex": "#FFEB3B",
+      "why": "Brahma’s proclamation revealing Rama as Narayana/Vishnu, listing his cosmic forms and declaring the divine purpose of his incarnation."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Sita, serene and radiant, walks into a towering sacrificial fire before a vast crowd of monkeys, warriors, sages, and weeping women as flames rise like a ritual altar.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The sky above Lanka fills with blazing celestial chariots as Brahma, Shiva, Indra, and other gods descend in radiant splendor to address Rama.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Brahma standing before Rama on the battlefield, proclaiming his cosmic identity while the universe—sun, moon, mountains, and stars—seems symbolically reflected around him.",
+      "visual_strength": 0.82
+    }
+  ]
+}

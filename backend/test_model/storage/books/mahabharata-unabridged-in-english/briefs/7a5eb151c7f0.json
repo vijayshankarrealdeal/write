@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vidura’s agent guides the escaped Pandavas to a hidden boat, ferries them across the Ganga, while townspeople mourn, believing they perished in the lac house fire.",
+  "importance": 0.72,
+  "themes": [
+    "escape and survival",
+    "political intrigue",
+    "loyalty of Vidura",
+    "deception and misdirection",
+    "brotherly protection"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima strides through the dark forest carrying Kunti on his shoulder and his brothers on his arms and sides, crushing trees under his chest.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "On the moonlit banks of the Ganga, Vidura’s agent reveals a swift, flag-marked boat waiting silently for the Pandavas.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Villagers stand before the smoking ruins of the lac house, lamenting as ashes and charred beams glow in the night.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "rich_summary": "The passage transitions from a description of the qualities of a beloved devotee to the philosophical teaching of Bhagavad Gita Chapter XIII. First, Krishna lists the traits of those dear to him: serenity, freedom from ego, equanimity toward praise and blame, detachment from possessions, and unwavering devotion. The text then introduces the key metaphysical distinction between Kshetra (the field—the body and material nature) and Kshetrajna (the knower of the field—the conscious self). True knowledge includes humility, self-restraint, awareness of suffering in worldly existence, and devotion to the divine. Krishna describes the ultimate object of knowledge as the all‑pervading Brahman, present in all beings yet beyond attributes. Understanding the difference between matter and spirit—and seeing the same divine presence in all—liberates one from rebirth and leads to union with the Supreme.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 90,
+      "color_hex": "#F48FB1",
+      "why": "Opening description of the devotee whose calm devotion makes him 'dear' to the divine."
+    },
+    {
+      "start": 200,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Expands the theme of equanimity and detachment from praise, blame, pleasure, and pain."
+    },
+    {
+      "start": 800,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Introduces the crucial philosophical concept of Kshetra (the field/body) and Kshetrajna (the knower)."
+    },
+    {
+      "start": 1400,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Lists the virtues—humility, self‑restraint, and awareness of suffering—that constitute true knowledge."
+    },
+    {
+      "start": 2300,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Description of the Supreme Brahman as all‑pervading, beyond senses yet sustaining everything."
+    },
+    {
+      "start": 3300,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The insight that all actions are performed by nature while the self remains the non‑doer."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna revealing the cosmic vision of the all‑pervading Brahman whose countless eyes and faces exist everywhere in the universe.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "A serene devotee sitting alone in a quiet place, calm and detached from praise or blame, meditating with steady faith.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A symbolic illustration of the body as a ‘field’ with the radiant inner self standing within it as the knower and witness.",
+      "visual_strength": 0.86
+    }
+  ]
+}

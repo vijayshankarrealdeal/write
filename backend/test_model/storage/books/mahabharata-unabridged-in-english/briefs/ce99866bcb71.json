@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira defends keeping the exile vow after the dice loss, while Bhima angrily urges immediate war to reclaim their kingdom.",
+  "importance": 0.63,
+  "themes": [
+    "honor vs vengeance",
+    "exile oath",
+    "time and mortality",
+    "brotherly conflict",
+    "dharma"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the forest camp, Bhima stands furious with clenched fists while Yudhishthira sits calm yet pained, defending his vow before the exiled brothers.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Bhima burns with rage, gripping his hands as he recalls wanting to burn Yudhishthira’s dice-playing hands in the Kuru assembly.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The Pandava brothers sit in austere exile among dark woods as Bhima argues for war and Yudhishthira gazes downward in troubled restraint.",
+      "visual_strength": 0.61
+    }
+  ]
+}

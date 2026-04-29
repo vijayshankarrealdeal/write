@@ -1,0 +1,24 @@
+{
+  "summary_1line": "In Valmiki’s hermitage, Sita gives birth to twin sons; Valmiki performs protective rites and names them Kusha and Lava.",
+  "importance": 0.78,
+  "themes": [
+    "birth of heirs",
+    "ascetic hermitage life",
+    "naming ritual",
+    "divine lineage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the quiet hermitage at midnight, Valmiki gazes with joy at Sita’s newborn twins lying beside her on a simple leaf bed.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Valmiki raises sacred kusha grass while chanting mantras over the radiant newborn twins to protect them from evil forces.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Female ascetics gently touch the infants with kusha grass as the sage declares their names, Kusha and Lava, inside the leaf-thatched hut.",
+      "visual_strength": 0.69
+    }
+  ]
+}

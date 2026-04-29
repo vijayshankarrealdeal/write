@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Uma asks Shiva how thoughts, words, and deeds bind or free people; he teaches truthfulness, non‑violence, restraint, and compassion as the path to heaven.",
+  "importance": 0.62,
+  "themes": [
+    "dharma and ethics",
+    "thought‑word‑deed discipline",
+    "truthful speech",
+    "nonviolence and compassion",
+    "sexual restraint"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Uma sits beside Shiva on a mountain as he calmly instructs her about the moral power of thoughts, words, and deeds.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "A serene sage surrounded by animals that trust him completely, symbolizing compassion toward all beings.",
+      "visual_strength": 0.57
+    },
+    {
+      "scene_text": "A person restrains angry speech, standing silent while another shouts, embodying mastery over words.",
+      "visual_strength": 0.48
+    }
+  ]
+}

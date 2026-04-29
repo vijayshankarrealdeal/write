@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama leaves Kosala, reaches the Ganga, bids farewell to Ayodhya, and is warmly received by Guha, the ferryman king, while maintaining his ascetic vow.",
+  "importance": 0.62,
+  "themes": [
+    "exile and renunciation",
+    "loyal friendship",
+    "sacred landscape",
+    "dharma and duty",
+    "farewell to homeland"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama stands facing distant Ayodhya with folded hands and tearful eyes, bidding farewell as citizens watch from afar.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "The radiant river Ganga flows wide with white foam and lotus flowers while swans glide and forest hermitages line the banks.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Guha the ferryman king bows before Rama in ascetic robes beneath the leafy Ingudi tree beside the Ganga.",
+      "visual_strength": 0.74
+    }
+  ]
+}

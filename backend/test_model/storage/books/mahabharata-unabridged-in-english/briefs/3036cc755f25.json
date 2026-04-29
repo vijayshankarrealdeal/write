@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna urges Arjuna to kill Duryodhana, recalling past wrongs; Arjuna agrees and advances, while Duryodhana boldly challenges them before both armies.",
+  "importance": 0.64,
+  "themes": [
+    "vengeance for Draupadi",
+    "battle challenge",
+    "Krishna's counsel",
+    "heroic pride",
+    "approaching duel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna and Arjuna blow their conchs on a white-horsed chariot while the Kaurava army watches, convinced Duryodhana is already doomed.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Duryodhana stands firm on his chariot before the advancing Arjuna and Krishna, smiling defiantly as surrounding warriors shout in alarm.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Krishna, holding the reins, leans toward Arjuna and urges him to unleash his long‑cherished wrath upon Duryodhana in the midst of battle.",
+      "visual_strength": 0.72
+    }
+  ]
+}

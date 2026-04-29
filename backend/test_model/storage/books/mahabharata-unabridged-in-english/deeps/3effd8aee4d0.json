@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This passage depicts the terrifying final rampage of Drona on the battlefield. Though aged, he fights with the vigor of youth, driving through the Pandava armies like Death itself. His arrows fill the sky, cutting down warriors, elephants, and horses while the earth turns muddy with blood. Pandava heroes including Bhima, Arjuna, Satyaki, and others attempt to check him, yet he devastates entire divisions, reportedly slaying more than two Akshauhinis of troops. Despite these immense feats, Drona is ultimately killed by Dhrishtadyumna, fulfilling a long-standing destiny tied to their enmity. The narrative then shifts to Dhritarashtra’s grief and disbelief as he questions how such an unmatched warrior and master of weapons could possibly have fallen, concluding that fate must be stronger than human effort.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Introduces Drona’s ferocious charge across the battlefield, establishing the tone of overwhelming martial power."
+    },
+    {
+      "start": 350,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Describes the terror and chaos his assault causes among Yudhishthira’s troops, emphasizing his near-mythic battlefield presence."
+    },
+    {
+      "start": 1150,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Evokes the iconic image of Drona’s arrows filling every direction so that almost nothing can be seen but his storm of shafts."
+    },
+    {
+      "start": 2100,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Marks the turning point where the narrative reveals that the seemingly unstoppable Drona is finally slain by Dhrishtadyumna."
+    },
+    {
+      "start": 2700,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Dhritarashtra’s lament reflects the emotional and philosophical weight of Drona’s death, questioning how such a master could fall."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Drona, standing in his chariot with red horses, releases a storm of arrows that darkens the sky while Pandava soldiers scatter in terror across a blood-soaked battlefield.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Amid heaps of fallen warriors and shattered chariots, Dhrishtadyumna strikes down the aged but blazing Drona, whose golden-bannered chariot stands like lightning among the carnage.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "In a distant court, the blind king Dhritarashtra sits in anguish as Sanjaya recounts Drona’s fall, while the imagined battlefield echoes with cries and the roar of victorious Pandavas.",
+      "visual_strength": 0.72
+    }
+  ]
+}

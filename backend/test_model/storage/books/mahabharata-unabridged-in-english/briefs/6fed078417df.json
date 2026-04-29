@@ -1,0 +1,24 @@
+{
+  "summary_1line": "King Marutta, rejected by priest Brihaspati, follows Narada’s advice to seek the eccentric sage Samvarta, who tests his sincerity before agreeing to help.",
+  "importance": 0.47,
+  "themes": [
+    "spiritual authority",
+    "humility and endurance",
+    "tests of devotion",
+    "guidance of sages"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "At the gate of Varanasi, King Marutta places a corpse on the ground while a wandering naked ascetic suddenly turns away from it.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The wild sage Samvarta smears King Marutta with mud, ashes, and spittle while the king stands patiently with folded hands.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Exhausted beneath a wide-branched sacred fig tree, the mad-looking sage Samvarta sits while the weary king waits humbly before him.",
+      "visual_strength": 0.62
+    }
+  ]
+}

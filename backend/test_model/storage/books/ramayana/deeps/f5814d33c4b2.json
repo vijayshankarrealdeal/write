@@ -1,0 +1,43 @@
+{
+  "rich_summary": "At the end of his earthly mission, Rama journeys to the sacred Sarayu River accompanied by crowds of loyal subjects. As he prepares to depart the mortal world, Brahma appears in the sky surrounded by gods, sages, and celestial beings riding in radiant aerial chariots. The heavens fill with music, fragrant winds, and showers of flowers as Gandharvas and Apsaras sing. Rama steps into the river, where Brahma hails him openly as Vishnu and invites him to return to his divine form and eternal abode. Accepting this revelation of his true nature, Rama resolves to depart the world and enters Vishnu’s realm with his brothers. The assembled immortals worship him as he resumes his cosmic identity, marking the epic’s final transformation of the heroic king back into the sustaining god of the universe.",
+  "highlight_spans": [
+    {
+      "start": 397,
+      "length": 43,
+      "color_hex": "#FFEB3B",
+      "why": "The dramatic arrival of Brahma and the celestial host signals the moment when the divine world visibly intersects with Rama’s final earthly act."
+    },
+    {
+      "start": 514,
+      "length": 60,
+      "color_hex": "#A5D6A7",
+      "why": "The image of gods seated in aerial chariots and the glowing firmament emphasizes the cosmic scale of Rama’s departure."
+    },
+    {
+      "start": 902,
+      "length": 28,
+      "color_hex": "#F48FB1",
+      "why": "Rama stepping into the sacred waters is the emotional and symbolic moment of transition from mortal king to revealed divinity."
+    },
+    {
+      "start": 974,
+      "length": 18,
+      "color_hex": "#FFEB3B",
+      "why": "The phrase announcing that Brahma ‘uttered these words’ introduces the revelation that Rama is truly Vishnu."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Brahma and hosts of gods and sages appear in radiant aerial chariots filling the sky with light above Rama and the gathered people at the Sarayu River.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Rama calmly steps into the flowing Sarayu as flowers rain from the heavens and celestial musicians sing in the sky.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The heavens blazing with divine radiance as countless beings—gods, nagas, gandharvas, and rakshasas—assemble to witness Rama returning to his form as Vishnu.",
+      "visual_strength": 0.9
+    }
+  ]
+}

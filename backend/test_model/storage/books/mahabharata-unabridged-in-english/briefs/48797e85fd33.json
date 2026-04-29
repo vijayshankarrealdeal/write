@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Bhishma explains duties and social status of offspring from different varna unions, detailing mixed castes and their prescribed occupations.",
+  "importance": 0.42,
+  "themes": [
+    "varna hierarchy",
+    "mixed castes",
+    "marriage rules",
+    "social duties",
+    "inheritance and status"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma, lying on his bed of arrows, instructs Yudhishthira about the origins and duties of mixed castes as sages listen nearby.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A Chandala stands at the outskirts of a city with executioner’s tools while townspeople keep their distance.",
+      "visual_strength": 0.7
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana invades Yama’s realm, witnesses hell’s punishments and rewards, frees the damned, and battles Yama’s armies with devastating celestial weapons.",
+  "importance": 0.6,
+  "themes": [
+    "cosmic justice",
+    "arrogance of Ravana",
+    "afterlife punishments",
+    "war with gods",
+    "karma and reward"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana’s radiant Pushpaka chariot blazes like the sun as it descends into the dark realm of Yama, illuminating the land of the dead.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "The Vaitarani river of blood where tormented souls struggle through burning sand while worms and dogs devour the damned on the banks.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Ravana stands blood-soaked on the battlefield, drawing the flaming Pashupata missile as Yama’s vast army surrounds him like storm clouds.",
+      "visual_strength": 0.88
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section of the Mahabharata continues the dialogue between Pandu and Kunti about how to obtain children despite Pandu’s inability to beget them. Pandu recounts older social customs, claiming that in ancient times women moved freely and were not bound exclusively to one husband. He explains that strict marital fidelity became law only after the sage Swetaketu, angered by seeing his mother taken by another man according to earlier custom, imposed a new rule. Pandu then cites precedents where wives conceived through other men for the sake of lineage, including Madayanti and even the Kuru line itself. Appealing humbly to Kunti, he asks her to bear children through a worthy Brahmana. Kunti responds by revealing a secret boon: a mantra given by the sage Durvasa that can summon any god to grant her offspring, setting the stage for the divine births of the Pandavas.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#F48FB1",
+      "why": "The eerie opening claim that a dead husband fathered children frames the unusual reproductive precedents Pandu later invokes."
+    },
+    {
+      "start": 500,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Pandu’s description of an earlier age when women moved freely and were not confined to one husband introduces a striking cultural contrast."
+    },
+    {
+      "start": 1100,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "The story of Swetaketu establishing monogamy explains the mythic origin of the moral code governing marriage."
+    },
+    {
+      "start": 1700,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Pandu’s humble plea—placing his hands upon his head and begging Kunti to bear children for him—reveals his desperation and vulnerability."
+    },
+    {
+      "start": 2200,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Kunti reveals the mantra given by Durvasa that can summon any god, a pivotal moment that leads directly to the divine conception of the Pandavas."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Pandu in the forest hermitage humbly folds his lotus-like hands and bows his head before Kunti as he pleads with her to bear children through another for the sake of the Kuru line.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Young Swetaketu watches in shock as a Brahmana calmly takes his mother by the hand before his father Uddalaka, sparking the anger that will establish a new marital law.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Kunti recalls the fierce sage Durvasa blessing her with a mystical mantra that can summon any god, the ascetic glowing with spiritual power as she listens in awe.",
+      "visual_strength": 0.86
+    }
+  ]
+}

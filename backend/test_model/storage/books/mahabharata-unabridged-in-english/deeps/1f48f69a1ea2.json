@@ -1,0 +1,31 @@
+{
+  "rich_summary": "This section moves the diplomacy and alliances that will shape the coming Kurukshetra war. Drupada sends a learned Brahmana priest to Hastinapura to speak righteously before Dhritarashtra and subtly weaken the loyalty of key Kaurava elders by reminding them of justice and the suffering endured by the Pandavas. Meanwhile both sides rush to gather allies. Arjuna travels to Dwaraka to seek Krishna’s support, but Duryodhana arrives as well. When Krishna awakens, he offers a choice: his vast Narayana army on one side, or himself alone on the other, unarmed and vowed not to fight. Arjuna chooses Krishna; Duryodhana gladly takes the army. Balarama then refuses to support either side, declaring neutrality. The episode highlights strategy, moral positioning, and the decisive importance of Krishna’s presence rather than mere military strength.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the political deception surrounding the dice game and frames the moral injustice done to Yudhishthira."
+    },
+    {
+      "start": 170,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "Shows the strategic plan to win hearts within the Kaurava court through appeals to righteousness and tradition."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna asleep in a royal chamber while Duryodhana sits proudly at the head of the bed and Arjuna stands humbly at Krishna’s feet with folded hands.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Krishna offering the choice—his immense Narayana army on one side and himself alone, unarmed, on the other—while Arjuna and Duryodhana face him in tense silence.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Arjuna choosing Krishna while Duryodhana smiles in satisfaction after securing the vast Narayana host.",
+      "visual_strength": 0.86
+    }
+  ]
+}

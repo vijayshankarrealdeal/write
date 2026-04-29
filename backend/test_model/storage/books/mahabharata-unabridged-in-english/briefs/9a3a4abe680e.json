@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Virabhadra destroys Daksha’s sacrifice under Shiva’s wrath, after which Daksha appeases Shiva with an immense hymn praising him as the cosmic absolute.",
+  "importance": 0.86,
+  "themes": [
+    "divine wrath",
+    "destruction of Daksha's sacrifice",
+    "cosmic nature of Shiva",
+    "repentance and appeasement",
+    "hymnic theology"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Virabhadra and hordes of terrifying spirit chiefs descend upon Daksha’s sacrifice as the sky darkens, mountains shake, and the gods flee in terror.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The monstrous hosts of Rudra tear apart the sacrificial arena, scattering vessels and food while rivers of milk and ghee flow across the shattered ground.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Shiva suddenly rises from the sacrificial fire pit blazing like a thousand suns while the trembling Daksha bows with folded hands.",
+      "visual_strength": 0.9
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Bhishma begins explaining why the sage Usanas (Sukra) sided with the Asuras, recounting how he used yoga to enter Kuvera and seize his wealth.",
+  "importance": 0.45,
+  "themes": [
+    "detachment and emancipation",
+    "impermanence of life",
+    "sage Sukra's origins",
+    "conflict between Devas and Asuras"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Through yogic power, the ascetic Usanas mystically enters Kuvera's body and seizes the celestial lord's vast treasure.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The distressed god of wealth Kuvera approaches the fierce and radiant Mahadeva to complain about the theft of his riches.",
+      "visual_strength": 0.67
+    }
+  ]
+}

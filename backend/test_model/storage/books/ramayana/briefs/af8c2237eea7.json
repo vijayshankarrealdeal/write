@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Palace attendants arrive to awaken the king with music and ritual, only to discover he has died, plunging the palace into grief.",
+  "importance": 0.75,
+  "themes": [
+    "royal death",
+    "palace ritual",
+    "sudden tragedy",
+    "grief of queens"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "At dawn musicians and bards fill the palace halls with song while servants wait with golden pitchers of scented water for the king to awaken.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Attendant women gently touch the king's body and recoil in terror as they realize he no longer breathes.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Queen Kaushalya and Sumitra lie pale and motionless in grief, like dim stars hidden behind dark clouds.",
+      "visual_strength": 0.7
+    }
+  ]
+}

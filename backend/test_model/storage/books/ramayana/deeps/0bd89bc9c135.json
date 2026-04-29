@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Ravana crosses the ocean and visits the forest hermitage of the demon Maricha, who has withdrawn into an ascetic life. After being received with ritual hospitality, Ravana explains the disaster at Janasthana: Rama single‑handedly slew Khara, Dushana, Trishiras, and fourteen thousand titans, avenging the mutilation of Ravana’s sister Shurpanakha. Burning with anger and humiliation, Ravana unveils a calculated plan for revenge. He intends to abduct Rama’s wife, Sita, believing her loss will destroy Rama with grief. To accomplish this, he asks Maricha—skilled in illusion—to transform into a dazzling golden deer that will lure Rama and Lakshmana away from the hermitage. The scheme marks the fateful beginning of the plot that will lead to Sita’s abduction and the great war to come.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Ravana’s arrival at the lonely forest hermitage introduces the meeting that will set the central deception of the epic in motion."
+    },
+    {
+      "start": 380,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Ravana recounts the staggering defeat of fourteen thousand demons by Rama alone, underscoring Rama’s mythic power."
+    },
+    {
+      "start": 900,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Ravana’s fury over Shurpanakha’s mutilation and his contemptuous description of Rama reveal the emotional motive behind his revenge."
+    },
+    {
+      "start": 1200,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "The crucial revelation: Ravana declares his plan to abduct Sita and asks Maricha to help execute it."
+    },
+    {
+      "start": 1420,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "The magical strategy is explained—Maricha must transform into a golden deer to lure Rama away from Sita."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Ravana, towering and regal, arrives at the lonely forest hermitage where the ascetic demon Maricha sits in black antelope skin beneath ancient trees.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Ravana passionately describing Rama’s slaughter of fourteen thousand demons while Maricha listens in tense silence inside the shadowed hermitage.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Ravana outlining the plot as an illusory golden deer gleams in imagination before them—its silver‑flecked hide glowing like magic in the forest dusk.",
+      "visual_strength": 0.86
+    }
+  ]
+}

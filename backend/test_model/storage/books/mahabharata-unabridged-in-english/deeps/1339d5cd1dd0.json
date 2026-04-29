@@ -1,0 +1,37 @@
+{
+  "rich_summary": "Tensions briefly flare among the Pandava allies when Satyaki and the Panchala prince nearly clash, but Sahadeva, Krishna, and Yudhishthira intervene and restore unity just as the larger battle resumes. The focus then shifts to Ashwatthaman, son of Drona, who unleashes devastating fury on the battlefield. After creating a gruesome carnage described as a mountain of the dead, he vows revenge for the deceptive killing of his father and calls on Duryodhana to rally the Kaurava army. Ashwatthaman then invokes the terrible Narayana weapon, filling the sky with blazing arrows, discs, maces, and iron missiles that devastate the Pandava forces. Overwhelmed and terrified, Yudhishthira momentarily loses hope, reflecting bitterly on Drona’s death and the moral cost of the war as his army begins to break under the weapon’s unstoppable power.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "Emphasizes the deep alliance between the Panchalas, Pandavas, and Vrishnis and the call for forgiveness among friends."
+    },
+    {
+      "start": 400,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "Captures the emotional confrontation where the Panchala prince challenges Satyaki and the warriors roar with rage."
+    },
+    {
+      "start": 800,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "Marks the dramatic moment where Ashwatthaman unleashes mass destruction and vows revenge for Drona."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Ashwatthaman stands amid a battlefield piled with corpses like a grotesque mountain of standards, elephants, and weapons while he roars his vow of vengeance.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "The Narayana weapon fills the sky as thousands of blazing arrows, discs, maces, and iron missiles descend upon the terrified Pandava army.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "Krishna and Yudhishthira struggle to restrain the enraged Satyaki and the Panchala prince as the two warriors glare and roar like fighting bulls.",
+      "visual_strength": 0.83
+    }
+  ]
+}

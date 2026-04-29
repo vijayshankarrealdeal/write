@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Allied kings and vast armies assemble on both sides, giving the Pandavas seven Akshauhinis and the Kauravas eleven before the Kurukshetra war.",
+  "importance": 0.6,
+  "themes": [
+    "war mobilization",
+    "alliances of kings",
+    "military scale",
+    "prelude to battle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vast ranks of soldiers, elephants, chariots, and banners gather like storm clouds across the plains around Hastinapura.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The Pandava army swells as Yuyudhana and other kings arrive with glittering weapons that flash like lightning among dark ranks.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The immense Kaurava host spreads across fields, forests, and riverbanks until the land itself seems covered with banners and troops.",
+      "visual_strength": 0.83
+    }
+  ]
+}

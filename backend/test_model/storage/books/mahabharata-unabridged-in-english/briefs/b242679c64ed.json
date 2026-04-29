@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa explains the hierarchy of senses, mind, intellect, and soul, teaching yogic self-realization and the disciplined conditions required to receive this highest spiritual knowledge.",
+  "importance": 0.72,
+  "themes": [
+    "Self-realization",
+    "hierarchy of consciousness",
+    "yogic discipline",
+    "Brahman and Prakriti",
+    "transmission of sacred knowledge"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A yogin sits motionless like a steady lamp in windless air, eyes closed, as faint radiance suggests the inner vision of the Supreme Soul within all beings.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A cosmic wheel of Time with twelve spokes and six seasonal hubs devours the universe as stars and creatures spiral toward its vast open mouth.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A charioteer guides powerful horses along a winding path, symbolizing the soul directing the senses with the mind as the sixth rein.",
+      "visual_strength": 0.72
+    }
+  ]
+}

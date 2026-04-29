@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Yudhishthira approves Kunti’s compassionate decision to help the afflicted Brahmana whose family was doomed to feed the man‑eating Rakshasa Vaka. Bhima secretly carries the food meant for the monster and deliberately provokes him by eating it himself. When the enraged Rakshasa attacks, Bhima ignores the blows until he finishes the meal, then calmly rises to fight. The two hurl uprooted trees and grapple with immense force, shaking the earth. Bhima eventually overpowers Vaka, breaks his body across his knee, and kills him. He warns the other Rakshasas to abandon cannibalism, leaves Vaka’s corpse at the town gate, and returns unseen. The townspeople later discover the body and marvel at the unknown hero, while the Brahmana conceals the Pandavas’ involvement. The episode highlights Bhima’s strength and the Pandavas’ hidden heroism while protecting the innocent.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Yudhishthira praises Kunti’s compassion for the Brahmana, establishing the moral motive behind Bhima’s mission."
+    },
+    {
+      "start": 180,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Bhima boldly eats the Rakshasa’s food while calling him out, a provocative act that initiates the legendary confrontation."
+    },
+    {
+      "start": 400,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "The dramatic moment when the Rakshasa strikes Bhima from behind but Bhima calmly continues eating, emphasizing his fearlessness and contempt."
+    },
+    {
+      "start": 620,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "The climax of the fight where Bhima overpowers Vaka, pins him down, and breaks him across his knee."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhima sits calmly eating the food meant for the demon while the massive red‑eyed Rakshasa Vaka storms out of the forest in fury.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Bhima casually catching a huge tree hurled by Vaka while shattered trunks litter the battlefield around them.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The final moment where Bhima pins the gigantic Rakshasa across his knee and breaks his back as the forest trembles.",
+      "visual_strength": 0.92
+    }
+  ]
+}

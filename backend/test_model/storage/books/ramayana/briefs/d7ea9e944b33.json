@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sumantra reports Ayodhya’s grief after Rama’s exile, and King Dasharatha laments bitterly, blaming his boons to Kaikeyi and longing to see Rama before death.",
+  "importance": 0.72,
+  "themes": [
+    "parental grief",
+    "consequences of rash vows",
+    "exile of Rama",
+    "collective mourning",
+    "fate and repentance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dasharatha collapses senseless on his couch, arms outstretched, after crying out for Rama, Lakshmana, and Sita in unbearable sorrow.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The royal chariot returns to Ayodhya without Rama as women on rooftops and balconies weep and cover their tear-filled eyes.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A silent forest appears mournful with withered shoots, still animals, and drooping lotuses as if grieving Rama’s departure.",
+      "visual_strength": 0.73
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Agni finds Indra hiding in a lotus stalk; the gods urge him to reclaim heaven from the powerful usurper Nahusha.",
+  "importance": 0.55,
+  "themes": [
+    "divine praise",
+    "Indra's return",
+    "usurpation by Nahusha",
+    "cosmic hierarchy",
+    "distribution of divine domains"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Agni, entering the waters, discovers Indra in miniature form hiding within the fibers of a lotus stalk in a quiet reservoir.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The assembled gods, sages, and Gandharvas stand before Indra as he gradually expands back into his radiant divine form.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Indra, surrounded by the guardians of the world, assigns dominions to Yama, Varuna, and Kuvera as the gods prepare to confront Nahusha.",
+      "visual_strength": 0.65
+    }
+  ]
+}

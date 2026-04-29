@@ -1,0 +1,49 @@
+{
+  "rich_summary": "After Rama’s exile, the shock within the palace of Ayodhya deepens into catastrophe: King Dasaratha dies of grief. The royal women discover the lifeless king and collapse in anguish, their wailing filling the palace. Queen Kaushalya cradles his body and bitterly rebukes Kaikeyi, whose ambition forced Rama into exile and, in her view, destroyed the Raghu dynasty. She laments Rama and Sita wandering in the forest, imagines the grief of Sita’s father Janaka, and even declares her intention to enter the funeral fire with her husband. Ministers intervene, preserving the king’s body in oil until Rama or the princes can return. As news spreads, the palace and city sink into collective mourning: Ayodhya becomes like a moonless night, bereft of joy and leadership.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "The opening tableau of the queens discovering Dasaratha’s body and collapsing in grief establishes the emotional shock that drives the chapter."
+    },
+    {
+      "start": 220,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "The striking image of Kaushalya lying in the dust ‘like a star fallen from the skies’ captures the collapse of royal dignity and cosmic order."
+    },
+    {
+      "start": 600,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "Kaushalya’s fierce condemnation of Kaikeyi and declaration that her ambition has destroyed the Raghu dynasty is the chapter’s pivotal accusation."
+    },
+    {
+      "start": 1040,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "The ministers preserving the king’s body in oil until the prince returns reflects ritual duty and the kingdom’s dependence on rightful succession."
+    },
+    {
+      "start": 1400,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "The closing description of Ayodhya like a moonless night transforms private grief into a city‑wide, almost cosmic mourning."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Queen Kaushalya sits on the palace floor cradling the lifeless body of King Dasaratha while grieving queens collapse around her in a dim royal chamber.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Royal ministers solemnly lower King Dasaratha’s body into a great oil-filled vessel while the palace women raise their arms and wail in mourning.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The city of Ayodhya at dusk—streets empty and unadorned, citizens weeping, the palace dark—like a moonless night after the king’s death.",
+      "visual_strength": 0.67
+    }
+  ]
+}

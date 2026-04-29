@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa teaches that wisdom, self-restraint, and yogic discipline are the raft and chariot that carry the soul across the perilous river of Time toward emancipation.",
+  "importance": 0.63,
+  "themes": [
+    "river of time metaphor",
+    "wisdom vs ignorance",
+    "Brahmanical duties",
+    "yoga discipline",
+    "path to liberation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A vast cosmic river filled with waves of months and seasons carries beings toward Yama while crocodiles of desire lurk beneath the waters.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A symbolic chariot made of body, senses as horses, scriptures as the whip, and the soul as rider moves along the pure path toward radiant Brahma.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A seeker clings to a fragile raft of knowledge while others sink in the dark river of Time, seized by crocodiles of desire.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "summary_1line": "After slaying Lavana, Shatrughna visits Valmiki’s hermitage, receives praise and hospitality, and listens to songs recounting Rama’s story.",
+  "importance": 0.46,
+  "themes": [
+    "sage hospitality",
+    "heroic praise",
+    "aftermath of Lavana’s death",
+    "oral recitation of Rama’s deeds"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "At Valmiki’s forest hermitage, the sage affectionately smells the crown of Shatrughna’s head after praising his victory over Lavana.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Shatrughna sits with his retinue in the hermitage while bards sing Rama’s history to the accompaniment of stringed instruments.",
+      "visual_strength": 0.65
+    }
+  ]
+}

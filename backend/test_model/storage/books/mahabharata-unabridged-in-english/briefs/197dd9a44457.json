@@ -1,0 +1,21 @@
+{
+  "summary_1line": "After Abhimanyu’s wedding, allied kings gather in Virata’s court where Krishna urges a peaceful embassy asking the Kauravas to return half the kingdom.",
+  "importance": 0.63,
+  "themes": [
+    "diplomacy before war",
+    "justice and rightful rule",
+    "Pandava exile",
+    "royal council",
+    "Krishna's counsel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In Virata’s gem-studded hall, Krishna sits beside Yudhishthira while assembled kings shine like stars in a fragrant, garlanded court.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Krishna rises in the royal assembly and addresses the gathered monarchs about the injustice done to the Pandavas.",
+      "visual_strength": 0.67
+    }
+  ]
+}

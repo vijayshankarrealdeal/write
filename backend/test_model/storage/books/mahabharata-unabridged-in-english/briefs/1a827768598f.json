@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa grants Sanjaya divine sight to narrate the war to Dhritarashtra and describes terrifying cosmic and earthly omens foretelling massive slaughter.",
+  "importance": 0.7,
+  "themes": [
+    "prophecy and fate",
+    "omens of catastrophe",
+    "divine vision",
+    "inevitability of war",
+    "cosmic disorder"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Vyasa stands before the blind king Dhritarashtra and blesses Sanjaya with celestial sight to witness the distant battlefield.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Dark skies swirl with red and white clouds while vultures and crows gather over the silent battlefield awaiting the coming slaughter.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Statues of gods tremble and appear to sweat blood while animals cry and meteors streak across a dust-choked sky above the trembling earth.",
+      "visual_strength": 0.86
+    }
+  ]
+}

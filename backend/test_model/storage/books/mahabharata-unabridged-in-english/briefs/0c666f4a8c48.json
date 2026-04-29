@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhrigu teaches that truth leads to righteousness and happiness while untruth leads to darkness and suffering, debating the nature of happiness and the fruits of virtuous acts.",
+  "importance": 0.58,
+  "themes": [
+    "truth vs untruth",
+    "happiness and suffering",
+    "righteousness",
+    "cosmic moral order",
+    "fruits of actions"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Bhrigu instructs Bharadwaja beneath a forest hermitage while describing truth as radiant light and untruth as engulfing darkness.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "The moon’s glow is dimmed as the demon Rahu eclipses it, symbolizing happiness fading under the shadow of darkness.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A serene vision of heaven with fragrant breezes and luminous light contrasts with shadowy realms of suffering below.",
+      "visual_strength": 0.66
+    }
+  ]
+}

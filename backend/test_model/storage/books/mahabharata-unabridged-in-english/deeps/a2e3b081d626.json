@@ -1,0 +1,49 @@
+{
+  "rich_summary": "After the mourning rites for the dead king, Bhishma, Kunti, and the court perform the sraddha ceremony and distribute gifts to Brahmanas before returning to Hastinapura. Yet grief still fills the kingdom. The sage Vyasa warns his mother Satyavati that the age is declining and that the Kuru dynasty will end through injustice; urging her to avoid witnessing its destruction, he advises her to retire to the forest. She departs with her daughters‑in‑law and eventually dies in ascetic contemplation. Meanwhile the young Pandavas grow up among the Kauravas, and Bhima’s immense strength dominates their childhood games—he drags, throws, and humiliates Dhritarashtra’s sons. These displays ignite Duryodhana’s jealousy and fear, leading him to secretly plan Bhima’s murder. He arranges a luxurious riverside pleasure house on the Ganga as the setting for his treacherous plot.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "The opening mourning scene sets the emotional tone, showing the collective grief of the royal family and citizens after the king’s death."
+    },
+    {
+      "start": 520,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "Vyasa’s warning about the moral decline of the world and the coming destruction of the Kuru empire foreshadows the epic’s central tragedy."
+    },
+    {
+      "start": 1080,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "The description of Bhima overpowering the Kaurava princes highlights his extraordinary strength and establishes the rivalry that drives the conflict."
+    },
+    {
+      "start": 1650,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Duryodhana’s internal resolve to kill Bhima marks the transition from childish rivalry to deliberate malice and conspiracy."
+    },
+    {
+      "start": 2100,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "The lavish water‑sport palace on the Ganga symbolizes the deceptive setting for Duryodhana’s planned treachery."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Vyasa solemnly warning the aged Satyavati in a dim royal chamber that the Kuru dynasty will perish, urging her to leave for the forest before the coming destruction.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Young Bhima effortlessly dragging and tossing multiple Kaurava princes in a dusty playground while the others struggle helplessly around him.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The princes arriving at the ornate riverside pleasure palace at Pramanakoti—bright flags waving, lotus ponds and fountains glittering beside the Ganga.",
+      "visual_strength": 0.78
+    }
+  ]
+}

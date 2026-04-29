@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna kills Bhagadatta after Krishna absorbs the Vaishnava weapon, then continues battling Gandhara princes Vrishaka and Achala.",
+  "importance": 0.8,
+  "themes": [
+    "divine intervention",
+    "heroic duel",
+    "invincible weapon",
+    "battlefield valor",
+    "fate and boon"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna stands before Arjuna and receives the blazing Vaishnava weapon on his chest, where it transforms into a radiant garland.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Arjuna fires a powerful arrow into the forehead of Bhagadatta's armored elephant, splitting it like thunder striking a mountain.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhagadatta falls from his golden-adorned elephant as his turban cloth drifts down like a lotus petal in the wind.",
+      "visual_strength": 0.82
+    }
+  ]
+}

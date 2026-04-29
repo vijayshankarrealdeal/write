@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Vyasa explains to King Drupada the divine origins of the Pandavas and Draupadi. Long ago several Indras incurred the displeasure of a fierce form of Shiva and were destined to be born as humans, where they would perform heroic deeds before returning to heaven. These celestial beings became the sons of Pandu, while Arjuna is specifically a portion of Indra himself. Narayana also incarnates through two hairs from his body, becoming Balarama and Krishna among the Yadus. Draupadi, meanwhile, is revealed to be the goddess Sri, destined to be the shared wife of the Pandavas. Vyasa grants Drupada divine sight so he can see the Pandavas in their radiant celestial forms. The passage legitimizes the unusual polyandrous marriage and elevates the epic’s heroes as incarnations acting under cosmic design.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the divine curse that sends celestial beings to be born as humans, establishing the mythic origin of the Pandavas."
+    },
+    {
+      "start": 620,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The text identifies the ancient Indras who will incarnate, laying groundwork for the Pandavas’ divine identities."
+    },
+    {
+      "start": 1360,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "The famous episode where Narayana creates Krishna and Balarama from black and white hairs—an iconic mythological motif."
+    },
+    {
+      "start": 2500,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Vyasa grants Drupada celestial sight, revealing the Pandavas in their divine forms and confirming their heavenly origin."
+    },
+    {
+      "start": 3600,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The emotional explanation of Draupadi’s destiny: her past-life prayer to Shiva results in her having five husbands."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Vyasa granting King Drupada celestial sight as the Pandavas appear before him in radiant divine forms with golden crowns and blazing auras.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Narayana plucking a black and a white hair from his body, the hairs transforming into the future forms of Krishna and Balarama entering Devaki and Rohini.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The maiden performing severe penance before Shiva, who appears and grants the fateful boon that she will have five husbands in a future life.",
+      "visual_strength": 0.8
+    }
+  ]
+}

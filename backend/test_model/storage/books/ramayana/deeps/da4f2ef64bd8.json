@@ -1,0 +1,43 @@
+{
+  "rich_summary": "After cursing the sons of Vasistha, the formidable sage Vishwamitra turns his attention to King Trishanku, who seeks the impossible: to enter heaven in his physical body. The gathered sages, fearing Vishwamitra’s legendary temper and the power of his asceticism, reluctantly assist him in a grand sacrifice. Yet when the rites are completed and the gods are invoked, none appear. Enraged, Vishwamitra uses his spiritual power to propel Trishanku bodily into the heavens. Indra rejects the king—already cursed by his guru—and hurls him back toward earth. As Trishanku falls, he cries out for help, and Vishwamitra halts him mid‑descent, suspending him in the sky. In fury, the sage begins creating an entirely new cosmos—stars, planets, and even rival gods—until the frightened deities negotiate a compromise: Trishanku will remain eternally suspended in a heaven fashioned by Vishwamitra. The episode reveals the terrifying creative power of ascetic austerity and the tension between sages and gods.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "The opening curse by Vishwamitra sets the emotional tone and demonstrates the destructive force of a sage’s wrath."
+    },
+    {
+      "start": 900,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "Vishwamitra declares he will send Trishanku to heaven in his physical body, the pivotal vow that drives the miracle and conflict with the gods."
+    },
+    {
+      "start": 1200,
+      "length": 260,
+      "color_hex": "#F48FB1",
+      "why": "Trishanku is rejected by Indra and hurled back to earth, crying for protection—one of the most dramatic reversals in the episode."
+    },
+    {
+      "start": 1450,
+      "length": 300,
+      "color_hex": "#A5D6A7",
+      "why": "In anger Vishwamitra begins creating new stars and celestial structures, revealing the mythic theme of ascetic power rivaling the gods."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "King Trishanku rises bodily into the sky from the sacrificial ground as astonished sages watch, lifted upward by Vishwamitra’s ascetic power.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Indra rejects Trishanku in the heavens and the king begins plunging headfirst back toward earth, arms outstretched, crying for Vishwamitra’s help.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Furious Vishwamitra stands amid the sages creating new stars and constellations in the dark sky while Trishanku hangs suspended upside down between heaven and earth.",
+      "visual_strength": 1.0
+    }
+  ]
+}

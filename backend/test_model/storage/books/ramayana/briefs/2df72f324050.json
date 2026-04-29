@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Spy Shardula reports Rama’s massive monkey army and his capture and release, but Ravana refuses to return Sita and asks for details of the enemy leaders.",
+  "importance": 0.62,
+  "themes": [
+    "spy report",
+    "enemy strength assessment",
+    "Rama's mercy",
+    "Ravana's defiance",
+    "impending war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bloodied and exhausted, the captured spy Shardula is dragged through ranks of towering monkeys and brought before Rama, who raises his hand and commands them to stop.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Across the sea near Mount Suvela, Rama stands surrounded by a vast army of monkeys arranged in the shape of Garuda, preparing to advance on Lanka.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "In his golden court of Lanka, Ravana listens sternly to the trembling spy while declaring he would never return Sita even if the whole world opposed him.",
+      "visual_strength": 0.72
+    }
+  ]
+}

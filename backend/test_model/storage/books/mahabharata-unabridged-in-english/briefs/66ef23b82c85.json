@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira laments the war’s guilt, and Bhishma begins a parable about fate and responsibility through Gautami, a fowler, and a serpent.",
+  "importance": 0.62,
+  "themes": [
+    "guilt and remorse",
+    "fate vs agency",
+    "forgiveness",
+    "moral causation",
+    "nonviolence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies on a bed of arrows, his body bleeding, while the grief-stricken Yudhishthira stands before him with folded hands.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "An angry fowler presents a serpent bound with a cord before the calm old woman Gautami beside the body of her dead child.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The bound serpent lifts its head and speaks in a human voice while the fowler and Gautami stare in astonishment.",
+      "visual_strength": 0.77
+    }
+  ]
+}

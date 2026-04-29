@@ -1,0 +1,49 @@
+{
+  "rich_summary": "These pages recount the tragic chain of events leading from Daksha’s insult to Shiva to the cosmic consequences that follow. Sati, distressed by her father’s hostility, first doubts Shiva’s reverence for Rama and tests the prince by assuming Sita’s form. Rama reveals his universal form (Vishvarupa), humbling Sati and deepening the moral weight of her disobedience to Shiva. Later, ignoring Shiva’s warning, she attends Daksha’s grand sacrifice where her father publicly insults Shiva. Unable to endure the dishonor and remorseful for her earlier actions, Sati meditates on Shiva and immolates herself in the sacrificial fire. Her death triggers divine retribution: Shiva creates the fierce warrior Virabhadra and the goddess Bhadra Kali to destroy Daksha’s yajna. The episode highlights devotion, cosmic justice, and the devastating consequences of pride and disrespect toward the divine.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 210,
+      "color_hex": "#A5D6A7",
+      "why": "Opening transition from praise of Shiva to the ominous mood surrounding Sati, setting the emotional and theological context for the tragedy."
+    },
+    {
+      "start": 2200,
+      "length": 240,
+      "color_hex": "#FFEB3B",
+      "why": "Rama’s divine recognition of Sati in disguise and his address to her as ‘Mother,’ revealing his omniscience and divine identity."
+    },
+    {
+      "start": 3600,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "The Vishvarupa (universal form) revelation, where Sati perceives the cosmos within Rama—a pivotal mythic theophany."
+    },
+    {
+      "start": 5200,
+      "length": 240,
+      "color_hex": "#F48FB1",
+      "why": "Sati’s anguished declaration that she will end her life rather than bear the dishonor brought upon Shiva."
+    },
+    {
+      "start": 7000,
+      "length": 230,
+      "color_hex": "#FFEB3B",
+      "why": "Shiva creates the terrible warrior Virabhadra and Bhadra Kali from his hair—an iconic mythic act of divine wrath."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Rama revealing his blazing Vishvarupa to Sati, with countless gods, suns, and cosmic beings appearing within his radiant universal body.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Sati seated in deep yogic meditation before the sacrificial fire, then leaping into the rising flames while sages and gods watch in shock.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Shiva tearing a braid from his matted hair and hurling it to the mountain, from which the colossal warrior Virabhadra and fierce Bhadra Kali emerge.",
+      "visual_strength": 0.95
+    }
+  ]
+}

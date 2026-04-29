@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vasudeva recounts Parashurama’s lineage, the curse on Kartavirya Arjuna, Jamadagni’s murder, and Rama’s repeated extermination of Kshatriyas before their eventual restoration.",
+  "importance": 0.73,
+  "themes": [
+    "Parashurama legend",
+    "curse and vengeance",
+    "Brahmana–Kshatriya conflict",
+    "cosmic order and kingship",
+    "lineage and destiny"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Parashurama, blazing with fury and wielding his divine axe, hacks off the thousand arms of King Kartavirya Arjuna in battle.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The sons of Arjuna spear the sage Jamadagni in his forest hermitage while the sacred cow stands nearby.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Rivers of blood soak the earth as Parashurama stands amid heaps of fallen Kshatriya warriors after his terrible vengeance.",
+      "visual_strength": 0.83
+    }
+  ]
+}

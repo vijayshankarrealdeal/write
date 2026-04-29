@@ -1,0 +1,18 @@
+{
+  "rich_summary": "Arjuna dazzles the gathered court with an extraordinary weapons exhibition, conjuring elemental forces—fire, water, wind, clouds, land, and mountains—and then making them vanish, while also demonstrating near-impossible feats of archery and martial dexterity. Just as the spectacle ends, a thunderous newcomer enters: Karna, radiant with natural armor and earrings, and immediately challenges Arjuna’s supremacy. The crowd is captivated as Karna replicates Arjuna’s feats, winning Duryodhana’s enthusiastic support and friendship. Tension erupts into open rivalry when Arjuna denounces Karna as an intruder, and Karna replies that true Kshatriyas prove themselves by might alone. As the two prepare to duel, cosmic imagery mirrors the conflict—Indra favoring Arjuna and the Sun shining upon Karna—while the assembly divides and Kunti faints, knowing the two warriors are unknowingly brothers.",
+  "highlight_spans": [],
+  "top_scenes": [
+    {
+      "scene_text": "Arjuna stands in the arena conjuring fire, water, wind, clouds, mountains, and vanishing landscapes with divine weapons as the astonished crowd watches.",
+      "visual_strength": 0.91
+    },
+    {
+      "scene_text": "Karna enters the arena like a golden warrior with natural armor and shining earrings, bow in hand, the crowd parting before him.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Arjuna and Karna face each other ready for combat while storm clouds gather above, the Sun illuminating Karna and Indra’s clouds sheltering Arjuna as the divided crowd looks on.",
+      "visual_strength": 0.93
+    }
+  ]
+}

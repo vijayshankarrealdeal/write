@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After gaining near-invulnerability from Brahma, the Asura brothers Sunda and Upasunda conquer the heavens and begin destroying sacrifices and Brahmanas on earth.",
+  "importance": 0.6,
+  "themes": [
+    "ascetic power",
+    "dangerous boons",
+    "demonic conquest",
+    "cosmic imbalance",
+    "persecution of sages"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Brahma appears before the ascetic brothers Sunda and Upasunda as they stand with matted locks and folded palms amid the steaming Vindhya mountains.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The armored Asura army marches under the night sky while bards sing as Sunda and Upasunda rise into the heavens to conquer Indra’s realm.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Daitya warriors hurl blazing sacrificial fires into rivers while terrified sages and Brahmanas flee their shattered forest hermitages.",
+      "visual_strength": 0.84
+    }
+  ]
+}

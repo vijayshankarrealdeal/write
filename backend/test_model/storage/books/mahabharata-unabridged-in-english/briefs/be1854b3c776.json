@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Sanjaya delivers Dhritarashtra’s message urging the Pandavas to choose peace, warning that war will destroy kin on both sides with no true victor.",
+  "importance": 0.55,
+  "themes": [
+    "appeal for peace",
+    "kinship and civil war",
+    "dharma versus ambition",
+    "inevitability of mutual destruction"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sanjaya stands before Yudhishthira, Krishna, and the assembled Pandava allies, hands folded in supplication as he delivers Dhritarashtra’s plea for peace.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "In a grand war council hall, the Pandavas, Krishna, Satyaki, and Panchala warriors listen gravely as the lone envoy Sanjaya speaks.",
+      "visual_strength": 0.66
+    }
+  ]
+}

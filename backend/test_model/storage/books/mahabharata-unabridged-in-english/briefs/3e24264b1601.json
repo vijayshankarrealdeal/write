@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira seeks guidance on duties; Vyasa directs him to the dying Bhishma, and after persuasion by Krishna, he prepares to approach him.",
+  "importance": 0.55,
+  "themes": [
+    "kingship duties",
+    "moral doubt",
+    "authority of Bhishma",
+    "postwar remorse",
+    "preparation for instruction"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vyasa, surrounded by sages, gestures toward the arrow‑bed of the aged Bhishma while Yudhishthira listens with bowed head.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Yudhishthira rides a white chariot drawn by sixteen white bullocks while Bhima holds the reins, Arjuna raises a shining white umbrella, and Nakula and Sahadeva fan him with yak‑tails.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Krishna speaks firmly to the grief-stricken Yudhishthira amid gathered kings and Brahmanas urging him to seek Bhishma’s counsel.",
+      "visual_strength": 0.72
+    }
+  ]
+}

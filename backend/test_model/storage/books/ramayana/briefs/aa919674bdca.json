@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sita passionately insists on accompanying Rama into exile, and moved by her unwavering resolve and devotion, Rama finally agrees and explains his duty to obey his father.",
+  "importance": 0.8,
+  "themes": [
+    "marital devotion",
+    "dharma and filial duty",
+    "exile decision",
+    "steadfast resolve"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita clings to Rama and weeps, tears falling like crystal drops as her moon-like face withers in grief.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Sita declares that the thorny forest will feel like heaven beside Rama, imagining herself walking with him among wild trees and dust-covered paths.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Rama lifts the fainting Sita into his arms, moved by her devotion, and finally agrees to take her with him into exile.",
+      "visual_strength": 0.82
+    }
+  ]
+}

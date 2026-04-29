@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman reflects on Sita’s virtue and the immense deeds done for her sake after finally beholding her in Lanka.",
+  "importance": 0.7,
+  "themes": [
+    "devotion to Sita",
+    "Rama’s love",
+    "fate and suffering",
+    "heroic deeds for love",
+    "Hanuman’s reverence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hidden among the branches, Hanuman gazes tearfully at the sorrowful Sita in worn garments, shining like dull gold amid the grove.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Hanuman bows silently in the trees, offering reverence in his mind to Sita below and to Rama far away.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Hanuman imagines Rama’s arrows blazing like tongues of fire as they strike down hordes of demons for Sita’s sake.",
+      "visual_strength": 0.67
+    }
+  ]
+}

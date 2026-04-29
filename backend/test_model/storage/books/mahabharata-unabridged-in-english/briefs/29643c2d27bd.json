@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The Brahmana explains how the three gunas—Goodness, Passion, and Darkness—always coexist, shape beings and worlds, and determine spiritual ascent, stagnation, or decline.",
+  "importance": 0.56,
+  "themes": [
+    "three gunas",
+    "cosmic interdependence",
+    "spiritual hierarchy",
+    "nature of the unmanifest",
+    "liberation through knowledge"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The rising sun shines over the earth as wicked men tremble in fear and weary travelers suffer under its burning heat.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A symbolic vision shows three intertwined forces—light, flame, and shadow—circling together within all creatures and objects of the world.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "A contemplative sage meditates on the vast, dark unmanifest source from which the three qualities subtly arise and move through the universe.",
+      "visual_strength": 0.58
+    }
+  ]
+}

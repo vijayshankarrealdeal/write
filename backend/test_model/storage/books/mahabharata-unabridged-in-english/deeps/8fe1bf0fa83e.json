@@ -1,0 +1,37 @@
+{
+  "rich_summary": "After Kichaka publicly kicks and humiliates Draupadi (disguised as Sairindhri) in King Virata’s court, she fiercely denounces the injustice. She laments that the mighty warriors who are her husbands—the Pandavas, living in disguise—endure the insult in silence. The courtiers sympathize with her beauty and dignity, though King Virata claims ignorance of the dispute. Yudhishthira, bound by their need to remain concealed, restrains Draupadi and urges patience, hinting that her unseen “Gandharva husbands” will eventually avenge her. Draupadi bitterly remarks that her husbands are too gentle and vulnerable because their eldest is addicted to dice. Retreating in grief, she resolves to act and secretly seeks Bhima at night. Overcome with anger and humiliation, she wakes him and demands vengeance against Kichaka, setting in motion the plan that will lead to the tyrant’s death.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Draupadi’s repeated lament that a Suta’s son has kicked the beloved wife of mighty heroes captures the humiliation and emotional intensity of the moment."
+    },
+    {
+      "start": 1200,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Yudhishthira’s restrained response urging Sairindhri to withdraw reveals the Pandavas’ strategic silence during their incognito exile."
+    },
+    {
+      "start": 2200,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Draupadi’s realization that only Bhima can accomplish her purpose marks the turning point from lament to decisive action."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Draupadi stands in Virata’s court with disheveled hair and tearful eyes, angrily denouncing Kichaka before shocked courtiers and a hesitant king.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "At night Draupadi enters the dim cooking quarters and awakens the sleeping Bhima, embracing him like a creeper around a mighty tree as she demands vengeance.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Draupadi, red‑eyed with anger and grief, runs through the palace corridors toward Sudeshna’s chambers after the public humiliation.",
+      "visual_strength": 0.75
+    }
+  ]
+}

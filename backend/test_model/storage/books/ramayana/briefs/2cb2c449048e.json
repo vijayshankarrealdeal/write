@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Manthara manipulates Queen Kaikeyi, arguing Rama’s coronation will endanger Bharata and urging Rama’s exile so Bharata can rule.",
+  "importance": 0.86,
+  "themes": [
+    "manipulation",
+    "succession anxiety",
+    "maternal fear",
+    "court intrigue",
+    "loyalty between brothers"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Manthara angrily throws the jeweled ornament to the floor while rebuking Queen Kaikeyi in the royal chamber.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The beautiful Queen Kaikeyi sits on her couch while the hunchback Manthara leans forward whispering urgent warnings about Rama’s coronation.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Manthara points dramatically as she warns that Rama will banish or kill Bharata if he becomes king.",
+      "visual_strength": 0.6
+    }
+  ]
+}

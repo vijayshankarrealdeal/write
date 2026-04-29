@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira asks the supreme refuge and religion, and Bhishma answers by extolling Vishnu and beginning the recitation of His thousand names.",
+  "importance": 0.9,
+  "themes": [
+    "Vishnu’s supremacy",
+    "devotional worship",
+    "sacred names",
+    "liberation from suffering",
+    "royal spiritual inquiry"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies on his bed of arrows while the gathered kings and sages listen as he begins reciting the thousand names of Vishnu to Yudhishthira.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Yudhishthira stands with folded hands before the arrow-pierced Bhishma, asking who the one supreme God and refuge of the world is.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A cosmic vision of Vishnu with four arms holding conch, discus, mace, and lotus, radiating light as countless divine attributes are proclaimed.",
+      "visual_strength": 0.8
+    }
+  ]
+}

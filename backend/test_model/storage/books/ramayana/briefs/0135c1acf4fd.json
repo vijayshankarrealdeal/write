@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Vishwamitra invites sages for a king’s sacrifice; Vasishtha’s sons refuse in outrage, and the enraged sage curses them.",
+  "importance": 0.45,
+  "themes": [
+    "sage rivalry",
+    "curse and anger",
+    "ritual purity",
+    "authority of ascetics"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vishwamitra, eyes blazing red with anger, raises his hand to curse the defiant sons of Vasishtha before assembled sages.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Disciples return to Vishwamitra’s forest hermitage reporting the insulting words of Vasishtha’s sons while gathered sages listen.",
+      "visual_strength": 0.52
+    }
+  ]
+}

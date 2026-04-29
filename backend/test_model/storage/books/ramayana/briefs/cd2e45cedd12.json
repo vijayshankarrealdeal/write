@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After failing to find Sita in Ravana’s palace, Hanuman falls into despair, imagines disastrous consequences, and resolves to continue searching, deciding to explore the Ashoka grove.",
+  "importance": 0.62,
+  "themes": [
+    "despair and resolve",
+    "duty to Rama",
+    "fear of failure",
+    "loyalty and sacrifice",
+    "hope after doubt"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman stands alone on Lanka’s ramparts at night, the city below him, as he broods in despair after failing to find Sita.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Hanuman bows with folded hands toward the heavens, invoking Rama and the gods before leaping toward the Ashoka grove.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "In his imagination, Hanuman envisions a chain of grief—Rama collapsing in sorrow while Ayodhya and the monkey hosts fall into despair.",
+      "visual_strength": 0.55
+    }
+  ]
+}

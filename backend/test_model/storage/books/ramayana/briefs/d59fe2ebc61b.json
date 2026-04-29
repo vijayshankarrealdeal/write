@@ -1,0 +1,24 @@
+{
+  "summary_1line": "A vulture and an owl dispute a nest before Rama; his judgment based on cosmic chronology exposes the vulture’s lie and reveals its cursed past.",
+  "importance": 0.46,
+  "themes": [
+    "justice and kingship",
+    "truth in judgment",
+    "cosmic creation myth",
+    "karma and curses"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A vulture and an owl argue before Rama seated on a throne in Ayodhya while ministers stand around the royal court.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "From Vishnu’s navel a golden lotus rises from the cosmic ocean with Brahma seated upon it as the universe begins to form.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama touches the vulture, which transforms into a radiant king as a celestial voice echoes from the sky.",
+      "visual_strength": 0.83
+    }
+  ]
+}

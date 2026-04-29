@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Rama devastates the Rakshasa armies, the Titan women mourn their dead and blame Shurpanakha and Ravana’s arrogance for Lanka’s ruin.",
+  "importance": 0.52,
+  "themes": [
+    "war aftermath",
+    "lamentation and grief",
+    "hubris and ignored counsel",
+    "blame and causation",
+    "recognition of Rama's power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rakshasa women gather among fields of fallen elephants, shattered chariots, and slain warriors, wailing over their dead beneath the smoky sky of Lanka.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "A circle of grieving Titan women, hair disheveled and arms raised, curse Shurpanakha while the burning battlefield glows behind them.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "The devastated battlefield stretches with thousands of fallen elephants, horses, and chariots pierced by Rama’s golden-feathered arrows.",
+      "visual_strength": 0.8
+    }
+  ]
+}

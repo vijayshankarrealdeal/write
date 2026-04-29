@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana’s wives rush to the battlefield, mourn his fallen body, and lament that his abduction of Sita and rejection of counsel brought their destruction.",
+  "importance": 0.62,
+  "themes": [
+    "grief and mourning",
+    "consequences of pride",
+    "fate and destiny",
+    "war’s aftermath",
+    "ignored counsel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana’s disheveled consorts run onto the gore-stained battlefield, wailing among headless bodies as they search for their fallen king.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The women collapse over Ravana’s massive corpse in the dust, some clutching his feet and neck while others faint and weep.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "One widow cradles Ravana’s head in her lap, her tears falling across his face like frost settling on a lotus.",
+      "visual_strength": 0.78
+    }
+  ]
+}

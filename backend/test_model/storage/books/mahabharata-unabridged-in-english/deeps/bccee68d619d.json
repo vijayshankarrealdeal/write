@@ -1,0 +1,49 @@
+{
+  "rich_summary": "The chapter describes the splendor of Yudhishthira’s royal assembly, where many renowned kings, warriors of the Vrishni race, Gandharvas, and celestial musicians gather to honor the Pandavas. Their presence signals Yudhishthira’s growing prestige and legitimacy as a ruler. Into this court arrives the celestial sage Narada, portrayed as a master of the Vedas, philosophy, politics, logic, and the sciences of governance and war. After being respectfully received and worshipped by Yudhishthira, Narada delivers an extensive series of probing questions about kingship. He asks whether the king governs justly, manages wealth properly, protects subjects, maintains secrecy in counsel, pays troops fairly, appoints wise ministers, supports agriculture and trade, avoids corruption, and restrains his own senses. The passage becomes a comprehensive manual of ideal statecraft, presenting a moral and administrative blueprint for righteous rule.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "The opening catalog of powerful kings and heroes emphasizes the grandeur of Yudhishthira’s court and the recognition of his authority."
+    },
+    {
+      "start": 520,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Narada’s introduction as a master of numerous sciences establishes his authority to advise and question the king."
+    },
+    {
+      "start": 1500,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "The beginning of Narada’s questioning of Yudhishthira marks the shift from narrative to a treatise on ideal kingship."
+    },
+    {
+      "start": 4200,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Discussion of ministers, spies, and secrecy reveals the sophisticated political theory embedded in the epic."
+    },
+    {
+      "start": 7800,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "The reminder to care for the families of soldiers who died for the king highlights the ethical and compassionate dimension of rulership."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The magnificent royal Sabha filled with kings, warriors, Gandharvas, and celestial musicians gathered around Yudhishthira on a jeweled throne.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The radiant sage Narada entering the court with companions, glowing with celestial energy as the Pandavas rise to greet him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Yudhishthira humbly offering Narada a ceremonial seat, gifts, and offerings while the assembled court watches in reverence.",
+      "visual_strength": 0.82
+    }
+  ]
+}

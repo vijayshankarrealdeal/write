@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Indra kills the three‑headed ascetic, provoking Twashtri to create Vritra; after struggle and deception aided by Vishnu, Indra slays Vritra but is overwhelmed by guilt.",
+  "importance": 0.8,
+  "themes": [
+    "divine conflict",
+    "deception and loopholes",
+    "cosmic justice and guilt",
+    "creation of Vritra",
+    "divine intervention"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra hurls his blazing thunderbolt at the three‑headed ascetic, whose massive body crashes to the earth like the peak of a mountain.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "When the carpenter severs the three heads, flocks of partridges, quails, and sparrows burst from the mouths and scatter into the sky.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "At twilight by the sea, Indra throws a mountain-like mass of ocean foam—charged with his thunderbolt and Vishnu’s power—at the towering Vritra.",
+      "visual_strength": 0.9
+    }
+  ]
+}

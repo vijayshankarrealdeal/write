@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Guha recounts Lakshmana’s refusal of comfort and his grief-filled vigil while Rama and Sita sleep on the forest floor during exile.",
+  "importance": 0.48,
+  "themes": [
+    "loyalty",
+    "exile hardship",
+    "brotherly devotion",
+    "dharma",
+    "foreboding for Ayodhya"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama and Sita sleep on a bed of grass by the river while Lakshmana stands guard through the night with bow in hand.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Guha offers Lakshmana a soft forest couch under the trees, but Lakshmana refuses while watching over the sleeping Rama.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Lakshmana gazes sorrowfully at Rama lying on the bare earth, lamenting the fate of Ayodhya and their grieving parents.",
+      "visual_strength": 0.7
+    }
+  ]
+}

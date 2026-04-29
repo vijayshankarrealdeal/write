@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Drupada’s sacrifice produces Dhrishtadyumna destined to kill Drona and the princess Draupadi, after which Kunti urges the Pandavas to journey to Panchala.",
+  "importance": 0.8,
+  "themes": [
+    "destiny and prophecy",
+    "sacrificial birth",
+    "revenge against Drona",
+    "divine intervention",
+    "future downfall of Kshatriyas"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "From the blazing sacrificial fire rises an armored warrior child, crowned and roaring, holding bow, arrows, and sword as the astonished Panchalas watch.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Moments later a dark‑complexioned maiden of radiant beauty emerges from the center of the altar flames, her lotus‑like eyes and blue‑black curls glowing in the firelight.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "An unseen celestial voice echoes over the crowded sacrificial ground while jubilant Panchalas raise a thunderous shout around the fire altar.",
+      "visual_strength": 0.7
+    }
+  ]
+}

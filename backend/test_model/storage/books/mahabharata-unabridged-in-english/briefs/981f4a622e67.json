@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira asks if lower castes can attain Brahmana status; Bhishma replies no and begins the story of Matanga, whose birth is revealed by a speaking she‑ass.",
+  "importance": 0.47,
+  "themes": [
+    "caste and birth status",
+    "Brahmanical ideals",
+    "moral conduct vs lineage",
+    "revelation of identity",
+    "didactic dialogue"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A she-ass tenderly speaks to her foal while Matanga stands shocked beside the cart he had driven harshly.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Matanga striking the young ass with a goad as the frightened animal runs toward its mother.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The she-ass confronts Matanga as he steps down from the cart, demanding to know how she knows his true birth.",
+      "visual_strength": 0.61
+    }
+  ]
+}

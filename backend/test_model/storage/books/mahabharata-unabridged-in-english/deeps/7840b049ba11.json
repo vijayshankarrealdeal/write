@@ -1,0 +1,43 @@
+{
+  "rich_summary": "This section recounts the dramatic aftermath of Arjuna’s vow to slay Jayadratha. Arjuna releases a mantra-charged arrow that severs Jayadratha’s head and miraculously carries it through the sky to fall onto the lap of his father, Vriddhakshatra; when the king rises, the head drops and the curse causes his own skull to shatter. Krishna then dispels the illusory darkness that had enabled Arjuna to fulfill his vow. As the battle resumes, Arjuna refuses to kill his elders Kripa and Ashwatthaman, fighting them with restrained force and later lamenting that he has wounded his own preceptor. Meanwhile Karna charges forward, prompting a spectacular duel between Karna and Satyaki. With Krishna’s chariot supplied by Daruka, Satyaki fights brilliantly, destroys Karna’s chariot, and throws the Kaurava army into dismay, while vows and rivalries continue to shape who may kill whom.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "The pivotal moment where Arjuna’s celestial arrow beheads Jayadratha, fulfilling his terrible vow."
+    },
+    {
+      "start": 200,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "The eerie fulfillment of the curse as Jayadratha’s head falls from his father’s lap and shatters the king’s skull."
+    },
+    {
+      "start": 1800,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Arjuna’s moral anguish about striking his own preceptor Kripa reveals the tension between warrior duty and reverence for teachers."
+    },
+    {
+      "start": 4200,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "The climactic clash between Karna and Satyaki begins, drawing the attention of the entire battlefield and even celestial spectators."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Arjuna’s blazing arrow flies through the sky carrying Jayadratha’s severed head across the battlefield like a hawk clutching prey.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Jayadratha’s head falls from his father Vriddhakshatra’s lap during evening prayers, and the king’s skull bursts apart under the curse.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Satyaki, riding Krishna’s radiant chariot driven by Daruka, duels Karna amid a silent battlefield while gods and warriors watch in awe.",
+      "visual_strength": 0.92
+    }
+  ]
+}

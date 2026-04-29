@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Night battle: Vrishasena wounds Drupada; Duhsasana disables Prativindhya; Nakula defeats and routs Sakuni before moving toward Drona.",
+  "importance": 0.45,
+  "themes": [
+    "night warfare",
+    "duels of warriors",
+    "heroic valor",
+    "battle imagery",
+    "shifting momentum"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Under scattered lamps at night, Vrishasena's arrow pierces Drupada's chest as the wounded king slumps in his chariot.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Nakula and Sakuni stand in their chariots bristling with arrows like porcupines, armor shattered and bodies blood-soaked.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Sakuni collapses on his chariot clutching the fallen flagstaff after Nakula's arrows strike his thigh.",
+      "visual_strength": 0.77
+    }
+  ]
+}

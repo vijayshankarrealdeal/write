@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After the sages leave, Rama departs the hermitage with Sita and Lakshmana and visits Sage Atri, who welcomes them and sends Sita to be instructed by Anasuya.",
+  "importance": 0.42,
+  "themes": [
+    "hospitality of sages",
+    "ascetic virtue",
+    "marital devotion",
+    "forest exile journey"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama, Sita, and Lakshmana arrive at Sage Atri’s forest hermitage and bow before the aged sage who greets them with fatherly affection.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "The frail, grey‑haired Anasuya, trembling like a wind‑shaken palm, receives Sita’s respectful bow outside the quiet hermitage.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Atri praises Anasuya’s austerities, describing how her penance once brought fruits and the Ganges to sustain starving sages.",
+      "visual_strength": 0.52
+    }
+  ]
+}

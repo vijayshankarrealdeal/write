@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains the spiritual merits of gifting cows, food, and especially water, emphasizing them as gifts of life that grant great heavenly rewards.",
+  "importance": 0.42,
+  "themes": [
+    "charity and gifts",
+    "sacred value of cows",
+    "gift of food",
+    "gift of water",
+    "religious merit"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A king ceremonially presents a richly adorned cow with garlands to a Brahmana before a sacred fire.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "A weary, hungry traveler receives a bowl of food and water at a humble doorway while the host bows respectfully.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "A clear spring of water flows from stone as people gather vessels to offer drink to thirsty pilgrims.",
+      "visual_strength": 0.55
+    }
+  ]
+}

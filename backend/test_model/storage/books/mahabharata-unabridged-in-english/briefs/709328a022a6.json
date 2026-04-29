@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna devastates the Kaurava army while advancing toward Jayadratha; Krishna creates false sunset with yoga to lure Jayadratha out for Arjuna’s vowed kill.",
+  "importance": 0.9,
+  "themes": [
+    "heroic warfare",
+    "divine strategy",
+    "vengeance vow",
+    "apocalyptic battlefield imagery",
+    "Krishna–Arjuna partnership"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna stands on his chariot with Krishna as charioteer, Gandiva blazing as thousands of fiery arrows fill the sky like meteors.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The battlefield becomes a river of blood and broken weapons, with severed banners, elephants, and chariots floating like rafts.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Under an artificial twilight created by Krishna, Jayadratha looks up at the darkened sky while Arjuna draws a divine arrow to strike.",
+      "visual_strength": 0.95
+    }
+  ]
+}

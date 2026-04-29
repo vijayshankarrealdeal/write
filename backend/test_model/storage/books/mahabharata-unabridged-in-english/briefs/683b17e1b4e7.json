@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains disciplined detachment and the practice of yoga meditation that restrains the senses and mind to realize the Self and attain liberation.",
+  "importance": 0.62,
+  "themes": [
+    "detachment from action",
+    "self-knowledge",
+    "sense restraint",
+    "yoga meditation",
+    "liberation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A solitary yogin sits motionless like a piece of wood in a silent forest hermitage, eyes closed as he withdraws all five senses into deep meditation.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "A calm sage walks across the surface of life like an aquatic bird gliding over water, untouched by the ripples beneath him.",
+      "visual_strength": 0.56
+    },
+    {
+      "scene_text": "A drop of water trembles and rolls across a lotus leaf, symbolizing the restless mind of a yogin struggling to stay fixed in meditation.",
+      "visual_strength": 0.73
+    }
+  ]
+}

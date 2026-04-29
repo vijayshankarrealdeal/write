@@ -1,0 +1,43 @@
+{
+  "rich_summary": "As Rama prepares for his final departure from the world, he first gives eternal commands to his companions. Hanuman is told to remain on earth as long as Rama’s story is told, while Jambavan is instructed to live until the beginning of the Kali Yuga. At dawn, Rama begins the Mahaprasthana—the great final journey. Guided by the sage Vasishtha and preceded by sacred fires and rituals, he walks toward the Sarayu River in solemn silence. The procession becomes cosmic: Lakshmi walks at his side, his weapons assume human form, and the Vedas, sacred syllables, sages, and deities accompany him. Citizens, animals, monkeys, bears, and even invisible beings follow him in devotion. Ayodhya empties as all creation joyfully joins Rama’s ascent toward heaven, turning his departure into a universal pilgrimage.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Hanuman vows to remain on earth as long as Rama’s sacred story is told, establishing the enduring presence of Rama’s legend in the world."
+    },
+    {
+      "start": 400,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "The beginning of Rama’s Mahaprasthana: after sacred rites, he leaves the palace barefoot, carrying kusa grass and reciting Vedic mantras as he sets out toward the Sarayu."
+    },
+    {
+      "start": 900,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "A mythic revelation where Lakshmi, divine weapons in human form, the Vedas, sacred syllables, sages, and deities accompany Rama—showing the cosmic nature of his departure."
+    },
+    {
+      "start": 1200,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "The entire world joins the procession: citizens, animals, monkeys, bears, and even invisible beings follow Rama, emphasizing his universal spiritual authority."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Rama walks barefoot from the palace at dawn toward the Sarayu, Lakshmi beside him while divine weapons in human form and sages bearing sacred fires follow in solemn procession.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "A vast mythic procession stretching from Ayodhya to the horizon—monkeys, bears, citizens, sages, animals, and gods all following Rama as the Vedas and the sacred syllable Om appear personified around him.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Hanuman standing before Rama with folded hands, solemnly vowing to remain on earth for as long as Rama’s story is told in the world.",
+      "visual_strength": 0.78
+    }
+  ]
+}

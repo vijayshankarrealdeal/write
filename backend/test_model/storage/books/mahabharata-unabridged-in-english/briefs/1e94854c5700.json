@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ashtavakra resists a woman's advances, proving his self-restraint; she reveals the encounter was a divine test arranged by his future father-in-law.",
+  "importance": 0.55,
+  "themes": [
+    "sexual temptation",
+    "self-restraint",
+    "tests of virtue",
+    "female independence debate",
+    "divine disguise"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A beautiful maiden bows before the ascetic Ashtavakra, pleading for his love while he stands firm in austere restraint.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The mysterious woman reveals her radiant divine form as the embodiment of the northern direction after testing Ashtavakra.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Ashtavakra with folded hands respectfully takes leave of the goddess in the northern mountains after passing her test.",
+      "visual_strength": 0.65
+    }
+  ]
+}

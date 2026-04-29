@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dhritarashtra laments his sons’ deaths as Sanjaya recounts a brutal battle where Pandavas concentrate attacks, Bhima devastates elephants, and carnage spreads across the field.",
+  "importance": 0.55,
+  "themes": [
+    "fate vs counsel",
+    "battle carnage",
+    "parental grief",
+    "heroic warfare",
+    "inevitability of downfall"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima charges into the Kaurava elephant division, arrows flying as wounded elephants with severed trunks crash to the blood-soaked earth.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The battlefield becomes a river of blood flowing among shattered chariots, broken banners, and fallen warriors glittering with gold ornaments.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Drona stands with bow drawn as terrified Srinjaya warriors fall around him, the field echoing with cries and groans.",
+      "visual_strength": 0.75
+    }
+  ]
+}

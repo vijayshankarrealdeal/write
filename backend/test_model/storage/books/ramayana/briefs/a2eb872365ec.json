@@ -1,0 +1,20 @@
+{
+  "summary_1line": "After hearing of Atikaya’s death, Ravana anxiously reflects on fallen warriors and orders stronger defenses around Lanka and the Ashoka Grove.",
+  "importance": 0.55,
+  "themes": [
+    "Ravana’s anxiety",
+    "aftermath of battle",
+    "defensive strategy",
+    "Rama’s growing power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana sits on his throne in a dark hall of Lanka, surrounded by anxious rakshasa generals as he hears that Atikaya has been slain.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Rakshasa sentinels rush to fortify the gates and walls of Lanka while the distant Ashoka Grove where Sita is guarded lies under heavy watch.",
+      "visual_strength": 0.57
+    }
+  ]
+}

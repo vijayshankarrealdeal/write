@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dhritarashtra questions Arjuna’s assault and Drona’s fall as Sanjaya recounts Duryodhana organizing defenses around Drona during a fierce night battle.",
+  "importance": 0.45,
+  "themes": [
+    "battle strategy",
+    "loyalty to Drona",
+    "night warfare",
+    "warrior duels",
+    "anxiety of Dhritarashtra"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna with white steeds drives into the Kaurava host at night, his arrows blazing like a raging conflagration among clustered chariots.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Duryodhana stands in the dark battlefield directing warriors to guard Drona’s chariot from every side while torches flicker over armored troops.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "In the dead of night, elephants, horses, and chariots collide amid showers of arrows, the battlefield roaring with chaos under a black sky.",
+      "visual_strength": 0.83
+    }
+  ]
+}

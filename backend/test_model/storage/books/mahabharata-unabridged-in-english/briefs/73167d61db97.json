@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Markandeya tells the Pandavas a tale where a prince accidentally kills a sage whose ascetic virtue renders death powerless over him.",
+  "importance": 0.42,
+  "themes": [
+    "power of asceticism",
+    "reverence for Brahmanas",
+    "karma and repentance",
+    "spiritual virtue over death"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A young prince in a forest of tall trees releases an arrow that strikes a black-antelope-clad sage he mistook for a deer.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Princes stand bewildered as the supposedly slain Brahmana reappears alive beside his ascetic father in the forest hermitage.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The grieving prince and chiefs bow before the austere sage Arishtanemi at his quiet hermitage amid trees and sacrificial fires.",
+      "visual_strength": 0.66
+    }
+  ]
+}

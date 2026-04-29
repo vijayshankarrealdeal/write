@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Akampana’s death, Ravana orders Prahasta to lead a massive sortie from Lanka against Rama’s monkey army, and Prahasta marches out with ritual and fanfare.",
+  "importance": 0.48,
+  "themes": [
+    "loyalty to a ruler",
+    "war preparations",
+    "counsel ignored",
+    "martial pride",
+    "omens and ritual"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Prahasta stands in a golden chariot with a serpent-banner as drums thunder and ranks of armored titans surge out of Lanka’s eastern gate.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Inside the banner-filled city of Lanka, Ravana consults his ministers with a dark expression after hearing of Akampana’s death.",
+      "visual_strength": 0.56
+    },
+    {
+      "scene_text": "Rakshasa warriors in armor offer clarified butter into sacred fire while garlands and fragrant wind swirl before they march to war.",
+      "visual_strength": 0.67
+    }
+  ]
+}

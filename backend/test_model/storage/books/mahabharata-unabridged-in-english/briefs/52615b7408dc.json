@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Abandoned in the forest, Damayanti survives dangers, kills a predatory hunter with a curse, receives a prophecy from ascetics, and continues searching for Nala.",
+  "importance": 0.72,
+  "themes": [
+    "marital devotion",
+    "trial in exile",
+    "chastity power",
+    "prophecy and hope",
+    "wandering in wilderness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Damayanti, dusty and half-clad, is trapped in the coils of a giant serpent in the dark forest while a hunter rushes forward with a raised blade.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "The enraged Damayanti curses the lustful hunter, who collapses lifeless at her feet like a burned tree in the shadowy woods.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Damayanti stands weeping beside a flowering Asoka tree in the deep forest, pleading with it for news of her lost husband.",
+      "visual_strength": 0.74
+    }
+  ]
+}

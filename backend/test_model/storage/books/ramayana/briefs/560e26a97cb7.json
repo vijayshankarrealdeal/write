@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bharata begs Rama to return and rule Ayodhya, but Rama responds with philosophical reflections on fate, impermanence, and duty.",
+  "importance": 0.7,
+  "themes": [
+    "brotherly loyalty",
+    "dharma and kingship",
+    "impermanence of life",
+    "fate and time",
+    "renunciation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata stands before Rama in the forest hermitage beside the Mandakini, pleading with folded hands while the gathered princes and sages watch in silence.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Rama sits calmly in the hermitage speaking to the grieving Bharata, surrounded by brothers and ascetics in the quiet forest morning.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "The royal brothers perform a dawn fire sacrifice on the bank of the Mandakini river as mist rises over the forest.",
+      "visual_strength": 0.72
+    }
+  ]
+}

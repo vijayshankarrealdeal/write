@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts Bharadwaja’s harsh statecraft teachings to King Satrunjaya on power, strategy, spies, and ruthless survival during times of social decay.",
+  "importance": 0.78,
+  "themes": [
+    "realpolitik kingship",
+    "chastisement and authority",
+    "strategy and deception",
+    "state security and spies",
+    "pragmatic morality"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A stern king sits with a raised rod of chastisement while frightened subjects and courtiers stand before him in a dim royal hall.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A disguised spy in ascetic robes with matted hair secretly observes enemies in a bustling foreign marketplace.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "A king smashes an earthen jar on a stone to symbolize destroying an enemy once the moment of opportunity arrives.",
+      "visual_strength": 0.65
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After being corrected by a chaste woman, the Brahmana Kausika travels to Mithila and learns from a virtuous fowler about duty, repentance, and true righteousness.",
+  "importance": 0.72,
+  "themes": [
+    "true virtue vs social status",
+    "dharma and duty by birth",
+    "repentance and moral reform",
+    "self-control and truthfulness",
+    "wise humility"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The Brahmana Kausika stands surprised before a humble fowler in a bustling butcher’s yard in Mithila, surrounded by buyers and hanging cuts of meat.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The fowler respectfully welcomes the Brahmana into his simple home, offering water to wash his feet while the ascetic guest sits thoughtfully.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Kausika journeys across forests and villages before arriving at the grand city of Mithila with flags, elephants, chariots, and busy streets.",
+      "visual_strength": 0.66
+    }
+  ]
+}

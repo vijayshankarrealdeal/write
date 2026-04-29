@@ -1,0 +1,25 @@
+{
+  "summary_1line": "With the rains ended, Rama laments Sita amid autumn’s beauty and grows angry that Sugriva delays sending the monkey armies to search for her.",
+  "importance": 0.63,
+  "themes": [
+    "longing for Sita",
+    "seasonal transition",
+    "duty and promises",
+    "kingship and war season",
+    "friendship and obligation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama sits on a golden mountain ridge under a clear autumn moon, gazing sadly across forests while cranes call in the distance.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "A calm lake filled with blooming lotuses holds a single sleeping swan beneath a bright full moon and countless stars.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Lakshmana stands beside the sorrowful Rama on the mountain slope as the sky clears after the monsoon and white geese fly across the horizon.",
+      "visual_strength": 0.72
+    }
+  ]
+}

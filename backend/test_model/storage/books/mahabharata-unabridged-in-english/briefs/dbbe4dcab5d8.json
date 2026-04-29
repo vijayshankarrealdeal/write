@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After years in Kuvera’s domain, the Pandavas decide to leave, journey across Kailasa and sacred regions, and continue their exile toward the lands of Suvahu.",
+  "importance": 0.39,
+  "themes": [
+    "exile journey",
+    "resolve for revenge",
+    "sacred landscapes",
+    "brotherhood counsel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira stands before the towering mountain, hands raised in prayer, asking to return after reclaiming his kingdom.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Ghatotkacha and his followers carry the Pandavas across roaring mountain cascades beneath the snowy heights.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "The Pandavas travel armed with bows along the craggy passes of Kailasa, surrounded by waterfalls, lion dens, and vast forests.",
+      "visual_strength": 0.68
+    }
+  ]
+}

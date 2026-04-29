@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama instructs Shatrughna on defeating Lavana by attacking before he retrieves Shiva’s weapon, then equips him with troops, wealth, and supplies for the mission.",
+  "importance": 0.46,
+  "themes": [
+    "battle strategy",
+    "divine weapon",
+    "royal command",
+    "military preparation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama addresses Shatrughna in the royal court while attendants stand beside rows of horses, chariots, and elephants prepared for the campaign.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Lavana the demon roams the wilderness hunting while his terrible divine weapon rests honored inside his dwelling.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Shatrughna stands armed with a drawn bow at the entrance of the Madhu forest, waiting to challenge Lavana before the demon reaches his weapon.",
+      "visual_strength": 0.77
+    }
+  ]
+}

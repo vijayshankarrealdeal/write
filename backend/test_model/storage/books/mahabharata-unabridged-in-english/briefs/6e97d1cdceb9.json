@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira reluctantly begins the dice game with Sakuni, who quickly wins the first stakes while the court watches uneasily.",
+  "importance": 0.78,
+  "themes": [
+    "gambling and deceit",
+    "fate versus choice",
+    "moral hesitation",
+    "courtly tension",
+    "manipulation by Sakuni"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a grand royal hall filled with silent kings, Sakuni casts the dice while Yudhishthira watches and elders like Bhishma and Vidura sit behind with troubled faces.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Sakuni calmly declares victory after the first throw of the dice as jeweled treasures lie staked before the assembly.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Rows of powerful kings seated on elevated colorful thrones fill the resplendent hall that shines like heaven during the fateful game of dice.",
+      "visual_strength": 0.62
+    }
+  ]
+}

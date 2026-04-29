@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhishma forms the Garuda battle array while the Pandavas counter with a half‑moon formation, leading to chaotic, brutal fighting across all divisions.",
+  "importance": 0.55,
+  "themes": [
+    "battle formations",
+    "chaos of war",
+    "heroic warfare",
+    "mass slaughter"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma stands at the beak of the vast Garuda-shaped Kaurava army as thousands of chariots, elephants, and banners spread out like wings behind him at dawn.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "A thick cloud of dust covers the battlefield as chariots, elephants, cavalry, and infantry clash blindly, guided only by banners and shouted watchwords.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "The battlefield is strewn with broken standards, weapons, and bodies while headless trunks still stand amid blood-soaked earth under a clearing sky.",
+      "visual_strength": 0.9
+    }
+  ]
+}

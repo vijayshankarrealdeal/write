@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Yudhishthira inaugurates Maya’s magnificent gem-built hall with vast charity to Brahmanas as sages and kings gather in celebration.",
+  "importance": 0.55,
+  "themes": [
+    "royal consecration",
+    "sacred charity",
+    "divine architecture",
+    "assembly of sages and kings"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira enters the dazzling gem-studded hall of Maya while musicians, bards, and performers celebrate around him.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Thousands of Brahmanas are fed lavish dishes while the king gifts each a thousand cows in a grand act of charity.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "The radiant sabha filled with sages, kings, and the Pandavas seated together beneath golden columns and jeweled walls.",
+      "visual_strength": 0.7
+    }
+  ]
+}

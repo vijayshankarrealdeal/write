@@ -1,0 +1,20 @@
+{
+  "summary_1line": "After Vichitravirya dies childless, Satyavati urges Bhishma to produce heirs, but he refuses, reaffirming his unbreakable vow of celibacy and truth.",
+  "importance": 0.7,
+  "themes": [
+    "dynastic crisis",
+    "dharma vs vow",
+    "celibacy and duty",
+    "royal succession"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Satyavati, grieving yet resolute, pleads with Bhishma in the royal hall to preserve the Kuru lineage after her son’s death.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Bhishma stands firm before the court, declaring that even if the elements abandon their nature, he will never abandon truth or his vow.",
+      "visual_strength": 0.85
+    }
+  ]
+}

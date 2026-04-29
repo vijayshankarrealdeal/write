@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Proud Salmali tree insults the Wind; Narada reports it, and the Wind confronts the boastful tree, which later secretly realizes its weakness.",
+  "importance": 0.5,
+  "themes": [
+    "pride and humility",
+    "divine power",
+    "boastfulness",
+    "wisdom versus strength"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Narada the sage stands before a towering Salmali tree on the Himalayan slopes as the tree boasts that its strength surpasses the raging Wind.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "The furious Wind-god appears before the great Salmali tree, his invisible force bending the surrounding forest while the tree laughs defiantly.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "In the quiet night, the Salmali tree broods alone and has its own branches cut off, leaving its trunk bare before the coming storm.",
+      "visual_strength": 0.85
+    }
+  ]
+}

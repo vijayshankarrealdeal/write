@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Kunti reveals Karna’s true birth and begs him to join the Pandavas, but Karna refuses out of loyalty to Duryodhana, promising to spare all brothers except Arjuna.",
+  "importance": 0.9,
+  "themes": [
+    "hidden parentage",
+    "loyalty vs blood",
+    "dharma and honor",
+    "maternal plea",
+    "fate"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Kunti stands before Karna at sunrise, confessing he is her son as the radiant sun glows behind him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A divine voice from the blazing solar disk speaks to Karna, affirming Kunti’s words while he stands silent and resolute.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Kunti, trembling with grief, embraces the unmoved Karna after he vows to fight Arjuna but spare her other sons.",
+      "visual_strength": 0.85
+    }
+  ]
+}

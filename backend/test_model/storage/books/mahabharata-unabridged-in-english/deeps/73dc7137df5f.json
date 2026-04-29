@@ -1,0 +1,55 @@
+{
+  "rich_summary": "Krishna arrives at the Kuru court in great splendour, greeted with universal respect. Dhritarashtra, Bhishma, Drona, and the assembled kings rise in honour, and Krishna takes a golden seat after acknowledging each elder. Sages led by Narada appear in the sky, and Krishna insists they be formally welcomed before anyone else proceeds, reinforcing the court’s duty to righteousness. Once silence falls, Krishna addresses Dhritarashtra with a powerful appeal for peace between the Kauravas and Pandavas. He praises the noble traditions of the Kuru lineage but warns that Duryodhana’s greed and injustice threaten universal destruction. Krishna argues that Dhritarashtra still has the authority to restrain his sons and avert war. If the Kurus and Pandavas unite rather than fight, he says, their combined strength would make the kingdom invincible and bring prosperity to the entire realm.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "The charged opening captures the emotional anticipation of Krishna’s arrival and the reverence felt by the assembled rulers."
+    },
+    {
+      "start": 310,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna’s majestic entrance into the court, compared to the sun outshining lesser lights, establishes his commanding presence."
+    },
+    {
+      "start": 1030,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "Krishna’s insistence that the sages be honored first highlights the theme of dharma and reverence for spiritual authority."
+    },
+    {
+      "start": 1780,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna clearly states the purpose of his visit: to establish peace between the Kurus and Pandavas and prevent mass slaughter."
+    },
+    {
+      "start": 2300,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "The warning about Duryodhana’s unrighteous conduct reveals the looming danger and moral crisis facing the Kuru house."
+    },
+    {
+      "start": 3100,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "Krishna’s vision of unity—Kurus and Pandavas together becoming invincible—expresses the central moral argument for peace."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna enters the magnificent Kuru court between Vidura and Satyaki as kings rise from their thrones, his presence shining like the sun among lesser lights.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Celestial sages led by Narada appear above the assembly while attendants rush to place gem-studded seats for them at Krishna’s request.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "In the silent royal hall, Krishna addresses the blind king Dhritarashtra while Duryodhana and Karna sit together nearby, tense beneath the gaze of the gathered rulers.",
+      "visual_strength": 0.9
+    }
+  ]
+}

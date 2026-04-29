@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Vishwamitra proposes marriages for Bharata and Shatrughna, and King Janaka agrees to wed all four daughters to Dasaratha’s four sons on an auspicious day.",
+  "importance": 0.66,
+  "themes": [
+    "marriage alliances",
+    "royal families",
+    "sage authority",
+    "auspicious rites",
+    "dynastic unity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In Janaka’s court, the sages Vishwamitra and Vasistha stand before the kings as Janaka humbly offers his daughters’ hands to the four princes.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "King Janaka with folded palms respectfully addresses the two great sages while the princes and courtiers watch in the royal hall of Mithila.",
+      "visual_strength": 0.58
+    }
+  ]
+}

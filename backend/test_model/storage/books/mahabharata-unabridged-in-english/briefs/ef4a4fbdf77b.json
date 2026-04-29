@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada describes Kuvera’s magnificent celestial assembly hall filled with jewels, music, divine beings, mountains, and even Shiva visiting his friend, the lord of treasures.",
+  "importance": 0.52,
+  "themes": [
+    "divine courts",
+    "wealth and splendor",
+    "cosmic hierarchy",
+    "music and celestial arts",
+    "friendship of deities"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Kuvera sits on a radiant throne in a jeweled hall floating in the sky while apsaras dance and gandharvas play celestial music.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Shiva with trident, surrounded by strange spirits and the white bull Nandi, arrives to sit beside his friend Kuvera in the glittering palace.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Personified mountains like Meru and Kailasa stand in human form among yakshas and gandharvas paying homage to Kuvera.",
+      "visual_strength": 0.7
+    }
+  ]
+}

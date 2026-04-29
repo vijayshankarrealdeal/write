@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Night battle escalates: Bhima devastates Kaurava princes; Somadatta challenges Satyaki; Drona ravages Pandava troops; Ghatotkacha and Aswatthaman clash amid terrifying Rakshasa illusions.",
+  "importance": 0.7,
+  "themes": [
+    "night warfare",
+    "vengeance and honor",
+    "superhuman combat",
+    "illusion and counter‑magic",
+    "escalation of battle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima leaps onto a Kalinga prince’s chariot and kills him with crushing bare fists, bones scattering across the battlefield.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The gigantic Rakshasa Ghatotkacha rides a monstrous eight‑wheeled iron chariot draped with skins and entrails, surrounded by roaring Rakshasas under the night sky.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Ghatotkacha hurls a blazing thousand‑spoked wheel at Aswatthaman, who shatters it midair with arrows that spark across the dark sky.",
+      "visual_strength": 0.87
+    }
+  ]
+}

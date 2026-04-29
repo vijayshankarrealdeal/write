@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Anasuya blesses Sita with gifts, ascetics warn Rama of demons in the forest, and the princes proceed onward as the Ayodhya Kanda concludes.",
+  "importance": 0.55,
+  "themes": [
+    "ascetic blessings",
+    "marital devotion",
+    "forest exile",
+    "danger of demons",
+    "transition of journey"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Anasuya embraces Sita in the forest hermitage at dusk as birds return and smoke from sacred fires drifts through the darkening trees.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Sita bows at Anasuya’s feet wearing newly gifted robes and ornaments while the moon rises over the quiet forest hermitage.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Rama and Lakshmana walk into the shadowy forest after receiving the sages’ blessing, like the sun entering a dark cloud.",
+      "visual_strength": 0.74
+    }
+  ]
+}

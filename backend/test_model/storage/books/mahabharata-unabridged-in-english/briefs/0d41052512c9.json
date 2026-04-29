@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains marriage, dowry, women’s status, and inheritance rules, arguing daughters and daughters’ sons can inherit while condemning selling daughters or forced unions.",
+  "importance": 0.52,
+  "themes": [
+    "marriage laws",
+    "dowry and bride-price",
+    "women's status",
+    "inheritance rights",
+    "moral condemnation of selling children"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged Bhishma lies upon his bed of arrows while instructing Yudhishthira about the duties of marriage and inheritance.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "A solemn father places ornaments upon his daughter as she is respectfully given in marriage before gathered kin.",
+      "visual_strength": 0.56
+    },
+    {
+      "scene_text": "Women of a household weep together in a dim courtyard as their grief is said to bring ruin upon the family.",
+      "visual_strength": 0.62
+    }
+  ]
+}

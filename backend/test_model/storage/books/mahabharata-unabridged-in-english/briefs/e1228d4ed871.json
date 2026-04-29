@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Shiva explains his four faces, bull mount, cremation-ground dwelling, and then expounds duties of householders, castes, and the paths of worldly duty and renunciation.",
+  "importance": 0.62,
+  "themes": [
+    "Shiva mythology",
+    "dharma and caste duties",
+    "householder ethics",
+    "renunciation and liberation",
+    "sacred symbolism"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "As the beautiful Tilottama circles him, Shiva sprouts four faces in different directions so he can keep gazing at her.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Blue‑throated Shiva stands with matted hair and the bow Pinaka, surrounded by ghostly beings in a cremation ground strewn with bones and funeral pyres.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Uma questions Shiva while seated beside him as sages gather around, listening reverently to his discourse on dharma.",
+      "visual_strength": 0.55
+    }
+  ]
+}

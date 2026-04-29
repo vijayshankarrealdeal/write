@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Duryodhana refuses to give the Pandavas any land; Krishna rebukes him by recounting his injustices, but Duryodhana angrily storms out.",
+  "importance": 0.78,
+  "themes": [
+    "arrogance and pride",
+    "justice and wrongdoing",
+    "failed diplomacy",
+    "kshatriya honor",
+    "inevitability of war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna, eyes red with anger, stands in the Kuru assembly rebuking Duryodhana while elders like Bhishma and Drona watch in tense silence.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Duryodhana rises like an enraged serpent from his throne and storms out of the royal court, ignoring the gathered elders and Krishna.",
+      "visual_strength": 0.76
+    }
+  ]
+}

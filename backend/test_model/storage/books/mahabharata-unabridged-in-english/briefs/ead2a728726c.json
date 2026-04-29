@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A Brahmana journeys to meet a Naga chief, waits fasting by the Gomati until the Naga returns from serving Surya.",
+  "importance": 0.42,
+  "themes": [
+    "ascetic devotion",
+    "hospitality duties",
+    "vows and fasting",
+    "pilgrimage journey",
+    "encounter with Nagas"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A solitary Brahmana sits in silent meditation on the banks of the Gomati, fasting beneath trees while groups of concerned Nagas gather around him.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The beautiful and dutiful wife of the absent Naga greets the Brahmana guest at the doorway of the serpent chief’s dwelling.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "The Brahmana travels through serene forests and sacred lakes on his determined journey toward the hidden residence of the Naga chief.",
+      "visual_strength": 0.55
+    }
+  ]
+}

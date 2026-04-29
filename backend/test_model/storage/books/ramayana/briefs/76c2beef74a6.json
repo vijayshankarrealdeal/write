@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Allied kings return home and send tribute to Rama, who redistributes the wealth to Sugriva, Vibhishana, Hanuman, Angada, and the monkey leaders.",
+  "importance": 0.42,
+  "themes": [
+    "gratitude and reward",
+    "alliance loyalty",
+    "royal generosity",
+    "tribute and gifts"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama seats Hanuman and Angada on his knees in the royal court and adorns them with rare ornaments from his own chest.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Monkey warriors joyfully place jewels and ornaments on their heads and arms after receiving gifts from Rama.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Long processions of kings depart on elephants and horses whose thunderous steps shake the earth as they leave Rama’s court.",
+      "visual_strength": 0.66
+    }
+  ]
+}

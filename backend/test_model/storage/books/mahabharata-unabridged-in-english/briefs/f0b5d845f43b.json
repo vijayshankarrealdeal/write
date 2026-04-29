@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhishma and Vyasa extol the sacredness of cows, describing their cosmic importance, the merit of gifting them, and the heavenly realm attained by their devotees.",
+  "importance": 0.41,
+  "themes": [
+    "sacredness of cows",
+    "charity and merit",
+    "ritual purity",
+    "heavenly rewards"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ancient cows, newly granted horns by Brahman, stand radiant in varied colors as they shine with divine beauty.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "A celestial realm where gem-studded rivers, golden sands, and flowering forests surround joyful souls riding radiant vehicles among Apsaras.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A devotee bows reverently before a gentle cow while offering ghee into a sacred fire beside him.",
+      "visual_strength": 0.67
+    }
+  ]
+}

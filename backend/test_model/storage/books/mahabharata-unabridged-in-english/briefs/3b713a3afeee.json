@@ -1,0 +1,20 @@
+{
+  "summary_1line": "A sage tests a righteous prince with deceitful political advice, then arranges reconciliation and ministership between him and King Janaka.",
+  "importance": 0.55,
+  "themes": [
+    "political deception vs righteousness",
+    "kingship and ministers",
+    "dharma in governance",
+    "reconciliation of enemies"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A stern sage in a forest hermitage introduces the exiled prince to King Janaka, praising the prince’s pure heart before the assembled court.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The righteous prince stands firm before the sage, refusing to rule through fraud and poison despite elaborate schemes being proposed.",
+      "visual_strength": 0.6
+    }
+  ]
+}

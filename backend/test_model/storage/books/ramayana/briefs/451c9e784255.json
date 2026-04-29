@@ -1,0 +1,24 @@
+{
+  "summary_1line": "As Rama and Ravana engage in a fierce chariot duel, ominous supernatural portents arise foretelling Ravana’s impending downfall.",
+  "importance": 0.83,
+  "themes": [
+    "final duel",
+    "divine intervention",
+    "omens and portents",
+    "fate of Ravana"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama and Ravana face each other on speeding chariots amid a storm of arrows while gods gather in the sky to watch the duel.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Dark vultures circle above Ravana’s chariot as blood rains down and meteors streak across the dimmed sky over Lanka.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Matali drives Indra’s chariot past Ravana’s with blinding speed, the wheels throwing dust across the battlefield.",
+      "visual_strength": 0.74
+    }
+  ]
+}

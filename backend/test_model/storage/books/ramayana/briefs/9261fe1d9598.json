@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama bids farewell to Sugriva, Vibhishana, and the monkey and bear allies, praising their loyalty and honoring Hanuman with a pearl necklace.",
+  "importance": 0.66,
+  "themes": [
+    "farewell and gratitude",
+    "loyalty and devotion",
+    "righteous kingship",
+    "honoring allies"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama rises from his throne and embraces Hanuman before placing a radiant pearl necklace with a shining emerald around his neck.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The gathered monkeys, bears, and rakshasas bow at Rama’s feet in the royal court before departing.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Hanuman stands with the pearl garland glowing on his chest, shining like Mount Sumeru under the moon.",
+      "visual_strength": 0.84
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Bhishma recounts the moment he accepts Parashurama’s challenge and rides to Kurukshetra for their fateful duel. After informing Satyavati and receiving blessings, Bhishma departs in a magnificent white chariot, ceremonially armed and accompanied by Brahmanical benedictions. At Kurukshetra, sages, gods, and ascetics gather to witness the extraordinary clash. Bhishma’s divine mother Ganga appears and urges him to avoid fighting Parashurama, the legendary Brahmin warrior who once exterminated the Kshatriyas, but Bhishma refuses to withdraw. When the combat begins, Parashurama declares the Earth itself his chariot and the Vedas his steeds, symbolizing his spiritual power. Yet he also manifests a celestial chariot by will. Before fighting, Bhishma descends, reverently salutes his teacher, and asks for his blessing—revealing the tension between duty, reverence, and warrior honor that defines this legendary encounter.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Rama’s direct challenge to Bhishma sets the duel in motion and frames the confrontation between disciple and teacher."
+    },
+    {
+      "start": 650,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "The elaborate description of Bhishma’s white chariot and attire symbolizes purity, ritual preparation, and the sacred gravity of the battle."
+    },
+    {
+      "start": 1500,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Ganga’s appearance and plea for Bhishma to avoid fighting introduces maternal concern and the emotional stakes behind the heroic conflict."
+    },
+    {
+      "start": 2400,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Parashurama’s declaration that the Earth is his chariot and the Vedas his steeds is a striking symbolic statement of spiritual power over worldly warfare."
+    },
+    {
+      "start": 3100,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "Bhishma stepping down to salute his guru before battle captures the epic’s core theme: duty and reverence coexisting even in mortal combat."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhishma rides toward Kurukshetra in a gleaming white chariot beneath a white umbrella while Brahmanas chant blessings and the wind-whipped horses race forward.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The river-goddess Ganga appears before Bhishma on the battlefield, luminous and sorrowful, pleading with her armored son not to fight Parashurama.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Parashurama stands on the field declaring the Earth his chariot and the Vedas his steeds as celestial spectators gather in the sky above Kurukshetra.",
+      "visual_strength": 0.88
+    }
+  ]
+}

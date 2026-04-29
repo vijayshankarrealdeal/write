@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna stuns the Kuru army with the Sanmohana weapon, humiliates Duryodhana, spares surrendered soldiers, and returns the recovered cattle to Virata.",
+  "importance": 0.72,
+  "themes": [
+    "heroic prowess",
+    "mercy to enemies",
+    "humiliation of Duryodhana",
+    "battlefield ethics",
+    "victory and restraint"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna stands on his chariot blowing the conch Devadatta while the Kuru warriors around him drop their bows and stand stunned.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Uttara runs among the unconscious Kuru heroes on the battlefield, gathering their brightly colored garments as Arjuna watches from the chariot.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "With a precise arrow, Arjuna shatters the jewel-studded crown of Duryodhana while saluting the elders on the battlefield.",
+      "visual_strength": 0.8
+    }
+  ]
+}

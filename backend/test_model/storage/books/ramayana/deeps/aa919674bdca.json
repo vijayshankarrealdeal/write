@@ -1,0 +1,55 @@
+{
+  "rich_summary": "Sita passionately argues that she must accompany Rama into exile. Reminding him of a prophecy that she would live in the forest and declaring absolute marital devotion, she insists that hardship beside him will feel like comfort, while life without him would be unbearable. When Rama still hesitates, she sharply rebukes him, suggesting that if he were truly brave he would not try to leave her behind. She vows that even forest thorns, dust, and austere food will seem like luxuries in his presence and threatens death if forced to remain. Overcome by her grief and resolve, Rama finally relents, explaining that he had tested her resolve and that obedience to parents is sacred, before agreeing to take her with him.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Sita recalls the prophecy and frames her forest life as part of destiny, setting the spiritual tone of her decision."
+    },
+    {
+      "start": 430,
+      "length": 150,
+      "color_hex": "#F48FB1",
+      "why": "Sita threatens death rather than separation, revealing the emotional intensity and absolute devotion central to the episode."
+    },
+    {
+      "start": 920,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Her bold, almost teasing rebuke of Rama—questioning his courage—marks the turning point in their debate."
+    },
+    {
+      "start": 1310,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "Sita poetically transforms forest hardships into delights when shared with Rama, expressing the epic ideal of marital devotion."
+    },
+    {
+      "start": 1960,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The vivid imagery of Sita weeping like a wounded elephant and withering like a lotus intensifies the emotional climax."
+    },
+    {
+      "start": 2300,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "Rama finally acknowledges her fixed resolve and agrees to take her, concluding the moral and emotional conflict."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Sita stands before Rama in the palace chamber, tearful yet defiant, declaring she will follow him to the forest even through thorns and hardship.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Sita collapses in grief, weeping like a wounded elephant, while Rama gathers her fainting form into his arms.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama, solemn and compassionate, finally accepts Sita’s resolve and promises she will accompany him into exile.",
+      "visual_strength": 0.74
+    }
+  ]
+}

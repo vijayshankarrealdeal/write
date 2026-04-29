@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Sita tearfully insists on accompanying Rama to the forest, arguing that devotion and destiny bind her to him despite the hardships he describes.",
+  "importance": 0.55,
+  "themes": [
+    "marital devotion",
+    "dharma of a wife",
+    "exile",
+    "destiny and prophecy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita stands before Rama with tears on her cheeks, pleading softly as he tries to dissuade her from following him into the forest.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Sita imagines fierce forest beasts—lions, elephants, and birds—fleeing in terror at the sight of Rama’s radiant face.",
+      "visual_strength": 0.6
+    }
+  ]
+}

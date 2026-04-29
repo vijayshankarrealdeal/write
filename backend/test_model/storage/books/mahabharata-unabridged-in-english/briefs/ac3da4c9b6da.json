@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Traveling with a merchant caravan while searching for Nala, Damayanti survives a midnight elephant stampede and is later blamed for the disaster, forcing her to flee again.",
+  "importance": 0.55,
+  "themes": [
+    "misfortune and destiny",
+    "isolation in exile",
+    "mob suspicion",
+    "endurance in suffering"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "At midnight a raging herd of wild elephants storms through the sleeping caravan beside the lotus lake, crushing tents, men, camels, and horses in chaos.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Damayanti stands terrified in the dark forest as merchants shout accusations, calling her a demon responsible for the disaster.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The dawn reveals the shattered caravan around the lotus lake, bodies and broken carts scattered while survivors mourn their dead.",
+      "visual_strength": 0.8
+    }
+  ]
+}

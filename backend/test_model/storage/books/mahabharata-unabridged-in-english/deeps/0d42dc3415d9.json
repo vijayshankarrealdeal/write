@@ -1,0 +1,49 @@
+{
+  "rich_summary": "These sections recount the rise of Skanda (Kartikeya) as a divine war leader. Surrounded by gods, sages, planets, and fierce Mother goddesses, the young deity attracts the attention of Indra, who marches against him with the celestial army. When the gods attack, Skanda releases flames from his mouth that devastate their forces. Indra strikes him with the thunderbolt, but from the wound another powerful youth, Visakha, is born, terrifying the gods and forcing Indra to seek Skanda’s protection. The sages then urge Skanda to become ruler of the three worlds, yet he refuses Indra’s throne and instead accepts the role of commander of the celestial hosts. Honored by the gods and blessed with divine virtues, Skanda is anointed as the general who will lead the gods against the Danavas.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 75,
+      "color_hex": "#A5D6A7",
+      "why": "Shows the early nurturing of the divine child by the Mothers and establishes Skanda’s sacred protection."
+    },
+    {
+      "start": 120,
+      "length": 110,
+      "color_hex": "#FFEB3B",
+      "why": "The moment when Indra advances with the celestial army against Skanda, initiating the central confrontation."
+    },
+    {
+      "start": 420,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Skanda unleashes destructive flames that burn the celestial hosts, revealing his terrifying divine power."
+    },
+    {
+      "start": 900,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The thunderbolt strike and the miraculous birth of Visakha from Skanda’s wounded side."
+    },
+    {
+      "start": 1800,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Skanda refuses Indra’s sovereignty and instead chooses loyalty and service, emphasizing his character and cosmic order."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The infant war‑god Skanda surrounded by fierce Mother goddesses and the fire‑god Agni, watching over him on a mountain.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Skanda roaring like the ocean as flames burst from his mouth, burning the charging celestial army of Indra.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Indra’s thunderbolt striking Skanda and from the wound a radiant warrior, Visakha, emerging with a club in hand.",
+      "visual_strength": 0.9
+    }
+  ]
+}

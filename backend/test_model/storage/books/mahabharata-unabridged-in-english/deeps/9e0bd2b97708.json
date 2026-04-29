@@ -1,0 +1,49 @@
+{
+  "rich_summary": "In the final book of the Mahabharata, Yudhishthira reaches Heaven but is shocked to see Duryodhana honored there. Refusing to share bliss with the man he blames for the war, he demands to see his brothers and the other fallen heroes. Led away by a celestial guide, he instead encounters a horrifying hellish path where suffering souls call out to him—revealing themselves as Karna, the Pandavas, and Draupadi. Refusing to abandon them, Yudhishthira chooses to remain in hell for their sake. The gods then reveal the scene as a final test of his righteousness: the torment was an illusion meant to complete the small remainder of his karmic debt. After bathing in the heavenly Ganga, he gains a celestial form and is reunited with the heroes of the epic in their divine states. The text closes by explaining the ultimate destinies of major warriors and praising the Mahabharata as a sacred, purifying history.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The opening invocation and framing of the final book signal the epic’s sacred tone and transition to the story’s ultimate resolution."
+    },
+    {
+      "start": 450,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Yudhishthira’s anger on seeing Duryodhana honored in heaven captures the lingering moral tension of the war."
+    },
+    {
+      "start": 1200,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Yudhishthira declares he cannot consider heaven meaningful without his brothers, revealing the central theme of loyalty over personal salvation."
+    },
+    {
+      "start": 2200,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "The haunting moment when suffering voices reveal themselves as Karna, the Pandavas, and Draupadi heightens the emotional climax."
+    },
+    {
+      "start": 3600,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "Indra explains the illusion and the karmic logic of heaven and hell, resolving the moral puzzle of why the righteous appeared to suffer."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Yudhishthira stands in radiant heaven staring in shock and anger as the glorious, sunlike Duryodhana sits honored among the gods.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Yudhishthira walks a horrifying path through a hellish landscape of darkness, corpses, fire, and rivers of boiling water while unseen voices cry out to him.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "After bathing in the celestial Ganga, Yudhishthira in a radiant divine form reunites with the Pandavas, Krishna, and the heroes of the epic in heaven.",
+      "visual_strength": 0.88
+    }
+  ]
+}

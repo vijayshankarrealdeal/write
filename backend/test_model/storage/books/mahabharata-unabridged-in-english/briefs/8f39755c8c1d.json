@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma outlines ethical and practical duties of kings—protection of subjects, secrecy of counsel, righteous conduct, wise advisors, and just governance.",
+  "importance": 0.6,
+  "themes": [
+    "kingship duties",
+    "protection of subjects",
+    "ethical governance",
+    "political secrecy and spies",
+    "righteous conduct"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A cruel prince throws children into the flowing Sarayu while horrified townspeople watch from the riverbank.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "An aged king sits beneath a royal umbrella surrounded by loyal ministers while spies whisper reports in the shadows of the court.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A just king stands before peaceful citizens who walk fearlessly through a prosperous city under his protection.",
+      "visual_strength": 0.62
+    }
+  ]
+}

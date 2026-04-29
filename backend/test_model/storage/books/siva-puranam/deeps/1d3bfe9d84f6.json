@@ -1,0 +1,49 @@
+{
+  "rich_summary": "These pages narrate the sacred marriage of Shiva and Parvati, highlighting divine ritual, cosmic symbolism, and tender moments between the couple. After Parvati’s invitation reaches Kailasa, the gods prepare magnificently for the wedding. Shiva arrives at the Himalayan capital with celestial hosts and humbly bows at a shrine of Rama and Sita. The couple share a silent, powerful exchange of love before the ceremony. During the rite, Narada explains that Shiva has no lineage because he is the source of all creation, astonishing the assembly. The marriage is sealed with the tying of the mangala sutra and Vedic rites. Later scenes show playful affection at the wedding feast, Shiva restoring Manmatha to life, and philosophical teaching about the unity of the Trinity. The chapter closes with emotional farewells as Parvati leaves her parents for Kailasa.",
+  "highlight_spans": [
+    {
+      "start": 26,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the sacred context of fixing the auspicious muhurta and Parvati offering her heart to Shiva before the wedding."
+    },
+    {
+      "start": 950,
+      "length": 210,
+      "color_hex": "#FFEB3B",
+      "why": "Shiva humbly descends to salute Rama and Sita at their shrine, a striking moment of divine devotion within divinity."
+    },
+    {
+      "start": 1300,
+      "length": 210,
+      "color_hex": "#F48FB1",
+      "why": "The silent exchange of glances between Shiva and Parvati captures the emotional core of their union and divine love."
+    },
+    {
+      "start": 2600,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "Narada’s explanation during the Pravara episode reveals Shiva as the source of all creation, a key theological declaration."
+    },
+    {
+      "start": 4100,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Playful interaction during the wedding feast—Shiva calling Parvati’s heart the only sweetness—humanizes the divine couple."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Shiva dismounts his bull before a temple shrine where Rama and Sita appear alive to bless the bashful bridegroom while celestial guests watch in awe.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "From the palace terrace Parvati gazes down at the arriving wedding procession as Shiva looks up, their eyes meeting in a silent exchange of divine love.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "In the wedding hall Shiva ties the mangala sutra around Parvati’s neck as priests chant Vedic hymns and gods shower blessings.",
+      "visual_strength": 0.9
+    }
+  ]
+}

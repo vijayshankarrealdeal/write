@@ -1,0 +1,25 @@
+{
+  "summary_1line": "King Dasharatha confesses that his present misery comes from a youthful mistake when he accidentally killed a hermit boy by shooting at a sound.",
+  "importance": 0.8,
+  "themes": [
+    "karma and consequences",
+    "tragic mistake",
+    "confession and guilt",
+    "filial devotion",
+    "fate and suffering"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the dark beside the Sarayu river, Dasharatha releases a poisoned arrow toward a sound, only to hear a wounded youth cry out in the night.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The dying hermit boy lies bleeding on the forest ground beside a spilled water pot, fixing the horrified king with a burning gaze.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Dasharatha stands frozen in the rainy forest as the wounded ascetic youth laments that his blind, thirsty parents are waiting for him.",
+      "visual_strength": 0.82
+    }
+  ]
+}

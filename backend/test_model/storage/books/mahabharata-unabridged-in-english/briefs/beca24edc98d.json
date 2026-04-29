@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Drona foresees ominous signs of Bhishma’s impending fall and instructs his son to confront Arjuna and Sikhandin as the Pandava assault intensifies.",
+  "importance": 0.75,
+  "themes": [
+    "ominous portents",
+    "duty of a warrior",
+    "approaching fall of Bhishma",
+    "father-son counsel",
+    "battle strategy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Drona stands in his chariot amid the battlefield, pointing out dark omens in the sky as vultures circle and meteors streak past the dimmed sun.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arjuna with Krishna driving the chariot charges forward with the ape-banner flying, arrows raining as the Kaurava army recoils like waves before a whale.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Drona solemnly instructs his son before battle while the battlefield trembles with jackals howling and warriors in golden armor preparing for carnage.",
+      "visual_strength": 0.78
+    }
+  ]
+}

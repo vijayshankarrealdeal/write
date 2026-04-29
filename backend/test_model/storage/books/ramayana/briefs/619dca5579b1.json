@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Angada condemns Sugriva’s morality and, fearing punishment, vows to fast to death rather than return to Kishkindha.",
+  "importance": 0.48,
+  "themes": [
+    "despair",
+    "loyalty and betrayal",
+    "fear of royal power",
+    "honor and suicide vow"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Angada, surrounded by weary monkeys on a rocky shore, raises his hand in a solemn vow to fast until death.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The monkey warriors sit despondently on the barren ground as Angada speaks bitterly about Sugriva’s betrayal.",
+      "visual_strength": 0.61
+    }
+  ]
+}

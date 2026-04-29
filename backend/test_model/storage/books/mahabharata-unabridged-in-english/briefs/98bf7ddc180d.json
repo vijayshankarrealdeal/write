@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After being deceived about his son’s death, Drona lays down his arms, enters yogic meditation, is beheaded by Dhrishtadyumna, and the Kaurava army collapses in panic.",
+  "importance": 0.9,
+  "themes": [
+    "deception in war",
+    "death of Drona",
+    "yogic liberation",
+    "revenge of Dhrishtadyumna",
+    "collapse of Kaurava morale"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Drona sits cross‑legged in meditation on his chariot, eyes closed and weapons laid aside, while Dhrishtadyumna rushes toward him with a raised sword.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "A radiant spirit like a second sun rises from the blood‑covered body of Drona and ascends into the blazing sky as a few witnesses watch in awe.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Dhrishtadyumna lifts and throws Drona’s severed head before the Kaurava warriors, who recoil and scatter in terror across the battlefield.",
+      "visual_strength": 0.86
+    }
+  ]
+}

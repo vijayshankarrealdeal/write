@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhishma praises the Ajagara vow of effortless acceptance, then begins a tale where Indra (as a jackal) counsels the despairing Brahmin Kasyapa on valuing human life and wisdom.",
+  "importance": 0.6,
+  "themes": [
+    "ascetic detachment",
+    "wisdom as refuge",
+    "destiny and acceptance",
+    "value of human life"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An ascetic calmly sits on bare ground in ragged cloth while rich food and luxurious beds appear and disappear around him, untouched by desire.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "A wounded young Brahmin lies on the road beside an overturned chariot as a jackal—Indra in disguise—approaches to speak with him.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The jackal looks at a thorn lodged in its body while insects bite it, lamenting that it lacks hands like humans to remove the pain.",
+      "visual_strength": 0.75
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Maitreya praises Vyasa’s teaching on gifts, extolling learned Brahmanas as essential for dharma and declaring that gifts to the worthy generate mutual spiritual merit.",
+  "importance": 0.45,
+  "themes": [
+    "gift-giving (dana)",
+    "role of Brahmanas",
+    "merit and reciprocity",
+    "Vedic knowledge",
+    "social-religious order"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Maitreya sits respectfully before Vyasa in a forest hermitage, speaking with folded hands as other ascetics listen.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "A learned Brahmana receives a humble offering of food from a householder beside a sacred fire altar.",
+      "visual_strength": 0.55
+    }
+  ]
+}

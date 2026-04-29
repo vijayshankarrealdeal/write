@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts a rishi advising King Vasuman that righteousness, self-restraint, right giving, and steadfast virtue bring welfare in this world and the next.",
+  "importance": 0.46,
+  "themes": [
+    "righteous conduct",
+    "self-restraint",
+    "charity and merit",
+    "moral intention",
+    "guidance from sages"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a lonely forest, King Vasuman bows before a serene Bhrigu sage seated calmly beneath the trees.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "A man reaching eagerly for dripping honey above a cliff while the abyss below symbolizes the unseen fall of desire.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The king sits attentively before the ascetic as the sage speaks of righteousness and the path beyond desire.",
+      "visual_strength": 0.52
+    }
+  ]
+}

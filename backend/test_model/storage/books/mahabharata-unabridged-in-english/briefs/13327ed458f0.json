@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna, Bhima, and Arjuna reach Magadha, defile a sacred peak to provoke Jarasandha, enter disguised as Brahmanas, and gain audience with the unsuspecting king.",
+  "importance": 0.63,
+  "themes": [
+    "approach to confrontation",
+    "disguise and strategy",
+    "sacred geography",
+    "omens and ritual",
+    "royal hospitality"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna, Bhima, and Arjuna shoot and shatter the revered Chaityaka peak above Girivraja while sacred drums fall silent.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The three heroes, disguised as Brahmanas yet broad‑chested like lions, stride through Magadha’s crowded gates wearing stolen flower garlands.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "At midnight Jarasandha respectfully receives the mysterious Brahmana guests in his sacrificial hall, unaware they are his enemies.",
+      "visual_strength": 0.7
+    }
+  ]
+}

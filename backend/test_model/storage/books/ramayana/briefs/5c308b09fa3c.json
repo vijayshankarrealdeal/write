@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After slaying Taraka, Rama receives numerous celestial weapons and their mantras from Sage Vishwamitra, empowering him for future battles.",
+  "importance": 0.62,
+  "themes": [
+    "divine weapons",
+    "teacher-disciple transmission",
+    "preparation for future battles",
+    "divine favor"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sage Vishwamitra stands facing east in a forest clearing at dawn, ritually bestowing glowing celestial weapons upon Prince Rama.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama respectfully receives the divine astras while luminous weapons and symbols hover around him in the forest.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "The forest restored after Taraka’s death blooms with champaka and ashoka trees as Rama rests peacefully under the night sky.",
+      "visual_strength": 0.58
+    }
+  ]
+}

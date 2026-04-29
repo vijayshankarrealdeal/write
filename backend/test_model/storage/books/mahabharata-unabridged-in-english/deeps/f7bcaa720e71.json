@@ -1,0 +1,31 @@
+{
+  "rich_summary": "Yudhishthira resolves to undertake the grand Rajasuya sacrifice and sends a messenger to invite Krishna from Dwaraka. Krishna arrives swiftly at Indraprastha and is warmly received by Yudhishthira, Bhima, Kunti, and the Pandava brothers. After resting, Krishna hears Yudhishthira’s wish to perform the Rajasuya, though the king humbly asks Krishna to judge whether it is truly wise. In response, Krishna explains the political reality of the time: many Kshatriya kings have fallen under the dominance of the powerful Magadhan ruler Jarasandha. Numerous rulers—either through fear or allegiance—serve him, making him the central obstacle to imperial sovereignty. Krishna’s speech reframes the Rajasuya not as a ritual desire but as a political challenge: Yudhishthira cannot claim universal kingship while Jarasandha still dominates the Kshatriya world.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#A5D6A7",
+      "why": "Establishes the mood of Yudhishthira’s firm resolve and moral confidence before seeking Krishna’s counsel."
+    },
+    {
+      "start": 110,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Introduces the pivotal action—Yudhishthira sending a messenger to Krishna—setting the political and spiritual alliance in motion."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna’s chariot drawn by swift horses arrives at Indraprastha while the Pandavas and Kunti come forward to greet him with affection and reverence.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Yudhishthira respectfully explaining his wish to perform the Rajasuya sacrifice while Krishna listens thoughtfully in a quiet royal chamber.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Krishna describing the vast network of kings subdued by Jarasandha, evoking the looming political shadow of the Magadhan emperor over the Kshatriya world.",
+      "visual_strength": 0.62
+    }
+  ]
+}

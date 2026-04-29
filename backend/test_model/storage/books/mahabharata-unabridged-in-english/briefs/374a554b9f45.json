@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna devastates enemy forces and kills Srutayus; Duryodhana, panicking, accuses Drona of favoritism before Drona arms him with a protective enchanted armor.",
+  "importance": 0.68,
+  "themes": [
+    "heroic slaughter",
+    "panic of leadership",
+    "teacher–student tension",
+    "divine protection",
+    "war strategy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna stands on his chariot loosing arrows in torrents while a river of blood filled with fallen warriors and elephants flows across the battlefield.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Srutayus charges with a raised mace toward Arjuna and Krishna, only for Arjuna’s arrows to sever his arms and head mid‑battle.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Drona chants mantras and fastens a radiant golden armor onto Duryodhana as astonished warriors watch in the war camp.",
+      "visual_strength": 0.76
+    }
+  ]
+}

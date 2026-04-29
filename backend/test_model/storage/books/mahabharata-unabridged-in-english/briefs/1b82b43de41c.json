@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Duryodhana persuades Dhritarashtra to send the Pandavas to Varanavata through deception, and Yudhishthira knowingly accepts the invitation.",
+  "importance": 0.62,
+  "themes": [
+    "political intrigue",
+    "jealousy and ambition",
+    "deception",
+    "dharma vs pragmatism",
+    "family conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Duryodhana, Karna, Shakuni, and Duhsasana huddle in a shadowed chamber plotting while the blind king Dhritarashtra sits troubled on his throne.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Courtiers enthusiastically describe the festival of Pasupati in Varanavata before the royal court while the Pandavas listen with rising curiosity.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "Yudhishthira bows respectfully before elders like Bhishma and Vidura, announcing the Pandavas’ departure for Varanavata despite sensing the hidden danger.",
+      "visual_strength": 0.7
+    }
+  ]
+}

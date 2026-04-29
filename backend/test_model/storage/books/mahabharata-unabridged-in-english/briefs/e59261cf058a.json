@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Arjuna saves Yudhishthira from Drona’s assault; later Drona plots to capture Yudhishthira by luring Arjuna away, and the Trigartas swear a deadly vow to challenge him.",
+  "importance": 0.66,
+  "themes": [
+    "battlefield heroism",
+    "strategic deception",
+    "vows of vengeance",
+    "loyalty and protection"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Drona fires two broad-headed arrows that sever the jeweled heads of Singhasena and Vyaghradatta from their chariots amid the chaos of battle.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Arjuna’s chariot thunders forward as the battlefield becomes a river of blood filled with broken chariots, weapons, and fallen warriors beneath a storm of arrows.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "The Trigarta princes and allied kings stand around ritual fires in armor and kusa grass garments, swearing a solemn vow to kill or die fighting Arjuna.",
+      "visual_strength": 0.86
+    }
+  ]
+}

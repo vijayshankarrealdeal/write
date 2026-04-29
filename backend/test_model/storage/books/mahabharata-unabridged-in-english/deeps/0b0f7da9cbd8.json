@@ -1,0 +1,45 @@
+{
+  "rich_summary": "On the heights of the Himalayas, Arjuna is visited by the Lokapalas—the guardians of the worlds—who reveal his divine origin and future destiny. Yama declares that Arjuna was once the ancient sage Nara and foretells his role in the coming war: he will defeat mighty warriors such as Bhishma, Karna, and many incarnated demons. Each deity then grants him powerful celestial weapons. Yama gives an irresistible mace, Varuna offers his binding nooses, and Kubera bestows the Antarddhana weapon capable of overwhelming enemies. Finally, Indra announces that Arjuna must ascend to heaven to receive further divine arms. Awed by the assembled gods, Arjuna worships them and rejoices in the success of his ascetic quest as Indra’s radiant chariot approaches.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the divine assembly on the mountain and sets the cosmic scale of Arjuna’s encounter with the gods."
+    },
+    {
+      "start": 600,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "The revelation that Arjuna was formerly the sage Nara, establishing his divine identity and mission."
+    },
+    {
+      "start": 1100,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Prophecy of Arjuna’s future victories over legendary warriors like Bhishma and Karna, foreshadowing the Kurukshetra war."
+    },
+    {
+      "start": 1700,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Kubera’s granting of the mystical Antarddhana weapon, symbolizing Arjuna’s growing divine arsenal."
+    },
+    {
+      "start": 2300,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Indra’s invitation for Arjuna to ascend to heaven, marking a turning point in his spiritual and heroic journey."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Arjuna stands on a Himalayan peak surrounded by radiant gods—Yama, Varuna, Kubera, and Indra—who shine like suns while granting him celestial weapons.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Indra’s magnificent chariot driven by Matali descends through thunderous clouds, blazing with lightning-like weapons and celestial light as Arjuna watches in awe.",
+      "visual_strength": 0.95
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Skanda battles Indra, generates the warrior Visakha from the thunderbolt wound, then refuses Indra’s throne and is anointed commander of the celestial armies.",
+  "importance": 0.82,
+  "themes": [
+    "divine warfare",
+    "birth of Visakha",
+    "legitimization of Skanda",
+    "cosmic hierarchy",
+    "leadership and humility"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra hurls his thunderbolt into Skanda’s side, and from the blazing wound emerges the warrior Visakha holding a club.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Flames burst from Skanda’s mouth and sweep across the battlefield, burning the celestial army and their mounts.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Skanda stands crowned beneath a golden umbrella while gods, rishis, and apsaras surround him as he is anointed commander of the celestial hosts.",
+      "visual_strength": 0.78
+    }
+  ]
+}

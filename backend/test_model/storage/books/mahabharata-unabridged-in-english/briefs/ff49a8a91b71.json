@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ghatotkacha is named and departs; the exiled Pandavas wander in disguise until Vyasa guides them to live safely in Ekachakra.",
+  "importance": 0.46,
+  "themes": [
+    "origin of Ghatotkacha",
+    "exile and wandering",
+    "sage guidance",
+    "destiny and prophecy",
+    "life in disguise"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The bald-headed infant Ghatotkacha bows to touch the feet of his mother Hidimva and father Bhima immediately after his birth.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The Pandavas in bark garments and matted locks carry their mother Kunti through a forest during their wandering exile.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Sage Vyasa meets the disguised Pandavas in the forest and gestures toward the distant town of Ekachakra where they will hide.",
+      "visual_strength": 0.66
+    }
+  ]
+}

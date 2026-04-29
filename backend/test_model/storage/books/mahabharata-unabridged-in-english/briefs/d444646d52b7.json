@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Kripa is rescued, Arjuna challenges his teacher Drona, respectfully saluting him before the two begin a fierce, evenly matched duel of arrows.",
+  "importance": 0.82,
+  "themes": [
+    "teacher versus student",
+    "dharma of warriors",
+    "martial honor",
+    "archery mastery",
+    "battle spectacle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna on white horses salutes his teacher Drona on a red-horsed chariot before their duel begins amid a tense battlefield.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Drona and Arjuna stand on opposing chariots as their arrows fill the sky like dark clouds, dimming the sun above the battlefield.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Arjuna’s golden-feathered arrows blanket Drona’s chariot until the preceptor appears like a blazing mountain wrapped in fire.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Jajali challenges Tuladhara’s teachings on non‑harm and sacrifice, and Tuladhara explains true sacrifice as righteous, desireless action grounded in knowledge and ethics.",
+  "importance": 0.6,
+  "themes": [
+    "true sacrifice",
+    "critique of ritualism",
+    "nonviolence and livelihood",
+    "desireless action",
+    "knowledge of Brahman"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The merchant-sage Tuladhara stands calmly beside his weighing scales while the ascetic Jajali confronts him in debate about sacrifice and livelihood.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Priests pour libations into a blazing sacrificial fire as smoke rises toward the sun, symbolizing rain, food, and the cycle of life.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "A serene sage meditates on the sacred syllable Om while deities appear satisfied as he eats in quiet contentment.",
+      "visual_strength": 0.55
+    }
+  ]
+}

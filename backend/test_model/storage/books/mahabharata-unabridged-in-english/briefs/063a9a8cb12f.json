@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhishma teaches that kings thrive through partnership with Brahmanas and righteous rule, illustrated by Muchukunda’s encounter with Vaisravana and duties of a just king.",
+  "importance": 0.56,
+  "themes": [
+    "kingly duty",
+    "Brahmana–Kshatriya partnership",
+    "righteous governance",
+    "moral accountability of rulers"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Muchukunda stands amid the battlefield as hordes of Rakshasas overwhelm his army, while the sage Vasishtha prepares through ascetic power to destroy them.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The radiant lord of wealth Vaisravana appears before the fearless king Muchukunda during the battle and addresses him amid the falling Rakshasa troops.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "A just king sits armed on his throne while Brahmanas perform sacred rites beside him, symbolizing the union of spiritual power and royal force protecting the realm.",
+      "visual_strength": 0.58
+    }
+  ]
+}

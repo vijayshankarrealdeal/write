@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna recounts Durvasa’s grace and begins praising Shiva, describing Rudra’s wrath at Daksha’s sacrifice and the gods’ propitiation through the Satarudriya.",
+  "importance": 0.63,
+  "themes": [
+    "praise of Shiva",
+    "Brahmana reverence",
+    "Durvasa's blessing",
+    "Daksha sacrifice destruction",
+    "divine cosmic power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rudra in furious form draws his bow as the universe trembles, mountains shaking and the sky darkening while terrified gods bow before him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "In Daksha’s sacrifice hall, wrathful Rudra tears out Bhaga’s eyes and kicks Pushan, scattering the terrified gods.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Shiva prepares the cosmic arrow to destroy the triple cities, with Vishnu as the arrowhead and Brahma serving as his charioteer.",
+      "visual_strength": 0.86
+    }
+  ]
+}

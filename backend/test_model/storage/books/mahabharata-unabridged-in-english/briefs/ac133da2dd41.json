@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ganga explains that the Vasus were cursed by the sage Vasishtha (Apava) after stealing his wish‑granting cow, causing their birth on earth and Dyu’s prolonged human life.",
+  "importance": 0.7,
+  "themes": [
+    "curse and karma",
+    "divine transgression",
+    "sage's wrath",
+    "origin of Bhishma",
+    "celestial beings on earth"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The eight Vasus wander with their wives in a lush forest near Mount Meru as one of them points out the radiant wish‑granting cow Nandini grazing peacefully.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Sage Vasishtha, returning to his hermitage with gathered fruits, stands in anger upon discovering his sacred cow missing.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The Vasus stand before the ascetic Vasishtha in his forest hermitage as he raises his hand and curses them to be born on earth.",
+      "visual_strength": 0.78
+    }
+  ]
+}

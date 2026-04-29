@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sanjaya explains the elements, life forms, and a mythic cosmology of Earth centered on Mount Meru and the seven regions of the world.",
+  "importance": 0.45,
+  "themes": [
+    "cosmology",
+    "five elements",
+    "classification of life",
+    "sacred geography",
+    "Earth as source of conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The golden Mount Meru rises like a sunlit pillar while the sun and moon circle it and celestial beings gather on its radiant slopes.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The river Ganga bursts from the summit of the mountain and crashes downward like a stream of milk while Shiva holds its force in his hair.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "A circular island world ringed by ocean appears in the lunar disc, its land shaped like a peepul tree and a hare.",
+      "visual_strength": 0.8
+    }
+  ]
+}

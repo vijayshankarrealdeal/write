@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section depicts the catastrophic escalation of the dice game between Yudhishthira and Shakuni in the Kuru assembly. After Vidura’s earlier warning about kings who reject honest counsel, the narrative turns to the gambling match where Shakuni repeatedly wins through deceit. Driven by pride and the compulsion of play, Yudhishthira wagers progressively greater stakes: vast wealth, lands, his kingdom, loyal subjects, and then his own brothers—Nakula, Sahadeva, Arjuna, and Bhima—losing each to Shakuni’s loaded dice. Finally, he stakes himself and loses. Yet the humiliation deepens when Shakuni urges him to wager Draupadi, the queen of the Pandavas. Yudhishthira describes her virtues and beauty before staking her, prompting outrage among the elders in the court. The passage marks a moral collapse and a pivotal turning point leading to Draupadi’s humiliation and the eventual war of the Mahabharata.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 80,
+      "color_hex": "#A5D6A7",
+      "why": "Vidura’s philosophical reflection on human action and intellect sets the moral backdrop for the tragic events that follow."
+    },
+    {
+      "start": 500,
+      "length": 80,
+      "color_hex": "#FFEB3B",
+      "why": "Represents the beginning of the gambling escalation where Shakuni repeatedly declares victory through deceit."
+    },
+    {
+      "start": 1000,
+      "length": 80,
+      "color_hex": "#F48FB1",
+      "why": "Part of the sequence where Yudhishthira begins staking his own brothers, showing the emotional and moral deterioration of the moment."
+    },
+    {
+      "start": 1500,
+      "length": 80,
+      "color_hex": "#FFEB3B",
+      "why": "Captures the moment when Yudhishthira stakes himself and loses, marking total personal downfall."
+    },
+    {
+      "start": 2000,
+      "length": 80,
+      "color_hex": "#F48FB1",
+      "why": "Corresponds to the description of Draupadi before she is staked, intensifying the tragic and shocking climax of the scene."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In the royal Kuru assembly, Shakuni casts loaded dice before a tense court while Yudhishthira watches as another loss is declared.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Yudhishthira solemnly gestures toward his brothers—Nakula, Sahadeva, Arjuna, and Bhima—staking them one by one as horrified elders look on.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "In a silent, shocked hall of kings, Yudhishthira describes Draupadi’s beauty and virtue before staking her, while the elders cry out in dismay.",
+      "visual_strength": 0.97
+    }
+  ]
+}

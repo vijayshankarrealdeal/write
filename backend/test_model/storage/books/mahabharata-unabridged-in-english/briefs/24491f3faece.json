@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Pandu, overcome by desire despite a deadly curse, dies with Madri; Madri self-immolates, and sages escort Kunti and the children back to Hastinapura.",
+  "importance": 0.83,
+  "themes": [
+    "fatal curse",
+    "desire and restraint",
+    "widow self-immolation",
+    "royal succession",
+    "fate and time"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a lotus-filled forest poolside, Pandu collapses lifeless beside Madri as she clutches him in terror and grief.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Madri ascends her husband's funeral pyre while Kunti stands nearby with the five young princes watching in sorrow.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "A procession of ascetic rishis leads Kunti and the Pandava children toward the gates of Hastinapura as crowds gather in awe.",
+      "visual_strength": 0.78
+    }
+  ]
+}

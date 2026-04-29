@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sumantra recounts Rama’s farewell messages to Dasharatha and the family, including Rama’s dutiful instructions and Lakshmana’s angry protest against the exile.",
+  "importance": 0.68,
+  "themes": [
+    "filial duty",
+    "exile and grief",
+    "loyalty to dharma",
+    "family conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged King Dasharatha, weak with grief, listens as the dusty charioteer Sumantra with tear-filled eyes recounts Rama’s words in the palace chamber.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Rama in the forest folds his palms respectfully and sends his final salutations and instructions for his mothers and brother through Sumantra.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Lakshmana, breathing hard with anger, denounces the injustice of Rama’s exile while Sita stands silent beside them, tears streaming down her face.",
+      "visual_strength": 0.8
+    }
+  ]
+}

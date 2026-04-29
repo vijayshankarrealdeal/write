@@ -1,0 +1,55 @@
+{
+  "rich_summary": "Lakshmana rebukes Rama for speaking despairingly and urges him to remember his vow: Ravana must die before the day ends so that Sita can be rescued. Stirred by these words, Rama resumes the battle. Ravana charges in his chariot while Rama initially fights on foot, prompting the gods to judge the combat unfair. Indra sends his divine charioteer Matali with a celestial chariot, weapons, and horses for Rama. Mounted now, Rama and Ravana engage in a terrifying duel using supernatural weapons. Ravana unleashes serpent-arrows that become venomous snakes, but Rama counters with the Garuda weapon, transforming arrows into eagle-like serpent-slayers. Ravana retaliates fiercely, wounding Rama and striking Indra’s chariot. Cosmic omens shake the universe as their rage escalates, and the watching gods and demons take sides. Finally Ravana raises a dreadful, world-ending lance and challenges Rama directly.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Lakshmana’s emotional rebuke that rekindles Rama’s resolve and frames the coming battle as the fulfilment of a sacred vow."
+    },
+    {
+      "start": 900,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "The gods intervene, and Indra sends his celestial chariot with Matali to aid Rama, elevating the fight to a divine confrontation."
+    },
+    {
+      "start": 2100,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "Ravana’s serpent weapon transforms arrows into living snakes, illustrating the mythic scale and magical warfare of the duel."
+    },
+    {
+      "start": 2400,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "Rama counters with the Garuda weapon, whose eagle-arrows destroy the serpents—an iconic divine weapon-versus-weapon moment."
+    },
+    {
+      "start": 4200,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "Terrifying cosmic portents—shaking earth, darkened sun, circling crows—show the universe reacting to the fury of the two champions."
+    },
+    {
+      "start": 5200,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Ravana lifts a colossal, apocalyptic spear and openly challenges Rama, escalating the duel toward its decisive climax."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Matali descends from the heavens in Indra’s golden chariot with bell‑hung sides and radiant horses to offer it to Rama on the battlefield.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Ravana’s arrows transform into flaming serpents filling the sky while Rama releases the Garuda weapon, turning his arrows into golden eagles that devour the snakes.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "The enraged Ravana, ten‑headed and towering, raises a gigantic blazing lance as the earth trembles and armies watch in terror.",
+      "visual_strength": 0.95
+    }
+  ]
+}

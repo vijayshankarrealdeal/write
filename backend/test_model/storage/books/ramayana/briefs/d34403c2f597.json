@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama, Sita, and Lakshmana travel through the night and cross Kosala’s southern boundary as Ayodhya mourns their exile.",
+  "importance": 0.5,
+  "themes": [
+    "exile",
+    "public grief",
+    "duty to father's command",
+    "departure from homeland"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The darkened city of Ayodhya sits silent at night, markets empty and lamps unlit as grieving women weep in the streets.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Rama’s chariot pulled by swift horses moves through blossoming fields at dawn as he offers his morning prayer before crossing Kosala’s border.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Villagers along the roadside watch the chariot pass and lament King Dasaratha’s weakness that sent Rama into exile.",
+      "visual_strength": 0.62
+    }
+  ]
+}

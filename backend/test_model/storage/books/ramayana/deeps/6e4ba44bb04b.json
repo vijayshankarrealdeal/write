@@ -1,0 +1,43 @@
+{
+  "rich_summary": "In this chapter, Rama hears Queen Kaikeyi's harsh demand that he relinquish the throne and live in exile for fourteen years so that Bharata may rule. Though the words strike \"like the pangs of death,\" Rama shows no anger or grief. Instead, he calmly accepts the decree, declaring that a son's highest duty is obedience to his father and the preservation of truth. He even offers to surrender not only the kingdom but all he possesses, including Sita and his own life, if it would serve his father. While King Dasharatha collapses in anguish, Rama remains serene, reverently bows to his parents, and prepares to depart. His composure, compared to a yogi and to the undiminished moon, reveals the epic's ideal of perfect dharma—self-mastery, filial devotion, and unwavering righteousness even in devastating circumstances.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Rama's immediate, composed response to Kaikeyi establishes his unwavering commitment to duty despite the devastating command."
+    },
+    {
+      "start": 520,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "The emotional center of the scene: Dasharatha collapses in grief while Rama remains dutiful and composed."
+    },
+    {
+      "start": 1080,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Rama articulates the core moral principle of the episode: service to one's father and preservation of dharma above power or personal desire."
+    },
+    {
+      "start": 1420,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The closing comparison of Rama to a serene yogi and the undiminished moon captures the spiritual ideal embodied by his calm renunciation."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Rama stands calm and radiant before Queen Kaikeyi while the grief-stricken King Dasharatha collapses upon a golden couch in the palace chamber.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Rama solemnly circumambulates the sacred royal installation objects meant for his coronation, silently dedicating them instead to Bharata.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "Lakshmana, eyes burning with anger and tears, follows behind the serene Rama as he leaves the inner royal chamber after bowing to his parents.",
+      "visual_strength": 0.74
+    }
+  ]
+}

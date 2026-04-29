@@ -1,0 +1,77 @@
+{
+  "chunk": {
+    "id": "af8c2237eea7",
+    "chapter_title": "65. The palace is filled with the sound of distress",
+    "page_start": 317,
+    "page_end": 317,
+    "text": "CHAPTER 65 \nThe palace is filled with the sound of distress \nTHE night having passed, at dawn, according to custom, the \nbards arrived at the palace of the king, the traditional singers, \nthose versed in rhetoric and in the history of the dynasty, and \nskilled musicians acquainted with rhythm and melody, began to \nsing the praises of the king. The sound of their eulogies and \ntheir songs filled the whole palace. Others uttering tributes \nand clapping their bands recited the monarch's wonderful deeds. \nThe birds in the trees near the palace and those confined in \ncages awoke and sang. Their notes mingled with the salutations \nof the brahmins, the music of the vinas, the chanting of the holy \nnames of God and the praises of those describing the great deeds \nof the king. Eunuchs and servants stood near, ready to serve, \nas was their wont. Those who attended to the ablutions of \nthe king, brought water scented with fragrant perfumes, in \npitchers of gold. Charming and well-attired men and women \ncame with oil, unguents, mirrors, combs, towels and other \narticles and all that was needed by the king was provided \naccording to custom. Till sunrise, all awaited the king, then \nthey addressed each other saying : \" How is this, has his majesty \nnot yet risen ? \" Then the women, other than Kaushalya, who \nformerly attended on the king, began to waken their lord as was \ntheir usage. \nHaving with affecrion and skill touched the body \nof the monarch, they found no sign of life in him. Then the \nwomen, knowing well the motion of the pulse and understanding \nthe signs of sleep, began to tremble perceiving the king's \ncondition. Fearing that the king no longer breathed, they shook \nlike the narcai\u2022 grass in the midst of a flowing stream, and slowly \nbecame aware that their sovereign had passed away. \nThe Queens, Kaushalya and Sumitra, overcome with grief \non account of the depanurc of their sons, lay as if dead. Sutfering \nhad rendered the chief queen pale and her body feeble. The \ntwo queens, their splendour dimmed by sorrow, resembled the \nstars hidden by clouds. \n' Naroalgraso-<s opecia oC roed."
+  },
+  "brief": {
+    "summary_1line": "Palace attendants arrive to awaken the king with music and ritual, only to discover he has died, plunging the palace into grief.",
+    "importance": 0.75,
+    "themes": [
+      "royal death",
+      "palace ritual",
+      "sudden tragedy",
+      "grief of queens"
+    ],
+    "image_candidates": [
+      {
+        "scene_text": "At dawn musicians and bards fill the palace halls with song while servants wait with golden pitchers of scented water for the king to awaken.",
+        "visual_strength": 0.62
+      },
+      {
+        "scene_text": "Attendant women gently touch the king's body and recoil in terror as they realize he no longer breathes.",
+        "visual_strength": 0.78
+      },
+      {
+        "scene_text": "Queen Kaushalya and Sumitra lie pale and motionless in grief, like dim stars hidden behind dark clouds.",
+        "visual_strength": 0.7
+      }
+    ]
+  },
+  "deep": {
+    "rich_summary": "At dawn the royal palace follows its daily ritual: bards, musicians, brahmins, and attendants gather to awaken the king with praises, music, and ceremony. Servants prepare perfumes, oils, and golden vessels for the king\u2019s morning ablutions while the entire court waits for him to rise. When he does not appear, the women of the palace attempt to wake him. Touching his body, they realize with growing dread that he shows no sign of life. Their fear turns to certainty: the king has died during the night. The palace, once filled with praise and music, becomes a place of shock and grief. Queen Kaushalya and Queen Sumitra, already broken by the exile of their sons, lie overwhelmed by sorrow, their faded splendor compared to stars hidden behind clouds. The scene marks the tragic consequence of Rama\u2019s exile and the collapse of royal order in Ayodhya.",
+    "highlight_spans": [
+      {
+        "start": 0,
+        "length": 58,
+        "color_hex": "#A5D6A7",
+        "why": "The chapter title frames the entire episode as one of palace-wide grief and foreshadows the tragic discovery."
+      },
+      {
+        "start": 900,
+        "length": 33,
+        "color_hex": "#FFEB3B",
+        "why": "The pivotal moment when attendants realize the king is dead, turning the ceremonial morning into tragedy."
+      },
+      {
+        "start": 1080,
+        "length": 120,
+        "color_hex": "#F48FB1",
+        "why": "The vivid simile of women trembling like grass in a stream conveys their shock and fear as they understand the king has died."
+      },
+      {
+        "start": 1330,
+        "length": 85,
+        "color_hex": "#A5D6A7",
+        "why": "The poetic comparison of the grieving queens to stars hidden by clouds underscores the dimming of royal glory and hope."
+      }
+    ],
+    "top_scenes": [
+      {
+        "scene_text": "At dawn the palace courtyard fills with bards, brahmins, musicians, birds, and attendants singing and playing instruments while the golden palace awaits the king\u2019s awakening.",
+        "visual_strength": 0.74
+      },
+      {
+        "scene_text": "Royal attendants gently try to awaken the king in his chamber, then recoil in shock as they realize his body is lifeless.",
+        "visual_strength": 0.9
+      },
+      {
+        "scene_text": "Queen Kaushalya and Queen Sumitra lie pale and grief-stricken in the dim palace chamber, their sorrow likened to stars hidden behind dark clouds.",
+        "visual_strength": 0.72
+      }
+    ]
+  },
+  "scene_ids": []
+}

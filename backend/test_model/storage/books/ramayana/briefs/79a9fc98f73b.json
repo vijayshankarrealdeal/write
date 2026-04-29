@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Kumbhakarna is put into enchanted sleep while Ravana rampages across the worlds until Kubera sends a messenger urging him toward righteousness.",
+  "importance": 0.45,
+  "themes": [
+    "tyranny",
+    "brotherhood",
+    "divine sleep",
+    "moral warning",
+    "ascetic penance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The giant Kumbhakarna sleeps for ages inside a vast crystal-and-gold palace with emerald stairs and bells hanging from ivory galleries.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Ravana rampages through celestial groves like a storm, churning rivers and shaking trees while terrified sages and gods scatter.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Kubera’s messenger bows before the radiant Ravana reclining on a luxurious couch in Lanka’s grand assembly hall.",
+      "visual_strength": 0.63
+    }
+  ]
+}

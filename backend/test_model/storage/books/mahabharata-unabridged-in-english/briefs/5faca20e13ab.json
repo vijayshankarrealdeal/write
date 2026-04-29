@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada explains Karna’s past: his envy of the Pandavas, deception to learn divine weapons, and a Brahmin’s curse foretelling his death when his chariot wheel sinks.",
+  "importance": 0.68,
+  "themes": [
+    "Karna's origin and rivalry",
+    "fate and curses",
+    "deception for knowledge",
+    "brotherhood tragedy",
+    "divine weapons"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A furious Brahmin curses Karna beside the slain sacred cow on the lonely seashore while the warrior stands with bowed head and folded hands.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Karna approaches the ascetic Parashurama on the Mahendra mountains, claiming to be a Brahmin while bowing at the sage’s feet.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Karna wanders armed along the ocean coast near the hermitage just after accidentally killing the Brahmin’s ritual cow.",
+      "visual_strength": 0.63
+    }
+  ]
+}

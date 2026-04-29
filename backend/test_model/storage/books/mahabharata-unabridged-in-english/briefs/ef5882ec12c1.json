@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Shiva restores a dead child after grieving kin persist in hope; Bhishma then begins a tale of the proud Salmali tree and the wind-god.",
+  "importance": 0.56,
+  "themes": [
+    "divine compassion",
+    "power of hope and persistence",
+    "boastfulness and humility",
+    "nature allegory",
+    "divine intervention"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The god Sankara appears before the grieving kinsmen of a dead child and sprinkles sanctified water to restore the boy to life.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "A colossal Salmali tree on the slopes of the Himalayas shelters elephants, birds, merchants, and ascetics beneath its vast flowering branches.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Narada stands before the immense Salmali tree, praising its towering trunk and spreading canopy while animals rest in its shade.",
+      "visual_strength": 0.67
+    }
+  ]
+}

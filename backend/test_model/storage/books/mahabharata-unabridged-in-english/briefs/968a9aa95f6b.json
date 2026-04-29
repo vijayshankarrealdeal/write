@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sages recount how devotion to Mahadeva and recitation of his hymn granted them purification, boons, knowledge, power, or liberation.",
+  "importance": 0.55,
+  "themes": [
+    "devotion to Shiva",
+    "power of sacred hymns",
+    "divine boons",
+    "purification from sin",
+    "sage testimonies"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Gritsamada, cursed by Vasistha, transforms into a sorrowful deer wandering a desolate forest before praying to Maheswara.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Mandavya, impaled yet serene, prays to Shiva as the bull-riding deity appears and grants him freedom and long life.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Krishna performs severe austerities on the mountains of Meru, reciting the thousand names of Mahadeva beneath the vast sky.",
+      "visual_strength": 0.74
+    }
+  ]
+}

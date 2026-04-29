@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Amva seeks ascetic life after rejection; her grandsire Hotravahana advises her to seek Parashurama’s help against Bhishma.",
+  "importance": 0.62,
+  "themes": [
+    "honor and humiliation",
+    "ascetic refuge",
+    "family protection",
+    "appeal for justice",
+    "approaching confrontation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged sage Hotravahana, trembling with emotion, lifts the sorrowful Amva onto his lap in the forest hermitage.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Amva, pale and tearful among gathered ascetics in a forest clearing, begs to renounce the world and practice severe austerities.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "The hermits sit in a woodland circle debating Amva’s fate as the newly arrived ascetic Akritavrana is welcomed with ritual hospitality.",
+      "visual_strength": 0.55
+    }
+  ]
+}

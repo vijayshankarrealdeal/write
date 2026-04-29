@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama effortlessly strings Vishnu’s bow, humbles Parasurama, and strips him of his glory, forcing the warrior-sage to acknowledge Rama’s divine supremacy.",
+  "importance": 0.87,
+  "themes": [
+    "divine recognition",
+    "humbling of pride",
+    "transfer of power",
+    "avatar of Vishnu",
+    "kshatriya dharma"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama calmly draws Vishnu’s immense bow with a blazing arrow as Parasurama stands stunned and the assembled gods watch from the sky.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The three worlds tremble while Rama holds the fully drawn bow, celestial beings gathering above as Parasurama’s power visibly fades.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Parasurama bows humbly before the lotus‑eyed Rama, admitting his divinity and asking permission to retreat to Mahendra mountain.",
+      "visual_strength": 0.82
+    }
+  ]
+}

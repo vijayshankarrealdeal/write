@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sudarsana’s extreme guest‑hospitality is tested by Dharma, earning divine praise and victory over Death; the narrative shifts as Yudhishthira asks how Vishvamitra became a Brahmana.",
+  "importance": 0.55,
+  "themes": [
+    "hospitality as sacred duty",
+    "virtue tested by gods",
+    "conquest of death through dharma",
+    "chastity and marital devotion",
+    "rise of Vishvamitra"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sudarsana calmly tells the Brahmana guest to enjoy his wife as a sacred duty of hospitality while Death stands nearby with an iron club.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "The Brahmana guest emerges from the hut and reveals himself as Dharma, radiating power as the air resounds with Vedic echoes.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Indra arrives in a blazing chariot drawn by a thousand white horses as the righteous householder is praised by the gods.",
+      "visual_strength": 0.78
+    }
+  ]
+}

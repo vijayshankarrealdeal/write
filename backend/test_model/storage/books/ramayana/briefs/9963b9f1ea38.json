@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Vishwamitra continues austerities seeking higher sagehood while King Trishanku asks Vasishtha to help him ascend bodily to heaven and is refused.",
+  "importance": 0.43,
+  "themes": [
+    "ascetic ambition",
+    "spiritual status",
+    "royal pride",
+    "guru authority"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Trishanku stands humbly before the sage Vasishtha, asking to ascend to heaven in his physical body while the austere hermitage surrounds them.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "Vishwamitra performs severe penance in the wilderness as Brahma appears before him with the gods in radiant light.",
+      "visual_strength": 0.72
+    }
+  ]
+}

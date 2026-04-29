@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Yudhishthira duels Drona but retreats weaponless; elsewhere several fierce duels occur, including Vrihatkshatra and Sahadeva slaying their opponents.",
+  "importance": 0.45,
+  "themes": [
+    "heroic duels",
+    "battlefield reversals",
+    "warrior honor",
+    "divine weapons"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira’s blazing dart streaks across the sky like a fiery serpent while Drona counters with the Brahma weapon.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Two hurled maces collide mid-air, bursting sparks before crashing to the earth between Drona and Yudhishthira.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The severed, diademed head of Kshemadhurti falls from his chariot, shining like a fallen star upon the battlefield.",
+      "visual_strength": 0.78
+    }
+  ]
+}

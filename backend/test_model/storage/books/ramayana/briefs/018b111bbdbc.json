@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Lakshmana and Indrajita engage in a fierce duel of celestial weapons, ending when Lakshmana invokes Indra’s weapon and beheads Ravana’s son.",
+  "importance": 0.92,
+  "themes": [
+    "heroic duel",
+    "divine weapons",
+    "fate and destiny",
+    "loyalty to Rama",
+    "fall of a champion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lakshmana releases Indra’s blazing arrow which slices off Indrajita’s jeweled head, the severed head falling like a golden ball onto the battlefield.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Lakshmana and Indrajita stand bleeding amid shattered chariots and fallen warriors, their bows drawn as celestial weapons collide and burst into sparks in the sky.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The driverless chariot circles wildly while Lakshmana’s arrow decapitates Indrajita’s charioteer and the terrified horses bolt across the battlefield.",
+      "visual_strength": 0.78
+    }
+  ]
+}

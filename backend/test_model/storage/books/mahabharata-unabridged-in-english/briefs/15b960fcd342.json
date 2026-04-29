@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna departs for Hastinapura as envoy; Arjuna vows destruction if peace fails, and ominous cosmic signs accompany Krishna’s journey.",
+  "importance": 0.63,
+  "themes": [
+    "diplomacy before war",
+    "omens and portents",
+    "divine presence",
+    "war vows",
+    "cosmic disturbance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna’s chariot races along the road while thunder and lightning erupt from a cloudless sky and dust darkens the horizon.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Bhima roars in rage beside the gathered kings, and terrified horses and elephants tremble and soil themselves.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Celestial rishis glowing with spiritual radiance stand beside the road as Krishna steps down from his chariot to greet them.",
+      "visual_strength": 0.76
+    }
+  ]
+}

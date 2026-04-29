@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains that true marriage arises from ritual hand-taking, not dowry or purchase, and discusses disputes about dowry, eligibility, and remarriage customs.",
+  "importance": 0.53,
+  "themes": [
+    "marriage rites",
+    "dowry vs ritual",
+    "moral law and scripture",
+    "eligibility in marriage",
+    "widow and levirate customs"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma recounts carrying away two princesses after defeating rival kings, standing victorious with the maidens in his chariot.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "A solemn Vedic wedding where a bride and groom circle the sacred fire while priests chant mantras.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A young Bhishma respectfully questioning his father Valhika about the true moral law governing marriage.",
+      "visual_strength": 0.45
+    }
+  ]
+}

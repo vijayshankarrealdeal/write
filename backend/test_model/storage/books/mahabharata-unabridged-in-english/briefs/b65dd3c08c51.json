@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira instructs Sanjaya to convey greetings and welfare inquiries to numerous Kuru elders, allies, servants, and women, ending with a demand for Indraprastha or war.",
+  "importance": 0.55,
+  "themes": [
+    "diplomatic protocol",
+    "kinship networks",
+    "honor and respect",
+    "prelude to conflict",
+    "dharma vs ambition"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sanjaya stands before the Kuru court as Yudhishthira’s message is recited, the gathered warriors and elders listening in tense silence.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Yudhishthira calmly addresses Sanjaya, surrounded by his brothers, instructing him to greet every elder, warrior, servant, and woman of the Kuru household.",
+      "visual_strength": 0.58
+    },
+    {
+      "scene_text": "The final message delivered to Duryodhana: return Indraprastha or face battle, as the court’s atmosphere turns heavy with impending war.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Introduces Paushya Parva: Janamejaya is cursed by Sarama, seeks a priest, and several stories illustrate extreme obedience and devotion to one's teacher.",
+  "importance": 0.42,
+  "themes": [
+    "guru–disciple devotion",
+    "curse and ritual purity",
+    "ascetic discipline",
+    "dharma and obedience"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Aruni lies down in the breached irrigation channel, using his own body to stop the rushing water while the field floods around him.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Blind Upamanyu sits at the bottom of a dark well, praying to the twin Aswins as a faint divine light appears above.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "The celestial dog Sarama confronts King Janamejaya at his sacrifice after her injured pup runs to her crying.",
+      "visual_strength": 0.78
+    }
+  ]
+}

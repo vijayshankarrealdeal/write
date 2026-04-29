@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Tuladhara teaches Jajali that true sacrifice is inward, nonviolent, and rooted in faith and renunciation, leading to Brahman rather than temporary heavenly rewards.",
+  "importance": 0.55,
+  "themes": [
+    "inner sacrifice",
+    "nonviolence",
+    "renunciation",
+    "faith vs ritual",
+    "path to Brahman"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "High in the sky, many birds that were raised on Jajali’s head circle and begin folding their wings as they return to their nests at Tuladhara’s command.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Ascetics perform a simple sacrifice using herbs, fruits, and roots instead of animals, offering them into a small sacred fire in a forest clearing.",
+      "visual_strength": 0.6
+    }
+  ]
+}

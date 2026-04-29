@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhishma arranges royal marriages including Gandhari to blind Dhritarashtra, while Kunti receives a divine mantra and summons the Sun, conceiving Karna.",
+  "importance": 0.7,
+  "themes": [
+    "dynastic marriage alliances",
+    "devotion and sacrifice",
+    "divine conception",
+    "fate and prophecy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Gandhari solemnly ties a cloth over her own eyes after learning her husband Dhritarashtra is blind.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Young Kunti stands in awe as the radiant Sun god appears before her in blazing light after she recites the sacred mantra.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The newborn Karna lies glowing with natural golden armor and earrings as divine light surrounds him.",
+      "visual_strength": 0.88
+    }
+  ]
+}

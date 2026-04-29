@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama, Sita, and Lakshmana spend their first night of exile by the Tamasa and secretly depart at dawn to spare the loyal citizens following them.",
+  "importance": 0.48,
+  "themes": [
+    "exile",
+    "royal duty",
+    "loyalty of subjects",
+    "brotherly devotion",
+    "renunciation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama, Sita, and Lakshmana rest on a bed of tender leaves beside the quiet Tamasa River under the dark forest night.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Lakshmana sits awake through the night beside the chariot, speaking with Sumantra while Rama and Sita sleep nearby.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "At dawn Rama looks upon the sleeping citizens lying under trees and decides to depart silently across the river.",
+      "visual_strength": 0.72
+    }
+  ]
+}

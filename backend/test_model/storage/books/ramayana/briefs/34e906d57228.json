@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Durvasa arrives urgently at Rama’s palace while Rama speaks with Death, and Lakshmana tries to delay the notoriously irascible sage.",
+  "importance": 0.62,
+  "themes": [
+    "divine mission",
+    "duty vs protocol",
+    "arrival of a sage",
+    "tension at the palace gate"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The fierce sage Durvasa stands at Rama’s palace gate glaring at Lakshmana, his matted hair wild as the guard bows and tries to restrain him.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Inside the palace, Rama calmly converses with the personified Death while divine light fills the chamber.",
+      "visual_strength": 0.72
+    }
+  ]
+}

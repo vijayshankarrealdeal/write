@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Skanda’s victory is praised and his many names recited, the narrative shifts to Satyabhama asking Draupadi how she maintains harmony with the Pandava husbands.",
+  "importance": 0.62,
+  "themes": [
+    "praise of Skanda",
+    "divine epithets",
+    "wifely duty",
+    "marital ethics",
+    "royal household management"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra embraces the radiant Skanda on the battlefield while the assembled gods look on after the defeat of the Danavas.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "In a forest hermitage, Draupadi and Satyabhama sit together laughing and speaking privately after a long separation.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Draupadi stands respectfully serving the five Pandavas while the royal household bustles with attendants and golden vessels.",
+      "visual_strength": 0.7
+    }
+  ]
+}

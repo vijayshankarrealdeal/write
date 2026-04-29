@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Nala learns dice from Rituparna, expels Kali from his body, and arrives in Vidarbha disguised while Damayanti senses his presence by the sound of the chariot.",
+  "importance": 0.85,
+  "themes": [
+    "liberation from curse",
+    "exchange of knowledge",
+    "recognition through signs",
+    "love and longing",
+    "fate and redemption"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "As Nala learns the science of dice, the dark spirit Kali bursts from his body vomiting poison and flees into a Vibhitaka tree.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Nala drives the chariot at incredible speed, the horses leaping like winged creatures as they race toward Vidarbha.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Damayanti stands on the palace terrace, straining toward the horizon as the thunderous sound of Nala's chariot echoes across the city.",
+      "visual_strength": 0.86
+    }
+  ]
+}

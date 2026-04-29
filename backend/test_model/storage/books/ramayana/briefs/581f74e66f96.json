@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada explains that a Shudra performing forbidden ascetic penance in Rama’s realm has caused cosmic disorder leading to a brahmin child’s untimely death.",
+  "importance": 0.63,
+  "themes": [
+    "cosmic order and dharma",
+    "varna duties",
+    "kingship responsibility",
+    "yuga cycles",
+    "asceticism"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A grieving brahmin clutches his dead child before King Rama’s court while sages and ministers gather in solemn silence.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "The sage Narada rises among assembled rishis in Rama’s hall, explaining the cosmic law that links a child’s death to forbidden penance.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "An austere Shudra ascetic performs severe penance alone in the wilderness, symbolizing the disruption of cosmic order.",
+      "visual_strength": 0.67
+    }
+  ]
+}

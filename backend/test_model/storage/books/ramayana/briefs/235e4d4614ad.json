@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Ravana boasts of his power and wealth, describing Lanka and urging Sita to abandon Rama and live with him.",
+  "importance": 0.55,
+  "themes": [
+    "Ravana's arrogance",
+    "temptation of Sita",
+    "power and conquest",
+    "loyalty to Rama"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana, scowling and regal, stands before Sita in the forest boasting of his might while she listens with defiant calm.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "Ravana gestures proudly as he describes the golden ramparts and emerald gates of Lanka rising beyond the sea.",
+      "visual_strength": 0.6
+    }
+  ]
+}

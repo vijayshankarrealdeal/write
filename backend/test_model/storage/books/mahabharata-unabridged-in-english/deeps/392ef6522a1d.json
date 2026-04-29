@@ -1,0 +1,49 @@
+{
+  "rich_summary": "In this section Bhishma recounts how the sage Narada, after praising the supreme deity with secret names, is granted a vision of Narayana in his cosmic form. The god appears with countless heads, arms, and colors, chanting the Vedas and embodying the entire universe. Narayana explains that only those wholly devoted can behold him and then expounds a profound cosmology: the relation of Purusha, Prakriti, the three gunas, and the chain of dissolution by which the elements merge back into the supreme reality. He describes his fourfold emanations—Vasudeva, Sankarshana, Pradyumna, and Aniruddha—and declares himself the source, witness, and end of all beings. The deity also foretells many of his incarnations, including the boar, Narasimha, Vamana, Rama, and Krishna, who appear to restore cosmic order. After revealing these mysteries of creation, devotion, and divine manifestation, Narayana disappears, and Narada later recounts the revelation as sacred doctrine.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "The opening litany of divine attributes establishes the boundless, paradoxical nature of the deity being praised."
+    },
+    {
+      "start": 400,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "The moment Narayana reveals himself to Narada marks the dramatic transition from praise to divine vision."
+    },
+    {
+      "start": 1200,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Narada’s humble response expresses the emotional climax of devotion fulfilled by seeing the divine."
+    },
+    {
+      "start": 2500,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "The philosophical explanation of Purusha, the gunas, and cosmic dissolution captures the metaphysical core of the chapter."
+    },
+    {
+      "start": 4200,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "The prophecy of multiple incarnations—boar, man-lion, Vamana, Rama, Krishna—reveals the theology of divine intervention in cosmic history."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Narada beholds Narayana’s universal form—radiant with countless heads, arms, and eyes, shimmering in hues of gold, sapphire, coral, and crystal while chanting the Vedas.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The cosmic dissolution vision: earth merging into water, water into light, light into wind, wind into space, and finally into the unmanifest Purusha.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A sweeping montage of Vishnu’s incarnations—boar lifting the Earth, Narasimha tearing the demon, Vamana dwarf confronting Bali, Rama with bow, and Krishna in Dwaraka.",
+      "visual_strength": 0.9
+    }
+  ]
+}

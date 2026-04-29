@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhima and Shalya knock each other down with maces; Vrishasena defends the Kaurava army until Pandavas respond, while Drona breaks through and slays Kumara.",
+  "importance": 0.55,
+  "themes": [
+    "heroic duels",
+    "battlefield chaos",
+    "filial protection",
+    "Drona's ferocity",
+    "shifting battle momentum"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima and Shalya crash together with iron maces and both fall simultaneously like shattered pillars on the battlefield.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Vrishasena stands alone in his chariot unleashing thousands of blazing arrows that streak outward like summer sunrays.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Drona with red steeds charges into the Pandava host and strikes down Kumara amid a storm of arrows.",
+      "visual_strength": 0.76
+    }
+  ]
+}

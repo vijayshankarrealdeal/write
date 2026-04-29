@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bound by a vow after Lakshmana interrupts his meeting with Death, Rama banishes him; Lakshmana meditates by the Sarayu and ascends to heaven.",
+  "importance": 0.85,
+  "themes": [
+    "dharma vs affection",
+    "vows and duty",
+    "sacrifice",
+    "divine destiny",
+    "ascension"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lakshmana stands weeping before Rama in the royal assembly as Rama, head bowed in anguish, pronounces his banishment.",
+      "visual_strength": 0.79
+    },
+    {
+      "scene_text": "On the quiet bank of the Sarayu River, Lakshmana sits in deep meditation as gods and apsaras shower flowers from the sky.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Indra descends and bears the radiant Lakshmana upward toward the celestial realm while the gods welcome him.",
+      "visual_strength": 0.76
+    }
+  ]
+}

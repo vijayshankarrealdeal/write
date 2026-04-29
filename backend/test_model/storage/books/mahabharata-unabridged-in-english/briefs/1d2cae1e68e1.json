@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Arjuna defeats Karna in a fierce duel, then devastates the Kaurava army with celestial weapons while restraining himself from killing the defenseless.",
+  "importance": 0.7,
+  "themes": [
+    "heroic duel",
+    "martial prowess",
+    "battle devastation",
+    "restraint in warfare"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna and Karna stand on their chariots facing each other, arrows forming dark clouds between them as conchs and drums thunder around the battlefield.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Arjuna draws the Gandiva to his ear and releases crescent arrows that pierce Karna across his arms, head, and chest, forcing him to retreat.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The battlefield is strewn with fallen elephants and torn banners while Arjuna’s chariot with the roaring monkey-banner blazes amid a storm of arrows.",
+      "visual_strength": 0.9
+    }
+  ]
+}

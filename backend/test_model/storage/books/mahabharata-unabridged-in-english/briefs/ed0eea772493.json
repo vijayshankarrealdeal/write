@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa explains the four stages of life—student, householder, forest recluse, and renunciate—and details duties, especially the discipline and ethics of students and householders.",
+  "importance": 0.55,
+  "themes": [
+    "four ashramas",
+    "brahmacharya discipline",
+    "householder duties",
+    "path to liberation",
+    "Vedic conduct"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A young disciple at dawn gently touches his teacher’s feet with upturned palms while standing humbly beside the hermitage fire.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A forest hermit in bark garments lives on fruits and roots beneath tall trees, meditating alone on the knowledge of Brahman.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "A householder serves food to wandering Brahmins and guests before eating the humble remnants himself in a simple fire-lit home.",
+      "visual_strength": 0.68
+    }
+  ]
+}

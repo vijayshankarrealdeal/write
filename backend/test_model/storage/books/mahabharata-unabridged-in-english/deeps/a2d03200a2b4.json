@@ -1,0 +1,37 @@
+{
+  "rich_summary": "After Yudhishthira’s half‑truth about Ashwatthaman’s death breaks Drona’s spirit, the great preceptor becomes overwhelmed with grief and doubt. Sensing his vulnerability, Dhrishtadyumna—born from sacrifice specifically to slay Drona—charges him in fierce combat. Their duel is intense: arrows shatter bows, standards, chariots, and weapons while both warriors display extraordinary skill. Drona, though shaken by sorrow and the mysterious refusal of celestial weapons to answer his call, still devastates his opponent repeatedly, destroying his equipment and chariot. Forced to fight on foot, Dhrishtadyumna advances with sword and shield, performing dazzling martial maneuvers admired by warriors and even celestial spectators. The scene dramatizes fate closing in on Drona: a warrior destined to die at the hands of the very man now pressing toward him.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Yudhishthira’s reluctant half‑truth about Ashwatthaman sets the moral and emotional context for Drona’s downfall."
+    },
+    {
+      "start": 0,
+      "length": 320,
+      "color_hex": "#FFEB3B",
+      "why": "The symbolic moment when Yudhishthira’s chariot, once floating above the ground, touches earth after the lie—signifying the moral cost of the deception."
+    },
+    {
+      "start": 0,
+      "length": 480,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces Dhrishtadyumna’s charge against the grief‑stricken Drona, fulfilling the prophecy that he was born to kill the preceptor."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Dhrishtadyumna rushes toward the grief‑stricken Drona with a blazing bow drawn, the arrow glowing like the autumn sun as terrified armies watch.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "After his chariot is destroyed, Dhrishtadyumna leaps forward on foot with sword and moon‑crested shield, darting around Drona’s red steeds in dazzling combat.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "Warriors and celestial beings look on in awe as Dhrishtadyumna performs rapid martial maneuvers with sword and shield before the towering chariot of Drona.",
+      "visual_strength": 0.82
+    }
+  ]
+}

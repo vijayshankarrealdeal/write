@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Parvati is born as the incarnation of Sati, shows divine signs in childhood, and destiny begins moving her toward union with the ascetic Lord Siva.",
+  "importance": 0.62,
+  "themes": [
+    "divine incarnation",
+    "destined union",
+    "childhood divinity",
+    "penance and devotion",
+    "cosmic origins"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "At midnight under a bright moon, flowers rain from the sky over the Himalayas as the radiant goddess Parvati is born to Menaka.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The young Parvati rides playfully on the back of a lion in the forest while holding and feeding baby elephants around her.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Lord Siva absorbs the roaring celestial river Ganga into his tangled matted hair as the terrified Earth looks on.",
+      "visual_strength": 0.9
+    }
+  ]
+}

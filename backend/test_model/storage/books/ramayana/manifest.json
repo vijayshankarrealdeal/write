@@ -1,0 +1,54 @@
+{
+  "title": "The Ramayana of Valmiki",
+  "author": "Valmiki",
+  "description": null,
+  "slug": "ramayana",
+  "image_budget": 120,
+  "style": "classical Indian miniature painting (Mewar and Pahari tradition), opaque gouache on handmade paper, vermilion and indigo with malachite green, lavish gold leaf accents, flat stacked perspective, delicate linework, ornate floral borders, finely patterned royal textiles, luminous mythic atmosphere",
+  "reader_preference": "favor divine encounters, mythic revelations, dramatic abductions, aerial journeys, and large-scale battles over quieter court or travel scenes",
+  "phases_done": [
+    "load",
+    "scout",
+    "map",
+    "reduce",
+    "chunk_embeddings",
+    "persist",
+    "poster"
+  ],
+  "scout": {
+    "detected_genre": "ancient Sanskrit epic",
+    "cultural_context": "Hindu epic tradition of ancient India (Valmiki Ramayana)",
+    "suggested_style": "classical Indian miniature painting (Mewar and Pahari tradition), opaque gouache on handmade paper, vermilion and indigo with malachite green, lavish gold leaf accents, flat stacked perspective, delicate linework, ornate floral borders, finely patterned royal textiles, luminous mythic atmosphere",
+    "suggested_reader_preference": "favor divine encounters, mythic revelations, dramatic abductions, aerial journeys, and large-scale battles over quieter court or travel scenes",
+    "suggested_image_budget": 120,
+    "rationale": "The Ramayana is a vast sacred epic dense with visually iconic moments\u2014divine weapons, vanara armies, demons, and celestial interventions\u2014so a high illustration count is warranted. Indian miniature painting traditions historically depicted Ramayana cycles and match the mythic tone, ornate settings, and episodic storytelling structure."
+  },
+  "poster": {
+    "description": "In the ancient forests, palaces, and battlefields of mythic India unfolds one of the world\u2019s great epics: the story of Prince Rama, whose life becomes the measure of duty, devotion, and righteous kingship. When a promise made by his father forces him to abandon the throne of Ayodhya on the very eve of his coronation, Rama accepts fourteen years of exile without bitterness. His loyal wife Sita and his fierce brother Lakshmana choose to follow him into the wilderness\u2014unaware that their journey will ignite a cosmic struggle between gods, demons, and the forces that govern the universe.\n\nFrom hermitages where sages wield terrifying spiritual power to golden Lanka ruled by the ten\u2011headed titan Ravana, the world of the Ramayana teems with warriors, ascetics, celestial weapons, and beings of astonishing strength. Alliances are forged with the monkey king Sugriva and the incomparable Hanuman, whose courage and cunning will carry Rama\u2019s cause across oceans. Meanwhile, Ravana\u2019s court bristles with formidable champions\u2014Indrajita, master of invisible warfare, and the colossal Kumbhakarna\u2014whose might threatens to overwhelm even divine heroes.\n\nValmiki\u2019s timeless epic blends grand battles with intimate moments of loyalty, grief, and moral choice. Kings wrestle with the cost of keeping their word; sages challenge the authority of the gods; friends prove their devotion through impossible deeds. As Rama\u2019s quest to rescue Sita leads toward the thunderous war for Lanka, the poem asks a question that echoes across centuries: what does it mean to live by dharma when the fate of worlds hangs in the balance?\n\nAt once a tale of exile and return, love and loss, war and compassion, The Ramayana remains a luminous cornerstone of the Hindu imagination and one of humanity\u2019s most enduring works of storytelling.",
+    "genres": [
+      "mythology",
+      "epic",
+      "religious",
+      "classics"
+    ],
+    "writing_types": [
+      "epic",
+      "poetry",
+      "scripture"
+    ],
+    "tags": [
+      "ramayana",
+      "valmiki",
+      "ancient-india",
+      "rama",
+      "sita",
+      "hanuman",
+      "ravana",
+      "lanka",
+      "dharma",
+      "hindu-epics"
+    ],
+    "cover_scene": "In ornate Indian miniature style, Rama with bow drawn stands beside Sita and Lakshmana beneath a radiant sky while Hanuman leaps across the ocean toward golden Lanka in the distance, armies of monkeys and rakshasas gathering below amid lush forests and jeweled palaces, all framed by intricate floral borders and glowing gold leaf."
+  },
+  "cover_image_local": "/home/verti/write/backend/test_model/storage/books/ramayana/images/cover.png"
+}

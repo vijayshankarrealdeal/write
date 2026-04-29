@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira questions Bhishma on worthy recipients of gifts and priestly conduct, leading to teachings from Earth, Kasyapa, Agni, and Markandeya on virtue and truth.",
+  "importance": 0.45,
+  "themes": [
+    "charity ethics",
+    "brahmin conduct",
+    "ritual purity",
+    "truth vs ritual",
+    "religious duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The goddess Earth, Rishi Kasyapa, Agni blazing in human form, and the sage Markandeya speak together before Yudhishthira as Bhishma recounts their words.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "A clod of mud dissolves into the vast ocean as the Earth-goddess explains how sin vanishes through sacred duties.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "A cosmic balance weighs a thousand horse-sacrifices on one side and the shining symbol of Truth on the other.",
+      "visual_strength": 0.82
+    }
+  ]
+}

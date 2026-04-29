@@ -1,0 +1,74 @@
+{
+  "chunk": {
+    "id": "11e68ed3d358",
+    "chapter_title": "48. Lakshmana leaves Sita on the Banks of the Ganges",
+    "page_start": 1531,
+    "page_end": 1531,
+    "text": "UTTARA KANDA \nCRAPTBR 48 \nLalulmuuta kaws Sita \"\" the Banks t1{ the G1Jt181\u2022 \nHl!AiuNG Lakshmana's harsh words, the daughter of Janak&, \novercome with despair, fell to the ground but, regaining con-\nsciousness after a time, her eyes bathed in tears, she addresaed \nbim in btoken accents, saying :-\n\"Assuredly this body of mine baa been created for misfortune \nand is its supporter froJ:n this time forward. What sin can I have \ncommitted in days gone by or whom did I separate from bet \nhusband, that I, who am virtuous and chaste, should be c:aat off \nby the king? \n\" Formerly I lived in the forest following in Ramo's footsteps \nand was content in the misfortune in which I found myself, 0 \nPrince, now, how can I, abandoned by all, live in solitude, 0 \ndear Lakshmana ? To whom shall I confide the allliction that \nhas overwhelmed me ? What can I say to the ascetics, 0 Lord ? \nFor what sin, for what reason, am I repudiated by the magnani-\nmous Ragbava ? I may not yield up my life in the waters of the \nGanges, lest I bring the royal line to an end I Therefore do \nwhat thou haat been commanded, 0 Saumitri, leave me to my \nwretched plight I It is for thee to carry out the king's behests, \nyet hear me-do thou with joined palms pay homage to all my \nmothers-in-law and, having worshipped his feet, address the \nking. With bowed head, speak to them all, 0 Lakshmana, and \ndo thou also say to the king, who is ever bed in his duty, \u2022 0 \nRagbava, thou knowest I am truly pure and that I have been \nbound to thee in supreme love, yet thou hast renounced me in \nfear of dishonour, because thy subjects have reproached and \ncensured thee, 0 Hero. Thou shouldst, however have spared \nme, since thou art my only refuge.' Further, thou shouldst aay \nto the king who is established in righteousness, 'As thou dost act \nin regard to thy brothers, so shouldst thou act in regard to thy \nsubjects ; this is pre-eminently thy duty and will bring thee \nimmeasurable renown ; by its observance thou wilt enjoy the \nfruits of the earth I As for me, I am not distressed on mine own \n~"
+  },
+  "brief": {
+    "summary_1line": "Lakshmana obeys Rama\u2019s order to abandon Sita by the Ganges, where she laments her fate and asks him to convey her final words to Rama.",
+    "importance": 0.86,
+    "themes": [
+      "exile and abandonment",
+      "duty vs compassion",
+      "royal reputation",
+      "Sita's lament",
+      "obedience to command"
+    ],
+    "image_candidates": [
+      {
+        "scene_text": "Sita collapses weeping on the sandy bank of the Ganges while Lakshmana stands nearby, torn with grief under the forest sky.",
+        "visual_strength": 0.84
+      },
+      {
+        "scene_text": "Sita, tearful and disheveled, raises folded hands toward Lakshmana as the wide sacred Ganges flows beside them.",
+        "visual_strength": 0.8
+      },
+      {
+        "scene_text": "Lakshmana stands silently with bowed head as Sita, abandoned in the wilderness, speaks her sorrowful message for Rama.",
+        "visual_strength": 0.73
+      }
+    ]
+  },
+  "deep": {
+    "rich_summary": "Lakshmana delivers Rama\u2019s cruel command that Sita must be abandoned, and the shock overwhelms her. Hearing his harsh words, Sita collapses in despair on the banks of the Ganges but soon regains consciousness and laments her fate. She wonders what sin she could have committed to deserve rejection despite her chastity and devotion, recalling how she once followed Rama happily into exile. Now cast off and alone, she asks how she can face the ascetics or explain her disgrace. Though grief-stricken, she refuses suicide for fear of ending the royal line, implying her pregnancy. Accepting the king\u2019s order as unavoidable, she asks Lakshmana to obey Rama but to carry her final message: she is pure and faithful, and Rama has abandoned her only out of fear of public reproach. The passage crystallizes the tragedy of duty versus compassion in the Ramayana.",
+    "highlight_spans": [
+      {
+        "start": 0,
+        "length": 120,
+        "color_hex": "#F48FB1",
+        "why": "Sita collapses upon hearing Lakshmana\u2019s words, marking the emotional shock of her abandonment."
+      },
+      {
+        "start": 120,
+        "length": 180,
+        "color_hex": "#F48FB1",
+        "why": "Her lament questioning what sin she committed underscores the injustice and tragic irony of her exile."
+      },
+      {
+        "start": 300,
+        "length": 200,
+        "color_hex": "#A5D6A7",
+        "why": "Sita recalls following Rama into the forest willingly, highlighting her unwavering devotion."
+      },
+      {
+        "start": 520,
+        "length": 220,
+        "color_hex": "#FFEB3B",
+        "why": "She instructs Lakshmana to deliver her message to Rama, asserting her purity and framing the moral conflict between royal duty and personal loyalty."
+      }
+    ],
+    "top_scenes": [
+      {
+        "scene_text": "Sita collapses in despair on the grassy bank of the Ganges while Lakshmana stands nearby in anguish, the wide sacred river flowing behind them.",
+        "visual_strength": 0.7
+      },
+      {
+        "scene_text": "Tearful Sita, seated on the riverbank with folded hands, sends her final message to Rama as Lakshmana listens in grief beneath forest trees.",
+        "visual_strength": 0.64
+      }
+    ]
+  },
+  "scene_ids": []
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sachi finds Indra hidden in a lotus; they scheme to trick the arrogant Nahusha into riding a palanquin borne by sages, while Vrihaspati begins searching for Indra.",
+  "importance": 0.55,
+  "themes": [
+    "divine concealment",
+    "hubris of Nahusha",
+    "cunning strategy",
+    "loyalty of Sachi",
+    "cosmic search"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sachi shrinks to a minute form and enters a towering white lotus to find Indra hidden within its fibrous stalk.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The proud Nahusha orders great sages to bear him in a palanquin as he boasts of his power over gods and the universe.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Agni, assuming a mysterious feminine form, vanishes from the sacrificial fire to search the worlds for the hidden Indra.",
+      "visual_strength": 0.7
+    }
+  ]
+}

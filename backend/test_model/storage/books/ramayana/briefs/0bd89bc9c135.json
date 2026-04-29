@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana visits the ascetic demon Maricha and reveals his plan to abduct Sita by using Maricha disguised as a golden deer to lure Rama away.",
+  "importance": 0.83,
+  "themes": [
+    "deception and strategy",
+    "abduction plot",
+    "arrogance of Ravana",
+    "looming conflict",
+    "loyalty and counsel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana stands before the ascetic Maricha in a lonely forest hermitage, outlining his scheme while the demon listens in growing terror.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Ravana describes the magical plan of a golden deer flecked with silver wandering before Rama’s forest hut to entice Sita.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Maricha, pale and trembling with dry lips and folded hands, stares at Ravana in dread upon hearing Sita’s name and the plan.",
+      "visual_strength": 0.72
+    }
+  ]
+}

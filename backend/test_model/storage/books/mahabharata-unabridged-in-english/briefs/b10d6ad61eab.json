@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Drona forms an immense layered battle array to protect Jayadratha as Arjuna arrives, blows his conch with Krishna, and devastates the Kaurava vanguard.",
+  "importance": 0.63,
+  "themes": [
+    "battle formations",
+    "protection of Jayadratha",
+    "Arjuna's ferocity",
+    "omens before battle",
+    "psychological warfare"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Drona in white armor stands on his chariot drawing a great bow while vast formations shaped like a cart, lotus, and needle spread across the battlefield behind him.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Krishna and Arjuna stand on their chariot blowing their conchs as Arjuna's banner with the roaring ape flutters and the Kaurava army trembles.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arjuna rains arrows like a storm, severed helmets and jeweled heads falling across the field among collapsing elephants and shattered chariots.",
+      "visual_strength": 0.88
+    }
+  ]
+}

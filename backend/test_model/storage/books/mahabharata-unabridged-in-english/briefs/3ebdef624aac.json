@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sanjaya lists Pandava allies and battle pairings, while Dhritarashtra fears doom and Duryodhana confidently claims his forces will defeat the Pandavas.",
+  "importance": 0.45,
+  "themes": [
+    "battle preparations",
+    "alliances and armies",
+    "fate vs pride",
+    "fatherly foreboding"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Dhritarashtra sits in his dark hall as Sanjaya describes the vast Pandava host assembled with banners and chariots stretching to the horizon.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "Warriors of the Pandavas stand beside their chariots while leaders assign each hero a rival for the coming battle.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Duryodhana stands proudly before the court boasting of Bhishma, Drona, Karna, and his mighty army ready for war.",
+      "visual_strength": 0.6
+    }
+  ]
+}

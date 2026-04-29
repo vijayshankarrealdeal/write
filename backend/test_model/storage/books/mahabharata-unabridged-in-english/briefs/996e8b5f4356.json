@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Surya explains a Brahmana ascetic who, through the Unccha vow and austerity, attained heaven and dwells in the solar disc; another Brahmana resolves to follow the vow.",
+  "importance": 0.6,
+  "themes": [
+    "ascetic vows",
+    "Unccha mode of life",
+    "merit and heaven",
+    "unity of souls",
+    "transmission of sacred stories"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A radiant ascetic merges indistinguishably with the blazing disc of Surya as celestial beings watch in confusion.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A Brahmana sage and a great Naga converse beneath the shade of a forest tree about the path of righteousness.",
+      "visual_strength": 0.6
+    }
+  ]
+}

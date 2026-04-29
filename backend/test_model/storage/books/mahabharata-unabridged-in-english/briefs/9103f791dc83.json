@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Kapila and Syumarasmi debate sacrifice and household duty versus renunciation and knowledge as the true path to liberation.",
+  "importance": 0.72,
+  "themes": [
+    "renunciation vs ritual",
+    "householder duty",
+    "Vedic authority",
+    "self-restraint and yoga",
+    "nature of Brahmana"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Kapila the sage sits calmly while instructing Syumarasmi about controlling the four doors of the body—speech, arms, stomach, and desire.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "A wandering ascetic sleeps on bare earth with his arm as a pillow, clothed only in tranquility under the open sky.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Two sages face each other in earnest debate, one defending sacrificial rites while the other speaks of knowledge and renunciation.",
+      "visual_strength": 0.66
+    }
+  ]
+}

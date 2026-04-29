@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Arjuna’s devastating victories, night falls; next morning Bhishma leads the Kaurava army into a massive clash where he and others charge Arjuna.",
+  "importance": 0.6,
+  "themes": [
+    "battle escalation",
+    "Arjuna's prowess",
+    "Bhishma leadership",
+    "army formations",
+    "war spectacle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna’s chariot with white horses and the ape-banner advances as Bhishma’s vast army, filled with elephants and waving standards, surges forward like storm clouds.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The battlefield sky turns into a dusty canopy as thousands of conches, drums, and twanging bows sound while armies collide.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Bhishma with a palmyra-bannered standard charges directly toward the lightning-like chariot of Arjuna amid crashing elephants and falling warriors.",
+      "visual_strength": 0.86
+    }
+  ]
+}

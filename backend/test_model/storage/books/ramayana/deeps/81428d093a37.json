@@ -1,0 +1,43 @@
+{
+  "rich_summary": "The sage Vishwamitra responds to King Dasaratha’s courteous welcome by revealing the true reason for his visit. While performing sacred sacrifices meant to increase his spiritual power, he is repeatedly attacked by two powerful rakshasas, Maricha and Suvahu, who defile the ritual with blood and flesh just as it nears completion. Because the vows of sacrifice forbid him from giving way to anger or cursing them, Vishwamitra cannot retaliate. Instead, he asks Dasaratha to send the young prince Rama with him for ten days so the boy may guard the rite and destroy the demons. Vishwamitra promises protection, divine instruction, and future glory for Rama. The request marks a crucial turning point: it is the moment when Rama first leaves the royal court and begins the heroic, world-shaping deeds that will reveal his divine destiny.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The opening exchange establishes the respect between sage and king and frames the gravity of Vishwamitra’s request."
+    },
+    {
+      "start": 250,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Introduces the central threat: the rakshasas Maricha and Suvahu who repeatedly desecrate the sacred sacrifice."
+    },
+    {
+      "start": 500,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Vishwamitra’s insistence that Rama alone can defeat the demons hints at the prince’s extraordinary destiny."
+    },
+    {
+      "start": 720,
+      "length": 110,
+      "color_hex": "#F48FB1",
+      "why": "The emotional appeal to Dasaratha to set aside paternal attachment underscores the personal cost of sending Rama away."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In the royal court, the ascetic sage Vishwamitra stands before King Dasaratha, requesting that the young prince Rama accompany him to defend a sacred forest sacrifice.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A sacred fire altar in the forest is suddenly desecrated as the rakshasas Maricha and Suvahu hurl blood and flesh from the sky, terrifying the gathered sages.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The youthful Rama, with bow in hand and locks falling on his cheeks, stands beside the imposing sage Vishwamitra as they prepare to leave the palace for the demon-haunted wilderness.",
+      "visual_strength": 0.82
+    }
+  ]
+}

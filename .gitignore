@@ -73,4 +73,8 @@ ehthumbs.db
 Desktop.ini
 *.ipynb
 .ipynb_checkpoints/
-/backend/test_model
+
+# Large model/data artifacts (exceed GitHub size limits)
+*.tgz
+backend/test_model/data/Ramayana.pdf
+backend/test_model/mahabharata-unabridged-in-english-bundle.tgz

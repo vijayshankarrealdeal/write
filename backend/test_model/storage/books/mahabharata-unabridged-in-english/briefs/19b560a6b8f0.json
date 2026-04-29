@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Arjuna drives back Karna and pursues Ashwatthaman while Satyaki battles Alamvusha and slays him, carving through Kaurava forces toward Arjuna.",
+  "importance": 0.62,
+  "themes": [
+    "heroic duels",
+    "battle momentum",
+    "loyalty to Arjuna",
+    "divine-like martial prowess"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna releases a blazing arrow from Gandiva that streaks through the sky like Garuda hunting a serpent toward Karna’s chariot.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Satyaki severs Alamvusha’s head with a broad-headed arrow as the watching armies pause around their duel.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Satyaki’s silver-white horses charge through ranks of warriors as he showers arrows, scattering the Kaurava host like clouds in a storm.",
+      "visual_strength": 0.77
+    }
+  ]
+}

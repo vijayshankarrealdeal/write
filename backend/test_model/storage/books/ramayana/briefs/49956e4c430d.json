@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman enters Lanka at night, marvels at its splendor, confronts the city’s guardian goddess, defeats her, and receives a prophecy of Ravana’s impending downfall.",
+  "importance": 0.72,
+  "themes": [
+    "entering enemy territory",
+    "prophecy of downfall",
+    "divine guardians",
+    "awe at Lanka’s splendor",
+    "restraint and compassion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman stands on a height at night gazing over Lanka’s golden walls, gem-studded gates, and torchlit palaces shining beside the dark sea.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The monstrous guardian goddess of Lanka rises before the gate and strikes Hanuman with her palm as he roars in defiance.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "After being struck down, the defeated goddess of Lanka lies on the ground pleading while Hanuman stands over her beneath the starry night.",
+      "visual_strength": 0.78
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ministers recount King Parikshit’s virtuous reign and the hunting incident where he insults a silent sage, leading the sage’s son to curse him to die by Takshaka.",
+  "importance": 0.7,
+  "themes": [
+    "righteous kingship",
+    "anger and insult",
+    "ascetic power",
+    "curse and fate",
+    "royal lineage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Exhausted in the forest, King Parikshit lifts a dead snake with his bow and places it around the silent sage’s shoulders as the ascetic sits unmoving in meditation.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The young ascetic Sringin, blazing with fury beside a stream, raises water in his hand and pronounces a deadly curse against King Parikshit.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A messenger-sage stands in the royal court warning Parikshit that the serpent Takshaka will strike within seven nights.",
+      "visual_strength": 0.66
+    }
+  ]
+}

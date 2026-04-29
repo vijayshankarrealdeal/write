@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira debates dharma in distress, deferring to Krishna, who argues for righteous action and condemns the Kauravas’ injustice and Draupadi’s humiliation.",
+  "importance": 0.7,
+  "themes": [
+    "dharma in crisis",
+    "duty vs renunciation",
+    "righteous war",
+    "social order and caste duties",
+    "injustice to Draupadi"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Dussasana drags the weeping Draupadi into the crowded royal assembly while elders like Bhishma sit silent.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Krishna stands in the court speaking forcefully to Sanjaya about duty and justice while assembled kings listen.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Draupadi, surrounded by hostile courtiers, looks desperately for help while only Vidura rises to protest.",
+      "visual_strength": 0.85
+    }
+  ]
+}

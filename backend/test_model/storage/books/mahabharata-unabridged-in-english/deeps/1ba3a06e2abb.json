@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This passage recounts the final moments of Abhimanyu in the Kurukshetra war. Surrounded by multiple elite Kaurava warriors after his chariot, bow, sword, and shield are destroyed, the young hero refuses to retreat. He fights on foot, even leaping into the air with a sword, then wielding a chariot wheel like Krishna’s discus. When that too is shattered, he seizes a mace and continues battling, slaying warriors, elephants, and soldiers despite being riddled with arrows. Finally he duels Duhsasana’s son with maces; both fall, but the Kaurava prince rises first and strikes the exhausted Abhimanyu on the head, killing him. The narrative emphasizes the injustice of many warriors killing one and frames Abhimanyu’s fall as tragic heroism, marking a moral turning point that deepens the Pandavas’ grief and the epic’s sense of violated dharma.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#A5D6A7",
+      "why": "Sets the desperate situation: Abhimanyu is surrounded and stripped of support while multiple warriors attack him together."
+    },
+    {
+      "start": 520,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The iconic moment where Abhimanyu lifts a chariot wheel like a divine discus, symbolizing defiance and heroic improvisation."
+    },
+    {
+      "start": 1400,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "The brutal mace duel with Duhsasana’s son that ends with Abhimanyu struck while vulnerable, emphasizing the tragedy."
+    },
+    {
+      "start": 1900,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The moral judgment of the event—voices in the heavens condemn the killing of a lone warrior by many as unrighteous."
+    },
+    {
+      "start": 2350,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The imagery of Abhimanyu lying fallen like a celestial body emphasizes the emotional weight and heroic loss."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Wounded Abhimanyu stands amid enemies, lifting a broken chariot wheel above his head like a blazing discus while dust and arrows swirl around him.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "Abhimanyu and Duhsasana’s son clash with heavy maces, both striking at once and collapsing like uprooted standards in the middle of the battlefield.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The young warrior Abhimanyu lies fallen on the blood‑strewn battlefield surrounded by shattered chariots, weapons, and elephants as Kaurava soldiers shout and the Pandavas mourn.",
+      "visual_strength": 0.92
+    }
+  ]
+}

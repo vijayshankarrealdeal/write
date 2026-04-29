@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama orders preparations for a grand Ashvamedha sacrifice, summoning sages, allies, kings, and vast resources for the ritual at Naimisha forest.",
+  "importance": 0.55,
+  "themes": [
+    "royal ritual",
+    "Ashvamedha sacrifice",
+    "kingship and duty",
+    "religious ceremony",
+    "gathering of allies"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama, hands joined in reverence, addresses assembled sages in his court while Lakshmana stands ready to carry out the command.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A richly caparisoned sacrificial horse is prepared as priests and warriors gather for the Ashvamedha ritual.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Caravans carrying gold, grain, and offerings move toward the sacred Naimisha forest where a vast sacrificial pavilion is being raised near the river.",
+      "visual_strength": 0.7
+    }
+  ]
+}

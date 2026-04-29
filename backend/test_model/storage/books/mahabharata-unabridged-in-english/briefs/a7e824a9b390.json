@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama slays Ravana with the Brahma weapon, Sita proves her purity before the gods, and Rama is reunited with her as the celestials celebrate.",
+  "importance": 0.95,
+  "themes": [
+    "final battle",
+    "divine intervention",
+    "purity and honor",
+    "illusion and warfare",
+    "restoration and reunion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama releases the Brahma weapon from his drawn bow as Ravana and his chariot erupt in a blazing cosmic fire.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Sita, tearful and disheveled, collapses like a felled plantain tree after Rama harshly rejects her before the silent monkey army.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The sky fills with gods on radiant chariots as Sita stands before Rama invoking the elements to testify to her purity.",
+      "visual_strength": 0.9
+    }
+  ]
+}

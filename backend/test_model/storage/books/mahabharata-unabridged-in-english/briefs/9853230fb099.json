@@ -1,0 +1,25 @@
+{
+  "summary_1line": "At Draupadi’s swayamvara, Arjuna—disguised as a Brahmana—strings the impossible bow and strikes the target, winning her after many kings fail.",
+  "importance": 0.9,
+  "themes": [
+    "heroic prowess",
+    "disguise and identity",
+    "marriage contest",
+    "divine favor",
+    "royal rivalry"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna, disguised as a Brahmana youth, calmly strings the massive bow before a stunned assembly of kings.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Arjuna releases five arrows through the rotating device, striking the distant target as flowers rain from the sky.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Krishna approaches the victorious Arjuna in the arena, offering a white robe and garland while the crowd erupts in celebration.",
+      "visual_strength": 0.72
+    }
+  ]
+}

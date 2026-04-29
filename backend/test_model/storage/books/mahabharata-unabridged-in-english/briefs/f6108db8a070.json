@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna explains cosmic cycles, the paths after death, and reveals the royal knowledge that devotion to him transcends rituals and leads to liberation.",
+  "importance": 0.78,
+  "themes": [
+    "cosmic cycles",
+    "paths after death",
+    "divine immanence",
+    "bhakti devotion",
+    "transcending ritualism"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A cosmic vision shows countless beings emerging from darkness at Brahma’s dawn and dissolving back into the unmanifest at night.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Krishna reveals himself as the universe itself—sun, rain, fire, and sacrifice—while Arjuna listens in awe on the battlefield.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A humble devotee offers a single leaf and a cup of water to Krishna, who accepts it with serene grace.",
+      "visual_strength": 0.72
+    }
+  ]
+}

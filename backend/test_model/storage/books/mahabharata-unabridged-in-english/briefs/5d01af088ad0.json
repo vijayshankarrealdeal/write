@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhima secures a disguise as Virata’s cook while Draupadi, posing as a maid, seeks service with Queen Sudeshna who doubts her humble claim.",
+  "importance": 0.55,
+  "themes": [
+    "disguise and concealment",
+    "royal court dynamics",
+    "female beauty and suspicion",
+    "survival in exile"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima, massive and powerful, stands humbly before King Virata declaring he is a cook named Vallava despite his warrior’s bearing.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Draupadi with long dark braided hair and a single dark cloth wanders through the city streets while curious townspeople gather around her.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "From a palace terrace Queen Sudeshna gazes down in astonishment at the radiant Draupadi standing below in disguise.",
+      "visual_strength": 0.78
+    }
+  ]
+}

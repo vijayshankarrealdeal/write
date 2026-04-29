@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Bhima kills Kichaka, his relatives try to burn Draupadi with the corpse, but Bhima rescues her and slaughters over a hundred of them.",
+  "importance": 0.7,
+  "themes": [
+    "vengeance",
+    "protection of Draupadi",
+    "mob justice",
+    "heroic strength",
+    "disguise during exile"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima uproots a massive tree and charges toward the Kichaka clan like a furious lion while they drag Draupadi toward the funeral pyre.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The Kichakas bind Draupadi and place her on Kichaka’s funeral bier as torches flicker on the way to the cemetery.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Bhima stands towering with the uprooted tree on his shoulder while terrified Sutas scatter in panic across the dark cremation ground.",
+      "visual_strength": 0.88
+    }
+  ]
+}

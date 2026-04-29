@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa explains the renunciate (Sannyasa) path: solitary yoga, non‑violence, detachment, humility, and inner sacrifice leading to emancipation beyond death.",
+  "importance": 0.72,
+  "themes": [
+    "renunciation",
+    "nonviolence (ahimsa)",
+    "yogic discipline",
+    "detachment from society",
+    "self-knowledge and liberation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A solitary ascetic in ragged robes sits beneath a tree with a human skull-bowl, meditating in silence while a quiet village lies in the distance.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A serene mendicant stands unmoved while people around him praise and insult him, his face calm and detached amid the crowd.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "An ascetic performs an inner sacrifice, imagined flames glowing in his heart as he offers his senses and mind into the inner fire.",
+      "visual_strength": 0.82
+    }
+  ]
+}

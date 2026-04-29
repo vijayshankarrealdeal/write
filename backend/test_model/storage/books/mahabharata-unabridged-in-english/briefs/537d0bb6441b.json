@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Lomasa conveys Arjuna’s request that Yudhishthira undertake a protected pilgrimage to sacred tirthas; the king prepares to travel with a reduced retinue and willing Brahmanas.",
+  "importance": 0.44,
+  "themes": [
+    "pilgrimage to tirthas",
+    "ascetic merit",
+    "guidance of sages",
+    "royal duty and humility"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Lomasa stands before Yudhishthira in the forest, relaying Arjuna’s message while the Pandava brothers listen beneath tall woodland trees.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "Citizens and Brahmanas depart sorrowfully for Hastinapura as Yudhishthira remains in the forest with only a small group of companions.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "A gathering of forest ascetics plead with Yudhishthira to let them join the dangerous pilgrimage through Rakshasa‑haunted sacred sites.",
+      "visual_strength": 0.63
+    }
+  ]
+}

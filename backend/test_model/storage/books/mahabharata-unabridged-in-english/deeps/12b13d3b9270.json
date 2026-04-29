@@ -1,0 +1,49 @@
+{
+  "rich_summary": "In this section, Yayati explains to Ashtaka the ideals of different spiritual paths—householder, forest-dweller (Vanaprastha), wandering mendicant, and silent sage (Muni). True virtue lies in charity, hospitality, restraint, and non‑injury. A genuine Bhikshu or Muni is defined less by location than by inner detachment: one may live in the woods or a village yet remain withdrawn from worldly desire. Through ascetic discipline, purity of food and conduct, and meditation, the sage becomes indifferent to pleasure and pain and ultimately unites with Brahman. When asked whether the ascetic or the knower reaches liberation first, Yayati declares that knowledge of the illusory nature of the world leads most directly to salvation, while yoga may take longer across lifetimes. The passage ends dramatically as Yayati reveals he has fallen from heaven after exhausting his merits and must descend toward hell, though he was granted the grace of meeting the wise before his fall.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the ethical duties of the householder—charity, sacrifice, and sharing—which frame the moral foundation of the entire discourse."
+    },
+    {
+      "start": 250,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Describes the qualities of the true Bhikshu, emphasizing detachment, self‑control, and freedom from worldly ties."
+    },
+    {
+      "start": 520,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Explains the paradox that a true Muni may live either in forest or village—the key theme that spiritual renunciation is inward rather than geographic."
+    },
+    {
+      "start": 780,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Central philosophical claim: the man of knowledge who sees the universe as illusory reaches liberation more directly than the practitioner who relies only on yogic practice."
+    },
+    {
+      "start": 1020,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Yayati’s confession that he has fallen from heaven after exhausting his merit adds a dramatic and humbling emotional turn to the discourse."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A thin ascetic Muni sits motionless in deep meditation in a forest clearing, indifferent to sun and rain, radiating calm as if merging with the universe.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Yayati, glowing with celestial garlands yet solemn, stands before the gathered sages while revealing that he has fallen from heaven and must descend to the underworld.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "A wandering Bhikshu with minimal robes walks across vast landscapes day by day, carrying nothing, symbolizing total detachment from worldly life.",
+      "visual_strength": 0.8
+    }
+  ]
+}

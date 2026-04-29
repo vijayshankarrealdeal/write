@@ -1,0 +1,43 @@
+{
+  "rich_summary": "In heaven, King Yayati is honored by the gods and occasionally visits the realm of Brahman. Indra asks him what counsel he gave his son Puru when the son accepted Yayati’s old age and received the kingdom. Yayati recounts a long moral instruction: rule justly, restrain anger, forgive injuries, avoid cruel speech, emulate the virtuous, and treat kindness, charity, and gentle words as the highest worship of the gods. Later, when Indra asks Yayati about his ascetic merit, Yayati proudly claims no equal among men, gods, or sages. Indra rebukes this arrogance, declaring that pride and disregard for others diminish his virtue, causing him to fall from heaven. As Yayati descends, the sage-king Ashtaka sees him blazing like the sun and welcomes him among the wise, affirming the sacred duty of hospitality and support among the virtuous.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 86,
+      "color_hex": "#A5D6A7",
+      "why": "Opens the episode by situating Yayati in heaven, honored among the gods, establishing his former greatness."
+    },
+    {
+      "start": 620,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Yayati’s ethical teaching to Puru about anger, forgiveness, and moral superiority forms the core philosophical lesson."
+    },
+    {
+      "start": 1690,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "Indra’s judgment that Yayati’s pride has diminished his virtue marks the turning point leading to his fall from heaven."
+    },
+    {
+      "start": 2060,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The dramatic moment when Yayati falls from the celestial realm and is seen by Ashtaka, blending awe and compassion."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In Indra’s celestial court, the radiant king Yayati stands before the thunder‑wielding god as they discuss the wisdom he gave his son Puru.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Yayati, glowing like a falling sun, plunges from the heavens through clouds after Indra declares his pride has diminished his virtue.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The sage Ashtaka and other wise seers gaze upward in wonder as the blazing figure of Yayati descends from the celestial path.",
+      "visual_strength": 0.85
+    }
+  ]
+}

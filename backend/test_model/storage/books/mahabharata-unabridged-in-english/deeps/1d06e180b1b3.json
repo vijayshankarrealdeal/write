@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Vyasa consoles the grieving survivors of the Kurukshetra war by revealing a cosmic perspective on the conflict. He explains that many of the warriors were incarnations or portions of divine beings—Duryodhana as Kali, the Pandavas linked to gods, Karna born of Surya, Bhishma one of the Vasus, and Krishna himself Narayana. Their deaths were part of a divine purpose rather than mere human tragedy. Promising to relieve the mourners’ sorrow, Vyasa leads them to the Ganges. At night, through his ascetic power, the slain heroes rise from the waters in radiant celestial forms. Freed from hatred and pride, they appear as they once were in battle. Dhritarashtra, granted divine sight, and the assembled families witness this astonishing reunion, transforming grief into awe and temporary joy.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Vyasa’s compassionate promise that the grieving families will see their dead loved ones again sets the emotional tone of the episode."
+    },
+    {
+      "start": 300,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The teaching that the warriors died fulfilling Kshatriya duty and as instruments of divine purpose frames the war within a cosmic order."
+    },
+    {
+      "start": 900,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The revelation that major figures of the war are incarnations or portions of gods is a key theological moment explaining the epic’s deeper mythic structure."
+    },
+    {
+      "start": 1500,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The miraculous rising of the slain warriors from the waters of the Ganges marks the dramatic climax of the scene."
+    },
+    {
+      "start": 2100,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The vision of former enemies free from anger and jealousy emphasizes reconciliation and the transcendence of earthly conflict."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "At night on the banks of the Ganges, Vyasa stands in meditation as thousands of radiant warriors—Bhishma, Karna, Duryodhana, and others—rise from the river in celestial armor.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Dhritarashtra, granted divine sight by Vyasa, gazes in astonished joy as the long‑dead heroes appear before the gathered families.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The battlefield heroes, now peaceful and adorned with heavenly garlands, stand together while Gandharvas sing and Apsaras attend them.",
+      "visual_strength": 0.82
+    }
+  ]
+}

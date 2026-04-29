@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma overwhelms the Pandava forces, duels Yudhishthira, destroys his chariot, and continues slaughter despite being surrounded until Sikhandin advances toward him.",
+  "importance": 0.72,
+  "themes": [
+    "Bhishma's battlefield dominance",
+    "Yudhishthira vs Bhishma",
+    "heroic warfare",
+    "strategic desperation",
+    "approach of Sikhandin"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma stands on his chariot releasing a storm of arrows that darken the sky and render Yudhishthira invisible.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Bhishma cuts down Yudhishthira’s golden-decked horses, leaving the king forced to leap onto Nakula’s chariot.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Surrounded by many chariots, Bhishma fights like a lone lion among deer, severed warrior heads falling to the earth like fruit.",
+      "visual_strength": 0.9
+    }
+  ]
+}

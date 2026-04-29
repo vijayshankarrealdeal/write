@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Draupadi laments her humiliation in Virata’s court; Bhima vows restrained vengeance and urges patience until exile ends while hearing of Kichaka’s harassment.",
+  "importance": 0.77,
+  "themes": [
+    "humiliation and exile",
+    "suppressed vengeance",
+    "marital loyalty",
+    "fate and endurance",
+    "sexual harassment by power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Draupadi silently weeps while showing Bhima her once-soft hands now rough and covered with corns from servitude.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Bhima clasps Draupadi’s calloused hands and weeps, his huge warrior frame bent in grief and restrained fury.",
+      "visual_strength": 0.81
+    },
+    {
+      "scene_text": "Kichaka confronts Draupadi in his chambers as she stands defiant, warning him that her five Gandharva husbands will destroy him.",
+      "visual_strength": 0.72
+    }
+  ]
+}

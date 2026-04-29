@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman devastates Ravana’s Ashoka grove to provoke battle, and Ravana sends eighty thousand Kinkara demons to capture him.",
+  "importance": 0.7,
+  "themes": [
+    "provocation of battle",
+    "heroic strength",
+    "loyalty to Rama",
+    "destruction of Lanka's garden",
+    "demonic response"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman, grown विशाल like a hill, rips up trees in the Ashoka grove as animals flee and shattered pavilions collapse around him.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Standing at Lanka’s gate, Hanuman roars and lashes his immense tail while thousands of armed Kinkara demons rush toward him.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "In his palace, Ravana’s eyes blaze with fury and tears fall like burning oil as he orders eighty thousand Kinkaras to seize the monkey.",
+      "visual_strength": 0.78
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhima defeats Kritavarman’s chariot, Dhritarashtra laments fate, and fierce duels follow including Iravat vs Avanti princes and Ghatotkacha battling Bhagadatta.",
+  "importance": 0.55,
+  "themes": [
+    "battle duels",
+    "fate and responsibility",
+    "heroic warfare",
+    "Pandava dominance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima, laughing in fury, shatters Kritavarman’s chariot—slaying the horses and charioteer as arrows rain across the battlefield.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Iravat stands triumphant as the chariot of the Avanti brothers bolts away after its charioteer falls lifeless to the ground.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Ghatotkacha on a blazing chariot fires volleys at Bhagadatta, who towers above on a massive war elephant amid a storm of arrows and broken lances.",
+      "visual_strength": 0.86
+    }
+  ]
+}

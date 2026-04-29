@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Vishwamitra recounts his lineage to Rama: Kushanabha’s son Gadhi is his father, and his sister Satyavati becomes the sacred Kaushiki river.",
+  "importance": 0.35,
+  "themes": [
+    "lineage and ancestry",
+    "sacred rivers",
+    "family devotion",
+    "sage identity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Satyavati ascends to heaven and transforms into the shining Kaushiki river flowing near the Himalayas.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Under a star-filled night sky in the forest, sage Vishwamitra sits with Rama and Lakshmana, finishing the tale of his lineage.",
+      "visual_strength": 0.62
+    }
+  ]
+}

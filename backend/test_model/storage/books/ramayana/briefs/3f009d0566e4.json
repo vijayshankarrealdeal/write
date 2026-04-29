@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman launches his immense leap across the ocean toward Lanka, overcoming tests from Mainaka, Surasa, and the demoness Simhika.",
+  "importance": 0.85,
+  "themes": [
+    "heroic quest",
+    "divine assistance",
+    "tests of strength and wit",
+    "devotion to Rama",
+    "journey across the ocean"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman expands to gigantic size on the mountain peak and launches into the sky, uprooting trees that whirl behind him as he leaps over the ocean.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The golden mountain Mainaka rises from the sea with shining peaks to offer Hanuman a resting place amid the waves.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Hanuman shrinks to thumb-size, darts into Surasa’s enormous open mouth, and instantly flies back out into the sky before she can close it.",
+      "visual_strength": 0.82
+    }
+  ]
+}

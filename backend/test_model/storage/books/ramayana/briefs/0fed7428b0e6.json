@@ -1,0 +1,24 @@
+{
+  "summary_1line": "King Dasaratha asks sage Rishyasringa to officiate the horse sacrifice for an heir, and the sage agrees while priests and sages are summoned.",
+  "importance": 0.62,
+  "themes": [
+    "royal sacrifice",
+    "quest for an heir",
+    "sage authority",
+    "ritual preparation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dasaratha bows respectfully before the ascetic Rishyasringa in the palace court, requesting his help in performing the sacred horse sacrifice.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Messengers hurry across the kingdom as Minister Sumantra summons revered sages like Vasishtha and Vamadeva to the royal court.",
+      "visual_strength": 0.48
+    },
+    {
+      "scene_text": "Rishyasringa solemnly instructs that the ritual horse be released while priests gather materials for the grand sacrifice.",
+      "visual_strength": 0.63
+    }
+  ]
+}

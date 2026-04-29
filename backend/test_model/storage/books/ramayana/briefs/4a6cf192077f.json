@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman rallies fleeing monkeys to battle Indrajit, then withdraws believing Sita dead while Indrajit performs a powerful sacrificial ritual at Nikumbhila.",
+  "importance": 0.6,
+  "themes": [
+    "battle morale",
+    "deception about Sita",
+    "Hanuman's leadership",
+    "warfare with titans",
+    "sacrificial ritual"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman hurls a massive rock toward Indrajit's chariot as the charioteer sharply turns the horses and the stone crashes into the earth.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Hundreds of monkeys surround Hanuman, raining trees and boulders onto Indrajit while demons fall beneath the storm of missiles.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "At the altar of Nikumbhila, Indrajit pours bloody libations into a blazing fire that glows like the setting sun while demons stand watching.",
+      "visual_strength": 0.86
+    }
+  ]
+}

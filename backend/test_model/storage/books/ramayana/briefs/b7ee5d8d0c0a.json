@@ -1,0 +1,21 @@
+{
+  "summary_1line": "A grieving Brahmin brings his dead son to Rama’s palace, blaming the king’s possible unrighteousness for the unnatural death.",
+  "importance": 0.63,
+  "themes": [
+    "kingly responsibility",
+    "premature death",
+    "grief and lament",
+    "cosmic justice",
+    "dharma and rulership"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An old Brahmin stands at Rama’s palace gate holding the lifeless body of his young son while crying out in anguish before the guards.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The grieving father lifts the child toward the palace, accusing King Rama’s rule as the cause of the boy’s untimely death.",
+      "visual_strength": 0.73
+    }
+  ]
+}

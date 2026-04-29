@@ -1,0 +1,49 @@
+{
+  "rich_summary": "As Rama prepares for his final departure from the world, he first secures the future of his kingdom and lineage. He divides Kosala between his sons, installing Kusha in Kushavati in the Vindhya region and Lava in the famed city of Shravasti, giving them wealth, armies, and loyal subjects. Messengers then bring grave news to Shatrughna: Lakshmana’s banishment, Rama’s vow, and the people’s determination to follow their king into heaven. Realizing the end of their royal house on earth is near, Shatrughna enthrones his own sons and hastens to Ayodhya. There he finds Rama surrounded by sages and celestial beings who have gathered to witness his departure. Allies from across the epic—monkeys, bears, rakshasas, and gods—assemble, while Sugriva declares his intention to follow Rama, marking the beginning of a cosmic farewell to the avatar-king.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Rama acknowledges the devotion of his people and begins the final actions that will close his earthly reign."
+    },
+    {
+      "start": 220,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "The symbolic transfer of power as Rama installs Kusha and Lava with wealth, armies, and authority."
+    },
+    {
+      "start": 640,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The messengers reveal the alarming news to Shatrughna, signaling the impending end of Rama’s earthly house."
+    },
+    {
+      "start": 1160,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "Shatrughna meets Rama in Ayodhya and declares his unwavering resolve to follow his brother."
+    },
+    {
+      "start": 1460,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "A mythic gathering occurs as monkeys, bears, titans, sages, and celestial beings assemble to witness Rama’s departure."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Rama stands radiant like a flaming brazier among assembled sages while armies of monkeys, bears, and celestial beings gather beneath the sky to witness his final departure.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Shatrughna arrives in Ayodhya and bows before Rama, who stands calm and luminous in woolen robes surrounded by immortal rishis.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Sugriva, with hosts of shape‑shifting monkeys and allied beings, approaches Rama from all directions as the world gathers for the king’s last journey.",
+      "visual_strength": 0.8
+    }
+  ]
+}

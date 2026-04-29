@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana rides in splendor to the golden assembly hall of Lanka and summons his ministers and warriors to prepare for an impending conflict.",
+  "importance": 0.56,
+  "themes": [
+    "royal power and pride",
+    "war preparation",
+    "court assembly",
+    "ominous leadership",
+    "loyalty and hierarchy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana stands in a thunderous golden chariot under a shining white canopy while demon warriors with weapons march and elephants rear around him.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Inside a vast golden hall built by Vishvakarma, Ravana sits on an emerald throne surrounded by rows of bowing demons and guarded by sinister spirits.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Hundreds of armored titans enter the glittering assembly hall like lions entering a rocky cavern to gather before their king.",
+      "visual_strength": 0.66
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dhritarashtra mourns the presumed deaths of the Pandavas while they secretly flee into the forest, where Bhima carries and protects his exhausted family.",
+  "importance": 0.7,
+  "themes": [
+    "deception and survival",
+    "familial loyalty",
+    "royal mourning",
+    "strength and protection",
+    "exile"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima strides through the dark forest carrying Kunti and his brothers as trees bend and break against his powerful chest.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "In the palace, Dhritarashtra and the Kuru court pour water oblations and cry out the names of the supposedly dead Pandavas.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Under a wide banyan tree at night, the exhausted Pandavas and Kunti sleep on bare earth while Bhima returns with water-soaked cloths.",
+      "visual_strength": 0.83
+    }
+  ]
+}

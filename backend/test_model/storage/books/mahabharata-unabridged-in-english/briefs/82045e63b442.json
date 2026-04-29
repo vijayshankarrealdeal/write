@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Bhishma explains how kings and Brahmanas should act during times of social collapse, stressing pragmatic morality, restraint, and guidance from the conduct of the wise.",
+  "importance": 0.45,
+  "themes": [
+    "dharma in adversity",
+    "kingship ethics",
+    "slander and reputation",
+    "protection of Brahmanas",
+    "moral uncertainty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Two calm, well-trained bulls lower their necks into a wooden yoke and steadily pull a heavy cart along a dusty road.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "A hunter kneels in the forest studying drops of blood on the ground as he tracks a wounded deer through the leaves.",
+      "visual_strength": 0.73
+    }
+  ]
+}

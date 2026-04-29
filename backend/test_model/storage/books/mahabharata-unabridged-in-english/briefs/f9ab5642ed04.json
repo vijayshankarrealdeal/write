@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Yudhishthira urges Bhima to abandon desire for sovereignty, teaching that mastery of the self and renunciation lead to true peace and liberation.",
+  "importance": 0.55,
+  "themes": [
+    "renunciation vs kingship",
+    "control of desire",
+    "spiritual knowledge",
+    "paths to liberation",
+    "illusion of worldly power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A serene sage stands atop a high hill looking down at crowds below who grieve over worldly losses.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "King Janaka calmly declares that even if the whole city of Mithila burned to ashes, nothing of his would truly be lost.",
+      "visual_strength": 0.66
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "While being abducted, Sita fiercely rebukes Ravana, condemning his cowardice and warning that Rama will destroy him for the crime.",
+  "importance": 0.6,
+  "themes": [
+    "defiance in captivity",
+    "dharma and honor",
+    "prophecy of vengeance",
+    "abduction of Sita"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana flies through the sky carrying the struggling Sita as she raises a tearful, furious face to denounce him.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Sita, hair streaming and tilaka smeared, points accusingly at Ravana while he bears her away through the air.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Below the sky-borne abduction, the forest and its trembling deities witness Sita crying out \"O Rama, O Lakshmana.\"",
+      "visual_strength": 0.69
+    }
+  ]
+}

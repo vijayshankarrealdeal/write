@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Rama’s followers attain heaven, the text concludes by praising the Ramayana’s spiritual merit and blessings for those who hear or recite it.",
+  "importance": 0.45,
+  "themes": [
+    "heavenly reward",
+    "divine return",
+    "sacred power of scripture",
+    "devotional merit",
+    "cosmic order"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Devotees step into the waters of the Sarayu River and their bodies transform into radiant forms rising in celestial chariots toward heaven.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Brahma and the assembled gods watch as monkeys, bears, and warriors enter the sacred river and ascend to the heavens in glowing bodies.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "In heaven, Vishnu speaks to Brahma while hosts of gods, sages, and celestial beings listen amid radiant light.",
+      "visual_strength": 0.72
+    }
+  ]
+}

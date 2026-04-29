@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Philosophical discourse linking life-winds, sacrifice symbolism, sensory faculties, and the inner Self, portraying yoga and knowledge as an internal sacrificial path to emancipation.",
+  "importance": 0.66,
+  "themes": [
+    "life-winds (prana system)",
+    "inner sacrifice",
+    "senses and qualities",
+    "yoga as ritual",
+    "inner ruler (Self)"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Within a meditating sage’s body, a glowing inner fire receives streams of offerings from the senses while the life-winds swirl around it.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Prana rising and Apana descending like two currents around a central flame inside a human form.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Deities, rishis, snakes, and asuras sit before the Lord of creatures as he utters the single syllable Om.",
+      "visual_strength": 0.86
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A sage begins recounting Ravana’s lineage, describing the ascetic Pulastya whose curse causes Trinabindu’s daughter to conceive, leading toward the birth of Vishravas.",
+  "importance": 0.43,
+  "themes": [
+    "origin of Ravana's lineage",
+    "ascetic power and curses",
+    "unintended conception",
+    "sage austerity",
+    "divine genealogy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Pulastya sits in deep austerity on Mount Meru as carefree maidens sing and dance in the forest, disturbing his meditation.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Pulastya angrily declares that any maiden who comes under his gaze will conceive instantly, his ascetic power blazing as the girls flee in terror.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Trinabindu’s daughter approaches the meditating sage while he recites the Veda, and suddenly she turns pale as the signs of pregnancy appear.",
+      "visual_strength": 0.8
+    }
+  ]
+}

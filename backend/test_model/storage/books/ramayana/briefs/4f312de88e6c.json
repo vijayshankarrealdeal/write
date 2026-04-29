@@ -1,0 +1,24 @@
+{
+  "summary_1line": "On Vibhishana’s counsel, Rama sends Lakshmana with monkey and bear forces to Nikumbhila to stop Indrajit’s sacrifice and engage him in battle.",
+  "importance": 0.6,
+  "themes": [
+    "strategic counsel",
+    "brotherly duty",
+    "interruption of sacrifice",
+    "approach to decisive duel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lakshmana, armored and bow in hand, bows to Rama’s feet before marching toward the dark Nikumbhila Grove with Hanuman and the monkey host behind him.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A vast army of monkeys and bears surges through the forest as Lakshmana leads them toward the sacrificial grove where Indrajit prepares his ritual.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Lakshmana, like one entering darkness, pushes into the dense ranks of the demon army glittering with weapons and chariots beneath tall standards.",
+      "visual_strength": 0.8
+    }
+  ]
+}

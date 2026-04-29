@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dhritarashtra laments Drona’s death, faints in grief, then questions Sanjaya about which warriors faced the advancing Pandava heroes in battle.",
+  "importance": 0.5,
+  "themes": [
+    "grief of Dhritarashtra",
+    "aftermath of Drona's death",
+    "battlefield inquiry",
+    "heroic praise",
+    "looming Pandava assault"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Overcome with grief after hearing of Drona’s fall, the blind king Dhritarashtra collapses to the floor while attendants rush to sprinkle cool perfumed water on him.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Royal women surround the fainted Dhritarashtra, lifting him gently and fanning him as he slowly regains consciousness.",
+      "visual_strength": 0.58
+    },
+    {
+      "scene_text": "Arjuna rides forward beneath a banner bearing the great ape, his Gandiva bow flashing like lightning as dense showers of arrows darken the sky over the battlefield.",
+      "visual_strength": 0.88
+    }
+  ]
+}

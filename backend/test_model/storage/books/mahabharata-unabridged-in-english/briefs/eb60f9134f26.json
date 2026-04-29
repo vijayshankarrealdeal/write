@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Sauti begins the tale of Astika: the ascetic Jaratkaru meets his endangered ancestors, who urge him to marry and produce a son to save their lineage.",
+  "importance": 0.55,
+  "themes": [
+    "ancestral duty",
+    "asceticism vs family",
+    "lineage preservation",
+    "marriage for dharma",
+    "story framing"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Jaratkaru beholds his ancestors hanging head-down over a dark pit, suspended by a fraying grass rope gnawed by a rat.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The austere wanderer Jaratkaru, thin and radiant from penance, stands in a forest clearing speaking solemnly to the spirits of his suspended ancestors.",
+      "visual_strength": 0.73
+    }
+  ]
+}

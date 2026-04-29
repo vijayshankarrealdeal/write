@@ -1,0 +1,31 @@
+{
+  "rich_summary": "This passage tells a mythic explanation for why death exists. The maiden called Death is commanded by Brahman to destroy living creatures, but she recoils in horror, fearing the grief of families and the sin of killing. Refusing the task, she performs unimaginably long austerities across sacred places—standing on one foot for billions of years, living on air, water, or silence—in hopes of being released from the command. Brahman insists that destruction is necessary to the cosmic order and promises she will incur no sin. Her tears become diseases that eventually bring about death, while Desire and Wrath help end lives when their time comes. The story teaches that death is part of divine order and that grieving should be tempered by the knowledge of rebirth and the soul’s continuing journey.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 23,
+      "color_hex": "#A5D6A7",
+      "why": "Opens with a plea of innocence, framing Death’s reluctance and moral anxiety."
+    },
+    {
+      "start": 24,
+      "length": 61,
+      "color_hex": "#F48FB1",
+      "why": "Death’s humble prayer to the lord of creatures shows her compassion and dread of causing suffering."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The maiden Death stands on one foot in a desolate sacred landscape for billions of years, performing severe austerities beneath a vast cosmic sky.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Before the radiant creator Brahman, the sorrowful goddess Death stands silent with tear-filled eyes and folded hands, refusing the command to destroy life.",
+      "visual_strength": 0.91
+    },
+    {
+      "scene_text": "Tears falling from the hands of the goddess Death transform into shadowy spirits of disease that spread across the world among mortals.",
+      "visual_strength": 0.9
+    }
+  ]
+}

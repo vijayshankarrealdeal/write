@@ -1,0 +1,31 @@
+{
+  "rich_summary": "This section explains the unusual births that shape the future conflict of the Kuru dynasty. Bhishma arranges the marriage of Vidura to a woman of mixed caste, and Vidura fathers worthy children. More importantly, the narration turns to the births of Dhritarashtra’s hundred sons and Pandu’s five sons. Gandhari, granted a boon by the sage Vyasa to bear a hundred sons, carries her pregnancy for two years. In frustration after hearing that Kunti has already borne a radiant son, she strikes her womb, producing only a lump of flesh. Vyasa divides it into 101 pieces and places them in pots of clarified butter, from which the Kauravas are eventually born, beginning with Duryodhana. His birth is marked by terrifying omens, and sages advise Dhritarashtra to abandon him for the good of the kingdom—but the king refuses, setting the stage for the tragic future of the Kuru line.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 112,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces Bhishma arranging Vidura’s marriage and the continuation of important Kuru lineage through Vidura."
+    },
+    {
+      "start": 60,
+      "length": 80,
+      "color_hex": "#FFEB3B",
+      "why": "Part of the opening passage that situates the dynastic marriages and lineage-building central to the epic’s unfolding conflict."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Gandhari in anguish striking her womb and the shocking emergence of a hard iron-like mass of flesh while the sage Vyasa suddenly appears.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Vyasa dividing the strange mass into many small pieces and placing them into a hundred pots filled with clarified butter in a hidden chamber.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The newborn Duryodhana crying like a braying ass while jackals, vultures, and crows scream outside under violent winds and ominous fires.",
+      "visual_strength": 0.95
+    }
+  ]
+}

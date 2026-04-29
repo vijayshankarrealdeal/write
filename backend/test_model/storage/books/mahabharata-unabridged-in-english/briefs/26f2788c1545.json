@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Garuda advises Galava to seek wealth from King Yayati to fulfill Viswamitra’s impossible fee of 800 rare horses; Yayati offers his daughter instead.",
+  "importance": 0.66,
+  "themes": [
+    "guru-dakshina obligation",
+    "wealth and charity",
+    "ascetic duty",
+    "royal generosity",
+    "resourceful problem-solving"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Garuda, wings newly restored and powerful, carries the sorrowful sage Galava through the sky in search of the rare horses.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "In his court at Pratisthana, King Yayati receives Garuda and the ascetic Galava with ritual water and offerings while listening to their plea.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "King Yayati presents his radiant daughter to Galava, declaring she will help accomplish the impossible quest for the eight hundred celestial horses.",
+      "visual_strength": 0.8
+    }
+  ]
+}

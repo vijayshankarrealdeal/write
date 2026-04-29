@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Rama grants refuge to Vibhishana (Bibishana), Ravana’s brother who has defected from Lanka after being insulted for advising righteousness. Descending from the sky with his companions, Vibhishana surrenders completely, offering his kingdom, life, and loyalty. Rama questions him about the military strength of the Rakshasas, and Vibhishana describes Ravana’s formidable forces, including Kumbhakarna, Indrajit, and vast shape‑shifting armies. Despite these threats, Rama vows that Ravana cannot escape death anywhere in the cosmos and promises to install Vibhishana as king of Lanka after victory. Lakshmana ceremonially anoints Vibhishana before the monkey hosts, formalizing the alliance. The chapter ends with strategic planning: Vibhishana advises that Rama seek help from the ocean god to cross the sea to Lanka, setting the stage for the epic crossing and coming war.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Rama’s declaration of unconditional protection establishes the dharmic principle that anyone seeking refuge must be protected—even an enemy."
+    },
+    {
+      "start": 650,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Vibhishana’s emotional surrender, abandoning Lanka and placing his life and kingdom at Rama’s feet, marks the moral turning point of his character."
+    },
+    {
+      "start": 1200,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "Vibhishana’s description of Ravana’s champions—Kumbhakarna, Indrajit, and the vast demon host—reveals the immense scale of the coming war."
+    },
+    {
+      "start": 1750,
+      "length": 240,
+      "color_hex": "#FFEB3B",
+      "why": "Rama’s fierce vow that Ravana cannot escape death anywhere in the universe is a pivotal heroic declaration foreshadowing the inevitable battle."
+    },
+    {
+      "start": 2150,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "Lakshmana’s anointing of Vibhishana as king of the Rakshasas symbolizes divine legitimacy shifting from Ravana to the righteous ally."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Vibhishana descends from the sky with four rakshasa companions and falls at Rama’s feet before the gathered monkey army on the seashore.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Rama solemnly vows Ravana’s destruction before the assembled monkeys and Vibhishana, his gaze blazing with divine resolve.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Lakshmana performs the sea‑shore coronation of Vibhishana, pouring sacred water while thousands of monkeys cheer beneath the open sky.",
+      "visual_strength": 0.82
+    }
+  ]
+}

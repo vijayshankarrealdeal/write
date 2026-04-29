@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Shurpanakha, mutilated and terrified, tells Khara that Rama slew the demons sent after him and urges her brother to confront Rama.",
+  "importance": 0.58,
+  "themes": [
+    "vengeance",
+    "sibling loyalty",
+    "fear of Rama",
+    "provocation to battle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Shurpanakha, her nose and ears severed and blood flowing, writhes on the ground before Khara in the demon forest.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Shurpanakha tearfully recounts how Rama’s arrows felled fourteen armed demons in an instant.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "The terrified Rakshasi stretches her hands toward Khara, begging him to avenge the fallen demons and face Rama.",
+      "visual_strength": 0.66
+    }
+  ]
+}

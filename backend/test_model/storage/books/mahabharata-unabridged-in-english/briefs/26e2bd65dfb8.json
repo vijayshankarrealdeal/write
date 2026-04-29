@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Yudhishthira urges Satyaki to rescue Arjuna battling deep within the Kaurava army, and Satyaki vows to reach him despite the immense opposing host.",
+  "importance": 0.6,
+  "themes": [
+    "loyalty to comrades",
+    "battle urgency",
+    "duty and command",
+    "heroic vows"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna’s chariot is swallowed by a vast ocean of Kaurava troops as dust rises and conchs and drums thunder across the battlefield.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Yudhishthira, anxious amid the war camp, implores the warrior Satyaki to ride out and rescue Arjuna before the day ends.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Satyaki stands armed on his chariot, vowing to carve through the entire Kaurava army to reach Arjuna surrounded by enemies.",
+      "visual_strength": 0.72
+    }
+  ]
+}

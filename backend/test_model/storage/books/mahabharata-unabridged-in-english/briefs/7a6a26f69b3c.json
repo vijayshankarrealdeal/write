@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dhritarashtra recounts Krishna’s legendary feats and victories, concluding that the Pandavas are nearly unbeatable with Krishna as their ally.",
+  "importance": 0.62,
+  "themes": [
+    "Krishna’s divine exploits",
+    "fear of Pandava strength",
+    "divine intervention in war",
+    "praise of Vasudeva",
+    "inevitability of victory"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna rides on Garuda toward Amaravati and seizes the celestial Parijata tree as the heavens watch in alarm.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Krishna hurls the flying city of Saubha down into the sea while warriors watch from the shore.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Krishna and Arjuna stand together on a war chariot, with Krishna as charioteer holding the reins and Arjuna ready with his bow.",
+      "visual_strength": 0.88
+    }
+  ]
+}

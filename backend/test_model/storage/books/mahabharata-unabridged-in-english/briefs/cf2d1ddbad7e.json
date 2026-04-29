@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma relays counsel on choosing loyal, wise ministers, guarding state secrets, and valuing agreeable speech as the key to universal regard.",
+  "importance": 0.6,
+  "themes": [
+    "kingship counsel",
+    "loyal ministers",
+    "state secrecy",
+    "political ethics",
+    "power of speech"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A king consults three trusted ministers in a barren open field while watchers guard the horizon to keep their counsel secret.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "A cunning minister is compared to fire entering the hollow of a tree and burning it from within.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The tortoise withdraws its limbs into its shell as a metaphor for ministers concealing their counsel.",
+      "visual_strength": 0.66
+    }
+  ]
+}

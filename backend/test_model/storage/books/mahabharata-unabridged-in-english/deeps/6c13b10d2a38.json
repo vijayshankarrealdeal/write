@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Bhishma recounts a phase of his prolonged duel with Parashurama (Rama, son of Jamadagni). After Bhishma’s charioteer falls, the river‑goddess Ganga—his divine mother—appears and guides his chariot, encouraging him before departing. Bhishma wounds Rama with a powerful arrow that knocks the warrior unconscious, triggering terrifying cosmic omens: blood rain, eclipsed sun, trembling earth, and howling beasts. Yet Rama rises again and the battle continues for twenty‑three days without resolution. During the night Bhishma prays for guidance and dreams of radiant Brahmanas who reveal a secret weapon, the Praswapa, capable of subduing Rama without killing him. Reassured, Bhishma resumes the ferocious fight the next day, both heroes exchanging devastating blows as the epic confrontation escalates.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 44,
+      "color_hex": "#A5D6A7",
+      "why": "The moment Bhishma regains consciousness after being revived, marking the transition back into the epic duel."
+    },
+    {
+      "start": 420,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Revelation that the goddess Ganga herself controlled Bhishma’s chariot after his charioteer fell, emphasizing divine protection."
+    },
+    {
+      "start": 930,
+      "length": 110,
+      "color_hex": "#FFEB3B",
+      "why": "Rama collapses unconscious after Bhishma’s arrow, a pivotal turning point that triggers ominous cosmic signs."
+    },
+    {
+      "start": 1180,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "The cascade of terrifying omens—blood rain, meteors, trembling earth—heightens the mythic scale and emotional tension."
+    },
+    {
+      "start": 2130,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "The dream revelation of the secret weapon Praswapa, which offers Bhishma a non-lethal way to defeat Parashurama."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhishma rises on his chariot to see the radiant river-goddess Ganga standing upon it, guiding the horses amid the battlefield.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Parashurama falls to his knees unconscious after Bhishma’s arrow as the sky turns ominous—meteors fall, blood rains, and the sun darkens.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "In a dreamlike night vision, eight identical radiant Brahmanas surround the wounded Bhishma and reveal the secret Praswapa weapon.",
+      "visual_strength": 0.9
+    }
+  ]
+}

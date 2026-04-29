@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna and the Pandavas visit Bhishma on his bed of arrows, where Krishna praises Bhishma’s wisdom and asks him to instruct grieving Yudhishthira.",
+  "importance": 0.78,
+  "themes": [
+    "reverence for Bhishma",
+    "wisdom before death",
+    "kingship and duty",
+    "divine praise",
+    "aftermath of war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies on a bed of arrows by the river Oghavati, surrounded by sages and warriors while Krishna and the Pandavas approach reverently.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Krishna stands beside the arrow‑pierced Bhishma, speaking solemnly while the Pandavas sit around the dying grandsire.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The aged Bhishma slightly raises his head from the arrow-bed and folds his hands in devotion while addressing Krishna.",
+      "visual_strength": 0.76
+    }
+  ]
+}

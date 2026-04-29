@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains elemental properties, mind and intellect traits, and creation’s entities; Yudhishthira questions death after seeing fallen kings.",
+  "importance": 0.55,
+  "themes": [
+    "Samkhya-like cosmology",
+    "mind and intellect",
+    "five elements",
+    "nature of death",
+    "grief after war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies on his bed of arrows teaching Yudhishthira as the battlefield of fallen kings stretches behind them.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A symbolic tableau of the five elements—earth, water, fire, wind, and space—radiating their qualities around a meditating sage.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Yudhishthira gazes over the field where mighty kings lie lifeless on the bare ground after battle.",
+      "visual_strength": 0.77
+    }
+  ]
+}

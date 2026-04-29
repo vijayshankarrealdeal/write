@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bharata denies involvement in Rama’s exile, weeps before Queen Kaushalya, and curses whoever caused the banishment while proclaiming his devotion to Rama.",
+  "importance": 0.7,
+  "themes": [
+    "filial grief",
+    "innocence and loyalty",
+    "maternal accusation",
+    "curses and moral law",
+    "family conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata collapses at Queen Kaushalya’s feet, weeping as the pale and trembling queen embraces him in grief.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "The sorrowful Queen Kaushalya, weak from separation from Rama, walks with trembling steps through the hall toward Bharata and Shatrughna.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Bharata with joined palms passionately swears curses upon whoever exiled Rama while courtiers watch in stunned silence.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Guha offers to guard Rama as he sleeps on the riverbank, but Lakshmana insists on keeping vigil, lamenting Rama’s hardship and fearing grief in Ayodhya.",
+  "importance": 0.42,
+  "themes": [
+    "loyalty",
+    "vigilance",
+    "exile hardship",
+    "brotherly devotion",
+    "foreboding for Ayodhya"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama and Sita sleep on a simple bed of straw by the sacred river while Lakshmana stands awake with bow in hand under the night sky.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Guha, the Nishada chief, speaks softly to Lakshmana beside a dim riverside campfire while the forest and river lie silent around them.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Lakshmana gazes sorrowfully at the sleeping Rama on the ground, imagining the grieving palace of Ayodhya far away.",
+      "visual_strength": 0.61
+    }
+  ]
+}

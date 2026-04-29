@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma advises Yudhishthira on ideal royal cities, fortifications, governance, spies, treatment of subjects, and the administrative hierarchy needed to stabilize a kingdom.",
+  "importance": 0.56,
+  "themes": [
+    "ideal capital city",
+    "fortifications and resources",
+    "royal governance",
+    "spy networks",
+    "taxation and administration"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A vast fortified city with high walls, trenches, elephants, chariots, markets, and temples ringing with Vedic chants and music.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "A king humbly offering gifts and seats to austere forest ascetics while listening to their counsel.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Royal spies quietly observing townspeople and reporting to officials in a layered hierarchy of village and provincial administrators.",
+      "visual_strength": 0.55
+    }
+  ]
+}

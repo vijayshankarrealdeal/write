@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Explains cyclical creation, origins of knowledge and sciences, evolution of elements and senses from Prakriti, and the immortal Soul acting through bodies and karma.",
+  "importance": 0.7,
+  "themes": [
+    "cosmic creation",
+    "Prakriti and elements",
+    "nature of the Soul",
+    "karma and rebirth",
+    "origins of knowledge"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A single lamp lights thousands of other lamps in darkness, symbolizing primordial matter giving rise to countless beings.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Within a human body shaped like a nine-doored temple, a radiant inner soul illuminates the senses like a lamp.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Rishis in deep penance recover the lost Vedas at the dawn of a new cosmic age after universal dissolution.",
+      "visual_strength": 0.75
+    }
+  ]
+}

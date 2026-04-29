@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma begins a tale of Vyasa and a frightened worm to explain attachment to life and karmic rebirth shaped by past cruelty.",
+  "importance": 0.55,
+  "themes": [
+    "ahimsa",
+    "karma and rebirth",
+    "attachment to life",
+    "moral consequence",
+    "repentance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "On a dusty road, the sage Vyasa bends toward a terrified worm racing away as a rumbling bullock cart thunders closer.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The tiny worm looks up at the towering sage while the shadow of a heavy cart and straining bulls looms over the road.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The worm recounts its past life as a cruel wealthy man, the memory contrasting a rich human figure with the small crawling creature.",
+      "visual_strength": 0.56
+    }
+  ]
+}

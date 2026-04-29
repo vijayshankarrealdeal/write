@@ -1,0 +1,55 @@
+{
+  "rich_summary": "This section recounts the climactic fulfillment of Narada’s prophecy about Satyavan’s death. Knowing the destined day, Savitri undertakes a severe three‑night fast and accompanies her husband into the forest despite her dread. While cutting wood, Satyavan collapses and dies with his head in her lap. Yama, the god of death, appears and takes Satyavan’s soul. Refusing to abandon her husband, Savitri follows Yama and engages him in profound discourse on righteousness, devotion, and moral duty. Impressed by her wisdom and fidelity, Yama grants several boons: the restoration of her father‑in‑law’s sight and kingdom, sons for her father, and a hundred sons for herself. Realizing that the last boon requires Satyavan’s life, Yama restores him. The episode highlights the power of steadfast virtue, intelligence, and marital devotion to overcome even death.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 190,
+      "color_hex": "#A5D6A7",
+      "why": "Sets the tension: Savitri remembers Narada’s prophecy and prepares through ascetic vows as the destined day of Satyavan’s death approaches."
+    },
+    {
+      "start": 980,
+      "length": 190,
+      "color_hex": "#F48FB1",
+      "why": "Savitri insists on accompanying Satyavan to the forest despite weakness from fasting, revealing her resolve not to leave his side."
+    },
+    {
+      "start": 2350,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "The pivotal moment when Yama appears and pulls Satyavan’s soul from his body, marking the literal confrontation with death."
+    },
+    {
+      "start": 4200,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "Savitri’s philosophical speech to Yama on righteousness and moral duty, which persuades him and earns the granting of boons."
+    },
+    {
+      "start": 6500,
+      "length": 190,
+      "color_hex": "#FFEB3B",
+      "why": "Savitri cleverly asks for sons by Satyavan, forcing Yama to restore her husband’s life to keep his own promise."
+    },
+    {
+      "start": 7600,
+      "length": 190,
+      "color_hex": "#F48FB1",
+      "why": "Satyavan awakens with his head in Savitri’s lap, completing the emotional resolution after her triumph over fate."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In a dim forest clearing, Savitri sits on the ground with Satyavan’s head on her lap as the radiant, dark figure of Yama appears beside them holding a glowing noose.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Savitri walking fearlessly behind Yama along a shadowy path as he carries Satyavan’s captured soul, the two figures silhouetted against a cosmic twilight.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "After Yama departs, Savitri cradles Satyavan in the forest night as he awakens, moonlight filtering through trees around them.",
+      "visual_strength": 0.85
+    }
+  ]
+}

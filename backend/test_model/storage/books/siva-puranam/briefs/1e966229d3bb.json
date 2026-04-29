@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Parvati proves her unwavering devotion to Siva, passes his disguised test, gains his acceptance, and preparations begin for their formal marriage.",
+  "importance": 0.75,
+  "themes": [
+    "devotion and penance",
+    "divine testing",
+    "union of Siva and Parvati",
+    "nature of the Absolute",
+    "marriage and dharma"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Parvati calmly sits in meditation as the disguised old monk Siva approaches her hermitage leaning on a staff.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Parvati steps into a blazing fire during her vow, yet the flames cool harmlessly around her body.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Siva briefly reveals multiple divine forms—Vishnu with four arms and then Nataraja dancing—before vanishing before the astonished crowd.",
+      "visual_strength": 0.9
+    }
+  ]
+}

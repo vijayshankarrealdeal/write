@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira accepts a second dice game staking exile; Sakuni wins immediately, sending the Pandavas into forest exile as Dussasana mocks them.",
+  "importance": 0.87,
+  "themes": [
+    "fate vs free will",
+    "gambling and deception",
+    "humiliation of the Pandavas",
+    "exile vow",
+    "Kuru court cruelty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The Pandava brothers silently remove their royal robes and don rough deer-skins in the Kuru assembly while courtiers watch in anguish.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Sakuni casts the dice before the court and calmly declares victory as Yudhishthira sits resigned, knowing the ruin it brings.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Dussasana stands laughing and taunting as the Pandavas, clad in deer-skins, prepare to leave the palace for twelve years of exile.",
+      "visual_strength": 0.86
+    }
+  ]
+}

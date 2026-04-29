@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains the sacred origin and merit of gifting gold, then begins the tale of Kartikeya’s birth and the coming destruction of the demon Taraka.",
+  "importance": 0.45,
+  "themes": [
+    "sacred origin of gold",
+    "ritual offerings",
+    "charity and merit",
+    "birth of Kartikeya",
+    "cosmic battle against Taraka"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Six celestial Krittika goddesses simultaneously give birth, their six radiant infants merging into one blazing child, Kartikeya.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A sacrificer pours libations onto a shining piece of gold placed upon kusa grass as a symbolic substitute for sacred fire.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "The gods assemble and appoint the youthful Kartikeya, shining with divine energy, as commander of the celestial armies.",
+      "visual_strength": 0.7
+    }
+  ]
+}

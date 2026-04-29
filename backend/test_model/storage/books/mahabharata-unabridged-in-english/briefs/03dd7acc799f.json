@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Duryodhana completes a grand sacrifice, invites the exiled Pandavas who decline, and later he and Karna vow future victory and the destruction of the Pandavas.",
+  "importance": 0.55,
+  "themes": [
+    "royal sacrifice",
+    "rivalry with Pandavas",
+    "exile and vows",
+    "pride and ambition"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A messenger bows before the Pandavas in the forest of Dwaita, inviting them to Duryodhana’s grand sacrifice while they sit in exile.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Bhima angrily declares that he will attend only when Duryodhana is cast into the fire of battle, while the other Pandavas remain silent.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Karna raises a solemn vow before Duryodhana’s court, promising not to wash his feet or eat meat until he slays Arjuna.",
+      "visual_strength": 0.8
+    }
+  ]
+}

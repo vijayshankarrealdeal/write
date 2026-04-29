@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bharata refuses the throne, declares Rama the rightful king, and resolves to go to the forest to bring him back for coronation.",
+  "importance": 0.72,
+  "themes": [
+    "loyalty to rightful ruler",
+    "renunciation of power",
+    "brotherly devotion",
+    "dharma and succession"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Prince Shatrughna drags Manthara across the palace floor, her scattered ornaments glittering like stars across the hall.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Bharata solemnly circumambulates the royal coronation articles while ministers watch, declaring that Rama alone deserves the throne.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The gathered court and citizens weep with joy as Bharata announces he will march to the forest to bring Rama back as king.",
+      "visual_strength": 0.6
+    }
+  ]
+}

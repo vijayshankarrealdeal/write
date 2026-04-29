@@ -1,0 +1,20 @@
+{
+  "summary_1line": "After Rama’s installation, court minstrels awaken him with lavish praises, and he rises, bathes, and proceeds to perform the morning sacrificial rites.",
+  "importance": 0.35,
+  "themes": [
+    "royal praise",
+    "kingship ritual",
+    "devotion to Rama",
+    "court ceremony"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Court minstrels stand in the palace hall at dawn singing praises as Rama sleeps on a white-covered couch like Vishnu upon the serpent bed.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Rama rises from his couch while attendants approach with folded hands carrying ornate ewers of water for his morning ablutions.",
+      "visual_strength": 0.62
+    }
+  ]
+}

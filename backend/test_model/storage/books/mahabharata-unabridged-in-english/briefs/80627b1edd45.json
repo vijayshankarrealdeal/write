@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma teaches Yudhishthira about detachment, the inevitability of loss, and overcoming grief through understanding impermanence and the soul’s quest for liberation.",
+  "importance": 0.58,
+  "themes": [
+    "friendship and gratitude",
+    "impermanence",
+    "detachment from family ties",
+    "cycle of joy and sorrow",
+    "pursuit of liberation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A grieving King Senajit sits in his court while a calm Brahmana speaks to him about the inevitability of death and separation.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Two pieces of wood drift together on a vast ocean before slowly separating again, symbolizing human relationships.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Creatures are crushed like seeds in an oil press representing the grinding cycle of rebirth driven by attachment.",
+      "visual_strength": 0.76
+    }
+  ]
+}

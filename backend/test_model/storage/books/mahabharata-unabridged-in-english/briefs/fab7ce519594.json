@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A discourse on contentment and the dangers of wealth precedes Yudhishthira’s anguished confession of guilt over the deaths of kin and elders in the war.",
+  "importance": 0.72,
+  "themes": [
+    "contentment vs wealth",
+    "renunciation",
+    "moral guilt",
+    "aftermath of war",
+    "dharma and charity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma, pierced with countless arrows, reels like a mountain peak collapsing and falls upon his chariot facing the east.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Yudhishthira stands grief‑stricken remembering the moment he murmured 'Aswatthaman is slain' while Drona awaited the truth.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "The aged Bhishma lies on the ground covered in blood and arrows as warriors look on in stunned silence.",
+      "visual_strength": 0.86
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This chapter narrates the climactic duel between Lakshmana (Saumitri) and Ravana’s formidable son Indrajita during the war in Lanka. After his first chariot is destroyed, Indrajita briefly retreats, returns in a new chariot, and unleashes a devastating assault that scatters the monkey army. Lakshmana, aided by Vibhishana, counters with extraordinary archery, shattering Indrajita’s weapons, killing his charioteer, and forcing him to fight on foot. The battle escalates into a mythic exchange of divine missiles—those of Yama, Varuna, Rudra, Agni, and others—while celestial beings watch from the sky. At last Lakshmana invokes Indra’s irresistible weapon, vowing that if Rama is truly righteous it will strike true. The arrow severs Indrajita’s head, turning the tide of the war and triggering the rout of the demon army.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "The opening battlefield chaos establishes the ferocity of the titan–monkey war and the personal clash between Lakshmana and Indrajita."
+    },
+    {
+      "start": 800,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Indrajita returns to battle in a newly prepared golden chariot, signaling the renewed and escalating confrontation."
+    },
+    {
+      "start": 1600,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Both warriors are bloodied yet radiant like flowering trees, a vivid emotional image of heroic endurance amid carnage."
+    },
+    {
+      "start": 2600,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "The clash of divine weapons—Agneya, Varuna, Rudra, and others—turns the duel into a cosmic contest witnessed by celestial beings."
+    },
+    {
+      "start": 3600,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Lakshmana invokes Indra’s weapon and decapitates Indrajita, the decisive moment that changes the course of the war."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Lakshmana and Indrajita stand amid a raging battlefield, their divine arrows colliding in midair and bursting into flame like two planets crashing together while gods watch from the sky.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Lakshmana releases Indra’s blazing arrow which streaks across the battlefield and severs Indrajita’s jeweled, helmeted head as armies freeze in shock.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "Indrajita returning from Lanka in a gilded chariot surrounded by demon battalions, unleashing a storm of arrows that drives the monkey warriors back toward Lakshmana.",
+      "visual_strength": 0.86
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sampati recounts how he lost his wings, lived on the Vindhya mountain, and met the ascetic Nishakara who recognized him and questioned his condition.",
+  "importance": 0.42,
+  "themes": [
+    "ascetic wisdom",
+    "suffering and endurance",
+    "memory of the past",
+    "hermitage life"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The wingless vulture Sampati crawls painfully down the Vindhya mountain through sharp grass toward the serene hermitage of the sage Nishakara.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The radiant sage Nishakara returns from ablutions, surrounded by lions, bears, snakes, and other creatures moving peacefully around him.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Inside the forest hermitage, the aged sage recognizes the burned and weakened Sampati and questions him about the loss of his wings.",
+      "visual_strength": 0.58
+    }
+  ]
+}

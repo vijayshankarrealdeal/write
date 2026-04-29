@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma devastates the Pandava forces while refusing to strike Sikhandin, as Arjuna advances under heavy opposition urged by Duryodhana.",
+  "importance": 0.76,
+  "themes": [
+    "Bhishma’s battlefield supremacy",
+    "Sikhandin and gender vow",
+    "Arjuna vs Bhishma setup",
+    "Kaurava morale and command",
+    "heroic slaughter in war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma stands in his chariot amid a storm of arrows, refusing to strike Sikhandin while calmly enduring the shafts that pierce his armor.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Dussasana fiercely defends Bhishma, raining arrows that scatter Pandava warriors, elephants, and horses across the battlefield.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Arjuna with Krishna as charioteer drives forward through converging armies as Duryodhana orders countless warriors to surround and attack him.",
+      "visual_strength": 0.82
+    }
+  ]
+}

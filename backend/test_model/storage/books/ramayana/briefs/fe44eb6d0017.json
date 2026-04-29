@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Lakshmana tearfully reveals that Rama, fearing public scandal, has ordered Sita abandoned near the hermitages by the Ganges.",
+  "importance": 0.9,
+  "themes": [
+    "duty vs compassion",
+    "public honor",
+    "exile",
+    "loyalty to king",
+    "tragic separation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "On the quiet bank of the Ganges, Lakshmana falls to the ground in tears before the bewildered Sita after bringing her across the river.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Lakshmana, hands folded and face wet with tears, stands before Sita on the forested riverbank as he confesses Rama has repudiated her.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A small boat drifts across the wide Ganges at noon carrying Sita and the grief‑stricken Lakshmana toward the lonely forest shore.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Maricha recounts his first encounter with the young Rama, whose arrow hurled him into the sea and convinced him of Rama’s terrifying power.",
+  "importance": 0.72,
+  "themes": [
+    "warning against hubris",
+    "Rama’s early prowess",
+    "demonic fear of Rama",
+    "consequences of abducting Sita"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The youthful Rama in simple garments draws his bow in Vishwamitra’s forest hermitage as the demon Maricha charges toward the sacrificial altar.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Rama’s arrow strikes Maricha and hurls the massive demon through the sky across a hundred yojanas toward the distant sea.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Maricha, recalling the future, envisions Lanka’s jeweled palaces burning under a storm of Rama’s arrows.",
+      "visual_strength": 0.74
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Ravana shows Sita the splendor of his palace and urges her to become his queen, boasting of his power and belittling Rama.",
+  "importance": 0.67,
+  "themes": [
+    "temptation and coercion",
+    "power and pride",
+    "Sita's grief",
+    "wealth versus virtue"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana leads the sorrowful Sita up a magnificent golden stairway inside a gem-studded palace while demon women surround her.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Inside the glittering halls of Lanka, Ravana boasts before Sita as she stands with bowed head, weeping and covering her moonlike face with her robe.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Ravana gestures toward lotus-filled pools and jeweled fountains of his palace while the grieving Sita looks on in silence.",
+      "visual_strength": 0.7
+    }
+  ]
+}

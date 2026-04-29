@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Kumbhakarna, awakened from sleep, meets Ravana, who pleads for his help against Rama’s invading monkey army threatening Lanka.",
+  "importance": 0.58,
+  "themes": [
+    "brotherly loyalty",
+    "looming battle",
+    "desperation of Ravana",
+    "war preparation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The colossal Kumbhakarna strides along the royal road of Lanka while thousands of demons surround him and flowers rain down from palace balconies.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Kumbhakarna enters the golden palace and bows before Ravana seated upon the celestial Pushpaka chariot throne.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Ravana rises anxiously and embraces the towering, red‑eyed Kumbhakarna as he begs his brother to save Lanka from Rama.",
+      "visual_strength": 0.76
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains spiritual merits of various gifts—gold, water sources, ghee, sandals, sesame, land, houses, and cows—emphasizing their religious rewards and benefits to ancestors.",
+  "importance": 0.45,
+  "themes": [
+    "ritual gifts and merit",
+    "charity to Brahmanas",
+    "ancestral rites",
+    "sacred resources (water, land, cows)",
+    "religious cosmology"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A devout man presents a cow with a white copper milking vessel to a Brahmana beneath the starry night of Revati.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Villagers and cattle gather gratefully around a newly dug well as clear water rises under the summer sun.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A traveler kneels to offer sandals to a Brahmana whose feet burn on the hot sand of a dusty road.",
+      "visual_strength": 0.68
+    }
+  ]
+}

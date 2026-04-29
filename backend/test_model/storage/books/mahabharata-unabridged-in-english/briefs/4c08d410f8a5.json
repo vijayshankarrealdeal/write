@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Pradyumna defeats and nearly kills Salwa but spares him by divine command; Krishna returns, learns of the attack on Dwaraka, and sets out to hunt Salwa.",
+  "importance": 0.65,
+  "themes": [
+    "divine destiny",
+    "heroic combat",
+    "illusion warfare",
+    "vengeance quest",
+    "divine intervention"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Pradyumna stands in his chariot drawing a blazing arrow like a venomous serpent while gods in the sky send Narada to stop him.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Krishna blows the white conch Panchajanya beside the ocean as Danava warriors fall from Salwa’s flying metal city into the waves.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Salwa’s aerial city hovers miles above the sea while torrents of arrows rain down on Krishna and his army below.",
+      "visual_strength": 0.84
+    }
+  ]
+}

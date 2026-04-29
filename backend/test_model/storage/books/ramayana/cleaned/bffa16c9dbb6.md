@@ -1,0 +1,23 @@
+# THB RAMAYANA OF VALMIKI
+
+The Sumantra, loosing the tired horses, let them roll on the ground to relieve their fatigue and gave them to drink causing them to bathe in the river, and allowing them to graze on the banks of the Tamasa.
+
+## CHAPTER 46
+
+Shri Rama, with Sita and Lakshmana and the charioteer drive away alone to the forest
+
+SHRI RAMA, reaching the beautiful banks of the river Tamasa, gazing on Sita, addressed his brother Lakshmana: “O Son of Queen Sumitta, this is the first night of our exile, there is no cause for anxiety. The forest looks deserted and melancholy, the birds and beasts having retired to rest. Doubtless the capital of Ayodhya with its inhabitants and my royal sire are deeply distressed on account of our departure. The king, seeing in us many virtues, looks on us with deep affection. O Lakshmana, I fear lest my father and my illustrious mother become blind with incessant weeping. Yet Prince Bharata of upright conduct, will assuredly offer consolation to my parents in dutiful and pious words. O Mighty-armed Prince, reflecting on the compassion of Prince Bharata, I have no fear for my parents. O Hero, thou hast done well in accompanying me to the forest, had it not been so, my solicitude for Sita would have been great. O Lakshmana, there is an abundance of roots, fruits and berries here, but to-night I desire to partake of water alone.”
+
+Having thus addressed Prince Lakshmana, Shri Rama said to Sumantra: “O Gentle Friend, attend to the horses with great care.” The sun having set below the horizon, Sumantra, fastening the horses to a tree, placed tender grass before them, heedful of their welfare. The time of Sandhya having come, the charioteer observed his devotions according to the rules of his caste, then, with the help of Lakshmana, prepared a bed for Rama. Perceiving the bed made with tender leaves, on the banks of the Tamasa, Shri Rama with Sita and Lakshmana rested there.
+
+Finding Shri Rama and Sita sleeping, Lakshmana, leaving his seat, recounted the excellent virtues of Rama to the charioteer. Lakshmana thus passed the whole night till the sun rose, conversing with Sumantra on the attributes of Rama.
+
+In this manner, on the banks of the Tamasa, among herds of cattle, Shri Rama and those who had followed him, passed the night. At dawn, Shri Rama rose and seeing the people still asleep, said to his virtuous brother Lakshmana:-
+
+“O Lakshmana, see how these people, abandoning their homes and property, to follow us, are sleeping under the trees. It seems that they, vowing to bring us back, will give up their lives rather than be false to their determination. Let us, therefore, O Brother, leave this place before they wake. When we have crossed the Tamasa, there will be no further cause for anxiety. By our silent departure, the people of the capital of King Ikshwaku, will not, like us, be compelled to sleep under the trees. It is the duty of a prince to preserve them from suffering and not make them the companions of his distress.”
+
+Shri Lakshmana answered Ramachandra, saying: “O Wise One, I accept thy resolve, let us mount the chariot immediately.” Rama then said to Sumantra: “Speedily prepare the chariot, I will proceed towards the forest, let us therefore depart from hence without delay.”
+
+The charioteer, hastily yoking the horses to the chariot, humbly addressed Rama, saying: “O Great Prince, the chariot is now ready, please ascend with Lakshmana and Sita; may prosperity attend thee.”
+
+Shri Rama with his bow, quiver and other weapons, mounted the chariot and passed over the swiftly flowing river. Crossing the Tamasa, at a short distance from the shore, they traversed a rough path overgrown with briars, and then came to a wide road, where they could travel with ease and which was safe from any danger. To elude the citizens, Shri Rama said to Sumantra: “O Charioteer, drive first towards the south. Having thus

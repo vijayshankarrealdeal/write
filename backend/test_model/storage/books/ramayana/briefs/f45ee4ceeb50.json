@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman brings Rama and Lakshmana to Sugriva, who forms a fire‑witnessed alliance with Rama, promising mutual help against Bali and in the search for Sita.",
+  "importance": 0.82,
+  "themes": [
+    "alliance and friendship",
+    "mutual aid",
+    "exile and injustice",
+    "oath before fire",
+    "foreshadowing omens"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman, now in his monkey form, carries Rama and Lakshmana on his shoulders as he leaps up the mountain toward Sugriva.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Rama and Sugriva clasp hands before a small sacred fire while Hanuman stands beside them after kindling the flames.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Sugriva spreads a flowering sala branch as a seat while he and Rama sit together in friendship, with Hanuman offering Lakshmana a sandalwood branch.",
+      "visual_strength": 0.64
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Multiple duels erupt around Bhishma as warriors on both sides—Satyaki, Abhimanyu, Bhima, and others—clash with Kaurava champions seeking to protect the grandsire.",
+  "importance": 0.55,
+  "themes": [
+    "heroic duels",
+    "defense of Bhishma",
+    "warrior rivalry",
+    "battlefield chaos"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Satyaki splits Bhagadatta’s jewel-studded iron dart midair with a flurry of arrows, the shattered weapon falling like a dim meteor.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhima stands on his chariot with a golden-winged arrow lodged in his chest, still firing blazing shafts at Bhurisravas.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Old kings Virata and Drupada charge together toward Bhishma while Ashwatthaman showers them with arrows.",
+      "visual_strength": 0.66
+    }
+  ]
+}

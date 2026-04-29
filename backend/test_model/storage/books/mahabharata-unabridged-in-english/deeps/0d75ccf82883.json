@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Krishna reveals his cosmic nature and explains why Bhishma has been granted the rare vision of his divine form: Bhishma’s unwavering devotion, discipline, and righteousness. Krishna tells the dying warrior that only fifty‑six days of life remain before he reaches the realms from which souls do not return, and that the assembled sages seek his final teachings for Yudhishthira, whose judgment is clouded by grief after the war. Bhishma, lying on his bed of arrows, humbly refuses at first, overwhelmed by pain and by the audacity of speaking on duty in Krishna’s presence. In response, Krishna grants him a boon: freedom from pain, perfect clarity of memory, and divine insight so he may instruct the king. The moment becomes sacred, marked by celestial signs, as sages and gods honor Krishna and prepare to hear Bhishma’s teachings.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Describes Krishna’s cosmic form filling the universe, emphasizing the divine scale of the vision granted to Bhishma."
+    },
+    {
+      "start": 500,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna foretells the remaining days of Bhishma’s life and his destined passage to realms from which there is no return."
+    },
+    {
+      "start": 1100,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Bhishma’s emotional confession of weakness and pain on the bed of arrows, showing the human vulnerability of the great warrior."
+    },
+    {
+      "start": 1700,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna grants Bhishma a boon removing pain and granting perfect clarity so he can teach dharma to Yudhishthira."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhishma lying on a bed of arrows gazes upward as Krishna reveals his vast cosmic form, the sky as his head, earth as his feet, and the sun blazing as his eye.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Krishna standing beside the wounded Bhishma grants a radiant boon, divine light calming the warrior as sages and Pandavas watch in reverent silence.",
+      "visual_strength": 0.89
+    },
+    {
+      "scene_text": "Celestial flowers rain from the sky while rishis chant Vedic hymns around Bhishma’s arrow-bed at sunset as the sun descends in the west.",
+      "visual_strength": 0.86
+    }
+  ]
+}

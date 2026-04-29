@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Chyavana creates the colossal demon Mada to threaten Indra, forcing him to grant the Ashvins Soma rights before the demon is dispersed into worldly vices.",
+  "importance": 0.7,
+  "themes": [
+    "ascetic power",
+    "divine negotiation",
+    "creation of demon Mada",
+    "Indra's submission",
+    "origins of vice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The gigantic demon Mada towers with one jaw on earth and the other in heaven as Indra stares in terror with his paralyzed arm.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Sage Chyavana stands by the sacrificial fire chanting hymns as the monstrous being Mada forms from his ascetic power.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "The immense demon rushes toward Indra with gaping mouth and lightning-like tongue while the world echoes with its roar.",
+      "visual_strength": 0.9
+    }
+  ]
+}

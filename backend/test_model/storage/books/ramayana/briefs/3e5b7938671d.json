@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Death, sent by Brahma, tells Rama his divine mission is fulfilled and reminds him of his origin as Vishnu who incarnated to destroy Ravana.",
+  "importance": 0.86,
+  "themes": [
+    "divine identity",
+    "mission fulfilled",
+    "cosmic creation",
+    "avatar of Vishnu",
+    "destiny and mortality"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The ascetic revealing himself as Death stands before Rama in a guarded chamber while Lakshmana waits outside the closed door.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Death proclaims Rama as the cosmic Vishnu from whose navel a radiant lotus emerges bearing Brahma.",
+      "visual_strength": 0.82
+    }
+  ]
+}

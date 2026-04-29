@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Bhishma’s fall, Karna leads the Kauravas as ominous portents appear; Drona devastates Pandava forces until they surround him to halt his advance.",
+  "importance": 0.6,
+  "themes": [
+    "battle leadership shift",
+    "omens of destruction",
+    "heroic rivalry",
+    "celestial weapons",
+    "siege of a warrior"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Karna stands at the head of the Kaurava army beneath his blazing standard while he and Arjuna glare at each other across the battlefield.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Dark dust covers the sun as meteors fall and vultures circle over armies preparing for slaughter.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Drona on a magnificent chariot cuts through the Pandava ranks like a ring of fire while warriors swarm around him.",
+      "visual_strength": 0.86
+    }
+  ]
+}

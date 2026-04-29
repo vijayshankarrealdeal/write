@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama and Lakshmana defeat the demon Viradha, learn he is a cursed Gandharva, and free him by burying his invulnerable body.",
+  "importance": 0.62,
+  "themes": [
+    "demon encounter",
+    "curse and redemption",
+    "forest exile trials",
+    "divine identity revealed"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The giant demon Viradha strides through the forest carrying Rama and Lakshmana on his shoulders while Sita raises her arms in despair.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama and Lakshmana break both of Viradha’s massive arms, and the cloud‑like demon collapses to the ground like a mountain struck by lightning.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Rama stands with his foot pressing down on the demon’s neck while Lakshmana digs a deep pit in the forest to bury the invulnerable titan.",
+      "visual_strength": 0.78
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "rich_summary": "Bharata pleads passionately with Rama to abandon his exile and return to Ayodhya to rule. He praises Rama’s wisdom, restraint, and spiritual insight, arguing that a prince whose duty is to protect the people should not withdraw to the forest. Bharata condemns the circumstances created by Kaikeyi and suggests that their father Dasharatha, near death and troubled, made a misguided decision under pressure. Declaring himself too young and unworthy to rule, Bharata begs Rama to accept the crown, even offering to serve him as a subordinate. Despite Bharata’s humility and the collective appeals of priests, citizens, and elders, Rama remains unwavering in his vow to obey his father’s command. The episode highlights Rama’s absolute commitment to dharma and filial obedience, a defining moral principle of the epic.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Rama frames death and duty philosophically, urging restraint in grief and acceptance of destiny."
+    },
+    {
+      "start": 520,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Rama’s central principle: he refuses to disregard his father’s command, establishing the moral core of the episode."
+    },
+    {
+      "start": 1040,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Bharata’s anguish over his mother Kaikeyi’s actions reveals his moral conflict and emotional suffering."
+    },
+    {
+      "start": 1580,
+      "length": 130,
+      "color_hex": "#FFEB3B",
+      "why": "Bharata argues that a warrior’s first duty is to rule and protect the people, challenging Rama’s decision."
+    },
+    {
+      "start": 2350,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The emotional climax where Bharata bows at Rama’s feet and begs him to show compassion."
+    },
+    {
+      "start": 2860,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The closing moment emphasizing Rama’s unwavering fidelity to his vow despite universal pleading."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bharata kneels with his head at Rama’s feet in the forest clearing while sages, priests, and grieving citizens watch anxiously.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Rama stands calm and resolute in ascetic garments beneath forest trees while Bharata passionately argues before assembled ministers and sages.",
+      "visual_strength": 0.78
+    }
+  ]
+}

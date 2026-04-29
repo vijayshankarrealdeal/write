@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna contrasts divine and demonic qualities, warns against lust, anger, and greed, and explains how faith, food, sacrifice, and discipline reflect the three gunas.",
+  "importance": 0.78,
+  "themes": [
+    "divine vs demonic nature",
+    "three gunas",
+    "ethical conduct",
+    "self-discipline",
+    "authority of scripture"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna stands beside Arjuna on the chariot as he describes two paths, while visions of serene divine figures and chaotic demonic beings appear in the sky.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A proud warrior surrounded by piles of gold boasts of his power while shadowy nooses labeled desire, anger, and greed coil around him.",
+      "visual_strength": 0.81
+    },
+    {
+      "scene_text": "Three symbolic offerings on an altar—pure nourishing food, fiery pungent dishes, and rotten refuse—represent the three qualities of goodness, passion, and darkness.",
+      "visual_strength": 0.67
+    }
+  ]
+}

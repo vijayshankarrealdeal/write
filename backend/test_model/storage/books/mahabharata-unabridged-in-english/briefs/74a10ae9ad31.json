@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narayana reveals to Markandeya that he is the supreme source, creator, sustainer, and destroyer of the universe who incarnates to restore cosmic order.",
+  "importance": 0.86,
+  "themes": [
+    "divine self-revelation",
+    "cosmic creation",
+    "Vishnu/Narayana supremacy",
+    "avatars and cosmic cycles",
+    "divine immanence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The radiant divine child reveals his cosmic form, declaring the sun and moon as his eyes and the earth as his feet before the astonished sage Markandeya.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Vishnu as a colossal boar lifts the drowned earth from the dark cosmic waters.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The universe appears as the body of Narayana, with stars as pores of his skin and oceans as his robes.",
+      "visual_strength": 0.85
+    }
+  ]
+}

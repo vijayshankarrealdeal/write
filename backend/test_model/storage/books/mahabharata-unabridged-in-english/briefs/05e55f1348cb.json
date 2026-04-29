@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Garuda carries the enslaved Vinata and the snakes toward the sun, scorching them, prompting Kadru to pray to Indra for protective rain.",
+  "importance": 0.45,
+  "themes": [
+    "divine rivalry",
+    "maternal bondage",
+    "cosmic balance",
+    "prayer to Indra"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Garuda soars toward the blazing Sun carrying the serpents on his back while the snakes writhe and faint under the scorching rays.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Vinata humbly bears Kadru on her shoulders across the ocean shore while Garuda waits nearby with the serpents.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Kadru raises her hands in fervent prayer to Indra as her serpent sons lie scorched beneath the blazing sky.",
+      "visual_strength": 0.66
+    }
+  ]
+}

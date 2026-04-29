@@ -1,0 +1,24 @@
+{
+  "summary_1line": "The Pandavas appoint the sage Dhaumya as their priest and journey with Brahmanas toward Panchala to attend Draupadi’s grand swayamvara.",
+  "importance": 0.46,
+  "themes": [
+    "priestly guidance",
+    "journey to Panchala",
+    "Draupadi’s swayamvara",
+    "omens of destiny"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The five Pandava brothers and their mother stand before the ascetic Dhaumya in a forest hermitage as he accepts them as his disciples.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Bands of Brahmanas travel a forest road while describing the radiant Draupadi, born from sacrificial fire, to the disguised Pandavas.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Arjuna ceremonially returns the Gandharva’s fiery weapon beside the flowing Bhagirathi before the groups respectfully part ways.",
+      "visual_strength": 0.58
+    }
+  ]
+}

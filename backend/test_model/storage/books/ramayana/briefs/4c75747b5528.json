@@ -1,0 +1,25 @@
+{
+  "summary_1line": "King Janaka explains the origin of Shiva’s great bow and recounts how he discovered the earth-born Sita while ploughing a sacrificial field.",
+  "importance": 0.63,
+  "themes": [
+    "Sita's birth",
+    "sacred bow of Shiva",
+    "divine lineage",
+    "marriage trial of strength",
+    "royal duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Janaka ploughs the sacrificial field when a radiant infant girl emerges from the furrow of the earth.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Shiva lifts his immense bow in wrath before the frightened gods after Daksha’s sacrifice is destroyed.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Janaka respectfully addresses the sage Vishwamitra and the two princes in his court at dawn.",
+      "visual_strength": 0.4
+    }
+  ]
+}

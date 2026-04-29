@@ -1,0 +1,20 @@
+{
+  "summary_1line": "King Danda encounters the sage Shukra’s daughter Aruja in a hermitage, desires her, and ignores her warning to seek her father’s consent.",
+  "importance": 0.56,
+  "themes": [
+    "unchecked desire",
+    "dharma and consent",
+    "guru-disciple duty",
+    "warning before punishment"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a forest hermitage during spring, King Danda approaches the radiant maiden Aruja walking alone among flowering trees.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Aruja stands calmly in the woodland clearing with folded hands, warning the desire-struck king of her father Shukra’s wrath.",
+      "visual_strength": 0.72
+    }
+  ]
+}

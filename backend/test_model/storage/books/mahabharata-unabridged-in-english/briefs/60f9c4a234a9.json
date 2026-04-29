@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna urges Yudhishthira to rule and support society through charity, while Yudhishthira replies that true renunciation and knowledge surpass mere action.",
+  "importance": 0.55,
+  "themes": [
+    "duty vs renunciation",
+    "kingship and charity",
+    "true vs false asceticism",
+    "scriptural authority",
+    "path to salvation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna stands before the sorrowful Yudhishthira in the royal hall, passionately urging him not to abandon the throne for a mendicant’s life.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "A wandering ascetic with a triple-headed staff and earthen bowl walks away from a palace while citizens look on anxiously.",
+      "visual_strength": 0.57
+    },
+    {
+      "scene_text": "Yudhishthira calmly replies to Arjuna, surrounded by scriptures and sages, speaking of renunciation and knowledge of Brahman.",
+      "visual_strength": 0.55
+    }
+  ]
+}

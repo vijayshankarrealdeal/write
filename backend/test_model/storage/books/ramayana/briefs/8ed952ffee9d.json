@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Rama calms Lakshmana, insisting Bharata comes in love, rejecting the idea of fighting his brother for the kingdom.",
+  "importance": 0.67,
+  "themes": [
+    "brotherly loyalty",
+    "renunciation of power",
+    "righteous conduct",
+    "trust in Bharata"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama gently restrains the furious Lakshmana in the forest while speaking calmly about Bharata’s loyalty.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Rama touches his arms solemnly, vowing he would never accept a kingdom gained by killing his brother.",
+      "visual_strength": 0.63
+    }
+  ]
+}

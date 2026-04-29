@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Gods obtain amrita through Vishnu’s enchantress ruse; Rahu is beheaded after sneaking a sip, sparking eclipses and a battle between gods and Asuras.",
+  "importance": 0.75,
+  "themes": [
+    "deception and divine strategy",
+    "immortality",
+    "cosmic conflict",
+    "origin of eclipses",
+    "divine intervention"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vishnu as a radiant enchantress distributes the nectar while the armored Asuras gaze at her spellbound.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Narayana’s discus slices off Rahu’s head as he secretly drinks the nectar among the gods.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The severed head of Rahu rises roaring toward the sky while his colossal headless body crashes to the trembling earth.",
+      "visual_strength": 0.88
+    }
+  ]
+}

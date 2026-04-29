@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Narada warns against pride and obstinacy, and Krishna urges Duryodhana to heed wise counsel and make peace with the Pandavas.",
+  "importance": 0.65,
+  "themes": [
+    "pride and downfall",
+    "wise counsel",
+    "dharma and kingship",
+    "peace vs war",
+    "obedience to elders"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna stands before the defiant Duryodhana in the Kuru court, calmly advising peace while elders like Bhishma and Vidura look on.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The celestial sage Narada recounts the fall of King Yayati, who once ruled gloriously but was cast down from heaven by his pride.",
+      "visual_strength": 0.63
+    }
+  ]
+}

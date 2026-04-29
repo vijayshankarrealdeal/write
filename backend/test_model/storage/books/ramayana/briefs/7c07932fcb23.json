@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Indrajit’s death, Lakshmana returns wounded; Rama warmly praises and embraces him, declaring Ravana effectively defeated and preparing for the final confrontation.",
+  "importance": 0.7,
+  "themes": [
+    "brotherly devotion",
+    "victory over Indrajit",
+    "divine celebration",
+    "prelude to Ravana’s fall",
+    "war valor"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama tenderly embraces the blood‑stained Lakshmana, seating him on his lap while the monkey chiefs gather around after Indrajit’s defeat.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "In the heavens, gods beat their gongs and apsaras scatter showers of flowers as Indrajit’s lifeless body lies on the battlefield.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Lakshmana, wounded and supported by Hanuman and Vibhishana, returns from battle surrounded by jubilant monkeys leaping and clapping.",
+      "visual_strength": 0.76
+    }
+  ]
+}

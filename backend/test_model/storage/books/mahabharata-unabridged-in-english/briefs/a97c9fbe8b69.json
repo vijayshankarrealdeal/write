@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After heavy losses, Dhrishtadyumna vows to kill Drona as a vast, chaotic dawn battle erupts, with exhausted armies clashing amid dust, noise, and slaughter.",
+  "importance": 0.58,
+  "themes": [
+    "vengeful oath",
+    "chaos of war",
+    "heroic rivalry",
+    "battlefield carnage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Dhrishtadyumna, enraged among assembled warriors, raises his weapons and swears an oath to slay Drona as the armies watch.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "At sunrise, dust clouds and clashing warriors—elephants, chariots, and horsemen—merge into a chaotic battlefield under the golden sun.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "A gruesome river of blood flows across the battlefield, filled with fallen warriors, broken weapons like fish, and torn banners like froth.",
+      "visual_strength": 0.9
+    }
+  ]
+}

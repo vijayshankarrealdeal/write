@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Maharaksha challenges Rama for avenging his father Khara, but after a fierce duel Rama shatters his weapons and kills him with a divine fire-arrow.",
+  "importance": 0.62,
+  "themes": [
+    "heroic duel",
+    "revenge for slain kin",
+    "divine weapons",
+    "omens before battle",
+    "cosmic spectators"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Maharaksha hurls a blazing spear gifted by Shiva toward Rama while the gods scatter in fear across the sky.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama's arrows shatter the flaming spear midair, the fragments falling like a blazing meteor to the earth.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Rama releases the Fire-weapon that pierces Maharaksha's heart, the demon collapsing on the battlefield as gods watch from the heavens.",
+      "visual_strength": 0.83
+    }
+  ]
+}

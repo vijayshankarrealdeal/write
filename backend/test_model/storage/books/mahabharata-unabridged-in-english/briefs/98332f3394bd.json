@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts how King Vasu was cursed for siding with animal sacrifice, fell into the earth, but regained heaven through unwavering devotion to Narayana.",
+  "importance": 0.62,
+  "themes": [
+    "devotion to Narayana",
+    "curse and redemption",
+    "sacrifice ethics",
+    "authority of rishis",
+    "divine grace"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The radiant white inhabitants of White Island run with folded hands toward a blinding light like a thousand suns, crying 'Namas!'",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "King Uparichara Vasu falls from the sky into a dark chasm in the earth as enraged rishis pronounce their curse.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Garuda dives into a deep pit in the earth, lifts King Vasu in his beak, and rises powerfully back into the open sky.",
+      "visual_strength": 0.88
+    }
+  ]
+}

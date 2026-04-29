@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Bhishma tells Yudhishthira that reciting the names of gods, sages, sacred places, and cosmic powers purifies sins and brings spiritual benefit.",
+  "importance": 0.45,
+  "themes": [
+    "purification through recitation",
+    "divine pantheon",
+    "sacred geography",
+    "karma and righteousness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies on a bed of arrows on the battlefield while Yudhishthira stands beside him listening to sacred teachings.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A devotee at dawn recites the names of gods as the sun rises, surrounded by imagined visions of deities, rivers, and mountains.",
+      "visual_strength": 0.6
+    }
+  ]
+}

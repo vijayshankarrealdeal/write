@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After the Pandavas leave for exile, Bhishma rebukes Duryodhana and Karna; Karna vows to prove his worth and launches a campaign conquering many kingdoms.",
+  "importance": 0.47,
+  "themes": [
+    "rebuke of Duryodhana",
+    "Karna's pride and vow",
+    "Kuru court tensions",
+    "royal conquest campaign"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma stands in the Kuru court rebuking Duryodhana while the young king laughs dismissively beside Karna and Shakuni.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Karna raises his weapon before Duryodhana and swears to conquer the earth single-handed while the court listens.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Karna's army surrounds the city of Drupada as chariots, elephants, and banners fill the battlefield before the walls.",
+      "visual_strength": 0.74
+    }
+  ]
+}

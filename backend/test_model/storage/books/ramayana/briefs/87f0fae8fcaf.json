@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana’s son Aksha confronts Hanuman in a fierce aerial battle, but Hanuman ultimately destroys his chariot and prepares to kill the young warrior.",
+  "importance": 0.65,
+  "themes": [
+    "heroic combat",
+    "youthful valor",
+    "respect for enemy",
+    "inevitable destruction",
+    "divine-scale battle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Prince Aksha rides a golden chariot drawn by eight swift horses through the sky toward Hanuman standing at the city gate.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Hanuman, bleeding from three arrows in his forehead, glows like a rising sun as he roars in the sky.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Hanuman leaps into the air and smashes Aksha’s flying chariot with his palm, sending the shattered vehicle and dead horses crashing from the sky.",
+      "visual_strength": 0.94
+    }
+  ]
+}

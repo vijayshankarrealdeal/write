@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bharata begs Rama to return and rule Ayodhya, but Rama refuses, insisting on obeying their father's command to live in exile for fourteen years.",
+  "importance": 0.82,
+  "themes": [
+    "filial duty",
+    "renunciation of power",
+    "brotherly devotion",
+    "obedience to dharma"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata, eyes filled with tears, bows and places his head at Rama’s feet in the forest hermitage while ministers stand behind him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama in bark garments lifts the grieving Bharata and embraces him amid the forest as Lakshmana stands nearby.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Rama, Lakshmana, and Bharata sit together in the hermitage like three sacred fires while gathered citizens watch in tense silence.",
+      "visual_strength": 0.66
+    }
+  ]
+}

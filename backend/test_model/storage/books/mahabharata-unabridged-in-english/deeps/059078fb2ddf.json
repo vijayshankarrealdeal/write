@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Narada finishes describing the celestial assembly of Brahma, a radiant court where gods, sages, and many classes of beings gather and are honored by the creator. He tells Yudhishthira that while human courts may be splendid, Brahma’s is unmatched in all worlds. Curious about the heavenly courts Narada mentioned earlier, Yudhishthira asks why only one mortal king—Harishchandra—dwells in Indra’s assembly. Narada explains that Harishchandra conquered the earth and performed the mighty Rajasuya sacrifice with unmatched generosity, giving wealth far beyond what was asked. Because of this achievement he attained Indra’s realm. Narada then relays a message from Yudhishthira’s deceased father Pandu: Yudhishthira should conquer the earth and perform the Rajasuya so that Pandu too may reach Indra’s heaven. Narada warns the rite is dangerous and may provoke conflict, then departs, leaving Yudhishthira and his brothers contemplating the great sacrifice.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the celestial court of Brahma and its universal gathering of divine beings."
+    },
+    {
+      "start": 120,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Narada praises the unmatched splendor of Brahma’s Sabha, framing the cosmic scale of divine assemblies."
+    },
+    {
+      "start": 240,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Yudhishthira’s key question about why only King Harishchandra resides among the gods in Indra’s court."
+    },
+    {
+      "start": 360,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Narada recounts Harishchandra’s conquest of the earth and preparation for the Rajasuya sacrifice."
+    },
+    {
+      "start": 480,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Pandu’s message urging Yudhishthira to perform the Rajasuya so that his father may attain Indra’s realm."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The radiant Sabha of Brahma filled with gods, rishis, nagas, gandharvas, and celestial beings bowing before the creator seated in brilliance.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Narada standing before Yudhishthira in the royal hall, recounting the glory of King Harishchandra and the Rajasuya sacrifice.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Yudhishthira and the Pandava brothers sitting together in thought after Narada departs, contemplating the perilous Rajasuya sacrifice.",
+      "visual_strength": 0.7
+    }
+  ]
+}

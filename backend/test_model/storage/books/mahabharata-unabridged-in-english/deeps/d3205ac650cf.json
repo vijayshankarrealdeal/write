@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Krishna, Bhima, and Arjuna arrive in disguise at the court of King Jarasandha. Jarasandha immediately suspects them, noting that true Brahmanas observing the Snataka vow would not be adorned with garlands and bearing the marks of bowstrings. Krishna replies with clever ambiguity, justifying their appearance and behavior while hinting at their warrior nature and their intention to confront an enemy. Jarasandha insists he has done them no wrong and defends his conduct as a righteous Kshatriya. Krishna then openly accuses him of imprisoning many kings in order to sacrifice them to Rudra. Declaring this act sinful and tyrannical, Krishna reveals their identities—himself and the sons of Pandu—and challenges Jarasandha: either release the captive monarchs or face death in battle. The passage frames the confrontation as a moral and dharmic reckoning.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "The dramatic opening where the disguised heroes sit before Jarasandha, establishing tension and ritual-like grandeur."
+    },
+    {
+      "start": 120,
+      "length": 110,
+      "color_hex": "#A5D6A7",
+      "why": "Jarasandha’s suspicion about their garlands and bow-marks highlights the theme of identity and the contrast between Brahmana and Kshatriya roles."
+    },
+    {
+      "start": 600,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna argues that entering an enemy’s house through a wrong gate and refusing hospitality is part of their warrior code, revealing their true intent."
+    },
+    {
+      "start": 1200,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna’s accusation that Jarasandha has imprisoned kings for human sacrifice marks the moral turning point of the confrontation."
+    },
+    {
+      "start": 1900,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "The climactic revelation of identities—Krishna and the sons of Pandu—followed by the direct challenge to fight or release the captive monarchs."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna, Bhima, and Arjuna sit before King Jarasandha in disguise, garlanded like Brahmanas yet radiating warrior strength in the royal hall.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Krishna calmly confronting Jarasandha in the court, accusing him of imprisoning kings for sacrifice while Bhima and Arjuna stand beside him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The dramatic moment when Krishna reveals their true identities and challenges Jarasandha to free the captive kings or fight to the death.",
+      "visual_strength": 0.86
+    }
+  ]
+}

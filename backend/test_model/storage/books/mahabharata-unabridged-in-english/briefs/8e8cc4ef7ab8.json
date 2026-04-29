@@ -1,0 +1,25 @@
+{
+  "summary_1line": "As the Bhagavad Gita begins, Duryodhana surveys the armies, conches sound, and Arjuna asks Krishna to place his chariot between the forces, then falters in grief.",
+  "importance": 0.9,
+  "themes": [
+    "battlefield tension",
+    "duty vs compassion",
+    "family conflict",
+    "war ritual",
+    "moral crisis"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna halts the white-horsed chariot between the two vast armies while Arjuna, bow in hand, gazes at rows of his own relatives on the battlefield.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Bhishma, the aged grandsire, stands in armor and blows his conch with a lion-like roar as drums and horns thunder across Kurukshetra.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Overwhelmed with pity, Arjuna trembles in his chariot as the Gandiva bow slips from his hand while he looks upon fathers, teachers, and friends among the enemy ranks.",
+      "visual_strength": 0.9
+    }
+  ]
+}

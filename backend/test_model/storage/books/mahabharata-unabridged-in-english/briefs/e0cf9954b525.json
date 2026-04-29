@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Draupadi wakes Bhima and laments their humiliations in exile, especially Kichaka’s harassment and Yudhishthira’s fall from king to disguised servant.",
+  "importance": 0.62,
+  "themes": [
+    "humiliation in exile",
+    "anger at injustice",
+    "memory of lost royalty",
+    "female vulnerability and protection",
+    "disguise and fallen status"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Draupadi, pale and distraught, shakes the sleeping Bhima in the night as he rises from a rich couch to hear her grief.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Draupadi stands anguished while Bhima, disguised as the cook Vallava, wrestles fierce beasts in the palace arena as royal women watch and laugh.",
+      "visual_strength": 0.82
+    }
+  ]
+}

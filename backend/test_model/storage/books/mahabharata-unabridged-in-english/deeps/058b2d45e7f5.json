@@ -1,0 +1,43 @@
+{
+  "rich_summary": "In this chapter of the Nala–Damayanti tale, the ruined king Nala, stripped of kingdom and possessions by fate and the influence of Kali, wanders the forest with his devoted wife. After birds carry away his garment, he points out the roads that could lead Damayanti back to her father’s land, subtly urging her to leave him for safety. Damayanti refuses, insisting that a wife is the greatest comfort in suffering and that she will not abandon him. Though he professes love, Nala becomes tormented by the thought that she would suffer less without him. While she sleeps in a travelers’ shed, he debates whether to leave. Overcome by despair and Kali’s influence, he cuts their shared garment in half and secretly abandons her, repeatedly returning in anguish before finally departing.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 300,
+      "color_hex": "#A5D6A7",
+      "why": "Nala explains their ruin and the ominous birds stealing his cloth, setting the stage for their deepening misfortune and exile."
+    },
+    {
+      "start": 300,
+      "length": 260,
+      "color_hex": "#F48FB1",
+      "why": "Damayanti’s heartfelt refusal to leave Nala expresses the theme of marital devotion and the idea that a faithful wife is the greatest comfort in adversity."
+    },
+    {
+      "start": 900,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "Nala’s internal debate about whether to abandon Damayanti reveals the tragic turning point where love struggles against despair and the influence of Kali."
+    },
+    {
+      "start": 1500,
+      "length": 260,
+      "color_hex": "#F48FB1",
+      "why": "The moment Nala cuts the garment and leaves the sleeping Damayanti is the emotional climax, marking their painful separation."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In a dim forest shelter, the weary Nala silently cuts the single garment he shares with the sleeping Damayanti before slipping away into the night.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Damayanti pleading with Nala in the forest, insisting she will not leave him despite their hunger and ruin.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Nala pacing back and forth outside the lonely travelers’ shed at night, torn between love for Damayanti and the urge to abandon her.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Angada and the monkey warriors battle several rakshasa champions until Kumbha devastates them, leading Sugriva to confront him in a fierce duel.",
+  "importance": 0.6,
+  "themes": [
+    "heroic combat",
+    "war escalation",
+    "monkey-rakshasa rivalry",
+    "vengeance and honor"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Angada, bleeding and half‑blinded, hurls a massive Sala tree at the archer Kumbha while arrows rain through the battlefield.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Kumbha stands radiant like Indra, drawing his bow to his ear as golden‑feathered arrows streak toward the monkey warriors.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Sugriva and Kumbha grapple like two enraged elephants, their bodies locked as the earth trembles beneath their feet.",
+      "visual_strength": 0.87
+    }
+  ]
+}

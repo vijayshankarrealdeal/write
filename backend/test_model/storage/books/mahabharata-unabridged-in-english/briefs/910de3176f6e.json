@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa prophesies that Draupadi will marry all five Pandavas; later Arjuna defeats the Gandharva Angaraparna at the Ganga and spares his life.",
+  "importance": 0.72,
+  "themes": [
+    "prophecy of Draupadi's marriage",
+    "fate and past-life karma",
+    "warrior honor and mercy",
+    "journey to Panchala",
+    "divine knowledge exchange"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Vyasa stands before the disguised Pandavas in a humble Brahmin hut, foretelling that the princess of Panchala will become wife to all five brothers.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "At night by the Ganga, Arjuna with torch and shield faces the radiant Gandharva Angaraparna who draws his bow in anger from a chariot over the water.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Arjuna drags the unconscious Gandharva by the hair from the burning chariot while the Gandharva’s wife runs to Yudhishthira pleading for mercy.",
+      "visual_strength": 0.86
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Gandhari’s boon leads to the miraculous birth of the Kauravas, with ominous signs at Duryodhana’s birth and ignored advice to abandon him.",
+  "importance": 0.86,
+  "themes": [
+    "miraculous birth",
+    "omens and fate",
+    "dynastic succession",
+    "parental attachment vs duty",
+    "divine intervention"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Gandhari strikes her womb in grief and a hard iron-like ball of flesh falls to the floor before the astonished sage Vyasa.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Vyasa divides the strange mass into many thumb-sized pieces and places them into a hundred pots filled with clarified butter in a hidden chamber.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Newborn Duryodhana cries like a braying ass while jackals, vultures, and crows shriek under dark winds and fires flare ominously around the palace.",
+      "visual_strength": 0.92
+    }
+  ]
+}

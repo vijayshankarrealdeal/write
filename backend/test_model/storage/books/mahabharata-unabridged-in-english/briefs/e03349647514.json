@@ -1,0 +1,25 @@
+{
+  "summary_1line": "During cosmic dissolution Vishnu creates Brahma and slays Madhu and Kaitabha; later their son Dhundhu gains a boon and threatens the worlds until Kuvalaswa marches against him.",
+  "importance": 0.78,
+  "themes": [
+    "cosmic creation",
+    "Vishnu and Brahma",
+    "demon slaying",
+    "boons and asceticism",
+    "divine empowerment of a king"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vishnu lies in yogic sleep upon the coiled serpent Sesha on the cosmic ocean while a radiant lotus rises from his navel bearing four‑faced Brahma.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Vishnu lifts the demons Madhu and Kaitabha onto his bare thighs and severs their heads with the spinning discus amid the primeval waters.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "King Kuvalaswa marches across the desert sea of sands with his thousands of sons as gods in the sky shower flowers and celestial drums sound.",
+      "visual_strength": 0.76
+    }
+  ]
+}

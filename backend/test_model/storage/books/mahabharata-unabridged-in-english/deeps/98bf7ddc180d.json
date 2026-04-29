@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section recounts the death of the great teacher Drona during the Kurukshetra war. After being told that his son Aswatthaman has been slain, Drona loses the will to fight and lays down his weapons. Entering a state of deep yogic meditation, he fixes his mind on the Supreme and spiritually ascends toward heaven, a moment witnessed only by a few great figures including Krishna, Arjuna, and Yudhishthira. Unaware of Drona’s inner transcendence, Dhrishtadyumna fulfills his long‑destined vengeance by beheading the defenseless preceptor despite Arjuna’s pleas to capture him alive. Drona’s fall shatters the Kaurava army, causing widespread panic and retreat among its commanders. Aswatthaman, learning of his father’s death, demands the truth. The episode highlights the tragic conflict between dharma, vengeance, deception in war, and spiritual transcendence.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Bhima’s harsh revelation about Aswatthaman triggers the psychological blow that leads Drona to abandon the fight."
+    },
+    {
+      "start": 900,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Drona lays aside his weapons and turns inward, marking the pivotal moment where the invincible warrior becomes a renunciate."
+    },
+    {
+      "start": 2000,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The passage describing Drona meditating on Om and Vishnu frames his death as a yogic liberation rather than a battlefield defeat."
+    },
+    {
+      "start": 3500,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Dhrishtadyumna beheads the defenseless Drona despite Arjuna’s protests, one of the most morally troubling moments of the war."
+    },
+    {
+      "start": 5200,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The Kaurava army collapses into panic after Drona’s fall, showing how central he was to their morale and command."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Drona seated cross‑legged on his chariot in serene meditation amid a raging battlefield, eyes closed as a radiant aura rises toward the sky.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Dhrishtadyumna leaping onto Drona’s chariot with sword drawn while soldiers around them cry out in horror.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The Kaurava army breaking in panic at sunset, warriors fleeing in dust clouds as banners fall and chariots scatter.",
+      "visual_strength": 0.83
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Pandava and Kaurava forces clash fiercely as Drona battles Dhrishtadyumna and then duels Satyaki in a spectacular exchange of arrows and celestial weapons.",
+  "importance": 0.7,
+  "themes": [
+    "epic warfare",
+    "heroic duels",
+    "martial skill",
+    "celestial weapons",
+    "battlefield carnage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Dhrishtadyumna leaps onto Drona’s chariot, running across the yoke and the backs of the red steeds while striking with sword and shield.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Drona and Satyaki stand on their chariots firing torrents of arrows that darken the sky until the sun disappears behind the storm of shafts.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The battlefield lies strewn with severed heads, golden armor soaked in blood, and circling vultures while warriors continue fighting amid the carnage.",
+      "visual_strength": 0.84
+    }
+  ]
+}

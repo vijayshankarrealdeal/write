@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Mandapala’s young sons praise Agni for protection during the Khandava forest burning; Agni spares them, while Mandapala anxiously worries and Lapita grows jealous.",
+  "importance": 0.45,
+  "themes": [
+    "hymns to Agni",
+    "divine protection",
+    "Khandava forest burning",
+    "parental anxiety",
+    "jealousy between wives"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Four helpless young birds in a nest lift their beaks toward the blazing Agni as the Khandava forest burns around them.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "The fire-god Agni rises from the raging forest flames, pausing before the nest of Mandapala’s chicks who plead for mercy.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "In the forest, the worried sage Mandapala laments for his children while Lapita stands beside him with a jealous, resentful expression.",
+      "visual_strength": 0.6
+    }
+  ]
+}

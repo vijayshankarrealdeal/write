@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Valmiki brings Sita before Rama at the sacrifice assembly so she may publicly prove her innocence before sages, kings, and the gathered world.",
+  "importance": 0.82,
+  "themes": [
+    "public vindication",
+    "honor and reputation",
+    "sage authority",
+    "Sita's purity",
+    "royal duty vs public opinion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita walks behind the sage Valmiki with bowed head and folded palms as a vast silent crowd of sages, kings, monkeys, and warriors watches.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The immense assembly cries out in grief and reverence as Sita appears, some shouting 'Hail Rama' and others 'Hail Sita'.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Valmiki stands before Rama in the sacrificial arena presenting Sita and declaring that she will prove her innocence before all.",
+      "visual_strength": 0.8
+    }
+  ]
+}

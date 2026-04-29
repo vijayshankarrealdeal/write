@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma devastates the Pandava forces until Krishna urges a reluctant Arjuna to confront his grandsire and fulfill his warrior’s duty.",
+  "importance": 0.82,
+  "themes": [
+    "war devastation",
+    "duty vs kinship",
+    "Bhishma's martial prowess",
+    "Krishna urging Arjuna",
+    "fate and chaos"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma stands blazing on his chariot like a forest fire, arrows streaming in all directions as shattered chariots and elephants fall around him.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The battlefield lies strewn with broken chariots, severed standards, and fallen warriors while riderless horses drag empty cars across the field.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Krishna halts the silver-horsed chariot and speaks urgently as Arjuna, head bowed in conflict, prepares to face the radiant Bhishma in battle.",
+      "visual_strength": 0.88
+    }
+  ]
+}

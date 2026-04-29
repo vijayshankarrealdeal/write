@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Agastya defeats the demon Vatapi, gains wealth from Ilwala, fulfills Lopamudra’s wish, and fathers the powerful sage Dridhasyu.",
+  "importance": 0.6,
+  "themes": [
+    "sage vs demon",
+    "ascetic power",
+    "wealth and duty",
+    "birth of a great son",
+    "sacred geography"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sage Agastya calmly eats the cooked ram while the demon Ilwala later calls for Vatapi to emerge, only for Agastya to laugh and say he has digested him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Agastya sits serenely among anxious kings as a thunderous burst of air from his stomach proves the demon Vatapi has been digested.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "The sacred river Bhagirathi flows down rocky slopes from Shiva’s matted locks, winding through the land like a shining serpent before meeting the ocean.",
+      "visual_strength": 0.72
+    }
+  ]
+}

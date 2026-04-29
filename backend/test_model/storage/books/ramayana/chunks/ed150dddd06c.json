@@ -1,0 +1,71 @@
+{
+  "chunk": {
+    "id": "ed150dddd06c",
+    "chapter_title": "120. Sita is restored to Rama",
+    "page_start": 1344,
+    "page_end": 1344,
+    "text": "YUDDHA KANDA \nCHAPTER 120 \nSita is resttwed to Rama \nHlwuNo those excellent words uttered by the Grandsire, \nVibhabasu, who bore Vaidcbi in his lap, having extinguished the \npyre, rose up, and that Bearer of Sacrificial Offerings, assuming \na corporeal form, stood up and took hold of the daughter of \nJanaka. Then that youthful woman, beautiful as the dawn, \nwearing ornaments of refined gold, attired in a red robe, having \ndark and curly hair, wearing fresh garlands, the irreproachable \nVaidcbi was restored to Rama by the God of Fire. \nThereafter the Witness of the whole world, Pavaka, addressed \nRama, saying :-\n\" Here is Vaidcbi, 0 Rama, there is no sin in her ! Neither by \nword, feeling or glance has thy lovely consort shown herself to be \nunworthy of thy noble qualities. \nSeparated from thee, that \nunfortunate one was borne away agsinst her will in the lonely \nforest by Ravana, who had grown proud on account of his power. \nThough imprisoned and closely guarded by titan women in the \ninner apartments, thou wast ever the focus of her thoughts and \nher supreme hope. Surrounded by hideous and sinister women, \nthough tempted and threatened, Maithili never gave place in her \nheart to a single thought for that titan and was solely absorbed in \nthee. She is pure and without taint, do thou receive Maithili ; \nit is my command that she should not suffer reproach in any \nway.\" \nThese words filled Ramo's heart with delight and he, the most \neloquent of men, that loyal soul, rcllec:ted an instant within \nhimself, his glance full of joy. Then the illustrious, steadfast \nand exc:eedingly valiant Rama, the first of virtuous men, hearing \nthose worda addressed to him, said to the Chief of the Gods :-\n\" On account of the people, it was imperative that Sita should \npass through this trial by fire ; this lovely woman had dwelt in \nRavana's inner apartments for a long time. Had I not put the \ninnocence of Janaki to the test, the people would have said :-\n' Rama, the son of Dasaratha is governed by luar I ' It was well \nz \n341"
+  },
+  "brief": {
+    "summary_1line": "After Sita emerges unharmed from the fire, the Fire God declares her purity and returns her to Rama, who explains the trial was for public opinion.",
+    "importance": 0.85,
+    "themes": [
+      "trial by fire",
+      "public duty vs personal feeling",
+      "divine testimony",
+      "chastity and honor"
+    ],
+    "image_candidates": [
+      {
+        "scene_text": "The Fire God rises from the extinguished pyre holding Sita in his arms, radiant in red robes and gold ornaments before Rama and the assembled hosts.",
+        "visual_strength": 0.9
+      },
+      {
+        "scene_text": "Agni stands before Rama and the gathered warriors, presenting Sita and proclaiming her purity after the ordeal by fire.",
+        "visual_strength": 0.78
+      }
+    ]
+  },
+  "deep": {
+    "rich_summary": "After Sita enters the fire to prove her purity, the fire\u2011god Agni (here called Pavaka or Vibhabasu) rises from the extinguished pyre in visible form, carrying her unharmed. Radiant and adorned, Sita is returned to Rama. Agni publicly declares before all that she has remained completely faithful\u2014her thoughts fixed only on Rama despite Ravana\u2019s captivity, threats, and temptations. The divine testimony confirms that she is without sin and must not be reproached. Rama, hearing this, is filled with joy but explains his earlier harshness: the ordeal was necessary to demonstrate Sita\u2019s innocence before the world, since public suspicion would otherwise stain both her and his kingship. The moment resolves the moral and emotional crisis following the war, with a god\u2019s authority restoring Sita\u2019s honor.",
+    "highlight_spans": [
+      {
+        "start": 120,
+        "length": 90,
+        "color_hex": "#FFEB3B",
+        "why": "The dramatic divine moment when the fire\u2011god emerges from the pyre and restores Sita to Rama."
+      },
+      {
+        "start": 420,
+        "length": 160,
+        "color_hex": "#A5D6A7",
+        "why": "Agni\u2019s declaration that Sita remained pure and devoted to Rama despite captivity."
+      },
+      {
+        "start": 650,
+        "length": 140,
+        "color_hex": "#F48FB1",
+        "why": "The emotional defense of Sita, emphasizing her suffering among Ravana\u2019s guards and her unwavering loyalty."
+      },
+      {
+        "start": 900,
+        "length": 180,
+        "color_hex": "#FFEB3B",
+        "why": "Rama\u2019s explanation that the fire ordeal was required to silence public doubt and uphold royal honor."
+      }
+    ],
+    "top_scenes": [
+      {
+        "scene_text": "From the extinguished pyre the fire\u2011god rises in radiant form, holding the unharmed and jewel\u2011adorned Sita as he presents her before Rama and the gathered hosts.",
+        "visual_strength": 0.96
+      },
+      {
+        "scene_text": "Agni stands blazing before Rama, solemnly proclaiming Sita\u2019s purity while warriors, vanaras, and gods witness the divine testimony.",
+        "visual_strength": 0.88
+      }
+    ]
+  },
+  "scene_ids": [
+    "de5e61d09d6d"
+  ]
+}

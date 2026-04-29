@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Section describes King Santanu’s virtuous rule, reunion with his son Devavrata, and the king’s troubled desire to marry the fisherman’s daughter Satyavati.",
+  "importance": 0.62,
+  "themes": [
+    "ideal kingship",
+    "father-son relationship",
+    "dynastic succession",
+    "desire and duty",
+    "introduction of Satyavati"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A radiant youth stands in the riverbed holding a celestial weapon as the mighty Ganges halts her flow before the astonished King Santanu.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The goddess Ganga rises in luminous form from the river, holding the ornamented boy Devavrata in her arm before King Santanu.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "King Santanu in the forest pauses as a mysterious fragrance leads him to a black‑eyed maiden, Satyavati, standing beside her small ferry boat on the river.",
+      "visual_strength": 0.8
+    }
+  ]
+}

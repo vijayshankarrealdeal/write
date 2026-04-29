@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman explores Ravana’s opulent palace and beholds the magnificent aerial chariot Pushpaka filled with jeweled, lifelike sculptures and celestial splendor.",
+  "importance": 0.38,
+  "themes": [
+    "opulence of Lanka",
+    "divine architecture",
+    "Hanuman's exploration",
+    "mythic technology",
+    "wealth and power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman stands on a palace height gazing at the radiant Pushpaka chariot hovering above jeweled buildings of Lanka.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The Pushpaka chariot gleams with gold, coral, and emerald birds and serpents while sculpted elephants shower water upon the seated goddess Lakshmi.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Within Ravana’s palace, halls glitter with heaps of jewels, golden couches, and musicians while beautiful women move among the treasures.",
+      "visual_strength": 0.73
+    }
+  ]
+}

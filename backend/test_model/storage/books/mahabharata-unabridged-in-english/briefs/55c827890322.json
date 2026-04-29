@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada recounts the immense sacrifices, wealth, conquests, and eventual deaths of kings Yayati, Amvarisha, and Sasavindu to remind Srinjaya that even the greatest rulers perish.",
+  "importance": 0.45,
+  "themes": [
+    "impermanence of kings",
+    "sacrifice and generosity",
+    "royal power",
+    "renunciation and contentment",
+    "consolation in grief"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Yayati, surrounded by his wives in a forest hermitage, renounces wealth and declares that all the riches of earth cannot satisfy a single man.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Amvarisha stands alone on the battlefield cutting down the standards, umbrellas, and weapons of thousands of attacking kings until they surrender before him.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "At a grand sacrifice, King Sasavindu gives away princes, chariots, elephants, and ornamented maidens in vast lines of golden wealth to gathered Brahmanas.",
+      "visual_strength": 0.76
+    }
+  ]
+}

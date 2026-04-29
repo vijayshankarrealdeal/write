@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Valmiki recounts how King Saudasa was tricked by a Rakshasa into serving human flesh to Vasishtha and was cursed to suffer the consequences.",
+  "importance": 0.42,
+  "themes": [
+    "curse and deception",
+    "guru-disciple duty",
+    "rakshasa revenge",
+    "royal lineage",
+    "karma and consequence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A disguised Rakshasa presents a dish of human flesh to the unsuspecting King Saudasa during the Ashwamedha sacrifice.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "The sage Vasishtha, blazing with anger, raises his hand to curse King Saudasa after realizing he has been served human flesh.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "King Saudasa, stopped by Queen Madayanti, spills the cursed water on his own feet, which become darkly stained.",
+      "visual_strength": 0.76
+    }
+  ]
+}

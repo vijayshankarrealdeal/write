@@ -1,0 +1,24 @@
+{
+  "summary_1line": "The Pandavas resolve to fight despite Yudhishthira’s doubts, while Duryodhana meticulously organizes and equips his vast army for the coming war.",
+  "importance": 0.45,
+  "themes": [
+    "inevitability of war",
+    "moral hesitation",
+    "military preparation",
+    "loyalty and counsel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira stands troubled while Bhima and Arjuna prepare for battle as the surrounding Pandava army erupts in a roar of eager soldiers.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Duryodhana’s vast army shines with gold banners and jeweled armor as chariots, elephants, and horses assemble in ordered ranks like a moving city of war.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "A towering war elephant, hung with bells and jewels, carries seven armed warriors on its back—archers, swordsmen, and a lancer ready for battle.",
+      "visual_strength": 0.82
+    }
+  ]
+}

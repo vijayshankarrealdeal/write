@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Rama recounts how Budha, son of Soma, meets and unites with Ila in the forest, leading toward the birth of Pururavas.",
+  "importance": 0.62,
+  "themes": [
+    "divine romance",
+    "mythic lineage",
+    "transformation",
+    "forest encounter"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a lonely mountain forest, Budha, son of the Moon, speaks tenderly to the beautiful Ila after the Kinnaris have departed.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Budha stands in a river performing penance with arms raised while Ila awakens nearby and gazes at him on the secluded mountain.",
+      "visual_strength": 0.77
+    }
+  ]
+}

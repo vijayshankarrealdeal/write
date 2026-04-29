@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Birth of Parasara, his rage over his father's death, and Vasishtha’s tale of Aurva, a thigh-born sage whose wrath nearly destroyed the world.",
+  "importance": 0.56,
+  "themes": [
+    "lineage and vengeance",
+    "sage authority",
+    "cycle of violence",
+    "ascetic power",
+    "restraint of wrath"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The radiant child bursts from a woman's thigh on a mountain slope, blazing like the midday sun and blinding the approaching Kshatriya warriors.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Young Parasara stands trembling with rage after learning his father was devoured by a Rakshasa, while the sage Vasishtha raises a calming hand.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Blind Kshatriya princes wander the rugged Himalaya, hands outstretched, pleading for mercy before the Brahmana woman and her miraculous child.",
+      "visual_strength": 0.77
+    }
+  ]
+}

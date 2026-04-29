@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna defeats Trigarta warriors who submit, then pursues the Ashvamedha horse to Pragjyotisha and battles Vajradatta riding a furious war elephant.",
+  "importance": 0.5,
+  "themes": [
+    "martial prowess",
+    "honor and submission",
+    "Ashvamedha horse quest",
+    "youthful valor",
+    "war elephants"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna’s Gandiva slips from his bloodied hand and falls to the earth like Indra’s rainbow as the young warrior Dhritavarman laughs in battle.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Prince Vajradatta charges on a gigantic rutting elephant streaming ichor, looming like a moving mountain as Arjuna stands ready with the Gandiva.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arjuna’s blazing arrows strike the elephant so that blood pours from its body like red streams running down a mountain.",
+      "visual_strength": 0.86
+    }
+  ]
+}

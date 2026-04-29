@@ -1,0 +1,25 @@
+{
+  "summary_1line": "As Sita insists on sharing Rama’s exile, Dasaratha laments Kaikeyi’s cruelty and Rama asks his father to care for his mother Kaushalya during his absence.",
+  "importance": 0.72,
+  "themes": [
+    "filial duty",
+    "exile and sacrifice",
+    "family grief",
+    "marital devotion",
+    "royal conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita stands in bark garments before the court like a widow while the gathered citizens murmur and King Dasaratha looks on in anguish.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Overcome with grief after lamenting Kaikeyi’s demand, King Dasaratha collapses to the ground in the royal hall.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Rama, head bowed before his father, gently asks the king to protect his grieving mother Kaushalya during his exile.",
+      "visual_strength": 0.7
+    }
+  ]
+}

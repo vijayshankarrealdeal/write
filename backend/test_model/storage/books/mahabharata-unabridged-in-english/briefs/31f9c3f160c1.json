@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Mudgala rejects heaven seeking liberation; later Duryodhana gains Durvasa’s favor and plots to send him to the Pandavas at a troublesome moment.",
+  "importance": 0.6,
+  "themes": [
+    "renunciation vs heaven",
+    "moksha",
+    "envy and intrigue",
+    "ascetic power",
+    "fate and kingship"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The serene sage Mudgala calmly dismisses a radiant celestial messenger offering heaven while sitting in austere meditation.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Duryodhana humbly serving the fiery sage Durvasa surrounded by ten thousand disciples in the Kuru palace.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Duryodhana secretly clasping Karna’s hand in satisfaction after persuading Durvasa to visit the Pandavas at night.",
+      "visual_strength": 0.62
+    }
+  ]
+}

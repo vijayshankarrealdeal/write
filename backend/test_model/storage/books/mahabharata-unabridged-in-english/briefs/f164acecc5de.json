@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Stories and teachings describe King Indradyumna regaining heaven through remembered virtue, followed by extensive discourse on charity, merit, purity, and duties toward Brahmanas and guests.",
+  "importance": 0.55,
+  "themes": [
+    "virtue and reputation",
+    "charity and merit",
+    "afterlife journey",
+    "hospitality to guests",
+    "ritual purity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An ancient tortoise emerges from a lake with tears in its eyes, recognizing King Indradyumna as sages and animals gather on the shore.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A celestial chariot descends from the sky as a divine voice calls the fallen king Indradyumna back to heaven.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Souls travel a vast, barren road to Yama’s realm while some ride animals, hold umbrellas, or shine lights granted by their past acts of charity.",
+      "visual_strength": 0.9
+    }
+  ]
+}

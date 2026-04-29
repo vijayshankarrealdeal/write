@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira asks whether charity or devotion is greater; Bhishma lists many kings who attained heaven through gifts, sacrifices, and acts benefiting Brahmanas.",
+  "importance": 0.55,
+  "themes": [
+    "charity (dana)",
+    "heavenly merit",
+    "royal virtue",
+    "religious gifts",
+    "Brahmana patronage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Sivi offers the life of his beloved son to save a Brahmana, standing resolute before a sacrificial fire.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A generous king presents a vast golden umbrella and treasures to a Brahmana during a grand sacrificial rite.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Bhishma lies on his bed of arrows at dusk, instructing Yudhishthira while warriors gather quietly around.",
+      "visual_strength": 0.83
+    }
+  ]
+}

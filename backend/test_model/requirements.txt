@@ -1,0 +1,17 @@
+# Pipeline-only deps for backend/test_model/.
+# Most of the heavy stack (fastapi, sqlalchemy, openai, miniopy-async,
+# pgvector, pydantic-ai) is already pinned by ../requirements.txt — install
+# those first if you haven't already:
+#
+#     pip install -r ../requirements.txt
+#     pip install -r requirements.txt
+#
+# These are the extras that this prototype needs on top of the main backend.
+
+# PDF text extraction (Phase 0). Used by book_ingest.pdf_loader.
+PyMuPDF==1.24.13
+
+# `requests` is what image_gen.py uses for the gpt-image-2 endpoint.
+# It's transitively present via openai/httpx in some envs but pin it
+# explicitly so a fresh venv doesn't break.
+requests==2.32.3

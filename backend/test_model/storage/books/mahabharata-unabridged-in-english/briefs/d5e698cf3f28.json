@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma praises righteous sages and begins a tale where King Vrishadarbha protects a terrified pigeon seeking refuge from a pursuing hawk.",
+  "importance": 0.7,
+  "themes": [
+    "dharma of protection",
+    "hospitality and refuge",
+    "ascetic virtue",
+    "compassion for creatures",
+    "moral conflict of duties"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A frightened pigeon falls into King Vrishadarbha’s lap in the royal court while a fierce hawk swoops down from the sky after it.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The compassionate king gently cups the trembling pigeon in his hands, promising protection even at the cost of his kingdom and life.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A sharp-eyed hawk confronts the king, wings spread and talons bloodstained, arguing that the pigeon is its rightful prey.",
+      "visual_strength": 0.78
+    }
+  ]
+}

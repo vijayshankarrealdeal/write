@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sita passionately insists that as Rama’s wife she must share his exile and accompany him to the forest despite his attempt to leave her in Ayodhya.",
+  "importance": 0.66,
+  "themes": [
+    "marital devotion",
+    "dharma of a wife",
+    "loyalty in exile",
+    "resolve and agency"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita stands before Rama in the palace chamber, pleading firmly to accompany him into exile despite the dangers of the forest.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Sita declares she will walk ahead of Rama through the forest, clearing thorns and kusa grass from his path with her hands.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Sita imagines living happily with Rama in the wild forest among beasts, surviving on fruits and roots while serving him devotedly.",
+      "visual_strength": 0.58
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "summary_1line": "After spending the night in Sutikshna’s hermitage, Rama, Sita, and Lakshmana perform morning rites and respectfully seek the sage’s leave to continue through Dandaka forest.",
+  "importance": 0.35,
+  "themes": [
+    "hospitality of sages",
+    "departure and journey",
+    "ascetic life",
+    "reverence and ritual"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "At dawn Rama and Sita bathe in cool lotus-scented forest waters while Lakshmana stands nearby in the quiet hermitage clearing.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Rama, Sita, and Lakshmana bow at the feet of the sage Sutikshna in the forest hermitage as the morning sun rises behind them.",
+      "visual_strength": 0.8
+    }
+  ]
+}

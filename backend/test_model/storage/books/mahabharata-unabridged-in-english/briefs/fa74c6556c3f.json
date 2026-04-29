@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Krishna visits Duryodhana’s court as envoy, refuses his lavish hospitality on moral grounds, and instead chooses to stay and eat at Vidura’s house.",
+  "importance": 0.63,
+  "themes": [
+    "diplomatic mission",
+    "moral integrity",
+    "loyalty to Pandavas",
+    "hospitality and righteousness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna enters Duryodhana’s grand hall where a thousand kings sit around the throne, and Duryodhana rises to greet him amid glittering splendor.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Krishna raises his arm in the royal court and firmly declares he will not eat Duryodhana’s food because of the king’s hatred for the Pandavas.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Krishna leaves the shining palace and walks to the humble home of Vidura, where he is warmly received and offered simple food.",
+      "visual_strength": 0.76
+    }
+  ]
+}

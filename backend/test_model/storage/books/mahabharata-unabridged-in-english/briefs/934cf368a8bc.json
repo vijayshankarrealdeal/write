@@ -1,0 +1,20 @@
+{
+  "summary_1line": "After recovering from unconsciousness, Pradyumna rebukes his charioteer for retreating and insists on returning to battle against Salwa to preserve honor.",
+  "importance": 0.55,
+  "themes": [
+    "warrior honor",
+    "duty of charioteer",
+    "battle courage",
+    "reputation and shame"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Pradyumna, wounded and newly revived, stands in his chariot angrily commanding his charioteer to turn back toward the battlefield.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "The charioteer whips and reins the horses as the chariot wheels in sweeping arcs, the steeds seeming to fly through the dust of the battlefield.",
+      "visual_strength": 0.62
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Kumbhakarna, the gigantic brother of Ravana, storms the battlefield and devastates the monkey army with terrifying strength. He crushes, devours, and scatters thousands of warriors, resisting attacks from champions like Hanuman, Nila, and Angada. Sugriva confronts him but is struck down and carried toward Lanka as a captive, though he later regains consciousness and mutilates the titan’s ears and nose before escaping back to Rama. Enraged and blood‑soaked, Kumbhakarna returns to battle and continues slaughtering friend and foe alike in his frenzy. Lakshmana challenges him but directs the fight toward Rama. In a climactic duel, Rama methodically disarms the titan—severing his arms, then his legs—before finally loosing a divine arrow that decapitates him. The fall of Kumbhakarna shakes the world and brings jubilation to the gods, marking a decisive turning point in the war for Lanka.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Opening moment where the monkey army regains courage and rushes back into battle, setting the scale and desperation of the conflict."
+    },
+    {
+      "start": 1400,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Hanuman is struck by Kumbhakarna’s blazing spear and roars like a thundercloud, a vivid emotional and dramatic turning point in the battle."
+    },
+    {
+      "start": 3100,
+      "length": 240,
+      "color_hex": "#FFEB3B",
+      "why": "Kumbhakarna captures Sugriva and carries him toward Lanka, a pivotal moment of peril that briefly threatens the leadership of the monkey army."
+    },
+    {
+      "start": 6400,
+      "length": 260,
+      "color_hex": "#A5D6A7",
+      "why": "Lakshmana’s strategic insight that the frenzied titan can no longer distinguish friend from foe reveals the chaos and mythic scale of the battle."
+    },
+    {
+      "start": 8800,
+      "length": 320,
+      "color_hex": "#FFEB3B",
+      "why": "Rama unleashes the divine arrow that severs Kumbhakarna’s head, the climactic act that ends the titan’s rampage and shakes the world."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The colossal Kumbhakarna strides through the battlefield devouring monkeys while warriors swarm over his mountain‑like body amid flying rocks and shattered trees.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "Sugriva awakens in Kumbhakarna’s grasp inside Lanka’s streets and savagely tears off the giant’s ears and nose before leaping back into the sky.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama fires a blazing divine arrow that slices off Kumbhakarna’s enormous head, which falls like a mountain onto the city while the titan’s body crashes into the sea.",
+      "visual_strength": 0.98
+    }
+  ]
+}

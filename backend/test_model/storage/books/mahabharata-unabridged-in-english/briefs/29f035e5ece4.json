@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Krishna revives Abhimanyu’s stillborn son, names him Parikshit, and the Pandavas return to a joyfully decorated Hastinapura.",
+  "importance": 0.78,
+  "themes": [
+    "divine intervention",
+    "revival and rebirth",
+    "dynastic survival",
+    "royal celebration"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna stands beside the grieving Uttara and her lifeless infant as divine energy restores the child to life in the glowing chamber.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Uttara rises with joy, holding the revived baby while the royal women—Kunti, Draupadi, and Subhadra—praise Krishna in relief.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Hastinapura is adorned with garlands, banners, dancers, and crowds as the victorious Pandavas return to the jubilant city.",
+      "visual_strength": 0.72
+    }
+  ]
+}

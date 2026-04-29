@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vishnu battles the Rakshasa army, routs them with arrows and his conch, and ultimately slays the demon leader Mali with his discus.",
+  "importance": 0.66,
+  "themes": [
+    "divine warfare",
+    "cosmic power of Vishnu",
+    "terror of the conch",
+    "demonic resistance",
+    "decisive slaying of Mali"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Surrounded by dark Rakshasas raining weapons like storm clouds, Vishnu stands radiant while drawing his bow amid the chaos.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Vishnu blows the conch Panchajanya, its thunderous sound shaking the three worlds as Rakshasa warriors fall from chariots and elephants stagger.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The blazing discus of Vishnu flies like a wheel of time and severs Mali’s head, which falls amid torrents of blood while the gods roar in triumph.",
+      "visual_strength": 0.91
+    }
+  ]
+}

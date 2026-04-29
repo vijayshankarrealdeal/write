@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vishnu empowers Indra and his thunderbolt to kill the ascetic Asura Vritra, after which Indra is afflicted by the sin of brahmanicide.",
+  "importance": 0.72,
+  "themes": [
+    "divine intervention",
+    "ascetic power",
+    "cosmic conflict",
+    "moral consequence",
+    "Indra and Vritra"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra hurls the blazing thunderbolt at the radiant giant Vritra, the weapon striking his head like the fire of cosmic destruction.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The terrified gods stand before the immense, glowing figure of Vritra whose radiance seems to consume the sky and worlds.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "After the killing, the sin of brahmanicide pursues Indra across the ends of the world as he flees in fear.",
+      "visual_strength": 0.76
+    }
+  ]
+}

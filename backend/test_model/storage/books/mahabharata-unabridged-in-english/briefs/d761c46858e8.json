@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The sage recounts the miraculous birth and world-conquering deeds of King Mandhata, born from King Yuvanaswa after he accidentally drank consecrated water.",
+  "importance": 0.55,
+  "themes": [
+    "miraculous birth",
+    "royal destiny",
+    "divine intervention",
+    "ascetic power",
+    "world conquest"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "After a hundred years, a radiant child bursts from King Yuvanaswa’s left side while astonished sages look on.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The thirsty King Yuvanaswa in a dark hermitage drinks from a sacred jar left beside the sleeping sages.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Indra places his forefinger in the newborn child’s mouth as the gathered gods watch and name him Mandhata.",
+      "visual_strength": 0.86
+    }
+  ]
+}

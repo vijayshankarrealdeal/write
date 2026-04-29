@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Arjuna continues an extreme ascetic penance in the Himalayas, progressively reducing his food until he lives on air, standing on tiptoe with arms raised. The intensity of his austerities disturbs the sages, who appeal to Shiva. Shiva reassures them, revealing he knows Arjuna’s wish and will grant it. Disguised as a Kirata (mountain hunter) and accompanied by Uma and a wild retinue, Shiva descends to test him. At that moment the demon Muka appears as a boar to kill Arjuna. Both Arjuna and the disguised Shiva shoot the beast simultaneously, leading to a dispute over who struck first. Their quarrel escalates into a fierce duel. Arjuna unleashes torrents of arrows, yet the mysterious hunter stands unmoved, astonishing him and hinting that he faces no ordinary opponent.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Shows the severe ascetic practices Arjuna undertakes, establishing the spiritual intensity that draws divine attention."
+    },
+    {
+      "start": 520,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Shiva reveals he understands Arjuna’s true desire and will fulfill it, foreshadowing the divine encounter to come."
+    },
+    {
+      "start": 1080,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "The dramatic arrival of Shiva disguised as a Kirata with Uma and a supernatural retinue transforms the mountain setting."
+    },
+    {
+      "start": 1750,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Both Arjuna and the Kirata shoot the boar at the same instant, triggering the central conflict and test of Arjuna."
+    },
+    {
+      "start": 2550,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Arjuna’s amazement as his powerful arrows fail against the hunter highlights the moment he realizes he faces an extraordinary being."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Arjuna performing severe penance in the Himalayas, standing on tiptoe with arms raised while winds swirl around the austere mountain landscape.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Shiva disguised as a towering golden-hued Kirata hunter descending the mountain with Uma and a wild retinue of spirits and hunters.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arjuna and the Kirata simultaneously shooting blazing arrows at the charging demon-boar Muka in the forest clearing.",
+      "visual_strength": 0.95
+    }
+  ]
+}

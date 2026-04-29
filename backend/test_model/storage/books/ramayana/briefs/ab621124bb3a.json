@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dasharatha announces Rama’s coronation for the next day; Rama informs his family and prepares with Sita through vows and rituals.",
+  "importance": 0.72,
+  "themes": [
+    "impending coronation",
+    "royal duty",
+    "omens and anxiety",
+    "family devotion",
+    "ritual preparation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dasharatha embraces Rama in a private chamber while announcing his wish to crown him before ominous celestial signs bring misfortune.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Queen Kaushalya sits in a temple with closed eyes and controlled breath, praying to Narayana as Sita and Lakshmana sit beside her.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Rama bows before his mother and joyfully tells her that he and Sita will fast and perform sacred rites before his coronation at dawn.",
+      "visual_strength": 0.64
+    }
+  ]
+}

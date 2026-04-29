@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada recounts Parashurama’s extermination of Kshatriyas, vast sacrifices, and eventual withdrawal, stressing that even the greatest heroes ultimately die.",
+  "importance": 0.6,
+  "themes": [
+    "impermanence of heroes",
+    "divine vengeance",
+    "sacrifice and charity",
+    "Brahmin–Kshatriya conflict",
+    "renunciation of power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Parashurama stands amid a battlefield piled with fallen chariots, horses, and warriors, raising his blood-stained axe after annihilating the Kshatriyas.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "At a grand sacrifice, Parashurama presents the jewel-covered earth and golden elephants as gifts to the sage Kasyapa before a towering golden altar.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Obeying Kasyapa’s command, Parashurama shoots arrows that force the ocean to retreat as he departs toward the distant Mahendra mountain.",
+      "visual_strength": 0.72
+    }
+  ]
+}

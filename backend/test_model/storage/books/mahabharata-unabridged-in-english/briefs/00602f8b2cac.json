@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A Brahmana seeking spiritual knowledge meets the Naga Padmanabha, who describes cosmic wonders of the Sun and a mysterious radiant being approaching Surya.",
+  "importance": 0.52,
+  "themes": [
+    "spiritual inquiry",
+    "cosmic cosmology",
+    "Sun worship",
+    "ascetic virtue",
+    "divine mystery"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A radiant celestial being blazing like a second sun tears through the sky and approaches Surya while the sun-god stretches out his hands in welcome.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The Brahmana Dharmaranya sits in meditation on the banks of the Gomati, reciting the Vedas while patiently awaiting the Naga Padmanabha.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The Naga Padmanabha respectfully greets the waiting Brahmana, bowing and speaking gentle words beside the quiet riverside grove.",
+      "visual_strength": 0.58
+    }
+  ]
+}

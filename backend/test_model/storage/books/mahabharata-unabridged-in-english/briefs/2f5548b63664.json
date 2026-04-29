@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Amba gains Shiva’s promise to destroy Bhishma, self‑immolates, and is reborn as Drupada’s child Sikhandin, secretly raised as a son.",
+  "importance": 0.74,
+  "themes": [
+    "vengeance and destiny",
+    "divine prophecy",
+    "rebirth",
+    "gender transformation",
+    "deception in royal lineage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The maiden Amba stands before Shiva bearing the trident among gathered sages as he promises she will one day slay Bhishma.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "On the banks of the Yamuna, Amba ignites a towering funeral pyre and walks into the flames declaring Bhishma’s destruction.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Drupada and his queen secretly present their newborn daughter as a son while court rituals for a prince are performed.",
+      "visual_strength": 0.61
+    }
+  ]
+}

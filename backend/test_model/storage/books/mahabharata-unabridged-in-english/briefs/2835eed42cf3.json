@@ -1,0 +1,25 @@
+{
+  "summary_1line": "King Sumitra, lost while hunting, asks ascetics about the boundlessness of hope, prompting a sage to recount a tale of a king driven by hope to find his lost son.",
+  "importance": 0.45,
+  "themes": [
+    "boundless hope",
+    "ascetic wisdom",
+    "royal humility",
+    "loss and longing",
+    "moral inquiry"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The weary king Sumitra, bow in hand and dust-covered, sits among calm forest ascetics who welcome him into their quiet hermitage.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "An extraordinarily tall and skeletal sage named Tanu, thin as a finger and clad in rags and skins, stands before startled rishis in the forest retreat.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "King Viradyumna, surrounded by soldiers and chariots in the forest, pleads with a gaunt hermit while grieving for his missing son.",
+      "visual_strength": 0.72
+    }
+  ]
+}

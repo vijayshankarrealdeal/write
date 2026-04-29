@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Chitrasena’s Gandharvas rout the Kauravas, capture Duryodhana and others, and Bhima mocks them until Yudhishthira insists their family honor requires rescue.",
+  "importance": 0.72,
+  "themes": [
+    "family honor",
+    "humiliation of Duryodhana",
+    "illusion warfare",
+    "duty over resentment",
+    "battle defeat"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The Gandharva king Chitrasena leaps forward and seizes the fallen Duryodhana beside the shattered remains of his chariot on the battlefield.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Hundreds of Gandharvas swarm Karna’s chariot, hacking apart its horses, flagstaff, wheels, and yoke until it collapses into fragments.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Bhima laughs with biting sarcasm before the anxious Kuru attendants while Yudhishthira raises a hand to stop his cruel words.",
+      "visual_strength": 0.62
+    }
+  ]
+}

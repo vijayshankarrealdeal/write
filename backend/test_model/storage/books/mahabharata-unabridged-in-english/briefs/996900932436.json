@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna and Arjuna worship Shiva, obtain his celestial bow and arrow guarded as serpents, and seek the formidable Pasupata weapon.",
+  "importance": 0.72,
+  "themes": [
+    "divine worship",
+    "Shiva's epithets",
+    "quest for celestial weapons",
+    "Krishna–Arjuna partnership",
+    "transformation of serpents"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna and Arjuna stand with folded hands before the three‑eyed Shiva while sages and fragrant smoke surround the god holding the bow Pinaka.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "At a radiant celestial lake, a thousand‑headed serpent blazing with fire rises from the water before Krishna and Arjuna.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Two terrible serpents transform into a shining bow and arrow as the heroes chant Vedic hymns beside the glowing lake.",
+      "visual_strength": 0.86
+    }
+  ]
+}

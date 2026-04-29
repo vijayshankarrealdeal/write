@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhishma, Drona, Vidura, and Dhritarashtra urge Duryodhana to make peace with the Pandavas before war unleashes devastating heroes.",
+  "importance": 0.6,
+  "themes": [
+    "ignored counsel",
+    "impending war",
+    "familial conflict",
+    "wisdom vs pride"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma and Drona stand in the royal assembly pleading with stubborn Duryodhana as kings watch in tense silence.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Elders describe Bhima stalking the battlefield with his mace, smashing warriors and elephants as heads fall like ripe palm fruits.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A vision of reconciliation: Yudhishthira embracing Duryodhana while the Pandava brothers and gathered kings weep with relief.",
+      "visual_strength": 0.76
+    }
+  ]
+}

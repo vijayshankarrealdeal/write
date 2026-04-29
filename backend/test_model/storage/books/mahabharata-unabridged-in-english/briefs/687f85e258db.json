@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Sanjaya prepares to depart while Yudhishthira sends respectful greetings and inquiries to elders and figures in the Kuru court despite looming conflict.",
+  "importance": 0.45,
+  "themes": [
+    "diplomacy before war",
+    "respect for elders",
+    "envoy protocol",
+    "kinship amid conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sanjaya stands before Yudhishthira and the Pandava brothers in their camp, hands folded in farewell as the warriors listen solemnly.",
+      "visual_strength": 0.56
+    },
+    {
+      "scene_text": "Yudhishthira seated calmly among the Pandavas instructs Sanjaya to bow and inquire after the welfare of Bhishma, Drona, and the elders of the Kuru court.",
+      "visual_strength": 0.52
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna withstands a massive assault, Bhima fells Duryodhana who briefly collapses, the Kaurava army flees then rallies, and Duryodhana reproaches Bhishma for leniency.",
+  "importance": 0.72,
+  "themes": [
+    "heroic warfare",
+    "Arjuna's prowess",
+    "Duryodhana's insecurity",
+    "battlefield morale",
+    "Bhishma's loyalty and limits"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna on his chariot deflects a storm of spears, maces, and arrows that fall upon him like a swarm of locusts.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhima shoots Duryodhana in the chest, and the Kaurava prince collapses senseless onto the terrace of his chariot as his driver carries him away.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Satyaki and Abhimanyu stand together on the same chariot, shining like the sun and moon while cutting through Suvala’s army with flashing arrows.",
+      "visual_strength": 0.86
+    }
+  ]
+}

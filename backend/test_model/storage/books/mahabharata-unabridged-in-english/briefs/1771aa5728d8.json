@@ -1,0 +1,24 @@
+{
+  "summary_1line": "King Samvarana encounters the radiant maiden Tapati in the forest, falls passionately in love, and desperately begs her to accept him in Gandharva marriage.",
+  "importance": 0.55,
+  "themes": [
+    "love at first sight",
+    "divine beauty",
+    "desire and infatuation",
+    "royal encounter with celestial maiden"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "On a golden-lit mountain clearing, King Samvarana stands stunned before the radiant maiden Tapati, whose beauty makes the surrounding forest seem turned to gold.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The lovestruck king collapses on the forest floor in despair as the maiden vanishes like lightning among the trees.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Tapati reappears smiling over the fallen king, urging him to rise while he looks up at her with desperate longing.",
+      "visual_strength": 0.8
+    }
+  ]
+}

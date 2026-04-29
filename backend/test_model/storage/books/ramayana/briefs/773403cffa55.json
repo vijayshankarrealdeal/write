@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Angada and the monkey search party despair after missing Sugriva’s deadline and debate starving to death or hiding rather than returning without news of Sita.",
+  "importance": 0.48,
+  "themes": [
+    "despair after failure",
+    "duty to the king",
+    "fear of punishment",
+    "leadership crisis",
+    "group deliberation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The exhausted monkeys sit beneath flowering Vindhya trees, staring anxiously at the vast roaring ocean before them.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Prince Angada, lion‑shouldered and solemn, addresses the gathered monkeys as they sit in despair on the seashore.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The troop of monkeys collapses to the ground in fear as they realize spring has arrived and their deadline has passed.",
+      "visual_strength": 0.6
+    }
+  ]
+}

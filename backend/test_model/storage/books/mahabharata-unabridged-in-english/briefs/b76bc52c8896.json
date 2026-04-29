@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira asks about sin and expiation; Vyasa explains moral responsibility, justified violence, and numerous acts requiring penance, urging a horse sacrifice and righteous rule.",
+  "importance": 0.45,
+  "themes": [
+    "sin and expiation",
+    "dharma and moral ambiguity",
+    "justified violence",
+    "kingship duties",
+    "ritual purification"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The gods and Asuras battle for thirty-two thousand years, the earth turning into a vast field of blood as the gods finally slay the Daityas.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Indra, surrounded by the Maruts and shining with divine splendor after performing a hundred sacrifices, is adored by Apsaras in heaven.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Yudhishthira sits before the sage Vyasa, troubled and reflective, asking what deeds bring sin and how a man may cleanse himself through expiation.",
+      "visual_strength": 0.63
+    }
+  ]
+}

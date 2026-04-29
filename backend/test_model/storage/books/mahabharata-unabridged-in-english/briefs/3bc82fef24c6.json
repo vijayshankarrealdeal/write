@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Bhishma explains which Brahmanas should be excluded or selected for Sraddha rites, stressing moral conduct, ritual purity, and Vedic learning.",
+  "importance": 0.42,
+  "themes": [
+    "Sraddha rituals",
+    "ritual purity",
+    "Brahmana qualifications",
+    "ancestral offerings",
+    "social hierarchy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a secluded ritual ground strewn with sesame seeds, Brahmanas sit in a line receiving offerings for the ancestors while the king performs the Sraddha.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Bhishma, lying on his bed of arrows, instructs Yudhishthira about the proper and improper Brahmanas for ancestral rites.",
+      "visual_strength": 0.72
+    }
+  ]
+}

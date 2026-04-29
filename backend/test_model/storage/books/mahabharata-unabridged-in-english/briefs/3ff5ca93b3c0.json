@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Duryodhana pressures Bhishma to kill the Pandavas; Bhishma rebukes him, praises Arjuna’s invincibility with Krishna, and vows to fight fiercely but never strike Sikhandin.",
+  "importance": 0.66,
+  "themes": [
+    "loyalty and duty",
+    "arrogance of Duryodhana",
+    "Arjuna's supremacy",
+    "Bhishma's moral code",
+    "fate of the war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma, wounded by harsh words, raises his blazing eyes toward Duryodhana like an enraged serpent while the war camp burns with torchlight.",
+      "visual_strength": 0.79
+    },
+    {
+      "scene_text": "Duryodhana stands with folded hands and tearful eyes before the aged Bhishma seated on a golden seat in his war pavilion.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Bhishma solemnly declares he will not shoot arrows at Sikhandin, recalling her past as a woman while warriors listen in tense silence.",
+      "visual_strength": 0.61
+    }
+  ]
+}

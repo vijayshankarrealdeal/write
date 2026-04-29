@@ -1,0 +1,55 @@
+{
+  "rich_summary": "Hanuman, recognizing Rama and Lakshmana as noble warriors, decides they should meet Sugriva, the exiled monkey king. Dropping his disguise, he carries the brothers across the mountains and introduces them to Sugriva on Mount Rishyamuka. Hanuman explains Rama’s story—his exile and the abduction of Sita by Ravana—and urges Sugriva to form an alliance. Sugriva eagerly agrees, seeing great fortune in Rama’s friendship. The two solemnize their pact before a sacred fire, circling it and pledging mutual loyalty: Rama will kill Bali, the brother who stole Sugriva’s wife and kingdom, while Sugriva will help find Sita. Their bond is sealed with warmth and trust. At that very moment, ominous omens appear—Sita’s eye twitches, as do Sugriva’s and Ravana’s—foreshadowing the vast conflict that this alliance will unleash.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 400,
+      "color_hex": "#A5D6A7",
+      "why": "Hanuman recognizes the worth of the princes and proposes bringing them before Sugriva, initiating the alliance that will reshape the epic."
+    },
+    {
+      "start": 400,
+      "length": 420,
+      "color_hex": "#FFEB3B",
+      "why": "Hanuman reveals his true form and carries Rama and Lakshmana across the mountains—an iconic divine encounter and the moment that physically brings the future allies together."
+    },
+    {
+      "start": 820,
+      "length": 420,
+      "color_hex": "#FFEB3B",
+      "why": "Sugriva and Rama clasp hands and formalize their friendship, a pivotal oath that launches the campaign against Bali and the search for Sita."
+    },
+    {
+      "start": 1240,
+      "length": 420,
+      "color_hex": "#F48FB1",
+      "why": "Sugriva recounts his suffering—his brother Bali stealing his wife and kingdom—adding emotional depth and explaining the desperate stakes behind the alliance."
+    },
+    {
+      "start": 1660,
+      "length": 380,
+      "color_hex": "#A5D6A7",
+      "why": "Rama promises to slay Bali with his deadly arrows, revealing the martial power behind the alliance and foreshadowing the coming battle."
+    },
+    {
+      "start": 2040,
+      "length": 260,
+      "color_hex": "#A5D6A7",
+      "why": "The simultaneous twitching of Sita’s, Sugriva’s, and Ravana’s eyes serves as a mythic omen linking their fates and hinting at the epic consequences of this pact."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Hanuman in mighty monkey form leaping across a mountain while carrying Rama and Lakshmana on his shoulders against a vast forested landscape.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama and Sugriva clasping hands before a sacred fire kindled by Hanuman, flowers scattered around as the monkey chiefs watch in the mountain wilderness.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "A symbolic cosmic moment where Sita in captivity, Sugriva in the forest, and Ravana in his palace each experience the ominous twitch of their eyes at the same instant.",
+      "visual_strength": 0.76
+    }
+  ]
+}

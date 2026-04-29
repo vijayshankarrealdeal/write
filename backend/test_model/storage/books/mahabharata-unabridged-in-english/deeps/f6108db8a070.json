@@ -1,0 +1,27 @@
+{
+  "rich_summary": "Krishna explains the nature of devotion, cosmic cycles, and the supreme reality beyond rebirth. Those who meditate on him with single‑minded devotion can easily reach him and escape the cycle of birth and death that governs all worlds, even the highest heavenly realms. The universe repeatedly emerges from the unmanifest during Brahma’s cosmic day and dissolves again at night, yet beyond this process exists an eternal, indestructible reality—Krishna’s supreme abode. He describes two post‑death paths: one leading to liberation and non‑return, the other to eventual rebirth. In the opening of Chapter IX, Krishna reveals the “royal knowledge”: he pervades the entire universe while remaining beyond it. True devotees recognize him as the origin and essence of all sacrifices, gods, and natural forces, offering every action to him and thereby transcending karma.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the core devotional idea: single‑minded meditation on Krishna makes him easily attainable."
+    },
+    {
+      "start": 111,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Key teaching that reaching Krishna frees the soul from rebirth and the transient world of suffering."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna revealing the cosmic vision of creation and dissolution, with worlds emerging from darkness during Brahma’s day and dissolving back into the unmanifest night.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Devotees offering simple gifts—leaf, flower, fruit, and water—to Krishna with reverence, symbolizing pure devotion over ritual complexity.",
+      "visual_strength": 0.82
+    }
+  ]
+}

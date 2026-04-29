@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After leaving Ulupi, Arjuna continues his exile pilgrimage across sacred sites, eventually reaching Manipura and meeting the princess Chitrangada.",
+  "importance": 0.42,
+  "themes": [
+    "pilgrimage and sacred geography",
+    "ascetic exile",
+    "charity to Brahmanas",
+    "encounter with Chitrangada",
+    "wandering hero"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna travels through forested mountains with Brahmanas, stopping at lotus-filled rivers to perform ablutions and gift thousands of cows.",
+      "visual_strength": 0.45
+    },
+    {
+      "scene_text": "Along the sea-shore near the Mahendra mountain, Arjuna walks with a few attendants as ascetics dwell on the slopes above.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "Inside the palace of Manipura, Arjuna first sees the beautiful princess Chitrangada wandering freely in her father's court.",
+      "visual_strength": 0.67
+    }
+  ]
+}

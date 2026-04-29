@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains the strict conduct and inner discipline of a renunciate whose detachment, compassion, and self-control lead to emancipation beyond Prakriti.",
+  "importance": 0.6,
+  "themes": [
+    "renunciation discipline",
+    "self-control of senses",
+    "equanimity toward praise and blame",
+    "nonviolence and compassion",
+    "path to emancipation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A solitary renunciate waits silently outside a humble house at dusk after the cooking fires have gone out, seeking only a small alms.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "An ascetic sits beneath a tree near a deserted hut, unmoved while villagers mock and throw dirt at him.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A wandering sannyasin walks alone through a quiet forest, carrying nothing, eyes calm and fixed inward.",
+      "visual_strength": 0.68
+    }
+  ]
+}

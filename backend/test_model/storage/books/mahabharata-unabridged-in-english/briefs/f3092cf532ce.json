@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna recounts Abhimanyu’s heroic death to his grieving family, leading to intense lamentation and Kunti’s attempt to console Subhadra with hope of Abhimanyu’s unborn heir.",
+  "importance": 0.72,
+  "themes": [
+    "grief and mourning",
+    "heroic death",
+    "family loss",
+    "consolation and fate",
+    "legacy through offspring"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Subhadra collapses to the ground in a swoon as Krishna is urged to recount the death of her son Abhimanyu.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Krishna solemnly narrates Abhimanyu’s final stand while the aged Vasudeva, overcome with grief, laments beside him.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "The grieving women surround Subhadra and Uttara as Kunti consoles them, reminding them of the unborn child who will continue Abhimanyu’s line.",
+      "visual_strength": 0.74
+    }
+  ]
+}

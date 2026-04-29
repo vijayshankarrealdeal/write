@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada recounts the mighty deeds and vast sacrifices of Bharata and begins describing the miraculous reign of King Prithu.",
+  "importance": 0.5,
+  "themes": [
+    "royal virtue",
+    "sacrifice and generosity",
+    "legendary strength",
+    "ideal kingship",
+    "divine prosperity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The child Bharata drags a roaring lion by the neck through the forest while astonished ascetics watch.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "At a grand sacrifice, gods and Brahmanas gather as a massive golden sacrificial stake is raised for King Bharata.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "King Prithu stands with bow in hand addressing the Earth, who appears before him as beings prepare to milk her for bounty.",
+      "visual_strength": 0.9
+    }
+  ]
+}

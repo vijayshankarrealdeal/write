@@ -1,0 +1,37 @@
+{
+  "rich_summary": "Krishna explains the nature of divine reality and devotion. He describes two aspects of his nature: a lower material nature composed of elements such as earth, water, fire, mind, and intellect, and a higher living principle that sustains the universe. Everything arises from him and is held together like pearls on a string. Though he pervades all qualities of nature—goodness, passion, and darkness—he transcends them, and the world, deluded by these qualities, fails to recognize him. Different kinds of people worship him, but the wise person who knows that \"Vasudeva is all\" is exceedingly rare. The passage then moves to Arjuna’s questions about Brahman and related concepts. Krishna teaches that one’s final thought at death shapes one’s destination, and that steady meditation on the divine leads to union with the Supreme.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna’s opening instruction on fixing the mind on him establishes devotion as the path to true knowledge."
+    },
+    {
+      "start": 0,
+      "length": 260,
+      "color_hex": "#A5D6A7",
+      "why": "The early teaching frames the whole discourse: knowledge, experience, and devotion together reveal the divine reality behind the universe."
+    },
+    {
+      "start": 0,
+      "length": 420,
+      "color_hex": "#F48FB1",
+      "why": "This extended opening captures the intimate tone of Krishna guiding Arjuna toward certainty about the nature of God and the path to union."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna revealing the universe as pearls threaded upon himself while Arjuna listens in awe on the battlefield chariot.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A cosmic vision showing Krishna present as taste in water, light in sun and moon, fragrance in earth, and life in all beings.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "A yogi at the moment of death focusing between the eyebrows, chanting Om as his spirit rises toward the radiant Supreme Being.",
+      "visual_strength": 0.88
+    }
+  ]
+}

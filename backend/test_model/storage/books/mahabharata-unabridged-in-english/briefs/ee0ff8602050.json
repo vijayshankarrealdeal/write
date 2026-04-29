@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts precedent for Brahmin-sired heirs and Satyavati reveals Vyasa’s birth, proposing him to father heirs on Vichitravirya’s widows.",
+  "importance": 0.86,
+  "themes": [
+    "dynastic succession",
+    "niyoga tradition",
+    "origin of Vyasa",
+    "royal lineage",
+    "dharma and duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A blind old rishi bound to a raft drifts down the Ganges until King Vali, standing in the water for ablutions, pulls the raft to shore.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Queen Sudeshna secretly sends her nurse to the blind rishi while watching from afar, avoiding the union herself.",
+      "visual_strength": 0.56
+    },
+    {
+      "scene_text": "On a mist-covered river, the sage Parasara envelops the boat in thick fog as young Satyavati rows, and the future Vyasa is conceived.",
+      "visual_strength": 0.9
+    }
+  ]
+}

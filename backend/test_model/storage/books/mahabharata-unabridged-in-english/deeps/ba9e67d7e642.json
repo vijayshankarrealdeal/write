@@ -1,0 +1,37 @@
+{
+  "rich_summary": "After the devastation of the Kurukshetra war, Arjuna encounters his sister Dussala, whose kin have been slain. She pleads for mercy for her innocent child. Moved by grief and shame over the destruction caused by Duryodhana’s ambition, Arjuna condemns the cruelty of Kshatriya warfare yet relents, embracing her and allowing peace. Continuing the Ashvamedha ritual, he follows the roaming sacrificial horse until it reaches Manipura. There, his son Vabhruvahana comes humbly to greet him, but Arjuna rebukes this as unworthy of a warrior and demands battle. Ulupi, Arjuna’s Naga wife and the prince’s stepmother, urges the son to fight his father to fulfill duty. The resulting combat is fierce and tragic: father and son wound each other terribly, and Arjuna ultimately falls unconscious, while Vabhruvahana collapses in grief beside him.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#F48FB1",
+      "why": "Dussala’s plea for mercy frames the emotional aftermath of the war and Arjuna’s confrontation with the suffering it caused."
+    },
+    {
+      "start": 20,
+      "length": 70,
+      "color_hex": "#A5D6A7",
+      "why": "Shows the moral tension between vengeance and compassion that runs through the episode."
+    },
+    {
+      "start": 90,
+      "length": 60,
+      "color_hex": "#FFEB3B",
+      "why": "Captures the pivotal turning point where Arjuna’s grief over Duryodhana’s ambition is expressed."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Dussala stands before Arjuna on the battlefield pleading for mercy for her orphaned child while the victorious warrior struggles with grief and shame.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Prince Vabhruvahana in golden armor raises a lion-bannered chariot and rides out reluctantly to battle his own father Arjuna.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "In the heat of battle, Vabhruvahana’s arrow pierces Arjuna, and the great hero collapses while the son realizes in horror what he has done.",
+      "visual_strength": 0.93
+    }
+  ]
+}

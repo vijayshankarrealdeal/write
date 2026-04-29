@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Bhishma explains that ignorance arises from covetousness and breeds suffering, urging Yudhishthira to renounce greed and honor self‑restrained, virtuous sages.",
+  "importance": 0.6,
+  "themes": [
+    "ignorance and covetousness",
+    "moral psychology",
+    "virtue of self-restraint",
+    "kings attaining heaven",
+    "guidance from sages"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged Bhishma lies on his bed of arrows while Yudhishthira stands beside him listening to the teaching about ignorance and greed.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A thoughtful king turns away from piles of treasure, symbolically rejecting covetousness to seek the path of righteousness.",
+      "visual_strength": 0.62
+    }
+  ]
+}

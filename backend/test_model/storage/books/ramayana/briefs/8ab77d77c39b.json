@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Vibhishana defects from Ravana and seeks refuge with Rama, prompting the monkey leaders to debate whether he is sincere or a dangerous spy.",
+  "importance": 0.66,
+  "themes": [
+    "defection and refuge",
+    "trust vs suspicion",
+    "war council debate",
+    "loyalty and strategy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vibhishana, radiant with jewels and weapons, hovers in the sky with four rakshasas as the monkey army below raises trees and rocks in alarm.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Sugriva angrily warns Rama while the monkey chiefs cluster around, gripping boulders and tree trunks, watching the distant figure of Vibhishana.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Vibhishana stands at the northern shore with folded hands, declaring his refuge in Rama before the suspicious monkey warriors.",
+      "visual_strength": 0.77
+    }
+  ]
+}

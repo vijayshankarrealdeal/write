@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dasaratha, guided by Sage Vasishtha, begins the grand horse sacrifice, inviting kings and preparing vast arrangements to ensure the ritual proceeds without obstruction.",
+  "importance": 0.6,
+  "themes": [
+    "royal sacrifice",
+    "ritual preparation",
+    "priestly authority",
+    "hospitality and order",
+    "quest for heirs"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sage Vasishtha stands before workers and priests, instructing them as thousands of bricks and structures rise around the vast sacrificial pavilion.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "King Dasaratha with his queens enters the decorated sacrificial pavilion under an auspicious star as priests prepare the sacred fire.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Messengers ride out from Ayodhya in different directions carrying invitations to distant kings for the great sacrifice.",
+      "visual_strength": 0.55
+    }
+  ]
+}

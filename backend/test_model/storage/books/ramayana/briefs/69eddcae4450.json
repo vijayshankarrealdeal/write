@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sanatkumara describes Vishnu’s cosmic nature and foretells Rama and Sita’s birth, prompting Ravana to plot a confrontation with the future incarnation.",
+  "importance": 0.74,
+  "themes": [
+    "divine incarnation",
+    "cosmic nature of Vishnu",
+    "prophecy of Rama and Sita",
+    "Ravana's ambition",
+    "devotion and surrender"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Sanatkumara stands before Ravana, describing the radiant, cloud‑colored Narayana clad in yellow garments like lightning against a stormy sky.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "A prophetic vision shows Rama shining like the sun beside Sita rising from the earth, following him like a shadow under a golden sky.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Ravana, eyes blazing in the night, broods alone as he schemes how to confront the future incarnation of Vishnu.",
+      "visual_strength": 0.64
+    }
+  ]
+}

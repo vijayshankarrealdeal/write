@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama effortlessly lifts and breaks Shiva’s bow before the assembly, proving his strength and winning King Janaka’s promise of Sita’s hand in marriage.",
+  "importance": 0.9,
+  "themes": [
+    "divine strength",
+    "trial of worthiness",
+    "marriage alliance",
+    "destiny fulfilled"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama lifts the massive sacred bow from its iron chest before a vast crowd while King Janaka, Vishwamitra, and Lakshmana watch.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "As Rama draws the bowstring, the bow snaps in two with a thunderous crack that shakes the earth and stuns the assembled crowd.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "King Janaka, hands folded in reverence, declares that his daughter Sita will wed Rama after witnessing the broken bow.",
+      "visual_strength": 0.67
+    }
+  ]
+}

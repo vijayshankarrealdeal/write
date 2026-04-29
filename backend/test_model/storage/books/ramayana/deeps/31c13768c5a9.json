@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Mortally wounded by Rama’s arrow, the mighty monkey king Bali delivers his final words to his brother Sugriva. Recognizing his own past errors and the inevitability of fate, he renounces resentment and accepts Sugriva’s rule over the monkey kingdom. Bali’s chief concern becomes the future: he pleads with Sugriva to protect his son Angada as a father would and to heed the wise counsel of Tara. He also urges loyalty to Rama, warning that disobedience would bring punishment. As a final symbolic act, Bali hands over his golden chain—the sign of royal fortune—to Sugriva. After advising Angada to serve Sugriva faithfully and practice restraint and balance, Bali dies in great pain. His death triggers grief among the monkey hosts, marking a pivotal transfer of power that enables Rama’s alliance with Sugriva.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 92,
+      "color_hex": "#F48FB1",
+      "why": "Tara’s declaration of loyalty to her fallen husband sets the emotional tone of grief and devotion before Bali’s final moments."
+    },
+    {
+      "start": 520,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Bali acknowledges fate and the tragic breakdown of brotherhood, reframing the conflict with Sugriva as destiny rather than hatred."
+    },
+    {
+      "start": 900,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Bali’s plea for Sugriva to protect the weeping Angada reveals his paternal love and the vulnerability behind the warrior king."
+    },
+    {
+      "start": 1350,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "The transfer of the golden chain symbolizes the passing of royal fortune and authority from Bali to Sugriva."
+    },
+    {
+      "start": 1900,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Bali’s painful death from Rama’s arrow forms the emotional climax and marks the end of his reign."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The mortally wounded Bali lies on the forest floor with Rama’s arrow in his chest as he removes his radiant golden chain and hands it to a sorrowful Sugriva while monkeys gather around.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Young Angada kneels beside the dying Bali, tears streaming down his face as the fallen monkey king gives his last fatherly counsel.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "After Bali’s death, the monkey hosts erupt in grief across the forest clearing, surrounding the body of their fallen king.",
+      "visual_strength": 0.78
+    }
+  ]
+}

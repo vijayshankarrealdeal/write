@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Kapila explains that Vedic rites purify the heart and, combined with righteous conduct and detachment, prepare seekers to realize Supreme Brahman and attain emancipation.",
+  "importance": 0.6,
+  "themes": [
+    "Vedic authority",
+    "purity of heart",
+    "paths of life stages",
+    "detachment and duty",
+    "Brahman realization"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ancient sages perform a Vedic sacrifice while a serene teacher instructs disciples seated at his feet beneath the open sky.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "A host of radiant Brahmanas transformed into stars and constellations shining across the night sky.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Ascetics, householders, forest hermits, and students walk different paths that converge toward a distant radiant light symbolizing Brahman.",
+      "visual_strength": 0.71
+    }
+  ]
+}

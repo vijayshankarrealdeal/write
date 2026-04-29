@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A mother counsels a despairing prince on perseverance, leadership, and concealment of fear, inspiring him to regain courage and strive to reclaim his kingdom.",
+  "importance": 0.55,
+  "themes": [
+    "perseverance and effort",
+    "kingship and strategy",
+    "maternal counsel",
+    "leadership in adversity",
+    "alliances and power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A determined mother stands before her despondent prince, speaking fiercely while he slowly rises with renewed resolve.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "The prince, stirred by his mother's words, straightens like a proud war-horse and girds his armor for battle.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "A tempest scatters dark clouds across the sky, symbolizing allies gathering to shatter the enemy host.",
+      "visual_strength": 0.58
+    }
+  ]
+}

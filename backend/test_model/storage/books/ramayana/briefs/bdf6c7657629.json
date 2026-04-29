@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After ritual sacrifice granting invisibility, Indrajit attacks from the sky, wounding Rama and Lakshmana, while Rama restrains Lakshmana from using the Brahma weapon.",
+  "importance": 0.66,
+  "themes": [
+    "ritual power and magic",
+    "invisible warfare",
+    "restraint in warfare",
+    "demonic strategy",
+    "heroic endurance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indrajit performs a dark sacrificial rite before a blazing fire, gripping a black buck while titans in red turbans place weapons and offerings into the flames.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Invisible in a golden chariot in the sky, Indrajit rains arrows through a shroud of smoke and darkness upon Rama and Lakshmana below.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Rama and Lakshmana, pierced with golden‑shafted arrows and standing amid fallen monkeys, glow like flowering Kimshuka trees on the battlefield.",
+      "visual_strength": 0.76
+    }
+  ]
+}

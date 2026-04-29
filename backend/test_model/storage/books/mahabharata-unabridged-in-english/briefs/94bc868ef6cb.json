@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Indra reveals the test of King Usinara’s sacrifice, and the story begins of the sage Ashtavakra’s cursed birth and journey to King Janaka’s debate.",
+  "importance": 0.56,
+  "themes": [
+    "divine testing of virtue",
+    "ascetic knowledge and debate",
+    "cursed birth",
+    "brahminical authority",
+    "quest for truth"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The hawk transforms into Indra beside the rescued pigeon as King Usinara stands wounded after cutting flesh from his own body.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Inside the womb, the unborn Ashtavakra speaks to his father reciting the Vedas, provoking the sage’s angry curse.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The crooked-bodied boy Ashtavakra stands defiantly at the gate of King Janaka’s sacrifice while guards block his entry.",
+      "visual_strength": 0.77
+    }
+  ]
+}

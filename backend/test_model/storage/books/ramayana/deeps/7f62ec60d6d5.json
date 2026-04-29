@@ -1,0 +1,43 @@
+{
+  "rich_summary": "After the arrival of King Dasaratha in Mithila for the weddings of his sons, he performs lavish acts of charity, donating hundreds of thousands of richly adorned cows to the brahmins in their names. Bharata’s maternal uncle Yudhajit arrives from the Kaikeya kingdom and is warmly received. The next day, the royal and sage assemblies gather in the marriage pavilion where Vasistha, Vishwamitra, and other rishis prepare the sacred fire and ritual implements. King Janaka formally offers his daughter Sita to Rama, declaring that she will accompany him in virtue and devotion. When Rama accepts her hand, the marriage is sanctified by Vedic rites. The moment is celebrated not only by those present but by the heavens themselves: divine music resounds and flowers rain from the sky, marking the sacred union of Rama and Sita.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Dasaratha’s immense charity—hundreds of thousands of cows—shows royal dharma and the grandeur surrounding the marriages."
+    },
+    {
+      "start": 700,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Janaka’s welcoming declaration that Dasaratha needs no permission to enter frames the wedding as a union of families and kingdoms."
+    },
+    {
+      "start": 980,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Janaka’s emotional words offering Sita to Rama highlight the tenderness and gravity of the moment."
+    },
+    {
+      "start": 1050,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "The climax of the chapter: Sita and Rama are joined in marriage and the gods celebrate with divine music and a shower of flowers."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Sita and Rama sit before the blazing sacrificial fire as King Janaka joins their hands while celestial flowers rain down and divine music fills the sky.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Vasistha lights the sacred fire in the marriage pavilion while Vishwamitra and other sages decorate the altar with flowers, incense, and golden vessels.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "King Dasaratha ceremonially donates vast herds of gold-horned cows with calves and vessels to brahmins, surrounded by his sons like Brahma among the gods.",
+      "visual_strength": 0.7
+    }
+  ]
+}

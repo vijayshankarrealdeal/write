@@ -1,0 +1,49 @@
+{
+  "rich_summary": "In the aftermath of the dice game, Bhima burns with fury while Vidura warns the Kuru assembly that their treatment of Draupadi is a grave moral failure that will destroy the dynasty. He argues that Yudhishthira could not rightfully stake Draupadi after he had already lost himself. As ominous animal cries echo through the palace, wise elders recognize the signs of impending disaster. Alarmed, Dhritarashtra rebukes Duryodhana and offers Draupadi boons to avert catastrophe. Instead of revenge, Draupadi asks first for Yudhishthira’s freedom and then for the liberation of her other husbands. She refuses a third boon, citing restraint and virtue. Even Karna admits that her act saved the Pandavas, comparing her to a boat rescuing men drowning in an ocean of misery—highlighting her wisdom, restraint, and moral authority in a moment of crisis.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 89,
+      "color_hex": "#F48FB1",
+      "why": "A vivid metaphor describing Bhima’s wrath, signaling the explosive tension in the assembly."
+    },
+    {
+      "start": 180,
+      "length": 56,
+      "color_hex": "#A5D6A7",
+      "why": "Vidura’s ethical warning that injustice corrupts the entire assembly."
+    },
+    {
+      "start": 620,
+      "length": 80,
+      "color_hex": "#FFEB3B",
+      "why": "The ominous cries of animals serve as supernatural signs that the Kuru court has crossed a moral line."
+    },
+    {
+      "start": 980,
+      "length": 79,
+      "color_hex": "#F48FB1",
+      "why": "Draupadi’s first boon—freeing Yudhishthira—shows her concern for dignity and lineage rather than vengeance."
+    },
+    {
+      "start": 1550,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Karna’s metaphor comparing Draupadi to a boat saving the Pandavas underscores her decisive moral heroism."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhima stands trembling with rage in the royal assembly, imagined sparks of fire bursting from his senses as the shocked court watches.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Inside Dhritarashtra’s palace hall, a jackal howls while elders look upward in alarm as birds shriek and omens fill the chamber.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Draupadi stands before the blind king Dhritarashtra in the crowded court, calmly asking for her husbands’ freedom while warriors and elders watch in tense silence.",
+      "visual_strength": 0.92
+    }
+  ]
+}

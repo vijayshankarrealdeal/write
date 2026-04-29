@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Narada teaches detachment, wisdom, and contentment as the cure for grief, explaining the transient nature of life, wealth, and worldly attachments.",
+  "importance": 0.55,
+  "themes": [
+    "detachment from sorrow",
+    "impermanence of life",
+    "wisdom vs ignorance",
+    "contentment",
+    "control of senses"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A serene sage instructs a grieving listener beneath forest trees while pointing toward the endless turning of a wheel symbolizing rebirth.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "A weary traveler stands in parched land as a sudden rain shower pours down, symbolizing the relief gained by restraining the senses.",
+      "visual_strength": 0.67
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bharata returns to a grief-stricken Ayodhya, learns of King Dasharatha’s death, and hears from Kaikeyi that Rama has been exiled to the forest.",
+  "importance": 0.74,
+  "themes": [
+    "grief and mourning",
+    "maternal ambition",
+    "exile of Rama",
+    "filial devotion",
+    "fate and duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata collapses onto the palace floor in anguish after hearing of his father’s death.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Queen Kaikeyi lifts the grieving Bharata from the ground while he lies like a severed tree branch in sorrow.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "Bharata stands in the dim palace asking where Rama, Sita, and Lakshmana have gone as Kaikeyi calmly reveals they have entered the Dandaka forest.",
+      "visual_strength": 0.63
+    }
+  ]
+}

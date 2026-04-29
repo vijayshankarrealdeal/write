@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Despite pleas from the king and ministers, Kaikeyi remains unmoved and insists on Rama’s exile, rejecting arguments about Rama’s virtue and precedent.",
+  "importance": 0.7,
+  "themes": [
+    "stubborn resolve",
+    "royal duty vs desire",
+    "moral argument",
+    "exile of Rama",
+    "court confrontation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dasaratha, red‑eyed with anger and grief, cries out in the royal court while the unmoved Queen Kaikeyi stands rigid before ministers and citizens.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The trembling Kaikeyi, her mouth dry with fear, argues that Bharata cannot rule a kingdom stripped of wealth and people.",
+      "visual_strength": 0.56
+    },
+    {
+      "scene_text": "Minister Siddhartha rebukes Kaikeyi in the assembly, raising his hand as the sorrowful king collapses in despair beside him.",
+      "visual_strength": 0.68
+    }
+  ]
+}

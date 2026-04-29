@@ -1,0 +1,21 @@
+{
+  "summary_1line": "After the Pandavas begin ruling at Indraprastha, Narada visits and warns them to set rules regarding Draupadi, recounting the cautionary tale of Sunda and Upasunda.",
+  "importance": 0.56,
+  "themes": [
+    "shared marriage",
+    "fraternal unity",
+    "sage counsel",
+    "jealousy and rivalry",
+    "royal governance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Narada stands before the five Pandavas in their royal hall at Indraprastha, warning them to establish rules regarding their shared wife Draupadi.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Draupadi, veiled and reverent, bows at Narada’s feet while the five Pandava brothers watch from their jeweled thrones.",
+      "visual_strength": 0.66
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Counsel on espionage and kingship is given, then Bhima meets Hanuman who promises aid in battle before Bhima continues his quest for Saugandhika lotuses.",
+  "importance": 0.6,
+  "themes": [
+    "statecraft and espionage",
+    "brotherhood",
+    "divine assistance",
+    "dharma of kings",
+    "heroic quest"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The giant monkey Hanuman shrinks to normal size and embraces Bhima, whose exhaustion vanishes in his brother’s arms.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Hanuman promises to stand upon Arjuna’s chariot banner roaring over the battlefield to terrify the enemy.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Bhima strides through the lush Gandhamadana forest toward a river filled with glowing golden Saugandhika lotuses and circling swans.",
+      "visual_strength": 0.7
+    }
+  ]
+}

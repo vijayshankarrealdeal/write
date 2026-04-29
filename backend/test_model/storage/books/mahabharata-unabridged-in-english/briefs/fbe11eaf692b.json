@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ashwatthama vows vengeance for Drona’s death and invokes the terrifying Narayana weapon, causing cosmic disturbances that alarm both armies.",
+  "importance": 0.78,
+  "themes": [
+    "filial vengeance",
+    "divine weapons",
+    "cosmic omens",
+    "war fury",
+    "duty to father"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ashwatthama stands on his chariot touching water in ritual as he invokes the Narayana weapon while warriors and banners whip in rising winds.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "As the weapon awakens, the earth trembles, rivers reverse their flow, and dark clouds swallow the sun over the battlefield.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Armies on both sides stare in terror as thunder roars from a cloudless sky and mountains crack in the distance.",
+      "visual_strength": 0.76
+    }
+  ]
+}

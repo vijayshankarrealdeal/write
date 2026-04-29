@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Brahma explains the body and cosmos through the three gunas and elements, detailing the nature and consequences of the quality of Darkness.",
+  "importance": 0.62,
+  "themes": [
+    "three gunas",
+    "cosmic elements",
+    "nature of ignorance",
+    "karma and rebirth",
+    "spiritual ascent"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A symbolic human body depicted as a city with nine gates, ruled by understanding and threaded with three luminous channels representing the gunas.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Shadowy figures weighed down by darkness descend through realms, transforming into animals, serpents, and insects as a result of their deeds.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Three flowing streams—dark, fiery, and radiant—intertwine around the five elements, illustrating the interplay of Darkness, Passion, and Goodness.",
+      "visual_strength": 0.76
+    }
+  ]
+}

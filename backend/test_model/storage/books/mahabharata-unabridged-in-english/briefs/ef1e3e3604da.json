@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna explains the three gunas, the state beyond them, and the cosmic Ashvattha tree symbolizing worldly existence and the path to the Supreme.",
+  "importance": 0.85,
+  "themes": [
+    "three gunas",
+    "transcending qualities",
+    "cosmic tree",
+    "nature of the soul",
+    "Supreme Being (Purushottama)"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A vast upside-down Ashvattha tree with roots in the sky and branches spreading down over the world, its leaves glowing like sacred verses.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A seeker cutting the deep-rooted cosmic tree with a shining sword of detachment while the world’s branches fall away beneath him.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "A radiant divine presence seated in the hearts of all beings, with light flowing into the sun, moon, and fire across the universe.",
+      "visual_strength": 0.78
+    }
+  ]
+}

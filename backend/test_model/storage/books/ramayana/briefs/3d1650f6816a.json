@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bharata humbly halts his army and proceeds on foot to seek Rama’s forest hermitage, sending scouts to locate his exiled brother.",
+  "importance": 0.55,
+  "themes": [
+    "brotherly devotion",
+    "humility",
+    "royal duty",
+    "search for Rama"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Prince Bharata leaves his vast army camped far from Chitrakuta and walks alone on foot toward the forest to meet Rama.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A massive army of elephants, horses, and warriors spreads across the plains while the forested slopes of Chitrakuta rise in the distance.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Bharata instructs Shatrughna and hunters to search the dense forest for Rama’s hermitage while Guha stands ready with armed warriors.",
+      "visual_strength": 0.6
+    }
+  ]
+}

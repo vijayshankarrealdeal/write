@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Satyaki breaks through Kaurava divisions, duels Kritavarman, while Dhritarashtra laments his doomed army and Sanjaya blames his past choices for the war.",
+  "importance": 0.62,
+  "themes": [
+    "heroic duels",
+    "battle formations",
+    "fate vs responsibility",
+    "war lamentation",
+    "loyalty and pursuit"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Satyaki stands in his chariot loosing a storm of arrows that shrouds Kritavarman and his chariot on the crowded battlefield.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A single arrow from Satyaki cleanly severs Kritavarman's charioteer’s head, the body collapsing from the chariot as the horses bolt forward.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Dhritarashtra, blind and anxious in his palace, imagines his vast army as a roaring ocean filled with elephants, chariots, banners, and flashing weapons.",
+      "visual_strength": 0.63
+    }
+  ]
+}

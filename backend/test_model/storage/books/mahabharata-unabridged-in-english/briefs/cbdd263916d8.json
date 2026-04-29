@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira asks the nature and sources of righteousness; Bhishma explains its foundations in Vedas, tradition, purpose, truth, empathy, and conduct amid life's moral complexities.",
+  "importance": 0.73,
+  "themes": [
+    "nature of righteousness",
+    "sources of moral authority",
+    "truth and conduct",
+    "ethical reciprocity",
+    "moral hypocrisy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira sits humbly before the aged Bhishma lying on a bed of arrows, asking about the nature of righteousness.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A thief who steals by night angrily appeals to the king after being robbed himself, blind to his own guilt.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Two rival thieves clasp hands in agreement to keep their word of truth before setting out on a dark, lawless venture.",
+      "visual_strength": 0.64
+    }
+  ]
+}

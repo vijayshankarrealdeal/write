@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After their wedding, Siva and Parvati dwell in love at Kailasa while the gods seek help against Taraka, leading to the miraculous birth of Skanda.",
+  "importance": 0.78,
+  "themes": [
+    "divine marriage",
+    "cosmic duty vs desire",
+    "curse and divine intervention",
+    "miraculous birth",
+    "defeat of demon Taraka"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Siva and Parvati dance joyfully among peacocks in a secluded arbor on Mount Kailasa.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The radiant six‑headed infant Skanda appears at dawn amid Vedic chants while gods shower flowers from the sky.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Nandi stands guard outside the bedchamber of Siva and Parvati on the shining slopes of silver Mount Kailasa.",
+      "visual_strength": 0.7
+    }
+  ]
+}

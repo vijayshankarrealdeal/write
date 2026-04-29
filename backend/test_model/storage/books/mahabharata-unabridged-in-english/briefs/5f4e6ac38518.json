@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After the first day's losses, Yudhishthira despairs before Bhishma’s might, but Krishna encourages him and Dhrishtadyumna forms the Krauncha battle formation.",
+  "importance": 0.6,
+  "themes": [
+    "battlefield despair",
+    "Krishna’s counsel",
+    "Bhishma’s dominance",
+    "military strategy",
+    "leadership resolve"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira stands before Krishna in grief while distant fires of battle burn and Bhishma’s arrows rain across the battlefield like a consuming blaze.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Arjuna’s chariot rolls forward at dawn with the jeweled banner of Hanuman streaming through the sky like a rainbow-colored cloud.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Dhrishtadyumna arranges the vast Pandava army into the crane-shaped Krauncha formation stretching across the plain with chariots, elephants, and banners.",
+      "visual_strength": 0.7
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Narada describes Indra’s vast celestial assembly filled with gods, sages, and musicians, then begins depicting the splendid, desire‑fulfilling hall of Yama.",
+  "importance": 0.36,
+  "themes": [
+    "celestial courts",
+    "divine hierarchy",
+    "sages and deities",
+    "cosmic splendor"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra sits beside Sachi on a radiant throne in a vast heavenly hall while Maruts, sages, and gods gather around him in worship.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Apsaras and Gandharvas perform music and dance before Indra in a luminous celestial assembly filled with garlands and golden ornaments.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The golden assembly hall of Yama gleams like the sun as ancient kings and sages peacefully gather within its serene, desire‑fulfilling chambers.",
+      "visual_strength": 0.68
+    }
+  ]
+}

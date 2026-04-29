@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhima urges Yudhishthira to reclaim the kingdom through strength, strategy, and warfare, arguing that Kshatriya duty and sovereignty justify defeating Duryodhana.",
+  "importance": 0.63,
+  "themes": [
+    "Kshatriya duty",
+    "power and sovereignty",
+    "war strategy",
+    "honor vs weakness",
+    "moral justification of rule"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima stands before Yudhishthira in the forest, passionately urging him to rise and march on Hastinapura with the Pandava warriors.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Bhima boasts of smashing enemies with his massive mace while Arjuna's Gandiva bow gleams beside him.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "The Pandava heroes, surrounded by allied warriors like the Srinjayas and Kaikeyas, prepare to ride toward Hastinapura like gods marching to battle.",
+      "visual_strength": 0.76
+    }
+  ]
+}

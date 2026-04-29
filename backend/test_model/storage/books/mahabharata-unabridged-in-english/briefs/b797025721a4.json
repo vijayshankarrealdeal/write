@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After the war, Dhritarashtra mourns his sons while Sanjaya and Vidura counsel him on fate, karma, impermanence, and the allegory of life’s perilous forest.",
+  "importance": 0.65,
+  "themes": [
+    "grief and consolation",
+    "karma and destiny",
+    "impermanence of life",
+    "wisdom vs attachment",
+    "allegory of worldly existence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The blind king Dhritarashtra collapses to the ground like a tree torn up by the wind after hearing of his sons’ deaths.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A terrified brahmana hangs upside down in a deep forest pit, clutching creepers while a giant serpent waits below and bees drip honey above.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Black and white rats gnaw at the roots of a tree while a man suspended from its creepers drinks falling drops of honey despite the dangers around him.",
+      "visual_strength": 0.9
+    }
+  ]
+}

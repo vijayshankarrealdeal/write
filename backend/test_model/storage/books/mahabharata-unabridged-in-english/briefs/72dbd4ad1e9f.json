@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Satyaki massacres Yavanas and allies, advances toward Arjuna through Kaurava ranks, and withstands a massive counterattack led by Duryodhana and other warriors.",
+  "importance": 0.7,
+  "themes": [
+    "heroic warfare",
+    "martial prowess",
+    "loyalty to Arjuna",
+    "battle carnage",
+    "siege by many foes"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Satyaki in golden armor stands on his chariot like a second sun, loosing a storm of arrows into a sea of charging soldiers and elephants.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The battlefield lies carpeted with headless bodies and shattered helmets as Satyaki’s arrows rain down on fleeing Yavana warriors.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Surrounded by Duryodhana, Duhsasana, Sakuni, and many warriors, Satyaki calmly orders his charioteer to advance while drawing his radiant bow.",
+      "visual_strength": 0.88
+    }
+  ]
+}

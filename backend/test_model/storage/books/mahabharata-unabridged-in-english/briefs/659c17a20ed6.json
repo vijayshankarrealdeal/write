@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna gifts lavish wealth to the Pandavas; news of Draupadi’s marriage spreads, alarming Kauravas while Vidura informs Dhritarashtra and Duryodhana begins plotting.",
+  "importance": 0.56,
+  "themes": [
+    "political alliances",
+    "jealousy and rivalry",
+    "royal gifts and wealth",
+    "misunderstanding",
+    "emerging conspiracy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna’s envoys present heaps of gold coins, jeweled vessels, elephants, and richly dressed maidservants before Yudhishthira.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Bhima stands gripping an uprooted tree as frightened kings recoil in memory of his fury at Draupadi’s self-choice.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "In a dim chamber, Duryodhana and Karna lean toward the blind king Dhritarashtra, whispering of plans to weaken the Pandavas.",
+      "visual_strength": 0.71
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna spares Ashwatthaman, Bhima duels Duryodhana, Abhimanyu devastates Kaurava princes, Bhishma slaughters Pandava troops, and Satyaki unleashes a deadly assault before facing Bhurisravas.",
+  "importance": 0.62,
+  "themes": [
+    "battle heroics",
+    "war ethics",
+    "family rivalry",
+    "youthful valor",
+    "mass carnage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima draws his bow to his ear and drives ten arrows deep into Duryodhana’s chest as the golden gem on the king’s breast gleams among the shafts.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Abhimanyu, blood-covered yet radiant, cuts down Lakshmana’s horses and charioteer as princes surround him like a ring around a blazing fire.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Satyaki stands on his chariot loosing arrows so rapidly that he appears like a storm cloud pouring a torrential rain of shafts upon ten thousand chariots.",
+      "visual_strength": 0.86
+    }
+  ]
+}

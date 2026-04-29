@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Lakshmana angrily confronts Sugriva for delaying his promise to help Rama search for Sita, condemning ingratitude and falsehood.",
+  "importance": 0.62,
+  "themes": [
+    "loyalty and gratitude",
+    "righteous kingship",
+    "anger and reproach",
+    "moral duty",
+    "broken promises"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lakshmana, eyes blazing with anger, stands before Sugriva in the royal hall as the monkey king rises from a golden throne surrounded by women like stars around the moon.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Sugriva leaves his glittering golden seat and approaches the furious Lakshmana while Ruma and other women cluster behind him in the palace chamber.",
+      "visual_strength": 0.68
+    }
+  ]
+}

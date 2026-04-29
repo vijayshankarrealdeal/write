@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vasishtha abandons suicide after learning of his unborn grandson, frees King Kalmashapada from a curse, and later fathers a royal heir for Ayodhya.",
+  "importance": 0.63,
+  "themes": [
+    "despair and renewal",
+    "sagely power",
+    "curse and redemption",
+    "dynastic continuity",
+    "sacred lineage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The despairing sage Vasishtha ties cords around himself and leaps into the rushing river, which snaps the ropes and casts him safely onto the shore.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Vasishtha halts the raging, Rakshasa-possessed King Kalmashapada with a single uttered 'Hum' and holy water sprinkled from his hand.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "The pregnant Adrisyanti follows the wandering sage through the forest while the unborn child in her womb recites the Vedas aloud.",
+      "visual_strength": 0.86
+    }
+  ]
+}

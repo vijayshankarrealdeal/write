@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma teaches Yudhishthira that righteous governance and the science of chastisement determine the moral age of the world and the welfare of subjects.",
+  "importance": 0.72,
+  "themes": [
+    "righteous kingship",
+    "political ethics",
+    "science of chastisement",
+    "cycles of ages",
+    "duty of rulers"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged Bhishma lies on his bed of arrows while Yudhishthira stands beside him listening to teachings on kingship and justice.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A just king rules wisely as the land flourishes—fields yield crops without tilling and people live long, peaceful lives.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "In contrast, a corrupt king presides over a darkened realm where famine, sickness, and social disorder spread across the land.",
+      "visual_strength": 0.63
+    }
+  ]
+}

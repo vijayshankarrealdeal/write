@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna is blessed by the Lokapalas, receives powerful celestial weapons, learns of his divine origin and future victories, and is invited by Indra to ascend to heaven.",
+  "importance": 0.8,
+  "themes": [
+    "divine revelation",
+    "celestial weapons",
+    "destiny and prophecy",
+    "divine parentage",
+    "preparation for war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The radiant gods Yama, Varuna, and Kubera stand on Himalayan peaks while Arjuna receives their celestial weapons under a blazing sky.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Indra’s dazzling chariot driven by Matali descends through thunderous clouds toward Arjuna on the mountain summit.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arjuna bows in reverence on the Himalayan heights as the assembled Lokapalas glow like suns around him.",
+      "visual_strength": 0.8
+    }
+  ]
+}

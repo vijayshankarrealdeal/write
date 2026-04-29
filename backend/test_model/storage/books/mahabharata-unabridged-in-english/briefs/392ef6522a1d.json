@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narayana reveals his cosmic form to Narada, explains metaphysics of Purusha and creation, and foretells his many divine incarnations across ages.",
+  "importance": 0.9,
+  "themes": [
+    "cosmic theophany",
+    "Vedantic cosmology",
+    "avatars of Vishnu",
+    "devotion and liberation",
+    "creation and dissolution"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Narayana appears before Narada with a thousand eyes and many heads, his body shimmering with colors like gold, sapphire, coral, and crystal.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "From one mouth Narayana chants Om and the Gayatri while countless other mouths recite Vedic mantras in all directions.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The vast cosmic body of Narayana contains gods, sages, oceans, rivers, stars, and goddesses dwelling within him.",
+      "visual_strength": 0.88
+    }
+  ]
+}

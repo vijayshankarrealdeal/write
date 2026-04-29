@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains dreams, mind, and consciousness, then distinguishes manifest body, unmanifest soul, and paths of Pravritti and Nivritti leading toward realization of Brahman.",
+  "importance": 0.6,
+  "themes": [
+    "nature of dreams",
+    "mind and consciousness",
+    "gunas and karma",
+    "Prakriti and Purusha",
+    "path to Brahman"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A yogin sits awake in meditation at night while dreamlike figures formed from past impressions swirl around his still mind.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The mind dissolves into a radiant inner light as the sleeper enters dreamless slumber and witnesses pure consciousness.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Two cosmic principles—Prakriti woven of three colors and Purusha as a silent luminous witness—stand distinct against the universe.",
+      "visual_strength": 0.83
+    }
+  ]
+}

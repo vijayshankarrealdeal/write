@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Proud Yavakri ignores warnings, insults Raivya’s family, and is killed by a demon conjured through the sage’s wrathful ritual.",
+  "importance": 0.73,
+  "themes": [
+    "pride and downfall",
+    "ascetic power",
+    "curse and retribution",
+    "fate vs effort",
+    "sexual misconduct"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The enraged sage Raivya tears a matted lock of hair and casts it into the sacrificial fire, from which a demon with blazing eyes rises.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Yavakri flees in terror from a spear‑wielding demon as every river and tank he reaches has mysteriously dried up.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "At the doorway of the Agnihotra chamber, a blind Sudra guard restrains Yavakri while the pursuing demon hurls a spear into his chest.",
+      "visual_strength": 0.86
+    }
+  ]
+}

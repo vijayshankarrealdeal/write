@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira contemplates performing the Rajasuya sacrifice, rules a prosperous and harmonious kingdom, consults advisers, and considers seeking Krishna’s guidance.",
+  "importance": 0.55,
+  "themes": [
+    "ideal kingship",
+    "prosperous kingdom",
+    "Rajasuya ambition",
+    "counsel and deliberation",
+    "dharma-centered rule"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira sits in his royal sabha surrounded by brothers, sages, and ministers while discussing the great Rajasuya sacrifice.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "The five Pandava brothers govern together—Bhima judging firmly, Arjuna guarding the borders, Nakula humble among the people, and Sahadeva dispensing impartial justice.",
+      "visual_strength": 0.58
+    },
+    {
+      "scene_text": "Prosperous fields under abundant rain spread across Yudhishthira’s peaceful kingdom as citizens work contentedly without fear or conflict.",
+      "visual_strength": 0.6
+    }
+  ]
+}

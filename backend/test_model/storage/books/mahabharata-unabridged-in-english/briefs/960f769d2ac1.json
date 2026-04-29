@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Santanu marries the mysterious Ganga under a vow of non‑interference and silently watches her drown seven newborn sons before stopping her at the eighth.",
+  "importance": 0.9,
+  "themes": [
+    "divine marriage pact",
+    "fate and curses",
+    "parental grief",
+    "duty versus promise",
+    "divine identity revealed"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "On the bank of the Ganges, the radiant maiden Ganga calmly casts a newborn infant into the flowing river while King Santanu watches in silent anguish.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Santanu first beholds the dazzling maiden by the sacred Ganges, her celestial ornaments gleaming as both gaze at each other with sudden love.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "As Ganga lifts the eighth child toward the river, Santanu finally steps forward in desperation, raising his hand to stop her.",
+      "visual_strength": 0.9
+    }
+  ]
+}

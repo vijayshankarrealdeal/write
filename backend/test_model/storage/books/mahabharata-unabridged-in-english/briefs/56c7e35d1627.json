@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Abhimanyu single‑handedly devastates surrounding Kaurava warriors, kills several princes including Rukmaratha, and uses the Gandharva weapon to confuse and slaughter attacking forces.",
+  "importance": 0.75,
+  "themes": [
+    "heroic warfare",
+    "youthful valor",
+    "overwhelming odds",
+    "divine weapons",
+    "battlefield carnage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Abhimanyu, glowing in golden armor, stands amid a ring of chariots while arrows rain upon him like locusts covering his car and banner.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "With a single furious volley, Abhimanyu severs Rukmaratha’s bow, arms, and crowned head, the pieces falling from his chariot to the blood‑strewn ground.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Through the illusion of the Gandharva weapon, multiple blazing images of Abhimanyu whirl across the battlefield like circles of fire among terrified warriors.",
+      "visual_strength": 0.88
+    }
+  ]
+}

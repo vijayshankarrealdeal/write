@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sita defiantly rejects Ravana, invoking Rama’s power and virtue, and Ravana threatens to kill and eat her if she refuses him within twelve months.",
+  "importance": 0.72,
+  "themes": [
+    "defiance and fidelity",
+    "righteousness vs tyranny",
+    "prophecy of Ravana's downfall",
+    "threat and intimidation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita places a blade of grass between herself and Ravana while standing pale yet resolute before the towering demon king.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Ravana, crowned and fearsome, leans toward the captive Sita in the grove as she denounces him and invokes Rama’s coming wrath.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Sita, surrounded by grim titan women in the Ashoka grove, declares Rama’s arrows will rain down and destroy Lanka.",
+      "visual_strength": 0.72
+    }
+  ]
+}

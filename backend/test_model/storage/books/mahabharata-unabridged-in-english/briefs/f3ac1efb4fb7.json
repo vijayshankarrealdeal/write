@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Bhishma instructs Yudhishthira on righteous conduct, duties among brothers, reverence within family, and the religious merits and rules of fasting.",
+  "importance": 0.46,
+  "themes": [
+    "family hierarchy",
+    "righteous conduct (dharma)",
+    "duties of elder brother",
+    "religious fasting",
+    "social order"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An elder brother gently restrains his anger while his younger brothers stand before him, the family gathered in a royal hall.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "The sage Angiras sits in austere meditation as Bhishma listens respectfully, receiving teachings on the sacred merits of fasting.",
+      "visual_strength": 0.58
+    }
+  ]
+}

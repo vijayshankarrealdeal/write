@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Both armies finalize their formations at dawn as ominous portents appear and Sanjaya describes the positions and leaders of the Kaurava and Pandava forces.",
+  "importance": 0.5,
+  "themes": [
+    "battle formations",
+    "omens before war",
+    "military leadership",
+    "cosmic portents",
+    "impending conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna's chariot rises above the battlefield with a gigantic ape banner towering over all other standards.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhima whirls his massive iron mace at the head of advancing troops while thousands of soldiers and elephants surge behind him.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "At dawn the two vast armies face each other under a dust-darkened sky as meteors fall and the trembling earth cracks beneath them.",
+      "visual_strength": 0.92
+    }
+  ]
+}

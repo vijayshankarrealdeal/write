@@ -1,0 +1,20 @@
+{
+  "summary_1line": "The sage Poulastya visits King Arjuna and respectfully requests the release of his captured descendant Ravana.",
+  "importance": 0.55,
+  "themes": [
+    "sage authority",
+    "mercy and release",
+    "royal hospitality",
+    "family loyalty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The radiant sage Poulastya strides into the city of Mahishmati like the rising sun while citizens gaze in awe.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "King Arjuna bows with joined palms before the glowing ascetic Poulastya as priests bring ritual offerings of arghya and madhuparka.",
+      "visual_strength": 0.74
+    }
+  ]
+}

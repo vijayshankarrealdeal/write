@@ -1,0 +1,25 @@
+{
+  "rich_summary": "This section transitions from the rise of Jarasandha to the plan for his downfall. After King Vrihadratha renounces worldly life and dies in the forest, Jarasandha becomes a powerful ruler who subdues many kings. His hostility toward Krishna grows after Kansa’s death, and his immense strength is illustrated when he hurls a mace from Girivraja toward Mathura. With his formidable allies Hansa and Dimvaka, he is considered nearly invincible. Krishna then proposes a strategy to Yudhishthira: Jarasandha cannot be defeated in open war but may fall in single combat. Krishna supplies strategy, Bhima the strength, and Arjuna the support. Trusting Krishna’s judgment, Yudhishthira consents. Disguised as Brahmanas, the three heroes depart for Magadha, their mission to kill Jarasandha and free the captive kings so that the Rajasuya sacrifice can proceed.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Prophetic description of the powerful child (Jarasandha) destined to rule kings and even behold the god Rudra, establishing his extraordinary stature."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Jarasandha standing atop the walls of Girivraja, whirling a massive mace and hurling it across the vast distance toward Mathura.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Krishna, Bhima, and Arjuna disguised as radiant Brahmanas setting out together toward the city of Magadha with determined expressions.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Krishna explaining the strategy to Yudhishthira while Bhima and Arjuna stand ready beside him, the plan to challenge Jarasandha forming.",
+      "visual_strength": 0.76
+    }
+  ]
+}

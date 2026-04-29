@@ -1,0 +1,20 @@
+{
+  "summary_1line": "After rescuing Draupadi from Jayadratha, Yudhishthira laments their misfortune and asks the sage Markandeya if anyone has suffered more than he.",
+  "importance": 0.45,
+  "themes": [
+    "lamentation after humiliation",
+    "fate and destiny",
+    "virtue amid suffering",
+    "exile hardships"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira sits in the forest beside sage Markandeya, surrounded by grieving ascetics as Draupadi stands nearby after her rescue.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The Pandavas rest in the shadowy Kamyaka forest, their weapons laid aside while Yudhishthira speaks sorrowfully before the gathered sages.",
+      "visual_strength": 0.55
+    }
+  ]
+}

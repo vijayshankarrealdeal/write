@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Empowered by Vishnu and the gods, Indra hurls the Vajra and kills Vritra, after which the surviving Danavas retreat to the ocean and plot to destroy ascetics.",
+  "importance": 0.7,
+  "themes": [
+    "divine warfare",
+    "shared divine power",
+    "slaying of Vritra",
+    "fear and doubt after victory",
+    "threat to asceticism"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra, blazing with the combined energy of gods and sages, hurls the thunderbolt Vajra at the towering Asura Vritra amid a sky-shaking battle.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Severed heads fall from the sky like palmyra fruits as gods and Danavas clash with swords and maces in a terrifying celestial battlefield.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The gigantic Vritra roars so fiercely that the earth, mountains, and heavens tremble while the gods recoil in fear.",
+      "visual_strength": 0.75
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section of the Bhagavad Gita presents Arjuna questioning Krishna about whether renouncing action or performing action is the superior path. Krishna explains that both renunciation (Sankhya) and disciplined action (Yoga) can lead to liberation, but acting without attachment to results is the better path for most people. True renunciation is not abandoning work but performing it without desire, ego, or claim to its fruits. The wise person understands that the senses act on the world while the Self remains untouched, like a lotus leaf untouched by water. Such a person sees all beings with equal vision, remains steady in pleasure and pain, and finds happiness within rather than in fleeting sensory pleasures. Self-mastery, knowledge of the Self, and devotion lead to union with Brahman and lasting tranquility.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna urges Arjuna to cut through doubt with the 'sword of knowledge' and rise to action—an iconic call to clarity and duty."
+    },
+    {
+      "start": 220,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Arjuna’s central question: whether renouncing action or performing action is superior, which frames the philosophical teaching of the chapter."
+    },
+    {
+      "start": 900,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "The famous metaphor that one who acts without attachment is untouched by sin like a lotus leaf by water—core teaching of karma yoga."
+    },
+    {
+      "start": 1250,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The teaching of equal vision: the wise see a Brahmana, cow, elephant, dog, and outcaste with the same eye."
+    },
+    {
+      "start": 1750,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "The powerful doctrine that one's own self is both friend and enemy depending on whether it is disciplined."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna speaking calmly to Arjuna on the battlefield chariot as he teaches that action without attachment leads to liberation.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A serene sage performing daily work while a lotus leaf floats on water nearby, symbolizing action untouched by sin.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A wise figure gazing equally at a Brahmana scholar, a cow, an elephant, a dog, and an outcaste standing together, representing spiritual equality.",
+      "visual_strength": 0.86
+    }
+  ]
+}

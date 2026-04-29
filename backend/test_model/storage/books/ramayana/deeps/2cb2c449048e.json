@@ -1,0 +1,39 @@
+{
+  "rich_summary": "Manthara, the hunchbacked maid, begins manipulating Queen Kaikeyi after hearing that Rama will be crowned regent. Kaikeyi initially rejoices at the news and even rewards Manthara, declaring that she loves Rama as much as her own son Bharata and sees no problem with his coronation. Furious, Manthara throws the gift aside and launches into a calculated argument meant to awaken Kaikeyi’s fear and jealousy. She insists that once Rama becomes king, Kaikeyi will fall under Kausalya’s power and Bharata will either be exiled or killed. By reframing Rama’s coronation as a direct threat to Bharata’s survival and Kaikeyi’s status, Manthara plants the suspicion that will soon drive the tragic turning point of the epic.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#F48FB1",
+      "why": "Manthara opens with a stark warning that Rama’s enthronement will destroy Kaikeyi and her son, setting the manipulative tone."
+    },
+    {
+      "start": 420,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The pivotal moment where Manthara angrily rejects Kaikeyi’s joy and declares the coronation a disaster rather than a blessing."
+    },
+    {
+      "start": 900,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Kaikeyi’s sincere praise of Rama’s virtue shows how far she initially is from the jealousy Manthara is trying to provoke."
+    },
+    {
+      "start": 1500,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Manthara’s most consequential claim: if Rama becomes king, Bharata will lose the kingdom and perhaps his life."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Manthara angrily flings the jewel to the floor before Queen Kaikeyi, her hunched figure twisted with rage as she warns that Rama’s coronation will doom Bharata.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Inside the royal chamber, Manthara leans close to Kaikeyi and whispers dark predictions while the queen sits conflicted on her couch amid royal ornaments.",
+      "visual_strength": 0.62
+    }
+  ]
+}

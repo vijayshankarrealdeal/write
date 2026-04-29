@@ -1,0 +1,43 @@
+{
+  "rich_summary": "In the Kuru assembly, the gathered kings remain silent while Draupadi pleads for justice after being gambled away by Yudhishthira. Duryodhana exploits the silence, mockingly insisting that the Pandavas themselves must declare whether Yudhishthira is still their lord—because if he is, then Draupadi is rightfully enslaved. The court reacts with uneasy approval and curiosity about how the Pandavas will respond. Bhima, seething with rage yet bound by loyalty and dharma to his elder brother, declares that if Yudhishthira considers himself lost, then the brothers are lost as well, though he vows terrible vengeance if freed to act. In the next exchange, Karna cruelly declares Draupadi a slave and urges her to choose another husband. The humiliation peaks when Duryodhana exposes his thigh to her, provoking Bhima’s famous vow to shatter it in battle—foreshadowing a pivotal act of revenge in the war.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 12,
+      "color_hex": "#FFEB3B",
+      "why": "Marks the beginning of the section describing the pivotal humiliation of Draupadi in the Kuru court."
+    },
+    {
+      "start": 150,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Draupadi’s helpless appeal and the silent indifference of the assembled kings capture the moral failure of the court."
+    },
+    {
+      "start": 900,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Bhima’s declaration of loyalty to Yudhishthira despite his fury highlights the Pandavas’ commitment to hierarchy and dharma."
+    },
+    {
+      "start": 1500,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Duryodhana’s insulting gesture toward Draupadi triggers Bhima’s vow to break his thigh, a crucial foreshadowing of the future duel."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Draupadi standing in the royal court, disheveled and pleading for justice while rows of kings sit in tense, guilty silence.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Bhima rising with fury, his massive arms raised and eyes blazing as the court watches in fear and anticipation.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Duryodhana arrogantly revealing his thigh to insult Draupadi while Bhima glares and swears his terrible vow before the gathered kings.",
+      "visual_strength": 0.95
+    }
+  ]
+}

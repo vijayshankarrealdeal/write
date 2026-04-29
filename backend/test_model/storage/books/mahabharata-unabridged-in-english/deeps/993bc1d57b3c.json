@@ -1,0 +1,49 @@
+{
+  "rich_summary": "The battle between Arjuna and the grandsire Bhishma intensifies as Bhishma overwhelms the Pandava army with relentless showers of arrows. Seeing Arjuna fight too gently, Krishna—enraged by the destruction—leaps from the chariot with whip in hand, rushing toward Bhishma as if to kill him himself, nearly breaking his vow not to fight. Arjuna restrains him and promises to defeat Bhishma. That evening, shaken by Bhishma’s devastation, Yudhishthira contemplates abandoning the war but instead consults Krishna and then Bhishma himself. In an extraordinary moment of candor, Bhishma reveals the key to defeating him: Arjuna must place Shikhandin before him, since Bhishma refuses to fight one who was once female. Arjuna struggles emotionally with the duty of killing his beloved grandsire, while Krishna insists that duty and destiny demand it.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The opening battlefield exchange sets the tone of overwhelming martial skill and the ferocity of Bhishma and Arjuna’s clash."
+    },
+    {
+      "start": 800,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna’s rage reaches a breaking point, leading him to leap from the chariot—one of the most dramatic moments where he nearly breaks his vow not to fight."
+    },
+    {
+      "start": 1800,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Arjuna restraining Krishna captures the emotional bond between them and the tension between divine fury and human duty."
+    },
+    {
+      "start": 3200,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Yudhishthira’s despair after witnessing Bhishma’s destruction of the army reflects the moral and psychological strain of the war."
+    },
+    {
+      "start": 5200,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Bhishma reveals the crucial strategy involving Shikhandin, a pivotal turning point that explains how the seemingly invincible grandsire can be defeated."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna, eyes blazing with rage, leaps from Arjuna’s chariot with whip in hand and charges across the battlefield toward Bhishma while stunned warriors watch.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Arjuna desperately clings to Krishna’s legs, struggling to stop him from breaking his vow as the battlefield rages around them.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "At night in Bhishma’s tent, the unarmed Pandavas bow before the grandsire as he calmly reveals the secret of how he may be slain.",
+      "visual_strength": 0.8
+    }
+  ]
+}

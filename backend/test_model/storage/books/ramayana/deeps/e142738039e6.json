@@ -1,0 +1,49 @@
+{
+  "rich_summary": "As the sacred Ganges follows King Bhagiratha across the land, a vast procession of gods, sages, spirits, and celestial beings accompanies the river. When the rushing waters flood the sacrificial ground of the sage Jahnu, he angrily drinks the entire river, astonishing the divine assembly. Appeased by their praise, he releases the river from his ear, giving Ganga the name Jahnavi, \"daughter of Jahnu.\" The river continues behind Bhagiratha’s celestial chariot until it reaches the ashes of the sixty thousand sons of King Sagara in the underworld. When Ganga’s waters touch them, they are purified and ascend to heaven. Brahma appears to declare Bhagiratha’s success, granting the river his name Bhagirathi and immortalizing his achievement of redeeming his ancestors through perseverance and dharma.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 90,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the sanctifying power of the Ganges, establishing the spiritual significance of the river."
+    },
+    {
+      "start": 330,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "The miraculous moment when the sage Jahnu drinks the entire river in anger, a dramatic mythic turning point."
+    },
+    {
+      "start": 520,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "The gods proclaim Ganga as Jahnu’s daughter after he releases her from his ear, explaining the sacred name Jahnavi."
+    },
+    {
+      "start": 760,
+      "length": 150,
+      "color_hex": "#F48FB1",
+      "why": "Bhagiratha gazes upon the ashes of his ancestors, adding emotional weight before their redemption."
+    },
+    {
+      "start": 860,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "The sacred waters touch the ashes and the sons of Sagara are restored and ascend to heaven—the fulfillment of Bhagiratha’s quest."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "King Bhagiratha riding a radiant celestial chariot while the mighty river Ganga flows behind him across the earth, surrounded by gods, sages, serpents, and swans in a vast divine procession.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The sage Jahnu in blazing ascetic power angrily drinking the entire rushing Ganges in a single miraculous act as stunned gods and sages watch.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The waters of the Ganges washing over the ashes of the sixty thousand sons of Sagara in the underworld as their purified spirits rise toward heaven.",
+      "visual_strength": 0.95
+    }
+  ]
+}

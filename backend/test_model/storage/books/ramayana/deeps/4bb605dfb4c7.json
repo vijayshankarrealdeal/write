@@ -1,0 +1,43 @@
+{
+  "rich_summary": "King Dasaratha lies collapsed in humiliation and grief, compared to the fallen celestial king Yayati. Yet Kaikeyi, unmoved and intent on securing the promises he once granted her, presses him again to fulfill the two boons. She challenges his reputation for truthfulness, demanding he honor his vow. In anguish and anger, Dasaratha denounces her cruelty and laments the thought of sending Rama—virtuous, beloved, and long-awaited after years without an heir—into exile in the Dandaka forest. He imagines the shame of explaining such an act even before the gods and declares that death before witnessing Rama’s suffering would have been kinder. As night falls, the king remains shattered, finding no comfort even in the moonlight. The passage heightens the moral crisis of the epic: the fatal collision between a king’s vow and a father’s love.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "The opening image comparing Dasaratha to the fallen king Yayati establishes the scale of his humiliation and the mythic tone of the moment."
+    },
+    {
+      "start": 280,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Kaikeyi's challenge to the king's truthfulness underscores the theme of vows and dharma that drives the tragedy."
+    },
+    {
+      "start": 640,
+      "length": 150,
+      "color_hex": "#F48FB1",
+      "why": "Dasaratha’s anguished praise of Rama’s virtues shows the depth of paternal love and the cruelty of the demanded exile."
+    },
+    {
+      "start": 1050,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The king’s lament that death would have been preferable to seeing Rama suffer captures the emotional climax of the passage."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "King Dasaratha lies collapsed on the palace floor like a fallen celestial king while the stern Kaikeyi stands over him demanding her promised boons.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Dasaratha, distraught and tearful, raises his hands in despair as he speaks of sending the radiant, lotus‑eyed Rama into exile in the dark Dandaka forest.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Night falls over the silent palace as the broken king gazes at the rising moon yet finds no solace in its light.",
+      "visual_strength": 0.6
+    }
+  ]
+}

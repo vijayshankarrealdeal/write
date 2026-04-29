@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Shiva grants Arjuna the devastating Pasupata weapon and other gods gather to witness his ascetic triumph and divine favor.",
+  "importance": 0.9,
+  "themes": [
+    "divine weapons",
+    "divine recognition",
+    "ascetic reward",
+    "cosmic power",
+    "Arjuna's destiny"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Shiva touches Arjuna and reveals the terrible Pasupata weapon while the earth trembles and storms whirl around them.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The embodied Pasupata weapon stands beside Arjuna as gods and demons look on from the sky in awe.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Indra rides the white elephant Airavata beneath a white umbrella as other gods assemble around the meditating Arjuna on the mountain.",
+      "visual_strength": 0.82
+    }
+  ]
+}

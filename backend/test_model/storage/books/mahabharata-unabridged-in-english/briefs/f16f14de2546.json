@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna shields Sikhandin and relentlessly disarms Bhishma, who resolves to accept death as celestial signs appear while the armies converge around them.",
+  "importance": 0.85,
+  "themes": [
+    "heroic combat",
+    "fate and chosen death",
+    "divine intervention",
+    "duty and restraint",
+    "siege of Bhishma"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma stands blazing amid encircling warriors like the fire of doomsday while arrows bristle from his armor on every side.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arjuna places Sikhandin before him on the chariot and cuts Bhishma’s bow apart as a storm of arrows streaks between them.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Celestial flowers fall from the sky and winds blow softly as unseen sages approve Bhishma’s decision to welcome death in battle.",
+      "visual_strength": 0.8
+    }
+  ]
+}

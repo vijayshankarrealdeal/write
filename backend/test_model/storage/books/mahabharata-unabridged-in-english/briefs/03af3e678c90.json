@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma and Parashurama meet at Kurukshetra for their fated duel despite Ganga’s plea, exchange words of respect, and begin the battle.",
+  "importance": 0.78,
+  "themes": [
+    "duty versus obedience",
+    "guru-disciple conflict",
+    "warrior honor",
+    "divine spectators",
+    "inevitability of battle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma, dressed entirely in white on a silver chariot with white horses, blows his conch as sages and gods gather around Kurukshetra to watch the duel.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The river goddess Ganga appears before Bhishma on the battlefield, pleading with her son to abandon the fight with Parashurama.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Parashurama stands radiant on a celestial chariot created by his will, raining arrows upon Bhishma as the duel begins.",
+      "visual_strength": 0.9
+    }
+  ]
+}

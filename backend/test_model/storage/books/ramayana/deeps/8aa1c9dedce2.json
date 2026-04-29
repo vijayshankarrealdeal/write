@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This chapter recounts the origins of Ravana and his siblings, set against the earlier defeat of the Rakshasas by Vishnu. After the Rakshasas flee Lanka and dwell in the nether regions under Sumali, the demon king seeks a strategy to restore their power. Seeing Kubera, the radiant son of the sage Vishravas, Sumali resolves that his daughter Kaikasi should bear children by the same sage. Though Vishravas warns that approaching him at an inauspicious hour will produce fierce and evil offspring, Kaikasi persists. She gives birth to the terrible ten‑headed Dashagriva (later Ravana), the giant Kumbhakarna, the demoness Shurpanakha, and finally the virtuous Vibhishana. Ominous portents accompany Ravana’s birth, while auspicious signs mark Vibhishana’s. Stirred by his mother’s comparison with Kubera, Dashagriva vows to surpass his brother and begins severe austerities to gain invincible power.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Establishes the aftermath of the Rakshasas’ defeat by Vishnu and their retreat, setting the cosmic background for Ravana’s eventual rise."
+    },
+    {
+      "start": 2100,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Vishravas’ prophecy that Kaikasi’s ill‑timed visit will produce cruel Rakshasa offspring foreshadows the nature of Ravana and his brothers."
+    },
+    {
+      "start": 2450,
+      "length": 260,
+      "color_hex": "#F48FB1",
+      "why": "The dramatic birth of the ten‑headed child Dashagriva, accompanied by terrifying cosmic omens, marks the mythic entrance of Ravana."
+    },
+    {
+      "start": 3000,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The contrastive description of Vibhishana—devoted to righteousness and Vedic study—introduces the moral counterpoint within Ravana’s own family."
+    },
+    {
+      "start": 3280,
+      "length": 190,
+      "color_hex": "#FFEB3B",
+      "why": "Dashagriva’s vow to equal or surpass his brother Kubera becomes the driving ambition that leads him to severe penance and eventual power."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The birth of the ten‑headed infant Dashagriva as storms rage, blood rains from the sky, beasts howl, and the ocean churns under dark clouds.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Kaikasi approaching the ascetic Vishravas at dusk during his fire sacrifice, the sage glowing like a fourth flame while she stands with downcast eyes.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "The radiant Kubera riding the celestial Pushpaka chariot across the sky while the young Dashagriva watches with burning envy.",
+      "visual_strength": 0.88
+    }
+  ]
+}

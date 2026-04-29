@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Rama receives gifts from his uncle’s envoy Gargya and is asked to conquer the Gandharva land on the Sindhu, assigning the task to Bharata.",
+  "importance": 0.42,
+  "themes": [
+    "royal diplomacy",
+    "familial duty",
+    "territorial conquest",
+    "messenger mission"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama walks out of Ayodhya with his retinue to greet the sage Gargya arriving with thousands of horses and lavish gifts.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "The sage Gargya stands in Rama’s court describing the fertile Gandharva land by the Sindhu River and urging its conquest.",
+      "visual_strength": 0.52
+    }
+  ]
+}

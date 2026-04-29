@@ -1,0 +1,49 @@
+{
+  "rich_summary": "After Bhishma falls and lies upon his self-chosen bed of arrows, physicians arrive but he refuses treatment, declaring that a Kshatriya who has reached such a state should not seek healing. Both Kauravas and Pandavas, moved by his steadfast adherence to warrior ideals, honor him and withdraw for the night. The next day kings, citizens, performers, and crowds gather as if attending a sacred spectacle, united in reverence despite the war. Tormented by thirst yet rejecting ordinary comforts, Bhishma asks specifically for Arjuna. Understanding his grandsire’s wish, Arjuna shoots a divine arrow into the earth, releasing a cool, celestial spring that refreshes Bhishma. The miraculous act amazes all present and momentarily unites the warring hosts in awe.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Bhishma’s dramatic vow to die upon the field, accepting death like a friend parting from a friend, captures his serene acceptance of fate."
+    },
+    {
+      "start": 360,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Bhishma refuses the physicians, declaring that lying on a bed of arrows is the highest Kshatriya state and that he should not be treated."
+    },
+    {
+      "start": 980,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "The gathering of kings, civilians, and performers around Bhishma shows how the battlefield becomes a solemn public spectacle honoring a legendary warrior."
+    },
+    {
+      "start": 1500,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Bhishma asks for Arjuna and requests water, setting up the famous moment where Arjuna uses divine archery rather than ordinary means."
+    },
+    {
+      "start": 1880,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "Arjuna pierces the earth with a mantra-charged arrow, releasing a sacred spring—an iconic moment displaying both devotion and supernatural martial skill."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhishma lying upon a vast bed of arrows while kings from both armies gather around him in reverence under the open battlefield sky.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Arjuna on his chariot drawing the Gandiva, thunder echoing as he aims a glowing arrow into the earth beside the fallen Bhishma.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "A crystal jet of water bursting from the ground where Arjuna’s arrow struck, arching toward the arrow‑pierced Bhishma as astonished warriors watch.",
+      "visual_strength": 0.9
+    }
+  ]
+}

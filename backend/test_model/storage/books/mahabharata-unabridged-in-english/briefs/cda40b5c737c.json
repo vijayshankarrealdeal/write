@@ -1,0 +1,25 @@
+{
+  "summary_1line": "At Yudhishthira’s sacrifice Bhishma awards the first Arghya to Krishna, provoking Sisupala to angrily denounce the honor before the assembled kings.",
+  "importance": 0.78,
+  "themes": [
+    "ritual honor",
+    "divine incarnation",
+    "courtly dispute",
+    "Krishna’s supremacy",
+    "political tension"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the crowded sacrificial hall, Sahadeva offers a golden Arghya vessel to Krishna while kings and sages watch from every side.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Narada sits among the gathered sages, gazing over the assembly of kings as he realizes they are incarnate gods destined to destroy one another.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "King Sisupala rises angrily in the royal assembly, pointing in accusation at Krishna while Bhishma and Yudhishthira sit before the gathered monarchs.",
+      "visual_strength": 0.86
+    }
+  ]
+}

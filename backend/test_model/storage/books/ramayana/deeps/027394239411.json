@@ -1,0 +1,25 @@
+{
+  "rich_summary": "While encamped on Mount Kailasha during his campaign against the gods, Ravana wanders beneath the moonlit forests, where music of Apsaras and celestial beings fills the night and stirs his desire. He encounters the beautiful nymph Rambha on her way to meet Nalakuvara, the virtuous son of Kubera. Despite her pleas that she is effectively his daughter‑in‑law and under his protection, Ravana dismisses her arguments and violently ravishes her. Shaken and dishonored, Rambha goes to Nalakuvara and recounts the assault. Furious, Nalakuvara performs a ritual and curses Ravana: if he ever forces himself upon a woman who does not desire him, his head will shatter into seven pieces. The gods rejoice, recognizing that this curse will shape Ravana’s fate and limit his future crimes.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 300,
+      "color_hex": "#A5D6A7",
+      "why": "The opening situates Ravana’s army on sacred Mount Kailasha and sets the lush, moonlit atmosphere that ignites the episode’s fateful chain of events."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "On moonlit Mount Kailasha, Ravana rises among his vast sleeping army as celestial music drifts through forests of flowering trees and Apsaras dance in the distance.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Ravana seizes the radiant Apsara Rambha as she passes through the Rakshasa camp, her jeweled ornaments and dark-blue garments glowing in the moonlight as she pleads for mercy.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Nalakuvara, blazing with anger, performs a ritual with sacred water and pronounces a terrible curse while gods in the sky shower flowers and celestial drums resound.",
+      "visual_strength": 0.9
+    }
+  ]
+}

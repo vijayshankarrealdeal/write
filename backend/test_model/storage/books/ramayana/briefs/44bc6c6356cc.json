@@ -1,0 +1,25 @@
+{
+  "summary_1line": "As Rama stands exhausted before Ravana, the sage Agastya teaches him the Aditya Hridaya hymn to the Sun to restore strength and assure victory.",
+  "importance": 0.86,
+  "themes": [
+    "divine intervention",
+    "solar worship",
+    "battle preparation",
+    "sacred hymn",
+    "renewed resolve"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Agastya appears on the battlefield before the weary Rama and instructs him in the radiant Hymn to the Sun as Ravana waits in his chariot.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama stands in the war-torn field with folded hands, reciting the Aditya Hridaya while the blazing sun shines above him.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Ravana’s massive chariot drawn by galloping steeds rushes toward Rama as the final duel looms.",
+      "visual_strength": 0.74
+    }
+  ]
+}

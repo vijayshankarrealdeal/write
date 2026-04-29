@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sanjaya describes chaotic mass combat where countless warriors, elephants, horses, and chariots clash, kin fail to recognize kin, and the battlefield descends into brutal confusion.",
+  "importance": 0.55,
+  "themes": [
+    "battle chaos",
+    "kinship forgotten",
+    "mass warfare",
+    "heroic violence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Two enormous war elephants with bleeding temples crash together, tearing each other with tusks amid broken chariots.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "In the melee a warrior on a leaping horse slices the head from a chariot fighter as arrows fall like snakes.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Confused soldiers swing swords in every direction while fathers and sons unknowingly fight each other in the dust-filled battlefield.",
+      "visual_strength": 0.8
+    }
+  ]
+}

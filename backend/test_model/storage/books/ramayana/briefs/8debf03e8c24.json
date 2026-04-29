@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Agastya recounts finding a mysterious corpse and a radiant celestial who descends in a swan-drawn chariot to eat it, prompting Agastya’s questioning.",
+  "importance": 0.52,
+  "themes": [
+    "divine kingship origins",
+    "ascetic wandering",
+    "mystery of karma",
+    "celestial beings",
+    "curiosity and inquiry"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A radiant youth descends from a swan-drawn celestial chariot surrounded by singing apsaras and bends to devour a shining corpse beside a lotus-filled lake.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Sage Agastya stands at dawn beside a tranquil lake of lotuses and swans, staring in astonishment at a spotless corpse floating in the clear water.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "The celestial chariot hovers above the wilderness as apsaras dance and play instruments while white swans strain against the harness in midair.",
+      "visual_strength": 0.72
+    }
+  ]
+}

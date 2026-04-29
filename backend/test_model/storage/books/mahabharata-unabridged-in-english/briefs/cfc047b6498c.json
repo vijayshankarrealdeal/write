@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Kunti invokes gods to bear sons for Pandu, giving birth to Yudhishthira and Bhima, while Pandu begins austerities seeking a third heroic son from Indra.",
+  "importance": 0.86,
+  "themes": [
+    "divine conception",
+    "birth of heroes",
+    "destiny and prophecy",
+    "ascetic devotion",
+    "Kuru lineage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The radiant god of justice appears in a sun-bright chariot before Kunti as she performs sacred incantations to summon him.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Infant Bhima falls from Kunti’s lap onto a mountain rock, shattering the stone into fragments while the child remains unharmed.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "King Pandu stands on one leg in severe austerity amid the forest while sages watch, seeking Indra’s favor for a mighty son.",
+      "visual_strength": 0.72
+    }
+  ]
+}

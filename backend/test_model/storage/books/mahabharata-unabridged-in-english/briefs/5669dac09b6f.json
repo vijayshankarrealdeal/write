@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhima clashes with Duryodhana and his brothers while Abhimanyu and other Pandava warriors join, as Drona and Bhishma devastate the Pandava army.",
+  "importance": 0.55,
+  "themes": [
+    "heroic duels",
+    "brotherly warfare",
+    "battle chaos",
+    "martial loyalty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima, eyes red with wrath, draws his bow and shoots three arrows into Duryodhana’s arms and chest as the two heroes face each other unmoving.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Abhimanyu stands firm like Mount Meru on his chariot while arrows from Vikarna and Durjaya strike him in the midst of a raging battlefield.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The battlefield appears as an ocean of blood with elephants like islands, horses as waves, and countless headless trunks standing amid flying arrows.",
+      "visual_strength": 0.9
+    }
+  ]
+}

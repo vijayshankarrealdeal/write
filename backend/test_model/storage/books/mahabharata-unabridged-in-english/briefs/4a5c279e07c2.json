@@ -1,0 +1,21 @@
+{
+  "summary_1line": "A king explains he laughs because in a past life the priest wrongly instructed him, causing their reversed births and warning about the karmic risk of giving instruction.",
+  "importance": 0.55,
+  "themes": [
+    "karma and rebirth",
+    "social order and caste",
+    "danger of teaching",
+    "moral responsibility",
+    "ascetic penance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The king solemnly tells the shocked priest that in their former lives he was a Sudra ascetic and the priest a Rishi whose instruction caused their fates to reverse.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The Brahmana, dismissed from court, distributes wealth and cows before leaving to perform severe penances in a forest hermitage.",
+      "visual_strength": 0.63
+    }
+  ]
+}

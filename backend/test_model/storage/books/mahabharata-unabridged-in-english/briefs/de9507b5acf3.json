@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna recounts Indra, disguised as a golden bird, persuading misguided ascetics to abandon premature renunciation and uphold household duties and Vedic rites.",
+  "importance": 0.53,
+  "themes": [
+    "duty vs renunciation",
+    "householder life",
+    "Vedic ritual",
+    "divine instruction",
+    "righteous action"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra disguised as a radiant golden bird perches before a group of young forest ascetics, speaking while they listen among the trees.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A cluster of youthful Brahmana ascetics in the forest look up in surprise at the shining golden bird addressing them.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The golden bird rebukes the ascetics amid a quiet woodland hermitage scattered with simple huts and ritual fires.",
+      "visual_strength": 0.62
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "King Mahabhisha is cursed after staring at Ganga in heaven; the Vasus, cursed by Vasishtha, arrange with Ganga to be born as her sons on earth.",
+  "importance": 0.72,
+  "themes": [
+    "divine curses",
+    "fate and rebirth",
+    "Ganga and the Vasus",
+    "cosmic justice",
+    "origins of Santanu"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In Brahma’s celestial court, the wind lifts Ganga’s white garments while the gods bow their heads and King Mahabhisha stares at her, provoking a curse.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The radiant river-goddess Ganga meets the sorrowful Vasus on a heavenly path as they plead with her to bear them as sons and free them from their curse.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Ganga stands beside flowing celestial waters agreeing to cast her newborn sons into the river so the cursed Vasus may quickly return to heaven.",
+      "visual_strength": 0.72
+    }
+  ]
+}

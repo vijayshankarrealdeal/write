@@ -1,0 +1,37 @@
+{
+  "rich_summary": "This section concludes the terrifying scope of Janamejaya’s snake‑sacrifice by listing numerous serpent chiefs from different lineages—Takshaka, Airavata, Kauravya, and Dhritarashtra—who were dragged into the sacrificial fire by the power of Vedic mantras. The narrative emphasizes the immense scale of destruction: countless serpents of monstrous size and supernatural power perish under the curse driving the ritual. The focus then shifts to a decisive moment: as the serpent king Takshaka is pulled toward the fire, the sage Astika intervenes. By commanding Takshaka to “Stay,” he suspends him in midair and persuades King Janamejaya to end the sacrifice. The ritual stops, the surviving serpents are saved, and they grant Astika a boon that anyone who remembers his deed will be protected from snakebite.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The rapid catalog of serpent names establishes the epic scale of the snake‑sacrifice and the many noble lineages being destroyed."
+    },
+    {
+      "start": 120,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Continues the sweeping enumeration of serpent clans, emphasizing the breadth of the catastrophe and the mythic genealogy of the naga races."
+    },
+    {
+      "start": 240,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "This passage culminates the listing of powerful serpents and reinforces how vast and fearsome the beings were that perished in the sacrificial fire."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Takshaka hangs frozen in midair above the blazing sacrificial fire as Astika commands him to stay, while priests and King Janamejaya look on in astonishment.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Hundreds of serpents of enormous size and many heads are drawn irresistibly into the towering sacrificial flames during Janamejaya’s ritual.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The young sage Astika stands before King Janamejaya in the crowded sacrificial arena, requesting the boon that ends the snake‑sacrifice.",
+      "visual_strength": 0.82
+    }
+  ]
+}

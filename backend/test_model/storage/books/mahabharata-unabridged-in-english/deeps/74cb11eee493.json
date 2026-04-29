@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section continues the famous dialogue between Yudhishthira and the mysterious Yaksha. Yudhishthira explains that true Brahmanahood depends not on learning but on righteous conduct and disciplined behavior. In a series of philosophical questions, he answers what brings happiness, the nature of wonder, and the proper path of life. He observes that humans daily see death yet still believe themselves immortal, and that the true path is the one walked by the great. After correctly answering, he is allowed to revive one brother; he chooses Nakula rather than the stronger Bhima or Arjuna, reasoning that justice requires fairness to both of his mothers. Impressed by his commitment to dharma, the Yaksha reveals himself as Yama, Yudhishthira’s divine father, revives all the brothers, and grants boons, including the Pandavas’ wish to remain unrecognized during their final year of exile.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Defines the central ethical claim: true Brahmanahood comes from conduct, not mere learning."
+    },
+    {
+      "start": 300,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Yudhishthira’s concise answers about agreeable speech, wise action, friendship, and virtue summarize practical ethics."
+    },
+    {
+      "start": 650,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "The famous reflection that people see death daily yet believe themselves immortal—one of the Mahabharata’s most quoted insights."
+    },
+    {
+      "start": 1200,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Yudhishthira’s justification for choosing Nakula reveals his unwavering commitment to fairness toward both of his mothers."
+    },
+    {
+      "start": 1750,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "The Yaksha reveals himself as Yama, the Lord of Justice, framing the episode as a divine test of Yudhishthira’s adherence to dharma."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Yudhishthira stands beside the still forest lake while the mysterious Yaksha questions him, with the bodies of his fallen brothers lying nearby.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Yudhishthira calmly choosing Nakula’s life over Bhima and Arjuna, embodying justice despite personal attachment.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "The Yaksha transforming into Yama, radiant and divine, as the Pandava brothers rise restored beside the enchanted lake.",
+      "visual_strength": 0.9
+    }
+  ]
+}

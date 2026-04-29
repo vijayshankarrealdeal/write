@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Janamejaya asks about Duryodhana’s response to the Pandava camp, and Duryodhana orders vast military preparations and the march to Kurukshetra.",
+  "importance": 0.46,
+  "themes": [
+    "war preparations",
+    "Kaurava leadership",
+    "inevitability of battle",
+    "royal mobilization"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Duryodhana stands with Karna, Dussasana, and Sakuni in council as he commands the kings to pitch thousands of war tents on the plains of Kurukshetra.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "Warriors rub their mace-like arms, don golden armor and helmets, while charioteers harness horses and elephant-handlers prepare massive war elephants.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The bustling Kuru capital before the march resembles a vast ocean, with crowds like waters and chariots, elephants, and horses like moving sea creatures.",
+      "visual_strength": 0.62
+    }
+  ]
+}

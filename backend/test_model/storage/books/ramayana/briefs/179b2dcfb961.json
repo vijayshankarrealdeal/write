@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Angada kills a fearsome titan during the southern search, but the monkeys fail to find Sita and continue their desperate exploration.",
+  "importance": 0.45,
+  "themes": [
+    "search for Sita",
+    "perseverance in adversity",
+    "leadership of Angada",
+    "encounter with demons"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Angada strikes the towering titan with his palm, sending the massive demon crashing to the earth like a fallen hill.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The exhausted monkey warriors emerge from a dark cavern and collapse beneath a solitary tree in the wilderness.",
+      "visual_strength": 0.63
+    }
+  ]
+}

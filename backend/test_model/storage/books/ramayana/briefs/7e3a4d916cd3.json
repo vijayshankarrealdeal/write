@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Bali’s death, Sugriva is overcome with guilt, lamenting fratricide while Tara mourns and begs Rama to kill her so she may reunite with her husband.",
+  "importance": 0.62,
+  "themes": [
+    "remorse",
+    "fratricide",
+    "grief and mourning",
+    "dharma and guilt",
+    "loyalty to spouse"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Angada clings to the blood-covered body of his father Bali while Tara collapses beside the fallen king in grief.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Sugriva stands before Rama with tear-filled eyes, confessing remorse while Bali’s corpse lies behind him on the battlefield.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Tara, trembling with sorrow, approaches the radiant Rama and begs him to strike her with the same arrow that killed Bali.",
+      "visual_strength": 0.82
+    }
+  ]
+}

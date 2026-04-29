@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Draupadi urges Krishna toward vengeance for her humiliation, while Krishna prepares to depart as envoy to the Kauravas seeking peace.",
+  "importance": 0.72,
+  "themes": [
+    "vengeance and justice",
+    "honor and humiliation",
+    "duty of kshatriyas",
+    "peace versus war",
+    "divine mission"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Draupadi, weeping, lifts her long dark braid in her hand and reminds Krishna of how Dussasana once dragged her by that hair before the assembly.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Krishna stands beside his radiant chariot as Garuda settles upon its flagstaff while sages, kings, and auspicious birds gather around him.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Krishna’s magnificent chariot with four named white horses rolls forward at dawn while the Pandavas and allied kings follow him in reverence.",
+      "visual_strength": 0.82
+    }
+  ]
+}

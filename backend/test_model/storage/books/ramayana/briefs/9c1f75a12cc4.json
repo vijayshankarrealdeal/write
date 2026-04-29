@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sugriva, fearing Bali’s plot, sends Hanuman in disguise to investigate the identities and intentions of the armed strangers Rama and Lakshmana.",
+  "importance": 0.78,
+  "themes": [
+    "fear of Bali",
+    "caution and espionage",
+    "Hanuman’s diplomacy",
+    "first approach to Rama",
+    "leadership under fear"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sugriva and a band of monkeys leap frantically from crag to crag on the mountain, shaking rocks and scattering frightened animals below.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Hanuman stands respectfully before the anxious Sugriva on the mountaintop as the monkey chiefs gather around their king.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "Hanuman sets out alone from the mountain to approach the two armed princes, Rama and Lakshmana, standing calmly in the forest below.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Debate arises over Draupadi marrying all five Pandava brothers; Yudhishthira defends it while Drupada and others question its morality until Vyasa arrives.",
+  "importance": 0.72,
+  "themes": [
+    "polyandry debate",
+    "dharma and moral ambiguity",
+    "maternal authority",
+    "marriage customs",
+    "Vyasa's intervention"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In Drupada’s royal hall, Yudhishthira calmly declares that Draupadi will become the wife of all five Pandava brothers before a stunned court.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The sage Vyasa enters the सभा, and the assembled kings and Pandavas rise together in reverence as he takes a golden-carpeted seat.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Drupada and Dhrishtadyumna stand troubled before the Pandavas, debating the morality of one woman marrying five brothers.",
+      "visual_strength": 0.63
+    }
+  ]
+}

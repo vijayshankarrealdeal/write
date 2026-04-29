@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Fierce Kurukshetra fighting: Satyaki and Bhishma exchange weapons, Abhimanyu duels Chitrasena, and Duryodhana orders forces to protect Bhishma amid heavy cavalry clashes.",
+  "importance": 0.6,
+  "themes": [
+    "heroic duels",
+    "battlefield chaos",
+    "protection of Bhishma",
+    "cavalry assault",
+    "war strategy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Satyaki dodges Bhishma’s blazing golden dart as it streaks through the sky like a meteor over the battlefield.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Abhimanyu stands on his chariot after slaying Chitrasena’s horses and charioteer, shouting triumph amid the dust of battle.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "Ten thousand Kaurava horsemen charge across the field, raising a vast dust cloud that darkens the sun.",
+      "visual_strength": 0.75
+    }
+  ]
+}

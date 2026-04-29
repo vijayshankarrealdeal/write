@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Kaurava and Pandava champions boast how quickly they could destroy the opposing army, while Arjuna asserts overwhelming power but vows to fight fairly.",
+  "importance": 0.55,
+  "themes": [
+    "warrior boasts",
+    "power and restraint",
+    "strategic confidence",
+    "divine weapons",
+    "loyalty of allies"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma laughs loudly in the Kaurava council as Karna boasts he can destroy the Pandava army in five days.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Arjuna, standing beside Krishna, declares that with Vasudeva as his ally he could destroy the three worlds in a moment.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Yudhishthira privately gathers his brothers to report the spies’ news about the Kaurava generals’ claims of how fast they can annihilate the Pandava army.",
+      "visual_strength": 0.45
+    }
+  ]
+}

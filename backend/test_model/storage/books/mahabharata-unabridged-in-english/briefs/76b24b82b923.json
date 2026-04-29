@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Upamanyu recounts Rishi Tandi’s long penance and ecstatic hymn praising Shiva as the supreme, all-encompassing reality behind creation, time, gods, and liberation.",
+  "importance": 0.6,
+  "themes": [
+    "devotion to Shiva",
+    "cosmic unity",
+    "austerity and penance",
+    "nature of Brahman",
+    "liberation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "After ten thousand years of austerities, the sage Tandi beholds the radiant and ineffable form of Mahadeva appearing before him.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "The ascetic Tandi stands with folded hands in the wilderness, offering a vast hymn as Shiva’s luminous presence fills the space around him.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "A cosmic vision of Shiva encompassing gods, elements, stars, and worlds within his boundless form.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Grieving the war’s losses, the Pandavas decide to visit Dhritarashtra and Kunti in the forest and set out with a vast royal procession.",
+  "importance": 0.42,
+  "themes": [
+    "aftermath of war",
+    "family grief",
+    "duty to elders",
+    "royal procession"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sorrowful Pandavas sit together in their silent palace, reflecting on slain kin and their mother Kunti living austerely in the forest.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "Yudhishthira commands a massive departure as chariots, elephants, horses, and thousands of litters prepare to march from the city.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The Pandava host departs in splendor—Arjuna in a radiant chariot with white horses, Bhima atop a hill-like elephant, while Draupadi rides in a guarded litter.",
+      "visual_strength": 0.83
+    }
+  ]
+}

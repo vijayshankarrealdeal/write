@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Vyasa consoles the grieving Yudhishthira by recounting how the sage Narada once restored King Srinjaya’s slain son from hell, explaining that such a return was possible only because the youth had not fulfilled life’s purposes. In contrast, Abhimanyu died heroically in battle after accomplishing a warrior’s highest duty and has attained heavenly realms reserved for the righteous. Therefore the living should not grieve for the blessed dead. Comforted somewhat, Yudhishthira still worries about how to face Arjuna. As evening falls, Arjuna returns from battle after defeating the Samsaptakas but senses ominous signs and dread. Entering a silent, mournful camp, he realizes Abhimanyu is missing and launches into a long, anguished lament describing his son’s virtues, beauty, and bravery, suspecting the boy died alone amid many enemies.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#A5D6A7",
+      "why": "Opening reflection on purification and the dispelling of darkness sets the spiritual tone for Vyasa’s teaching on grief and destiny."
+    },
+    {
+      "start": 900,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "Key philosophical argument: Abhimanyu cannot be restored because he fulfilled a warrior’s life and attained heaven through heroic death."
+    },
+    {
+      "start": 2500,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "Vyasa’s moral lesson that the wise do not grieve for the blessed dead emphasizes the epic’s broader theme of dharma and the transient world."
+    },
+    {
+      "start": 4200,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Arjuna senses ominous signs and anxiety before learning the truth, building emotional tension and dramatic irony."
+    },
+    {
+      "start": 6500,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Arjuna’s extended lament describing Abhimanyu’s beauty, youth, and heroism forms the emotional core of the chapter."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The sage Vyasa appearing before the grieving Yudhishthira, radiant and calm, teaching about Abhimanyu’s ascent to heaven while the war camp lies shadowed behind them.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Arjuna riding back at sunset with Krishna on the chariot bearing the ape banner, the battlefield glowing red while ominous signs trouble his heart.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arjuna entering the silent Pandava camp and realizing Abhimanyu is missing, warriors sitting with bowed heads as the hero breaks into anguished lament.",
+      "visual_strength": 0.92
+    }
+  ]
+}

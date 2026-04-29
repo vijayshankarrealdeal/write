@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A father urges his son to pursue righteousness and detachment before death, stressing karma, impermanence, and the quest for emancipation.",
+  "importance": 0.6,
+  "themes": [
+    "righteousness and duty",
+    "impermanence of life",
+    "detachment from family and wealth",
+    "karma and rebirth",
+    "quest for emancipation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Time is imagined as a cosmic cook boiling all creatures in a vast cauldron, with the sun as fire and days and nights as fuel.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Relatives carry a lifeless body to the cremation ground, place it upon the funeral pyre, and then quietly depart back to their lives.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Suka respectfully leaves his father Vyasa and sets out alone into the wilderness to find a teacher of emancipation.",
+      "visual_strength": 0.75
+    }
+  ]
+}

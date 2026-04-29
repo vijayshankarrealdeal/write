@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhishma recounts how Samvara gained supremacy by revering Brahmanas and their teachings, illustrating the power of spiritual authority and proper recipients of gifts.",
+  "importance": 0.47,
+  "themes": [
+    "reverence for Brahmanas",
+    "spiritual authority vs martial power",
+    "learning and humility",
+    "ethics of gift-giving"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra disguised as an ash-smeared ascetic with matted hair arrives in a crude chariot before the Asura king Samvara.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Samvara bows at the feet of learned Brahmanas while they sit teaching scriptures, likened to bees filling a honeycomb with nectar.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Soma explains to a listening king that Brahmanas wield speech as their weapon while warriors wield arms.",
+      "visual_strength": 0.52
+    }
+  ]
+}

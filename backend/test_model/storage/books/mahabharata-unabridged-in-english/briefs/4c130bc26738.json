@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhrigu explains cosmic creation: infinite space, emergence of water, wind, fire, and earth, and the lotus-earth from which Brahma creates the worlds.",
+  "importance": 0.55,
+  "themes": [
+    "cosmic creation",
+    "infinite universe",
+    "elements emergence",
+    "Brahma from lotus",
+    "ascetic revelation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In boundless dark space, a vast lotus shaped like the Earth rises with Mount Sumeru as its golden core, and Brahma sits within it creating worlds.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Ascetic rishis stand motionless for a thousand years, living only on air, when a radiant celestial voice descends from the sky.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "From a silent ocean of primordial water, roaring wind bursts forth and friction ignites a blazing fire that dispels the cosmic darkness.",
+      "visual_strength": 0.85
+    }
+  ]
+}

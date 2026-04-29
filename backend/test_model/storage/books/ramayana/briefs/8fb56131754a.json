@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Nimi becomes the blinking of all eyes and from his body arises Mithi, after which Rama begins the tale leading to Shukra’s curse on Yayati.",
+  "importance": 0.45,
+  "themes": [
+    "mythic origin of Videha",
+    "divine transformation",
+    "family jealousy",
+    "parental appeal",
+    "royal lineage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rishis vigorously churn the preserved body of King Nimi with sacred chants, and from it the ascetic Mithi suddenly arises.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "The gods declare that Nimi will dwell in the blinking of all creatures’ eyes as a subtle spirit moving like air.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Devayani, distraught and weeping beside her son Yadu, calls upon her father Shukra in anger and despair.",
+      "visual_strength": 0.7
+    }
+  ]
+}

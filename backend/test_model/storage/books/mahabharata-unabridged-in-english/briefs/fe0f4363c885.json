@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Madhavi rejects all suitors to embrace forest asceticism, while in heaven King Yayati grows proud and begins to lose recognition and splendour.",
+  "importance": 0.6,
+  "themes": [
+    "renunciation",
+    "asceticism",
+    "pride before downfall",
+    "royal legacy",
+    "heavenly status"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Before a vast gathering at the Ganga–Yamuna hermitage, Madhavi steps down from her flower-decked chariot and walks alone into the forest instead of choosing a husband.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "In heaven, King Yayati sits among radiant sages and gods while they look at him with puzzlement, none recognizing the once-glorious monarch.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The hermitage clearing crowded with Nagas, Yakshas, sages, animals, and birds gathered for the swayamvara at the sacred river confluence.",
+      "visual_strength": 0.65
+    }
+  ]
+}

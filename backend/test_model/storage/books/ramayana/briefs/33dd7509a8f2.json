@@ -1,0 +1,24 @@
+{
+  "summary_1line": "The monkeys reach the southern ocean while searching for Sita but become discouraged by the seemingly impassable sea until Angada begins to rally them.",
+  "importance": 0.55,
+  "themes": [
+    "despair before obstacle",
+    "leadership encouragement",
+    "quest for Sita",
+    "vastness of nature"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The monkey army stands on a cliff at the edge of the vast ocean, staring at the roaring waves stretching endlessly to the horizon.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "The sea churns with towering waves and shadowy sea creatures as the monkeys recoil in awe and fear along the shore.",
+      "visual_strength": 0.71
+    },
+    {
+      "scene_text": "Prince Angada stands before the anxious monkey warriors on the beach, raising his hand as he urges them not to despair.",
+      "visual_strength": 0.68
+    }
+  ]
+}

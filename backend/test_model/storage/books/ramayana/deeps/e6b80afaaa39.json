@@ -1,0 +1,45 @@
+{
+  "rich_summary": "As preparations for Rama’s coronation fill Ayodhya with expectation, Sita joyfully awaits her husband, unaware that fate has reversed everything. Rama enters the palace without royal adornment, his humility and grief immediately alarming her. Confused by the absence of the coronation regalia and rituals she expected, Sita anxiously questions him. Rama then reveals the truth: bound by his father Dasharatha’s ancient promise to Queen Kaikeyi, he must abandon the throne and live in exile in the Dandaka forest for fourteen years while Bharata becomes regent. Instead of seeking sympathy, Rama calmly instructs Sita to remain in the palace, serve his parents—especially the grieving Kaushalya—and show loyalty to Bharata. The scene marks a pivotal emotional turning point, transforming the anticipated coronation into the beginning of Rama’s exile and testing the bonds of duty, marriage, and royal dharma.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces Rama’s virtuous character and the atmosphere of the city as he prepares to leave for exile."
+    },
+    {
+      "start": 170,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Sita’s joyful expectation of the coronation contrasts sharply with the tragic reality about to unfold."
+    },
+    {
+      "start": 330,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Sita’s alarm at seeing Rama unadorned marks the emotional shock that drives the dialogue."
+    },
+    {
+      "start": 900,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "Rama reveals the decisive truth: Dasharatha’s boons to Kaikeyi have condemned him to fourteen years of exile."
+    },
+    {
+      "start": 1250,
+      "length": 190,
+      "color_hex": "#A5D6A7",
+      "why": "Rama’s instructions to Sita about serving his parents and respecting Bharata highlight the epic’s central theme of dharma and obedience."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Sita rises in alarm within the palace hall, richly dressed attendants around her, as Rama enters humbly without royal ornaments, his face pale with grief.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Rama solemnly telling Sita that he must abandon the throne and depart for fourteen years of exile in the distant Dandaka forest.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Vidura warns that gambling and Duryodhana’s arrogance will destroy the Kuru house, but Duryodhana angrily rebukes him and rejects the counsel.",
+  "importance": 0.56,
+  "themes": [
+    "wise counsel ignored",
+    "gambling and ruin",
+    "loyalty and accusation",
+    "impending war",
+    "moral warning"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vidura stands in the royal assembly warning the Kuru elders while Duryodhana sits beside the dice board, scowling defiantly.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Duryodhana angrily points at Vidura in the crowded court, accusing him of treachery while kings and warriors watch in tense silence.",
+      "visual_strength": 0.74
+    }
+  ]
+}

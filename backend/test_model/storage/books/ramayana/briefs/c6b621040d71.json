@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Hanuman secretly observes the sleeping Ravana in a luxurious palace chamber surrounded by his intoxicated, music-bearing wives.",
+  "importance": 0.45,
+  "themes": [
+    "Ravana's opulence",
+    "Hanuman's stealth",
+    "royal decadence",
+    "contrast with Sita's virtue"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman clings to a palace stairway shadow while Ravana sleeps on a golden couch beneath a white canopy, surrounded by lamps and jeweled ornaments.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "The massive Ravana lies like a thundercloud on a jeweled bed, his scarred arms stretched out like serpents as garlanded women sleep around him.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "A hall of sleeping demon-king’s wives lies scattered with musical instruments, one woman clutching a vina while another dozes with a drum in her lap.",
+      "visual_strength": 0.78
+    }
+  ]
+}

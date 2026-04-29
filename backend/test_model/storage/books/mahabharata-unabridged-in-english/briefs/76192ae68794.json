@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Kichaka schemes to lure Sairindhri; Draupadi is assaulted but protected by a divine Rakshasa while Bhima burns with rage yet restrains himself to preserve their disguise.",
+  "importance": 0.77,
+  "themes": [
+    "lust and abuse of power",
+    "divine protection",
+    "restraint under disguise",
+    "honor and chastity",
+    "rising vengeance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Kichaka grabs Draupadi by the hair in the royal court and kicks her as the disguised Pandavas watch in furious restraint.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "Draupadi prays to the sun before leaving for Kichaka’s house while an unseen Rakshasa is commanded by Surya to guard her.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Bhima, sweating and trembling with rage like an enraged elephant, is secretly restrained by Yudhishthira’s signal to maintain their disguise.",
+      "visual_strength": 0.82
+    }
+  ]
+}

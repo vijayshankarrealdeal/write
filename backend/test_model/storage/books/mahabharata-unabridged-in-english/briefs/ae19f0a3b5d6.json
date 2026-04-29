@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma devastates the Pandava army until Krishna, enraged, nearly breaks his vow to attack him, before Arjuna rallies and counterattacks with celestial weapons.",
+  "importance": 0.88,
+  "themes": [
+    "divine restraint",
+    "battle fury",
+    "duty vs reverence",
+    "Krishna and Arjuna partnership",
+    "apocalyptic warfare"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna leaps from the chariot, whirling the blazing Sudarshana discus, striding across the trembling battlefield toward Bhishma like a storm god.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "Arjuna runs after Krishna and seizes him by both hands and feet, struggling to stop the enraged deity from charging Bhishma.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Bhishma stands fearless on his chariot with bow drawn as Krishna advances with the discus, welcoming death from the god with folded reverence.",
+      "visual_strength": 0.95
+    }
+  ]
+}

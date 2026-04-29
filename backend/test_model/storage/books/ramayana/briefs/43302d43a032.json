@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama organizes the siege of Lanka and sends Angada as a final messenger to warn Ravana, who angrily orders his capture before Angada displays his strength and escapes.",
+  "importance": 0.66,
+  "themes": [
+    "siege of Lanka",
+    "diplomatic warning",
+    "omens of doom",
+    "loyalty and kingship",
+    "heroic defiance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Angada leaps onto Ravana’s palace roof with captured demons in his arms, shattering the summit as the court watches in shock.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama stands with bow in hand before the towering northern gate of Lanka while vast armies of monkeys and bears surround the city walls.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Dark clouds rain blood as crows and vultures circle low over the trembling earth, foretelling the coming battle.",
+      "visual_strength": 0.72
+    }
+  ]
+}

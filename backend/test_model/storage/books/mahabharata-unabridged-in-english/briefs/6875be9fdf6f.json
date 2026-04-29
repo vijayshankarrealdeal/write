@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira rules prosperously at Indraprastha; Arjuna and Krishna go to the Yamuna for leisure where a radiant Brahmana unexpectedly approaches them.",
+  "importance": 0.45,
+  "themes": [
+    "ideal kingship",
+    "prosperity of Indraprastha",
+    "friendship of Krishna and Arjuna",
+    "royal leisure",
+    "mysterious Brahmana arrival"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna and Arjuna sit on ornate seats in a forest grove by the Yamuna as a radiant Brahmana with matted locks and golden complexion approaches them.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "At the riverside pavilions, women dance, sing, and play in the woods and water while Draupadi and Subhadra distribute robes and ornaments.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Yudhishthira sits enthroned at Indraprastha with his four brothers beside him, resembling a great sacrifice supported by the four Vedas.",
+      "visual_strength": 0.58
+    }
+  ]
+}

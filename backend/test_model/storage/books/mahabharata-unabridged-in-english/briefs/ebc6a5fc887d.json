@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The Pandavas journey toward Gandhamadana, endure a violent storm, and Draupadi collapses from exhaustion, prompting Yudhishthira’s remorse and the brothers’ care.",
+  "importance": 0.53,
+  "themes": [
+    "arduous pilgrimage",
+    "natural upheaval",
+    "Draupadi's suffering",
+    "Yudhishthira's remorse",
+    "brotherly protection"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A furious mountain storm engulfs the Pandavas as dust, broken trees, lightning, and torrential rain whirl around them on the slopes of Gandhamadana.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Draupadi, exhausted and trembling like a bent plantain tree, collapses on the mountain path as Nakula rushes forward to catch her.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Yudhishthira sits on the ground cradling the faint Draupadi in his lap while the other Pandavas gather anxiously around in the forest after the storm.",
+      "visual_strength": 0.78
+    }
+  ]
+}

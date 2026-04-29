@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama stands alone against Khara’s vast demon army, endures their assault, and unleashes devastating arrows that slaughter thousands and turn the battle’s tide.",
+  "importance": 0.7,
+  "themes": [
+    "heroic warfare",
+    "divine prowess",
+    "chaos of battle",
+    "good versus evil",
+    "supernatural weapons"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama stands alone with drawn bow as a vast demon army on chariots, elephants, and horses charges him through the forest.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Wounded and blood-streaked like a cloud-veiled sunset, Rama calmly fires golden-feathered arrows that blaze through ranks of demons.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "After invoking the Gandharva weapon, thousands of arrows darken the sky while heaps of fallen demons cover the battlefield.",
+      "visual_strength": 0.92
+    }
+  ]
+}

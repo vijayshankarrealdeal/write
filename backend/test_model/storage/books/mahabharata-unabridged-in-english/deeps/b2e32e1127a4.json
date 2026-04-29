@@ -1,0 +1,25 @@
+{
+  "rich_summary": "This section depicts Arjuna’s relentless push through the Kaurava forces while racing to fulfill his vow to kill Jayadratha. Drona repeatedly intercepts him, unleashing overwhelming showers of arrows and even momentarily overpowering his former pupil. Guided by Krishna, Arjuna avoids wasting time fighting his teacher directly and presses forward through successive defenders including Kritavarman and the Kamvojas. The most dramatic episode is the death of King Srutayudha, who wields a divine mace granted by Varuna with a fatal condition: it must never be hurled at a non‑combatant. In fury he throws it at Krishna, who is not fighting, and the enchanted weapon rebounds and kills its owner. The episode highlights Arjuna’s unstoppable momentum, Krishna’s strategic judgment, and the moral law that even divine weapons obey.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "The opening exchange between Drona and Arjuna immediately establishes the intensity of the duel and the teacher–disciple dynamic driving the battle."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Arjuna on his white‑steeded chariot releases a storm of arrows that darkens the sky while Drona counters with equal fury, the battlefield filled with falling elephants and shattered chariots.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "King Srutayudha hurls his enchanted mace at Krishna, only for it to rebound through the air and strike him dead as stunned warriors watch.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Krishna urges Arjuna forward through the battlefield while Drona pursues from behind, arrows streaking like rain between the racing chariots.",
+      "visual_strength": 0.82
+    }
+  ]
+}

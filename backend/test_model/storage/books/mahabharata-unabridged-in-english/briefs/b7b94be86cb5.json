@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Kumbhakarna battles the monkey army but is slain by Lakshmana, after which Indrajit is sent by Ravana to confront Rama’s forces.",
+  "importance": 0.78,
+  "themes": [
+    "heroic combat",
+    "monkey army vs rakshasas",
+    "Lakshmana's prowess",
+    "fall of Kumbhakarna",
+    "escalation of war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The gigantic Kumbhakarna laughs amid the battlefield, grabbing and devouring attacking monkeys while they strike him with uprooted trees.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Lakshmana’s golden-winged arrow pierces Kumbhakarna’s chest and sinks into the earth as blood pours from the wounded giant.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The colossal multi-armed form of Kumbhakarna collapses like a thunder-struck tree after Lakshmana strikes him with a Brahma weapon.",
+      "visual_strength": 0.88
+    }
+  ]
+}

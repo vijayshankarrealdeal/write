@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Hanuman consoles the grieving Tara after Vali’s death, urging her to focus on Angada’s future and the kingdom’s stability.",
+  "importance": 0.45,
+  "themes": [
+    "grief and consolation",
+    "dharma and fate",
+    "succession and kingship",
+    "duty after loss"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Tara lies on the ground in grief like a fallen star while Hanuman stands beside her gently speaking words of consolation.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Hanuman gestures calmly while advising that young Angada be placed on the monkey throne as the mourning court gathers around.",
+      "visual_strength": 0.62
+    }
+  ]
+}

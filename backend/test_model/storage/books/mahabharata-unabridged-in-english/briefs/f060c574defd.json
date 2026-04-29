@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira triumphantly enters Hastinapura amid public praise, but a disguised Rakshasa, Charvaka, falsely accuses him of kin‑slaying before the Brahmanas expose him.",
+  "importance": 0.55,
+  "themes": [
+    "royal procession",
+    "public legitimacy",
+    "deception and disguise",
+    "moral guilt after war",
+    "brahmanical authority"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira rides into a flower-strewn city gate as citizens crowd balconies and maidens stand beside water-filled jars and garlands.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A mendicant-looking Charvaka with rosary and triple staff boldly denounces the king in a hall filled with thousands of Brahmanas.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Yudhishthira, humbled and ashamed, bows before the gathered Brahmanas as the crowd erupts in confusion.",
+      "visual_strength": 0.71
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ascetic Jajali grows proud after protecting birds on his head, but the merchant-sage Tuladhara teaches him that true righteousness is universal harmlessness.",
+  "importance": 0.78,
+  "themes": [
+    "pride after asceticism",
+    "nonviolence (ahimsa)",
+    "humility and moral wisdom",
+    "householder vs ascetic virtue",
+    "universal compassion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The motionless ascetic Jajali stands like a wooden post while a pair of small birds build a nest and raise their chicks in his matted hair.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Jajali, proud of his austerity, raises his arms and proclaims his merit to the sky before an unseen voice rebukes him.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "In the busy market of Baranasi, the humble merchant Tuladhara greets the austere sage Jajali beside his balanced scales and wares.",
+      "visual_strength": 0.78
+    }
+  ]
+}

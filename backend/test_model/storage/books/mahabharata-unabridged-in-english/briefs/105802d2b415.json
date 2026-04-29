@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains how various fasting disciplines grant merits equal to great Vedic sacrifices and lead to heavenly rewards and long celestial enjoyment.",
+  "importance": 0.43,
+  "themes": [
+    "ascetic fasting",
+    "merit vs sacrifice",
+    "heavenly rewards",
+    "religious discipline",
+    "accessibility of virtue"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An ascetic, thin from long fasting, is carried heavenward on a radiant golden chariot drawn by swans while celestial damsels welcome him.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "In heaven, a jeweled chariot resounding with bells and veena music glides through the sky surrounded by apsaras dancing.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Bhishma lying on his bed of arrows instructs Yudhishthira about the spiritual power of fasting and simple discipline.",
+      "visual_strength": 0.63
+    }
+  ]
+}

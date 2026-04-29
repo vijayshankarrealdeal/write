@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts King Uparichara Vasu’s sacrifice, Vrihaspati’s anger when Narayana takes his offering invisibly, and sages explaining that only the graced can behold the deity.",
+  "importance": 0.55,
+  "themes": [
+    "divine invisibility",
+    "sacrificial ritual",
+    "devotion to Narayana",
+    "sage authority",
+    "royal piety"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "During the sacrifice, the unseen Narayana accepts the offering while Vrihaspati angrily hurls the ladle toward the sky.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "King Uparichara performs a grand horse-sacrifice surrounded by sixteen revered sages acting as priests and witnesses.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "Ekata, Dwita, and Trita stand on one foot in severe penance on the northern shores near the Ocean of Milk beneath the distant Mount Meru.",
+      "visual_strength": 0.75
+    }
+  ]
+}

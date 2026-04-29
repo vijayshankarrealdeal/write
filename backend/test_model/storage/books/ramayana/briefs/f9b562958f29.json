@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bharata asks Guha to ferry the royal party and army across the Ganges, and hundreds of boats are assembled for the crossing.",
+  "importance": 0.35,
+  "themes": [
+    "loyalty to Rama",
+    "journey toward exile",
+    "royal procession",
+    "river crossing"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Five hundred boats gather along the Ganges bank as Guha steers the ornate barge 'Swastika' carrying Bharata, Shatrughna, and the queens.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "At dawn the riverbank fills with soldiers, priests, porters, and pilgrims bathing as the army prepares to cross the sacred Ganges.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The decorated barge with banners and tinkling bells glides over the Ganges while white woollen rugs cover its deck beneath the princes and queens.",
+      "visual_strength": 0.74
+    }
+  ]
+}

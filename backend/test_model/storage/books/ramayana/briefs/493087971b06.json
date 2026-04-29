@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana convenes his court about Sita and the approaching threat of Rama, while Kumbhakarna rebukes his rash abduction yet vows to fight for him.",
+  "importance": 0.63,
+  "themes": [
+    "hubris",
+    "brotherly counsel",
+    "loyalty vs duty",
+    "desire and downfall",
+    "impending war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana sits resplendent on his throne amid richly adorned titans in a perfumed hall, all eyes fixed upon their ten‑headed king.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The gigantic Kumbhakarna rises in fury in the royal assembly, rebuking Ravana for abducting Sita while courtiers look on.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Kumbhakarna boasts of entering battle like a living mountain, roaring and brandishing an immense mace against Rama’s forces.",
+      "visual_strength": 0.66
+    }
+  ]
+}

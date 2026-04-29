@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sati and Shiva wed joyfully, live together as he teaches devotion and self-knowledge, but conflict begins when Daksha insults Shiva at a grand sacrifice.",
+  "importance": 0.7,
+  "themes": [
+    "divine marriage",
+    "devotion and self-knowledge",
+    "Daksha's pride",
+    "cosmic hierarchy",
+    "curse and conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the wedding hall, Shiva and Sati sit on a golden plank garlanding each other while gods shower flower petals from the sky.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "In a lush garden by twin rivers, Shiva and Sati sit beneath a banyan tree in loving conversation as nymphs play in the waters nearby.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "At the great sacrifice, Daksha stands angrily before the assembly of gods and sages while Shiva sits calm and silent beside Brahma.",
+      "visual_strength": 0.82
+    }
+  ]
+}

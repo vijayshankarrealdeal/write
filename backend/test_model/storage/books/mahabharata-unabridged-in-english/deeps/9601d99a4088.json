@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Yudhishthira asks the sage Markandeya to recount the story of Vaivaswata Manu. Markandeya describes Manu performing immense austerities when a small fish begs him for protection from larger fish. Moved by compassion, Manu keeps transferring the rapidly growing fish from a pot to a tank, then to the Ganga, and finally to the sea. The fish then reveals an approaching cosmic deluge that will destroy the world and instructs Manu to build an ark, gather the seven sages and the seeds of all life, and await its return. When the flood comes, the horned fish tows Manu’s ark across the endless waters until it is tied to a Himalayan peak. The fish reveals itself as Brahma, who has preserved life so creation can begin anew.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the dialogue frame and the request for the story of Vaivaswata Manu, setting up the mythic narrative."
+    },
+    {
+      "start": 700,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The fish’s plea for protection captures the emotional and moral pivot—Manu’s compassion initiates the entire cosmic rescue."
+    },
+    {
+      "start": 1800,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "The fish foretells the coming dissolution of the world and instructs Manu to build the ark and preserve seeds of life."
+    },
+    {
+      "start": 3300,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The vivid description of the ark tossed like a 'drunken harlot' dramatizes the chaos of the cosmic flood."
+    },
+    {
+      "start": 4200,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "The climactic revelation where the fish declares itself to be Brahma, explaining the divine purpose behind the rescue."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Manu kneels by the riverbank lifting a tiny shimmering fish from the water while forest austerities surround him.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The gigantic horned fish towing Manu’s ark through a storm-tossed cosmic ocean while the seven sages sit within.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The ark finally tied to a snowy Himalayan peak as floodwaters cover the world and the divine fish reveals its true form.",
+      "visual_strength": 0.9
+    }
+  ]
+}

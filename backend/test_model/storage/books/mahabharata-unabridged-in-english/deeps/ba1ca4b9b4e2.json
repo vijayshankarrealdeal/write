@@ -1,0 +1,37 @@
+{
+  "rich_summary": "This section concludes the story of Sakuntala and King Dushmanta and then turns toward the great genealogies that lead to the Bharata dynasty. Sakuntala defends the legitimacy of her son and extols truth as the highest virtue, greater even than sacrifices or lineage. After she departs, a divine voice confirms that the child is truly Dushmanta’s son and commands the king to accept him. The king publicly acknowledges the boy, names him Bharata, and installs him as heir; Bharata later becomes a world‑conquering emperor whose lineage gives its name to the Bharata race. The narrative then shifts into mythic history, recounting the descent from Daksha, Manu, and Pururavas through Nahusha and Yayati, setting up the ancestral lines that will eventually produce the great royal houses central to the epic.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 108,
+      "color_hex": "#A5D6A7",
+      "why": "A vivid moral analogy comparing the wise to geese that separate milk from water, introducing the section’s theme of distinguishing virtue from vice."
+    },
+    {
+      "start": 930,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The heavenly proclamation affirming the father–son identity and commanding Dushmanta to accept the child, the decisive moment that validates Bharata’s lineage."
+    },
+    {
+      "start": 560,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The passage declaring that truth outweighs sacrifices and even sons, emphasizing the epic’s moral hierarchy with Truth as the supreme virtue."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A radiant voice from the sky speaks over King Dushmanta’s court as priests and ministers look upward in awe, declaring the young boy to be his true son.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "King Dushmanta joyfully embraces the child Bharata in the royal hall while Brahmanas bless them and bards sing in celebration.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "The future emperor Bharata rides a magnificent chariot whose thunderous wheels sweep across the earth as rival kings submit to him.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sanat-sujata explains true asceticism, self-restraint, renunciation, and knowledge as the path to Brahman, rejecting mere Vedic learning without virtue.",
+  "importance": 0.72,
+  "themes": [
+    "true asceticism",
+    "self-restraint and renunciation",
+    "knowledge of Brahman",
+    "virtue vs ritual",
+    "moral faults and virtues"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sanat-sujata sits calmly before the blind king Dhritarashtra in a dim royal chamber, teaching about the silent and formless Supreme Soul.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Vedas portrayed as young birds flying away from a deceitful man who clutches sacred texts but lacks self-control.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "A solitary ascetic renounces worldly pleasures, standing serene while symbols of wealth, praise, and desire fade behind him.",
+      "visual_strength": 0.65
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Shurpanakha propositions Rama, is mockingly redirected to Lakshmana, then attacks Sita in jealousy, prompting Rama to order Lakshmana to punish her.",
+  "importance": 0.85,
+  "themes": [
+    "rejected desire",
+    "mockery and deception",
+    "threat to Sita",
+    "rakshasa encounter",
+    "trigger for later conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The demoness Shurpanakha, eyes blazing like torches, lunges toward Sita beside the leaf-thatched hut while Rama reaches out to restrain her.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Shurpanakha, transformed and seductive, gazes passionately at Rama in the forest of Dandaka as he smiles and gestures toward Lakshmana.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Lakshmana stands smiling with ironic politeness as the lovestruck demoness eagerly approaches him under the forest canopy.",
+      "visual_strength": 0.6
+    }
+  ]
+}

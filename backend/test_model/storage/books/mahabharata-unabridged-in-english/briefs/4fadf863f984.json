@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Narada, residing in White Island seeking Narayana, performs austere yoga and delivers an extensive hymn praising the deity as the essence of all cosmic forms and principles.",
+  "importance": 0.6,
+  "themes": [
+    "devotional hymn",
+    "divine omnipresence",
+    "ascetic devotion",
+    "cosmic identity of Narayana"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Narada stands with arms raised in austere yoga on the radiant White Island, surrounded by luminous white beings while chanting a hymn to Narayana.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The sage Narada bows among moon-bright white inhabitants of the island, their bodies glowing softly in a vast, serene landscape.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A cosmic vision of Narayana encompassing sun, fire, oceans, sacrifices, and countless gods within a single infinite form.",
+      "visual_strength": 0.85
+    }
+  ]
+}

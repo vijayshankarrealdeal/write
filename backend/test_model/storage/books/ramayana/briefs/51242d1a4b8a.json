@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vishwamitra explains the origins of Ganga and Uma, Shiva’s marriage to Parvati, and the gods’ fear of their potential offspring’s overwhelming power.",
+  "importance": 0.45,
+  "themes": [
+    "divine genealogy",
+    "Ganga origin",
+    "Shiva and Parvati",
+    "cosmic balance",
+    "divine intervention"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Himavat stands beside Queen Mena as their radiant daughters Ganga and Uma shine with celestial beauty among the snowy Himalayan peaks.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The gods gather before Lord Shiva and Parvati, pleading with folded hands for him to restrain his immense divine power.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "Shiva releases his blazing seed onto the earth, spreading across mountains, forests, and seas while the gods watch in alarm.",
+      "visual_strength": 0.8
+    }
+  ]
+}

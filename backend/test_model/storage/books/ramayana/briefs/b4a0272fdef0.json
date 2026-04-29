@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Hanuman, hiding in a tree near Sita, recounts Rama’s lineage, exile, and quest to reassure her and reveal himself safely.",
+  "importance": 0.72,
+  "themes": [
+    "devotion to Rama",
+    "strategic speech",
+    "messenger duty",
+    "hope for Sita"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman sits hidden among the branches of a Shingshapa tree, gently speaking Rama’s story to the sorrowful Sita below.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Sita, her tangled hair falling aside, looks up in astonishment toward the tree after hearing a monkey recite Rama’s deeds.",
+      "visual_strength": 0.8
+    }
+  ]
+}

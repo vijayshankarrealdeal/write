@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section mixes mythic cosmology, demonology, and heroic narrative around Skanda (Kartikeya). First, numerous malevolent spirits associated with gods, mothers, and supernatural beings are described. These grahas afflict pregnant women, children, and even adults through madness, hallucinations, or disease; yet when properly propitiated—especially through worship of Skanda—they can grant protection, long life, and prosperity. The text then recounts how Swaha, daughter of Daksha, gains eternal union with Agni because offerings to the fire are forever uttered with her name. A grand procession of the gods follows as Shiva, the deities, and their hosts march to battle. When the Asuras nearly rout the celestial army, the demon Mahisha devastates the gods until Skanda appears, hurls his divine spear, beheads Mahisha, and leads the celestial forces to victory. The passage emphasizes Skanda’s divine authority and protective power.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 100,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the frightening catalogue of child‑afflicting spirits, establishing the mythological framework of grahas and their influence on human life."
+    },
+    {
+      "start": 110,
+      "length": 100,
+      "color_hex": "#FFEB3B",
+      "why": "Describes the belief that dangerous spirits inhabit the lying‑in room for ten days after birth, revealing ancient ideas about childbirth vulnerability."
+    },
+    {
+      "start": 230,
+      "length": 100,
+      "color_hex": "#A5D6A7",
+      "why": "Explains that these spirits influence children until age sixteen and can be appeased through worship of Skanda, linking demonology with devotional practice."
+    },
+    {
+      "start": 350,
+      "length": 100,
+      "color_hex": "#F48FB1",
+      "why": "Swaha’s confession of her love for the Fire‑god and Skanda’s solution establish the ritual formula ‘Svaha’ used in sacrificial offerings."
+    },
+    {
+      "start": 800,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The dramatic moment where Skanda hurls his spear and decapitates the demon Mahisha, turning the tide of the cosmic battle."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Skanda, blazing in red garments and golden armor, rides a radiant chariot and hurls his shining spear that slices off the head of the giant demon Mahisha amid a chaotic battlefield.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "A vast celestial procession with Shiva and Parvati in a lion-drawn chariot, gods on elephants and flying vehicles, clouds rumbling like drums as they march through the sky.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Shadowy spirits gathering in a dim lying-in chamber around a newborn, symbolizing the ancient fear of child‑stealing grahas.",
+      "visual_strength": 0.75
+    }
+  ]
+}

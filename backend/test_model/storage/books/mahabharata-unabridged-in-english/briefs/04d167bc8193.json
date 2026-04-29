@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The Pandavas live in exile at Dwaita while a Brahmana reports their suffering to Dhritarashtra, who laments his sons’ wrongdoing and fears destiny’s consequences.",
+  "importance": 0.55,
+  "themes": [
+    "exile hardship",
+    "remorse of Dhritarashtra",
+    "destiny vs human action",
+    "suppressed vengeance",
+    "moral consequences"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the forest of Dwaita, the Pandavas in austere garments receive visiting Vedic sages beside a quiet lake and mountains.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "The blind king Dhritarashtra sits in his court, trembling with grief as a Brahmana describes the suffering of the exiled Pandavas.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Bhima, powerful yet restrained, lies on the bare forest ground at night, fists clenched in anger while Draupadi and his brothers sleep nearby.",
+      "visual_strength": 0.8
+    }
+  ]
+}

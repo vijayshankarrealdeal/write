@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Rama asks Vishwamitra how to recall divine weapons, and the sage teaches the mantras and grants him many additional mystical arms.",
+  "importance": 0.38,
+  "themes": [
+    "divine weapons",
+    "guru-disciple instruction",
+    "mantra power",
+    "preparation for battles"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the forest, sage Vishwamitra stands before Rama and Lakshmana, teaching sacred mantras as invisible celestial weapons are bestowed upon the prince.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Rama stands with folded hands while radiant spirit-forms of divine weapons gather around him awaiting his command.",
+      "visual_strength": 0.72
+    }
+  ]
+}

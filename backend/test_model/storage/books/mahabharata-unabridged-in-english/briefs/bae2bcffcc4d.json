@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna praises Narada’s virtues as universally beloved; Yudhishthira then asks Bhishma about cosmic origins, time, and the life cycles of beings.",
+  "importance": 0.45,
+  "themes": [
+    "virtues of Narada",
+    "ideal sage qualities",
+    "detachment and wisdom",
+    "cosmic origins inquiry",
+    "teacher-student transmission"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna speaks in Ugrasena’s court while courtiers listen as he lists the many virtues of the serene sage Narada.",
+      "visual_strength": 0.52
+    },
+    {
+      "scene_text": "The wandering sage Narada with veena in hand moves calmly among diverse people, blessing all without attachment or pride.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Yudhishthira sits respectfully before the aged Bhishma on his bed of arrows, asking about the origin and end of all creatures.",
+      "visual_strength": 0.72
+    }
+  ]
+}

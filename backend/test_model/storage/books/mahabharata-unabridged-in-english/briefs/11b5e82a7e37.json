@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Madri gains twin sons Nakula and Sahadeva through the Ashvins via Kunti’s mantra; the five Pandavas grow up in the forest, and Pandu later roams spring woods with Madri.",
+  "importance": 0.7,
+  "themes": [
+    "divine births",
+    "jealousy between co-wives",
+    "lineage and legacy",
+    "childhood of the Pandavas",
+    "spring desire and fate"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The twin Ashvin gods appear before Madri and bless her with twin sons as a radiant light fills the forest hermitage.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "The five young Pandava brothers stand together on the mountain slope among watching sages, shining with celestial beauty.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "In a forest bursting with spring blossoms and humming bees, Pandu walks through flowering trees with Madri at his side.",
+      "visual_strength": 0.78
+    }
+  ]
+}

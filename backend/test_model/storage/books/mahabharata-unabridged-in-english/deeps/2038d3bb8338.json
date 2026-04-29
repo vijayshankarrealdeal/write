@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section recounts the famous moral test of King Usinara (often identified with the Shibi legend). A pigeon fleeing a hawk seeks refuge on the king’s lap. The hawk argues that denying it the pigeon violates the natural order because predators must eat to live, and its own family will suffer if it starves. The king replies that protecting one who seeks shelter is a sacred duty, equal to the gravest moral obligations. The hawk proposes a compromise: the king may save the pigeon if he offers flesh from his own body equal to the bird’s weight. Usinara agrees and cuts off pieces of his flesh, yet the pigeon still outweighs them. Finally, the king climbs onto the scale himself, demonstrating absolute commitment to dharma. The episode explores conflicting virtues—compassion, duty, and natural law—and dramatizes the ideal of self-sacrificial righteousness.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Opens with the sacred geography and pilgrimage context, situating the moral story within a landscape of holy sites and legends."
+    },
+    {
+      "start": 950,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "The hawk’s philosophical claim that a virtue obstructing another virtue becomes unrighteousness introduces the chapter’s central ethical dilemma."
+    },
+    {
+      "start": 1450,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "The king insists that abandoning someone who has sought protection is a grave sin, articulating the Kshatriya ideal of refuge and protection."
+    },
+    {
+      "start": 2350,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "The hawk’s demand that the king weigh his own flesh against the pigeon transforms the debate into a dramatic test of sacrifice."
+    },
+    {
+      "start": 2700,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "The climax: the king repeatedly cuts his own flesh and finally mounts the scale himself, embodying extreme self-sacrifice for dharma."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A frightened pigeon trembling on King Usinara’s lap while a hawk confronts the king in a royal sacrificial ground.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "The king cutting flesh from his own body and placing it on a balance scale opposite the small white pigeon as sages look on.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The emaciated king stepping onto the scale himself after exhausting his flesh, the pigeon still outweighing the offerings.",
+      "visual_strength": 0.92
+    }
+  ]
+}

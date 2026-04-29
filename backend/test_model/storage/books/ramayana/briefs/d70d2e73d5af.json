@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama and Ravana resume their fierce duel; Indra sends his chariot to aid Rama as divine weapons clash and Ravana unleashes a terrifying spear.",
+  "importance": 0.82,
+  "themes": [
+    "epic duel",
+    "divine intervention",
+    "celestial weapons",
+    "cosmic omens",
+    "heroic resolve"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra’s golden chariot with bell-hung sides and radiant horses descends from the sky as Matali invites Rama to mount it amid the battlefield.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Ravana’s serpent-arrows transform into flaming snakes that swarm toward Rama, only to be destroyed by golden eagle-arrows from the Garuda weapon.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Ravana, ten-headed and furious, raises a blazing diamond-hard spear toward Rama while the earth and sky tremble at his roar.",
+      "visual_strength": 0.88
+    }
+  ]
+}

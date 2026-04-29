@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Karna conquers many kingdoms for Duryodhana, is honored in Hastinapura, and advises a grand sacrifice after priests forbid Duryodhana from performing the Rajasuya.",
+  "importance": 0.56,
+  "themes": [
+    "Karna's conquests",
+    "loyalty to Duryodhana",
+    "royal ambition",
+    "ritual authority of Brahmins",
+    "political prestige"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Karna returns triumphant to Hastinapura as Duryodhana publicly praises him before assembled kings in the royal court.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Karna bows at the feet of the blind king Dhritarashtra and Gandhari in the inner palace as they embrace him like a son.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Artisans forge a golden plough for Duryodhana’s planned Vaishnava sacrifice while priests and courtiers look on.",
+      "visual_strength": 0.62
+    }
+  ]
+}

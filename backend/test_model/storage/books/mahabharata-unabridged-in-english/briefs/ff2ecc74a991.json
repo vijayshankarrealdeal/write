@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Allied kings visit the exiled Pandavas; Krishna vows vengeance, Arjuna praises Krishna’s divine nature, and Draupadi recounts her humiliation and past wrongs by Duryodhana.",
+  "importance": 0.82,
+  "themes": [
+    "divine nature of Krishna",
+    "exile and alliance",
+    "vengeance and justice",
+    "Draupadi's humiliation",
+    "Pandava-Krishna bond"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna, surrounded by angry allied kings in the forest, vows that the earth will drink the blood of Duryodhana and his allies.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Arjuna stands before Krishna in the forest assembly, praising him as the cosmic Vishnu while the gathered warriors listen in awe.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Draupadi, disheveled and furious, approaches Krishna among the assembled kings and recounts how she was dragged into the Kuru court with a single cloth.",
+      "visual_strength": 0.9
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Janamejaya requests the story; Vaisampayana begins recounting the Kuru–Pandava conflict, including early plots against the Pandavas and their escape from the lac house.",
+  "importance": 0.6,
+  "themes": [
+    "origin of Kuru-Pandava feud",
+    "jealousy and intrigue",
+    "divine protection",
+    "exile and survival",
+    "fate"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Duryodhana secretly binds the sleeping Bhima on the bank of the Ganges and casts him into the dark river at night.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The lacquer palace erupts in flames as the Pandavas escape through a hidden underground tunnel into the night.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhima wrestles and kills the man-eating Rakshasa Vaka before the terrified townspeople of Ekachakra.",
+      "visual_strength": 0.85
+    }
+  ]
+}

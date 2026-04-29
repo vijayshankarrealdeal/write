@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira laments the mass slaughter of kin in the war, while Vyasa argues destiny, duty, and Time—not Yudhishthira alone—caused the deaths.",
+  "importance": 0.72,
+  "themes": [
+    "moral guilt",
+    "kshatriya duty",
+    "destiny vs free will",
+    "time as cosmic force",
+    "war aftermath"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira stands grief-stricken before the sage Vyasa, lamenting the countless fallen kings and kinsmen after the devastating war.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Widowed queens with emaciated faces collapse upon the earth in grief for husbands and sons slain in battle.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Vyasa speaks solemnly to Yudhishthira, describing Time as an unseen force that slays warriors through the hands of other men.",
+      "visual_strength": 0.6
+    }
+  ]
+}

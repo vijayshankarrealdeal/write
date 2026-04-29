@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sanjaya lists numerous kingdoms of the earth and explains the four Yugas and the declining lifespan and virtue of humanity across them.",
+  "importance": 0.35,
+  "themes": [
+    "geography of kingdoms",
+    "cycle of Yugas",
+    "decline of humanity",
+    "kings' struggle for earth",
+    "cosmic time"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Kings of many realms clash on a vast battlefield, clawing over the personified Earth as if dogs fighting over a piece of meat.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Sanjaya stands before blind King Dhritarashtra in a royal hall, reciting the countless kingdoms spread across the world.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "Four symbolic ages—Krita, Treta, Dwapara, and Kali—unfold in sequence, showing humans gradually shrinking in lifespan and virtue.",
+      "visual_strength": 0.74
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains how attachment creates the senses and suffering, and teaches Brahmacharya and sense-restraint as the path toward knowledge and emancipation.",
+  "importance": 0.72,
+  "themes": [
+    "attachment and rebirth",
+    "sense control",
+    "brahmacharya",
+    "ascetic discipline",
+    "mind and liberation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A solitary ascetic stands waist-deep in a river performing penance, eyes closed, while dawn light glows over the water.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Inside a symbolic human body, countless glowing ducts flow like rivers toward the heart where a single channel called Manovaha shines.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "A blind traveler struggles along a rugged road while a wise guide with a scripture leads another safely past obstacles.",
+      "visual_strength": 0.7
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Yudhishthira asks about Indra’s past suffering, prompting Salya to recount how Indra feared the austere three‑headed son of Twashtri and sent nymphs to tempt him.",
+  "importance": 0.41,
+  "themes": [
+    "divine jealousy",
+    "austerity vs temptation",
+    "fear of losing power",
+    "mythic backstory"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A radiant three-headed ascetic sits in severe meditation, one face chanting the Vedas, one drinking wine, and one glaring toward the horizons like sun, moon, and fire.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Indra, uneasy on his celestial throne, commands a group of jeweled apsaras to go tempt the powerful three-headed son of Twashtri.",
+      "visual_strength": 0.71
+    },
+    {
+      "scene_text": "Celestial nymphs in glittering ornaments perform graceful, seductive gestures before the unmoved three-headed ascetic absorbed in harsh austerities.",
+      "visual_strength": 0.78
+    }
+  ]
+}

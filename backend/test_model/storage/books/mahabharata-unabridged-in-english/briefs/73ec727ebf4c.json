@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhima devastates Kaurava elephant forces, duels Duryodhana, kills the Anga king, and struggles against Bhagadatta’s mighty elephant Supratika.",
+  "importance": 0.6,
+  "themes": [
+    "heroic combat",
+    "elephant warfare",
+    "Bhima vs Kauravas",
+    "battle chaos",
+    "royal duels"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima stands beneath the massive elephant Supratika, striking its belly with his bare arms as the beast spins like a potter’s wheel.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhima’s arrow pierces the charging elephant between its frontal globes, the beast collapsing like a thunder‑struck hill while its rider falls.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Duryodhana and Bhima face each other amid battle as Bhima’s arrows sever Duryodhana’s bow and jeweled elephant-banner.",
+      "visual_strength": 0.75
+    }
+  ]
+}

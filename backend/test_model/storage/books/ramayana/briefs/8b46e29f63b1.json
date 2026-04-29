@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Lakshmana returns to Ayodhya after abandoning Sita and reports to a grief-stricken Rama, urging him to accept destiny and restrain his sorrow.",
+  "importance": 0.7,
+  "themes": [
+    "duty and obedience",
+    "grief and restraint",
+    "fate and impermanence",
+    "brotherly loyalty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lakshmana bows at Rama’s feet in the palace hall while Rama sits on his throne in visible grief.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Lakshmana arrives at the shining city of Ayodhya at noon, the streets crowded with cheerful citizens while he looks troubled.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Inside the bright palace, Lakshmana with tear-filled eyes clasps Rama’s feet as he confesses leaving Sita near Valmiki’s hermitage.",
+      "visual_strength": 0.82
+    }
+  ]
+}

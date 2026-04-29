@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Astika halts Takshaka midair and persuades King Janamejaya to end the snake‑sacrifice, saving the serpent race and receiving a boon protecting readers from snake harm.",
+  "importance": 0.82,
+  "themes": [
+    "mercy over vengeance",
+    "power of vows and boons",
+    "ritual sacrifice",
+    "divine intervention",
+    "protection through remembrance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Takshaka hangs suspended in the sky after being cast from Indra's hands while the blazing sacrificial fire waits below.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Young sage Astika raises his hand and commands 'Stay' three times, freezing the falling serpent midair above the altar.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "King Janamejaya ends the great snake‑sacrifice as priests and onlookers rejoice around the still‑burning ritual fire.",
+      "visual_strength": 0.75
+    }
+  ]
+}

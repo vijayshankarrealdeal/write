@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Janamejaya asks about Yayati and Devayani; the tale begins with Kacha serving Sukra to learn resurrection, repeatedly slain by Asuras but revived by his teacher.",
+  "importance": 0.62,
+  "themes": [
+    "quest for secret knowledge",
+    "guru-disciple relationship",
+    "devotion and loyalty",
+    "conflict of gods and Asuras",
+    "resurrection power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Kacha emerges alive from the torn stomach of Sukra like the rising moon, while the sage’s body lies on the ground of the hermitage.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Devayani anxiously watches the cows return at sunset without Kacha, standing beside the sacrificial fire before her father Sukra.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Asuras in a dark forest kill Kacha and scatter his hacked body to jackals and wolves beneath a banyan tree.",
+      "visual_strength": 0.78
+    }
+  ]
+}

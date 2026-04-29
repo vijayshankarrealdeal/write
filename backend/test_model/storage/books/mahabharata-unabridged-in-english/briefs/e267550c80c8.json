@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Bhishma’s fall, Karna enters the battlefield, mourns him, and vows to defend the Kaurava army and confront the Pandavas.",
+  "importance": 0.73,
+  "themes": [
+    "aftermath of Bhishma's fall",
+    "Karna's resolve",
+    "impermanence of life",
+    "loyalty to Duryodhana",
+    "war leadership"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Karna arrives on the battlefield with tear-filled eyes as the Kaurava warriors mourn the fallen Bhishma lying like a fallen sun upon the ground.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Karna stands before the grieving Kaurava host, raising his bow and declaring that he will bear the burden of protecting the army.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The vast battlefield surrounds Bhishma resting on the ground while soldiers wail and Karna approaches like a determined guardian.",
+      "visual_strength": 0.69
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Genealogies and functions of various sacred fires are described, along with ritual corrections for Agnihotra and a myth of fire hiding and transforming into earthly substances.",
+  "importance": 0.34,
+  "themes": [
+    "sacred fire genealogy",
+    "Vedic ritual rules",
+    "cosmic mythology",
+    "origins of metals and substances"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The fire-god, frightened of contamination, dives into the sea while fish reveal his hiding place to the searching gods.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "After giving up his body, the fire spirit sinks into the earth and from his organs emerge metals, clouds, corals, and trees.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Bhrigu and Angiras perform severe penance until the hidden fire suddenly blazes forth with intense radiance.",
+      "visual_strength": 0.66
+    }
+  ]
+}

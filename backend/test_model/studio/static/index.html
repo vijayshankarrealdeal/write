@@ -1,0 +1,1020 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Book Ingest Studio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff;
+    --panel: #f7f7f5;
+    --panel-2: #efefec;
+    --border: #d8d8d3;
+    --fg: #1a1a1a;
+    --muted: #6b6b6b;
+    --accent: #2563eb;
+    --warn: #c2410c;
+    --highlight: #fff3a0;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+  aside {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 16px;
+    overflow-y: auto;
+  }
+  main { padding: 24px; max-width: 1100px; }
+  h1 { font-size: 18px; margin: 0 0 12px; letter-spacing: .02em; }
+  h2 { font-size: 14px; margin: 24px 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; }
+  h3 { font-size: 16px; margin: 0 0 6px; }
+  button {
+    background: var(--panel-2);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font: inherit;
+  }
+  button:hover { background: #e4e4e0; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #ffffff; font-weight: 600; }
+  button.primary:hover { filter: brightness(1.1); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  input, select, textarea {
+    background: var(--panel-2);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font: inherit;
+    width: 100%;
+  }
+  textarea { min-height: 64px; resize: vertical; }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 4px; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .stack { display: flex; flex-direction: column; gap: 12px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .book-link {
+    display: block;
+    padding: 8px 10px;
+    border-radius: 6px;
+    color: var(--fg);
+    cursor: pointer;
+  }
+  .book-link:hover, .book-link.active { background: var(--panel-2); }
+  .book-link small { color: var(--muted); display: block; }
+  .pill {
+    display: inline-block;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+  .pill.done { color: var(--accent); border-color: var(--accent); }
+  .progress-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .progress-grid .stat { background: var(--panel-2); border-radius: 6px; padding: 8px; text-align: center; }
+  .progress-grid .stat strong { display: block; font-size: 18px; }
+  .progress-grid .stat span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .tabs button {
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    padding: 8px 16px;
+    color: var(--muted);
+  }
+  .tabs button.active { color: var(--fg); border-bottom-color: var(--accent); }
+  .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .image-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; background: #000; }
+  .image-card small { color: var(--muted); display: block; margin: 6px 0; }
+  .delta-preview { font-family: ui-serif, Georgia, "Times New Roman", serif; font-size: 16px; line-height: 1.65; max-width: 720px; }
+  .delta-preview img { max-width: 100%; border-radius: 6px; margin: 12px 0; display: block; }
+  .delta-preview p { margin: 0 0 12px; white-space: pre-wrap; }
+  .delta-preview .hl { padding: 0 2px; border-radius: 2px; }
+
+  /* --- Reading view (full-book Delta tab) ----------------------------- */
+  .reader {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    height: calc(100vh - 220px);
+  }
+  .reader-toc {
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 12px 0;
+  }
+  .reader-toc .toc-entry {
+    padding: 6px 14px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .reader-toc .toc-entry:hover { background: var(--panel-2); color: var(--fg); }
+  .reader-toc .toc-entry.active {
+    color: var(--fg);
+    border-left-color: var(--accent);
+    background: var(--panel-2);
+  }
+  .reader-toc .toc-entry small { display: block; color: var(--muted); font-size: 11px; }
+  .reader-body {
+    overflow-y: auto;
+    padding: 48px 64px;
+    background: #fbfaf6;
+  }
+  .reader-page {
+    max-width: 680px;
+    margin: 0 auto;
+    font-family: "Iowan Old Style", ui-serif, Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.75;
+    color: #232323;
+  }
+  .reader-page h1.book-title {
+    font-size: 28px;
+    margin: 0 0 4px;
+    letter-spacing: .01em;
+  }
+  .reader-page .book-author {
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 48px;
+  }
+  .reader-page .chapter {
+    margin-bottom: 64px;
+    scroll-margin-top: 16px;
+  }
+  .reader-page .chapter h2 {
+    font-size: 22px;
+    text-align: center;
+    margin: 0 0 4px;
+    letter-spacing: .02em;
+  }
+  .reader-page .chapter .chapter-meta {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .15em;
+    margin-bottom: 24px;
+  }
+  .reader-page .chapter-rule {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin: 0 auto 32px;
+    width: 60px;
+  }
+  .reader-page .chapter p {
+    margin: 0 0 14px;
+    text-align: justify;
+    hyphens: auto;
+    white-space: pre-wrap;
+  }
+  .reader-page .chapter p:first-of-type::first-letter {
+    /* Drop-cap on the first paragraph of each chapter for that book feel. */
+    float: left;
+    font-size: 3.4em;
+    line-height: 0.9;
+    padding: 4px 8px 0 0;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .reader-page .chapter figure {
+    margin: 24px 0;
+    text-align: center;
+  }
+  .reader-page .chapter figure img {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+  }
+  .reader-page .chapter figure figcaption {
+    margin-top: 8px;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 14px;
+  }
+  .reader-page .chapter .hl {
+    padding: 1px 2px;
+    border-radius: 2px;
+    color: #1a1a1a;
+  }
+  .reader-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .reader-controls .gap { flex: 1; }
+  .reader-controls input[type="range"] { width: 120px; }
+  .reader-controls .toggle { cursor: pointer; user-select: none; }
+  .page-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 8px; }
+  .page-card .page-no { font-size: 11px; color: var(--muted); }
+  .page-card pre { margin: 0; white-space: pre-wrap; font-family: inherit; font-size: 13px; }
+  .chunk-row {
+    display: grid;
+    grid-template-columns: 1fr 100px 80px 80px;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .chunk-row:hover { background: var(--panel-2); }
+  .chunk-row.active { background: var(--panel-2); }
+  .chunk-row small { color: var(--muted); }
+  .scroll { max-height: 70vh; overflow-y: auto; }
+  .muted { color: var(--muted); }
+  .err { color: var(--warn); }
+  details summary { cursor: pointer; color: var(--muted); padding: 4px 0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+
+const { useState, useEffect, useCallback, useMemo, useRef } = React;
+
+const api = (path, opts = {}) => fetch(path, opts).then(r => r.ok ? r.json() : Promise.reject(r));
+
+function App() {
+  const [books, setBooks] = useState([]);
+  const [selectedSlug, setSelectedSlug] = useState(null);
+
+  const refreshBooks = useCallback(async () => {
+    const j = await api("/api/books").catch(() => ({ books: [] }));
+    setBooks(j.books || []);
+  }, []);
+  useEffect(() => { refreshBooks(); }, [refreshBooks]);
+
+  return (
+    <div className="app">
+      <aside>
+        <h1>Book Studio</h1>
+        <UploadForm onUploaded={async (slug) => { await refreshBooks(); setSelectedSlug(slug); }} />
+        <h2>Books on disk</h2>
+        <div className="stack">
+          {books.length === 0 && <div className="muted">No books yet. Upload a PDF.</div>}
+          {books.map(b => (
+            <div
+              key={b.slug}
+              className={"book-link " + (b.slug === selectedSlug ? "active" : "")}
+              onClick={() => setSelectedSlug(b.slug)}
+            >
+              {b.title || b.slug}
+              <small>
+                {b.slug}
+                {b.synced && <span className="pill done">synced</span>}
+              </small>
+            </div>
+          ))}
+        </div>
+      </aside>
+      <main>
+        {selectedSlug
+          ? <BookView key={selectedSlug} slug={selectedSlug} onSynced={refreshBooks} />
+          : <div className="muted">Select or upload a book.</div>}
+      </main>
+    </div>
+  );
+}
+
+function UploadForm({ onUploaded }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState(null);
+  const [info, setInfo] = useState(null);
+  const [params, setParams] = useState({
+    image_budget: "",        // blank → scout decides
+    style: "",               // blank → scout decides
+    reader_preference: "",   // blank → scout decides
+  });
+  const fileRef = useRef(null);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!fileRef.current?.files?.[0]) return;
+    setBusy(true); setErr(null); setInfo(null);
+    try {
+      const fd = new FormData();
+      fd.append("file", fileRef.current.files[0]);
+      const qs = new URLSearchParams();
+      // Only forward fields the user actually filled in. Anything blank
+      // is left to the scout pass to decide.
+      if (params.image_budget) qs.set("image_budget", params.image_budget);
+      if (params.style.trim()) qs.set("style", params.style);
+      if (params.reader_preference.trim()) qs.set("reader_preference", params.reader_preference);
+      const r = await fetch(`/api/upload?${qs}`, { method: "POST", body: fd });
+      if (!r.ok) throw new Error(await r.text());
+      const j = await r.json();
+      setInfo(j.resumed
+        ? `Same PDF on disk (${j.source_hash.slice(0,10)}…) — resuming "${j.title}".`
+        : `New book "${j.title}" — scout will propose style + budget after chunking.`);
+      onUploaded(j.slug);
+    } catch (e) { setErr(String(e)); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <form onSubmit={submit} className="card" style={{ marginBottom: 16 }}>
+      <label>PDF</label>
+      <input type="file" accept=".pdf" ref={fileRef} required />
+      <label>Image budget <span className="muted" style={{ fontWeight: 400 }}>(blank → auto)</span></label>
+      <input type="number" value={params.image_budget}
+        placeholder="auto-decide (10–120)"
+        onChange={e => setParams(p => ({ ...p, image_budget: e.target.value }))} />
+      <label>Style <span className="muted" style={{ fontWeight: 400 }}>(blank → auto)</span></label>
+      <input value={params.style}
+        placeholder="auto — scout picks based on the book"
+        onChange={e => setParams(p => ({ ...p, style: e.target.value }))} />
+      <label>Reader preference <span className="muted" style={{ fontWeight: 400 }}>(blank → auto)</span></label>
+      <textarea value={params.reader_preference}
+        onChange={e => setParams(p => ({ ...p, reader_preference: e.target.value }))}
+        placeholder="auto — leave blank unless you want to bias scene picks"
+      />
+      <div style={{ marginTop: 12 }}>
+        <button className="primary" disabled={busy} type="submit">
+          {busy ? "Uploading…" : "Upload + ingest"}
+        </button>
+      </div>
+      {err && <div className="err" style={{ marginTop: 8 }}>{err}</div>}
+      {info && <div className="muted" style={{ marginTop: 8, fontSize: 12 }}>{info}</div>}
+    </form>
+  );
+}
+
+function BookView({ slug, onSynced }) {
+  const [book, setBook] = useState(null);
+  const [progress, setProgress] = useState(null);
+  const [tab, setTab] = useState("chunks");
+
+  const loadBook = useCallback(async () => {
+    setBook(await api(`/api/books/${slug}`));
+  }, [slug]);
+
+  useEffect(() => { loadBook(); }, [loadBook]);
+
+  // Poll progress every 2s while we're not "done".
+  useEffect(() => {
+    let alive = true;
+    const tick = async () => {
+      if (!alive) return;
+      try { setProgress(await api(`/api/books/${slug}/progress`)); }
+      catch { /* swallow */ }
+      const phaseDone = progress?.phase === "done" || progress?.phase === "failed";
+      if (!phaseDone) setTimeout(tick, 2000);
+    };
+    tick();
+    return () => { alive = false; };
+  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // When the run finishes, re-fetch the book.
+  useEffect(() => {
+    if (progress?.phase === "done") loadBook();
+  }, [progress?.phase, loadBook]);
+
+  if (!book) return <div className="muted">Loading…</div>;
+
+  const m = book.manifest;
+  return (
+    <div>
+      <div className="card">
+        <div className="row" style={{ justifyContent: "space-between" }}>
+          <div>
+            <h3>{m.title || slug}</h3>
+            <small className="muted">{slug} · budget {m.image_budget || "?"} · {m.style || "(no style yet)"}</small>
+          </div>
+          <SyncPanel slug={slug} synced={!!m.synced}
+            onSynced={async () => { await loadBook(); onSynced?.(); }}
+            onCleaned={loadBook}
+          />
+        </div>
+        {m.scout && <ScoutCard scout={m.scout} reader_preference={m.reader_preference} />}
+        {progress && <ProgressStrip progress={progress} />}
+      </div>
+
+      <div className="tabs">
+        {["chunks", "pages", "images", "delta"].map(t => (
+          <button key={t} className={tab === t ? "active" : ""} onClick={() => setTab(t)}>
+            {t}
+          </button>
+        ))}
+      </div>
+
+      {tab === "chunks" && <ChunksTab slug={slug} chunks={book.chunks} />}
+      {tab === "pages"  && <PagesTab slug={slug} />}
+      {tab === "images" && <ImagesTab slug={slug} />}
+      {tab === "delta"  && <DeltaTab slug={slug} />}
+    </div>
+  );
+}
+
+function ScoutCard({ scout, reader_preference }) {
+  return (
+    <div style={{
+      marginTop: 12,
+      padding: 10,
+      background: "var(--panel-2)",
+      border: "1px solid var(--border)",
+      borderRadius: 6,
+      fontSize: 13,
+    }}>
+      <div className="muted" style={{ fontSize: 11, textTransform: "uppercase",
+        letterSpacing: ".1em", marginBottom: 6 }}>
+        Scout proposal
+      </div>
+      <div><strong>Genre:</strong> {scout.detected_genre}
+        {scout.cultural_context && <span className="muted"> · {scout.cultural_context}</span>}
+      </div>
+      <div style={{ marginTop: 4 }}><strong>Style:</strong> {scout.suggested_style}</div>
+      {(reader_preference || scout.suggested_reader_preference) && (
+        <div style={{ marginTop: 4 }}>
+          <strong>Reader bias:</strong> {reader_preference || scout.suggested_reader_preference}
+        </div>
+      )}
+      <div style={{ marginTop: 4 }}><strong>Budget:</strong> {scout.suggested_image_budget} illustrations</div>
+      <div style={{ marginTop: 6, fontStyle: "italic", color: "var(--muted)" }}>
+        {scout.rationale}
+      </div>
+    </div>
+  );
+}
+
+function ProgressStrip({ progress }) {
+  const stats = [
+    ["pages",   progress.n_pages,            "PyMuPDF-extracted page text (pages/<n>.json)"],
+    ["briefs",  progress.n_briefs,           "Map-pass output: 1-line summary + importance per chunk"],
+    ["deeps",   progress.n_deeps,            "Reduce-pass output: rich summary + highlights for top ~20% chunks"],
+    ["chk-emb", progress.n_chunk_embeddings, "Per-chunk vector embeddings — power semantic regen"],
+    ["scn-emb", progress.n_scene_embeddings, "Per-scene vector embeddings — find scenes by free text"],
+    ["images",  progress.n_images,           "Generated illustrations (PNG)"],
+  ];
+  return (
+    <div style={{ marginTop: 16 }}>
+      <div className="row" style={{ marginBottom: 8 }}>
+        <strong>Phase: {progress.phase}</strong>
+        {(progress.phases_done || []).map(p => <span key={p} className="pill done">{p}</span>)}
+      </div>
+      {progress.error && <div className="err">{progress.error}</div>}
+      <div className="progress-grid">
+        {stats.map(([k, v, tip]) => (
+          <div key={k} className="stat" title={tip}><strong>{v}</strong><span>{k}</span></div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SyncPanel({ slug, synced, onSynced, onCleaned }) {
+  const [busy, setBusy] = useState(false);
+  const [out, setOut] = useState(null);
+  const [cleaning, setCleaning] = useState(false);
+  const [cleaned, setCleaned] = useState(null);
+
+  const click = async () => {
+    setBusy(true); setOut(null);
+    try {
+      const r = await fetch(`/api/books/${slug}/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ force: synced, no_images: false }),
+      });
+      const j = await r.json();
+      setOut(j);
+      if (j.ok) onSynced?.();
+    } finally { setBusy(false); }
+  };
+
+  const cleanOrphans = async () => {
+    setCleaning(true); setCleaned(null);
+    try {
+      const r = await fetch(`/api/books/${slug}/cleanup-orphans`, { method: "POST" });
+      if (!r.ok) throw new Error(await r.text());
+      const j = await r.json();
+      setCleaned(j);
+      onCleaned?.();
+    } catch (e) { setCleaned({ error: String(e) }); }
+    finally { setCleaning(false); }
+  };
+
+  return (
+    <div style={{ textAlign: "right" }}>
+      <div className="row" style={{ justifyContent: "flex-end", gap: 8 }}>
+        <button disabled={cleaning} onClick={cleanOrphans} title="Delete stale brief/deep/chunk/embedding files left behind by older random-UUID chunker runs.">
+          {cleaning ? "Cleaning…" : "Clean orphans"}
+        </button>
+        <button className="primary" disabled={busy} onClick={click}>
+          {synced ? "Re-sync (force)" : "Sync to DB + MinIO"}
+        </button>
+      </div>
+      {busy && <div className="muted" style={{ marginTop: 6 }}>Syncing…</div>}
+      {cleaned && !cleaned.error && (
+        <div className="muted" style={{ marginTop: 6, fontSize: 12 }}>
+          Removed {cleaned.total_removed} orphans
+          {" · "}{cleaned.chunks_kept} chunks kept
+          {" · "}briefs:{cleaned.removed.briefs}
+          {" deeps:"}{cleaned.removed.deeps}
+          {" chunks:"}{cleaned.removed.chunks}
+          {" emb:"}{cleaned.removed.chunk_embeddings}
+        </div>
+      )}
+      {cleaned?.error && <div className="err" style={{ marginTop: 6, fontSize: 12 }}>{cleaned.error}</div>}
+      {out && (
+        <details style={{ marginTop: 6, textAlign: "left" }}>
+          <summary>Output ({out.exit})</summary>
+          <pre style={{ fontSize: 11 }}>{out.output}</pre>
+        </details>
+      )}
+    </div>
+  );
+}
+
+function ChunksTab({ slug, chunks }) {
+  const [active, setActive] = useState(null);
+  const [detail, setDetail] = useState(null);
+
+  useEffect(() => {
+    if (!active) return;
+    setDetail(null);
+    api(`/api/books/${slug}/chunks/${active}`).then(setDetail);
+  }, [active, slug]);
+
+  return (
+    <div className="row" style={{ alignItems: "stretch", gap: 16 }}>
+      <div className="card scroll" style={{ flex: "0 0 360px", padding: 0 }}>
+        <div style={{ padding: 12, borderBottom: "1px solid var(--border)", color: "var(--muted)" }}>
+          {chunks.length} chunks
+        </div>
+        {chunks.map(c => (
+          <div key={c.id}
+            className={"chunk-row " + (active === c.id ? "active" : "")}
+            onClick={() => setActive(c.id)}>
+            <div>
+              <div>{c.chapter_title || <em className="muted">Untitled</em>}</div>
+              <small>p {c.page_start}–{c.page_end} · {c.char_count.toLocaleString()} chars</small>
+            </div>
+            <small className="muted">{c.has_brief ? "B" : "·"}{c.has_deep ? "D" : "·"}</small>
+            <small className="muted">{c.scene_ids.length}🖼</small>
+          </div>
+        ))}
+      </div>
+      <div className="card scroll" style={{ flex: 1 }}>
+        {!active && <div className="muted">Pick a chunk.</div>}
+        {active && !detail && <div className="muted">Loading chunk…</div>}
+        {detail && <ChunkDetail slug={slug} detail={detail} />}
+      </div>
+    </div>
+  );
+}
+
+function ChunkDetail({ slug, detail }) {
+  const c = detail.chunk;
+  const brief = detail.brief;
+  const deep = detail.deep;
+  return (
+    <div>
+      <h3>{c.chapter_title || "(untitled)"} <small className="muted">p {c.page_start}–{c.page_end}</small></h3>
+      {brief && (
+        <div style={{ marginBottom: 8 }}>
+          <strong>{brief.summary_1line}</strong>
+          <div className="muted" style={{ fontSize: 12 }}>importance: {brief.importance.toFixed(2)} · {brief.themes?.join(", ")}</div>
+        </div>
+      )}
+      {deep && (
+        <div style={{ marginBottom: 12 }}>
+          <p>{deep.rich_summary}</p>
+          {!!deep.highlight_spans?.length && (
+            <details>
+              <summary>{deep.highlight_spans.length} highlight spans</summary>
+              <ul>{deep.highlight_spans.map((s, i) => <li key={i}>“{c.text.slice(s.start, s.start + s.length)}” — {s.why}</li>)}</ul>
+            </details>
+          )}
+        </div>
+      )}
+      {!!detail.scenes?.length && (
+        <div className="image-grid">
+          {detail.scenes.map(s => (
+            <ImageCard key={s.scene_id} slug={slug} scene={s} />
+          ))}
+        </div>
+      )}
+      <details style={{ marginTop: 16 }}>
+        <summary>Chunk text ({c.text.length.toLocaleString()} chars)</summary>
+        <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", fontSize: 13 }}>{c.text}</pre>
+      </details>
+    </div>
+  );
+}
+
+function ImageCard({ slug, scene }) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [instr, setInstr] = useState("");
+  const [err, setErr] = useState(null);
+  const [bust, setBust] = useState(0);
+
+  const url = `/api/books/${slug}/images/${scene.scene_id}/png?v=${bust}`;
+  const regen = async () => {
+    setBusy(true); setErr(null);
+    try {
+      const r = await fetch(`/api/books/${slug}/images/${scene.scene_id}/regenerate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ instruction: instr }),
+      });
+      if (!r.ok) throw new Error(await r.text());
+      setBust(Date.now());
+      setOpen(false);
+      setInstr("");
+    } catch (e) { setErr(String(e)); }
+    finally { setBusy(false); }
+  };
+
+  const pageLabel = scene.page_start == null
+    ? null
+    : (scene.page_start === scene.page_end ? `p ${scene.page_start}` : `p ${scene.page_start}–${scene.page_end}`);
+
+  return (
+    <div className="image-card card" style={{ marginBottom: 0 }}>
+      <img src={url} alt={scene.scene_text || ""} loading="lazy" />
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 6, marginTop: 6 }}>
+        {pageLabel && <span className="pill" style={{ margin: 0 }}>{pageLabel}</span>}
+        {scene.chapter_title && <small className="muted" style={{ textAlign: "right" }}>{scene.chapter_title}</small>}
+      </div>
+      <small><em>{scene.scene_text}</em></small>
+      <small className="muted">score {Number(scene.score || 0).toFixed(2)} · revisions {scene.revision_count || 0}</small>
+      {!open && <button onClick={() => setOpen(true)}>Fix recommendation</button>}
+      {open && (
+        <div className="stack" style={{ marginTop: 8 }}>
+          <textarea
+            placeholder="e.g. darker, more dramatic lighting"
+            value={instr}
+            onChange={e => setInstr(e.target.value)}
+          />
+          <div className="row">
+            <button className="primary" disabled={busy} onClick={regen}>
+              {busy ? "Generating…" : "Regenerate"}
+            </button>
+            <button onClick={() => setOpen(false)} disabled={busy}>Cancel</button>
+          </div>
+          {err && <div className="err">{err}</div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PagesTab({ slug }) {
+  const [pages, setPages] = useState([]);
+  const [active, setActive] = useState(null);
+  const [page, setPage] = useState(null);
+
+  useEffect(() => { api(`/api/books/${slug}/pages`).then(j => setPages(j.pages)); }, [slug]);
+  useEffect(() => {
+    if (!active) return;
+    setPage(null);
+    api(`/api/books/${slug}/pages/${active}`).then(setPage);
+  }, [active, slug]);
+
+  return (
+    <div className="row" style={{ alignItems: "stretch", gap: 16 }}>
+      <div className="card scroll" style={{ flex: "0 0 140px", padding: 8 }}>
+        {pages.map(n => (
+          <div key={n} className={"book-link " + (n === active ? "active" : "")} onClick={() => setActive(n)}>
+            p {n}
+          </div>
+        ))}
+      </div>
+      <div className="card scroll" style={{ flex: 1 }}>
+        {!active && <div className="muted">Pick a page.</div>}
+        {page && (
+          <div>
+            <div className="muted">Page {page.no} · {page.char_count} chars</div>
+            <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", marginTop: 12 }}>{page.text}</pre>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ImagesTab({ slug }) {
+  const [images, setImages] = useState([]);
+  const [sortBy, setSortBy] = useState("page");  // "page" | "score"
+  useEffect(() => { api(`/api/books/${slug}/images`).then(j => setImages(j.images)); }, [slug]);
+
+  // Group by page range for the summary strip at the top.
+  const groups = useMemo(() => {
+    const m = new Map();
+    for (const img of images) {
+      const key = img.page_start == null
+        ? "?"
+        : (img.page_start === img.page_end ? `${img.page_start}` : `${img.page_start}–${img.page_end}`);
+      if (!m.has(key)) {
+        m.set(key, {
+          range: key,
+          page_start: img.page_start ?? 0,
+          chapter_title: img.chapter_title,
+          count: 0,
+        });
+      }
+      m.get(key).count += 1;
+    }
+    return Array.from(m.values()).sort((a, b) => a.page_start - b.page_start);
+  }, [images]);
+
+  const sorted = useMemo(() => {
+    const copy = [...images];
+    if (sortBy === "page") {
+      copy.sort((a, b) => (a.page_start ?? 9e9) - (b.page_start ?? 9e9));
+    } else {
+      copy.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+    }
+    return copy;
+  }, [images, sortBy]);
+
+  return (
+    <div>
+      {groups.length > 0 && (
+        <div className="card" style={{ padding: 12 }}>
+          <div className="muted" style={{ fontSize: 11, textTransform: "uppercase",
+            letterSpacing: ".1em", marginBottom: 8 }}>
+            {images.length} images across {groups.length} page ranges
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {groups.map(g => (
+              <span key={g.range} className="pill" title={g.chapter_title || ""}>
+                p {g.range} · {g.count}🖼
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="row" style={{ marginBottom: 12, alignItems: "center", gap: 8 }}>
+        <span className="muted">sort by:</span>
+        <button className={sortBy === "page" ? "primary" : ""} onClick={() => setSortBy("page")}>page</button>
+        <button className={sortBy === "score" ? "primary" : ""} onClick={() => setSortBy("score")}>score</button>
+      </div>
+      <div className="image-grid">
+        {sorted.map(img => (
+          <ImageCard key={img.scene_id} slug={slug} scene={img} />
+        ))}
+        {images.length === 0 && <div className="muted">No images yet.</div>}
+      </div>
+    </div>
+  );
+}
+
+// -- Delta tab: full-book reading experience -----------------------------
+function DeltaTab({ slug }) {
+  const [book, setBook] = useState(null);
+  const [active, setActive] = useState(null);
+  const [fontSize, setFontSize] = useState(17);
+  const [showHighlights, setShowHighlights] = useState(true);
+  const bodyRef = useRef(null);
+
+  useEffect(() => {
+    setBook(null); setActive(null);
+    api(`/api/books/${slug}/delta`).then((b) => {
+      setBook(b);
+      if (b.chapters?.[0]) setActive(b.chapters[0].id);
+    });
+  }, [slug]);
+
+  // Track which chapter is currently in view as the user scrolls — so the
+  // sidebar highlight tracks the reading position.
+  useEffect(() => {
+    if (!book || !bodyRef.current) return;
+    const root = bodyRef.current;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter(e => e.isIntersecting)
+                               .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]) setActive(visible[0].target.dataset.chapterId);
+      },
+      { root, rootMargin: "-30% 0px -55% 0px", threshold: [0, .25, .5, 1] }
+    );
+    root.querySelectorAll("[data-chapter-id]").forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, [book]);
+
+  const jumpTo = (id) => {
+    const el = bodyRef.current?.querySelector(`[data-chapter-id="${id}"]`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  if (!book) return <div className="muted">Loading book…</div>;
+
+  return (
+    <div>
+      <div className="reader-controls">
+        <span>{book.chapters.length} chapters</span>
+        <span className="gap" />
+        <label className="toggle">
+          <input type="checkbox" checked={showHighlights}
+            onChange={e => setShowHighlights(e.target.checked)} />
+          {' highlights'}
+        </label>
+        <span>·</span>
+        <span>font</span>
+        <input type="range" min="14" max="22" value={fontSize}
+          onChange={e => setFontSize(+e.target.value)} />
+        <span>{fontSize}px</span>
+      </div>
+      <div className="reader">
+        <nav className="reader-toc">
+          {book.chapters.map((c, i) => (
+            <div
+              key={c.id}
+              className={"toc-entry " + (active === c.id ? "active" : "")}
+              onClick={() => jumpTo(c.id)}
+            >
+              <div>{c.title || <em>Chapter {i + 1}</em>}</div>
+              <small>p {c.page_start}–{c.page_end}{c.scene_ids?.length ? ` · ${c.scene_ids.length}🖼` : ""}</small>
+            </div>
+          ))}
+        </nav>
+        <div className="reader-body" ref={bodyRef}>
+          <article className="reader-page" style={{ fontSize }}>
+            <h1 className="book-title">{book.title}</h1>
+            {book.author && <div className="book-author">by {book.author}</div>}
+            {book.chapters.map((c, i) => (
+              <LazyChapter
+                key={c.id}
+                chapter={c}
+                index={i}
+                rootRef={bodyRef}
+                showHighlights={showHighlights}
+              />
+            ))}
+          </article>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// LazyChapter mounts a placeholder div whose height is estimated from
+// the chapter's char count. When the placeholder enters the viewport
+// (with a generous 1500px rootMargin so it pre-mounts before scrolling),
+// the heavy DeltaBlocks render kicks in. Once mounted, it stays mounted
+// — re-mounting on scroll-out would be jankier than leaving it.
+function LazyChapter({ chapter, index, rootRef, showHighlights }) {
+  const [mounted, setMounted] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (mounted || !ref.current || !rootRef.current) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) { setMounted(true); break; }
+        }
+      },
+      { root: rootRef.current, rootMargin: "1500px 0px" }
+    );
+    obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [mounted, rootRef]);
+
+  // Rough height estimate: ~60 chars/line × line-height 1.75 × font 17 = ~30 chars/inch.
+  // Shrink to a sane min/max so wildly long chapters don't blow scrollbar.
+  const charCount = chapter.char_count ?? (chapter.ops?.reduce(
+    (s, op) => s + (typeof op.insert === "string" ? op.insert.length : 600),
+    0,
+  ) || 1000);
+  const placeholderH = Math.max(380, Math.min(12000, charCount * 0.35));
+
+  return (
+    <section ref={ref} className="chapter" data-chapter-id={chapter.id}>
+      <h2>{chapter.title || `Chapter ${index + 1}`}</h2>
+      <div className="chapter-meta">pages {chapter.page_start}–{chapter.page_end}</div>
+      <hr className="chapter-rule" />
+      {mounted ? (
+        <DeltaBlocks ops={chapter.ops} showHighlights={showHighlights} />
+      ) : (
+        <div style={{ minHeight: placeholderH, color: "var(--muted)", fontStyle: "italic" }}>
+          loading…
+        </div>
+      )}
+    </section>
+  );
+}
+
+function DeltaBlocks({ ops, showHighlights }) {
+  // Tiny renderer for the Quill Delta subset our pipeline emits:
+  //   {insert: "text", attributes?: {italic, background, size}}
+  //   {insert: {image: "url"}}
+  // Splits ops into paragraph blocks at "\n", and pairs an image with the
+  // following italic caption (the pipeline emits `image\ncaption\n`).
+  const blocks = useMemo(() => {
+    const out = [];
+    let cur = [];
+    const flush = () => { if (cur.length) { out.push({ kind: "p", segs: cur }); cur = []; } };
+    for (const op of ops || []) {
+      if (typeof op.insert === "object" && op.insert?.image) {
+        flush();
+        out.push({ kind: "img", src: op.insert.image });
+        continue;
+      }
+      const text = String(op.insert ?? "");
+      const attrs = op.attributes || {};
+      let i = 0;
+      while (i < text.length) {
+        const nl = text.indexOf("\n", i);
+        if (nl === -1) {
+          if (i < text.length) cur.push({ text: text.slice(i), attrs });
+          i = text.length;
+        } else {
+          if (nl > i) cur.push({ text: text.slice(i, nl), attrs });
+          flush();
+          i = nl + 1;
+        }
+      }
+    }
+    flush();
+
+    // Pair image with the next italic-small paragraph as <figcaption>.
+    const merged = [];
+    for (let i = 0; i < out.length; i++) {
+      const cur = out[i];
+      const next = out[i + 1];
+      const isCaption = next?.kind === "p"
+        && next.segs.length === 1
+        && next.segs[0].attrs?.italic
+        && next.segs[0].attrs?.size === "small";
+      if (cur.kind === "img" && isCaption) {
+        merged.push({ kind: "fig", src: cur.src, caption: next.segs[0].text });
+        i++;
+      } else {
+        merged.push(cur);
+      }
+    }
+    return merged;
+  }, [ops]);
+
+  return (
+    <>
+      {blocks.map((b, i) => {
+        if (b.kind === "fig") {
+          return (
+            <figure key={i}>
+              <img src={b.src} alt={b.caption || ""} loading="lazy" />
+              <figcaption>{b.caption}</figcaption>
+            </figure>
+          );
+        }
+        if (b.kind === "img") {
+          return <figure key={i}><img src={b.src} alt="" loading="lazy" /></figure>;
+        }
+        return (
+          <p key={i}>
+            {b.segs.map((seg, si) => {
+              const a = seg.attrs || {};
+              const style = {};
+              if (showHighlights && a.background) style.background = a.background;
+              if (a.italic) style.fontStyle = "italic";
+              if (a.size === "small") style.fontSize = ".85em";
+              return <span key={si} className="hl" style={style}>{seg.text}</span>;
+            })}
+          </p>
+        );
+      })}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts teachings exalting faith and non‑violence over ritualism, condemning animal sacrifice, and advising righteous living that sustains the body without harming creatures.",
+  "importance": 0.64,
+  "themes": [
+    "faith vs ritual",
+    "non-violence (ahimsa)",
+    "ethical sacrifice",
+    "renunciation and duty",
+    "compassion for animals"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Vichakhy stands before a sacrificial ground where a bull lies mangled while cows cry out and Brahmanas prepare the ritual slaughter.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The compassionate king raises his hand and proclaims a blessing for all cows in the world amid the halted sacrifice.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Tuladhara and Jajali, radiant with wisdom, ascend together toward heaven after their dialogue on faith and harmlessness.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna urges honoring Dhritarashtra; Yudhishthira offers all wealth for funeral rites of the fallen, and Dhritarashtra conducts lavish gifts and ceremonies for the dead.",
+  "importance": 0.55,
+  "themes": [
+    "forgiveness and restraint",
+    "filial duty",
+    "funeral rites",
+    "charity and kingship",
+    "lingering war grief"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima glares angrily at Arjuna while Yudhishthira calmly instructs Vidura to offer all their wealth to Dhritarashtra.",
+      "visual_strength": 0.58
+    },
+    {
+      "scene_text": "Vidura stands before the blind king Dhritarashtra in the palace hall, delivering Yudhishthira’s message of submission and generosity.",
+      "visual_strength": 0.52
+    },
+    {
+      "scene_text": "Dhritarashtra presides over a vast ceremony where Brahmanas receive elephants, gold, cattle, and garments in the names of the fallen warriors.",
+      "visual_strength": 0.72
+    }
+  ]
+}

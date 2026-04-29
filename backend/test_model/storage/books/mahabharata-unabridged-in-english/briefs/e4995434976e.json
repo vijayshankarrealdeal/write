@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma tells of Chirakarin, who delays killing his mother as ordered by his father, and his thoughtful hesitation ultimately prevents a grave sin.",
+  "importance": 0.63,
+  "themes": [
+    "deliberation before action",
+    "filial duty conflict",
+    "moral reasoning",
+    "repentance and restraint",
+    "parental reverence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Chirakarin stands motionless with a raised weapon beside his silent mother, lost in deep moral reflection within a forest hermitage.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "The sage Gautama returns to his hermitage in anguish, fearing his son has killed Ahalya, while the forest path lies quiet around him.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Chirakarin drops his weapon and prostrates before his returning father as his ashamed mother stands nearby in the hermitage.",
+      "visual_strength": 0.79
+    }
+  ]
+}

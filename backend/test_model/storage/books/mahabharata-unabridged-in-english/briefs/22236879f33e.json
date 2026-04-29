@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira questions a cursed serpent about virtue, karma, perception, and mind versus intellect; the serpent explains ethics, transmigration, and his fall from heavenly pride.",
+  "importance": 0.55,
+  "themes": [
+    "dharma ethics",
+    "karma and rebirth",
+    "mind vs intellect",
+    "nature of perception",
+    "fall through pride"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The giant serpent releases Bhima while speaking calmly with Yudhishthira in the forest.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "A radiant celestial king rides a chariot pulled by sages until the sage Agastya curses him and he falls toward earth as a serpent.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "The spirit seated between the eyebrows sends the senses outward to perceive sound, form, taste, touch, and smell.",
+      "visual_strength": 0.5
+    }
+  ]
+}

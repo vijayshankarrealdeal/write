@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Bhishma explains that rebirth and worldly states are temporary and that liberation comes through knowledge that dispels ignorance enveloping the soul (Jiva). Using metaphors, he describes how the pure soul appears colored by actions and ignorance as it moves from body to body. The narrative recounts the dialogue between the fallen Asura Vritra and his teacher Usanas: Vritra, having lost his sovereignty, reflects calmly on karma, time, and the cycle of births. Sage Sanatkumara then expounds the supremacy of Vishnu, describing the universe as resting in Him and teaching that restraint of the senses and purification across many lives lead to realization. Souls evolve through states symbolized by colors determined by the three gunas. Through sustained sattvic action and knowledge, the soul ascends toward the pure ‘white’ state and finally emancipation—union with the eternal Brahman.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Opening philosophical claim that everything—including rebirth—has an end, establishing the section’s theme of impermanence and liberation."
+    },
+    {
+      "start": 4200,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Sanatkumara’s teaching that the entire universe rests on Vishnu, expressing the text’s central theological vision of cosmic unity."
+    },
+    {
+      "start": 5600,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The analogy of the goldsmith purifying metal, illustrating the gradual purification of the soul across many births."
+    },
+    {
+      "start": 7600,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Explanation of the six spiritual ‘colours’ determined by the three gunas, a key doctrinal framework for understanding spiritual evolution."
+    },
+    {
+      "start": 10300,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Vritra’s acceptance of the teaching and release from sorrow, marking the emotional resolution of the dialogue."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The fallen Asura Vritra sits calmly among enemies after losing his kingdom while his teacher Usanas questions him about grief.",
+      "visual_strength": 0.79
+    },
+    {
+      "scene_text": "Sage Sanatkumara arrives radiant before Vritra and Usanas and begins describing the cosmic form of Vishnu that contains the universe.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "A symbolic vision of the cosmic Vishnu whose feet are the earth, head the heavens, sun his eye, and the directions his arms.",
+      "visual_strength": 0.95
+    }
+  ]
+}

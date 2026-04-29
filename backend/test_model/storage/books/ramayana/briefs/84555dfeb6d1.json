@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman offers to carry Sita from Lanka, but she refuses, urging him instead to bring Rama so her rescue and Ravana’s defeat occur honorably.",
+  "importance": 0.7,
+  "themes": [
+    "loyalty to Rama",
+    "honor and reputation",
+    "strategic caution",
+    "faith in destiny",
+    "devotion and chastity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman enlarges his form to mountain size before the astonished Sita beneath the trees of Ashoka grove.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Hanuman kneels offering his shoulders for Sita to ride across the ocean while she stands hesitant among the Ashoka trees.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Sita, tearful yet resolute, refuses Hanuman’s rescue and gestures toward the distant horizon where Rama must come.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Ravana deceives Sita with an illusory head of Rama, causing her to lament in despair until the illusion vanishes after he leaves.",
+  "importance": 0.6,
+  "themes": [
+    "deception and illusion",
+    "grief and lamentation",
+    "devotion to spouse",
+    "psychological warfare"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita collapses in the Ashoka grove before the severed illusory head of Rama and his golden bow lying on the ground.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Sita kneels beside the head of Rama, weeping and reaching toward it while the rakshasas watch from the shadows.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The illusory head and bow of Rama suddenly vanish from the ground as Ravana departs the Ashoka grove.",
+      "visual_strength": 0.72
+    }
+  ]
+}

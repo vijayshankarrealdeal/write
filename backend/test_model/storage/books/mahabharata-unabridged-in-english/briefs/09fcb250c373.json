@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhima battles the Rakshasa Alayudha amid chaotic night fighting until Krishna sends Ghatotkacha to intervene and confront the demon.",
+  "importance": 0.55,
+  "themes": [
+    "night battle",
+    "Bhima vs Alayudha",
+    "Rakshasa warfare",
+    "Krishna's strategic command",
+    "Pandava-Kaurava clash"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima and the gigantic Rakshasa Alayudha smash their maces together so violently that the earth trembles beneath them.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Weaponless and blood-covered, Bhima and Alayudha hurl chariot wheels, yokes, and broken parts at each other like enraged elephants.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Ghatotkacha hurls a blazing, gold-decked mace with a hundred bells that shatters Alayudha’s chariot, horses, and driver in a fiery burst.",
+      "visual_strength": 0.88
+    }
+  ]
+}

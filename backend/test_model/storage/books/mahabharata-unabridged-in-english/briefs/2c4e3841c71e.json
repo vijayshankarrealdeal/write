@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Markandeya explains child-afflicting spirits and madness-causing entities, then narrates Skanda’s rise, divine procession, and battle where he slays the Asura Mahisha.",
+  "importance": 0.75,
+  "themes": [
+    "malevolent spirits",
+    "Skanda mythology",
+    "divine warfare",
+    "ritual propitiation",
+    "cosmic order vs demons"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Mahisha the Asura seizes the pole of Rudra’s chariot while terrified gods scatter across the battlefield.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Skanda in blazing red armor hurls his radiant spear that flies through the air and cuts off Mahisha’s head.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Mahadeva rides a radiant chariot drawn by a thousand lions through the sky with gods, rivers, and celestial beings marching behind him.",
+      "visual_strength": 0.92
+    }
+  ]
+}

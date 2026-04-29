@@ -1,0 +1,37 @@
+{
+  "rich_summary": "This section briefly compresses the rise and fall of the Pandavas before transitioning to the formal beginning of the Mahabharata narrative. After returning to Hastinapura, the Pandavas are given Khandavaprastha to avoid conflict with their cousins. From this base they expand their power, conquering the four directions. Arjuna later spends years in exile, marries Krishna’s sister Subhadra, helps Agni burn the Khandava forest, and receives the divine bow Gandiva. The rescued Asura Maya builds the magnificent palace that later provokes Duryodhana’s jealousy. Through deceitful dice play engineered by Shakuni, the Pandavas are exiled for thirteen years, eventually returning to claim their kingdom, which leads to the great war and their victory. King Janamejaya, hearing this brief outline, asks for the full story, prompting the formal recitation of the vast epic by Vaisampayana.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Opening context showing the Pandavas being directed to Khandavaprastha, the political compromise that sets the stage for their rise."
+    },
+    {
+      "start": 600,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The turning point where Arjuna aids Agni in burning the Khandava forest and receives the divine Gandiva bow."
+    },
+    {
+      "start": 1500,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The emotional and consequential moment where Duryodhana’s jealousy leads to the dice game and the Pandavas’ exile."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Agni blazing through the Khandava forest while Arjuna and Krishna stand in a chariot, Arjuna drawing the newly gifted Gandiva as flames rise behind them.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The dazzling celestial palace built by Maya, glittering with jewels and illusions, as Duryodhana gazes at it with envy.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "King Janamejaya seated in a royal court, leaning forward with intense curiosity as the sage Vaisampayana prepares to recount the vast Mahabharata.",
+      "visual_strength": 0.78
+    }
+  ]
+}

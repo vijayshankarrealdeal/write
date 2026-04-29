@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna urges Bhishma to teach dharma; empowered by Krishna’s grace, Bhishma invites Yudhishthira to question him about duties and morality.",
+  "importance": 0.68,
+  "themes": [
+    "dharma teaching",
+    "divine grace",
+    "authority of wisdom",
+    "kingship duties",
+    "end-of-life counsel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna stands beside the arrow‑pierced Bhishma on his bed of arrows as gathered kings watch in silence.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhishma, glowing with renewed clarity, speaks from the bed of arrows while Yudhishthira and the princes stand respectfully before him.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Narada and assembled sages gesture toward the dying Bhishma, urging the hesitant princes to question him before sunset.",
+      "visual_strength": 0.65
+    }
+  ]
+}

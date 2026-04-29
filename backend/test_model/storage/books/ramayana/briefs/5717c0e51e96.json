@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bharata thanks sage Bharadwaja, learns the route to Chitrakuta, condemns Kaikeyi before him, and departs with the army to meet Rama.",
+  "importance": 0.55,
+  "themes": [
+    "brotherly devotion",
+    "guilt and repentance",
+    "guidance of sages",
+    "royal procession",
+    "family conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Prince Bharata stands with folded hands before the fire‑ritual altar as sage Bharadwaja sits beside the sacred flames in his forest hermitage.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "The queens Kausalya, Sumitra, and the ashamed Kaikeyi descend from their chariots and bow at the sage’s feet in the woodland hermitage.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Bharata’s vast army of chariots, horses, and elephants adorned with bells and golden trappings begins its march toward Mount Chitrakuta.",
+      "visual_strength": 0.74
+    }
+  ]
+}

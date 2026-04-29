@@ -1,0 +1,55 @@
+{
+  "rich_summary": "Arjuna, overwhelmed by compassion on the battlefield, argues that killing the Kauravas—his own kin and teachers—would destroy family traditions, corrupt society, and condemn both victors and victims to sin. He declares he would rather die unarmed than kill them and collapses in grief. Krishna rebukes this despair as unworthy of a warrior and begins teaching him. He explains the immortality of the soul: bodies perish, but the self is eternal and cannot be harmed. Therefore mourning the inevitable cycle of birth and death is misguided. Krishna also introduces the foundations of Karma‑yoga: perform one’s duty without attachment to results, remain steady in success or failure, and discipline the senses. True wisdom lies in equanimity, self‑control, and devotion to right action rather than pursuit of pleasure or reward.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Arjuna begins articulating his moral argument against killing his own kin, setting the ethical crisis that drives the entire Gita."
+    },
+    {
+      "start": 420,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Arjuna laments the destruction of family traditions and social order, revealing his deep emotional and moral turmoil."
+    },
+    {
+      "start": 950,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Arjuna declares it would be better to be slain unarmed than fight his relatives, marking the peak of his despair."
+    },
+    {
+      "start": 1500,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna’s first rebuke—condemning Arjuna’s weakness—signals the turning point from grief to philosophical instruction."
+    },
+    {
+      "start": 2300,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna teaches the central doctrine that the soul is unborn, eternal, and indestructible, a foundational idea of the Gita."
+    },
+    {
+      "start": 4200,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "The principle of acting without attachment to results (karma‑yoga) is introduced as the practical path to spiritual freedom."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Arjuna, overwhelmed with grief, drops his bow and sits down in his chariot between the two massive armies on the battlefield of Kurukshetra.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Krishna stands calmly beside the despondent Arjuna in the chariot, addressing him while the two opposing armies wait tensely on the battlefield.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A symbolic vision of the eternal soul changing bodies like a person discarding worn garments and putting on new ones.",
+      "visual_strength": 0.75
+    }
+  ]
+}

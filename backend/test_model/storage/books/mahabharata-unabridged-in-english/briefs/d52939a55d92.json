@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vasishtha explains that ignorance binds the pure Self to cycles of birth through Prakriti, while true understanding of scripture reveals the path to emancipation.",
+  "importance": 0.68,
+  "themes": [
+    "ignorance and rebirth",
+    "Purusha and Prakriti",
+    "nature of the Self",
+    "sixteen aspects of the Jiva",
+    "true meaning of scripture"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The soul is depicted like the moon waxing and waning across the sky, while an unseen constant lunar core shines behind the changing phases.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A radiant pure soul stands untouched at the center while fifteen surrounding elements—senses and mind—form shifting layers around it.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Sage Vasishtha sits calmly before King Janaka in a forest hermitage, explaining the mystery of liberation while the king listens intently.",
+      "visual_strength": 0.55
+    }
+  ]
+}

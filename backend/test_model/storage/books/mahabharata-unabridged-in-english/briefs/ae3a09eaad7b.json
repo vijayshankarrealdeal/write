@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada recounts Sunda and Upasunda destroying each other over Tilottama, prompting the Pandavas to establish a rule to avoid rivalry over Draupadi.",
+  "importance": 0.62,
+  "themes": [
+    "destructive desire",
+    "brotherly rivalry",
+    "preventing conflict",
+    "divine strategy",
+    "marital arrangement"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Tilottama in a single red silk garment walks through blossoming trees on a Vindhya plateau as the drunken Asura brothers rise, captivated by her beauty.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Sunda and Upasunda, enraged and each gripping a mace, strike one another while shouting that the maiden belongs to him.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The two mighty Asuras lie bleeding on the rocky ground like fallen suns while terrified women and demons flee the plateau.",
+      "visual_strength": 0.78
+    }
+  ]
+}

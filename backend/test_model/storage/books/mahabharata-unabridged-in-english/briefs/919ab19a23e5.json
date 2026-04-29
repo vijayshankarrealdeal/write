@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Virtues depart from Prahlada when Behaviour is lost; Dhritarashtra explains righteous conduct, and Bhishma begins a tale on the power of Hope.",
+  "importance": 0.47,
+  "themes": [
+    "moral conduct",
+    "roots of prosperity",
+    "virtues departing",
+    "hope and disappointment",
+    "ethical instruction"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Radiant personifications of Truth, Good Deeds, Might, and Prosperity emerge one after another from Prahlada’s body and depart into the distance.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The goddess of Prosperity, shining and lotus-bearing, rises from Prahlada’s body as the king watches in fear and astonishment.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Armored King Sumitra races through a wild forest with bow drawn, chasing a wounded deer that bounds far ahead with an arrow in its flank.",
+      "visual_strength": 0.78
+    }
+  ]
+}

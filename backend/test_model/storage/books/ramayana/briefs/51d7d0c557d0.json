@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vishwamitra explains Taraka’s cursed origins and urges Rama to kill her, arguing it is a warrior’s duty to protect the land and sages.",
+  "importance": 0.62,
+  "themes": [
+    "dharma of a warrior",
+    "curses and boons",
+    "origins of Taraka",
+    "sage authority",
+    "duty to protect"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sage Vishwamitra stands in the forest explaining Taraka’s history while the young prince Rama listens with bow in hand.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Taraka, once beautiful, is transformed by a curse into a hideous cannibalistic rakshasi roaming the forest.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Agastya raises his hand in anger as Taraka and her son rush toward him, and his curse turns their fate toward demonhood.",
+      "visual_strength": 0.72
+    }
+  ]
+}

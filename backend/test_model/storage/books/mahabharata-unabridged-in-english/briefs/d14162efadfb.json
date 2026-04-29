@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma and Drona warn Duryodhana to make peace with the Pandavas, lamenting the coming war, while Dhritarashtra asks about Krishna’s private words to Karna.",
+  "importance": 0.55,
+  "themes": [
+    "war omens",
+    "ignored counsel",
+    "duty vs affection",
+    "approaching Kurukshetra",
+    "moral warning"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Duryodhana stands silent with brows knit and eyes lowered while Bhishma and Drona exchange grave glances before the assembled kings.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Bhishma and Drona solemnly warn Duryodhana in the royal court as ominous vultures circle above the distant army camps.",
+      "visual_strength": 0.58
+    },
+    {
+      "scene_text": "Krishna the slayer of Madhu lifts Karna onto his chariot outside the city, preparing to speak with him in private.",
+      "visual_strength": 0.77
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "rich_summary": "At Rama’s great sacrificial gathering, sages, kings, monkeys, titans, and people of every rank assemble to witness a decisive moment: Sita’s public oath of innocence. The immense crowd waits in tense silence until the sage Valmiki arrives, leading Sita. She walks behind him with bowed head and folded palms, overcome with grief yet inwardly fixed on Rama. The sight of the wronged queen moves the entire assembly to cries of sorrow and praise for both Rama and Sita. Valmiki then addresses Rama directly, declaring Sita’s virtue and explaining that she had been abandoned near his hermitage because of public slander. He announces that she will prove her purity and reveals that the twin boys raised in his care are Rama’s own sons. The scene prepares for a dramatic vindication of Sita before the whole world.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 12,
+      "color_hex": "#A5D6A7",
+      "why": "Marks the Uttara Kanda setting, signaling the final phase of the epic where unresolved moral and familial tensions come to a climax."
+    },
+    {
+      "start": 13,
+      "length": 10,
+      "color_hex": "#FFEB3B",
+      "why": "Introduces the chapter centered on Sita’s public appearance before Rama and the court."
+    },
+    {
+      "start": 24,
+      "length": 31,
+      "color_hex": "#FFEB3B",
+      "why": "The chapter title foregrounds the pivotal act: Valmiki personally leading Sita before Rama for her vindication."
+    },
+    {
+      "start": 60,
+      "length": 63,
+      "color_hex": "#A5D6A7",
+      "why": "Opens the dramatic assembly at Rama’s sacrifice, gathering sages and beings from across the world to witness the moment."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Valmiki solemnly leads the sorrowful Sita with bowed head and folded palms into a vast sacrificial arena crowded with sages, kings, monkeys, and celestial beings.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The immense assembly erupts in cries of grief and reverence as Sita appears behind Valmiki, the crowd shouting 'Halahala!' while others hail Rama and Sita.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Valmiki stands before Rama in the royal sacrificial court, declaring Sita’s purity and revealing that the twin boys raised in his hermitage are Rama’s sons.",
+      "visual_strength": 0.83
+    }
+  ]
+}

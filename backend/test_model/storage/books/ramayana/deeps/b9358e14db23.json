@@ -1,0 +1,37 @@
+{
+  "rich_summary": "After King Dasaratha’s great sacrifice concludes, the gods return to heaven and the king returns to Ayodhya filled with hope for heirs. In an astrologically auspicious moment during the month of Chaitra, the divine plan unfolds: Vishnu incarnates as Rama, born to Queen Kaushalya. Bharata is born to Kaikeyi, and the twins Lakshmana and Shatrughna to Sumitra, each sharing a portion of Vishnu’s glory. Celestial signs accompany their births—gods shower flowers, heavenly music sounds, and the capital rejoices. The princes grow in wisdom, martial skill, and virtue, with Rama shining above all in truth and nobility. Lakshmana becomes inseparably devoted to him, while Bharata and Shatrughna form a similar bond. The chapter ends with the dramatic arrival of the powerful sage Vishwamitra at Dasaratha’s court, foreshadowing the princes’ first great adventure.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 17,
+      "color_hex": "#A5D6A7",
+      "why": "Evokes the mythic prelude describing the powerful beings born to aid Rama."
+    },
+    {
+      "start": 118,
+      "length": 37,
+      "color_hex": "#A5D6A7",
+      "why": "Describes the immense, mountain-like heroes destined to assist Rama, emphasizing the cosmic preparation for his mission."
+    },
+    {
+      "start": 176,
+      "length": 43,
+      "color_hex": "#FFEB3B",
+      "why": "States that these mighty beings were born specifically to aid Rama, highlighting the divine orchestration of events."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The birth of Rama as celestial drums thunder, gods shower flowers from the sky, and divine musicians play while the infant prince shines with supernatural radiance in Queen Kaushalya’s arms.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Young Rama riding in a royal hunt with bow in hand while Lakshmana follows closely behind, fiercely guarding his beloved elder brother through the forest.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "The ascetic sage Vishwamitra, glowing with austere power, arrives at the gates of Ayodhya as King Dasaratha and the court hurry out to greet him with reverence.",
+      "visual_strength": 0.8
+    }
+  ]
+}

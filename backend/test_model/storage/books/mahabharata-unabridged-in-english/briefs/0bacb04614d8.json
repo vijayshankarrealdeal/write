@@ -1,0 +1,24 @@
+{
+  "summary_1line": "The Pandavas devastate Jayadratha’s forces, rescue Draupadi, and pursue the fleeing Sindhu king, though Yudhishthira urges Bhima to spare him for family ties.",
+  "importance": 0.75,
+  "themes": [
+    "battle heroism",
+    "rescue of Draupadi",
+    "vengeance and restraint",
+    "family ties in war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Nakula leaps from his chariot and with a sword severs the charging elephant’s trunk and tusks as it rears before him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhima swings his golden-embossed iron mace and crushes an elephant and its riders before Jayadratha’s chariot.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Jayadratha, terrified amid the slaughter, abandons Draupadi on the battlefield and flees down the forest path.",
+      "visual_strength": 0.78
+    }
+  ]
+}

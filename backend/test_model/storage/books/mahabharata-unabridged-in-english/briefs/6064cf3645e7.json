@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira asks which Brahmana deserves gifts more; Bhishma teaches that gifts to learned, content, non‑begging Brahmanas yield the greatest merit.",
+  "importance": 0.45,
+  "themes": [
+    "ethics of charity",
+    "Brahmanas and social duty",
+    "contentment vs solicitation",
+    "kingly dharma",
+    "gift as sacrifice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies on his bed of arrows while Yudhishthira stands beside him listening as the old warrior speaks of gifts to humble, non‑begging Brahmanas.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A humble Brahmana who refuses to beg sits quietly in poverty as a king respectfully approaches to offer gifts of cattle, gold, and robes.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Hungry children wait at home while a Brahmana returns carrying food given by a generous householder for his expectant family.",
+      "visual_strength": 0.66
+    }
+  ]
+}

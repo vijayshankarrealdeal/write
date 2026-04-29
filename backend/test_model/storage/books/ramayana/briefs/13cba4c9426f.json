@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana ascends through celestial regions to the Moon, attacks it in anger, and is stopped by Brahma who grants him a powerful protective mantra.",
+  "importance": 0.42,
+  "themes": [
+    "Ravana’s cosmic ambition",
+    "celestial cosmology",
+    "divine intervention",
+    "boons and mantras",
+    "conflict with cosmic order"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana in his flying chariot draws his bow and shoots blazing arrows upward at the radiant Moon surrounded by stars.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The many-headed Ravana ascends through layered heavens filled with clouds, Siddhas, Garuda, and the distant river of the sky.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Brahma appears before the furious Ravana in the lunar realm, raising a calming hand while the Moon shines coldly behind him.",
+      "visual_strength": 0.8
+    }
+  ]
+}

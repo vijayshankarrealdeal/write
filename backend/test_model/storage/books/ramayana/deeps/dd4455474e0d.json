@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Sugriva sends his minister Hanuman to investigate two mysterious warriors approaching the region of Pampa near Mount Rishyamuka. Leaping down from the mountain, Hanuman disguises himself as a wandering ascetic and respectfully approaches the strangers—Rama and Lakshmana. Speaking with remarkable eloquence, he questions who they are, marveling at their divine appearance, their golden complexions, mighty arms, and formidable weapons. He suggests they seem almost celestial, like the sun and moon descended to earth. Hanuman then reveals his mission: he serves Sugriva, the exiled monkey king who seeks friendship with them. After hearing the speech, Rama is deeply impressed, telling Lakshmana that only someone thoroughly learned in the Vedas and grammar could speak so flawlessly. This moment marks the first meeting between Rama and Hanuman, initiating one of the epic’s most important alliances.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The opening action—Hanuman leaping from Rishyamuka at Sugriva’s command—sets up the pivotal first encounter between Hanuman and Rama."
+    },
+    {
+      "start": 120,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Hanuman disguises himself as a wandering monk and approaches with humility, highlighting his intelligence, diplomacy, and mastery of illusion."
+    },
+    {
+      "start": 340,
+      "length": 260,
+      "color_hex": "#F48FB1",
+      "why": "Hanuman’s awestruck description of the brothers—comparing them to divine beings like the sun and moon—captures the reverence and wonder of the meeting."
+    },
+    {
+      "start": 900,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Hanuman reveals Sugriva’s identity and mission, formally proposing friendship—this is the turning point that begins the Rama–Sugriva alliance."
+    },
+    {
+      "start": 1120,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Rama praises Hanuman’s flawless speech and learning in the Vedas, recognizing his wisdom and greatness at their very first meeting."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Hanuman leaps from Mount Rishyamuka and lands before Rama and Lakshmana, then transforms into the calm form of a wandering ascetic to approach them.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Disguised as a monk, Hanuman stands before the radiant Rama and Lakshmana near the sparkling lake of Pampa, marveling at their divine warrior presence and golden bows.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Rama quietly tells Lakshmana that only a master of the Vedas could speak with such flawless eloquence as the mysterious messenger before them.",
+      "visual_strength": 0.6
+    }
+  ]
+}

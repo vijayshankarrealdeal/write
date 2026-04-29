@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Teachings on conquering senses through Yoga, the dangers of cupidity, and King Janaka’s insight that true sovereignty lies in mastery of the self.",
+  "importance": 0.63,
+  "themes": [
+    "self-mastery",
+    "yoga and liberation",
+    "cupidity and desire",
+    "true sovereignty",
+    "non-attachment"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Alarka sits motionless in deep meditation, symbolically shooting a single arrow that subdues all the senses within his own soul.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "King Ambarisha stands contemplatively with a raised sword, declaring that the greatest enemy left to slay is cupidity within himself.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "King Janaka sits on his throne lost in thought as realization dawns that neither his kingdom nor even his body truly belongs to him.",
+      "visual_strength": 0.7
+    }
+  ]
+}

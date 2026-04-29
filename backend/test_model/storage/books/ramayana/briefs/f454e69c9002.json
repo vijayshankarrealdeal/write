@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bharata reaches Rama’s forest hermitage at Chitrakuta and, overwhelmed with grief and love, collapses while rushing to greet his exiled brother.",
+  "importance": 0.83,
+  "themes": [
+    "brotherly devotion",
+    "exile and kingship",
+    "repentance and loyalty",
+    "ascetic life vs royalty",
+    "family reunion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata, tearful and trembling, runs toward Rama seated in bark garments and matted locks beside Sita and Lakshmana in the forest hermitage.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "From a tree, Bharata sees smoke rising from Rama’s hidden hermitage amid the green slopes of Chitrakuta.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "Overcome with grief and love, Bharata collapses unconscious before reaching Rama’s feet outside the leaf-thatched hut.",
+      "visual_strength": 0.82
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna defeats Vajradatta but spares him for Yudhishthira’s sacrifice, then is surrounded and overwhelmed by Saindhava warriors amid ominous cosmic portents.",
+  "importance": 0.65,
+  "themes": [
+    "vengeance for Bhagadatta",
+    "mercy in victory",
+    "ashvamedha campaign",
+    "hero surrounded in battle",
+    "cosmic omens"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna’s flaming arrow strikes Vajradatta’s charging elephant, which collapses like a thunderbolt-shattered mountain.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Thousands of chariots and horsemen encircle Arjuna on foot as arrows darken the sky like storm clouds.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Reddish clouds rain flesh and blood while meteors streak across the sky as the stunned Arjuna drops the Gandiva.",
+      "visual_strength": 0.78
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "In this section Sanjaya describes the ferocious duel between Bhima and Karna during the Kurukshetra war. Bhima first slays several of Dhritarashtra’s sons with single arrows, provoking Karna to confront him in grief and fury. The two heroes exchange devastating showers of arrows, compared repeatedly to storms, beasts, and cosmic forces. Duryodhana sends seven more brothers to rescue Karna, but Bhima kills them all, fulfilling part of his terrible vow. He briefly mourns Vikarna, the one Kaurava brother who had once spoken justly for the Pandavas, showing the tragic complexity of the war. Bhima’s roar signals victory to Yudhishthira, while Duryodhana realizes too late that Vidura’s earlier warnings about injustice and the dice game are now bearing their deadly consequences.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Opening moment where Bhima slays multiple Kaurava princes, setting the emotional and strategic stakes."
+    },
+    {
+      "start": 800,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Vivid metaphor comparing Bhima and Karna to storm clouds and mountains, capturing the epic style of the battle."
+    },
+    {
+      "start": 1800,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Duryodhana orders his brothers to rescue Karna, escalating the conflict and leading to another wave of deaths."
+    },
+    {
+      "start": 2600,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Bhima laments Vikarna after killing him, a poignant moment of respect for a righteous enemy."
+    },
+    {
+      "start": 3600,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "Sanjaya reflects that the destruction now unfolding fulfills Vidura’s earlier warnings about injustice and the dice game."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhima and Karna stand on their chariots in the midst of battle, both releasing torrents of golden-feathered arrows that fill the sky like colliding storm clouds.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Bhima fires seven blazing arrows that pierce through Duryodhana’s brothers, the princes falling from their chariots like great trees struck down.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "After slaying Vikarna, Bhima pauses amid the carnage, blood-covered battlefield around him, speaking sorrowfully over the fallen prince he respected.",
+      "visual_strength": 0.88
+    }
+  ]
+}

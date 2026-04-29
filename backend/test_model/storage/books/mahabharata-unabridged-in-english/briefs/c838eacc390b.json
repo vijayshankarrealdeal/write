@@ -1,0 +1,25 @@
+{
+  "summary_1line": "During a grand festival, Krishna encourages Arjuna to abduct his sister Subhadra for marriage, and Arjuna seizes her, provoking outrage among the Yadava warriors.",
+  "importance": 0.8,
+  "themes": [
+    "festival gathering",
+    "romantic desire",
+    "marriage by abduction",
+    "kinship politics",
+    "warrior honor"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna in shining armor drives a golden chariot and lifts the ornamented princess Subhadra into it as her attendants cry out in alarm.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The Raivataka mountain festival glitters with jeweled pavilions, musicians and dancers while Yadava nobles ride gold-decked chariots.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "In the Sudharma court, wine-flushed Yadava warriors leap from golden thrones and shout for weapons after hearing of Subhadra’s abduction.",
+      "visual_strength": 0.86
+    }
+  ]
+}

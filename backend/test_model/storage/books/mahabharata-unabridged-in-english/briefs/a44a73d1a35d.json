@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vasishtha teaches King Saudasa that cows are sacred sources of prosperity, ritual purity, and merit, and describes the spiritual benefits of honoring and gifting them.",
+  "importance": 0.38,
+  "themes": [
+    "sacredness of cows",
+    "ritual purity",
+    "charity and merit",
+    "Vedic sacrifice",
+    "prosperity and dharma"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Vasishtha, purified and radiant, instructs the bowed King Saudasa while sacred cows stand peacefully nearby.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Devout donors present a richly adorned cow with golden-horn ornaments and a calf to a Vedic Brahmana during a ritual gift.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "A herd of luminous cows emerging after long austerities receive a divine boon from Brahman beneath a radiant sky.",
+      "visual_strength": 0.8
+    }
+  ]
+}

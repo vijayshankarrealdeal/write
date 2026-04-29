@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama observes terrifying omens foretelling massive destruction and urges Lakshmana to organize the monkey army and launch an immediate assault on Lanka.",
+  "importance": 0.55,
+  "themes": [
+    "omens of doom",
+    "impending battle",
+    "cosmic disturbance",
+    "leadership before war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama points toward Lanka while a blood-red twilight darkens the sky, dust storms rage, and terrified birds wheel overhead.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The sun burns with a fiery ring while the moon rises dim with a black-red halo as mountains shake and trees collapse.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Crows, eagles, and vultures spiral through a sky choked with dust while jackals howl and the battlefield below is smeared with blood.",
+      "visual_strength": 0.76
+    }
+  ]
+}

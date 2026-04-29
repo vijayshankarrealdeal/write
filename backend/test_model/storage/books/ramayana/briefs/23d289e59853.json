@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Bharata moves to Nandigrama, placing Rama’s sandals as the true symbol of kingship while he rules Ayodhya as a devoted regent awaiting Rama’s return.",
+  "importance": 0.63,
+  "themes": [
+    "fraternal devotion",
+    "renunciation of power",
+    "symbolic kingship",
+    "duty and loyalty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata walks in procession to Nandigrama carrying Rama’s golden-decorated sandals on his head while priests, soldiers, and citizens follow.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Before elders and citizens, Bharata raises Rama’s sandals reverently, declaring them the true rulers of Ayodhya.",
+      "visual_strength": 0.78
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Hanuman recounts Sita’s plea for Rama to defeat Ravana openly and reassures her that Rama and the monkey army will soon come to rescue her.",
+  "importance": 0.55,
+  "themes": [
+    "hope amid despair",
+    "honor in warfare",
+    "loyalty and devotion",
+    "assurance of rescue"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita, pale and sorrowful in the Ashoka grove, speaks earnestly to Hanuman while he kneels before her among the trees.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Hanuman stands confidently before Sita, describing the vast monkey army while the grove surrounds them in tense silence.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Sita gazes into the distance as Hanuman promises that Rama and Lakshmana will soon appear at Lanka’s gates with the roaring monkey hosts.",
+      "visual_strength": 0.66
+    }
+  ]
+}

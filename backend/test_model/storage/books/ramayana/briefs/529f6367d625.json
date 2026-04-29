@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Valmiki teaches the Ramayana to Rama’s sons, Lava and Kusha, who sing it before sages and eventually before Rama in his royal court.",
+  "importance": 0.55,
+  "themes": [
+    "oral tradition",
+    "poetry and music",
+    "lineage of Rama",
+    "praise of the Ramayana",
+    "sage and disciples"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lava and Kusha sit in Valmiki’s forest hermitage playing the vina while reciting the Ramayana before gathered sages.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "In Rama’s grand court, the twin princes sing with their vinas as Rama listens from a golden throne surrounded by ministers and brothers.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Moved sages with tears of joy shower the young singers with fruits, robes of bark, rosaries, and blessings.",
+      "visual_strength": 0.72
+    }
+  ]
+}

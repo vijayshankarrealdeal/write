@@ -1,0 +1,24 @@
+{
+  "summary_1line": "As Khara marches to attack Rama, terrifying omens appear, but he arrogantly dismisses them and drives his titan army toward battle.",
+  "importance": 0.56,
+  "themes": [
+    "ominous portents",
+    "arrogant defiance",
+    "fate and doom",
+    "approach of battle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A rain of blood falls from dark elephant-like clouds as Khara’s chariot advances beneath a dimmed sun while vultures circle overhead.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "A grim vulture perches on Khara’s golden battle standard while jackals with flaming jaws howl before the marching titan army.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Khara stands roaring in his chariot with bow raised as the sky darkens unnaturally and comets streak across the trembling earth.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "King Janaka explains the insight that freed him from the sense of possession: everything in the world is transient, so nothing can truly be called \"mine.\" By renouncing desire even for the sensory experiences within his own body—smell, taste, sight, touch, sound, and even the mind—he claims mastery over them rather than being ruled by them. A mysterious Brahmana reveals himself as Dharma, affirming Janaka’s understanding. The discourse then turns philosophical: the Brahmana declares that true wealth is knowledge of one’s identity with the universe, a realization attainable through purified understanding rather than bodily action. His wife asks how such knowledge arises, and he explains the metaphor of teacher and intellect as fire-sticks generating the fire of knowledge. Ultimately Krishna tells Arjuna that the Brahmana is his mind, the wife his understanding, and the knower of the field (Kshetrajna) is Krishna himself—revealing the dialogue as an allegory about self-knowledge and liberation.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 96,
+      "color_hex": "#FFEB3B",
+      "why": "Janaka’s opening declaration that all conditions are terminable establishes the philosophical basis for renouncing the idea of possession."
+    },
+    {
+      "start": 150,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "This passage develops Janaka’s radical practice of non-attachment by rejecting desire even for sensory experiences within his own body."
+    },
+    {
+      "start": 420,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "The Brahmana reveals the central teaching: knowledge of unity with the universe is greater than earthly or heavenly sovereignty."
+    },
+    {
+      "start": 980,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "The metaphor of the lower and upper Arani fire-sticks (intellect and teacher) illustrates how knowledge of Brahman is generated through discipline and instruction."
+    },
+    {
+      "start": 1750,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Krishna’s revelation to Arjuna—that the Brahmana is his mind and the wife his understanding—reframes the entire dialogue as an inner allegory."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "King Janaka seated calmly in a royal court yet inwardly detached, while symbolic representations of the five senses—earth, water, fire, wind, and sound—bow before him.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "A forest hermitage where a serene Brahmana explains the fire‑stick metaphor to his attentive wife, the sparks of a ritual fire glowing between them.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Krishna revealing to Arjuna that the Brahmana and his wife are allegories of mind and understanding, with a cosmic vision of the self pervading the universe behind them.",
+      "visual_strength": 0.9
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhishma tells Yudhishthira a fable of a virtuous jackal wrongly accused by jealous ministers to illustrate the difficulty of judging true character.",
+  "importance": 0.56,
+  "themes": [
+    "true virtue vs appearance",
+    "court intrigue and jealousy",
+    "moral conduct over birth",
+    "wise counsel to rulers"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a moonlit cremation ground, a solitary jackal sits among ashes and bones, refusing meat and living on fallen fruit.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "A powerful tiger king respectfully bows before a humble jackal, offering him the post of minister in the forest court.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Jealous animal ministers secretly hide the king’s meat inside the jackal’s dwelling to frame him for theft.",
+      "visual_strength": 0.71
+    }
+  ]
+}

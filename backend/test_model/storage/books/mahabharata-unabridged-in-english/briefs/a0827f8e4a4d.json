@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhrigu explains that all beings and senses arise from five elements, arguing even trees possess life and perception through these elemental properties.",
+  "importance": 0.55,
+  "themes": [
+    "five elements cosmology",
+    "senses and perception",
+    "life in plants",
+    "body-element composition",
+    "properties of matter"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Bhrigu teaches Bharadwaja beneath forest trees while explaining how earth, water, fire, wind, and space form all living bodies.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "A great tree with roots drinking water, leaves drooping in heat, and vines winding around it, symbolizing hidden senses within plants.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "A symbolic diagram-like vision of a human body formed from earth, water, fire, wind, and space with senses radiating from each element.",
+      "visual_strength": 0.72
+    }
+  ]
+}

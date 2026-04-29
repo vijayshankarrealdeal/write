@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Lakshmana advises Rama to perform the Ashwamedha sacrifice and begins recounting the legend of Vritra and Indra’s purification from brahmanicide.",
+  "importance": 0.42,
+  "themes": [
+    "royal sacrifice",
+    "moral counsel",
+    "purification from sin",
+    "Indra and Vritra legend"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lakshmana stands before Rama in the royal court, urging him to undertake the Ashwamedha sacrifice for purification.",
+      "visual_strength": 0.54
+    },
+    {
+      "scene_text": "The colossal demon Vritra, a hundred leagues wide and towering over the world, gazes across the Three Worlds.",
+      "visual_strength": 0.79
+    }
+  ]
+}

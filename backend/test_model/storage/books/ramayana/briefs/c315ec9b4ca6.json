@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama threatens the ocean, forces its god to appear, then Nala builds a massive bridge enabling the monkey army to cross to Lanka.",
+  "importance": 0.9,
+  "themes": [
+    "divine authority",
+    "nature submitting to dharma",
+    "engineering feat",
+    "war preparation",
+    "collective effort"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama draws a blazing arrow that shakes heaven and earth while the ocean surges violently under darkened skies.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The ocean god Sagara rises from the waves adorned with pearls and gold, flanked by the rivers Ganga and Sindhu, bowing before Rama.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Thousands of monkeys hurl mountains, trees, and boulders into the sea as Nala directs the construction of the vast bridge to Lanka.",
+      "visual_strength": 0.88
+    }
+  ]
+}

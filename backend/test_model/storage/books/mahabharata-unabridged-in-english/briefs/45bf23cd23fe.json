@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The gods appeal to Brahma about the destructive Asura brothers, and he creates the irresistible maiden Tilottama to provoke them into conflict.",
+  "importance": 0.74,
+  "themes": [
+    "divine intervention",
+    "cosmic disorder",
+    "beauty as strategy",
+    "creation of Tilottama",
+    "rivalry of Sunda and Upasunda"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The celestial architect Viswakarman fashions the radiant maiden Tilottama from the brilliance of countless gems before the assembled gods.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Tilottama walks around the divine assembly as Mahadeva sprouts new faces to follow her beauty and Indra gains a thousand eyes.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The devastated earth lies covered in bones and abandoned towns after the Asura brothers slaughter sages and end all sacrifices.",
+      "visual_strength": 0.79
+    }
+  ]
+}

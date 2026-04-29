@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Krishna warns Karna that the world is nearing destruction because Karna refuses to accept the path of righteousness and peace. Karna, resigned to the coming war, tells Krishna that if they survive they will meet again on earth, otherwise in heaven. After Krishna departs unsuccessful in securing peace, Vidura laments to Kunti that Duryodhana’s stubbornness and the influence of men like Karna and Dussasana will inevitably lead to catastrophic war. Kunti, grieving the prospect of kinsmen slaughtering one another, reflects on the terrible choice between war and humiliation. She becomes especially troubled by Karna’s power and hostility toward the Pandavas. Remembering that Karna is secretly her firstborn son, conceived through Surya by a boon from Durvasa, she resolves to reveal the truth and attempt to win him over. She goes to the Ganga and waits as Karna finishes his prayers.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna’s warning to Karna frames the moral tragedy: the refusal of righteousness signals the coming destruction."
+    },
+    {
+      "start": 111,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Karna’s calm acceptance of either death or reunion in heaven shows his fatalistic honor before the coming war."
+    },
+    {
+      "start": 620,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Kunti’s reflection on wealth, war, and the slaughter of kinsmen captures the central moral conflict driving her decision."
+    },
+    {
+      "start": 1200,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "Kunti recalls the boon of Durvasa and the summoning of Surya, revealing the hidden origin of Karna and motivating her plan to approach him."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Kunti standing quietly behind Karna on the banks of the Ganga while he prays facing the rising sun, his arms raised as sunlight burns his back.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Krishna and Karna embracing solemnly beside a chariot after their grave conversation about the coming destruction.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Kunti in anguish within the palace, reflecting on the impending war between the Pandavas and the Kurus.",
+      "visual_strength": 0.7
+    }
+  ]
+}

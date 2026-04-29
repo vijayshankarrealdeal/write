@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section recounts the famous debate of the young sage Ashtavakra in King Janaka’s court. Despite being mocked for his age, Ashtavakra argues that wisdom—not age or appearance—defines true maturity. After gaining entry, he boldly challenges the renowned debater Vandin, whose defeats had led to Brahmanas being cast into water. Their contest unfolds as a rapid exchange of sacred enumerations—cosmic, ritual, and philosophical correspondences from one to thirteen. When Vandin falters, Ashtavakra completes the verse and wins. Vandin reveals he is Varuna’s son and had sent the defeated Brahmanas to Varuna’s sacrifice; they return, including Ashtavakra’s father Kahoda. Reunited, father and son celebrate the triumph. Bathing in the river Samanga miraculously straightens Ashtavakra’s crooked limbs, symbolizing the restoration of truth and the vindication of wisdom over outward form.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The opening challenge questioning Ashtavakra’s youth sets up the central theme: the tension between appearance, age, and true wisdom."
+    },
+    {
+      "start": 500,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Ashtavakra’s argument that knowledge—not gray hair or years—makes a person truly ‘old’ expresses a key philosophical message of the episode."
+    },
+    {
+      "start": 1200,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "The king and Ashtavakra exchange riddling cosmological questions, marking the intellectual test that proves Ashtavakra’s mastery."
+    },
+    {
+      "start": 2200,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The reunion with his father Kahoda and the revelation that the drowned Brahmanas were sent to Varuna’s sacrifice resolves the conflict emotionally."
+    },
+    {
+      "start": 3200,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Ashtavakra’s immersion in the river Samanga and the straightening of his limbs is a symbolic climax—truth and wisdom restoring physical and moral order."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In King Janaka’s grand sacrificial hall, the young and crooked-bodied Ashtavakra stands boldly before rows of learned Brahmanas and the famed debater Vandin, challenging him in a tense intellectual duel.",
+      "visual_strength": 0.89
+    },
+    {
+      "scene_text": "The assembly erupts as Ashtavakra completes the final verse while Vandin stands silent and downcast, scholars raising their hands in admiration inside the richly decorated court.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "At the sacred river Samanga, Ashtavakra plunges into the water and emerges with his limbs miraculously straightened as his father Kahoda and gathered Brahmanas watch in astonishment.",
+      "visual_strength": 0.91
+    }
+  ]
+}

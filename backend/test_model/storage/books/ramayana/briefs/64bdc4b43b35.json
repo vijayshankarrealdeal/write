@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Shuka describes to Ravana the vast monkey army and identifies key warriors including Hanuman, Rama, Lakshmana, Vibhishana, and Sugriva.",
+  "importance": 0.55,
+  "themes": [
+    "enemy reconnaissance",
+    "heroic introductions",
+    "Hanuman's legend",
+    "impending war",
+    "vast armies"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman as a child leaps thousands of leagues toward the rising sun, trying to seize it in the sky.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Hanuman stands like an enraged elephant before Lanka, the same hero who once burned the city.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Rama stands beside Lakshmana and Vibhishana before the immense monkey army, facing Lanka across the battlefield.",
+      "visual_strength": 0.82
+    }
+  ]
+}

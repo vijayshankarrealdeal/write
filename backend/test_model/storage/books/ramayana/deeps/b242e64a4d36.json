@@ -1,0 +1,49 @@
+{
+  "rich_summary": "As the search for Indrajita begins, Rama dispatches leading monkey warriors—Hanuman, Angada, Nila and others—to pursue the elusive prince. Indrajita, master of illusion, counters from concealment, loosing volleys of arrows that halt the monkeys’ aerial advance. Invisible in the darkness, he unleashes a devastating storm of enchanted shafts upon Rama and Lakshmana. The brothers are trapped in a net of arrows, their bodies pierced everywhere until blood pours from their wounds and they resemble flowering kimshuka trees. Boasting that even the god Indra cannot face him when he fights unseen, Indrajita strikes them down. Rama falls first, Lakshmana collapses in despair, and the monkey army gathers around the unconscious heroes in grief, believing their champions lost.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 10,
+      "color_hex": "#FFEB3B",
+      "why": "Chapter heading announcing the dramatic moment when Indrajita strikes down the epic’s central heroes."
+    },
+    {
+      "start": 11,
+      "length": 49,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the crisis and frames the pursuit of the illusion‑wielding Indrajita."
+    },
+    {
+      "start": 520,
+      "length": 150,
+      "color_hex": "#F48FB1",
+      "why": "Vivid simile describing the brothers’ bodies pierced with arrows, blood flowing like the blossoms of kimshuka trees."
+    },
+    {
+      "start": 760,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Indrajita’s boast that even the king of the gods cannot face him when he fights invisibly, underscoring his terrifying power."
+    },
+    {
+      "start": 1340,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The emotional aftermath: Rama and Lakshmana collapse, and the monkey host gathers in despair around their fallen leaders."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Invisible Indrajita raining a storm of glowing arrows from the dark sky while Rama and Lakshmana stand surrounded on the battlefield.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Rama and Lakshmana pierced everywhere by arrows, blood flowing as they resemble crimson kimshuka trees in bloom amid the battlefield.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The monkey army—Hanuman at the front—gathering in grief around the unconscious Rama and Lakshmana lying on the arrow‑strewn field.",
+      "visual_strength": 0.82
+    }
+  ]
+}

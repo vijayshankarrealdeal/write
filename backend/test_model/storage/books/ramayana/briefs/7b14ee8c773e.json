@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman diplomatically reminds Sugriva to honor his vow to Rama and begin the search for Sita after Sugriva becomes distracted by pleasure.",
+  "importance": 0.63,
+  "themes": [
+    "duty to allies",
+    "kingship responsibility",
+    "gratitude",
+    "moral counsel",
+    "loyalty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman stands respectfully before the pleasure‑immersed King Sugriva in his palace, speaking earnest words while musicians and attendants surround the distracted monarch.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Sugriva lounges with Ruma and Tara in a richly adorned hall while Hanuman approaches with folded hands to remind him of Rama’s cause.",
+      "visual_strength": 0.71
+    },
+    {
+      "scene_text": "Under a clear autumn night with cranes calling and the moon bright in the sky, Hanuman resolves to speak to Sugriva about his forgotten promise.",
+      "visual_strength": 0.55
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna reveals himself, prepares for battle with divine weapons and banner, reassures the frightened Uttara, and sets out to face the Kaurava army.",
+  "importance": 0.78,
+  "themes": [
+    "heroic revelation",
+    "divine weapons",
+    "courage vs fear",
+    "war preparation",
+    "divine signs"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna strings the Gandiva and its thunderous twang shakes the earth as meteors fall and trees tremble.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A celestial banner bearing a roaring ape descends from the sky and rises upon Arjuna’s chariot as he prepares for battle.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Arjuna blows his mighty conch while Uttara collapses in fear on the chariot and the war horses kneel under the terrible sound.",
+      "visual_strength": 0.86
+    }
+  ]
+}

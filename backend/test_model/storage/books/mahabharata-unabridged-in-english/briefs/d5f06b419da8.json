@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A treacherous Brahmana kills his hospitable bird host; he is condemned as unforgivably ungrateful, while the virtuous bird is later revived by divine grace.",
+  "importance": 0.55,
+  "themes": [
+    "ingratitude and betrayal",
+    "hospitality and friendship",
+    "moral retribution",
+    "divine intervention",
+    "forgiveness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Under a vast banyan tree, a blazing fire lights the night as a treacherous man slays the trusting bird who sleeps beside the flames.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Rakshasas capture the guilty Brahmana and present the mutilated body of the crane Rajadharman before their grieving king in a city filled with lamentation.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "From the sky the goddess Surabhi’s milk-frothed nectar falls upon a jeweled funeral pyre, and the crane prince rises alive from the flames.",
+      "visual_strength": 0.9
+    }
+  ]
+}

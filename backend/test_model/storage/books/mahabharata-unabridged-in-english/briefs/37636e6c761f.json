@@ -1,0 +1,25 @@
+{
+  "summary_1line": "At Draupadi’s swayamvara many kings gather, fail to string the massive bow, while Krishna recognizes the disguised Pandavas among the crowd.",
+  "importance": 0.7,
+  "themes": [
+    "swayamvara contest",
+    "royal rivalry",
+    "divine spectators",
+    "recognition of Pandavas",
+    "pride and failure"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hundreds of jeweled kings rise in a crowded amphitheatre, all gazing with desire at Draupadi standing beneath the contest bow.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A powerful king strains to string the enormous bow but is flung to the ground, his crown and garlands scattering across the arena floor.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Krishna quietly points out the disguised Pandavas to Balarama among the crowd while celestial beings watch from the sky above the arena.",
+      "visual_strength": 0.82
+    }
+  ]
+}

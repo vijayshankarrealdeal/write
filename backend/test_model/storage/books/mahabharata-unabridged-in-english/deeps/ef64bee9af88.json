@@ -1,0 +1,37 @@
+{
+  "rich_summary": "In this section Vasishtha explains the metaphysical relationship between Jiva (the individual self), Prakriti (the unmanifest material nature), and the Supreme Soul (Brahman). The individual soul, though inherently pure and beyond attributes, becomes entangled with Prakriti and its three qualities—Sattwa, Rajas, and Tamas—mistaking bodily and social identities for its true nature. Through true knowledge, the Jiva realizes that it is distinct from Prakriti and ultimately related to the higher, twenty‑sixth principle: the attribute‑less Brahman. When this realization occurs, the soul abandons attachment to material nature and attains emancipation, freedom from rebirth, and identity with the Supreme. Vasishtha also warns that such profound knowledge should only be transmitted to disciplined, sincere seekers. Bhishma concludes by stressing that ignorance of Brahman keeps beings cycling through countless births, while knowledge of the destructible and indestructible ends fear and suffering.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "An emotional moment of awakening where the speaker rejects identification with Prakriti and declares the desire to unite with the auspicious Supreme."
+    },
+    {
+      "start": 180,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Key doctrinal transition explaining that once Jiva understands the Supreme, it abandons the destructible and realizes the indestructible essence."
+    },
+    {
+      "start": 1470,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "A thematic explanation of how the Supreme Soul appears as many forms through illusion, grounding the chapter’s philosophy of multiplicity and unity."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A meditating sage realizes the difference between the luminous soul within and the shadowy web of Prakriti surrounding him, symbolizing awakening from illusion.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The individual soul shedding layers of the three qualities—Sattwa, Rajas, and Tamas—while rising toward a radiant, formless light representing Brahman.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Sage Vasishtha teaching a king in a quiet forest hermitage while celestial light symbolizes the transmission of hidden knowledge of Brahman.",
+      "visual_strength": 0.7
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rishis announce Pandu’s death and the divine births of the Pandavas; the Kurus perform a grand funeral procession and cremation for Pandu and Madri.",
+  "importance": 0.62,
+  "themes": [
+    "royal funeral rites",
+    "divine lineage of Pandavas",
+    "grief and mourning",
+    "ritual duty",
+    "transition of lineage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ascetics with matted hair present the remains of Pandu and Madri before the Kuru court while the five young Pandavas stand beside Kunti.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A grand funeral procession carries Pandu and Madri on a flower-decked bier beneath a white royal umbrella as crowds weep and priests lead with sacred fire.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "On the banks of the Ganga, the pyre burns while Kunti collapses in grief and Bhishma and Vidura stand sorrowfully amid the wailing crowd.",
+      "visual_strength": 0.83
+    }
+  ]
+}

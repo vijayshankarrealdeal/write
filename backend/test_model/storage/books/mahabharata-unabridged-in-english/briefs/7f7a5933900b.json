@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The goddess Death resists killing beings until Brahma assures her it is righteous; diseases arise from her tears and death becomes part of cosmic order.",
+  "importance": 0.73,
+  "themes": [
+    "origin of death",
+    "cosmic duty",
+    "austerity and penance",
+    "disease as divine manifestation",
+    "cycle of rebirth"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The maiden Death stands on one foot in severe penance for ages beneath the gaze of Brahma.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Death, with tears cupped in her joined hands before Brahma, weeps as the drops become terrible diseases.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Brahma commands the reluctant goddess Death while she stands silent with uplifted eyes before the creator of the worlds.",
+      "visual_strength": 0.78
+    }
+  ]
+}

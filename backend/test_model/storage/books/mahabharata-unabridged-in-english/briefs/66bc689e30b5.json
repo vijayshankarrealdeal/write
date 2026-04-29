@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After a brutal royal hunt, Dushmanta enters a serene forest hermitage by the Malini river, filled with ascetics, animals, and divine beauty.",
+  "importance": 0.6,
+  "themes": [
+    "royal hunt",
+    "contrast of violence and serenity",
+    "sacred hermitage",
+    "nature and ascetic life",
+    "transition to spiritual realm"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dushmanta strides through the forest with bow and sword as fleeing animals scatter and wounded elephants crash through the trees.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "As Dushmanta enters the tranquil grove, flowering trees bend in the breeze and shower blossoms over the king beneath a canopy of birds and bees.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "On the banks of the clear Malini river, ascetics sit beside sacred fires while deer wander peacefully among flower-strewn ground beneath tall trees.",
+      "visual_strength": 0.9
+    }
+  ]
+}

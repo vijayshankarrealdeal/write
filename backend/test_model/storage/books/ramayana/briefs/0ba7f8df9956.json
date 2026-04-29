@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Rama departs for exile, Ayodhya falls into grief as King Dasaratha collapses in despair and denounces Kaikeyi.",
+  "importance": 0.78,
+  "themes": [
+    "grief of separation",
+    "kingly despair",
+    "consequences of ambition",
+    "family rupture",
+    "exile of Rama"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dasaratha stares down the road after Rama’s chariot until the dust disappears, then collapses to the ground in grief.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "The desolate city of Ayodhya with empty markets, closed temples, and mournful citizens wandering the streets.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Dasaratha, covered in dust and supported by Kausalya while Kaikeyi stands nearby, angrily repudiates her.",
+      "visual_strength": 0.8
+    }
+  ]
+}

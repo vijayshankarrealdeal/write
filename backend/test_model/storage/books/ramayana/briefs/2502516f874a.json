@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama and Ravana exchange devastating volleys of weapons before Rama condemns Ravana for abducting Sita and vows his imminent death.",
+  "importance": 0.82,
+  "themes": [
+    "heroic combat",
+    "righteous condemnation",
+    "honor and cowardice",
+    "revenge for Sita",
+    "divine weaponry"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama hurls Indra’s blazing spear into the sky where it crashes against Ravana’s lightning-wreathed lance, shattering it in midair.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Ravana, pierced by countless arrows and streaming blood, stands on his chariot like an Ashoka tree in full red bloom.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Amid a darkened battlefield filled with flying arrows, Rama faces Ravana and denounces him for stealing Sita like a thief.",
+      "visual_strength": 0.8
+    }
+  ]
+}

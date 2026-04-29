@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna, Bhishma, and Drona urge Duryodhana to make peace with the Pandavas, warning that Arjuna is unbeatable and war will destroy the Kuru race.",
+  "importance": 0.7,
+  "themes": [
+    "diplomacy and peace counsel",
+    "dharma vs desire",
+    "inevitability of war",
+    "praise of Arjuna",
+    "warnings to Duryodhana"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna stands in the royal court addressing Duryodhana while assembled elders listen as he warns of Arjuna’s invincibility and urges peace.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Bhishma, the aged warrior with white beard and armor, rises in the Kuru court and solemnly warns Duryodhana not to destroy his own race.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "An imagined vision of Arjuna on the battlefield, bow drawn and blazing with fury, as terrified warriors hesitate to face him.",
+      "visual_strength": 0.63
+    }
+  ]
+}

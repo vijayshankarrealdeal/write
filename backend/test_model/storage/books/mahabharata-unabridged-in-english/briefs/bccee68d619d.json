@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The sage Narada arrives at Yudhishthira’s court and delivers an extensive interrogation on ideal kingship, governance, ethics, and statecraft.",
+  "importance": 0.72,
+  "themes": [
+    "ideal kingship",
+    "statecraft and governance",
+    "moral duty",
+    "royal administration",
+    "sage counsel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The radiant sage Narada enters Yudhishthira’s grand Sabha as the Pandavas rise and bow while musicians and celestial beings fill the hall.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Narada, seated before Yudhishthira in the royal court, raises his hand while delivering a long discourse on the duties of a king.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Yudhishthira humbly offers a jeweled seat, cows, and ritual arghya to the glowing sage Narada amid gathered kings and rishis.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama recounts King Ila, a powerful ruler who enters Shiva’s enchanted forest and is transformed into a woman along with all his followers.",
+  "importance": 0.46,
+  "themes": [
+    "divine transformation",
+    "Shiva and Parvati",
+    "royal hubris",
+    "curse or enchantment",
+    "gender change myth"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Ila rides into Shiva’s sacred forest and suddenly realizes that he and his entire army have been transformed into women.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Shiva, laughing beside Parvati among waterfalls, addresses the distressed transformed king in the enchanted forest.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Across the forest every creature and even the trees appear in female form under Shiva’s mysterious power.",
+      "visual_strength": 0.7
+    }
+  ]
+}

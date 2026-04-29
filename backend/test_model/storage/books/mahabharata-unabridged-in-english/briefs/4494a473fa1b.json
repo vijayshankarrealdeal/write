@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Markandeya begins a tale where the ascetic Kausika kills a crane in anger and confronts a devoted housewife who teaches him about restraint and marital duty.",
+  "importance": 0.62,
+  "themes": [
+    "anger and self-control",
+    "filial and marital duty",
+    "ascetic pride vs humility",
+    "power of chastity",
+    "brahminical authority"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A furious ascetic glaring upward beneath a tree as a crane suddenly falls dead from its branch.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A devoted housewife washing her husband's feet and serving him food while a waiting Brahmana stands at the doorway with a begging bowl.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "The calm housewife facing the wrathful ascetic and declaring, \"I am no crane,\" revealing she knows of the bird he burned with anger.",
+      "visual_strength": 0.86
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "rich_summary": "This section depicts the ferocious solo assault of Abhimanyu within the Kaurava ranks during the Kurukshetra war. Surrounded by numerous chariot-warriors, he fights with extraordinary speed and skill, slaying notable opponents such as Vasatiya and Rukmaratha and scattering entire divisions of Kshatriyas. The battlefield becomes a gruesome landscape of shattered chariots, severed limbs, and fallen standards as Abhimanyu cuts through enemy ranks. At one point he employs the Gandharva weapon learned from Arjuna, creating illusions that make him appear as many warriors at once, confounding his attackers. Though princes converge on him and momentarily obscure him with arrows, he destroys them in large numbers. The passage emphasizes Abhimanyu’s near-superhuman valor and the terror he inspires, even causing Duryodhana to feel fear despite initially believing the young hero doomed.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "The opening clash establishes the central image of Abhimanyu standing alone against a mass of warriors."
+    },
+    {
+      "start": 180,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Abhimanyu kills Vasatiya despite heavy attacks, highlighting his deadly precision and the emotional intensity of the fight."
+    },
+    {
+      "start": 600,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "The gruesome description of the battlefield strewn with severed limbs and broken chariots illustrates the epic scale and horror of war."
+    },
+    {
+      "start": 1200,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "The moment Abhimanyu uses the Gandharva weapon and appears as many warriors at once marks a dramatic turning point in the battle."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Abhimanyu alone in a golden coat of mail, surrounded by a ring of chariots while arrows streak through the air from every side.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "The battlefield carpeted with broken chariots, severed arms holding weapons, fallen standards, and glittering ornaments amid the dust of war.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Abhimanyu unleashing the Gandharva weapon, his form multiplying into dozens of blazing figures circling like a wheel of fire among confused enemies.",
+      "visual_strength": 0.96
+    }
+  ]
+}

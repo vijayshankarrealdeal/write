@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sanjaya explains the ancestral feud behind Bhurisravas humiliating Satyaki, then describes Arjuna racing at sunset through Kaurava warriors to reach Jayadratha.",
+  "importance": 0.6,
+  "themes": [
+    "ancestral feud",
+    "warrior lineage",
+    "vow and destiny",
+    "siege around Arjuna",
+    "approaching sunset deadline"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the crowded swayamvara arena, Sini throws Somadatta to the ground, seizes his hair, and places a foot upon him before thousands of watching kings.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Arjuna’s chariot with white horses charges through a storm of arrows as the red sun sinks low while Kaurava warriors encircle him to protect Jayadratha.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Karna stands alone in his chariot, body bloodied by arrows, still firing fiercely while Arjuna, Bhima, and Satyaki attack him together.",
+      "visual_strength": 0.78
+    }
+  ]
+}

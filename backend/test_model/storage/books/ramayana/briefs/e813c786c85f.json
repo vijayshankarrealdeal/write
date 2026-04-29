@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vasishtha urges Bharata to overcome grief and perform King Dasharatha’s funeral rites, culminating in the cremation on the Sarayu’s banks amid royal mourning.",
+  "importance": 0.7,
+  "themes": [
+    "funeral rites",
+    "grief and duty",
+    "royal mourning",
+    "filial devotion",
+    "Vedic ritual"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata mourns beside the gem-studded couch where the oil-preserved body of King Dasharatha lies appearing as if asleep.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Servitors carry Dasharatha’s bier through the palace while scattering gold coins and silver flowers and burning incense.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "On the banks of the Sarayu, priests chant Vedic hymns as the queens weep and circle the blazing sandalwood pyre of the king.",
+      "visual_strength": 0.9
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Angada delivers Rama’s ultimatum to Ravana; after escaping capture, the monkey army launches a massive assault on Lanka’s fortified walls, beginning the great battle.",
+  "importance": 0.72,
+  "themes": [
+    "war ultimatum",
+    "siege of Lanka",
+    "envoy diplomacy",
+    "heroic combat",
+    "army assault"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Angada, seized by four Rakshasas in Ravana’s court, suddenly leaps upward and lands on the golden palace terrace as his captors crash down below.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Millions of monkeys swarm the ramparts of Lanka, their yellow, red, and grey bodies covering the walls while dust clouds blot out the sun.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Monkeys tear down jeweled pillars and hurl catapults, stones, and weapons from the city walls into Lanka amid roaring battle with the Rakshasas.",
+      "visual_strength": 0.84
+    }
+  ]
+}

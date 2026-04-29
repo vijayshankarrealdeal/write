@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section centers on the humbling power of Time and the shifting nature of prosperity. The fallen Asura king Vali explains to Indra that neither gods nor heroes truly act independently; Time (identified with Brahman or cosmic eternity) governs creation, destruction, and the rise and fall of power. Even mighty rulers—countless Indras before the present one—are eventually swept away. After this discourse, the goddess Sree (Lakshmi), embodiment of prosperity, visibly departs from Vali and appears before Indra. She explains that she dwells where truth, generosity, discipline, sacrifice, and virtue prevail, and that Vali lost her through arrogance and impiety. At Indra’s request, she divides herself into four portions placed in earth, water, fire, and the virtuous among humans. The episode emphasizes impermanence, moral conduct as the basis of fortune, and Time’s ultimate sovereignty.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#F48FB1",
+      "why": "Vali’s opening declaration sets the tone of humiliation and philosophical reflection after his defeat."
+    },
+    {
+      "start": 340,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The pivotal claim that Time, not individuals, is the true agent behind creation and destruction."
+    },
+    {
+      "start": 1560,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The philosophical description equating Time with Brahman and the cosmic order."
+    },
+    {
+      "start": 3300,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Lakshmi explains the virtues—truth, gifts, vows, penance, and prowess—where prosperity truly resides."
+    },
+    {
+      "start": 5000,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The symbolic division of Lakshmi into earth, water, fire, and the virtuous, showing prosperity distributed through the moral and natural order."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The radiant goddess Sree emerging in blazing golden light from the defeated king Vali while Indra watches in astonishment.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "Vali, once mighty but now calm and reflective, speaking to Indra about the unstoppable power of Time while celestial light surrounds them.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Lakshmi dividing her luminous form into four streams that flow into the earth, waters, sacrificial fire, and virtuous humans.",
+      "visual_strength": 0.9
+    }
+  ]
+}

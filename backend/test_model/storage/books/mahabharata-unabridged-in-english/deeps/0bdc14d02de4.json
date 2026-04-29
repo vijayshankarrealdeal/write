@@ -1,0 +1,43 @@
+{
+  "rich_summary": "This section transitions from Vidura’s counsel to the philosophical teaching of the sage Sanat‑sujata. Dhritarashtra, troubled and curious, asks whether death truly exists. Sanat‑sujata replies with a metaphysical argument: what humans call death is not merely physical destruction but ignorance. Ignorance binds beings to desire, anger, pride, and attachment, which in turn keep them trapped in cycles of rebirth. Knowledge of Brahman—the true nature of the self—brings immortality. The dialogue also contrasts paths of ritual action, virtue, and renunciation, suggesting that while righteous deeds and sacrifices have value, true liberation comes through knowledge and mastery of desire. The passage matters because it introduces a major philosophical theme in the Mahabharata: inner ignorance, not physical death, is the real enemy, and self‑knowledge is the path to freedom.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Opening context connecting Vidura’s counsel and Dhritarashtra’s wavering mind, setting up the philosophical dialogue."
+    },
+    {
+      "start": 900,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Sanat‑sujata’s core claim that ignorance itself is death and knowledge is immortality."
+    },
+    {
+      "start": 1800,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "The vivid warning that desire, lust, and wrath destroy human beings and lead them toward ruin."
+    },
+    {
+      "start": 3200,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "Explanation that the universe is a transformation of the Supreme Soul, tying metaphysics to the discussion of liberation."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Vidura respectfully receiving the radiant sage Sanat‑sujata who suddenly appears in Dhritarashtra’s chamber as the blind king waits anxiously.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Sanat‑sujata teaching the blind king about death and ignorance, the sage calm and luminous while Dhritarashtra listens in shadow.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "An allegorical vision of humans driven by desire, lust, and wrath rushing toward a dark abyss while a serene sage stands apart in self‑knowledge.",
+      "visual_strength": 0.76
+    }
+  ]
+}

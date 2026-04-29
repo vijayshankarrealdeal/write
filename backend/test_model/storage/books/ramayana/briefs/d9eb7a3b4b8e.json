@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Parasurama confronts Rama after the bow-breaking, challenging him to string and fire another divine bow and prove his strength.",
+  "importance": 0.7,
+  "themes": [
+    "challenge of heroes",
+    "divine weapons",
+    "sage-warrior tension",
+    "royal fear",
+    "test of Rama"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Parasurama stands sternly before Rama holding the massive bow of Yamadagni while the anxious King Dasaratha pleads beside his son.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Parasurama presents the terrible bow forged by Vishwakarma, challenging Rama to string it as courtiers and sages watch in tense silence.",
+      "visual_strength": 0.72
+    }
+  ]
+}

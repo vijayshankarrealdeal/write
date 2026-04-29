@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada guides Matali through the Naga underworld—Patala and Hiranyapura—describing cosmic wonders, imprisoned Asuras, sacred phenomena, and searching unsuccessfully for a worthy bridegroom.",
+  "importance": 0.42,
+  "themes": [
+    "cosmic geography",
+    "underworld realms",
+    "Asuras and Danavas",
+    "divine wonders",
+    "search for a bridegroom"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the depths of Patala, the celestial elephant Airavata lifts cool water from the underworld seas to send it upward as rain for the world.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A mysterious radiant egg lies unmoving in dark waters of the underworld, said to unleash world‑ending fire at the end of time.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The golden and silver city of Hiranyapura gleams with gem-studded towers while fierce Danavas and Rakshasas dwell within its illusion-filled palaces.",
+      "visual_strength": 0.85
+    }
+  ]
+}

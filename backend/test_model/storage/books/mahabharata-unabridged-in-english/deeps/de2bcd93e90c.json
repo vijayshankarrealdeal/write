@@ -1,0 +1,31 @@
+{
+  "rich_summary": "Duryodhana secretly attempts to murder Bhima by mixing powerful poison into food and feeding it to him under the guise of friendship. After the princes finish playing in the water, the poison overwhelms Bhima; while he lies unconscious, Duryodhana binds him with creepers and throws him into the river. Bhima sinks into the realm of the Nagas (serpents), who bite him repeatedly—yet their venom counteracts the poison in his blood. When he awakens, he overpowers the snakes, but they bring their king Vasuki, who recognizes Bhima as kin through Aryaka. Welcomed and honored, Bhima drinks eight jars of a divine nectar that grants immense strength. Meanwhile, in Hastinapura, the others return without him. Kunti and Yudhishthira fear the worst, while Vidura counsels silence and faith that Bhima will return.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Introduces Duryodhana’s treachery—poisoning Bhima under the pretense of friendship."
+    },
+    {
+      "start": 121,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Shows the chilling contrast between friendly behavior and murderous intent, emphasizing betrayal among the princes."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Duryodhana secretly feeding Bhima poisoned food while smiling among the young princes in a royal garden pavilion.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Bhima bound with forest creepers and thrown into dark water as moonlight reflects off the surface.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "In the glowing Naga kingdom beneath the waters, Bhima drinks from great nectar vessels while serpents gather around him.",
+      "visual_strength": 0.9
+    }
+  ]
+}

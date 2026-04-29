@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma begins a tale of sage Chyavana’s extreme asceticism at the Ganga–Yamuna confluence, where fishermen accidentally drag him up with their net.",
+  "importance": 0.46,
+  "themes": [
+    "compassion for suffering",
+    "ascetic austerity",
+    "human–animal empathy",
+    "accidental harm",
+    "sacred rivers"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "At the confluence of the Ganga and Yamuna, the moss-covered sage Chyavana stands motionless in the rushing water like a wooden post.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Fishermen haul in a vast net from the river, revealing the green-bearded ascetic tangled among fish and shells.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The fishermen, shocked, fall prostrate with joined palms before the moss-covered sage lying among dying fish on the riverbank.",
+      "visual_strength": 0.76
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Introduces the Ramayana’s origins, Valmiki’s authorship, main storyline across seven books, and its moral and cultural significance in Hindu tradition.",
+  "importance": 0.45,
+  "themes": [
+    "epic overview",
+    "Valmiki authorship",
+    "Rama as ideal virtue",
+    "good versus evil allegory",
+    "cultural influence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The robber Valmiki stands in a forest confronting two calm ascetics who speak gently to him, beginning his transformation.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Princess Sita stands within flames during the ordeal by fire while Rama and assembled warriors watch in tense silence.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The monkey army builds a massive stone bridge across the sea toward the island fortress of Lanka.",
+      "visual_strength": 0.95
+    }
+  ]
+}

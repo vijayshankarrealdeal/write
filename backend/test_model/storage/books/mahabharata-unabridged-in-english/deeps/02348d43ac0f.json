@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Markandeya describes the catastrophic end of the current Yuga, when moral order collapses and cosmic disturbances signal the breakdown of the world. Social bonds decay: disciples defy teachers, families turn violent, charity disappears, and people wander in desperation amid famine, fires, eclipses, and ominous celestial signs. Nature itself reflects disorder with unseasonal rains, dim stars, and blazing horizons. Yet the destruction is not final. After this chaos, creation renews and the Krita (Satya) age begins. A Brahmana named Kalki is born in Sambhala, empowered with divine weapons and devoted to Vishnu. He destroys thieves, robbers, and impious peoples, restores righteousness, performs a great horse sacrifice, and reestablishes sacred social order. With virtue revived, agriculture prospers, rituals return, and society realigns with dharma, marking the cyclical rebirth of a just world.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Opens with the moral collapse of society, setting the tone for the degeneration that characterizes the end of the Yuga."
+    },
+    {
+      "start": 900,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Marks the pivotal turning point where destruction ends and the cycle of creation begins again."
+    },
+    {
+      "start": 1220,
+      "length": 110,
+      "color_hex": "#FFEB3B",
+      "why": "Introduces Kalki, the divinely empowered restorer of order whose appearance signals the renewal of dharma."
+    },
+    {
+      "start": 2140,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Evokes the emotional violence of the purge of wickedness, with cries of family members as thieves and robbers are destroyed."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A darkened sky filled with meteors and dim stars while multiple blazing suns appear as fires rage across the horizon and desperate people wander the earth.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Kalki, a radiant warrior-sage from Sambhala, suddenly armed with celestial weapons and armor, rides forth to restore order in a chaotic world.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "After the purge, peaceful lands flourish again with temples, gardens, and sages in forest hermitages as the Krita age dawns.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama renounces royal comforts, dons bark garments with Lakshmana and Sita, while court women and sage Vasishtha protest Sita’s exile and rebuke Kaikeyi.",
+  "importance": 0.64,
+  "themes": [
+    "renunciation of royalty",
+    "spousal devotion",
+    "courtly protest",
+    "dharma and kingship",
+    "Kaikeyi's defiance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the royal court, Rama gently ties rough bark garments over Sita’s silk sari as the palace women weep around them.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Kaikeyi stands unashamed in the assembly, holding out the bark robes to Rama while the stunned court watches.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Sita, confused and tearful, holds the awkward bark cloth around her neck like a startled doe while Rama steps forward to help her.",
+      "visual_strength": 0.88
+    }
+  ]
+}

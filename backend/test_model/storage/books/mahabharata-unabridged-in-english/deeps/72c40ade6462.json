@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Bhishma recounts teachings of the sage Parasara to King Janaka about death, rebirth, and the path to liberation. The passage first explains how the body, a temporary compound of impure elements driven by past desires, dissolves and reforms according to karma. After death the soul (jiva) wanders before taking another body, its destiny shaped by past acts. Ignorance is described as humanity’s single true enemy, overcome only by wisdom. Human birth is praised as a rare opportunity for righteous action, compassion, and spiritual discipline. In the dialogue, Parasara teaches that detachment is the root of good, knowledge the highest path, and non‑violence the greatest gift. Through renunciation, disciplined living, and insight into the soul’s nature, one may escape the cycle of birth and death and attain lasting happiness.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the doctrine that accidental death in a sacred place still leads to rebirth, emphasizing karma rather than location as the determining cause."
+    },
+    {
+      "start": 180,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Describes the human body as an impure composite driven by past desires, a vivid reminder of its impermanence and the illusory nature of bodily beauty."
+    },
+    {
+      "start": 1100,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "The declaration that ignorance is the single true enemy of humanity crystallizes the philosophical core of the teaching."
+    },
+    {
+      "start": 3100,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "Parasara’s statement that dissociation from attachments is the root of good and knowledge the highest path summarizes the spiritual program of renunciation and insight."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The soul drifting through the sky like a vast cloud after leaving the body, searching for a new form of birth.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A sage teaching King Janaka in a quiet forest hermitage while speaking about renunciation, karma, and the soul.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A symbolic image of ignorance as a dark foe pierced by arrows of radiant wisdom.",
+      "visual_strength": 0.77
+    }
+  ]
+}

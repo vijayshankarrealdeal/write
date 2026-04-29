@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma tells a tale of a Chandala cursed by contact with stolen Brahmin cattle’s milk, illustrating severe karmic consequences and redemption through self‑sacrifice for a Brahmana.",
+  "importance": 0.46,
+  "themes": [
+    "karmic retribution",
+    "sanctity of Brahmin property",
+    "pride and moral downfall",
+    "social hierarchy and purity",
+    "redemptive self-sacrifice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A dust-covered Chandala anxiously tries to wipe drops of milk from his body while dogs and donkeys wander around him on the roadside.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Stolen cows shake their bodies as milk sprays outward, symbolically bringing ruin upon the king and his descendants.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The Chandala throws himself into the chaos of battle to protect a Brahmana’s wealth, offering his life as a final sacrifice.",
+      "visual_strength": 0.78
+    }
+  ]
+}

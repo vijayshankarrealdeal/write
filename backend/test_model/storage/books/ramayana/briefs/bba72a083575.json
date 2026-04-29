@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sita glimpses Hanuman in the Ashoka grove, mistakes him for a terrifying vision or dream, and faints in fear and grief while calling for Rama.",
+  "importance": 0.72,
+  "themes": [
+    "first encounter",
+    "fear and doubt",
+    "devotion to Rama",
+    "grief in captivity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita in the Ashoka grove looks up in alarm at Hanuman crouching among flowering branches, shining like gold and lightning in white garments.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Terrified, Sita cries out 'O Rama, O Lakshmana!' as the small monkey figure watches respectfully from the tree above.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Overwhelmed by fear and confusion, Sita collapses unconscious beneath the Ashoka trees while Hanuman remains hidden in the branches.",
+      "visual_strength": 0.8
+    }
+  ]
+}

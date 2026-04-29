@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa warns Dhritarashtra to restrain Duryodhana and make peace with the exiled Pandavas, illustrating parental attachment through the tale of Indra and Suravi.",
+  "importance": 0.6,
+  "themes": [
+    "warning against envy",
+    "parental attachment",
+    "dharma and kinship",
+    "fate vs responsibility",
+    "plea for reconciliation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vyasa stands before the blind king Dhritarashtra in his court, raising a warning hand while courtiers listen in tense silence.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "In a celestial meadow, the cow-mother Suravi weeps as a weak young bull collapses under a plough while a farmer strikes it with a stick.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Indra in the heavens releases a sudden torrential rainstorm that halts the farmer’s plough and saves the struggling bull.",
+      "visual_strength": 0.74
+    }
+  ]
+}

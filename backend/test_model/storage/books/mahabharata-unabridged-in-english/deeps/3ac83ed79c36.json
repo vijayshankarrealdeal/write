@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Arjuna recounts the climax of his mysterious battle with the hunter who had challenged him. Despite unleashing volleys of arrows and divine weapons—including those of Wind, Varuna, and even Brahma—the opponent effortlessly absorbs or nullifies them, changing forms and overwhelming Arjuna in physical combat. When Arjuna collapses, the hunter reveals his true identity: the god Shiva, accompanied by Uma. Pleased by Arjuna’s courage and persistence, Shiva grants him the terrifying Pasupata weapon, warning it must never be used against ordinary mortals. Soon afterward the Lokapalas and Indra appear, bestow further celestial weapons, and invite Arjuna to heaven. Guided by Matali, Arjuna travels to Amaravati, learns divine arts and weaponry, and is eventually tasked by Indra to destroy the powerful ocean‑dwelling demons, the Nivata‑Kavachas, as his preceptor’s fee.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The opening intensity of Arjuna’s duel with the mysterious hunter, establishing the overwhelming combat and stakes."
+    },
+    {
+      "start": 200,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Arjuna’s use of mantra‑charged flaming arrows and the opponent’s supernatural multiplication marks the battle’s mythic scale."
+    },
+    {
+      "start": 800,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "The moment the hunter reveals himself as Shiva with Uma, transforming the conflict into a divine test and blessing."
+    },
+    {
+      "start": 1200,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Shiva grants the Pasupata weapon and warns of its universe‑destroying power, a pivotal empowerment of Arjuna."
+    },
+    {
+      "start": 2200,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "The celestial assembly of the Lokapalas and Indra recognizing Arjuna and granting him divine weapons."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Arjuna firing blazing mantra‑charged arrows at a shape‑shifting hunter who multiplies into countless forms during their supernatural duel.",
+      "visual_strength": 0.91
+    },
+    {
+      "scene_text": "The hunter transforming into Shiva beside Uma, holding the trident and Pinaka bow, as the defeated Arjuna kneels before him.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "Arjuna riding Indra’s celestial chariot with Matali through the sky, approaching the jeweled city of Amaravati and the gardens of Nandana.",
+      "visual_strength": 0.9
+    }
+  ]
+}

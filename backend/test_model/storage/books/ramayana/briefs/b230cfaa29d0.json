@@ -1,0 +1,20 @@
+{
+  "summary_1line": "King Janaka recounts the lineage of his dynasty from King Nimi to himself while explaining the customary recital of ancestry during marriage negotiations.",
+  "importance": 0.3,
+  "themes": [
+    "royal genealogy",
+    "marriage customs",
+    "dynastic succession",
+    "dharma and kingship"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Janaka stands before Sage Vasishtha in a royal court, respectfully recounting the long lineage of his ancestors.",
+      "visual_strength": 0.45
+    },
+    {
+      "scene_text": "An aged King Hraswaroma departs for the forest after handing the kingdom to his son Janaka and entrusting him with the care of Kushadwaja.",
+      "visual_strength": 0.6
+    }
+  ]
+}

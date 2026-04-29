@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Duryodhana boasts of defeating the Pandavas despite Bhishma’s warnings, while Vidura responds with a long discourse on the virtues and power of self‑restraint.",
+  "importance": 0.56,
+  "themes": [
+    "arrogance vs wisdom",
+    "self-restraint",
+    "war overconfidence",
+    "moral philosophy",
+    "counsel ignored"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Duryodhana stands defiantly in the Kuru court before Bhishma, boasting that he, Karna, and Dussasana will slay the five Pandavas.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Vidura calmly addresses the royal court, teaching the virtues of self-restraint while the proud princes listen uneasily.",
+      "visual_strength": 0.55
+    }
+  ]
+}

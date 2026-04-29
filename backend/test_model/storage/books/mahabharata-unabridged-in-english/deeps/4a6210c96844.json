@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section advances Duryodhana’s plot against the Pandavas. Delighted that Dhritarashtra has sent them to Varanavata, Duryodhana secretly instructs his agent Purochana to build a magnificent palace made of highly flammable materials—lac, resin, oil, hemp, and fat—while disguising it as a luxurious residence. Once the unsuspecting Pandavas settle there with Kunti, Purochana is to burn the house and make their deaths appear accidental. Meanwhile, the Pandavas depart respectfully from the Kuru elders and the citizens, who openly condemn Dhritarashtra’s injustice and express loyalty to Yudhishthira. Despite their grief, Yudhishthira urges the people to obey the king and return home, showing his commitment to duty and restraint even while walking into a deadly trap. The passage contrasts political treachery with moral integrity.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "The blessing given to the Pandavas as they depart foreshadows the perilous journey ahead and frames their exile with goodwill and hope."
+    },
+    {
+      "start": 420,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Duryodhana privately enlists Purochana, revealing the conspiracy that drives the famous lac-house plot."
+    },
+    {
+      "start": 860,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "The detailed instructions about building a palace with lac, oil, and other flammable materials expose the calculated nature of the assassination attempt."
+    },
+    {
+      "start": 1480,
+      "length": 150,
+      "color_hex": "#F48FB1",
+      "why": "The citizens’ lament highlights public sympathy for the Pandavas and outrage at Dhritarashtra’s perceived injustice."
+    },
+    {
+      "start": 1880,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Yudhishthira’s response emphasizes duty and obedience to the king, illustrating his moral character despite the injustice."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Duryodhana clasping Purochana’s hand in a shadowed chamber as he secretly describes the plan to build a deadly lac palace for the Pandavas.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Workers constructing the luxurious yet sinister lacquer palace at Varanavata, mixing resin, oil, and lac into the walls while disguising the danger.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The Pandavas and Kunti departing in chariots while grieving citizens and elders watch, some protesting the injustice as Yudhishthira calmly urges them to return home.",
+      "visual_strength": 0.9
+    }
+  ]
+}

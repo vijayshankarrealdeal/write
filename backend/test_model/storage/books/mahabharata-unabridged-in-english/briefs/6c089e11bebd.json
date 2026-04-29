@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Dhrishtadyumna reports that the disguised Pandavas won Draupadi and are living humbly in a potter’s house, prompting Drupada to send a priest to confirm their identities.",
+  "importance": 0.62,
+  "themes": [
+    "identity in disguise",
+    "Draupadi's marriage",
+    "royal recognition",
+    "humility of heroes"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna in deer-skin with red eyes strings the great bow and shoots down the high mark while Brahmanas crowd around him in awe.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Bhima uproots a massive tree and charges the gathered kings, scattering them like Yama striking down living beings.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Inside a humble potter’s hut, the five Pandavas sit on kusa grass around their mother while Draupadi lies near their feet after the day’s alms are shared.",
+      "visual_strength": 0.78
+    }
+  ]
+}

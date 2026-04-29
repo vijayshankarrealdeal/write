@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Pandu explains ancient marital customs and asks Kunti to obtain offspring through another man; Kunti reveals a mantra to summon gods for conception.",
+  "importance": 0.72,
+  "themes": [
+    "marriage customs",
+    "niyoga and lineage",
+    "moral law vs tradition",
+    "ascetic power",
+    "divine conception"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Pandu sits in the forest with folded hands before Kunti, pleading with her to raise offspring through another for the sake of the Kuru line.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Young Swetaketu watches in anger as a Brahmana takes his mother by the hand before his calm father Uddalaka.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Kunti recounts to Pandu how the fierce sage Durvasa granted her a mantra capable of summoning any god to give her a child.",
+      "visual_strength": 0.76
+    }
+  ]
+}

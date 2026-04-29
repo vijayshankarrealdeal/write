@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama kills Vali during his duel with Sugriva; Sita suffers captivity in Ashoka grove while Trijata consoles her with a prophetic dream of Ravana’s downfall.",
+  "importance": 0.78,
+  "themes": [
+    "Vali's death",
+    "Sita's captivity",
+    "prophetic dream",
+    "loyalty to Rama",
+    "Ravana's impending downfall"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama releases a powerful arrow from the forest that pierces Vali in the chest while he fights Sugriva amid shattered trees and stones.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Sita sits thin and sorrowful beneath Ashoka trees, surrounded by grotesque Rakshasa women with strange eyes and weapons.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Trijata recounts her dream of Ravana shaven and smeared with oil sinking into mire while Vibhishana rises crowned beneath a white umbrella.",
+      "visual_strength": 0.8
+    }
+  ]
+}

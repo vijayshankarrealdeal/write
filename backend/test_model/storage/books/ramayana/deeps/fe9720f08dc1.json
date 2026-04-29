@@ -1,0 +1,37 @@
+{
+  "rich_summary": "After Sita’s abduction, Rama wanders the forest in mounting grief and desperation. He sends Lakshmana to search the sacred Godaveri River, but Sita is nowhere to be found; even the river and forest spirits remain silent out of fear of Ravana. Questioning animals and the landscape itself, Rama receives a strange clue when deer gesture toward the south, hinting at the path of the abductor. Soon the brothers discover scattered flowers Sita had worn, broken weapons, shattered chariot parts, blood, and footprints of both Sita and a mighty titan, revealing a violent struggle. Believing demons may have killed or devoured her, Rama’s sorrow transforms into cosmic fury. He vows to unleash his divine power and, if the gods do not return Sita, threatens to destroy the Three Worlds themselves—revealing the terrifying scale of his latent divinity.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 12,
+      "color_hex": "#A5D6A7",
+      "why": "The opening situates the episode in the Aranya Kanda, the wilderness book where Rama’s grief and transformation begin."
+    },
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Rama’s early lament captures the emotional shock and despair immediately following Sita’s disappearance."
+    },
+    {
+      "start": 0,
+      "length": 300,
+      "color_hex": "#FFEB3B",
+      "why": "The passage introduces the frantic search and the haunting silence of nature, which refuses to reveal Ravana’s crime."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Rama stands on the bank of the Godaveri shouting Sita’s name into the forest while the silent river and shadowy spirits refuse to answer.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "A group of wild deer rise and repeatedly turn their heads toward the southern sky, guiding Rama and Lakshmana toward the path of Sita’s abductor.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Rama discovers a battlefield in the forest—broken chariot, shattered bow, scattered jewels, blood on the earth—and vows in cosmic fury to destroy the Three Worlds if Sita is not returned.",
+      "visual_strength": 0.95
+    }
+  ]
+}

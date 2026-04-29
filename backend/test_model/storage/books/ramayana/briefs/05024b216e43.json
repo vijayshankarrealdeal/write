@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Rama proposes performing the Rajasuya sacrifice, but Bharata respectfully argues against it due to the destruction and conflict it would cause among kings.",
+  "importance": 0.44,
+  "themes": [
+    "kingship and duty",
+    "fraternal counsel",
+    "sacrificial ritual",
+    "nonviolence vs conquest"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama sits in the royal court embracing Bharata and Lakshmana while announcing his wish to perform the mighty Rajasuya sacrifice.",
+      "visual_strength": 0.52
+    },
+    {
+      "scene_text": "Bharata stands with folded palms before Rama in the court, earnestly arguing that the Rajasuya would destroy many royal houses.",
+      "visual_strength": 0.64
+    }
+  ]
+}

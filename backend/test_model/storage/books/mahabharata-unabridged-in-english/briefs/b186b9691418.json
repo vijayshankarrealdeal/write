@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dhaumya instructs the Pandavas on proper conduct in a royal court before they journey toward Virata’s city and plan to hide their weapons for incognito exile.",
+  "importance": 0.55,
+  "themes": [
+    "court etiquette",
+    "loyalty to the king",
+    "incognito exile",
+    "preparation for disguise",
+    "strategy and secrecy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna lifts Draupadi like the leader of a herd of elephants and carries her through the dark forest toward the distant city of Virata.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The Pandavas stand beneath a huge, twisted Sami tree near a lonely cemetery as Arjuna prepares to hide the mighty Gandiva among its branches.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Dhaumya performs sacred fire rituals at night, flames rising as the Pandavas circle the fires before setting out into exile.",
+      "visual_strength": 0.77
+    }
+  ]
+}

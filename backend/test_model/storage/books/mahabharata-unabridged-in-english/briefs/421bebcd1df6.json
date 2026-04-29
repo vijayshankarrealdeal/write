@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhima captures and humiliates Jayadratha for abducting Draupadi; he is spared, performs penance to Shiva, and receives a boon to briefly check the Pandavas except Arjuna.",
+  "importance": 0.75,
+  "themes": [
+    "revenge and mercy",
+    "humiliation of a defeated king",
+    "austerity and divine boon",
+    "Arjuna's divine protection",
+    "cosmic mythology"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima leaps from his chariot, grabs the fleeing Jayadratha by the hair, and hurls him violently to the ground in the forest.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhima shaves Jayadratha’s head leaving five tufts while the defeated king kneels in dust and chains before the Pandavas.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "The god Shiva appears before the penitent Jayadratha performing severe austerities on the lonely bank where the Ganga meets the plains.",
+      "visual_strength": 0.7
+    }
+  ]
+}

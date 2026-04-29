@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sanjaya informs Dhritarashtra that Bhishma has fallen in battle, prompting the king’s grief-stricken questioning about how the seemingly invincible warrior was slain.",
+  "importance": 0.8,
+  "themes": [
+    "fall of a great warrior",
+    "grief and lamentation",
+    "fate and time",
+    "duty of Kshatriyas",
+    "battle narrative framing"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies on a bed of arrows upon the battlefield as the sun sets and warriors stand around the fallen grandsire.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Sanjaya stands before the blind king Dhritarashtra in the court, announcing with sorrow that Bhishma has been slain.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Bhishma, compared to a raging ocean of arrows, unleashes torrents of shafts while enemy soldiers recoil in fear.",
+      "visual_strength": 0.78
+    }
+  ]
+}

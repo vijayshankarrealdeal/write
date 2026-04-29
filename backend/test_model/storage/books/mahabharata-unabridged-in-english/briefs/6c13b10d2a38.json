@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma battles Parashurama for many days, witnesses terrifying omens when Rama falls, and receives a dream revelation of the Praswapa weapon to defeat him.",
+  "importance": 0.73,
+  "themes": [
+    "epic duel",
+    "divine intervention",
+    "omens and portents",
+    "dream revelation",
+    "celestial weapons"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Parashurama collapses unconscious to his knees as meteors fall, the sun darkens under Rahu, and blood-red rain pours from storm clouds over the battlefield.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Bhishma lies wounded at night and dreams of eight radiant Brahmanas standing around him, revealing the secret Praswapa weapon.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Parashurama’s blazing dart strikes Bhishma’s shoulder like lightning, blood streaming down as the warriors face each other amid dust-darkened sunlight.",
+      "visual_strength": 0.8
+    }
+  ]
+}

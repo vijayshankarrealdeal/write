@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Hanuman stealthily enters the Ashoka Grove in Lanka, marvels at its beauty, and hides in a tree hoping to spot the sorrowful Sita.",
+  "importance": 0.55,
+  "themes": [
+    "search for Sita",
+    "stealth and strategy",
+    "natural beauty of Ashoka Grove",
+    "devotion to Rama"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman leaps into the Ashoka Grove as startled birds take flight and a shower of multicolored blossoms falls over his body.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Hidden among the leaves of a golden Shingshapa tree, Hanuman scans the lush garden below hoping to glimpse the grieving Sita.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A sparkling river cascades from a hill like a fleeing maiden while tree branches brush the water as if trying to hold her back.",
+      "visual_strength": 0.68
+    }
+  ]
+}

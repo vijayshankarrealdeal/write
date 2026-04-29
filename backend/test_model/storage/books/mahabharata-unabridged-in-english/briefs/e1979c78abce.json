@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vidura delivers extensive moral and political counsel to Dhritarashtra on folly, virtue, governance, and the danger of conflict with the Pandavas.",
+  "importance": 0.6,
+  "themes": [
+    "wisdom vs folly",
+    "statecraft and counsel",
+    "virtue and self-restraint",
+    "loyalty and service",
+    "warning against Kuru conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vidura warns the blind king Dhritarashtra in his court while courtiers listen tensely to his harsh but truthful counsel.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "Vidura compares the Kauravas to a forest and the Pandavas to tigers, describing tigers moving through a dense forest landscape.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A hidden fire sleeping inside dry wood suddenly bursts into flames and spreads to consume an entire forest.",
+      "visual_strength": 0.7
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Vasishtha refuses King Viswamitra’s demand to exchange the divine cow Nandini even for a kingdom, explaining that she sustains sacred duties—sacrifices, guests, and the gods. Enraged, Viswamitra attempts to seize the cow by force. Nandini, loyal to her sage, pleads for protection. Vasishtha, committed to forgiveness rather than violence, allows her to act if she wishes. The cow then manifests terrifying power: from different parts of her body emerge vast armies of many tribes that rout Viswamitra’s forces without killing them. Witnessing this miracle, Viswamitra realizes that spiritual power surpasses royal might. Disgusted with Kshatriya strength, he renounces his kingdom and undertakes fierce asceticism, eventually attaining Brahmanhood. The episode illustrates a central theme of the epic: the superiority of spiritual discipline and inner power over worldly authority and military force.",
+  "highlight_spans": [
+    {
+      "start": 173,
+      "length": 55,
+      "color_hex": "#FFEB3B",
+      "why": "Vasishtha’s firm refusal to give Nandini establishes the conflict and the sacred value of the cow."
+    },
+    {
+      "start": 900,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The statement contrasting Kshatriya strength with Brahmanical forgiveness expresses the chapter’s central philosophical theme."
+    },
+    {
+      "start": 1180,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Nandini’s transformation into a wrathful, supernatural force marks the emotional and dramatic turning point of the episode."
+    },
+    {
+      "start": 1960,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "Viswamitra’s realization that ascetic power surpasses martial power motivates his life‑changing decision to pursue tapas."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The divine cow Nandini, eyes blazing red, stands before Vasishtha while Viswamitra’s soldiers try to drag her away from the forest hermitage.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "From Nandini’s body erupt fantastical armies of many tribes, pouring out amid showers of fire and weapons as they overwhelm Viswamitra’s troops.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Viswamitra stands amid the routed remnants of his army, staring in stunned realization as the peaceful hermitage and the mighty cow embody the superior power of asceticism.",
+      "visual_strength": 0.8
+    }
+  ]
+}

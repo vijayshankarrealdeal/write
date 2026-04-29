@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Bharata tells Rama that their father Dasaratha died of grief after Rama’s exile and urges Rama to return to Ayodhya and take the throne.",
+  "importance": 0.7,
+  "themes": [
+    "filial duty",
+    "kingship and dharma",
+    "grief",
+    "brotherly loyalty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata stands before Rama in the forest, sorrowfully announcing that King Dasaratha died grieving for his exiled son.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Rama, Sita, and Lakshmana listen in shock as Bharata recounts their father’s death beneath the forest trees.",
+      "visual_strength": 0.74
+    }
+  ]
+}

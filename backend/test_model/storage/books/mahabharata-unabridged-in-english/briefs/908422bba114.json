@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Janamejaya asks about the Pandavas’ forest exile as they depart Hastinapura after the dice defeat, followed by grieving citizens praising their virtue.",
+  "importance": 0.45,
+  "themes": [
+    "exile",
+    "public loyalty",
+    "virtue vs wickedness",
+    "aftermath of dice game"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The Pandavas, armed and solemn, walk out of Hastinapura’s Vardhamana gate with Draupadi as grieving citizens follow behind.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Crowds of citizens with folded hands plead with the departing Pandavas not to abandon them as they stand on the road outside the city.",
+      "visual_strength": 0.72
+    }
+  ]
+}

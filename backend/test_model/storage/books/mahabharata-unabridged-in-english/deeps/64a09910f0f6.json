@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Yudhishthira notices Krishna sitting in deep meditation and wonders at the cosmic stillness of his yogic state. When Krishna returns to ordinary awareness, he explains that his mind had been fixed upon Bhishma, who lies dying on a bed of arrows and is contemplating him. Krishna praises Bhishma’s unmatched prowess, learning, and moral wisdom, warning that when Bhishma departs the world, vast knowledge will vanish with him. He urges Yudhishthira to approach the grandsire and question him about kingship, duty, morality, and the paths of life before his passing. As the sun begins its northern course, sages gather around the dying hero. Bhishma, radiant despite his wounds, fixes his mind on Krishna and offers an immense hymn praising him as the supreme cosmic being—source, sustainer, and dissolution of the universe—expressed through countless divine forms.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Shows the devotional tone toward Krishna and frames the scene where divine presence and royal duty intersect."
+    },
+    {
+      "start": 400,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Yudhishthira marvels at Krishna’s deep yogic meditation, emphasizing Krishna’s divine self-mastery and cosmic awareness."
+    },
+    {
+      "start": 1200,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna explains that his meditation was fixed on Bhishma, revealing the deep spiritual bond and Bhishma’s towering stature."
+    },
+    {
+      "start": 2200,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The poignant warning that when Bhishma dies, the world will lose immense knowledge, motivating Yudhishthira to seek his counsel."
+    },
+    {
+      "start": 3400,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Bhishma’s hymn portraying Krishna as the cosmic principle behind creation, sacrifice, time, and all existence."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna sits perfectly still in deep meditation while Yudhishthira watches in awe, the atmosphere calm and sacred.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Bhishma lies on his bed of arrows surrounded by legendary sages as he gazes toward Krishna and begins his cosmic hymn.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The radiant chariot of Krishna, adorned with gold, jewels, and Garuda’s banner, is prepared with swift celestial horses.",
+      "visual_strength": 0.82
+    }
+  ]
+}

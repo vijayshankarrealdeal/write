@@ -1,0 +1,20 @@
+{
+  "summary_1line": "After hearing Hanuman’s report on Sita, Angada proposes attacking Lanka immediately, but the wise Jambavan insists they obey Rama’s command and report back first.",
+  "importance": 0.56,
+  "themes": [
+    "obedience to command",
+    "strategic restraint",
+    "loyalty to Rama",
+    "warrior pride vs wisdom"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Angada stands among the gathered monkeys on the seashore, passionately proposing the immediate destruction of Lanka.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "The aged bear-king Jambavan calmly addresses the excited monkey warriors, urging them to return to Rama instead of attacking Lanka.",
+      "visual_strength": 0.58
+    }
+  ]
+}

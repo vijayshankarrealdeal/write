@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Gandhari warns Dhritarashtra that Duryodhana will destroy their race, but he fatalistically allows another dice game with the Pandavas.",
+  "importance": 0.72,
+  "themes": [
+    "fate vs responsibility",
+    "maternal warning",
+    "political folly",
+    "family loyalty",
+    "impending destruction"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Blind king Dhritarashtra sits on his throne while the blindfolded Gandhari stands before him pleading passionately to stop the ruin of their race.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Gandhari, veiled and anguished, raises her hands in warning as courtiers watch silently in the dim royal hall.",
+      "visual_strength": 0.63
+    }
+  ]
+}

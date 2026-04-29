@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts Indra finding the fallen king Vali reborn as an ass, who teaches equanimity in prosperity and adversity.",
+  "importance": 0.62,
+  "themes": [
+    "impermanence of power",
+    "equanimity",
+    "karma and rebirth",
+    "humility",
+    "wisdom in adversity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra, radiant on the white elephant Airavata, discovers the once-mighty king Vali living as a humble ass inside a deserted chamber.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The ass-form of Vali calmly addresses the triumphant Indra while recalling the lost golden umbrella, jeweled garlands, and dancing Gandharvas of his former glory.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "A symbolic vision of Vali’s past splendor—celestial dancers, a golden sacrificial stake, and vast herds of cattle—contrasted with his present life eating chaff.",
+      "visual_strength": 0.72
+    }
+  ]
+}

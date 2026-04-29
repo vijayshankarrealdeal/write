@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Brahma instructs the gods to incarnate as monkey warriors to aid Vishnu’s mission against Ravana, resulting in the birth of powerful figures like Hanuman, Sugriva, and Bali.",
+  "importance": 0.7,
+  "themes": [
+    "divine incarnation",
+    "alliance against Ravana",
+    "origins of the vanara heroes",
+    "cosmic cooperation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Brahma addresses the assembled gods in heaven, commanding them to take birth on earth as mighty monkey warriors to aid Vishnu.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The wind god Pavana blesses the birth of Hanuman, the infant monkey hero radiant and powerful like a diamond.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Millions of powerful monkey warriors roam the forests, uprooting trees and shaking mountains with their immense strength.",
+      "visual_strength": 0.74
+    }
+  ]
+}

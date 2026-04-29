@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dhritarashtra renounces the palace for forest life; the royal family and citizens lament, and Kunti decides to accompany him and Gandhari.",
+  "importance": 0.62,
+  "themes": [
+    "renunciation",
+    "royal duty and penance",
+    "family grief",
+    "atonement",
+    "departure from the city"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Kunti walks ahead guiding the blindfolded Gandhari by the shoulder while the aged blind Dhritarashtra follows with his hand resting on Gandhari as mourners surround them.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Women of Hastinapura pour into the streets weeping as Dhritarashtra, dressed in bark and deer-skin, slowly leaves the palace for the forest.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Yudhishthira collapses in grief before the departing Dhritarashtra while the Pandavas and courtiers stand around with tear-filled eyes.",
+      "visual_strength": 0.78
+    }
+  ]
+}

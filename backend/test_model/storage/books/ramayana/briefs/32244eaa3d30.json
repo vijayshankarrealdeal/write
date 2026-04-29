@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Angada and the monkey heroes celebrate Hanuman’s success by raiding Sugriva’s protected Madhuvana grove, feasting on honey and fruit in exuberant revelry.",
+  "importance": 0.5,
+  "themes": [
+    "victory celebration",
+    "loyalty to Rama",
+    "monkey revelry",
+    "sacred grove"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The monkey army led by Angada and Hanuman leaps down from Mount Mahendra, filling the sky like moving mountains.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Hundreds of monkeys swarm the honey-filled trees of Madhuvana, breaking branches and drinking honey while bees scatter.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Drunken monkeys dance, clap, and leap from tree to tree in the sacred grove, some arguing while others sing and laugh.",
+      "visual_strength": 0.74
+    }
+  ]
+}

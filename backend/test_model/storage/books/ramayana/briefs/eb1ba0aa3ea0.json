@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Minister Sumantra angrily condemns Queen Kaikeyi for banishing Rama, accusing her of destroying the king, defying tradition, and following her mother's cruel example.",
+  "importance": 0.63,
+  "themes": [
+    "loyalty to Rama",
+    "condemnation of Kaikeyi",
+    "dynastic duty",
+    "moral rebuke",
+    "family legacy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sumantra, trembling with rage, points accusingly at Queen Kaikeyi in the palace while the grief-stricken court looks on.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "King Dasaratha lies collapsed on the floor as the queens weep around him, while Kaikeyi sits apart unmoved.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Sumantra recounts the tale of Kaikeyi’s parents as the court listens, his red eyes and clenched fists showing fury.",
+      "visual_strength": 0.55
+    }
+  ]
+}

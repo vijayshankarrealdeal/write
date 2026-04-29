@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama praises Lakshmana’s loyalty, urges diligence in royal duties, and begins recounting King Nriga’s story about a mistaken gift of a cow.",
+  "importance": 0.42,
+  "themes": [
+    "brotherly loyalty",
+    "kingship duties",
+    "charity to brahmins",
+    "moral consequences",
+    "ancient exempla"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama speaks warmly to Lakshmana in the royal court while attendants and ministers wait nearby.",
+      "visual_strength": 0.48
+    },
+    {
+      "scene_text": "King Nriga donates countless cows with gilded horns and calves to gathered brahmins during a sacred pilgrimage at Pushkara.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A weary brahmin calls out to his lost cow, and the animal recognizes his voice and walks toward him from another brahmin’s dwelling.",
+      "visual_strength": 0.67
+    }
+  ]
+}

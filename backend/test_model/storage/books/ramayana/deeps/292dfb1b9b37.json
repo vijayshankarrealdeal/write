@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Manthara successfully poisons Queen Kaikeyi’s mind against Rama. Kaikeyi angrily declares her intention to prevent Rama’s coronation and asks how Bharata might instead gain power. Manthara reminds her of a past battlefield episode during a war between the devas and asuras: when King Dasaratha was wounded, Kaikeyi saved him, and he granted her two unclaimed boons. Manthara now urges her to use them—demand Bharata’s coronation and exile Rama for fourteen years so that people will forget him and accept Bharata’s rule. She also instructs Kaikeyi to manipulate Dasaratha emotionally by lying in the “chamber of wrath” and refusing to speak until he renews his promise. Flattered by Manthara and convinced by her scheme, Kaikeyi commits fully to the plot that will trigger Rama’s exile and the epic’s central turning point.",
+  "highlight_spans": [
+    {
+      "start": 150,
+      "length": 90,
+      "color_hex": "#F48FB1",
+      "why": "Kaikeyi’s first angry declaration that she will banish Rama and secure the throne for Bharata."
+    },
+    {
+      "start": 640,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The recollection of the ancient battle between devas and asuras where Kaikeyi saved Dasaratha and earned two boons."
+    },
+    {
+      "start": 1110,
+      "length": 95,
+      "color_hex": "#FFEB3B",
+      "why": "Manthara’s pivotal strategy: demand Bharata’s coronation and Rama’s fourteen‑year exile."
+    },
+    {
+      "start": 1500,
+      "length": 110,
+      "color_hex": "#A5D6A7",
+      "why": "Instructions for the dramatic political theater—Kaikeyi must enter the ‘chamber of wrath’ and emotionally compel the king."
+    },
+    {
+      "start": 2850,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Kaikeyi’s final vow that either Rama will go into exile and Bharata rule, or Dasaratha will hear of her death."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In a shadowed palace chamber, the hunchback Manthara whispers her scheme while the furious Queen Kaikeyi rises from her couch, eyes blazing with ambition.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A mythic battlefield flashback: Dasaratha lies wounded amid a night war between devas and asuras while Kaikeyi courageously lifts him from the chariot as magical weapons blaze around them.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Kaikeyi throws off her pearl necklace and collapses on the floor of the chamber of wrath, vowing that Rama must be exiled while Manthara watches beside her.",
+      "visual_strength": 0.8
+    }
+  ]
+}

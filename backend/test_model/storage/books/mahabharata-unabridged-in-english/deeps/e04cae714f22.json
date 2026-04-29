@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Kunti secretly meets Karna before the Kurukshetra war and reveals the truth of his birth: he is her firstborn son, fathered by the sun‑god Surya, and therefore the eldest of the Pandavas rather than a charioteer’s son. She urges him to join his brothers and reclaim royal honor beside Arjuna. Surya himself confirms her words, but Karna refuses. Bound by loyalty to Duryodhana, who honored and supported him when others scorned him, Karna argues that abandoning the Kauravas now would be dishonorable. Yet he grants Kunti a painful compromise: he will spare Yudhishthira, Bhima, Nakula, and Sahadeva, fighting only Arjuna. Thus Kunti will still have five sons—either Arjuna or Karna will die. The scene highlights Karna’s tragic nobility and the crushing power of duty, loyalty, and fate.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Kunti reveals the central secret: Karna is her son, not a charioteer’s child."
+    },
+    {
+      "start": 220,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Kunti explains Karna’s divine birth from Surya and urges him to join his brothers."
+    },
+    {
+      "start": 900,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "The sun‑god Surya confirms Kunti’s claim, strengthening the moral weight of her plea."
+    },
+    {
+      "start": 1300,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Karna declares his loyalty to Duryodhana, emphasizing gratitude and warrior honor over blood ties."
+    },
+    {
+      "start": 1700,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Karna’s tragic promise that Kunti will still have five sons—either he or Arjuna will die."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Kunti standing before Karna at dawn by the river, revealing his divine birth as sunlight blazes behind him like a halo of Surya.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A radiant voice of Surya emerging from the blazing solar disk in the sky while Karna listens, conflicted yet resolute.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Kunti trembling and embracing the unmoving Karna after his vow, both figures separated by fate as they prepare to walk away in opposite directions.",
+      "visual_strength": 0.88
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sanjaya describes northern mythic islands, oceans of unusual substances, sacred mountains, divine beings, and cosmic elephants controlling winds and sustaining life.",
+  "importance": 0.36,
+  "themes": [
+    "mythic cosmology",
+    "sacred geography",
+    "divine guardians",
+    "utopian lands",
+    "cosmic order"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Four colossal celestial elephants stand at the corners of a star-shaped realm, drawing in roaring winds with their lotus-colored trunks.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A radiant golden mountain in Kusadwipa rises amid coral-studded slopes while the god Narayana dwells upon it among liberated beings.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Vast mythic oceans of clarified butter, curds, and wine encircle distant northern islands under a luminous sky.",
+      "visual_strength": 0.74
+    }
+  ]
+}

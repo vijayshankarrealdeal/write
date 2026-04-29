@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Virata reconciles with the Pandavas, offers his daughter Uttara to Arjuna, who instead arranges her marriage to his son Abhimanyu amid a grand royal gathering.",
+  "importance": 0.7,
+  "themes": [
+    "alliance through marriage",
+    "honor and reputation",
+    "end of exile",
+    "royal diplomacy",
+    "celebratory rites"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Virata warmly embraces Yudhishthira and the Pandavas in his palace hall, overwhelmed with joy at their revealed identities.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Princess Uttara, adorned with jewels and gold, is led by royal women into the wedding hall where Abhimanyu awaits amid music and conch blasts.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Krishna arrives with a vast host of warriors, elephants, chariots, and horses filling the city of Matsya during the grand wedding celebration.",
+      "visual_strength": 0.8
+    }
+  ]
+}

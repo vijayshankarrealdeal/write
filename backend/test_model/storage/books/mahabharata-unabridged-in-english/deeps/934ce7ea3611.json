@@ -1,0 +1,49 @@
+{
+  "rich_summary": "In the thirty‑sixth year after the Kurukshetra war, ominous signs appear across the world. News soon reaches the Pandavas that the Yadava clans—Vrishnis, Andhakas, and Bhojas—have destroyed themselves. The calamity traces back to a curse: when the Yadavas mock visiting sages, they are told that Samba will give birth to an iron bolt that will annihilate their race. Though the bolt is ground to powder and cast into the sea, fate unfolds. At Prabhasa, drunken quarrels erupt among the Yadava heroes; blades of grass transform into iron bolts and they slaughter one another. Balarama departs through yogic transformation, Krishna is later struck by the hunter Jara, and Dvaraka falls. Arjuna rescues the survivors but finds his divine power fading, signaling the end of the heroic age.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 15,
+      "color_hex": "#A5D6A7",
+      "why": "Opening identification of the epic source, situating the reader in the Mahabharata's final tragic movement."
+    },
+    {
+      "start": 520,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Description of terrifying omens that foreshadow the destruction of the Yadava race and signal Time's approach."
+    },
+    {
+      "start": 1620,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The curse of the sages predicting that Samba will produce the iron bolt that destroys the Vrishnis and Andhakas."
+    },
+    {
+      "start": 6400,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The drunken quarrel leading Satyaki to kill Kritavarma, igniting the catastrophic fratricidal battle."
+    },
+    {
+      "start": 11800,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Krishna's final moments when the hunter Jara mistakes him for a deer and strikes his heel."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "At Prabhasa, drunken Yadava warriors tear up blades of eraka grass that transform into glowing iron bolts as they turn on one another in a chaotic twilight battlefield.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Balarama sits beneath a tree in meditation as a vast white thousand‑headed serpent emerges from his mouth and glides toward the ocean while divine serpents gather to receive him.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Krishna lies peacefully in yogic repose in a forest clearing when the hunter Jara releases an arrow, realizing too late that the radiant figure in yellow robes is no deer.",
+      "visual_strength": 0.9
+    }
+  ]
+}

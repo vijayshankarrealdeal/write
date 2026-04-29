@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Drona and Yudhishthira clash with celestial weapons while Duryodhana urges Karna to save the army, leading to a heated boastful dispute between Karna and Kripa.",
+  "importance": 0.6,
+  "themes": [
+    "celestial weapons duel",
+    "battlefield morale",
+    "boasting vs proven valor",
+    "fate and destiny",
+    "loyalty to kings"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Drona and Yudhishthira stand on their chariots unleashing blazing celestial weapons that collide in the darkened sky as frightened warriors watch.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Karna, armored and proud beside Duryodhana’s chariot, vows to kill Arjuna while the war-torn battlefield roars around them.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Kripa smiles coldly as he rebukes Karna before the Kaurava leaders, accusing him of empty boasts in the midst of the war council.",
+      "visual_strength": 0.58
+    }
+  ]
+}

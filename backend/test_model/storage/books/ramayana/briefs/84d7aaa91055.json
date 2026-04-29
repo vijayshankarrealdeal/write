@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Vasishtha explains creation and recites the Solar dynasty lineage to persuade Rama to uphold royal duty and return to Ayodhya.",
+  "importance": 0.5,
+  "themes": [
+    "royal lineage",
+    "cosmic creation",
+    "dharma and duty",
+    "persuasion of Rama"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sage Vasishtha stands before Rama in the forest, raising his hand as he solemnly recounts the ancient lineage of kings.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Queen Kalindi bows before the sage Chyavana in the Himalayan hermitage as he prophesies the birth of her son Sagara.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The newborn Sagara, radiant like Brahma, lies beside his mother after surviving the poison meant to destroy him.",
+      "visual_strength": 0.65
+    }
+  ]
+}

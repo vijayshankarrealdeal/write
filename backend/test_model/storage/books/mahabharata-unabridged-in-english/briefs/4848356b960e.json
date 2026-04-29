@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Tapati leaves Samvarana; after twelve days of devotion, sage Vasishtha secures her from Surya for the king and praises the power of a righteous priest.",
+  "importance": 0.62,
+  "themes": [
+    "divine marriage arrangement",
+    "ascetic devotion",
+    "authority of sages",
+    "royal duty and priesthood"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Tapati rises into the sky leaving the lovestruck King Samvarana collapsed on the forest floor.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Sage Vasishtha stands before the radiant sun-god Surya in the heavens, asking for Tapati’s hand for the king.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Tapati descends from the clouds like lightning as Vasishtha leads her toward the waiting King Samvarana.",
+      "visual_strength": 0.8
+    }
+  ]
+}

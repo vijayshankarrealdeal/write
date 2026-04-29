@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Matanga performs extreme penance to gain Brahmana status, but Indra repeatedly insists that such status cannot be attained by one born a Chandala.",
+  "importance": 0.55,
+  "themes": [
+    "caste hierarchy",
+    "ascetic penance",
+    "divine intervention",
+    "social mobility and fate",
+    "spiritual perseverance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Matanga stands motionless on one foot in the forest for centuries, emaciated and radiant with ascetic fire as Indra appears before him in the sky.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The god Indra confronts the austere Matanga amid the wilderness, warning him that the status of a Brahmana is unattainable despite his severe penance.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "A gaunt Matanga, after a thousand years of standing on one foot in meditation, asks Indra why he has still not gained the status of a Brahmana.",
+      "visual_strength": 0.7
+    }
+  ]
+}

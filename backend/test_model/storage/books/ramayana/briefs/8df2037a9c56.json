@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sugriva deduces from the monkeys’ revelry that Sita has been found and reassures the grieving Rama while the monkey army returns in triumph.",
+  "importance": 0.62,
+  "themes": [
+    "hope after despair",
+    "inference and leadership",
+    "loyalty of allies",
+    "humility of Angada",
+    "anticipation of Sita’s discovery"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sugriva confidently speaks to the grief-stricken Rama while Lakshmana watches, as distant monkey warriors fill the sky with jubilant cries.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Angada and Hanuman lead thousands of monkeys leaping into the sky together, the air crowded like stones shot from a mortar.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Dadhimukha stands with folded palms before Angada in the honey-ruined Madhuvana grove, pleading for forgiveness.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna destroys the Nivatakavachas and the aerial city Hiranyapura, wielding divine weapons including the Raudra, earning Indra’s praise.",
+  "importance": 0.7,
+  "themes": [
+    "divine weapons",
+    "Arjuna’s heroism",
+    "destruction of asuras",
+    "destiny and boons",
+    "cosmic warfare"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna releases the Raudra weapon as a three‑headed, nine‑eyed fiery being manifests and countless monstrous forms flood the battlefield.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The jewel‑studded aerial city Hiranyapura glides through sky, water, and earth while Arjuna’s arrows batter its shining towers.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "After the battle, the disheveled wives of the slain Asuras rush from the shattered city, crying and beating their breasts amid fallen ornaments.",
+      "visual_strength": 0.7
+    }
+  ]
+}

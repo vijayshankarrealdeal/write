@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna asks about Brahman; Krishna recounts a teacher explaining that truth, knowledge, and renunciation lead to realizing the soul and attaining emancipation.",
+  "importance": 0.72,
+  "themes": [
+    "Brahman and ultimate truth",
+    "knowledge and renunciation",
+    "guru-disciple dialogue",
+    "unity of existence",
+    "emancipation (moksha)"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A humble disciple sits with folded hands before his ascetic teacher in a forest hermitage, asking about the highest truth.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "A vast cosmic tree symbolizing existence spreads its branches of consciousness and senses, while a seeker cuts it with the sword of knowledge.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Ancient sages stand before Brahma seated in radiant calm, bowing as they ask about truth, sin, and liberation.",
+      "visual_strength": 0.8
+    }
+  ]
+}

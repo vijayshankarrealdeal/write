@@ -1,0 +1,55 @@
+{
+  "rich_summary": "Sita, imprisoned in Lanka, falls into deep despair, believing Rama may be dead or unaware of her survival. Surrounded by threatening demonesses, she contemplates death rather than life without him. At this moment the aged rakshasi Trijata intervenes, recounting a prophetic dream that terrifies the others. In her vision, Rama and Lakshmana appear in dazzling celestial splendor, traveling through the sky and ultimately reunited with Sita, who shines beside Rama like light beside the sun. The dream then shifts to ominous symbols: Ravana humiliated, drunken, dragged toward death, while Lanka burns and sinks into ruin. Vibhishana alone appears honored beneath a white canopy. Trijata interprets the dream as a clear omen—the destruction of the rakshasas and the imminent victory of Rama—warning the demonesses that tormenting Sita will bring their annihilation.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 33,
+      "color_hex": "#F48FB1",
+      "why": "Sita’s opening lament immediately establishes her despair and vulnerability in captivity."
+    },
+    {
+      "start": 34,
+      "length": 90,
+      "color_hex": "#F48FB1",
+      "why": "Her grief intensifies as she imagines Rama gone or unaware of her suffering, heightening the emotional stakes."
+    },
+    {
+      "start": 620,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The dream begins with a striking divine vision: Rama and Lakshmana riding a celestial chariot drawn by swans."
+    },
+    {
+      "start": 760,
+      "length": 110,
+      "color_hex": "#A5D6A7",
+      "why": "Sita’s symbolic reunion with Rama—'as the light with the sun'—captures the mythic unity of the couple."
+    },
+    {
+      "start": 1180,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Ravana’s humiliating and chaotic downfall in the dream foreshadows the collapse of his power."
+    },
+    {
+      "start": 1620,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "The destruction of Lanka and the survival of Vibhishana serve as prophetic markers of the coming war and moral order."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A radiant celestial chariot of ivory drawn by a hundred white swans carries Rama and Lakshmana across the sky in shining garments.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Sita stands on a snow‑white mountain surrounded by the sea as Rama approaches and she reunites with him in a blaze of light.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Ravana, drunken and disheveled, is dragged by a dark red‑clad woman toward the realm of death while burning Lanka collapses into the sea.",
+      "visual_strength": 0.97
+    }
+  ]
+}

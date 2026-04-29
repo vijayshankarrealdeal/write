@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Damayanti sends Brahmanas to search for Nala; a report from Ayodhya hints that the disguised charioteer Vahuka may be Nala, prompting her secret plan.",
+  "importance": 0.72,
+  "themes": [
+    "marital devotion",
+    "search for lost husband",
+    "disguise and identity",
+    "strategic deception",
+    "royal duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Damayanti, tearful yet resolute, instructs assembled Brahmanas to proclaim her lament for the husband who abandoned her in the forest.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "In Ayodhya’s court, the misshapen charioteer Vahuka quietly weeps while speaking about the duty of a chaste wife.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Damayanti privately urges Sudeva to ride swiftly to Ayodhya with the false announcement of her second swayamvara.",
+      "visual_strength": 0.66
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains which foods offered in Sraddha please the ancestors and for how long, highlighting sesame, meats, and certain offerings that become inexhaustible.",
+  "importance": 0.46,
+  "themes": [
+    "ancestor worship",
+    "ritual offerings",
+    "merit and afterlife",
+    "sacred foods",
+    "Sraddha rites"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Under a vast banyan tree at Gaya, a devotee pours offerings of rice, honey, and water for his ancestors upon the ground.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A ritual plate of sesame, rice, fruits, and bowls of meat is laid before a sacred fire as a priest performs the Sraddha for the Pitris.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "A devotee offers a bowl of sweet payasa mixed with ghee beneath the shadow of a great elephant during a solemn ancestral rite.",
+      "visual_strength": 0.74
+    }
+  ]
+}

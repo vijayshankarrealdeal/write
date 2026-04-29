@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Durvasa and thousands of disciples visit the exiled Pandavas; Draupadi prays to Krishna, whose miracle fills the sages so they flee before eating.",
+  "importance": 0.78,
+  "themes": [
+    "divine intervention",
+    "hospitality duty",
+    "devotion to Krishna",
+    "danger from Durvasa",
+    "exile of Pandavas"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Draupadi, anxious and prayerful in the forest hut, raises her hands while invoking Krishna for help.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Krishna examines the empty vessel and eats a single grain of rice stuck to its rim.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Durvasa and his thousands of disciples, suddenly feeling full after bathing in the river, look at each other in alarm before fleeing into the forest.",
+      "visual_strength": 0.85
+    }
+  ]
+}

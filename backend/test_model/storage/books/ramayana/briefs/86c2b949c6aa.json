@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Hanuman, Angada, and the monkey search party scour the cursed, lifeless Vindhya wilderness but fail to find Sita or Ravana.",
+  "importance": 0.38,
+  "themes": [
+    "search for Sita",
+    "desolate cursed forest",
+    "monkey expedition",
+    "sage's curse"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman, Angada, and weary monkey warriors traverse a barren forest of leafless trees and dry riverbeds under a harsh sky.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "A lone ascetic sage Kandu stands amid the empty wilderness, his grief and curse leaving the forest lifeless and silent.",
+      "visual_strength": 0.55
+    }
+  ]
+}

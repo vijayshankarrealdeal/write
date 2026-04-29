@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Chyavana foretells the future linking Kusika’s line with the Bhrigus and the rise of Viswamitra and Parashurama, after which Bhishma explains the rewards of penance and gifts.",
+  "importance": 0.6,
+  "themes": [
+    "prophecy and destiny",
+    "brahmin–kshatriya relations",
+    "ascetic power",
+    "karma and religious merit",
+    "genealogical origins"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The fiery sage Urva, blazing like the sun, restrains his world-consuming wrath and casts the flame of his anger into the ocean’s Mare’s mouth.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Sage Chyavana stands before King Kusika, foretelling the future births of Viswamitra and Parashurama that will unite the lines of warriors and sages.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "The aged Bhishma, lying upon his bed of arrows, instructs the grieving Yudhishthira about penances, gifts, and the rewards awaiting souls after death.",
+      "visual_strength": 0.8
+    }
+  ]
+}

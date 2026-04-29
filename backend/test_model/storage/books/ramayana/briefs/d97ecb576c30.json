@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Rama humiliates Ravana, the demons desperately awaken the gigantic Kumbhakarna from his cursed sleep to send him into battle.",
+  "importance": 0.63,
+  "themes": [
+    "desperation before defeat",
+    "curses and prophecy",
+    "awakening of a giant",
+    "loyalty to Ravana",
+    "impending battle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Inside a vast cavern, thousands of demons beat drums, strike the colossal sleeping Kumbhakarna, and drive elephants over his body to wake him.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Kumbhakarna suddenly rises from sleep, yawning like a gaping hell-mouth, his enormous arms stretching as demons scatter around him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The gigantic Kumbhakarna strides through Lanka toward Ravana’s palace, his mountain-like body shaking the earth as frightened creatures flee.",
+      "visual_strength": 0.8
+    }
+  ]
+}

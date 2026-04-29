@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada and sages urge the Pandavas to undertake holy pilgrimages; Lomasa explains that sinful prosperity is temporary, and the brothers begin visiting sacred tirthas.",
+  "importance": 0.48,
+  "themes": [
+    "pilgrimage and purification",
+    "temporary success of the wicked",
+    "virtue vs pride",
+    "sacred geography",
+    "guidance of sages"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The Pandavas in bark garments and matted hair, armed with bows and swords, depart eastward with chariots and ascetics after worshipping the gathered sages.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "At the confluence of the Ganga and Yamuna at Prayaga, the Pandavas perform ablutions while priests and ascetics stand along the sacred riverbanks.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Lomasa the sage speaks calmly to a troubled Yudhishthira in the forest hermitage, explaining how proud Asuras rose by sin and then fell to destruction.",
+      "visual_strength": 0.62
+    }
+  ]
+}

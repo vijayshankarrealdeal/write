@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ghatotkacha devastates Kaurava warriors and charges at Duryodhana until Bhima and Pandava forces rush in, triggering a chaotic, dust-choked massacre.",
+  "importance": 0.62,
+  "themes": [
+    "heroic warfare",
+    "Rakshasa ferocity",
+    "battle chaos",
+    "kinship and rescue",
+    "apocalyptic violence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ghatotkacha rises into the sky roaring like thunder while surrounded by arrows raining from Kaurava warriors below.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Bhima and a host of Pandava warriors charge across the trembling battlefield with elephants and chariots to rescue Ghatotkacha.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A dust-choked battlefield where warriors cannot recognize friend from foe as severed heads and shattered chariots lie amid a river of blood.",
+      "visual_strength": 0.9
+    }
+  ]
+}

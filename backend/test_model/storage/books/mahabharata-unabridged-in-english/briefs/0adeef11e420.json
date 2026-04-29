@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dushmanta persuades Sakuntala to a Gandharva marriage, agrees their son will be heir, and Kanwa later approves the secret union, foretelling a mighty son.",
+  "importance": 0.72,
+  "themes": [
+    "Gandharva marriage",
+    "royal lineage",
+    "consent and conditions",
+    "ascetic approval",
+    "prophecy of future king"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the forest hermitage, King Dushmanta earnestly proposes to Sakuntala while she stands beneath trees, hesitant yet listening.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Sakuntala, modest yet firm, sets the condition that her future son must become the king’s heir as they stand in the quiet hermitage clearing.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The sage Kanwa, returning to the hermitage, gazes calmly at the shy Sakuntala and reveals he already knows of her secret union through spiritual insight.",
+      "visual_strength": 0.74
+    }
+  ]
+}

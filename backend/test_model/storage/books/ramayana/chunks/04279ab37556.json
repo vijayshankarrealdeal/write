@@ -1,0 +1,69 @@
+{
+  "chunk": {
+    "id": "04279ab37556",
+    "chapter_title": "65. Lakshmana seeks to pacify Rama",
+    "page_start": 589,
+    "page_end": 589,
+    "text": "ARANYA KANDA \nharmed, I sball lay waste the entire universe and all contained \ntherein. Until I find myself in Sita's presence once more, \nI sball let loose every weapon of destruction.\" \nHaving spoken thus, Rama, his eyes flashing with anger, his \nlips compressed and trembling, tied fast his robe of bark and \ndeerskin and knotted his hair, whereupon that sagacious One \nresembled Rudra bent upon the destruction of Tripura. \nTaking his bow from Lakshmana's hands, he drew it with \nmight, selecting a terrible steel-pointed shafr resembling a \nvenomous serpent, and the effulgent Rama, filled with wrath, \nthe Scourge of his Foes, resembling the Fite at the destruction \nof the world, said :-\n\"As beings cannot escape old age, destiny or death, so is \nnone able to restrain my wrath ! 0 Lakshmana, if I do not \nrecover Sita this day in all her pristine beauty, I sball destroy \nthe universe with its Gods, Gandharvas, human beings, \nPunnagas and mountains.\" \nCHAPTER 65 \nLaluhmana seeks to pacify Rama \nA PRI!Y to grief on account of Sita's abduction, Rama, resembling \nthe Fire of Dissolution, sought to bring about the destruction \nof the Worlds. \nWith burning sighs he contemplated the stringed bow, as \nHara at the end of the world-cycle stands ready to consume \nthe universe. \nSeeing Rama transported with rage, hitherto never manifested \nby him, Lakshmana, his features pale with terror, addressed him \nwith joined palms, saying :-\n\"Formerly thou wert ever gentle, of controlled mind and \ndevoted to the welfare of all beings, do not now give way to \nwrath and renounce thy true nature. As the radiance of the \nmoon, the brilliance of the sun, the velocity of the wind and \nthe forbearance of the earth, so is thy glory manifested without \nequal and without end. Wherefore dost thou seek to destroy \nthe worlds on account of one man's sin ? \n137"
+  },
+  "brief": {
+    "summary_1line": "Rama, enraged by Sita\u2019s abduction, vows to destroy the universe, but Lakshmana respectfully pleads with him to restrain his wrath.",
+    "importance": 0.75,
+    "themes": [
+      "righteous anger",
+      "brotherly counsel",
+      "self-control vs wrath",
+      "cosmic destruction imagery"
+    ],
+    "image_candidates": [
+      {
+        "scene_text": "Rama, eyes blazing and hair knotted, draws a deadly arrow on his bow like Rudra preparing to destroy the universe.",
+        "visual_strength": 0.9
+      },
+      {
+        "scene_text": "Lakshmana stands with joined palms before the furious Rama, pale with fear as the warrior contemplates unleashing destruction.",
+        "visual_strength": 0.82
+      }
+    ]
+  },
+  "deep": {
+    "rich_summary": "Rama, devastated by Sita\u2019s abduction, erupts into a cosmic fury. Declaring that if he does not recover her he will unleash every weapon of destruction, he prepares himself like a god of annihilation\u2014tightening his bark garments, taking up his bow, and resembling Rudra poised to destroy the triple cities. His wrath grows so immense that he threatens to destroy the entire universe\u2014gods, spirits, humans, serpents, and mountains alike. Lakshmana, terrified at seeing a rage never before shown by his brother, steps forward with folded hands to restrain him. He reminds Rama of his true nature: gentle, self-controlled, and devoted to the welfare of all beings. Lakshmana argues that the sin of a single wrongdoer should not lead to the destruction of the worlds, appealing to Rama\u2019s divine restraint and moral greatness.",
+    "highlight_spans": [
+      {
+        "start": 0,
+        "length": 90,
+        "color_hex": "#F48FB1",
+        "why": "Rama\u2019s grief-fueled vow to devastate the universe if Sita is not found sets the emotional and apocalyptic tone."
+      },
+      {
+        "start": 210,
+        "length": 95,
+        "color_hex": "#A5D6A7",
+        "why": "The comparison of Rama to Rudra destroying Tripura frames his anger in mythic, divine terms."
+      },
+      {
+        "start": 420,
+        "length": 120,
+        "color_hex": "#FFEB3B",
+        "why": "Rama\u2019s explicit threat to destroy the entire cosmos\u2014gods, beings, and mountains\u2014marks the chapter\u2019s pivotal dramatic escalation."
+      },
+      {
+        "start": 650,
+        "length": 120,
+        "color_hex": "#A5D6A7",
+        "why": "Lakshmana\u2019s plea recalls Rama\u2019s true nature\u2014gentle, self-controlled, and cosmic in virtue\u2014introducing the moral counterpoint to wrath."
+      }
+    ],
+    "top_scenes": [
+      {
+        "scene_text": "Rama, blazing with anger, tightens his bark garments and draws a serpent-like arrow while standing like Rudra poised to destroy the universe.",
+        "visual_strength": 0.92
+      },
+      {
+        "scene_text": "Lakshmana, pale with fear and hands folded, pleads before the wrathful Rama who stands with drawn bow like the fire of cosmic dissolution.",
+        "visual_strength": 0.88
+      }
+    ]
+  },
+  "scene_ids": []
+}

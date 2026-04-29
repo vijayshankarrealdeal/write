@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Saunaka contrasts ignorant sensual living with the disciplined path to liberation; Yudhishthira worships the Sun seeking sustenance for accompanying Brahmanas.",
+  "importance": 0.58,
+  "themes": [
+    "sensory desire and ignorance",
+    "path of renunciation",
+    "ascetic discipline",
+    "sun worship",
+    "kingship duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira stands waist-deep in the Ganges at sunrise, motionless in prayer as the blazing sun appears before him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A man like an insect plunges toward a bright flame, symbolizing a soul drawn helplessly into the fire of desire.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The radiant sun-god manifests in the sky before the meditating king, surrounded by blazing light.",
+      "visual_strength": 0.86
+    }
+  ]
+}

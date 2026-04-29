@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Yudhishthira asks about King Marutta’s wealth and power; Vyasa recounts Marutta’s lineage and Indra persuading Vrihaspati not to officiate the king’s sacrifice.",
+  "importance": 0.5,
+  "themes": [
+    "royal lineage",
+    "divine rivalry",
+    "sacrifice and priesthood",
+    "Indra’s authority"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Marutta conducts a grand sacrifice on a golden hill near Mount Meru, surrounded by countless shining golden vessels and princes.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Indra mounted on his celestial horse addresses the sage Vrihaspati amid assembled gods, urging him not to serve the mortal king Marutta.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The ascetic Samvarta abandons wealth and wanders into the forest with nothing but the open sky covering his body.",
+      "visual_strength": 0.62
+    }
+  ]
+}

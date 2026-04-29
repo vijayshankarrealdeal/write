@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Drona forms an impenetrable array after luring Arjuna away; Abhimanyu breaks in, fights heroically, and is slain by multiple Kaurava warriors.",
+  "importance": 0.92,
+  "themes": [
+    "Abhimanyu's death",
+    "battle strategy",
+    "duty of Kshatriyas",
+    "deception in war",
+    "grief and moral conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Young Abhimanyu drives his chariot into Drona’s blazing circular battle array, breaking the ring of warriors and banners.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Six veteran Kaurava warriors surround the lone Abhimanyu as his shattered chariot stands amid fallen soldiers.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "At sunset after the carnage, blood-soaked warriors stare across the field while the sun sinks behind the western hills.",
+      "visual_strength": 0.75
+    }
+  ]
+}

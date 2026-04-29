@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After burning Lanka, Hanuman fears Sita may have died in the fire and condemns his anger before reassuring himself of her purity and possible safety.",
+  "importance": 0.62,
+  "themes": [
+    "remorse and self-control",
+    "fear for Sita",
+    "destructive anger",
+    "faith in virtue",
+    "mission anxiety"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman stands on a cliff above the burning city of Lanka, watching flames devour the golden palaces as worry overtakes his face.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "The fire-tailed Hanuman plunges his blazing tail into the ocean, steam rising as the inferno behind him engulfs Lanka.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Hanuman sits alone amid smoke and embers, head bowed in despair as he imagines Sita lost in the flames of the city.",
+      "visual_strength": 0.77
+    }
+  ]
+}

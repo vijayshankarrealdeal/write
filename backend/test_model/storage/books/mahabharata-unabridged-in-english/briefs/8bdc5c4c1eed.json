@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Aswatthaman rebukes Duryodhana yet vows loyalty, devastates Panchala warriors, and enters a fierce duel of insults and arrows with Dhrishtadyumna.",
+  "importance": 0.6,
+  "themes": [
+    "loyalty vs contempt",
+    "warrior honor",
+    "rage and vengeance",
+    "duel challenge"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Aswatthaman, blazing with anger, stands in his chariot as torrents of arrows rain upon him like a storm while he calmly counters them.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Dhrishtadyumna on a golden chariot points his bow at Aswatthaman and publicly challenges him amid the chaos of fleeing Panchala warriors.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Arrows with golden wings strike into Aswatthaman’s body like swarming bees entering a flowering tree as he glares back in fury.",
+      "visual_strength": 0.77
+    }
+  ]
+}

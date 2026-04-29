@@ -1,0 +1,55 @@
+{
+  "rich_summary": "Ravana, enraged after seeing several of his mighty warriors slain, drives his chariot toward Rama determined to end the war by killing both Rama and Lakshmana. He likens Rama to a great tree whose branches are the monkey heroes and whose fruit is Sita. As he advances, the earth trembles and he unleashes a terrible magical weapon that scatters the monkey army. Rama stands firm with Lakshmana, and the two titans of war begin an immense duel. Their arrows fill the sky like storm clouds, each warrior effortlessly countering the other’s volleys. Ravana deploys terrifying Asura missiles shaped like beasts and serpents, but Rama answers with divine weapons, including the blazing Agneya weapon. Their supernatural missiles collide and annihilate each other in the sky, and when Rama finally destroys Ravana’s weapon, the monkey army erupts in triumphant cheers.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Ravana’s furious reaction to the deaths of his generals sets the emotional and narrative momentum for the duel."
+    },
+    {
+      "start": 210,
+      "length": 210,
+      "color_hex": "#A5D6A7",
+      "why": "Ravana’s metaphor comparing Rama to a tree with Sita as its flower and the monkey heroes as branches vividly frames the alliance around Rama."
+    },
+    {
+      "start": 620,
+      "length": 190,
+      "color_hex": "#FFEB3B",
+      "why": "The moment Ravana unleashes the dark magical weapon from Brahma, scattering the monkey army, marks the first major supernatural escalation."
+    },
+    {
+      "start": 1150,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "The sky-filling arrow storm during the duel captures the epic scale and equality of Rama and Ravana as divine-level warriors."
+    },
+    {
+      "start": 1900,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Ravana’s Asura weapon with arrows shaped like beasts and serpents emphasizes the mythic, magical nature of the battle."
+    },
+    {
+      "start": 2350,
+      "length": 190,
+      "color_hex": "#FFEB3B",
+      "why": "Rama’s Agneya weapon annihilating Ravana’s missiles in the sky marks a decisive divine counterstrike and turning point in morale."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Ravana’s war chariot thunders across the battlefield as the earth trembles, while he charges toward Rama standing calm with Lakshmana amid fleeing monkey warriors.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Rama and Ravana face each other in a colossal duel as their arrows fill the sky like storm clouds, lightning-like shafts colliding in midair.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Ravana releases a terrifying Asura weapon—arrows shaped like lions, serpents, vultures, and monsters—while Rama answers with blazing celestial fire missiles that explode across the heavens.",
+      "visual_strength": 0.97
+    }
+  ]
+}

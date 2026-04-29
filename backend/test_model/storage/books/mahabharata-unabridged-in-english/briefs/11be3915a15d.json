@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Krishna explains Charvaka’s boon and downfall by offending Brahmanas, then Yudhishthira is ceremonially crowned king amid rituals, blessings, and gifts.",
+  "importance": 0.62,
+  "themes": [
+    "divine justice",
+    "power of Brahmanas",
+    "kingship legitimacy",
+    "coronation ritual"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The Brahmanas utter the sound 'Hun,' and the Rakshasa Charvaka collapses lifeless like a thunder-struck tree.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Krishna pours sanctified conch water over Yudhishthira’s head as priests, warriors, and elders sit on golden thrones during the coronation.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Yudhishthira sits on a tiger-skin covered throne surrounded by his brothers, Krishna, and elders while ritual fires burn and golden vessels overflow with water.",
+      "visual_strength": 0.72
+    }
+  ]
+}

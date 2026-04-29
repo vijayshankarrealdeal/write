@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains the sacred supremacy of cows, recounting Brahma’s teaching to Indra and the austerities of Surabhi that led to the exalted realm of Goloka.",
+  "importance": 0.58,
+  "themes": [
+    "sacredness of cows",
+    "sacrifice and ritual economy",
+    "divine hierarchy",
+    "ascetic austerity",
+    "cosmic origins of Goloka"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a celestial assembly filled with gods, sages, and dancers, Indra bows before Brahma and asks why the realm of cows stands above the heavens.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The divine cow Surabhi stands on one leg in severe penance atop Mount Kailasa for thousands of years as gods and serpents gather in awe.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Brahma grants Surabhi immortality and a radiant realm called Goloka above the three worlds while celestial beings look on.",
+      "visual_strength": 0.83
+    }
+  ]
+}

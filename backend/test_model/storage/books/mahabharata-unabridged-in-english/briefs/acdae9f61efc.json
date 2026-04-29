@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Saunaka counsels the repentant king Janamejaya on righteousness, penance, reverence for Brahmanas, and purifying practices such as sacrifice, charity, and pilgrimage.",
+  "importance": 0.53,
+  "themes": [
+    "repentance and forgiveness",
+    "royal duty and righteousness",
+    "ascetic penance",
+    "sacred pilgrimage",
+    "reverence for Brahmanas"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The repentant King Janamejaya bows and touches the sage Saunaka’s feet, swearing never again to harm the Brahmanas.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Sage Saunaka instructs the king before a gathering of Brahmanas in a forest hermitage.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Pilgrims bathe at the sacred waters of Prithudaka on the Saraswati under a glowing dawn sky.",
+      "visual_strength": 0.66
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Lakshmana is ordered to guard the door so that Rama may speak privately with a mysterious ascetic whose message must be heard by no one else. The visitor reveals his true identity: he is Death itself, once a son of the cosmic Grandsire (Brahma), sent to deliver a divine message. Brahma declares that Rama’s mission on earth is fulfilled. The speech recalls the primordial acts of the divine—creation from the lotus arising from Vishnu’s navel, the slaying of Madhu and Kaitabha, and the sustaining of the worlds. It also reminds Rama that he incarnated as a man to destroy Ravana when the demon threatened all beings. The moment reframes Rama not merely as a king but as Vishnu incarnate whose earthly role is nearing completion.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 137,
+      "color_hex": "#F48FB1",
+      "why": "The tense command establishing secrecy and mortal stakes—anyone overhearing the conversation must die."
+    },
+    {
+      "start": 315,
+      "length": 28,
+      "color_hex": "#FFEB3B",
+      "why": "The ascetic reveals his identity as Death, marking the chapter’s central revelation."
+    },
+    {
+      "start": 401,
+      "length": 70,
+      "color_hex": "#FFEB3B",
+      "why": "Brahma’s message begins, declaring that Rama’s divine mission is accomplished."
+    },
+    {
+      "start": 612,
+      "length": 154,
+      "color_hex": "#A5D6A7",
+      "why": "Mythic cosmology describing the lotus from Vishnu’s navel and the origin of creation."
+    },
+    {
+      "start": 1006,
+      "length": 157,
+      "color_hex": "#A5D6A7",
+      "why": "The reminder that Rama incarnated as a human to destroy Ravana and protect creation."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In a sealed royal chamber, Rama sits facing a mysterious ascetic as Lakshmana stands guard outside the door under the threat of death for any interruption.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The ascetic reveals his true form as Death, delivering Brahma’s cosmic message to Rama in a dimly lit chamber.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A mythic vision of creation: a radiant lotus emerging from Vishnu’s navel while the bodies of Madhu and Kaitabha form the earth beneath towering mountains.",
+      "visual_strength": 0.9
+    }
+  ]
+}

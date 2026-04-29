@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna arrives at the Kuru court with great honor and urges Dhritarashtra to restrain Duryodhana and make peace with the Pandavas.",
+  "importance": 0.78,
+  "themes": [
+    "diplomacy",
+    "royal court ceremony",
+    "peace vs war",
+    "moral counsel",
+    "family conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna in yellow robes enters the Kuru assembly hall beside Vidura and Satyaki as kings rise from their seats in reverence.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Krishna seated like a sapphire on gold in the silent court while Karna and Duryodhana sit together nearby watching him.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Krishna addresses blind king Dhritarashtra in the hushed assembly, his voice rolling like thunder as sages watch from the sky.",
+      "visual_strength": 0.72
+    }
+  ]
+}

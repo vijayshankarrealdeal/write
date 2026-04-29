@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Both armies form ranks, blow their conches, and the battle opens with a fierce duel between Bhishma and Arjuna as warriors clash across the field.",
+  "importance": 0.72,
+  "themes": [
+    "battle formations",
+    "war horns and conches",
+    "heroic duel",
+    "loyalty and rivalry",
+    "opening of battle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna and Arjuna stand on their radiant chariot with white horses as they blow their conches before the vast armies.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Bhishma and Arjuna face each other across the battlefield, their chariots circling while clouds of arrows fill the sky between them.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Bhishma’s arrows strike Krishna in the chest as he holds the reins, while Arjuna turns in anger to retaliate.",
+      "visual_strength": 0.86
+    }
+  ]
+}

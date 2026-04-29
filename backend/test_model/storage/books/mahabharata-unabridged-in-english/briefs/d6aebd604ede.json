@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Kadru enslaves Vinata after winning the horse wager, while the newly born Garuda dazzles the gods, calms them, and departs carrying Aruna eastward.",
+  "importance": 0.72,
+  "themes": [
+    "birth of Garuda",
+    "divine power revealed",
+    "slavery of Vinata",
+    "cosmic awe",
+    "gods seeking protection"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The newborn Garuda erupts from the egg blazing like a heap of fire, his vast wings lighting the sky as the startled gods scatter in their celestial chariots.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The radiant bird Garuda shrinks his immense blazing form while the gathered gods and rishis bow before him in the heavens.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Garuda flies across the ocean with Aruna on his back, placing him in the eastern sky as the rising sun prepares to scorch the worlds.",
+      "visual_strength": 0.8
+    }
+  ]
+}

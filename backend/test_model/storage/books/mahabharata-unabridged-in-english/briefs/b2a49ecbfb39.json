@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira worries about crossing perilous divine mountains toward Kailasa, but Bhima insists the whole group—including Draupadi—will continue together and he will carry them if needed.",
+  "importance": 0.55,
+  "themes": [
+    "loyalty among brothers",
+    "perilous pilgrimage",
+    "devotion to Arjuna",
+    "protective duty",
+    "ascetic endurance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima vows to carry Draupadi and even his twin brothers across the harsh mountain paths if they cannot walk.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Yudhishthira tearfully embraces Nakula and Sahadeva, smelling their heads and urging them to proceed cautiously before the dangerous ascent.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The pilgrims stand before the towering, sacred peaks near Kailasa, imagined to be guarded by hosts of Yakshas, Rakshasas, and celestial beings.",
+      "visual_strength": 0.72
+    }
+  ]
+}

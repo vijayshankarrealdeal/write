@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After the ocean ignores his prayers for passage, Rama angrily unleashes arrows into the sea to force Sagara to respond.",
+  "importance": 0.7,
+  "themes": [
+    "divine wrath",
+    "patience vs force",
+    "appeal to nature deity",
+    "war preparation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama stands on the seashore with blazing eyes, drawing his mighty bow as flaming arrows plunge into the ocean and churn the waters into towering waves.",
+      "visual_strength": 0.91
+    },
+    {
+      "scene_text": "Rama lies on darbha grass beside the vast ocean for three nights in silent prayer, facing east with folded hands under the open sky.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Terrified sea creatures, serpents, and demons flee as Rama’s arrows strike the ocean, sending shells and spray high into the air.",
+      "visual_strength": 0.83
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna kills Jayadratha through Krishna’s stratagem; he spares Kripa in remorse while Satyaki duels Karna and temporarily makes him carless.",
+  "importance": 0.82,
+  "themes": [
+    "fulfilled vow",
+    "divine stratagem",
+    "guru reverence and remorse",
+    "heroic duels",
+    "warrior vows"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna’s arrow carries Jayadratha’s severed head through the sky and drops it into his father Vriddhakshatra’s lap during evening prayers.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Satyaki on Krishna’s radiant chariot clashes with Karna as arrows streak between them while silent armies watch the duel.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Satyaki cuts down Karna’s charioteer and horses, leaving Karna standing weapon in hand beside his shattered chariot.",
+      "visual_strength": 0.8
+    }
+  ]
+}

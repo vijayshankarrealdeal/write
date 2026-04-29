@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Maricha reluctantly aids Ravana, transforms into a dazzling golden deer, and wanders near Rama’s hermitage to lure Sita.",
+  "importance": 0.84,
+  "themes": [
+    "deception",
+    "fatalism",
+    "loyalty vs fear",
+    "abduction plot",
+    "illusion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Maricha transforms into a radiant jewel-studded deer with emerald hooves and rainbow-colored haunches before Rama’s forest hermitage.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Ravana and Maricha descend from a golden flying chariot in the forest of Dandaka, gazing toward Rama’s palm-shaded hermitage.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The glittering deer grazes among flowers near the hermitage, its silver-spotted skin shimmering as it tries to catch Sita’s attention.",
+      "visual_strength": 0.88
+    }
+  ]
+}

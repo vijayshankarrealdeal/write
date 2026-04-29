@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The vulture Sampati recounts Jatayu’s fate and reveals that Ravana carried Sita to Lanka across the southern sea.",
+  "importance": 0.74,
+  "themes": [
+    "revelation of Sita's location",
+    "brotherly sacrifice",
+    "aging and duty",
+    "hope after despair",
+    "quest direction"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Wingless Sampati stands on a rocky height telling the gathered monkeys how he saw Ravana carrying Sita across the sky.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "In the blazing sky of the past, Sampati spreads his wings over the fainting Jatayu as they fly too close to the sun.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Ravana flies through the air with the crying Sita in his arms as she throws down her ornaments toward the earth below.",
+      "visual_strength": 0.9
+    }
+  ]
+}

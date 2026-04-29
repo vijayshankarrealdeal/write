@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama, devastated by Sita’s disappearance, laments his fate, imagines her suffering or death, and appeals to nature for answers while Lakshmana prepares to console him.",
+  "importance": 0.72,
+  "themes": [
+    "grief and lamentation",
+    "love for Sita",
+    "fate and karma",
+    "despair in exile",
+    "brotherly support"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama stands in the forest by the Godavari, raising his arms to the sun and wind as he cries out for news of the vanished Sita.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Rama, pale with grief, imagines Sita carried through the sky by a demon while she cries helplessly below the dark clouds.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Rama wanders the forest in despair while Lakshmana follows behind him, his face stricken with fear and sorrow.",
+      "visual_strength": 0.65
+    }
+  ]
+}

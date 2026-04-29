@@ -1,0 +1,25 @@
+{
+  "summary_1line": "King Dasharatha refuses to send young Rama with Vishwamitra, fearing the powerful rakshasas Maricha and Suvahu and expressing deep paternal attachment.",
+  "importance": 0.68,
+  "themes": [
+    "parental attachment",
+    "duty vs affection",
+    "fear of rakshasas",
+    "Ravana's power",
+    "sage-king tension"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dasharatha collapses unconscious from his throne as the court watches after hearing Vishwamitra request Rama.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The aged King Dasharatha pleads before the stern sage Vishwamitra in a royal court, refusing to send his young son Rama to face demons.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Sage Vishwamitra stands blazing with anger like fire in the royal hall as Dasharatha’s words inflame his wrath.",
+      "visual_strength": 0.74
+    }
+  ]
+}

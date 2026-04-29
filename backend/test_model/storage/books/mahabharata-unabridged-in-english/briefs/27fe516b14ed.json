@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Janaka’s praise, Suka returns to Vyasa in the Himalayas; the narrative describes sacred mountains, divine feats, and Vyasa teaching disciples.",
+  "importance": 0.45,
+  "themes": [
+    "spiritual realization",
+    "sacred geography",
+    "guru-disciple lineage",
+    "divine power and humility",
+    "asceticism"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vishnu grips Skanda’s blazing dart with his left hand and shakes it, causing the whole earth with its mountains and seas to tremble.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Suka speeds across the Himalayan heights like a shaft from a bow, radiant like the sun and seemingly not touching trees or rocks.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Mahadeva stands on one foot in fierce austerity for a thousand celestial years, encircled by a blazing ring of fire on the mountain Aditya.",
+      "visual_strength": 0.9
+    }
+  ]
+}

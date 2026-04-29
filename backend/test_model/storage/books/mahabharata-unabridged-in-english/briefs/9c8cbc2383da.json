@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains sources of moral authority, the unity of righteousness, and detailed behaviors distinguishing the virtuous from the wicked.",
+  "importance": 0.62,
+  "themes": [
+    "sources of authority",
+    "nature of righteousness",
+    "virtue vs wickedness",
+    "scriptural guidance",
+    "ethical conduct"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged Bhishma lies on his bed of arrows while Yudhishthira stands beside him asking about the authority of perception and scripture.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A virtuous man respectfully stepping aside on a road to give way to elders, a cow, and a king passing by.",
+      "visual_strength": 0.45
+    },
+    {
+      "scene_text": "A penitent sinner confessing his wrongdoing before wise elders as symbolic salt dissolves in water beside them.",
+      "visual_strength": 0.55
+    }
+  ]
+}

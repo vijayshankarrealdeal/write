@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Krishna (Vasudeva) reveals Karna’s true birth and urges him to join the Pandavas. Citing scriptural law, he argues that Karna—born to Kunti before her marriage—should rightfully be counted as Pandu’s son and therefore the eldest Pandava and rightful king. Krishna paints a grand vision: the Pandavas, Draupadi, and many kingdoms honoring Karna as emperor while his brothers serve him. Karna responds with calm gratitude but refuses. He acknowledges the truth of his birth yet insists that loyalty binds him to the Suta parents who raised him and to Duryodhana, who trusted and elevated him. Betraying them would violate his sense of duty and honor. Karna even asks Krishna to keep the secret, fearing Yudhishthira would renounce the throne if he knew. The passage highlights Karna’s tragic nobility—choosing loyalty and fate over power and reconciliation.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Krishna begins by acknowledging Karna’s learning and moral seriousness, establishing the philosophical basis for his appeal."
+    },
+    {
+      "start": 600,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna declares that by scriptural law Karna is morally the son of Pandu and invites him to claim kingship."
+    },
+    {
+      "start": 1300,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Karna recounts how Radha and Adhiratha lovingly raised him, grounding his refusal in gratitude and emotional loyalty."
+    },
+    {
+      "start": 2100,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Karna affirms that he cannot betray Duryodhana and must face Arjuna in battle, sealing his tragic choice."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna standing beside Karna’s chariot in quiet counsel, revealing Karna’s royal birth as the sun glows behind them like Surya’s silent witness.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Krishna describing Karna’s imagined coronation as the Pandavas bow and hold royal emblems while kings gather around a throne.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Karna solemnly refusing Krishna’s offer, one hand on his bow while recalling the humble charioteer parents who raised him.",
+      "visual_strength": 0.86
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Messengers summon Bharata urgently to Ayodhya; after questioning them and receiving gifts from his grandfather and uncle, he departs with Shatrughna.",
+  "importance": 0.55,
+  "themes": [
+    "ominous dreams",
+    "urgent summons",
+    "family duty",
+    "royal departure"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Exhausted royal messengers arrive at the fortified city of Rajagriha and bow before Prince Bharata with Vasistha’s urgent message.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "King Kaikeya embraces Bharata, smelling his head in blessing while attendants display elephants, horses, and heaps of ornaments as farewell gifts.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Bharata and Shatrughna mount a chariot amid elephants, horses, and soldiers as their grand procession departs the palace gates.",
+      "visual_strength": 0.77
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna meditates on the dying Bhishma, urging Yudhishthira to learn from him before his passing, as Bhishma on his arrow-bed praises Krishna as the Supreme.",
+  "importance": 0.75,
+  "themes": [
+    "divine devotion",
+    "approaching death",
+    "supreme divinity of Krishna",
+    "transmission of wisdom",
+    "yogic concentration"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna sits utterly motionless in deep meditation while Yudhishthira watches in awe, comparing him to a steady lamp-flame in a windless place.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Bhishma lies on a bed of arrows surrounded by gathered sages, radiant like the sun, with palms joined as he hymns Krishna.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Krishna’s jeweled chariot with the Garuda banner is yoked with golden-trapped horses, shining like the morning sun as it is prepared to depart.",
+      "visual_strength": 0.63
+    }
+  ]
+}

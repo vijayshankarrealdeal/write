@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Takshaka bribes sage Kasyapa to abandon curing King Parikshit, kills the king, and Janamejaya resolves to avenge him with a snake‑sacrifice.",
+  "importance": 0.78,
+  "themes": [
+    "revenge",
+    "corruption and bribery",
+    "fate vs intervention",
+    "royal grief",
+    "vengeance ritual"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The serpent Takshaka bites a great banyan tree that instantly turns to ashes before the sage Kasyapa restores it to life.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Takshaka in disguise slips into the guarded palace and strikes King Parikshit with fiery venom.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "King Janamejaya, weeping and squeezing his hands, swears before his ministers to destroy the entire race of snakes.",
+      "visual_strength": 0.69
+    }
+  ]
+}

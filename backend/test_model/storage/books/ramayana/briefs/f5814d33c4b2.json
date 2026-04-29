@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama walks to the Sarayu, enters the river, and is welcomed by Brahma and the gods as he returns to his true form as Vishnu.",
+  "importance": 0.92,
+  "themes": [
+    "divine revelation",
+    "apotheosis",
+    "return to Vishnu",
+    "cosmic recognition",
+    "end of Rama's earthly life"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama stands in the Sarayu River as flowers rain from the sky and gods in radiant aerial chariots fill the glowing heavens above him.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Brahma seated in a luminous celestial chariot addresses Rama from the sky while Gandharvas and Apsaras sing and play instruments in the air.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama with his brothers steps into the shimmering river as the gathered gods watch him return to his divine form as Vishnu.",
+      "visual_strength": 0.88
+    }
+  ]
+}

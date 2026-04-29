@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Kunti chooses Pandu as her husband at a royal swayamvara, garlanding him before assembled kings and returning with him to the Kuru capital.",
+  "importance": 0.55,
+  "themes": [
+    "swayamvara marriage",
+    "royal alliances",
+    "Kunti and Pandu",
+    "dynastic politics"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a crowded royal amphitheatre, the shy princess Kunti steps forward and places the wedding garland around the neck of the radiant king Pandu as rival monarchs watch.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Pandu, broad‑chested and resplendent like Indra, stands among rows of crowned kings while Kunti approaches him trembling with emotion.",
+      "visual_strength": 0.65
+    }
+  ]
+}

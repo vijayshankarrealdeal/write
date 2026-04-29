@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Many kings gather for Yudhishthira’s Rajasuya sacrifice, are lavishly hosted, and are assigned roles as the grand ritual proceeds with immense wealth and honor.",
+  "importance": 0.45,
+  "themes": [
+    "royal assembly",
+    "ritual organization",
+    "hospitality and wealth",
+    "political hierarchy",
+    "sacred sacrifice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rows of white mansions with golden latticed windows and pearl-hung interiors shine like snowy cliffs as gathered kings approach Yudhishthira’s sacrificial city.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Krishna humbly kneels washing the feet of Brahmanas while mighty kings and warriors stand around the grand Rajasuya hall.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A vast sacrificial compound crowded with jeweled palaces, kings bearing tribute, priests tending six sacred fires, and celestial chariots hovering above.",
+      "visual_strength": 0.82
+    }
+  ]
+}

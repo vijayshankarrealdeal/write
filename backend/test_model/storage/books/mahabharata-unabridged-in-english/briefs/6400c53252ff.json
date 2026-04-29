@@ -1,0 +1,25 @@
+{
+  "summary_1line": "King Sagara’s 60,000 sons dig the earth seeking a stolen sacrificial horse, anger sage Kapila, are burned to ashes, and prophecy foretells Ganga’s future descent.",
+  "importance": 0.78,
+  "themes": [
+    "divine prophecy",
+    "arrogance and punishment",
+    "royal duty",
+    "ascetic power",
+    "origins of Ganga legend"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The radiant sage Kapila sits in meditation as the furious sixty thousand sons of Sagara rush toward him, and a burst of fiery energy reduces them to ashes.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "King Sagara and his two queens bow before the three‑eyed god Shiva on Mount Kailasa, surrounded by austere snowy peaks.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The countless sons of Sagara dig into the earth with spades and pickaxes, tearing open the ocean bed while terrified creatures flee around them.",
+      "visual_strength": 0.85
+    }
+  ]
+}

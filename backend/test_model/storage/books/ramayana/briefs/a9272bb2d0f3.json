@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sage Bharadwaja miraculously conjures a vast celestial feast and palace complex to host Bharata and his entire army overnight.",
+  "importance": 0.45,
+  "themes": [
+    "sage hospitality",
+    "yogic power",
+    "divine abundance",
+    "royal humility"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sage Bharadwaja sits in meditation in the sacrificial pavilion as gods, nymphs, and flower‑raining clouds appear around him.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Bharata’s astonished army enters a magically manifested city of white palaces, green lawns, and flowing streams created by the sage.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Thousands of soldiers feast, drink, and dance with celestial nymphs beneath trees dripping honey and lakes filled with wine.",
+      "visual_strength": 0.8
+    }
+  ]
+}

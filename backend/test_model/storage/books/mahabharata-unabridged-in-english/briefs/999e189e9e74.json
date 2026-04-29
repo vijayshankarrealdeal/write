@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Satyaki’s valor stalls Kuru champions while Drona, foreseeing death amid ominous signs, devastates foes and prepares for a final clash with Dhrishtadyumna.",
+  "importance": 0.72,
+  "themes": [
+    "heroic combat",
+    "looming fate",
+    "teacher vs disciple",
+    "battlefield carnage",
+    "celestial weapons"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Satyaki stands in his chariot surrounded by Karna, Kripa, and Duryodhana, calmly shattering their incoming arrows with his own.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Drona advances alone like a smokeless fire as meteors fall and the earth trembles, ominous signs filling the battlefield.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Bhima lifts the wounded Dhrishtadyumna onto his chariot and urges him to rise and slay the preceptor Drona.",
+      "visual_strength": 0.74
+    }
+  ]
+}

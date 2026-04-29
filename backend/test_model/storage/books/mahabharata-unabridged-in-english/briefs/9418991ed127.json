@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma teaches Yudhishthira that righteous kings must protect subjects and that gifting land is the highest, most meritorious form of charity.",
+  "importance": 0.63,
+  "themes": [
+    "kingship duties",
+    "charity and gifts",
+    "gift of land",
+    "protection of subjects",
+    "religious merit"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An aged Bhishma lies on his bed of arrows while instructing the attentive Yudhishthira about the supreme merit of gifting the earth.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A king ceremonially grants fertile land with standing crops and cattle to a humble Brahmana before gathered priests and subjects.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The Earth goddess, like a nurturing mother, rushes toward the giver of land as if blessing him with abundance.",
+      "visual_strength": 0.74
+    }
+  ]
+}

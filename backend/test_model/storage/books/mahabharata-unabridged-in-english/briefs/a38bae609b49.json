@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma instructs Yudhishthira on righteous kingship: choosing virtuous ministers, administering fair justice, speaking kindly, and punishing wrongdoing according to law.",
+  "importance": 0.55,
+  "themes": [
+    "righteous kingship",
+    "justice and punishment",
+    "ministerial selection",
+    "ethical speech",
+    "state governance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged Bhishma lying on a bed of arrows instructs Yudhishthira and gathered kings about the duties of a righteous ruler.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A king seated in court listens as disputing subjects present witnesses while ministers stand beside him in solemn deliberation.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "A ruler addresses his people with a calm smile and gentle words, calming angry citizens despite harsh judgments being announced.",
+      "visual_strength": 0.55
+    }
+  ]
+}

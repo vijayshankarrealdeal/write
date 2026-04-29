@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna and Duryodhana seek Krishna’s support for the coming war; Arjuna chooses Krishna himself while Duryodhana takes Krishna’s vast Narayana army.",
+  "importance": 0.83,
+  "themes": [
+    "strategic diplomacy",
+    "choice between power and wisdom",
+    "prelude to Kurukshetra war",
+    "loyalty and neutrality",
+    "divine presence in politics"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna lies asleep while Duryodhana sits proudly at the head of the bed and Arjuna stands humbly with folded hands at the foot.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Krishna, newly awakened, looks first toward Arjuna while both rivals stand before him requesting his support.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Arjuna chooses the unarmed Krishna while Duryodhana joyfully claims the immense Narayana army.",
+      "visual_strength": 0.72
+    }
+  ]
+}

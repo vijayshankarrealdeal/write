@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama defeats Trishiras and then engages Khara in a fierce duel, destroying his chariot and overpowering him while the gods watch in awe.",
+  "importance": 0.82,
+  "themes": [
+    "heroic combat",
+    "divine justice",
+    "dharma vs tyranny",
+    "warrior honor",
+    "cosmic spectatorship"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama's arrows slice off the three heads of Trishiras, which fall to the ground while the headless body still stands amid the battlefield.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama and Khara fill the sky with blazing arrows until the sun is obscured and the battlefield darkens beneath their storm of shafts.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama draws the great Vaishnava bow and fires golden‑feathered arrows that shatter Khara's banner, horses, chariot, and bow in rapid succession.",
+      "visual_strength": 0.84
+    }
+  ]
+}

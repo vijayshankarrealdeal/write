@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Bhishma recounts the miraculous birth and early life of Suka, the son of the sage Vyasa (Krishna Dvaipayana). After Vyasa receives a boon from Shiva promising a supremely pure son, he encounters the apsara Ghritachi in the forest and is overcome with desire. Though he tries to restrain himself, his seed falls while he is kindling fire with sacrificial sticks, and from those very sticks the radiant child Suka is born. The event is marked by cosmic celebration: gods, rivers, and celestial beings honor the newborn sage, who already embodies Vedic wisdom. Suka quickly masters sacred knowledge, practices severe austerities, and becomes devoted to the path of liberation. Seeking final truth, he asks his father about emancipation, and Vyasa sends him to learn from King Janaka, emphasizing humility, discipline, and freedom from worldly attachments.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the chain of transmission and divine context, linking Markandeya, Vyasa, and Shiva's boon that foreshadows Suka’s extraordinary birth."
+    },
+    {
+      "start": 650,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Depicts Vyasa’s struggle with sudden desire on seeing the apsara Ghritachi, highlighting the human vulnerability even of great ascetics."
+    },
+    {
+      "start": 1050,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "Narrates the pivotal miracle: Suka’s birth from the sacrificial sticks after Vyasa’s seed falls, a symbolic fusion of ascetic fire and spiritual creation."
+    },
+    {
+      "start": 1800,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "Describes the cosmic celebration and recognition by gods and sages, emphasizing Suka’s destined greatness and divine sanction."
+    },
+    {
+      "start": 2400,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Marks the philosophical turning point where Suka seeks the path of emancipation and is instructed by Vyasa to learn from King Janaka."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Vyasa in the forest rubbing fire-sticks while the apsara Ghritachi, transformed into a parrot, watches as a radiant child suddenly emerges from the blazing sacrificial sticks.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The newborn sage Suka glowing like smokeless fire while the river goddess Ganga descends to bathe him and gods shower celestial flowers from the sky.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Young ascetic Suka respectfully bowing before Vyasa as his father instructs him to journey humbly to King Janaka in search of liberation.",
+      "visual_strength": 0.82
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Abhimanyu rebukes Duhsasana for past wrongs, wounds him severely in battle, and the Pandavas rejoice as Kaurava warriors rally to attack the youth.",
+  "importance": 0.7,
+  "themes": [
+    "battle prowess",
+    "retribution for insults",
+    "youthful heroism",
+    "family loyalty",
+    "escalating war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Abhimanyu, bloodied yet smiling in his chariot, releases a blazing arrow that strikes Duhsasana in the shoulder before the watching armies.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Duhsasana collapses unconscious on the terrace of his chariot as his charioteer hurriedly drives him away from the battlefield.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Pandava warriors blow conches and drums and roar with lion-like cries as Abhimanyu stands amid a storm of arrows.",
+      "visual_strength": 0.66
+    }
+  ]
+}

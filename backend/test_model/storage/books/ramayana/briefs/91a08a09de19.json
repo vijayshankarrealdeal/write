@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bharata recounts a terrifying dream filled with ominous symbols foretelling calamity for his father or family, leaving him deeply distressed despite friends’ attempts to cheer him.",
+  "importance": 0.64,
+  "themes": [
+    "ominous dreams",
+    "foreshadowing tragedy",
+    "family fate",
+    "anxiety and prophecy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In Bharata’s dream, King Dasharatha in disheveled clothes falls from a mountain peak into a pit of cow dung.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The sea dries up and the moon crashes to the earth while the world is plunged into darkness.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "King Dasharatha, garlanded with red flowers and smeared with sandalwood, rides southward in a chariot drawn by asses while a monstrous red-clad demoness mocks him.",
+      "visual_strength": 0.86
+    }
+  ]
+}

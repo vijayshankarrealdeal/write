@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Vaisampayana explains Duhsala’s birth from an extra fragment of Gandhari’s divided flesh and then lists the hundred Kaurava sons in order.",
+  "importance": 0.35,
+  "themes": [
+    "miraculous birth",
+    "dynastic lineage",
+    "maternal desire",
+    "genealogy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vyasa divides the strange lump of flesh while nurses place the pieces into pots of clarified butter as Gandhari watches anxiously.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The sage sets aside one final fragment in a separate pot, declaring it will become Gandhari’s daughter Duhsala.",
+      "visual_strength": 0.74
+    }
+  ]
+}

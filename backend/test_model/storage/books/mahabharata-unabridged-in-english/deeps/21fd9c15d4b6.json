@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section interweaves Sita’s steadfast virtue with the turning point of Rama’s search. Ravana attempts to seduce Sita in the Ashoka grove, boasting of his power, lineage, and vast dominion, but she rejects him with unwavering loyalty to Rama, condemning his lack of virtue and weeping in grief. Meanwhile, Rama, dwelling on Mount Malyavat with Lakshmana, grows impatient with Sugriva for delaying the search for Sita. Sugriva explains that search parties have been sent across the world. When the southern party returns after raiding the royal orchard—signaling success—Hanuman recounts their journey: meeting the vulture Sampati, learning Sita is in Lanka, and Hanuman’s leap across the ocean. He confirms he found Sita in Ravana’s palace, delivered Rama’s message, received her jewel as proof, and burned Lanka before returning. The episode marks the moment hope becomes certainty in Rama’s quest.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Lavish imagery introducing Ravana’s approach, contrasting celestial beauty with the ominous setting."
+    },
+    {
+      "start": 400,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Ravana’s seductive appeal to Sita reveals his arrogance and the moral tension of the scene."
+    },
+    {
+      "start": 1200,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Sita’s firm declaration of loyalty to Rama, a central statement of her character and dharma."
+    },
+    {
+      "start": 2500,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Rama’s anger toward Sugriva shows his grief and urgency in rescuing Sita."
+    },
+    {
+      "start": 5000,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Hanuman’s revelation that he has seen Sita marks the narrative turning point toward the coming war."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Ravana, magnificently adorned like a dark planet near Rohini, stands before the sorrowful Sita in the Ashoka grove as she turns away in contempt and tears.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "On the summit of Mount Malyavat, Rama gazes at the moonlit sky while fragrant night winds remind him of the captive Sita.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Hanuman presents Sita’s jewel to Rama while the gathered monkeys watch, confirming that she has been found in Lanka.",
+      "visual_strength": 0.9
+    }
+  ]
+}

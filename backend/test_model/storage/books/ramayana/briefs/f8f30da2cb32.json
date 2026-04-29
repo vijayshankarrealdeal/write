@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Rama praises Hanuman’s unprecedented feat of crossing the ocean and finding Sita, reflecting on service and embracing him in gratitude.",
+  "importance": 0.7,
+  "themes": [
+    "devotion and service",
+    "heroic achievement",
+    "gratitude",
+    "kingship and duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama, overwhelmed with joy, rises and embraces the humble Hanuman before the gathered vanaras.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Hanuman stands before Rama recounting his journey across the vast ocean to Lanka while the monkey chiefs listen in awe.",
+      "visual_strength": 0.6
+    }
+  ]
+}

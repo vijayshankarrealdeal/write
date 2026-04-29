@@ -1,0 +1,43 @@
+{
+  "rich_summary": "King Yayati, cursed with premature old age, asks his sons to exchange their youth for his decrepitude. Drahyu and Anu refuse, fearing the humiliations and limitations of old age, and Yayati curses them in anger. His youngest son, Puru, accepts the burden with humility, giving his youth to his father. Restored to vigor, Yayati spends a thousand years enjoying worldly pleasures while still ruling righteously and performing religious duties. When the thousand years end, he realizes a profound truth: desire is never satisfied by indulgence; it only grows stronger. Recognizing the endless hunger of worldly craving, Yayati renounces pleasure, returns youth to Puru, and prepares for a life of spiritual withdrawal. The episode illustrates a central moral theme of the epic—the futility of unchecked desire and the value of duty, sacrifice, and renunciation.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Yayati begins bargaining with his sons to exchange old age for youth, establishing the central moral test of filial duty."
+    },
+    {
+      "start": 900,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Puru humbly accepts his father's decrepitude, a moment of emotional loyalty and sacrifice that defines his later reward."
+    },
+    {
+      "start": 1700,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Yayati’s long reign of pleasure and righteous rule shows the paradox of enjoying the world while still observing dharma."
+    },
+    {
+      "start": 2500,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "The pivotal philosophical insight that indulgence never satisfies desire but inflames it, forming the moral core of the episode."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The aged King Yayati pleading before his sons in a royal hall, his body bent with sudden old age while the princes stand conflicted around him.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Young Puru respectfully bowing and accepting his father's decrepitude as Yayati’s body transforms back into radiant youth.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "After a thousand years, Yayati standing contemplatively in a celestial garden with Viswachi, realizing the endless nature of desire.",
+      "visual_strength": 0.78
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "chunk": {
+    "id": "f8f30da2cb32",
+    "chapter_title": "1. Rama felicitates Hanuman. His Perplexities",
+    "page_start": 1006,
+    "page_end": 1006,
+    "text": "CHAPTER I \nRaiiUJ felicitates Hamurum.-His Perplexities \nHlwuNG Hanuman's faithful narrative, Rama, full of joy, said : \n\" The mission that Hanuman has carried out is of great \nsignificance and the most arduous in the world ; none other \ncould have achieved it, even in thought ! Other than Garuda \nand Vayu, verily I know of no being able to cross the mighty \nocean save Hanuman himself. Neither Gods, Danavas, Yakshas, \nGandbarvas, Uragas nor Rakshasas could enter Lanka whieb is \nprotected by Ravana and, did any in his presumption enter \nit, would be return alive ? Who is able to capture that citadel \nby assault, that has been rendered inaccessible by its rampart \nof titans, but one wbose courage and valour are equal to \nHanuman's ? Hanuman has carried out this important service \nfor Sugriva by manifesting a strength equal to his audacity. \nThat servant to whom his master confides a diflicult task and \nwho acquits himself with aesl is aaid to be a superior man. The \none who is ready and capable hut who yet does no more than \nhis sovereign exacts from him, in order to render himself \nagreeable, is called an ordinaty man, but he who is well and \nable and yet does not carty out the command of his king, is \nsaid to be the least of men. Hanuman has fulfilled the task \nconfided to him unfalteringly, to the satisfaction of Sugriva; in \nconsequence, through the discovery of Vaidehi's retreat by \nthis faithful messenger, the House of Raghu, the valiant \nLakshmana and I have been saved. Yet even so my heart is \nheavy, since I am not able to requite the besrer of these good \ntidinga in a fitting manner. Let me at least embrace the mag-\nnanimous Hanuman since, in the present circumstances, this \nis all that is permitted to me I \" \nHaving spoken thus, Rams, trembling with joy, clasped \nHanuman in his arms, who, master of himself, his mission \nfulfilled, had returned."
+  },
+  "brief": {
+    "summary_1line": "Rama praises Hanuman\u2019s unprecedented feat of crossing the ocean and finding Sita, reflecting on service and embracing him in gratitude.",
+    "importance": 0.7,
+    "themes": [
+      "devotion and service",
+      "heroic achievement",
+      "gratitude",
+      "kingship and duty"
+    ],
+    "image_candidates": [
+      {
+        "scene_text": "Rama, overwhelmed with joy, rises and embraces the humble Hanuman before the gathered vanaras.",
+        "visual_strength": 0.9
+      },
+      {
+        "scene_text": "Hanuman stands before Rama recounting his journey across the vast ocean to Lanka while the monkey chiefs listen in awe.",
+        "visual_strength": 0.6
+      }
+    ]
+  },
+  "deep": null,
+  "scene_ids": []
+}

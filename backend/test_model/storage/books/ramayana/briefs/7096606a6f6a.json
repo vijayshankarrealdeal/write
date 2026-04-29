@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana descends to the nether regions, battles the Nivatakavachas and later the sons of Varuna, forming an alliance and displaying overwhelming martial power.",
+  "importance": 0.5,
+  "themes": [
+    "Ravana's conquests",
+    "divine alliances",
+    "cosmic warfare",
+    "netherworld exploration",
+    "power and pride"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana in the flying Pushpaka chariot battles the radiant sons of Varuna amid a storm of arrows in the sky.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Ravana circumambulates the miraculous cow Surabha whose endless milk flows into the cosmic ocean.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Mahodara smashes the airborne chariots of Varuna’s sons with a massive mace, sending them crashing to the earth.",
+      "visual_strength": 0.82
+    }
+  ]
+}

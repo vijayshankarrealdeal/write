@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama and Lakshmana slay a cursed Rakshasa who reveals Sita’s abduction and directs them to Sugriva, leading to alliance and the brewing conflict with Vali.",
+  "importance": 0.72,
+  "themes": [
+    "curse and redemption",
+    "quest guidance",
+    "alliance formation",
+    "grief and resolve",
+    "brotherly loyalty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama and Lakshmana sever the massive arms of a headless Rakshasa as it collapses, and a radiant celestial being rises from its body into the sky.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "By the lotus-filled lake Pampa, Rama stands grieving for Sita while Lakshmana consoles him amid fragrant forest breezes.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Sugriva roars a challenge before the caves of Kishkindha while Vali, wearing a golden garland, strides out despite Tara’s warning.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama and Lakshmana depart Ayodhya with Vishwamitra, receive blessings, and Rama is initiated into the powerful knowledge of Bala and Atibala by the Sarayu.",
+  "importance": 0.62,
+  "themes": [
+    "departure and initiation",
+    "guru-disciple relationship",
+    "divine omens",
+    "royal duty",
+    "sacred knowledge"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dasaratha embraces and smells the heads of Rama and Lakshmana before entrusting them to the sage Vishwamitra.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Rama and Lakshmana, bows in hand and quivers on their backs, follow the austere sage Vishwamitra as celestial beings shower flowers from the sky.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "By the river Sarayu, Rama pours water over himself while Vishwamitra prepares to teach him the secret sciences of Bala and Atibala.",
+      "visual_strength": 0.78
+    }
+  ]
+}

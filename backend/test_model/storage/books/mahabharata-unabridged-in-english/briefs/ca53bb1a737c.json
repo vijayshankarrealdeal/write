@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Bhishma explains who deserves gifts and begins a discourse, via Narada and the apsara Panchachuda, on perceived faults and nature of women.",
+  "importance": 0.42,
+  "themes": [
+    "ethics of charity",
+    "qualities of worthy recipients",
+    "householder duties",
+    "scriptural authority",
+    "misogynistic discourse"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The celestial sage Narada meets the radiant apsara Panchachuda in the heavenly realm and questions her about the nature of women.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Bhishma lies on his bed of arrows while instructing Yudhishthira about righteous giving and the qualities of honorable people.",
+      "visual_strength": 0.75
+    }
+  ]
+}

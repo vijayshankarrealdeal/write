@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Sikhandini, daughter of King Drupada, is overcome with shame and guilt after realizing that her concealed female birth has brought political danger to her parents. Determined to end her life, she retreats into a forbidden forest inhabited by the Yaksha Sthunakarna. Moved by her plight, the Yaksha offers a magical bargain: he will lend her his manhood temporarily if she promises to return it later. They exchange sexes, and Sikhandini returns to her city as Sikhandin, a man. When the king of the Dasarnakas accuses Drupada of deception for marrying his daughter to a supposed woman, Drupada insists Sikhandin is male. The Dasarnaka king sends women to verify the truth, and their testimony confirms Sikhandin’s masculinity, restoring peace and honor to Drupada’s house. The episode establishes Sikhandin’s transformed identity, crucial for later events in the Mahabharata.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Philosophical opening stressing that divine favor and human effort must work together."
+    },
+    {
+      "start": 350,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Sikhandini’s shame and despair drive her to the forest and toward self‑sacrifice."
+    },
+    {
+      "start": 900,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The Yaksha’s pivotal offer to exchange sexes with Sikhandini, enabling the central transformation."
+    },
+    {
+      "start": 1500,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The magical covenant where Sikhandini and the Yaksha literally exchange their sexes."
+    },
+    {
+      "start": 2200,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Verification of Sikhandin’s masculinity restores political honor and averts war."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In a lonely forest mansion wreathed with fragrant smoke, the despairing princess Sikhandini fasts in silence until the mysterious Yaksha Sthunakarna appears before her.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The Yaksha and Sikhandini stand facing one another in a supernatural glow as they exchange their sexes through magic.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Royal maidens secretly examine Sikhandin in Drupada’s palace to determine whether the supposed prince is truly male.",
+      "visual_strength": 0.74
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sanatkumara explains to Vritra the cosmic nature of Vishnu, the cycle of rebirth shaped by the gunas, and the gradual purification leading to emancipation.",
+  "importance": 0.74,
+  "themes": [
+    "cosmic form of Vishnu",
+    "cycle of rebirth",
+    "gunas and spiritual evolution",
+    "yoga and emancipation",
+    "impermanence of power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Sanatkumara sits before the fallen Asura king Vritra and the teacher Usanas, teaching that the entire universe is the body of Vishnu.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A cosmic vision shows Vishnu's body as the universe: earth as His feet, the sun as His eye, the moon as His mind, and the stars sparkling from His gaze.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "A solitary yogin purifies himself through countless births like gold repeatedly refined in fire, striving toward the radiant white state of liberation.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bharata gathers a vast army and citizens of Ayodhya and marches to the Ganges at Shringaverapur, hoping to bring Rama back from exile.",
+  "importance": 0.52,
+  "themes": [
+    "loyalty to Rama",
+    "mass pilgrimage",
+    "royal duty",
+    "brotherly devotion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata’s grand chariot leads a massive procession of elephants, chariots, and citizens streaming out of Ayodhya at dawn to seek Rama.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Thousands of people from every trade and caste travel together in carts and on elephants, joyfully speaking of Rama as they journey through the countryside.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "The immense army halts at the wide, shimmering Ganges near Shringaverapur while Bharata surveys his gathered forces on the riverbank.",
+      "visual_strength": 0.77
+    }
+  ]
+}

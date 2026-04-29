@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ayodhya falls into collective grief after Rama’s exile, with citizens lamenting, condemning Kaikeyi, and longing to follow Rama into the forest.",
+  "importance": 0.55,
+  "themes": [
+    "collective grief",
+    "devotion to Rama",
+    "exile consequences",
+    "condemnation of Kaikeyi",
+    "loyalty and dharma"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Citizens of Ayodhya wander the road with raised arms and tearful faces, searching the vanished tracks of Rama’s chariot before collapsing in grief.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Inside darkened homes across Ayodhya, cold hearths and unadorned women sit weeping while families lament Rama’s absence.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Women of Ayodhya confront their returning husbands, pointing angrily while tears stream down their faces, blaming them for coming back without Rama.",
+      "visual_strength": 0.7
+    }
+  ]
+}

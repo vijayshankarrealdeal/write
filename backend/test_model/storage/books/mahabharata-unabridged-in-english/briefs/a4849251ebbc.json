@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Draupadi laments divine injustice and fate in the Pandavas’ suffering; Yudhishthira rebukes her skepticism and affirms duty-bound virtue without desire for reward.",
+  "importance": 0.72,
+  "themes": [
+    "divine determinism vs free will",
+    "virtue and duty",
+    "suffering of the righteous",
+    "faith vs skepticism"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Draupadi in the forest passionately questions divine justice before the calm, austere Yudhishthira and the exiled Pandavas.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "A metaphorical vision of humans as wooden puppets moved by unseen divine strings stretching across the cosmos.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Yudhishthira seated serenely amid forest exile, declaring that virtue must be practiced without desire for its fruits.",
+      "visual_strength": 0.65
+    }
+  ]
+}

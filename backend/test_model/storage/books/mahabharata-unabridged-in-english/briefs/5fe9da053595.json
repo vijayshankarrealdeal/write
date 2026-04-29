@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After Vyasa consoles Yudhishthira about Ghatotkacha's death, the exhausted armies battle through the night until Arjuna compassionately proposes a temporary truce for sleep.",
+  "importance": 0.63,
+  "themes": [
+    "war exhaustion",
+    "compassion amid battle",
+    "fate and sacrifice",
+    "leadership and restraint"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Across the dark battlefield, warriors and animals from both armies collapse asleep on chariots, elephants, horses, and the dusty ground under the night sky.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Arjuna stands in his chariot and loudly calls for both armies to rest, his voice carrying across the exhausted battlefield at midnight.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Dust-covered elephants breathe heavily through their long trunks while sleeping soldiers lie scattered around them with weapons still in hand.",
+      "visual_strength": 0.8
+    }
+  ]
+}

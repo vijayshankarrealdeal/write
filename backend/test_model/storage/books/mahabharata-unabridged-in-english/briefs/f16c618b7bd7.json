@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vasishtha explains cosmology, the 24 principles of creation, and how the soul becomes bound to rebirth through Prakriti and the three gunas.",
+  "importance": 0.7,
+  "themes": [
+    "Sankhya cosmology",
+    "Prakriti and Purusha",
+    "three gunas",
+    "cycle of rebirth",
+    "ignorance and knowledge"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Like a worm spinning a cocoon around itself, the soul encloses itself in threads of its own attributes and ignorance.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The Supreme Soul withdraws all creation into itself like the sun drawing back its rays at sunset and spreads them again at dawn.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Countless beings—gods, humans, animals, serpents, and spirits—stand as different bodies formed from the same twenty‑four elements of nature.",
+      "visual_strength": 0.72
+    }
+  ]
+}

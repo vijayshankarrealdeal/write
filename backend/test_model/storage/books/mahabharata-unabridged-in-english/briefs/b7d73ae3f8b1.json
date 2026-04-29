@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Bhishma teaches that self-restraint and penance are the roots of virtue, purification, and liberation, enabling one to attain knowledge, happiness, and ultimately Brahma.",
+  "importance": 0.46,
+  "themes": [
+    "self-restraint",
+    "ascetic penance",
+    "moral virtues",
+    "renunciation",
+    "path to liberation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An emaciated sage sits in deep austerity beneath a forest tree, radiating calm while visions of the three worlds appear before his closed eyes.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "A serene ascetic walks unnoticed along a forest path while birds cross the sky and their tracks vanish instantly, symbolizing the unseen path of the self-restrained.",
+      "visual_strength": 0.56
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "After Brahma departs, King Bhagiratha performs extreme penance to persuade Shiva to receive the descending celestial river Ganga, whose fall would otherwise shatter the earth. Standing on one toe for a year, living only on air, he wins Shiva’s favor. When Ganga finally plunges from heaven with immense force, she arrogantly thinks she can sweep Shiva away—but the god traps the entire torrent within his tangled locks. The river remains imprisoned there for ages until Bhagiratha performs further austerities. Shiva then releases her gently, dividing her into seven streams. One follows Bhagiratha’s chariot across the earth while gods, sages, and celestial beings gather in aerial vehicles to witness the cosmic event. The descent of Ganga becomes a moment of purification, freeing cursed beings and linking heaven, earth, and the divine.",
+  "highlight_spans": [
+    {
+      "start": 230,
+      "length": 210,
+      "color_hex": "#A5D6A7",
+      "why": "Bhagiratha’s extreme year‑long penance—standing on one toe and living on air—reveals the intensity of devotion required to move the gods."
+    },
+    {
+      "start": 470,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Shiva agrees to receive the catastrophic descent of Ganga on his head, the pivotal divine intervention that makes the river’s arrival on earth possible."
+    },
+    {
+      "start": 690,
+      "length": 240,
+      "color_hex": "#F48FB1",
+      "why": "Ganga’s proud attempt to overwhelm Shiva and her imprisonment in his matted locks dramatize the tension between divine forces."
+    },
+    {
+      "start": 1130,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Shiva finally releases the river, which splits into seven streams, with one following Bhagiratha’s chariot—an iconic mythic moment explaining the sacred geography of the Ganges."
+    },
+    {
+      "start": 1600,
+      "length": 260,
+      "color_hex": "#A5D6A7",
+      "why": "The spectacular cosmic audience—gods, sages, and celestial beings in vast aerial chariots—underscores the universal significance of Ganga’s descent."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The river goddess Ganga crashes from the heavens as a colossal torrent onto Shiva’s head, only to vanish into his vast tangled locks while the god stands immovable like a mountain.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Bhagiratha rides a radiant celestial chariot across the earth while one shining stream of the newly released Ganga follows behind him across the landscape.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The sky fills with immense flying chariots carrying gods, sages, elephants, and horses, all gathered to witness the blazing descent of the sacred river from heaven to earth.",
+      "visual_strength": 0.92
+    }
+  ]
+}

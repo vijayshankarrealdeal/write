@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Indrajit boasts before the court of Lanka of his past victories over the gods, recalling how even Indra’s elephant Airavata fell before his might. In response, Vibhishana rebukes the prince sharply, calling his arrogance childish and warning that Rama’s arrows are as irresistible as the rod of Brahma or Yama’s sceptre. He urges the only prudent course: return Sita to Rama with gifts and avert destruction. Ravana reacts with fury, declaring that treacherous relatives are worse than open enemies and accusing Vibhishana of disloyalty. He compares kin to hidden betrayers who deliver their own kind to danger. Insulted yet respectful, Vibhishana rises into the air with his followers, condemning Ravana’s loss of judgment—an early step toward his break with Lanka.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Indrajit’s proud recollection of defeating the gods and bringing down Airavata establishes the titanic scale of the conflict and his arrogance."
+    },
+    {
+      "start": 350,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Vibhishana’s rebuke frames the moral divide in Lanka: youthful pride versus wise counsel urging the return of Sita."
+    },
+    {
+      "start": 900,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "The warning about Rama’s arrows being like the rod of Brahma or Yama underscores Rama’s divine, unstoppable power."
+    },
+    {
+      "start": 1500,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Ravana’s bitter speech about the treachery of relatives reveals his paranoia and marks the emotional rupture with Vibhishana."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Vibhishana rises into the air before Ravana’s throne, mace in hand, accompanied by four titans as the demon court watches the brothers’ furious break.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Indrajit boasting in Ravana’s court, recalling the moment he brought down the divine elephant Airavata while celestial armies scattered in panic.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Ravana raging on his throne in the golden hall of Lanka, denouncing treacherous kin while demon ministers look on in tense silence.",
+      "visual_strength": 0.7
+    }
+  ]
+}

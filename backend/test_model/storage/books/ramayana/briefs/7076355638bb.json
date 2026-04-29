@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The gods grant the revived child Hanuman many boons, but mischievous behavior leads sages to curse him to forget his powers until reminded.",
+  "importance": 0.72,
+  "themes": [
+    "divine boons",
+    "curse of forgetfulness",
+    "Hanuman's childhood",
+    "destiny in Rama's mission",
+    "discipline of sages"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Brahma gently touches the fallen child Hanuman in a dark cave while the gathered gods watch as the boy revives with radiant light.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The assembled gods each step forward to bless the young Hanuman as Vayu stands proudly beside his revived son.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "Young Hanuman mischievously scatters sacred utensils and fires in a forest hermitage while astonished sages raise their hands to curse him.",
+      "visual_strength": 0.82
+    }
+  ]
+}

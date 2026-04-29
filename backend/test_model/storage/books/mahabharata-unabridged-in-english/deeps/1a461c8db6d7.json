@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Arjuna declares ominous signs before the coming war: his weapons tremble to be used, wild creatures follow his chariot, and celestial portents foretell slaughter. Confident in the divine weapons he has received—Pasupata, Brahma, and others—he vows that if battle begins the sons of Dhritarashtra will not survive. The narrative then shifts to Bhishma addressing Duryodhana. Bhishma recounts an ancient tale in which the divine sages Nara and Narayana aided the gods against the Asuras. He reveals that these same primordial beings are now incarnate as Arjuna (Nara) and Krishna (Narayana), united for a world‑shaping conflict and effectively invincible. Bhishma warns Duryodhana that ignoring this truth will doom the Kauravas. Karna responds defensively, insisting on his loyalty to Duryodhana and rejecting Bhishma’s criticism, further exposing the hardened divisions leading to war.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "Arjuna describes prophetic omens and the restless power of his weapons, establishing the sense of inevitable and catastrophic war."
+    },
+    {
+      "start": 300,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Arjuna’s declaration that he can single‑handedly destroy the assembled kings reveals both his confidence and the scale of the coming destruction."
+    },
+    {
+      "start": 700,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Bhishma begins the mythic explanation involving Nara and Narayana, shifting the discussion from ordinary politics to cosmic destiny."
+    },
+    {
+      "start": 1100,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The revelation that Krishna and Arjuna are incarnations of Narayana and Nara frames their alliance as divine and nearly unbeatable."
+    },
+    {
+      "start": 1400,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Karna’s defensive reply shows his pride and loyalty to Duryodhana, highlighting the personal tensions that intensify the conflict."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Arjuna standing on his chariot at dusk as his bow Gandiva trembles and arrows slide from the quiver while jackals howl and ominous birds circle behind the white horses.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhishma addressing Duryodhana before the gathered kings, solemnly recounting the divine story of Nara and Narayana.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "A cosmic vision of Krishna and Arjuna together on one chariot, revealed as the divine pair Narayana and Nara radiating celestial power.",
+      "visual_strength": 0.95
+    }
+  ]
+}

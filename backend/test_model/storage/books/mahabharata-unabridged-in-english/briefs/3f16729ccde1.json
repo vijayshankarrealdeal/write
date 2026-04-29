@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Yudhishthira seeks further guidance as Dhritarashtra prepares to retire to the forest and gathers the people to request permission and make final charitable gifts.",
+  "importance": 0.45,
+  "themes": [
+    "royal retirement",
+    "duty of kingship",
+    "public farewell",
+    "atonement and charity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged blind king Dhritarashtra stands before a vast assembly of citizens and Brahmanas, announcing his decision to retire to the forest with Gandhari.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Gandhari speaks to Dhritarashtra seated in his chamber, urging him to seek Yudhishthira’s permission before departing for the forest.",
+      "visual_strength": 0.55
+    }
+  ]
+}

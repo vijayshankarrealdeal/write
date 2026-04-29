@@ -1,0 +1,39 @@
+{
+  "rich_summary": "After Sita enters the fire to prove her purity, the fire‑god Agni (here called Pavaka or Vibhabasu) rises from the extinguished pyre in visible form, carrying her unharmed. Radiant and adorned, Sita is returned to Rama. Agni publicly declares before all that she has remained completely faithful—her thoughts fixed only on Rama despite Ravana’s captivity, threats, and temptations. The divine testimony confirms that she is without sin and must not be reproached. Rama, hearing this, is filled with joy but explains his earlier harshness: the ordeal was necessary to demonstrate Sita’s innocence before the world, since public suspicion would otherwise stain both her and his kingship. The moment resolves the moral and emotional crisis following the war, with a god’s authority restoring Sita’s honor.",
+  "highlight_spans": [
+    {
+      "start": 120,
+      "length": 90,
+      "color_hex": "#FFEB3B",
+      "why": "The dramatic divine moment when the fire‑god emerges from the pyre and restores Sita to Rama."
+    },
+    {
+      "start": 420,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Agni’s declaration that Sita remained pure and devoted to Rama despite captivity."
+    },
+    {
+      "start": 650,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The emotional defense of Sita, emphasizing her suffering among Ravana’s guards and her unwavering loyalty."
+    },
+    {
+      "start": 900,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Rama’s explanation that the fire ordeal was required to silence public doubt and uphold royal honor."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "From the extinguished pyre the fire‑god rises in radiant form, holding the unharmed and jewel‑adorned Sita as he presents her before Rama and the gathered hosts.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Agni stands blazing before Rama, solemnly proclaiming Sita’s purity while warriors, vanaras, and gods witness the divine testimony.",
+      "visual_strength": 0.88
+    }
+  ]
+}

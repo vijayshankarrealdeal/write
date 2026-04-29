@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Shurpanakha rebukes Ravana for negligence, describes Rama’s power and Sita’s beauty, and provokes him toward confronting Rama and desiring Sita.",
+  "importance": 0.74,
+  "themes": [
+    "provocation",
+    "kingship and duty",
+    "description of Rama",
+    "vengeance",
+    "desire for Sita"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Shurpanakha, mutilated and furious, stands before Ravana’s jeweled court accusing him while the demon king sits brooding on his throne.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Rama stands alone in the forest releasing blazing arrows like venomous snakes as hordes of demons fall around him.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Shurpanakha vividly describes Sita, a radiant woman with moonlike face and flowing hair standing beside Rama in the forest.",
+      "visual_strength": 0.63
+    }
+  ]
+}

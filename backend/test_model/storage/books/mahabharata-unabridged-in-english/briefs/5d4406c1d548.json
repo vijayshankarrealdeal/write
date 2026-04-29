@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhagadatta’s elephant rampages through Pandava ranks; Ghatotkacha duels him, Arjuna mourns Iravat, and brutal fighting sees Bhima slay many of Dhritarashtra’s sons.",
+  "importance": 0.7,
+  "themes": [
+    "battle chaos",
+    "heroic duels",
+    "grief and duty",
+    "elephant warfare",
+    "kin-slaying tragedy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhagadatta’s colossal elephant Supratika tramples chariots and soldiers as terrified Pandava troops scatter across the battlefield.",
+      "visual_strength": 0.89
+    },
+    {
+      "scene_text": "Ghatotkacha catches Bhagadatta’s blazing javelin in midair and snaps it across his knee while kings and celestial beings watch in astonishment.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Bhima, standing on the ground with his mace after his chariot is destroyed, faces the Kaurava army like a mountain amid a storm of arrows.",
+      "visual_strength": 0.86
+    }
+  ]
+}

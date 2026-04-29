@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Abandoned and grieving in the forest, Sita is discovered by Valmiki, who knows her purity and offers refuge in his hermitage.",
+  "importance": 0.72,
+  "themes": [
+    "exile and abandonment",
+    "compassion of sages",
+    "purity and vindication",
+    "refuge in hermitage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita stands weeping alone on the bank of the Ganges as Lakshmana’s departing chariot fades in the distance.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Young ascetic boys run through the forest hermitage to inform sage Valmiki about a mysterious woman crying by the river.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Valmiki, holding a ritual offering vessel, approaches the sorrowful Sita by the riverbank while disciples gather behind him.",
+      "visual_strength": 0.86
+    }
+  ]
+}

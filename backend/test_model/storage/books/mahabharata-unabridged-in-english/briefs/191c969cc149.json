@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira prepares for the Ashvamedha sacrifice under Vyasa’s guidance, selecting a sacred horse and appointing Arjuna to guard it during its roaming.",
+  "importance": 0.55,
+  "themes": [
+    "Ashvamedha sacrifice",
+    "royal duty",
+    "ritual preparation",
+    "Krishna and Vyasa guidance",
+    "Arjuna as guardian"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna, bow in hand, stands beside the consecrated horse as it is released to wander across the earth under the Ashvamedha rite.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Vyasa instructs Yudhishthira in the royal court while priests prepare golden ritual implements for the coming sacrifice.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "The sacred horse, adorned with ornaments, is ceremonially loosened to roam free as warriors and Brahmanas watch.",
+      "visual_strength": 0.76
+    }
+  ]
+}

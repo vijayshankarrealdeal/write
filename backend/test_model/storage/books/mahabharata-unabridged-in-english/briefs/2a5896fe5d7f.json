@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Maya the Danava offers repayment to Arjuna and builds a wondrous सभा (assembly hall) for Yudhishthira at Krishna’s request.",
+  "importance": 0.55,
+  "themes": [
+    "gratitude and repayment",
+    "divine craftsmanship",
+    "royal power and prestige",
+    "alliance of humans and asuras"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Maya the Danava stands with folded hands before Arjuna and Krishna, offering to build a magnificent palace in gratitude for his life.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The supernatural architect Maya lays out a vast square plot while Brahmanas are fed and rituals sanctify the foundation of Yudhishthira’s future hall.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "A dazzling celestial-like assembly hall rises at Khandavaprastha, blending divine, human, and asuric designs in impossible architecture.",
+      "visual_strength": 0.84
+    }
+  ]
+}

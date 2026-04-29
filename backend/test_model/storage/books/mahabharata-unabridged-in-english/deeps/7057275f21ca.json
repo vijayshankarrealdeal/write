@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Dushmanta questions how Sakuntala could be the daughter of the austere sage Kanwa, since such ascetics are believed incapable of moral lapse. Sakuntala recounts what Kanwa once explained: the origin of her birth lies with the great sage Viswamitra. When Viswamitra’s terrifying penances threatened Indra’s throne, the king of the gods sent the celestial nymph Menaka to seduce him and break his austerities. Menaka hesitates, describing Viswamitra’s immense spiritual power and wrath, but agrees after Indra arranges help from the wind-god and the god of love. At the hermitage, a staged gust steals Menaka’s garments, exposing her before the meditating sage. Viswamitra succumbs to desire, and they live together for a time, conceiving a daughter—Sakuntala. Menaka later abandons the infant by the Malini river, where birds guard the child until she is eventually found.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Dushmanta’s doubt about Sakuntala’s birth frames the entire backstory and motivates the revelation that follows."
+    },
+    {
+      "start": 1020,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Menaka’s fearful description of Viswamitra’s immense ascetic power emphasizes the cosmic stakes of disturbing a sage’s penance."
+    },
+    {
+      "start": 2140,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Indra’s plan to break Viswamitra’s austerities by sending Menaka reveals the recurring theme of gods intervening to preserve their power."
+    },
+    {
+      "start": 3490,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "The moment when the wind steals Menaka’s garments and Viswamitra beholds her beauty marks the turning point where ascetic discipline collapses into desire."
+    },
+    {
+      "start": 4170,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Menaka abandoning the newborn Sakuntala beside the Malini river is the emotionally striking origin of the heroine."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Menaka dancing before the meditating sage Viswamitra as a sudden wind snatches away her white garments in the forest hermitage.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The celestial court where Indra anxiously commands Menaka to seduce the blazing ascetic Viswamitra to protect heaven.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A newborn Sakuntala lying on the riverbank of the Malini while protective birds gather around her in a wild forest of the Himalayas.",
+      "visual_strength": 0.9
+    }
+  ]
+}

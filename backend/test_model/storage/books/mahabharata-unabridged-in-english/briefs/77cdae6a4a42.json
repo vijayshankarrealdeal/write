@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa narrates a myth where the gods fear human overpopulation, leading to Indra’s humiliation by Shiva and discovery of four Indra-like beings in a mountain cave.",
+  "importance": 0.46,
+  "themes": [
+    "cosmic order",
+    "divine hierarchy",
+    "pride and humiliation",
+    "mythic origin tale",
+    "mortality and population"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra stands beside the river Bhagirathi watching a weeping radiant woman whose falling tears turn into golden lotuses on the water.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "On a snowy Himalayan peak, Shiva and a young woman sit on a throne calmly playing dice while the angry Indra confronts them.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "After lifting a huge stone in the mountain, Indra peers into a dark cave and sees four other sunlike beings who look exactly like himself.",
+      "visual_strength": 0.8
+    }
+  ]
+}

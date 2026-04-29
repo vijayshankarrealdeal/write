@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Arjuna argues that wealth is the foundation of worldly and religious life. According to this view, prosperity enables sacrifice, duty, reputation, and social bonds; poverty, by contrast, isolates and disables action. Kings therefore must seek and accumulate wealth—even through conflict—because royal power, sacrifice, and the welfare of subjects depend on it. Citing the conduct of gods and ancient kings, the speaker frames conquest and royal taxation as part of a cosmic and Vedic order. Yudhishthira responds by rejecting this logic. Instead of ruling through power and wealth, he declares his intention to renounce the world entirely. He describes in vivid detail a life of forest asceticism: living on fruits and roots, practicing austerities, harming no creature, and abandoning pride, desire, and social identity. The passage contrasts two ideals—kingly duty rooted in wealth and renunciation rooted in spiritual detachment.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 60,
+      "color_hex": "#A5D6A7",
+      "why": "Opens with the stark claim linking poverty to social suspicion and moral judgment, establishing the passage's provocative view of wealth."
+    },
+    {
+      "start": 350,
+      "length": 31,
+      "color_hex": "#FFEB3B",
+      "why": "A memorable aphorism summarizing the argument that wealth shapes social reality and reputation."
+    },
+    {
+      "start": 1500,
+      "length": 70,
+      "color_hex": "#FFEB3B",
+      "why": "Yudhishthira’s decisive rejection of worldly life marks the turning point from political argument to spiritual resolve."
+    },
+    {
+      "start": 1650,
+      "length": 95,
+      "color_hex": "#F48FB1",
+      "why": "Evocative description of the forest life he seeks, emphasizing peace, simplicity, and harmony with nature."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Yudhishthira standing before Arjuna, calmly declaring his intention to abandon the throne and live as a forest ascetic.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Yudhishthira wandering deep in a lush forest with matted hair and bark garments, living on fruits while birds and deer surround him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A symbolic vision of kings gathering wealth and performing a grand Vedic horse sacrifice with fires, priests, and overflowing treasure.",
+      "visual_strength": 0.72
+    }
+  ]
+}

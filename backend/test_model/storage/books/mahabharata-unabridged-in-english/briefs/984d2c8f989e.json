@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada recounts how Brahma’s wrath nearly burns the universe until Sthanu intervenes, leading to the creation of Death to regulate birth and mortality.",
+  "importance": 0.66,
+  "themes": [
+    "origin of death",
+    "cosmic balance",
+    "divine wrath",
+    "compassion for beings",
+    "cycle of life"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "From Brahma’s enraged body a vast cosmic fire erupts, engulfing heaven, earth, and sky while terrified beings burn across the universe.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Sthanu stands before the blazing Brahma, pleading with folded hands as the universe burns around them.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A dark‑robed goddess named Death emerges from Brahma’s body while holding back tears in her cupped palms.",
+      "visual_strength": 0.9
+    }
+  ]
+}

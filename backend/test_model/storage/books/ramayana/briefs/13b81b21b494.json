@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Durvasa recounts how Bhrigu cursed Vishnu to be born as Rama and suffer separation from his wife, explaining Rama’s destiny and future reign.",
+  "importance": 0.72,
+  "themes": [
+    "divine curse",
+    "avatar of Vishnu",
+    "fate of Rama",
+    "sage prophecy",
+    "karma and consequence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhrigu, furious and grief-stricken, raises his hand to curse Vishnu after finding his wife slain by the discus.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The radiant sage Durvasa sits beside Vasishtha in the hermitage as King Dasaratha respectfully asks about the destiny of his lineage.",
+      "visual_strength": 0.58
+    },
+    {
+      "scene_text": "At sunset Lakshmana and the charioteer pause beside the quiet banks of the Keshini River after discussing Rama’s fate.",
+      "visual_strength": 0.46
+    }
+  ]
+}

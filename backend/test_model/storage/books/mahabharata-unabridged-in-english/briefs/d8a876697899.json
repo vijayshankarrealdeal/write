@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After their mother Kadru's curse, Vasuki gathers the serpents to debate schemes to stop King Janamejaya’s future snake‑sacrifice that threatens their extinction.",
+  "importance": 0.46,
+  "themes": [
+    "fate vs strategy",
+    "collective survival",
+    "moral debate",
+    "curse and prophecy",
+    "leadership responsibility"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vasuki, king of the serpents, coils upon a rocky seat while countless snakes gather around him in a dim cavern council.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A chaotic assembly of serpents argue—some rearing with fangs bared, others coiled calmly—while plotting ways to sabotage a royal sacrifice.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The great serpent Vasuki lowers his hood in troubled thought as the multitude of snakes watch him, awaiting his decision.",
+      "visual_strength": 0.64
+    }
+  ]
+}

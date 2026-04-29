@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Uktha’s penance produces a five‑colored cosmic being who creates deities and Pitri lineages, while other newly formed gods disrupt sacrifices unless ritually appeased.",
+  "importance": 0.47,
+  "themes": [
+    "cosmic creation",
+    "ascetic power",
+    "sacrificial ritual",
+    "mythic genealogy",
+    "appeasement of disruptive gods"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A radiant five-colored cosmic being arises from sacrificial fires, with a flaming head, sun-bright arms, golden skin and eyes, and black feet.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "From the being’s body emerge forces of creation—Siva from the navel, Indra from might, and wind and fire from the soul.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Strange winged gods hover near a sacrificial altar, snatching clarified-butter offerings meant for the heavens.",
+      "visual_strength": 0.78
+    }
+  ]
+}

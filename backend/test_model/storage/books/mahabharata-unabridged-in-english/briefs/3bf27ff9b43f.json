@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains origins of various mixed castes, their occupations and traits, and discusses how lineage, conduct, and types of sons are defined in dharmic law.",
+  "importance": 0.45,
+  "themes": [
+    "caste mixtures",
+    "social hierarchy",
+    "lineage and legitimacy",
+    "conduct vs birth",
+    "types of sons"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Outcast families wearing iron ornaments build huts near a cremation ground at a crossroads while crafting utensils from scrap.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "Bhishma lies on his bed of arrows speaking to Yudhishthira who stands respectfully listening on the battlefield.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "A Chandala figure draped in garments taken from corpses walks among funeral pyres guarding the dead.",
+      "visual_strength": 0.72
+    }
+  ]
+}

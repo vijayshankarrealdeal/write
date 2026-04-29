@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Ravana travels to the solar realm to challenge the Sun, but after a brief exchange through messengers he declares victory and departs.",
+  "importance": 0.25,
+  "themes": [
+    "divine confrontation",
+    "Ravana's pride",
+    "cosmic realms",
+    "messenger diplomacy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana in the flying Pushpaka chariot arrives before the radiant Sun-god blazing with a thousand rays on the summit of Mount Sumeru.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The golden Sun-god adorned with crimson lotus garlands and jeweled halo stands while the demon envoy shields his eyes from the overwhelming light.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Ravana beats victory drums beside the Pushpaka chariot after proclaiming triumph before the blazing solar court.",
+      "visual_strength": 0.64
+    }
+  ]
+}

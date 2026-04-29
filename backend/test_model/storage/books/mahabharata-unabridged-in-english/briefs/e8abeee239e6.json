@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Savitri follows Yama after Satyavan’s death, wins multiple boons through wisdom and devotion, and ultimately secures Satyavan’s life.",
+  "importance": 0.9,
+  "themes": [
+    "devotion and fidelity",
+    "death and destiny",
+    "righteous speech",
+    "power of vows",
+    "boons and divine justice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Satyavan collapses in the forest with his head resting on Savitri’s lap as the dark, radiant Yama appears holding a noose.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Yama draws a thumb-sized luminous soul from Satyavan’s body and binds it with a noose while Savitri watches in grief.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Savitri walks behind Yama through the shadowy forest path as he carries Satyavan’s bound soul toward the southern realm.",
+      "visual_strength": 0.9
+    }
+  ]
+}

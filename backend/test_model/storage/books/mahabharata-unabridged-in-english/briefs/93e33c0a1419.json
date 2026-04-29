@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Shiva explains to Uma how actions like compassion, generosity, humility, and nonviolence lead to heaven, while cruelty, greed, and disrespect bring hell and unfortunate rebirths.",
+  "importance": 0.62,
+  "themes": [
+    "karma and rebirth",
+    "compassion vs cruelty",
+    "charity and hospitality",
+    "moral causation",
+    "heaven and hell"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A compassionate man stands unarmed among animals and people, radiating calm while frightened creatures gather around him without fear.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A generous householder distributes food, water, and gifts to blind and destitute travelers beside a newly dug well under the hot sun.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "A cruel hunter with raised weapons chases terrified animals through the forest, symbolizing the path that leads to hell.",
+      "visual_strength": 0.71
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma and Parashurama’s cosmic weapon clash is halted by gods and sages, leading both to desist and reconcile with mutual respect.",
+  "importance": 0.72,
+  "themes": [
+    "dharma vs vow",
+    "divine intervention",
+    "guru-disciple tension",
+    "cosmic weapons",
+    "warrior honor"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Two blazing celestial weapons collide in mid-air, setting the sky aflame while gods, sages, and creatures tremble below.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Narada and radiant sages appear in the sky, raising their hands to command Bhishma to withdraw the terrible Praswapa weapon.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Wounded yet resolute, Bhishma approaches Parashurama on the battlefield and bows to his teacher as the ascetic smiles in approval.",
+      "visual_strength": 0.74
+    }
+  ]
+}

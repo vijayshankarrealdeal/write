@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhagiratha leads Ganga to his ancestors’ ashes; Jahnu briefly drinks the river; the sons of Sagara are liberated and Brahma blesses Bhagiratha.",
+  "importance": 0.85,
+  "themes": [
+    "ancestral redemption",
+    "sacred river Ganga",
+    "divine blessing",
+    "filial duty",
+    "cosmic purification"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sage Jahnu, angered as the river floods his sacrifice, miraculously drinks the entire rushing Ganga in one draught.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The river Ganga bursts forth from Jahnu’s ear while gods and sages watch in astonishment.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The sacred Ganga flows over the ashes of Sagara’s sons as Bhagiratha stands grieving, and their spirits rise purified toward heaven.",
+      "visual_strength": 0.93
+    }
+  ]
+}

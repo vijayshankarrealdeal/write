@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna consoles grieving Arjuna over Abhimanyu’s death; Yudhishthira recounts the boy’s heroic fall, and Arjuna vows to kill Jayadratha the next day.",
+  "importance": 0.87,
+  "themes": [
+    "grief and consolation",
+    "warrior dharma",
+    "Abhimanyu's death",
+    "oath of vengeance",
+    "battlefield honor"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna, eyes streaming with tears, sits gripping his bow and sword while the silent Pandava warriors stand around him unable to meet his gaze.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Young Abhimanyu, surrounded by six great chariot-warriors after his chariot is shattered, fights on alone in the midst of a ring of enemies.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arjuna rises trembling with rage, swearing before the assembled warriors that he will slay Jayadratha by the next day’s sunset.",
+      "visual_strength": 0.86
+    }
+  ]
+}

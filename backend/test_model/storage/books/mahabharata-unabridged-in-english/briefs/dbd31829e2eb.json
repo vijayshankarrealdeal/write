@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhima rampages through Kaurava forces, slays many of Dhritarashtra’s sons, clashes fiercely with Drona, and pushes through enemy divisions to reach Arjuna.",
+  "importance": 0.72,
+  "themes": [
+    "battle fury",
+    "heroic prowess",
+    "Bhima vs Drona",
+    "slaughter of Kaurava princes",
+    "war chaos"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima hurls his massive mace like a thunderbolt into the Kaurava ranks, smashing chariots and scattering warriors in terror.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Under a storm of arrows from Drona, Bhima leaps from his chariot, seizes Drona’s chariot by the shaft, and violently overturns it.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "After breaking through enemy divisions, Bhima roars like thunder upon seeing Arjuna fighting in the distance on the battlefield.",
+      "visual_strength": 0.67
+    }
+  ]
+}

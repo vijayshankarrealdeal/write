@@ -1,0 +1,49 @@
+{
+  "rich_summary": "As Ravana carries the abducted Sita through the sky, the aged vulture-king Jatayu confronts him in a fierce aerial battle. The two clash like storm clouds and winged mountains. Ravana showers the bird with arrows, but Jatayu endures and retaliates with talons and wings, breaking Ravana’s bow, smashing his shield, and even destroying his enchanted chariot and its demon-headed mules. For a moment the world rejoices as Ravana is forced to the ground. Yet the titan, noticing Jatayu’s age and exhaustion, rises again into the air with Sita. Jatayu blocks him and delivers a prophetic rebuke, warning that abducting Rama’s wife will bring Ravana’s destruction. The episode dramatizes heroic sacrifice and foreshadows the downfall of Lanka’s king.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Opening of the confrontation, establishing the mythic aerial battle between Jatayu and Ravana."
+    },
+    {
+      "start": 350,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Description of Jatayu enduring Ravana’s storm of arrows and counterattacking with talons and wings."
+    },
+    {
+      "start": 900,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Jatayu destroys Ravana’s bow, shield, and chariot—an epic reversal where the aged bird overpowers the demon king."
+    },
+    {
+      "start": 1500,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Moment when Ravana lifts Sita again and takes to the air while Jatayu, exhausted with age, still refuses to yield."
+    },
+    {
+      "start": 2200,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Jatayu’s prophetic speech warning Ravana that abducting Rama’s wife will lead to his ruin."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "High in the sky, the giant vulture Jatayu clashes with the ten‑headed Ravana amid clouds while Sita struggles in the demon’s grasp.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Jatayu smashing Ravana’s radiant chariot and demon‑headed mules with a sweep of his massive wings as arrows scatter through the air.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The wounded but defiant Jatayu swoops at Ravana, gripping the demon with his talons and tearing at him while Sita watches in desperate hope.",
+      "visual_strength": 0.9
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Bhishma explains which weapons suit different peoples and describes physical and temperamental signs that mark fearless, effective warriors.",
+  "importance": 0.41,
+  "themes": [
+    "martial traits",
+    "regional fighting styles",
+    "physiognomy of warriors",
+    "battle readiness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Fierce warriors with lion-like eyes and broad chests rush forward at the clash of drums and conch shells on a crowded battlefield.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "A wild vanguard of rough, outlandish fighters with curled greenish hair and heavy necks charges recklessly toward the enemy line.",
+      "visual_strength": 0.66
+    }
+  ]
+}

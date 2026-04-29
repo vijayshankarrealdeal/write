@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vishwamitra explains Siddha Ashrama’s sacred history, recounting Vishnu’s Vamana incarnation to curb King Bali, and prepares to begin his sacrifice.",
+  "importance": 0.55,
+  "themes": [
+    "sacred hermitage",
+    "divine incarnation",
+    "austerity and sacrifice",
+    "devas seeking aid",
+    "Rama's protection role"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Divine weapons glowing like fire, smoke, sun, and moon appear before Rama as their presiding deities bow with folded hands.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Rama and Vishwamitra stand before the serene Siddha Ashrama, a lush grove filled with deer and birds singing beneath a dark cloud-like canopy of trees.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "The dwarf Vamana, radiant yet humble, approaches the mighty King Bali during a grand sacrificial ritual surrounded by priests and sacred fires.",
+      "visual_strength": 0.78
+    }
+  ]
+}

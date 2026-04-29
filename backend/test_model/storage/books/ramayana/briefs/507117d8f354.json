@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hidden in the Ashoka grove, Hanuman finally spots the sorrowful, captive Sita surrounded by demonesses and confirms her identity.",
+  "importance": 0.88,
+  "themes": [
+    "discovery of Sita",
+    "grief and captivity",
+    "devotion to Rama",
+    "hope in despair",
+    "Hanuman's vigilance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "From the branches of a flowering Shingshapa tree, Hanuman secretly watches the Ashoka grove where a pale, sorrowful Sita sits on the ground surrounded by demonesses.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Sita in soiled yellow silk sits beneath blooming Ashoka trees, emaciated and tearful, like a dim flame wrapped in smoke.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "In the radiant garden of golden lotuses and flowering trees, Hanuman peers toward a white temple with coral steps where the captive Sita is kept.",
+      "visual_strength": 0.76
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna halts the Kaurava host, magically creates water and an arrow-built shelter for his horses, and resumes his furious advance toward Jayadratha.",
+  "importance": 0.7,
+  "themes": [
+    "heroic prowess",
+    "divine partnership",
+    "battlefield marvels",
+    "approach to Jayadratha",
+    "war spectacle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Amid the raging battlefield, Arjuna shoots an arrow into the earth and a clear lotus-filled lake suddenly springs forth for his exhausted horses.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Arjuna stands alone against a sea of chariots and elephants, arrows blazing through the sky like sparks from a great fire.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Krishna calmly leads the wounded horses into a hall made entirely of arrows while enemy armies watch in stunned silence.",
+      "visual_strength": 0.88
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna consoles grieving Yudhishthira, recounting Indra’s battle with Vritra and teaching that inner enemies and imbalance of mind and body cause suffering.",
+  "importance": 0.55,
+  "themes": [
+    "grief after war",
+    "inner enemies",
+    "cosmic myth",
+    "mind–body balance",
+    "moral instruction"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna speaks gently to a despondent Yudhishthira who sits with head bowed, like a sun darkened by eclipse.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Indra hurls his thunderbolt at the serpent Vritra who coils around the world, draining the elements of their properties.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The sage Samvarta stands blazing like fire on the sacrificial altar, offering clarified butter while the gods gather to drink Soma.",
+      "visual_strength": 0.8
+    }
+  ]
+}

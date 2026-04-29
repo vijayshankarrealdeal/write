@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Lakshmana confronts the furious Indrajita in open battle after fierce taunts, and the two begin a deadly exchange of arrows.",
+  "importance": 0.75,
+  "themes": [
+    "heroic combat",
+    "war taunts",
+    "dharma vs deceit",
+    "brotherly loyalty",
+    "battlefield valor"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lakshmana stands upon Hanuman’s back like a rising sun while Indrajita, in a chariot drawn by black steeds, raises his bow to unleash arrows.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Indrajita releases a storm of serpent-like arrows that strike Lakshmana, whose blood-covered body shines like a smokeless flame.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The armored Indrajita, roaring like a thundercloud from his ornate chariot, challenges Lakshmana amid a rain of arrows on the battlefield.",
+      "visual_strength": 0.8
+    }
+  ]
+}

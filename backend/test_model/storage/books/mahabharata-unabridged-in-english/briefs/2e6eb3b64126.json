@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Sauti finishes the tale of Astika and begins introducing Vyasa and the forthcoming recitation of the Mahabharata at Janamejaya’s sacrifice.",
+  "importance": 0.55,
+  "themes": [
+    "story framing",
+    "sage lineage",
+    "sacred storytelling",
+    "Vyasa introduction"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Vyasa enters King Janamejaya’s vast sacrificial pavilion while priests, kings, and sages rise to honor him.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "King Janamejaya bows and offers water, arghya, and a golden seat to his great‑grandfather Vyasa amid the ritual fire of the sacrifice.",
+      "visual_strength": 0.74
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Draupadi’s sons slay Somadatta’s son, while Bhima battles the Rakshasa Alamvusha and ultimately breaks his illusion and drives him from the field.",
+  "importance": 0.58,
+  "themes": [
+    "vengeance",
+    "youthful warriors in battle",
+    "rakshasa illusion warfare",
+    "heroic resilience",
+    "battlefield carnage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The son of Sahadeva severs Somadatta’s son’s head, the golden‑earringed head falling to the earth shining like the sun.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The Rakshasa Alamvusha shifts forms in the sky and earth, raining weapons from the clouds upon Bhima and the Pandava army.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A gruesome river of blood flows across the battlefield, chariots as whirlpools and severed arms like snakes drifting in its current.",
+      "visual_strength": 0.92
+    }
+  ]
+}

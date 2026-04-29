@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Shabala magically creates armies that destroy Vishwamitra’s forces; his sons die, and the humiliated king turns to severe penance and seeks divine weapons from Shiva.",
+  "importance": 0.72,
+  "themes": [
+    "spiritual power vs royal power",
+    "divine manifestations",
+    "humiliation and transformation",
+    "asceticism and penance",
+    "divine weapons"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sacred cow Shabala bellows as armed warriors burst forth from her body while the battlefield fills with soldiers before the stunned army of Vishwamitra.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Vasishta calmly utters a single 'H'm' as the charging hundred sons of Vishwamitra are instantly burned to ashes before him.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A devastated Vishwamitra stands amid the ruins of his annihilated army, his chariot still and his face filled with shame beneath a darkened sky.",
+      "visual_strength": 0.67
+    }
+  ]
+}

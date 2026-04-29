@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Amid brutal battlefield chaos, Duryodhana attacks Bhima, prompting Pandava warriors to rally while Drona and others rush to defend the Kuru king.",
+  "importance": 0.64,
+  "themes": [
+    "battlefield carnage",
+    "duel Bhima vs Duryodhana",
+    "warrior honor and rescue",
+    "elephant warfare",
+    "loyalty to king"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Mad war elephants locked tusk to tusk, blood streaming down their sides like red chalk on mountains while standards flutter on their backs.",
+      "visual_strength": 0.91
+    },
+    {
+      "scene_text": "Bhima leaps from his chariot and stands like a mountain with a massive mace raised, facing Duryodhana and Ashwatthama rushing toward him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Ashwatthama’s arrows strike King Nila, his blue-cloud-like form slumping on the chariot after his horses and banner are shot down.",
+      "visual_strength": 0.76
+    }
+  ]
+}

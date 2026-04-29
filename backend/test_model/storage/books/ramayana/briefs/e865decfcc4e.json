@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Chyavana recounts how the mighty king Mandhata sought universal conquest but was annihilated by the rakshasa Lavana’s divine trident.",
+  "importance": 0.5,
+  "themes": [
+    "hubris of kings",
+    "divine weapons",
+    "rakshasa threat",
+    "warning tale",
+    "inevitable fate"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The rakshasa Lavana hurls his blazing trident, which streaks through the sky and incinerates King Mandhata and his entire army.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Indra confronts the ambitious King Mandhata in the heavens as the king declares his desire to conquer the celestial throne.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "A terrified envoy stands before the monstrous Lavana in the forest moments before the demon devours him.",
+      "visual_strength": 0.75
+    }
+  ]
+}

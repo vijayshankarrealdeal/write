@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sugriva sends Shatavali and a vast monkey force north, detailing distant lands, mountains, and mythical regions to search for Sita.",
+  "importance": 0.43,
+  "themes": [
+    "quest for Sita",
+    "geographical cosmology",
+    "duty and loyalty",
+    "mythic landscapes"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sugriva stands before a vast assembly of monkeys, pointing toward the snow‑capped Himalaya as he commands Shatavali to lead the northern search.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "The monkeys gaze upon Mount Kailasa and Kubera’s golden city beside a lotus-filled lake where swans glide and apsaras play.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Beyond the Uttara Kurus, the radiant Soma mountain rises from the northern sea, glowing in a land without sun or stars.",
+      "visual_strength": 0.86
+    }
+  ]
+}

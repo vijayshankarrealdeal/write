@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sugriva orders Hanuman to summon monkey armies from across the world’s mountains and forests to aid Rama in the search for Sita.",
+  "importance": 0.58,
+  "themes": [
+    "alliance for Rama",
+    "mobilization for war",
+    "royal command and duty",
+    "vast monkey hosts"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sugriva stands in his court issuing commands while Hanuman listens as messengers of monkeys leap away toward distant mountains and seas.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Countless monkeys pour down from mountains like Anjana, Kailasha, and Vindhya, filling forests and valleys as they gather for Rama’s cause.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Swift monkey envoys race across skies, mountains, and oceans along the paths of birds and stars to summon the scattered tribes.",
+      "visual_strength": 0.74
+    }
+  ]
+}

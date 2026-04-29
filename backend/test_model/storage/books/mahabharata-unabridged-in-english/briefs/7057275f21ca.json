@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sakuntala recounts how Indra sent the apsara Menaka to seduce the ascetic Viswamitra, leading to Sakuntala’s birth and abandonment by the Malini river.",
+  "importance": 0.75,
+  "themes": [
+    "divine interference",
+    "ascetic temptation",
+    "birth of Sakuntala",
+    "power of penance",
+    "celestial politics"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Menaka dances before the meditating sage Viswamitra as the wind god steals her moon‑white garments in the forest hermitage.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Viswamitra, blazing with ascetic power, opens his eyes to behold the radiant apsara Menaka standing unveiled before him.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A newborn Sakuntala lies on the lonely bank of the Malini river while protective vultures circle and guard the infant in the wild forest.",
+      "visual_strength": 0.88
+    }
+  ]
+}

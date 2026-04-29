@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Parasurama departs, Dasaratha returns triumphantly to Ayodhya with the princes and brides, and Rama begins a virtuous, peaceful life with Sita.",
+  "importance": 0.42,
+  "themes": [
+    "homecoming",
+    "royal family life",
+    "dharma and devotion",
+    "marital harmony",
+    "public celebration"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dasaratha rides a bannered chariot into Ayodhya as flower-strewn streets and cheering citizens welcome the returning princes and their brides.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Queen Kaushalya, Sumitra, and Kaikeyi greet Sita, Urmila, and the other brides with garlands and sandalwood in the shining white palace.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Rama and Sita sit together peacefully in their palace, their gentle affection mirroring Vishnu and Lakshmi.",
+      "visual_strength": 0.66
+    }
+  ]
+}

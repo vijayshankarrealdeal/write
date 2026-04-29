@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yayati and allied kings ascend to heaven, after which the lineage from Puru through Bharata to later Kuru ancestors is recounted.",
+  "importance": 0.55,
+  "themes": [
+    "heavenly ascent",
+    "virtue and truth",
+    "royal genealogy",
+    "dynastic legitimacy",
+    "sacrifice and kingship"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Five blazing golden chariots appear in the sky as Yayati and the kings mount them and ascend together toward heaven.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "King Sivi races ahead on the celestial path while the others watch in awe, his merit carrying him foremost toward heaven.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "The exiled king Samvarana and the Bharatas dwell in a forest fortress by the Sindhu as the sage Vasishtha arrives to restore their fate.",
+      "visual_strength": 0.66
+    }
+  ]
+}

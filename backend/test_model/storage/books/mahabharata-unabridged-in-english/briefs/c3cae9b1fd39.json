@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Drupada urges rapid alliance-building for war, Krishna advises a final peace message, and both sides begin gathering vast armies across the land.",
+  "importance": 0.55,
+  "themes": [
+    "war preparations",
+    "diplomacy vs war",
+    "alliances of kings",
+    "Duryodhana's obstinacy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Messengers ride out in all directions from the courts of the Pandavas and their allies, carrying urgent summons to distant kings.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Armies from many kingdoms march across the land, their chariots, elephants, and banners making the earth seem to tremble.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "King Drupada instructs his aged priest to travel to the Kuru court and deliver a grave message about peace or war.",
+      "visual_strength": 0.55
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "In this section the Pandavas dwell in the sacred hermitage of Nara and Narayana near the Bhagirathi, enjoying a serene landscape of flowering woods, lakes, and mountains while awaiting Arjuna’s return from heaven. The calm is broken when a celestial thousand‑petaled lotus is blown to them by the wind. Enchanted by its fragrance, Draupadi asks Bhima to gather more of these rare flowers for their hermitage. Eager to please her, Bhima sets off alone toward the Gandhamadana mountain, striding through forests with overwhelming strength that terrifies beasts and shakes the wilderness. His journey becomes both a display of heroic power and inner reflection on his brothers and their exile. At last his thunderous approach awakens Hanuman, the mighty monkey hero—Bhima’s divine brother—who blocks the path and begins to challenge and instruct him, setting the stage for a significant encounter about strength and humility.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 300,
+      "color_hex": "#A5D6A7",
+      "why": "The opening pastoral description of the sacred hermitage establishes the serene spiritual setting where the Pandavas briefly find peace."
+    },
+    {
+      "start": 200,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "Introduces the miraculous thousand‑petaled celestial lotus whose fragrance captivates Draupadi and sparks the entire quest."
+    },
+    {
+      "start": 900,
+      "length": 260,
+      "color_hex": "#F48FB1",
+      "why": "Draupadi’s request to Bhima to gather more of the flowers reveals affection and becomes the emotional motivation for Bhima’s journey."
+    },
+    {
+      "start": 2200,
+      "length": 260,
+      "color_hex": "#A5D6A7",
+      "why": "The vivid description of Gandhamadana’s forests, animals, minerals, and celestial inhabitants highlights the mythic grandeur of the landscape Bhima traverses."
+    },
+    {
+      "start": 5200,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "Hanuman’s appearance blocking the path marks a pivotal turning point where Bhima’s brute strength will meet divine wisdom."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Draupadi holding the radiant thousand‑petaled celestial lotus while the Pandavas stand in the fragrant hermitage beside the Bhagirathi.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Bhima charging through the forests of Gandhamadana, roaring and scattering lions, elephants, and birds as trees and creepers break under his strength.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "The colossal Hanuman lying across a narrow mountain path among golden plantain trees, his long tail raised like a banner as Bhima approaches.",
+      "visual_strength": 0.91
+    }
+  ]
+}

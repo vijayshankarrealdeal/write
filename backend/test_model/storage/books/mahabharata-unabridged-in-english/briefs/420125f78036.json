@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sahadeva prays to Agni, is tested and blessed, then subdues many southern kings for Yudhishthira’s campaign before Nakula’s western expedition is introduced.",
+  "importance": 0.55,
+  "themes": [
+    "Agni worship",
+    "divine test and blessing",
+    "royal conquest",
+    "tribute and sovereignty",
+    "Pandava campaigns"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sahadeva sits on kusa grass before anxious troops as the god Agni appears in flames and speaks to him.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Agni rising in radiant fire before the kneeling Sahadeva who bows with folded hands.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Messengers from the shore deliver tribute of jewels, pearls, and sandalwood sent by Vibhishana to Sahadeva.",
+      "visual_strength": 0.55
+    }
+  ]
+}

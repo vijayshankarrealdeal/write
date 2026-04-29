@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dhritarashtra, before retiring to the forest, instructs Yudhishthira on righteous kingship, governance, secrecy, justice, and daily duties of a ruler.",
+  "importance": 0.55,
+  "themes": [
+    "kingship and governance",
+    "political counsel",
+    "dharma in rulership",
+    "state security",
+    "justice and administration"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged blind king Dhritarashtra walks slowly to his palace leaning on attendants, with Gandhari following behind in silence.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Dhritarashtra sits among the Pandavas, placing a hand on Yudhishthira’s back while giving solemn counsel on ruling the kingdom.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "In a guarded chamber free of intruders, a king consults a small circle of ministers while spies and guards stand watch outside.",
+      "visual_strength": 0.6
+    }
+  ]
+}

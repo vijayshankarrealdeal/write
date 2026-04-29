@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Mandapala reconciles with Jarita and their sons after the Khandava fire; Indra rewards Arjuna and Krishna with boons as the forest’s destruction concludes.",
+  "importance": 0.7,
+  "themes": [
+    "family reconciliation",
+    "divine reward",
+    "aftermath of Khandava burning",
+    "boons and destiny",
+    "marital jealousy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Jarita rushes to the charred clearing and embraces her four surviving chicks as smoke rises from the burned Khandava forest.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Indra descends from the sky surrounded by the Maruts, addressing Arjuna and Krishna after the blazing forest has been consumed.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Agni, radiant and satisfied after devouring the forest, appears before Arjuna and Krishna amid drifting smoke and ash.",
+      "visual_strength": 0.8
+    }
+  ]
+}

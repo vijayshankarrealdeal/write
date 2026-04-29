@@ -1,0 +1,49 @@
+{
+  "rich_summary": "After Rama symbolically returns the golden sandals, Bharata vows to rule only as their custodian for the fourteen years of Rama’s exile, living austerely and threatening self‑immolation if Rama does not return on the appointed day. Rama urges him to honor their mother Kaikeyi and protect the kingdom. In grief, the brothers part. Bharata reverently places the sandals upon the royal elephant and then on his own head before beginning the return from Chitrakuta with sages and counselors. He visits the hermitage of the sage Bharadwaja, recounts how Rama refused to break their father’s command, and receives praise for his righteousness. Bharata then continues toward Ayodhya, his vast army crossing sacred rivers like the Yamuna and the Ganga.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "The emotional moment where Rama gives the sandals that will symbolically rule in his place."
+    },
+    {
+      "start": 200,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Bharata’s vow to live in austerity for fourteen years and enter fire if Rama does not return."
+    },
+    {
+      "start": 600,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Rama’s instruction that Bharata honor Kaikeyi, emphasizing dharma over resentment."
+    },
+    {
+      "start": 1100,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The symbolic act of placing Rama’s sandals on the elephant and then on Bharata’s head."
+    },
+    {
+      "start": 1700,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Bharadwaja’s praise declaring that a father with such a righteous son attains immortality."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Prince Bharata reverently lifts Rama’s jeweled sandals and places them upon his head before the gathered army and sages at Chitrakuta.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A vast royal army with elephants, horses, and carts moves across the sacred rivers Yamuna and Ganga as Bharata begins the solemn return journey.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Bharata kneels before the sage Bharadwaja in a forest hermitage while recounting Rama’s unwavering vow of exile.",
+      "visual_strength": 0.63
+    }
+  ]
+}

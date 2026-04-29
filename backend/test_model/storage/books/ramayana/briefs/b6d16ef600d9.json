@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana learns of Meghanada’s powerful sacrifices, hears that Madhu abducted their kinswoman, and marches with a vast army to confront him.",
+  "importance": 0.48,
+  "themes": [
+    "Indrajit’s sacrifices and boons",
+    "family honor and rebuke",
+    "abduction and marriage politics",
+    "Ravana’s wrath",
+    "march to war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the Nikumbhila grove, Meghanada stands in black antelope skin beside blazing sacrificial altars as Ravana embraces him amid rows of ritual posts.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Ravana, eyes red with fury, commands his chariot while an immense host of rakshasas mounted on serpents, buffalo, and horses surges behind him.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Kumbhinasi falls at Ravana’s feet in Madhupura, begging him not to slay her husband Madhu as the demon king raises her up.",
+      "visual_strength": 0.67
+    }
+  ]
+}

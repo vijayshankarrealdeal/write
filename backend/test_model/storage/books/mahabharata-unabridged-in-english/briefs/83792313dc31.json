@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The Pandavas visit Dhritarashtra’s forest retreat, reunite tearfully with their elders, and Sanjaya introduces them and their wives to curious ascetics.",
+  "importance": 0.45,
+  "themes": [
+    "family reunion",
+    "renunciation and forest life",
+    "royal lineage",
+    "grief after war",
+    "recognition and identity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sahadeva runs to Kunti at the Yamuna bank, falls at her feet weeping, and she lifts him into a tearful embrace.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The Pandavas bow to the blind Dhritarashtra in the forest hermitage as he recognizes them by touch, tears streaming down his face.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Before a circle of ascetics in the forest retreat, Sanjaya points out each Pandava and royal lady as the gathered sages watch with curiosity.",
+      "visual_strength": 0.64
+    }
+  ]
+}

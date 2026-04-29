@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma teaches Yudhishthira that wisdom, strategic flexibility like the bending cane, and patience toward insults are essential for rulers and virtuous people.",
+  "importance": 0.6,
+  "themes": [
+    "strategic intelligence",
+    "flexibility vs rigidity",
+    "endurance of insults",
+    "kingship ethics",
+    "wisdom over force"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Raging river currents uproot massive trees while slender canes bend low to the water and remain standing on the bank.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The Ocean, personified as a majestic deity, listens while the river goddess Ganga rises from flowing waters to explain why canes survive the floods.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A proud man angrily insults a calm sage in a crowded royal assembly while the sage stands silent and composed.",
+      "visual_strength": 0.7
+    }
+  ]
+}

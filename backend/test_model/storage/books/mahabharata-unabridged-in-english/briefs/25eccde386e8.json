@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Satyaki exposes a plot to seize Krishna; Vidura and Dhritarashtra warn Duryodhana of Krishna’s invincible power, but Krishna calmly permits them to try.",
+  "importance": 0.78,
+  "themes": [
+    "arrogance of Duryodhana",
+    "divine power of Krishna",
+    "warnings ignored",
+    "dharma vs ambition"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna stands calm in the royal court while hostile kings plot to seize him and elders warn that he is as untouchable as the wind or moon.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Vidura recounts Krishna’s feats as the court listens, evoking the image of the child Krishna lifting Mount Govardhana on his finger.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Satyaki reenters the court like a lion entering a mountain cave, announcing the conspiracy to capture Krishna.",
+      "visual_strength": 0.62
+    }
+  ]
+}

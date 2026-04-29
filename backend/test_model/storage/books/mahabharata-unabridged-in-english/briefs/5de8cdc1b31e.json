@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhima keeps watch over his sleeping family as the man-eating rakshasa Hidimva discovers them and sends his sister, who instead falls in love with Bhima.",
+  "importance": 0.55,
+  "themes": [
+    "exile hardship",
+    "rakshasa threat",
+    "love versus loyalty",
+    "Bhima's vigilance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima sits awake beneath a forest tree guarding his sleeping mother and brothers sprawled on the bare ground at night.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The monstrous rakshasa Hidimva, red‑haired and fanged, crouches on a sala tree licking his lips as he spies the sleeping Pandavas below.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Hidimva’s sister transforms into a beautiful woman adorned with celestial ornaments as she approaches the vigilant Bhima in the dark forest.",
+      "visual_strength": 0.82
+    }
+  ]
+}

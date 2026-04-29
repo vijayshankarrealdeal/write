@@ -1,0 +1,25 @@
+{
+  "summary_1line": "During a chaotic battle between gods and Rakshasas, Ravana’s son Meghnada uses magic to defeat and capture Indra, forcing the gods into retreat.",
+  "importance": 0.8,
+  "themes": [
+    "divine warfare",
+    "Ravana's ambition",
+    "Meghnada's prowess",
+    "illusion and magic in battle",
+    "capture of Indra"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A battlefield river of blood filled with floating weapons and circling vultures flows among fallen Rakshasas and shattered chariots.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Indra on the white elephant Airavata charges into the sky while the invisible Meghnada binds him with magical power.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Ravana roars in fury from his speeding chariot as volleys of arrows from both sides darken the sky and blot out the sun.",
+      "visual_strength": 0.86
+    }
+  ]
+}

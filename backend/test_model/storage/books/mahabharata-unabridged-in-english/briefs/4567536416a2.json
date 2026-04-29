@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sanjaya explains that knowledge, faith, and control of the senses reveal Krishna as the supreme reality, while Duryodhana rejects surrender despite warnings.",
+  "importance": 0.58,
+  "themes": [
+    "divine nature of Krishna",
+    "knowledge vs ignorance",
+    "sense control and wisdom",
+    "rejection of counsel",
+    "approaching doom"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Blind king Dhritarashtra sits on his throne while Sanjaya stands before him describing Krishna’s cosmic nature in a dim royal court.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Duryodhana stands defiantly in the palace hall refusing to bow to Krishna as Dhritarashtra and Gandhari warn him of ruin.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Gandhari, veiled and sorrowful, raises her hand in anguish as she foretells Duryodhana struck down by Bhima on the battlefield.",
+      "visual_strength": 0.76
+    }
+  ]
+}

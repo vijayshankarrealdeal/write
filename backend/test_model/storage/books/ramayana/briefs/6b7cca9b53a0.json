@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After giving away his wealth, Rama walks with Sita and Lakshmana to King Dasaratha’s palace as grieving citizens lament his exile and praise his virtue.",
+  "importance": 0.56,
+  "themes": [
+    "loyalty of subjects",
+    "sacrifice and duty",
+    "public grief",
+    "righteous kingship",
+    "exile"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama, Sita, and Lakshmana walk through Ayodhya’s streets while sorrowful citizens crowd rooftops and balconies watching their departure.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The people of Ayodhya raise their hands in lament from the roofs of seven‑storied houses as Rama passes calmly below like a young elephant.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Rama, serene and smiling amid grieving crowds, arrives at the grand palace of Dasaratha while the charioteer Sumantra stands disconsolate at the gate.",
+      "visual_strength": 0.74
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana abducts Sita; Jatayu heroically fights and dies; Rama learns the truth, performs Jatayu’s rites, and begins searching southward.",
+  "importance": 0.9,
+  "themes": [
+    "abduction of Sita",
+    "loyalty and sacrifice",
+    "deception and disguise",
+    "grief and duty",
+    "quest begins"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The giant vulture Jatayu attacks Ravana mid-air, tearing at him with talons as Ravana holds the struggling Sita.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Sita drops her ornaments and a bright yellow cloth from the sky toward five monkeys watching from a mountain peak below.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The dying wingless Jatayu lies on the forest ground as Rama and Lakshmana kneel beside him with drawn bows.",
+      "visual_strength": 0.88
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada teaches Bhishma that gifts of food are the greatest charity, sustaining life, earning merit, and benefiting both giver and receiver in this world and the next.",
+  "importance": 0.45,
+  "themes": [
+    "charity of food",
+    "dharma of hospitality",
+    "merit and afterlife",
+    "Brahmanas and almsgiving",
+    "cosmic importance of food"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A weary traveler stands at a house door while the householder respectfully offers him a bowl of fresh food.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "A Brahmana guest sits in a humble home receiving the first portion of a meal while the host family serves him reverently.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Narada, radiant and celestial, speaks before Bhishma and Yudhishthira about the sacred power of food sustaining the universe.",
+      "visual_strength": 0.6
+    }
+  ]
+}

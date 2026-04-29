@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A teacher explains that non‑violence and knowledge lead to liberation, clarifying the relationship between Purusha (knower) and Nature as subject and object.",
+  "importance": 0.64,
+  "themes": [
+    "nonviolence as highest duty",
+    "knowledge and liberation",
+    "Purusha and Prakriti",
+    "detachment from qualities",
+    "means and wisdom in spiritual progress"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A drop of water trembles on a lotus leaf, untouched by the leaf beneath it, symbolizing the unattached Purusha amid Nature.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A traveler enters a dark cave carrying a bright lamp, its flame fed by oil and wick while darkness surrounds him.",
+      "visual_strength": 0.71
+    },
+    {
+      "scene_text": "A wise voyager crosses a vast lake in a small boat with oars, reaches the far shore, and leaves the boat behind.",
+      "visual_strength": 0.76
+    }
+  ]
+}

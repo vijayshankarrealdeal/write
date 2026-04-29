@@ -1,0 +1,49 @@
+{
+  "rich_summary": "After the Kurukshetra war, Yudhishthira and the Pandavas go to meet the grieving Dhritarashtra. Still burning with rage, the blind king attempts to crush Bhima in a deadly embrace, but Krishna secretly substitutes an iron statue, which Dhritarashtra shatters—realizing too late the depth of his wrath and grief. Krishna rebukes him for ignoring wise counsel that could have prevented the war. Reconciliation follows, but new tensions arise when Gandhari, mourning her hundred sons, nearly curses the Pandavas. Guided by Vyasa, she restrains herself, though she reproaches Bhima for striking Duryodhana unfairly. The chapter culminates in a devastating vision of the battlefield: widows searching for bodies among the carnage. Gandhari’s lament over Duryodhana and her sons transforms the victory into a portrait of irreversible loss and the tragic cost of ambition and vengeance.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "The opening establishes the aftermath of the war and the grief-filled meeting between Yudhishthira and Dhritarashtra, setting the emotional tone."
+    },
+    {
+      "start": 160,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "The moment leading toward Dhritarashtra’s embrace foreshadows the hidden attempt to kill Bhima and the moral tension in the encounter."
+    },
+    {
+      "start": 3400,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Krishna’s rebuke explains that Dhritarashtra’s suffering stems from his own failure to heed wise counsel, emphasizing the epic’s moral theme of responsibility."
+    },
+    {
+      "start": 8200,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Bhima’s defense of his unfair blow against Duryodhana reveals the lingering bitterness and the moral ambiguity of vengeance."
+    },
+    {
+      "start": 15000,
+      "length": 260,
+      "color_hex": "#F48FB1",
+      "why": "Gandhari’s lament as she surveys the battlefield captures the overwhelming grief of the war’s survivors and the human cost of the conflict."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The blind king Dhritarashtra crushing the iron statue of Bhima in a grief-fueled embrace while Krishna quietly stands beside the real Bhima he has pulled away.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Gandhari standing amid the devastated field of Kurukshetra, surrounded by widows searching among corpses, with vultures circling and broken weapons scattered everywhere.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Gandhari collapsing beside the blood-covered body of Duryodhana while grieving queens with disheveled hair cry around the fallen warriors.",
+      "visual_strength": 0.9
+    }
+  ]
+}

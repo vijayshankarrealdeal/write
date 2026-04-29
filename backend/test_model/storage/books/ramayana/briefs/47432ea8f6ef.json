@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Rama kills Khara, sages celebrate him while the demon Akampana informs Ravana, who begins plotting to abduct Sita.",
+  "importance": 0.72,
+  "themes": [
+    "aftermath of battle",
+    "praise of Rama",
+    "Ravana's rage",
+    "strategic deception",
+    "Sita as target"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita joyfully embraces Rama in the hermitage while slain demons lie scattered and sages gather around the victorious hero.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Ravana, eyes blazing red with fury, leans forward on his throne as the trembling demon Akampana reports the destruction of Janasthana.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Ravana’s radiant chariot drawn by mules races across the sky toward Maricha’s hermitage, shining like the sun among clouds.",
+      "visual_strength": 0.7
+    }
+  ]
+}

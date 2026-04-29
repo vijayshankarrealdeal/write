@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama calms the enraged Lakshmana, urging patience and acceptance of exile as destiny while refusing to blame Kaikeyi or resist his father's vow.",
+  "importance": 0.62,
+  "themes": [
+    "duty and obedience",
+    "acceptance of destiny",
+    "brotherly counsel",
+    "karma and providence",
+    "renunciation of power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lakshmana stands trembling with rage like a furious elephant while Rama gently speaks to him, calming him amid the royal chamber.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Rama respectfully circumambulates Queen Kaushalya before preparing to leave the palace for the forest.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Sacred coronation vessels filled with water stand unused as Rama declares they may instead serve for his dedication to an ascetic life.",
+      "visual_strength": 0.71
+    }
+  ]
+}

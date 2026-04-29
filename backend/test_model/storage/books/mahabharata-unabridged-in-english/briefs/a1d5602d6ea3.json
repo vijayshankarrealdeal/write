@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhima defeats and captures Susarman during the cattle raid battle; Yudhishthira orders mercy, Virata rewards the Pandavas, and news of victory is sent to the city.",
+  "importance": 0.55,
+  "themes": [
+    "battle victory",
+    "mercy after conquest",
+    "loyalty to Virata",
+    "honor and humility",
+    "royal gratitude"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima leaps from his chariot, seizes King Susarman by the hair, and slams him to the ground like a lion overpowering a deer.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Bhima binds the dust-covered and unconscious Susarman and throws him onto his chariot before presenting the captive king to Yudhishthira.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "King Virata, surrounded by warriors, offers gems, cattle, and wealth to the Pandavas in gratitude for rescuing his kingdom.",
+      "visual_strength": 0.6
+    }
+  ]
+}

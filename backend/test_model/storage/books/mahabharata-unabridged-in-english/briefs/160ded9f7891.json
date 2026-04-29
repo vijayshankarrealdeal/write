@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma outlines proper duties of Brahmanas and other orders, emphasizing moral conduct, stages of life, and the central protective role of Kshatriya rule.",
+  "importance": 0.55,
+  "themes": [
+    "varna duties",
+    "moral conduct over birth",
+    "stages of life",
+    "kingship and social order",
+    "religious merit"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An aged king sits before the dying Bhishma on a bed of arrows as the warrior-sage instructs him about the duties of Brahmanas and kings.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A humble ascetic Brahmana in simple robes performs a Vedic rite beside a small fire, embodying purity and restraint.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "A powerful Kshatriya king stands with sword lowered while priests and citizens gather behind him, symbolizing royal protection of social order.",
+      "visual_strength": 0.64
+    }
+  ]
+}

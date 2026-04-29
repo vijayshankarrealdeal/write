@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After Matanga receives alternative boons from Indra, Yudhishthira asks Bhishma how King Vitahavya once attained Brahmana status, leading into a war-filled backstory.",
+  "importance": 0.46,
+  "themes": [
+    "caste and spiritual status",
+    "austerity and divine boons",
+    "royal lineage conflict",
+    "quest for Brahmanahood"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The emaciated ascetic Matanga stands on his toes in harsh penance as Indra descends and catches him while he collapses from exhaustion.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Prince Pratarddana, shining in armor on his chariot, cuts down the sons of Vitahavya as severed heads fall like red Kinsuka blossoms.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The defeated king Vitahavya flees his ruined city and seeks refuge in the quiet forest hermitage of the sage Bhrigu.",
+      "visual_strength": 0.63
+    }
+  ]
+}

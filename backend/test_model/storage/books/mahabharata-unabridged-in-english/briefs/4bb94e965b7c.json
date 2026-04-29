@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna teaches Arjuna that liberation comes through selfless action (karma‑yoga), performing one’s duty without attachment and overcoming desire and anger.",
+  "importance": 0.85,
+  "themes": [
+    "karma yoga",
+    "duty and detachment",
+    "cosmic order of sacrifice",
+    "leadership by example",
+    "desire as enemy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna, as Arjuna’s charioteer on the battlefield, calmly instructs the troubled warrior while armies wait behind them.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A symbolic wheel of sacrifice turning as humans offer rituals upward and the gods return blessings downward.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Desire depicted as smoke veiling a bright fire and dust covering a mirror, obscuring the light of knowledge.",
+      "visual_strength": 0.66
+    }
+  ]
+}

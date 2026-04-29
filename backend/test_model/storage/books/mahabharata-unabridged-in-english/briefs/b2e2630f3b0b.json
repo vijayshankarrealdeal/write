@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Suka reaches Janaka’s palace, resists temptations, and receives teachings on the stages of life and the knowledge required for emancipation.",
+  "importance": 0.72,
+  "themes": [
+    "spiritual detachment",
+    "temptation and self-control",
+    "ashrama stages of life",
+    "path to emancipation",
+    "guru and knowledge"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Suka stands calmly at the palace gate in the blazing sun while rough porters block his way, his face serene and radiant.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Fifty richly adorned maidens in red robes surround the unmoved ascetic Suka in a lush palace garden filled with flowering trees and pools.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "King Janaka kneels humbly on the ground before the seated ascetic Suka, offering water and jewels in a gem-studded hall.",
+      "visual_strength": 0.78
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dhaumya describes sacred western pilgrimage sites—especially the Narmada region—linking rivers, mountains, and hermitages with myths of gods, sages, and spiritual merit.",
+  "importance": 0.42,
+  "themes": [
+    "pilgrimage geography",
+    "sacred rivers",
+    "ascetic hermitages",
+    "mythic landscape",
+    "spiritual merit"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sacred river Narmada flows westward through groves of mango and cane while gods, sages, and celestial beings descend to bathe in its waters.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Atop the green Vaidurya mountain, a lotus-filled tank shines while gods and Gandharvas gather around its banks.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "King Yayati falls from heaven onto the banks of the Viswamitra river yet regains the eternal realms among gathered sages.",
+      "visual_strength": 0.72
+    }
+  ]
+}

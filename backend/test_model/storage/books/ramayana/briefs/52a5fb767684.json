@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sampati encourages the monkeys, recounts how his son saw Ravana carrying Sita, and strengthens their resolve to continue the search.",
+  "importance": 0.55,
+  "themes": [
+    "encouragement after despair",
+    "witness of Sita's abduction",
+    "loyalty to Rama",
+    "renewed quest"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged, wingless vulture Sampati speaks to a circle of hopeful monkey warriors on a rocky shore overlooking the vast ocean.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A dark figure of Ravana flies through the sky carrying the radiant Sita while a great bird watches from near Mahendra Mountain.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Monkey chiefs rise eagerly from the ground as Jambavan questions the vulture king about Sita’s fate.",
+      "visual_strength": 0.65
+    }
+  ]
+}

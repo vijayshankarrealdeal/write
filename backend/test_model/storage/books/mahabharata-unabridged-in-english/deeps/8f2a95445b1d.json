@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Vidura advises King Dhritarashtra as Krishna arrives as a peace envoy between the Kauravas and the Pandavas. He warns the king that lavish gifts offered to Krishna are insincere and meant only to win him away from the Pandavas, who in truth ask merely for five villages. Vidura insists Krishna cannot be separated from Arjuna and urges the king to follow Krishna’s counsel and make peace like a father to his sons. Duryodhana rejects this advice, arguing that honoring Krishna now would appear weak and that war is inevitable. He secretly proposes imprisoning Krishna to force the Pandavas and their allies into submission. Dhritarashtra is horrified, and Bhishma condemns the plan as wicked, foretelling destruction for those who dare oppose Krishna.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Vidura opens by praising Dhritarashtra’s virtue and reputation, setting up the moral appeal that follows."
+    },
+    {
+      "start": 520,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "Vidura exposes the central injustice: the Pandavas ask only for five villages, yet even that is denied."
+    },
+    {
+      "start": 1040,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Duryodhana reveals his shocking plan to imprison Krishna, marking a turning point in arrogance and hostility."
+    },
+    {
+      "start": 1500,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Bhishma condemns Duryodhana’s wickedness and predicts destruction if they dare act against Krishna."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Vidura standing before the blind king Dhritarashtra in the royal court, passionately warning him to make peace with the Pandavas before disaster strikes.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Duryodhana secretly confiding to the elders his plan to imprison Krishna when he arrives as an envoy, his face set with pride and defiance.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Bhishma rising in anger in the Kuru court, rebuking Duryodhana and foretelling ruin if anyone dares insult Krishna.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "After the defeat of Ravana, crowds of monkeys and titans gather as Sita is brought before Rama. When attendants attempt to clear the onlookers, Rama rebukes them, insisting the people should witness Sita beside him, declaring that a woman’s true protection lies in her conduct, not seclusion. Sita approaches with shy devotion, radiant at seeing her husband again after long separation. Yet Rama, torn by concern for public opinion, delivers a shocking speech. He declares that he fought the war not solely for her but to avenge his honor and the insult to his lineage. Suspecting her purity after her captivity in Ravana’s house, he tells her she is free to go wherever she wishes. The moment marks one of the Ramayana’s most painful turning points, where duty, reputation, and personal love violently collide.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "The chaotic scene of armies and crowds being driven back establishes the public setting in which Sita will be judged."
+    },
+    {
+      "start": 420,
+      "length": 210,
+      "color_hex": "#A5D6A7",
+      "why": "Rama’s declaration that a woman’s true shield is her conduct rather than seclusion reveals a key moral principle and explains why Sita must appear openly."
+    },
+    {
+      "start": 920,
+      "length": 210,
+      "color_hex": "#F48FB1",
+      "why": "Sita’s emotional reunion as she gazes upon Rama ‘as radiant as the full moon’ captures the tenderness she feels just before the devastating rejection."
+    },
+    {
+      "start": 1320,
+      "length": 240,
+      "color_hex": "#FFEB3B",
+      "why": "Rama proclaims that Ravana has been slain and his vow fulfilled, framing the victory and the restoration of his honor after the great war."
+    },
+    {
+      "start": 1700,
+      "length": 260,
+      "color_hex": "#F48FB1",
+      "why": "The central dramatic moment: Rama declares suspicion of Sita’s conduct and tells her she is free to go where she wishes."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In a vast battlefield court ringed by monkeys and rakshasas, Sita steps from a palanquin toward Rama while the armies watch in tense silence.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Sita, tearful yet radiant like the full moon, gazes at Rama for the first time after the war while he stands stern and conflicted before the assembled hosts.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Rama publicly rejects Sita before the gathered monkey and titan armies, his arm extended in dismissal as she stands stunned and heartbroken.",
+      "visual_strength": 0.86
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama returns to the empty hermitage, realizes Sita is missing, and frantically searches the forest questioning trees, animals, and the wilderness in grief.",
+  "importance": 0.82,
+  "themes": [
+    "loss and grief",
+    "devotion to Sita",
+    "ominous signs",
+    "desperate search",
+    "nature as witness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama stands before the deserted forest hermitage, trembling and staring at the empty hut where Sita once sat.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Distraught, Rama runs through the forest reaching toward trees and calling out to them as if they could answer about Sita.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Exhausted and wild with grief, Rama wanders among deer and towering trees, calling Sita’s name into the vast forest.",
+      "visual_strength": 0.86
+    }
+  ]
+}

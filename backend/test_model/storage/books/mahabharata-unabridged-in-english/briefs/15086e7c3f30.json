@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Under Yudhishthira’s just rule the kingdom prospers, Krishna arrives with treasure, and the king expresses his wish to perform the Rajasuya sacrifice.",
+  "importance": 0.65,
+  "themes": [
+    "just kingship",
+    "prosperous kingdom",
+    "tribute and wealth",
+    "Krishna’s support",
+    "preparation for Rajasuya sacrifice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna enters the splendid city of Indraprastha with a vast host and carts of treasure, his chariot wheels thundering as the city rejoices.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Yudhishthira seated with his brothers and sages respectfully addresses Krishna, asking permission to perform the great sacrifice.",
+      "visual_strength": 0.66
+    }
+  ]
+}

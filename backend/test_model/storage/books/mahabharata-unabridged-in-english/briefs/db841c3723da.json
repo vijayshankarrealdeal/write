@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Pandavas rise to power, Arjuna gains Subhadra and Gandiva, Maya builds their palace, Duryodhana’s envy leads to dice exile; Janamejaya asks for the full story.",
+  "importance": 0.75,
+  "themes": [
+    "rise of the Pandavas",
+    "divine weapons and alliances",
+    "envy and deception",
+    "origin of the dice exile",
+    "framing of the epic narration"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna and Krishna stand beside the blazing Khandava forest as Agni rises in flames and presents Arjuna the radiant bow Gandiva and an inexhaustible quiver.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The Asura Maya, saved from the fire, bows gratefully before the Pandavas and begins constructing a dazzling jewel-studded celestial palace.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Duryodhana gazes with burning envy at the magnificent crystal-like palace of the Pandavas, its jeweled halls reflecting light around him.",
+      "visual_strength": 0.72
+    }
+  ]
+}

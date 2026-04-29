@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma praises sacred names and Savitri mantras for protection and merit, then answers Yudhishthira that Brahmanas deserve highest reverence.",
+  "importance": 0.43,
+  "themes": [
+    "power of sacred recitation",
+    "Savitri mantras",
+    "reverence for Brahmanas",
+    "ritual merit and protection",
+    "Bhagiratha and Ganga legend"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Bhagiratha stands in penance as the celestial river Ganga descends from heaven through Shiva’s matted hair to flow upon the earth.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The sacred waters of the Ganga wash over the ashes of Sagara’s sixty thousand sons, granting them liberation.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Bhishma lies upon his bed of arrows while Yudhishthira stands beside him asking who deserves worship.",
+      "visual_strength": 0.7
+    }
+  ]
+}

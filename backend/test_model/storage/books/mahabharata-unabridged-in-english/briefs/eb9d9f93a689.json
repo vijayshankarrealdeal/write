@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Discourse on soul, ignorance, and emancipation, concluding that liberation comes through detachment and knowledge, followed by Bhishma praising self-restraint as the foundation of happiness.",
+  "importance": 0.72,
+  "themes": [
+    "soul and body distinction",
+    "ignorance and liberation",
+    "detachment",
+    "self-restraint",
+    "merging with universal soul"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Janaka calmly watches his city burning in a great conflagration and declares that nothing of his is burning.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A silk-worm enclosed in its own cocoon breaks free and crawls out, abandoning the cell it spun itself.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Small rivers flow into a great river and finally vanish into the vast ocean, losing their names and forms.",
+      "visual_strength": 0.68
+    }
+  ]
+}

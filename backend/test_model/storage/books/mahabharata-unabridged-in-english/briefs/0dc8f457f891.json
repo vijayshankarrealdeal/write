@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Pandavas arrive disguised in Panchala as Drupada announces Draupadi’s swayamvara with a nearly impossible archery challenge attracting kings and sages.",
+  "importance": 0.7,
+  "themes": [
+    "disguise and exile",
+    "swayamvara ritual",
+    "royal competition",
+    "destiny of Arjuna",
+    "public spectacle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a vast decorated amphitheatre, Dhrishtadyumna holds Draupadi’s arm while announcing the archery challenge before assembled kings.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "The Pandavas disguised as Brahmanas sit quietly among priests while countless jeweled monarchs watch the swayamvara arena.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "High above the arena a rotating target is fixed to a skyward machine while a massive bow and five arrows lie before the contestants.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "scene_id": "cover",
+  "chunk_id": null,
+  "chapter_title": "(book cover)",
+  "score": 1.0,
+  "prompt": "A sweeping cosmic panorama where the battlefield of Kurukshetra fades into a vast universe of gods, sages, and stars, with Krishna and Arjuna\u2019s chariot at the center linking human struggle to divine reality.",
+  "scene_text": "A sweeping cosmic panorama where the battlefield of Kurukshetra fades into a vast universe of gods, sages, and stars, with Krishna and Arjuna\u2019s chariot at the center linking human struggle to divine reality.",
+  "image_path": "/home/verti/write/backend/test_model/storage/books/mahabharata-unabridged-in-english/images/cover.png",
+  "is_cover": true
+}

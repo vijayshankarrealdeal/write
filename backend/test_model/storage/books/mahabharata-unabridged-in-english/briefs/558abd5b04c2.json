@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A virtuous fowler explains cosmology, the elements and their qualities, and teaches that mastering the senses through self-discipline leads to spiritual realization and liberation.",
+  "importance": 0.6,
+  "themes": [
+    "sense control",
+    "five elements cosmology",
+    "self-discipline",
+    "illusion and knowledge",
+    "soul and Brahman"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A humble fowler calmly instructs a seated Brahmana beneath a forest tree while explaining the nature of the universe and the elements.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "A symbolic chariot races forward as a charioteer struggles to rein in six wild horses representing the senses.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A meditating sage perceives his spirit expanding until it fills the cosmos, with stars and elements reflected within him.",
+      "visual_strength": 0.8
+    }
+  ]
+}

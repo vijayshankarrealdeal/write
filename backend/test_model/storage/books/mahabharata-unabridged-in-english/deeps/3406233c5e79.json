@@ -1,0 +1,55 @@
+{
+  "rich_summary": "After accidentally killing the sage Kindama (disguised as a deer) and receiving the curse that he will die if he approaches his wives sexually, King Pandu falls into deep remorse. He reflects on the destructive power of lust, recalling how his own father’s fate was shaped by passion, and concludes that worldly desires—especially the urge for children—are obstacles to spiritual liberation. Determined to seek salvation, he resolves to renounce royal life and adopt severe asceticism in the forest. Kunti and Madri refuse to abandon him and vow to share his austerities. Accepting their devotion, Pandu formally renounces wealth, gives away his ornaments to Brahmanas, and dismisses his attendants. When news reaches Hastinapura, Dhritarashtra grieves deeply for his brother. This moment marks Pandu’s transformation from king to forest ascetic, shaping the conditions under which the future Pandavas will be born.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "Pandu’s grief and self-reproach immediately set the emotional tone, revealing how deeply the curse and the killing of the deer affect him."
+    },
+    {
+      "start": 200,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "His reflection on lust and the downfall of men establishes the philosophical theme that uncontrolled desire leads to suffering."
+    },
+    {
+      "start": 420,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Pandu’s declaration that he will renounce worldly life and adopt Brahmacharya is the pivotal turning point of the chapter."
+    },
+    {
+      "start": 1400,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "The detailed description of ascetic discipline illustrates the ideals of renunciation and self-control central to the epic’s moral worldview."
+    },
+    {
+      "start": 3100,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "Kunti and Madri’s vow to follow Pandu into austerity highlights loyalty and devotion within marriage."
+    },
+    {
+      "start": 4200,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "Pandu’s final renunciation—giving away his ornaments and sending his attendants back—symbolizes the irreversible break from royal life."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Pandu in the forest, grieving beside the slain deer while Kunti and Madri stand nearby as he declares his resolve to renounce worldly life.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Pandu removing his royal ornaments and giving them away to Brahmanas while his attendants weep in the forest clearing.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Kunti and Madri solemnly pledging to follow Pandu into a life of harsh asceticism among the trees of the wilderness.",
+      "visual_strength": 0.78
+    }
+  ]
+}

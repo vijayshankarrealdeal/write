@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This passage closes the violent encounter between Bhima and the Rakshasa Kirmira. Bhima, recalling the Pandavas’ humiliation and conscious of Krishna watching, overwhelms the demon in a brutal wrestling match and kills him, freeing the forest of danger. The narrative then shifts: allies of the Pandavas—Vrishnis, Andhakas, Panchalas, and others—visit them in exile and rage against the injustice done by the Kauravas. Krishna vows that Duryodhana and his allies will fall. Arjuna calms the enraged Krishna by praising his divine nature and recounting his cosmic deeds, identifying him with Vishnu. Finally Draupadi passionately recounts the insults and crimes inflicted on the Pandavas—especially her humiliation in the Kuru court—lamenting that such wrongs remain unavenged. The section intensifies the moral stakes of the exile and foreshadows the coming war.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 86,
+      "color_hex": "#FFEB3B",
+      "why": "The dramatic opening of the duel: Bhima stands unmoved as the Rakshasa attacks, setting the tone for the brutal combat."
+    },
+    {
+      "start": 86,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "The vivid animal similes (bulls, tigers) emphasize the epic style and the raw physical power of the fighters."
+    },
+    {
+      "start": 306,
+      "length": 240,
+      "color_hex": "#FFEB3B",
+      "why": "Bhima’s decisive domination—whirling the Rakshasa and crushing him—marks the turning point and the demon’s defeat."
+    },
+    {
+      "start": 900,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Krishna’s vow that the earth will drink the blood of Duryodhana, Karna, and their allies frames the coming war as moral retribution."
+    },
+    {
+      "start": 1600,
+      "length": 260,
+      "color_hex": "#F48FB1",
+      "why": "Draupadi’s anguished recollection of being dragged into the Kuru assembly during her menstruation is one of the epic’s most emotionally charged grievances."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhima whirls the massive Rakshasa Kirmira by the waist like a storm-tossed tree before slamming him to the ground in the dark forest.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "Krishna seated among furious warrior-kings in the forest, declaring that the earth will drink the blood of Duryodhana and his allies.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Draupadi standing before Krishna and the gathered heroes, recounting through tears how she was dragged into the Kuru court in a single blood-stained garment.",
+      "visual_strength": 0.9
+    }
+  ]
+}

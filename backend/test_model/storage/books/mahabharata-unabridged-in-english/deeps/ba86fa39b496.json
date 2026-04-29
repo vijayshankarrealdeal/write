@@ -1,0 +1,43 @@
+{
+  "rich_summary": "In this episode of the Aranya Parva, Indra (disguised as a Brahmana) persists in asking Karna for his divine armor and earrings—gifts he was born with that make him nearly invincible. Though Karna offers immense wealth and even a kingdom instead, the Brahmana refuses anything else. Recognizing the visitor as Indra and aware that surrendering the armor will lead to his own death, Karna still agrees, but only in exchange for a powerful celestial weapon. Indra grants him the Vasavi dart, which can kill a single mighty enemy before returning to Indra. Karna then cuts the armor and earrings from his own body and gives them away, astonishing the heavens with his resolve. Indra departs satisfied, weakening Karna for the future war, while the Pandavas rejoice and the Kauravas are dismayed.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 74,
+      "color_hex": "#A5D6A7",
+      "why": "Karna frames the request as the greatest possible gift, introducing the theme of extreme generosity that defines the episode."
+    },
+    {
+      "start": 420,
+      "length": 110,
+      "color_hex": "#FFEB3B",
+      "why": "Karna explains that his armor and earrings were born with him and grant invincibility—establishing the enormous sacrifice involved in giving them up."
+    },
+    {
+      "start": 1100,
+      "length": 90,
+      "color_hex": "#FFEB3B",
+      "why": "Indra sets the terms of the exchange, offering the Vasavi dart that can slay only one powerful enemy, a crucial foreshadowing of Karna’s future role in the war."
+    },
+    {
+      "start": 1700,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The dramatic moment where Karna cuts the natural armor from his own body while smiling, showing the extreme resolve and tragic nobility of his character."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Karna smiling calmly as he slices the divine armor from his own chest while the heavens shower flowers and celestial drums thunder above.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Indra disguised as a Brahmana standing before Karna, the two negotiating the exchange of the radiant armor and the blazing Vasavi dart.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Karna holding the blazing celestial dart given by Indra, its energy crackling while the removed golden armor and earrings lie in Indra’s hands.",
+      "visual_strength": 0.82
+    }
+  ]
+}

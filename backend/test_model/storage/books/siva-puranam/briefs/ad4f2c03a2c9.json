@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Shiva reveals the unity of the Trinity, initiates creation through Brahma and Vishnu, and the story of the wayward Gunahina begins with his fall and repentance.",
+  "importance": 0.72,
+  "themes": [
+    "Trimurti unity",
+    "cosmic creation",
+    "divine roles",
+    "sin and repentance",
+    "devotion to Shiva"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An endless pillar of blazing light appears between Brahma flying upward as a swan and Vishnu diving downward to find its base.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Shiva, radiant and five‑headed, slices off Brahma’s fifth head with a blade formed from his fingernail.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Exhausted and starving in a forest, Gunahina crawls to a lonely lake and drinks while pilgrims singing hymns to Shiva pass nearby.",
+      "visual_strength": 0.7
+    }
+  ]
+}

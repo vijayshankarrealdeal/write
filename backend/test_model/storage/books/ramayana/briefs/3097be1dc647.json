@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Lakshmana and Kausalya plead with Rama to resist exile, but Rama firmly insists on obeying his father's command as the highest duty.",
+  "importance": 0.7,
+  "themes": [
+    "filial obedience",
+    "dharma vs emotion",
+    "loyalty of Lakshmana",
+    "maternal grief",
+    "righteous duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lakshmana, furious and gripping his bow, vows to fight the whole city to place Rama on the throne.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Queen Kausalya collapses in grief before Rama, pleading with him not to abandon her for the forest.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama stands calm and composed before his grieving mother and enraged brother, insisting he must obey his father’s command.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna, grieving and worried about his vow to kill Jayadratha, dreams of Krishna guiding him to seek Shiva and the Pasupata weapon.",
+  "importance": 0.68,
+  "themes": [
+    "grief and resolve",
+    "divine guidance",
+    "power of time",
+    "sacred weapons",
+    "visionary journey"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a dream, Krishna takes Arjuna by the arm as they soar through the sky over the Himalayas toward a radiant mountain.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Arjuna beholds Shiva on a blazing mountain peak, trident in hand, beside Parvati and surrounded by singing celestial attendants.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Krishna sits facing the east after touching water, calmly advising the grief-stricken Arjuna not to be overcome by sorrow.",
+      "visual_strength": 0.6
+    }
+  ]
+}

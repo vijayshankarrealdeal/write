@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira appeals to Krishna for help fulfilling Arjuna’s vow to kill Jayadratha, and Krishna assures victory as Arjuna prepares for battle.",
+  "importance": 0.62,
+  "themes": [
+    "divine support",
+    "war vow",
+    "heroic preparation",
+    "faith in Krishna",
+    "approaching battle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira bows before Krishna in a royal hall filled with assembled warriors, pleading for help to save the Pandavas and ensure Arjuna’s vow.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Krishna equips Arjuna’s chariot marked with the ape banner, the golden vehicle gleaming like the rising sun as warriors watch.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Arjuna in golden armor circumambulates his sanctified chariot while aged Brahmanas bless him for victory before battle.",
+      "visual_strength": 0.74
+    }
+  ]
+}

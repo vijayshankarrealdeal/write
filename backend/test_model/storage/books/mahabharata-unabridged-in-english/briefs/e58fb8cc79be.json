@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Vaisampayana begins recounting cosmic genealogies from Brahma through Kasyapa and Daksha’s daughters, describing the origins of gods, Asuras, serpents, Gandharvas, and Apsaras.",
+  "importance": 0.35,
+  "themes": [
+    "cosmic genealogy",
+    "divine incarnations",
+    "gods vs asuras",
+    "mythic ancestry"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra stands in Narayana’s celestial abode consulting him while the assembled gods prepare to descend to earth.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Garuda, mighty and radiant, rises beside his brother Aruna while the serpent sons of Kadru coil below.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Rahu lunges upward in the sky attempting to seize the Sun and Moon.",
+      "visual_strength": 0.74
+    }
+  ]
+}

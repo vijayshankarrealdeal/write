@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Janaka teaches non-attachment and mastery over senses as true dominion, while a Brahmana explains knowledge of the self and Krishna reveals the allegory’s inner meaning.",
+  "importance": 0.78,
+  "themes": [
+    "non-attachment",
+    "self-knowledge",
+    "sense mastery",
+    "unity of self and universe",
+    "teacher-disciple allegory"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Janaka stands serene while the elements—earth, water, fire, wind, and sound—symbolically bow before him as he renounces desire for the senses.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A teacher and disciple rub two arani sticks together, and from the friction rises a glowing fire representing the birth of knowledge.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Krishna reveals to Arjuna that the Brahmana is his mind and the Brahmana’s wife his understanding, with cosmic light surrounding them.",
+      "visual_strength": 0.77
+    }
+  ]
+}

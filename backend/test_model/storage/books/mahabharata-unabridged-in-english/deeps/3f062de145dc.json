@@ -1,0 +1,55 @@
+{
+  "rich_summary": "This section recounts the birth and early life of Sakuntala and Dushmanta’s son. Raised in the hermitage of the sage Kanwa, the boy grows with extraordinary strength and courage, even subduing wild beasts as a child; the ascetics name him Sarvadamana, “the subduer of all.” Recognizing the time has come, Kanwa sends Sakuntala and her son to Dushmanta’s court so the child may be acknowledged as heir. When Sakuntala presents the boy, the king publicly denies knowing her or the child. Humiliated but resolute, she delivers a powerful speech on truth, divine witness, marriage, and the sacred duty of a father to recognize his son. The episode is pivotal: it introduces the heroic child (later Bharata) and dramatizes the moral tension between royal power, social reputation, and dharma.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Sakuntala respectfully asks her father Kanwa to bless her union with Dushmanta, grounding the episode in familial duty and legitimacy."
+    },
+    {
+      "start": 900,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "The remarkable description of the child’s superhuman strength as he binds wild animals, foreshadowing his future greatness."
+    },
+    {
+      "start": 1180,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "The hermits name the boy Sarvadamana—'subduer of all'—a symbolic moment establishing his identity and destiny."
+    },
+    {
+      "start": 2100,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Dushmanta’s shocking denial of Sakuntala and their relationship creates the central emotional and moral conflict of the scene."
+    },
+    {
+      "start": 2600,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Sakuntala invokes divine witnesses—Sun, Moon, Air, Fire, and others—asserting that truth cannot be hidden from cosmic justice."
+    },
+    {
+      "start": 3400,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "Her passionate defense of marriage and motherhood, arguing that the wife is a man's partner in religion, joy, and lineage."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A fearless young boy in a forest hermitage tying lions and tigers to trees while astonished sages watch.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Sakuntala standing in the royal court holding her radiant child while King Dushmanta coldly denies her claim.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The sage Kanwa sending Sakuntala and her son from the quiet forest hermitage toward the distant city of Hastinapura.",
+      "visual_strength": 0.82
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma, lying on his bed of arrows, begins instructing Yudhishthira on sacred places, emphasizing the supreme sanctity and sin-cleansing power of the river Ganga.",
+  "importance": 0.6,
+  "themes": [
+    "sanctity of Ganga",
+    "tirtha pilgrimage",
+    "Bhishma's teachings",
+    "purification from sin",
+    "sacred geography"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies on a bed of arrows surrounded by the Pandavas and many gathered rishis shining with ascetic radiance.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The celestial river Ganga descends from heaven and is caught in the matted hair of Shiva before flowing to the earth.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Pilgrims bathe at sunrise in the wide, shining waters of the Ganga as swans and waterfowl glide across the river.",
+      "visual_strength": 0.7
+    }
+  ]
+}

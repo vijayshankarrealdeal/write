@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Abhimanyu slays Karna’s brother, wounds and drives back Karna, and devastates the Kaurava army, scattering warriors and filling the battlefield with carnage.",
+  "importance": 0.62,
+  "themes": [
+    "Abhimanyu's heroism",
+    "single-warrior battlefield dominance",
+    "Karna's setback",
+    "battlefield devastation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Abhimanyu calmly looses a single arrow that severs Karna's brother's head, the head falling from the chariot before the stunned warriors.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Abhimanyu's arrows darken the sky like a swarm of locusts as the Kaurava army breaks and flees beneath the relentless storm.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The battlefield lies impassable with shattered chariots, severed arms adorned with gold, fallen elephants and horses, and scattered weapons glinting in the dust.",
+      "visual_strength": 0.74
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Disguised as Vahuka, Nala enters King Rituparna’s service while lamenting Damayanti, as a Brahmana later discovers the sorrowful Damayanti living in the Chedi palace.",
+  "importance": 0.56,
+  "themes": [
+    "disguise and exile",
+    "longing for spouse",
+    "fate and recovery",
+    "search for the lost",
+    "royal service"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The serpent king vanishes after giving Nala two pieces of celestial cloth that can restore his true form.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Disguised as the misshapen charioteer Vahuka, Nala stands before King Rituparna in Ayodhya offering his mastery of horses.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "In the Chedi palace, the Brahmana Sudeva recognizes the emaciated Damayanti, her beauty dimmed like a lotus covered with mire.",
+      "visual_strength": 0.82
+    }
+  ]
+}

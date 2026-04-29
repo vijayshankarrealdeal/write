@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Vasishtha persuades King Dasaratha to keep his promise and allow Rama to accompany Vishwamitra, affirming duty, honor, and the sage’s unmatched power.",
+  "importance": 0.62,
+  "themes": [
+    "dharma and duty",
+    "keeping promises",
+    "sage authority",
+    "parental concern",
+    "trust in Vishwamitra"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The enraged sage’s words cause the earth to tremble while frightened gods look on as King Dasaratha sits shaken in his court.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Sage Vasishtha calmly raises his hand in the royal court, urging King Dasaratha to honor his promise and send Rama with Vishwamitra.",
+      "visual_strength": 0.65
+    }
+  ]
+}

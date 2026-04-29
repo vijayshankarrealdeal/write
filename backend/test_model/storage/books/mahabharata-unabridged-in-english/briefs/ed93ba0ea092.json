@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhishma teaches that a king must uphold social duties and support Brahmanas; a righteous Kaikeya king’s virtue protects him from a Rakshasa.",
+  "importance": 0.55,
+  "themes": [
+    "duties of kings",
+    "social order and varna",
+    "protection of Brahmanas",
+    "righteous governance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A Rakshasa seizes the ascetic king of the Kaikeyas in a forest as the king calmly declares the righteousness of his realm.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The battle-scarred king stands proudly before the demon, listing the virtues and duties faithfully practiced by every class in his kingdom.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "The Rakshasa releases the king in the forest, acknowledging the power of a ruler who protects Brahmanas, cows, and his people.",
+      "visual_strength": 0.73
+    }
+  ]
+}

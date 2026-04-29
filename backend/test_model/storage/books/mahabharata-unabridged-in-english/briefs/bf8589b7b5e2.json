@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Duryodhana recounts Yudhishthira’s grand Rajasuya ceremony and honors, growing overwhelmed with envy and despair at the Pandavas’ vast prosperity.",
+  "importance": 0.62,
+  "themes": [
+    "envy",
+    "royal ceremony",
+    "power and prestige",
+    "family rivalry",
+    "wealth and generosity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna pours sacred water from the great golden conch of Varuna over Yudhishthira during the Rajasuya consecration while kings and sages look on.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Numerous kings stand around Yudhishthira’s chariot, each presenting ceremonial items—horses, armor, bow, sword, and garlands—during the coronation rites.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "As hundreds of conches sound in the sacrificial hall, some weaker kings faint while Satyaki, Arjuna, Bhima, and Krishna laugh nearby.",
+      "visual_strength": 0.72
+    }
+  ]
+}

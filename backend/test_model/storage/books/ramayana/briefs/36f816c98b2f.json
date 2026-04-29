@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Death, disguised as an ascetic messenger, arrives to speak privately with Rama under a strict condition that any eavesdropper must be executed.",
+  "importance": 0.72,
+  "themes": [
+    "fate and mortality",
+    "divine duty",
+    "secrecy and vows",
+    "Rama's kingship"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A radiant ascetic glowing like the sun stands at Rama’s palace gate as Lakshmana respectfully receives him.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The luminous ascetic sits upon a golden throne before Rama in the royal hall, his body surrounded by fiery rays.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Rama solemnly instructs Lakshmana to guard the door while he meets the mysterious ascetic in strict secrecy.",
+      "visual_strength": 0.6
+    }
+  ]
+}

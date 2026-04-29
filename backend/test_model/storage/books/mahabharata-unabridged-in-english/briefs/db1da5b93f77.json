@@ -1,0 +1,21 @@
+{
+  "summary_1line": "A mother and daughter each argue to sacrifice themselves to the Rakshasa to save the father and family, expressing ideals of duty and self‑sacrifice.",
+  "importance": 0.6,
+  "themes": [
+    "self-sacrifice",
+    "family duty",
+    "dharma and morality",
+    "gender roles",
+    "parent-child devotion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The Brahmana and his wife cling to each other in silent tears after her plea to be sacrificed to the Rakshasa.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The young daughter stands before her grieving parents and offers herself as the sacrifice to save the family.",
+      "visual_strength": 0.82
+    }
+  ]
+}

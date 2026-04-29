@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Gods oppressed by Sukesha’s Rakshasa sons seek Shiva, who directs them to Vishnu; Vishnu promises battle as Rakshasas march from Lanka amid ominous portents.",
+  "importance": 0.65,
+  "themes": [
+    "divine intervention",
+    "rakshasa arrogance",
+    "appeal of the gods",
+    "omens of doom",
+    "approaching cosmic battle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vishnu, clad in yellow and blazing like a thousand suns, mounts Garuda with conch, discus, mace, sword, and bow as celestial beings praise him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Terrible omens appear as rain of blood and bones falls from the clouds while jackals howl and mountains tremble before the Rakshasa march.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The vast Rakshasa army rides out of Lanka on bizarre mounts—serpents, lions, whales, birds and elephants—advancing toward Devaloka.",
+      "visual_strength": 0.88
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "As the Pandavas begin their incognito year, Yudhishthira prays to Durga, who appears and promises them future victory over the Kauravas.",
+  "importance": 0.64,
+  "themes": [
+    "divine intervention",
+    "prayer and devotion",
+    "incognito exile",
+    "prophecy of victory"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira stands with folded hands in the forest as the radiant multi‑armed goddess Durga appears before him in celestial light.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The Pandavas hide their bows and swords high in a tree and hang a corpse beneath it to frighten away curious villagers.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Durga, adorned with weapons, snakes, and peacock plumes, speaks a prophecy of victory to the kneeling Yudhishthira.",
+      "visual_strength": 0.8
+    }
+  ]
+}

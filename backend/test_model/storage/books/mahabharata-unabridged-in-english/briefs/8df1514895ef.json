@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bhishma recounts teachings on detachment—Janaka’s indifference to loss and Vodhya’s six natural teachers illustrating freedom from desire and solitude.",
+  "importance": 0.55,
+  "themes": [
+    "detachment from desire",
+    "lessons from nature",
+    "renunciation",
+    "inner tranquillity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An osprey flying with a piece of meat in its beak is attacked by other birds until it drops the meat and escapes into peaceful flight.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A solitary arrow-maker works with intense concentration at his bench while a king’s procession passes unnoticed beside him.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "A maiden stands quietly with a single shell anklet on her wrist, symbolizing solitude and the silence that comes from being alone.",
+      "visual_strength": 0.58
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Damayanti suspects the charioteer Vahuka is the disguised Nala and sends Kesini to question and observe him, eliciting an emotional response revealing his grief.",
+  "importance": 0.68,
+  "themes": [
+    "disguise and identity",
+    "marital fidelity",
+    "suspicion and recognition",
+    "exile and suffering"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Damayanti stands on a palace terrace watching anxiously as her messenger Kesini approaches the misshapen charioteer Vahuka beside the royal chariot.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Vahuka, sitting beside the chariot in the stables, speaks with choked voice and tears filling his eyes while hiding his true identity.",
+      "visual_strength": 0.71
+    },
+    {
+      "scene_text": "Kesini returns to Damayanti and reports the weeping charioteer while the princess listens with tense hope and grief.",
+      "visual_strength": 0.62
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yayati, fallen from heaven due to pride, is restored by the merits and devotion of his daughter’s sons and ascends again to the celestial realm.",
+  "importance": 0.72,
+  "themes": [
+    "redemption",
+    "family duty",
+    "merit and sacrifice",
+    "humility vs pride",
+    "afterlife restoration"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yayati rises upward toward heaven without touching the earth as his daughter’s sons stand below offering the merit of their sacrifices.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Four royal grandsons stand around the fallen king, each proclaiming the merit of his virtues and sacrifices to lift their grandfather back to heaven.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "In heaven, Yayati is welcomed again amid showers of fragrant flowers, celestial music, and Gandharvas singing as he regains his radiant form.",
+      "visual_strength": 0.76
+    }
+  ]
+}

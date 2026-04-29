@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Arjuna and Drona clash despite their bond, Trigartas attack, and Bhima devastates an elephant division with ferocious mace fighting.",
+  "importance": 0.55,
+  "themes": [
+    "duty over personal bonds",
+    "heroic combat",
+    "divine weapons",
+    "battlefield ferocity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna and Drona stand on their chariots firing dense flights of arrows that cross the sky like flocks of white cranes.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Bhima leaps from his chariot into a ring of war elephants, mace raised, standing amid the towering beasts like the sun among storm clouds.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Bhima, smeared with blood and wielding a gore-soaked mace, rips tusks from elephants and strikes them down like a wrathful Rudra.",
+      "visual_strength": 0.92
+    }
+  ]
+}

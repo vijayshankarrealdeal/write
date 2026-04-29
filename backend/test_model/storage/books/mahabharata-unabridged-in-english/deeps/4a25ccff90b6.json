@@ -1,0 +1,31 @@
+{
+  "rich_summary": "Krishna contrasts two fundamental human dispositions: the divine (god‑like) and the demoniac. Divine qualities include fearlessness, purity, self‑discipline, truthfulness, compassion, humility, and freedom from anger or greed—traits that lead toward liberation. Demoniac traits such as hypocrisy, pride, arrogance, anger, cruelty, and ignorance bind beings to suffering and destructive behavior. Those dominated by ego and insatiable desire view the world as purposeless and pursue wealth, power, and pleasure while trapped in delusion. Krishna warns that lust, wrath, and avarice are the three gates to hell and must be renounced. The section ends by asserting that scripture should guide moral action. In the opening of Chapter XVII, Krishna explains that faith and practice vary according to the three qualities (goodness, passion, darkness), influencing worship, austerity, and even food preferences.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 40,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna concludes the prior teaching by emphasizing the transformative power of this hidden knowledge."
+    },
+    {
+      "start": 41,
+      "length": 33,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the idea of profound spiritual knowledge described as the 'greatest of mysteries.'"
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Krishna standing calmly on the battlefield chariot while teaching Arjuna about the contrast between divine and demoniac natures.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "A symbolic vision where luminous figures embody virtues like compassion and truth while shadowy figures driven by pride, greed, and wrath fall toward darkness.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "An allegorical image of three flaming gates labeled lust, wrath, and avarice leading downward into a dark abyss.",
+      "visual_strength": 0.86
+    }
+  ]
+}

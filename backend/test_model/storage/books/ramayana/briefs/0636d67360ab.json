@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama and Lakshmana, trapped by the demon Kabandha’s long arms, sever them with swords, defeating him and prompting the monster to reveal his cursed past.",
+  "importance": 0.62,
+  "themes": [
+    "heroic combat",
+    "fate and destiny",
+    "demonic curse",
+    "brotherly resolve",
+    "path to guidance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The monstrous Kabandha, a headless body with enormous arms and a gaping mouth in his torso, ensnares Rama and Lakshmana in the dark forest.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama and Lakshmana strike simultaneously, their swords flashing as they sever Kabandha’s gigantic arms at the shoulders.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Kabandha, armless and bleeding, crashes to the forest floor while the two princes stand poised with swords as thunderous cries echo through the woods.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Lists karmic rebirths for various thefts and crimes, then begins teaching how repentance and charity—especially giving food—lead to purification and righteous outcomes.",
+  "importance": 0.5,
+  "themes": [
+    "karma and rebirth",
+    "punishment for theft",
+    "repentance and expiation",
+    "charity and gifts",
+    "righteous conduct"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A condemned soul cycles through forms—ass, deer, fish, and leopard—each dying violently before regaining human birth.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A thief reborn as a mole burrows alone in dark earth, living out years of karmic punishment.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Yudhishthira sits before the sage Vrihaspati asking how sinners may reach heaven through repentance and gifts.",
+      "visual_strength": 0.65
+    }
+  ]
+}

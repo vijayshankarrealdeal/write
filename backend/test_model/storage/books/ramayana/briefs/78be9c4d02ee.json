@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Bharata condemns Kaikeyi for Rama’s exile and Dasaratha’s death, rejects the throne, and vows to bring Rama back and serve him.",
+  "importance": 0.78,
+  "themes": [
+    "filial conflict",
+    "righteous kingship",
+    "loyalty to Rama",
+    "condemnation of greed",
+    "dynastic duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata, grief-stricken and furious, stands before Queen Kaikeyi in the palace chamber, denouncing her while courtiers look on in shock.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Bharata raises his arm in a lion-like roar inside the royal hall as he vows to bring Rama back from the forest.",
+      "visual_strength": 0.66
+    }
+  ]
+}

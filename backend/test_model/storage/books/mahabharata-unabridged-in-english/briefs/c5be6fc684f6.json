@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vidura advises Dhritarashtra on wisdom, friendship, secrecy, virtue, and ruling justly—warning him to restrain Duryodhana and reconcile with the Pandavas.",
+  "importance": 0.6,
+  "themes": [
+    "wise counsel",
+    "destiny vs responsibility",
+    "ethical leadership",
+    "family loyalty",
+    "self-control and virtue"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vidura stands before the blind king Dhritarashtra in the royal court, speaking stern wisdom while courtiers listen in tense silence.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "A guilty man lies awake at night in a dark chamber, staring at a snake coiled beside him on the floor.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A fragile stone raft sinks in water while people cling to it, symbolizing foolish leaders guiding others to ruin.",
+      "visual_strength": 0.66
+    }
+  ]
+}

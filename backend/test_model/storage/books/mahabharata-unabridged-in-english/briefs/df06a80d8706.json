@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts a debate between Kapila and a sage speaking through a cow about Vedic sacrifice, nonviolence, and the paths of household duty and renunciation.",
+  "importance": 0.55,
+  "themes": [
+    "ahimsa vs sacrifice",
+    "authority of the Vedas",
+    "paths of life stages",
+    "kingship and punishment",
+    "dharma across ages"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Kapila stands before a cow tied for sacrifice in King Nahusha’s court and cries out in distress at the sight.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A sage mystically enters the body of the bound cow and speaks to Kapila while priests prepare the sacrificial ground.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "King Nahusha’s court gathers around the tethered cow as ascetics debate the meaning of the Vedas and nonviolence.",
+      "visual_strength": 0.65
+    }
+  ]
+}

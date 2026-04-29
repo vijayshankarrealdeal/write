@@ -1,0 +1,49 @@
+{
+  "rich_summary": "In this episode, Duryodhana’s scheme to destroy the Pandavas unfolds. Knowing the sage Durvasa’s terrifying temper, he sends the ascetic and his ten thousand disciples to visit the exiled Pandavas after Draupadi has already eaten—when their magical vessel can no longer produce food. Durvasa arrives, and Yudhishthira dutifully welcomes him, asking him to bathe before dining. Panic grips Draupadi, who realizes there is no food to feed such a vast host. In desperation she prays to Krishna. Krishna appears, asks for food, and finds a single grain of rice in the vessel. After eating it, he mystically satisfies the hunger of the entire universe. When Durvasa and his disciples bathe, they suddenly feel completely full and flee in fear of offending the Pandavas. The episode highlights divine intervention, Draupadi’s devotion, and the protection granted to those who trust in Krishna.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Sets the conspiratorial context: the enemies believe the Pandavas are trapped in danger through Durvasa’s impending wrath."
+    },
+    {
+      "start": 320,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Introduces the pivotal moment when Durvasa arrives with ten thousand disciples, creating the impossible hospitality crisis."
+    },
+    {
+      "start": 900,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "Captures Draupadi’s desperate prayer to Krishna, an emotional and devotional centerpiece of the episode."
+    },
+    {
+      "start": 1850,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna discovers and eats the single grain of rice in the vessel—the miraculous turning point that resolves the crisis."
+    },
+    {
+      "start": 2400,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Durvasa and his disciples suddenly feel full and flee, illustrating the unseen power of divine grace protecting the Pandavas."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Durvasa and his ten thousand disciples arriving at the Pandavas’ forest hermitage while Yudhishthira respectfully welcomes them.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Draupadi praying fervently to Krishna in anxiety beside the empty vessel while the forest hut glows with divine presence.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Krishna smiling as he eats a single grain of rice from the vessel while, far away in the river, Durvasa’s disciples suddenly clutch their full stomachs in surprise.",
+      "visual_strength": 0.95
+    }
+  ]
+}

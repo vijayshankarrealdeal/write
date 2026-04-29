@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama and Lakshmana visit a hermitage where Vishwamitra recounts how Kama was burned by Shiva and became the bodiless Ananga.",
+  "importance": 0.42,
+  "themes": [
+    "sacred travel",
+    "Shiva and Kama myth",
+    "ascetic devotion",
+    "ritual practice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Shiva opens his blazing third eye and Kama is reduced to ashes before the startled celestial beings and Parvati.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "At dawn on the riverbank, Rama and Lakshmana stand with folded hands offering water to the rising sun.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Rama, Lakshmana, and Vishwamitra approach a tranquil forest hermitage where ascetics await them among huts and sacred fires.",
+      "visual_strength": 0.65
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna returns from battle sensing ill omens and, finding the camp grief‑stricken, realizes Abhimanyu has fallen and laments his son in intense sorrow.",
+  "importance": 0.88,
+  "themes": [
+    "parental grief",
+    "heroic death",
+    "omens and fate",
+    "war tragedy",
+    "heaven versus earthly loss"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna stands in the silent Pandava camp at twilight, seeing warriors with bowed heads while he realizes his son Abhimanyu is missing.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Arjuna, overcome with grief beside Krishna, raises his arms and laments the fallen Abhimanyu lying imagined on the blood‑stained battlefield.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The young hero Abhimanyu lies on the dusty battlefield at sunset, his radiant body compared to the sun fallen from the sky.",
+      "visual_strength": 0.9
+    }
+  ]
+}

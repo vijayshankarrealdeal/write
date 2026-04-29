@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After gaining the Sun’s inexhaustible food boon, the Pandavas depart for the forest while Vidura urges Dhritarashtra to restore their kingdom to avoid ruin.",
+  "importance": 0.63,
+  "themes": [
+    "divine boon",
+    "exile and survival",
+    "royal duty",
+    "moral counsel",
+    "family conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira cooks in a forest kitchen as a small copper vessel miraculously yields endless food for gathered Brahmanas.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Vidura stands in the royal court advising the blind king Dhritarashtra while courtiers listen in tense silence.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "The Pandavas and Draupadi depart toward the shadowy Kamyaka forest surrounded by solemn Brahmanas.",
+      "visual_strength": 0.67
+    }
+  ]
+}

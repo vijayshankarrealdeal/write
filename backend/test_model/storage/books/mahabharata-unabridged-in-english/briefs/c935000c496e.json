@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna vows to protect Yudhishthira from capture while Drona devastates the Pandava army, and numerous duels erupt across the battlefield.",
+  "importance": 0.62,
+  "themes": [
+    "vow and loyalty",
+    "battle fury",
+    "heroic duels",
+    "teacher versus students",
+    "war imagery"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Drona on his golden chariot drives through the Pandava ranks, arrows blazing around him like the midday sun’s rays.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Abhimanyu leaps onto Paurava’s chariot, seizes him by the hair, and lifts him like Garuda lifting a serpent while soldiers watch in shock.",
+      "visual_strength": 0.91
+    },
+    {
+      "scene_text": "The battlefield becomes a gruesome river of blood filled with broken chariots, floating bodies, weapons like fish, and circling vultures overhead.",
+      "visual_strength": 0.95
+    }
+  ]
+}

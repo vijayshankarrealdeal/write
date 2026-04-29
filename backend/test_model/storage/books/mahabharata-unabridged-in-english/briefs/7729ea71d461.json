@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Genealogies of gods, animals, and demons are given, linking many Asuras and deities to human figures of the Mahabharata, including the Pandavas and Kauravas.",
+  "importance": 0.55,
+  "themes": [
+    "cosmic genealogy",
+    "divine incarnations",
+    "origins of creatures",
+    "Mahabharata character origins",
+    "destiny and cosmic order"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Bhrigu bursts forth by ripping open the breast of Brahman in a dramatic act of cosmic birth.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Young Abhimanyu charges alone into the complex Chakra-vyuha battle formation, surrounded by ranks of enemy warriors.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The maiden Pritha secretly invokes the sun god Surya, who appears in radiant light before her.",
+      "visual_strength": 0.85
+    }
+  ]
+}

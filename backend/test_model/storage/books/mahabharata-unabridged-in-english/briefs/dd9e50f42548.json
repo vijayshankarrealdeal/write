@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Explains the inner sacrificial metaphor of senses, breaths, and mind, arguing mind’s primacy over word while describing the body as a cosmic ritual.",
+  "importance": 0.55,
+  "themes": [
+    "inner sacrifice",
+    "senses and perception",
+    "life-breaths (prana)",
+    "cosmic creation",
+    "mind vs word"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Within a human body, a radiant seven‑flamed fire burns as the senses and mind feed it offerings like priests around a sacred altar.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Personified Mind and Word stand before a luminous cosmic judge, debating which of them is superior.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Streams of vital breaths—Prana, Apana, Samana, Vyana, and Udana—flow like winds through a meditating figure.",
+      "visual_strength": 0.7
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Indrajit briefly incapacitates Rama and Lakshmana with enchanted arrows, but after recovery Lakshmana duels and kills him, plunging Ravana into grief.",
+  "importance": 0.9,
+  "themes": [
+    "heroic duel",
+    "illusion in warfare",
+    "divine weapons",
+    "loyal allies",
+    "vengeance and grief"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama and Lakshmana lie bound in a glowing net of arrows on the battlefield while monkeys gather anxiously around them.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama, Lakshmana, and the monkey chiefs wash their eyes with Kuvera's sacred water, suddenly gaining the power to see invisible foes.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Lakshmana fires three blazing arrows that sever Indrajit's arms and then his jeweled head, which falls from his body in battle.",
+      "visual_strength": 0.9
+    }
+  ]
+}

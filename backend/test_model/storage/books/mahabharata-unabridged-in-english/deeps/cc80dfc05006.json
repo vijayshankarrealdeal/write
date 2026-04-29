@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Sita fiercely rejects Ravana’s proposal, declaring that even if the cosmos collapses she will never abandon Rama. After Lakshmana leaves to search for Rama, Ravana reveals his true form and abducts Sita. As he carries her through the sky, the aged vulture king Jatayu—friend of Rama’s father—attacks in a heroic attempt to rescue her. Though he wounds Ravana, the demon cuts off Jatayu’s wings and continues to Lanka while Sita drops ornaments to mark her path. Rama and Lakshmana soon discover the dying Jatayu, who tells them of the abduction before dying. Grief-stricken, Rama performs his funeral rites and begins the southern search for Sita, encountering ominous signs and monstrous beings in the forest.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Sita’s fierce declaration that she would rather die than betray Rama establishes her unwavering devotion and moral strength."
+    },
+    {
+      "start": 400,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Ravana reveals his identity and attempts to persuade Sita to become his wife, marking the decisive moment of confrontation."
+    },
+    {
+      "start": 900,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Jatayu’s attack on Ravana represents loyalty and sacrificial courage, a pivotal heroic stand against evil."
+    },
+    {
+      "start": 1500,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "The dying Jatayu informing Rama about Sita’s abduction and Rama performing his funeral rites is one of the chapter’s most emotional moments."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Ravana in his true demonic form lifting the struggling Sita into the sky as the forest canopy spreads beneath them.",
+      "visual_strength": 0.91
+    },
+    {
+      "scene_text": "The giant vulture Jatayu battling Ravana mid‑air, slashing him with wings and talons while Sita watches in desperate hope.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The mortally wounded Jatayu lying on the forest floor as Rama and Lakshmana kneel beside him, learning of Sita’s abduction.",
+      "visual_strength": 0.89
+    }
+  ]
+}

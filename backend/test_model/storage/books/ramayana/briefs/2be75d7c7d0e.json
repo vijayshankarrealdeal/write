@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After Rama and Lakshmana recover, Ravana learns of it and sends the demon commander Dhumraksha with an army to attack the monkey forces.",
+  "importance": 0.45,
+  "themes": [
+    "renewed hope",
+    "enemy reconnaissance",
+    "Ravana's anxiety",
+    "military mobilization"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Monkey warriors roar with joy, beating drums and tearing up trees as they surge toward the gates of Lanka.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Terrified demons on Lanka’s ramparts stare down at Rama and Lakshmana sitting calmly among the monkey army, freed from their bonds.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Ravana, pale with anger, hisses like a serpent as he orders the demon Dhumraksha to march out with a vast armed host.",
+      "visual_strength": 0.74
+    }
+  ]
+}

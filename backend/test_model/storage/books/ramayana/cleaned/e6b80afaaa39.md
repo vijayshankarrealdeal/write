@@ -1,0 +1,21 @@
+## AYODHYA KANDA
+
+## CHAPTER 26
+
+*Shri Rama admonishes Princess Sita of his resolution*
+
+SHRI RAMACHANDRA, ever devoted to virtue, taking leave of his mother, ready to enter the forest, passed through the crowded streets, by his excellent qualities inspiring peace in the hearts of the multitude.
+
+The ascetic Princess Sita, not being acquainted with what had happened, her mind full of joy in the thought of the coming coronation of her consort, worshipping the gods and proficient in every duty, awaited the approach of her lord with a happy heart.
+
+Meantime, Rama dressed in his customary apparel, his head bowed in humility, entered the palace filled with joyful and richly attired persons.
+
+Seeing Ramachandra unadorned, the princess was filled with consternation and fear, and rose trembling from her seat.
+
+Rama beholding the princess, dearer than life to him, could not restrain his distress. Sita, seeing the countenance of Rama, sad, pale and moist with anguish, addressed him: “O My Lord, what is this? To-day, the Pushya planet and the moon are in conjunction, and Brihaspati in the ascendant, this is the time fixed for thy coronation by the holy brahmins, why art thou thus distressed? Why do I not behold the canopy, pure as foam, set with a hundred stars over thy head? Why are the chamaru, white as the moon or the swan, not waving to and fro over thee? O Great One, why do I not hear the bards to-day eloquently voicing thy praise, or the pundits reciting the Chant of Peace?
+
+“Why have the learned brahmins not anointed thee with honey, and curds as a mark of thine enthronement? Why art thou not attended by ministers, citizens and courtiers sumptuously attired? Why do four swift steeds with golden trappings, fleet of foot, not precede thee? Do I not behold the great elephant resembling a cloud, possessed of every auspicious mark, in thy train? Why dost thou appear downcast when the preparations for thy coronation are completed? O My Lord, why does thy countenance manifest no signs of joy?”
+
+Hearing the sorrowful words of the Princess Sita, Rama replied: “O Sita, my honoured father has commanded me to go into exile. O Princess, born of an illustrious family, acquainted with the law of dharma and eminent in virtue, hear, while I tell thee what has befallen me.
+
+Long ago my father, a lover of truth, granted two boons to my mother Kaikeyi. Beholding the preparations for my coronation, Kaikeyi demanded the fulfilment of her boons and has now gained ascendancy over his mind. In accordance with the two boons granted to her, it is mine to pass fourteen years in the Dandaka forest and Prince Bharata to be installed as regent. I am now going into exile and have come to bid thee farewell. Let no words in praise of me be repeated to Prince Bharata, lest he withhold his protection from thee. It is for thee to submit to his will for the sake of thy support. The king has conferred the regency on Prince Bharata forever. It behoves thee to act in such a way that he be not displeased with thee. O Wise One, now I go to the forest in obedience to my father's behest, remain here with a quiet heart. O Sinless One, when dressed as a hermit I leave for the forest, then do thou also cease to adorn thyself. Rising early, do thou worship the gods according to the prescribed rituals, then, approaching my father and mother, offer obeisance to them. My mother, Queen Kaushalya, having grown old, is afflicted on account of my departure, it becomes thee to serve her with respect. My other mothers should be honoured and served by thee like Queen Kaushalya, their hearts are also full of love towards me. Like my own mother Kaushalya, they have also cherished me, therefore I deem them worthy of the same honour. My brothers Bharata and Shatrughna should be regarded by thee as thy brothers or thy sons. It behoves thee never to provoke Prince Bharata, from now ruler of the kingdom and chief of the family. Served with sincerity, a king is pleased, but if provoked, he becomes full of wrath. A monarch renounces his own offspring if they oppose him and receives even strangers, as friends, who have promoted his welfare. O Kalyani, obeying King Bharata, remain here, seeking his good. O Dear One, I shall enter the great forest, it behoves thee to remain here; I charge thee to act in such a manner that no one will be displeased.”

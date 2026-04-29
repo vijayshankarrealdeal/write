@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma teaches detachment, the illusion of possessions, and urgency of virtue as death approaches, illustrated through discourses on desire, truth, and renunciation.",
+  "importance": 0.57,
+  "themes": [
+    "detachment from wealth",
+    "impermanence and death",
+    "renunciation and liberation",
+    "truth as immortality",
+    "cycle of rebirth"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A serene king declares that even if the entire city of Mithila burns in flames, nothing of his truly belongs to it.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Death is imagined as a tiger carrying away a sleeping deer while the creature remains unaware.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Days and nights fall upon the world like relentless bolts while an aging man realizes life slipping away.",
+      "visual_strength": 0.72
+    }
+  ]
+}

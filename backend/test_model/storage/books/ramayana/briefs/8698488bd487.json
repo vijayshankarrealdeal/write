@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Celestial sages urge Bharata to honor Rama’s vow; Bharata begs Rama to rule, but Rama insists on exile and instructs Bharata to govern in his stead.",
+  "importance": 0.7,
+  "themes": [
+    "dharma and vows",
+    "brotherly devotion",
+    "legitimacy of kingship",
+    "filial duty",
+    "humility in leadership"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata falls at Rama’s feet in the forest assembly, crying out while sages and warriors watch in solemn silence.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama lifts the trembling Bharata and embraces him like a swan, surrounded by gathered sages in a woodland clearing.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Invisible celestial sages hover above the meeting of the two princes, praising their virtue as the brothers stand facing one another.",
+      "visual_strength": 0.68
+    }
+  ]
+}

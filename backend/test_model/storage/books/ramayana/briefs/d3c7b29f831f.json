@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Shunashepha seeks refuge with Vishwamitra to escape being sacrificed, leading the sage to curse his disobedient sons and teach the boy mantras for salvation.",
+  "importance": 0.7,
+  "themes": [
+    "refuge and protection",
+    "sacrifice and ritual duty",
+    "curse and filial disobedience",
+    "sage authority",
+    "divine mantras"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Exhausted Shunashepha falls at Vishwamitra’s feet among meditating sages at Pushkara, pleading for protection.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Vishwamitra, eyes blazing with anger, raises his hand to curse his sons who stand defiantly before him.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The young boy, garlanded in red and smeared with sandalwood, stands bound to the sacrificial post while Vishwamitra secretly teaches him sacred mantras.",
+      "visual_strength": 0.88
+    }
+  ]
+}

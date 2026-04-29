@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains that righteous warfare, protection of subjects, and heroic death in battle grant Kshatriyas merit and heavenly reward, likening battle to a vast sacrifice.",
+  "importance": 0.63,
+  "themes": [
+    "dharma of kings",
+    "righteous warfare",
+    "battle as sacrifice",
+    "heroic death",
+    "heavenly reward"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A lone armored warrior stands amid a chaotic battlefield of elephants, chariots, and flying arrows, refusing to turn his back while enemies close in.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "A gruesome river of blood flows across the battlefield, filled with broken weapons, shields, and fallen warriors while vultures circle overhead.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "King Amvarisha in heaven watches his radiant general Sudeva ascending in a celestial chariot beside Indra.",
+      "visual_strength": 0.74
+    }
+  ]
+}

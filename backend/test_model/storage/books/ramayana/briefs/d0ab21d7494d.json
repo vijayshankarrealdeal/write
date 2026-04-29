@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Lakshmana’s exile, grieving Rama plans to leave Ayodhya; Bharata refuses the crown and urges installing Rama’s sons Kusha and Lava instead.",
+  "importance": 0.7,
+  "themes": [
+    "renunciation of power",
+    "loyalty between brothers",
+    "succession and kingship",
+    "collective devotion of subjects",
+    "grief and duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama, sorrowful and regal, announces before priests and citizens that he will crown Bharata and depart for the forest after Lakshmana.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Bharata, distressed and clasping his hands, refuses the crown before Rama and the court.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The citizens of Ayodhya bow low in grief, begging Rama to let them follow him wherever he goes.",
+      "visual_strength": 0.78
+    }
+  ]
+}

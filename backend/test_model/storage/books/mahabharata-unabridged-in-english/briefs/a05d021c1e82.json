@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After Jarasandha’s death, Sahadeva is crowned king of Magadha; Krishna departs, and the Pandavas launch campaigns to collect tribute for Yudhishthira’s rule.",
+  "importance": 0.6,
+  "themes": [
+    "legitimizing new kingship",
+    "Krishna’s political guidance",
+    "Pandava expansion",
+    "tribute and imperial ambition"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna installs Sahadeva, son of Jarasandha, on the throne of Magadha as princes and priests stand around with heaps of jewels.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The Pandavas walk ceremonially around Krishna’s celestial chariot as he prepares to depart from Indraprastha.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Arjuna sets out northward in a radiant celestial chariot with a vast army following behind his banner.",
+      "visual_strength": 0.74
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Surya warns Karna that Indra will beg for his divine armor and earrings, but Karna insists on giving them to preserve his vow and eternal fame.",
+  "importance": 0.86,
+  "themes": [
+    "honor vs survival",
+    "fate and prophecy",
+    "divine parenthood",
+    "generosity and vows",
+    "fame and glory"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a moonlit dream, the radiant Sun god appears as a Brahmana beside Karna sleeping on a rich bed and warns him of Indra’s coming deceit.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Karna stands resolute before the luminous figure of Surya, declaring he will give away even his life rather than break his vow of generosity.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "The sun‑bright Surya pleads with Karna, whose divine armor and earrings gleam like molten gold upon his body in the darkness of night.",
+      "visual_strength": 0.7
+    }
+  ]
+}

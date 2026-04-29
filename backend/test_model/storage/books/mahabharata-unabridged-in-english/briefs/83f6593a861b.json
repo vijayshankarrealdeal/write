@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Pandavas move from Dwaitavana after Yudhishthira dreams of pleading deer, endure exile hardship, and receive Vyasa’s counsel on patience and ascetic endurance.",
+  "importance": 0.43,
+  "themes": [
+    "compassion for animals",
+    "exile hardship",
+    "moral responsibility",
+    "ascetic endurance",
+    "fate and patience"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a dream, trembling deer with folded forelegs stand before Yudhishthira in the dark forest, pleading for mercy and a chance to survive.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The Pandavas and Draupadi depart Dwaitavana with Brahmanas and attendants, walking along forest roads toward the sacred woods of Kamyaka.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "The sage Vyasa, eyes moist with compassion, looks upon the thin and weary Pandavas living on fruits and roots in their forest hermitage.",
+      "visual_strength": 0.7
+    }
+  ]
+}

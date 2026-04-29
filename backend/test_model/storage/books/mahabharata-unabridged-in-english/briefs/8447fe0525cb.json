@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Manu explains that the subtle Soul is perceived through purified understanding, not senses, and that ignorance and desire bind it to cycles of rebirth.",
+  "importance": 0.74,
+  "themes": [
+    "nature of the soul",
+    "ignorance and knowledge",
+    "sense restraint",
+    "rebirth and karma",
+    "path to Brahman"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A still pool reflecting a clear image while a nearby hand disturbs the water, blurring the reflection as a sage watches.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The moon fading into darkness on the fifteenth night while stars remain around it, symbolizing the unseen yet enduring soul.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "A radiant sun withdrawing its rays back into itself at sunset as a human figure stands with senses symbolized as beams returning inward.",
+      "visual_strength": 0.78
+    }
+  ]
+}

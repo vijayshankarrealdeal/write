@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana shows Sita the apparently slain Rama and Lakshmana; Sita laments fate and false prophecies until Trijata reassures her they still live.",
+  "importance": 0.62,
+  "themes": [
+    "despair and hope",
+    "illusion in war",
+    "fate vs prophecy",
+    "loyalty to Rama",
+    "consolation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "From the airborne Pushpaka chariot, Sita looks down in horror at Rama and Lakshmana lying motionless on the battlefield, surrounded by grieving monkeys.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Sita collapses in the chariot weeping, her hands raised in lament while the rakshasis stand around and the city of Lanka glitters below.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Trijata gently gestures toward the calm monkey army guarding the fallen brothers as she reassures the distraught Sita that they still live.",
+      "visual_strength": 0.6
+    }
+  ]
+}

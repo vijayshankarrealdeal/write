@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Pandu’s funeral rites, Vyasa warns of the dynasty’s doom, Bhima bullies the Kauravas in childhood, and Duryodhana plots to kill him.",
+  "importance": 0.72,
+  "themes": [
+    "mourning and rites",
+    "prophecy of decline",
+    "childhood rivalry",
+    "jealousy and ambition",
+    "deception and plotting"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vyasa solemnly warns Satyavati of the coming destruction of the Kuru dynasty while grieving citizens fill the halls of Hastinapura.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Young Bhima shakes a fruit tree with a kick, sending both fruits and the clinging Kaurava princes tumbling to the ground.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "On the flower-filled banks of the Ganga, the princes arrive at a richly decorated water-sport palace hung with banners and surrounded by lotus ponds.",
+      "visual_strength": 0.73
+    }
+  ]
+}

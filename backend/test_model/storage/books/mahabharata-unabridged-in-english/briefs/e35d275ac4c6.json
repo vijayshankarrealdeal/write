@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Dhritarashtra fears the Pandavas’ superior warriors and virtues, lamenting his deceit toward Yudhishthira and urging peace to avoid the Kuru race’s destruction.",
+  "importance": 0.47,
+  "themes": [
+    "foreboding of war",
+    "praise of Pandava heroes",
+    "moral regret",
+    "counsel for peace"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Satyaki stands on the battlefield loosing arrows in rapid succession, his shafts falling across the field like a farmer scattering seeds.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "The Pandava warriors unleash a vast net of arrows that spreads over the Kaurava army, trapping soldiers beneath a glittering storm of shafts.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Dhritarashtra imagines foolish warriors rushing like moths into the blazing fire of the unstoppable Pandava host.",
+      "visual_strength": 0.64
+    }
+  ]
+}

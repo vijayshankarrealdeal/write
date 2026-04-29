@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sarana continues describing to Ravana the vast monkey and bear commanders and their immense forces preparing to attack Lanka.",
+  "importance": 0.45,
+  "themes": [
+    "enemy reconnaissance",
+    "war preparations",
+    "heroic catalog of warriors",
+    "loyalty to Rama",
+    "imminent siege of Lanka"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An immense bear king stands like a dark mountain among storm-cloud ranks of bears advancing toward Lanka.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A colossal monkey with a sun-bright tail dragging along the ground marches forward as thousands of monkeys brandish uprooted trees behind him.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Dust rises in yellow clouds as vast troops of roaring monkeys surround their leader while staring toward the distant city of Lanka.",
+      "visual_strength": 0.74
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Arjuna recounts battling the illusion‑wielding Nivata‑Kavachas, countering their storms of rocks, water, fire, wind, and darkness with celestial weapons from Indra.",
+  "importance": 0.6,
+  "themes": [
+    "divine weapons",
+    "illusion in warfare",
+    "heroic perseverance",
+    "cosmic-scale battle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna on his chariot fires blazing celestial arrows that shatter a rain of giant rocks falling from the sky.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Dense supernatural darkness engulfs the battlefield as Matali drops the golden lash and cries out in fear beside Arjuna’s chariot.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A colossal storm of water pours from the heavens while Arjuna releases a fiery celestial weapon that dries the torrents midair.",
+      "visual_strength": 0.83
+    }
+  ]
+}

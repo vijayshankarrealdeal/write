@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sugriva tells Rama he witnessed Sita's abduction and presents the cloak and jewels she dropped while crying for Rama and Lakshmana.",
+  "importance": 0.6,
+  "themes": [
+    "proof of Sita's abduction",
+    "alliance and loyalty",
+    "grief and hope",
+    "tokens of recognition"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "From Ravana's arms in the sky, Sita cries out 'O Rama! O Lakshmana!' and drops her cloak and glittering jewels toward the monkeys watching from a mountain peak.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Sugriva opens a cave and brings out Sita's cloak and jewels, presenting them to Rama with solemn respect.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Rama gazes at the cloak and scattered jewels in anguish and recognition while Sugriva stands beside him in the forest.",
+      "visual_strength": 0.8
+    }
+  ]
+}

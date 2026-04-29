@@ -1,0 +1,39 @@
+{
+  "rich_summary": "As Rama prepares to leave Ayodhya for his fourteen‑year exile, the palace is overwhelmed with grief. The minister Sumantra announces Rama’s arrival to the devastated King Dasharatha, who is already crushed by the consequences of Kaikeyi’s demand. When Rama, Sita, and Lakshmana enter, the king rushes toward his son but collapses unconscious from sorrow while the palace women wail in despair. Revived, Dasharatha pleads with Rama to defy the command and seize the throne instead. Rama refuses, insisting that truth and obedience to his father’s word are greater than kingship, pleasure, or even life itself. The king finally blesses him with a heavy heart, recognizing that Rama’s unwavering commitment to dharma cannot be changed. The scene highlights the epic’s central moral conflict between parental love, royal duty, and absolute devotion to truth.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces Rama with reverential imagery, establishing his divine-like character before the tragic farewell."
+    },
+    {
+      "start": 500,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The palace women gather in tears around Kaushalya, visually capturing the collective grief of Ayodhya."
+    },
+    {
+      "start": 1000,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Dasharatha collapses unconscious when he sees Rama, a powerful emotional climax of paternal anguish."
+    },
+    {
+      "start": 1500,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Rama declares that he values truth and obedience above kingdom, pleasure, heaven, or even life—one of the defining statements of his dharma."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "King Dasharatha rushes toward Rama in the crowded royal chamber but collapses unconscious while hundreds of weeping palace women cry out around him.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Rama, calm and radiant, stands with Sita and Lakshmana before the grief-stricken king while the royal court mourns the prince’s exile.",
+      "visual_strength": 0.74
+    }
+  ]
+}

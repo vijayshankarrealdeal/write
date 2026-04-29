@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhima and Karna engage in a fierce duel of arrows; Bhima repeatedly disables Karna’s chariot, forcing Duryodhana to send Durjaya to aid him.",
+  "importance": 0.6,
+  "themes": [
+    "heroic duel",
+    "warfare carnage",
+    "rivalry Bhima and Karna",
+    "royal regret",
+    "battlefield intervention"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima slices Karna’s hurled golden dart into pieces midair with seven swift arrows.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Bhima’s arrows kill Karna’s white horses and charioteer, leaving Karna stranded amid the battlefield.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Karna and Bhima stand in their chariots raining golden-feathered arrows like two storm clouds over a battlefield strewn with fallen warriors.",
+      "visual_strength": 0.77
+    }
+  ]
+}

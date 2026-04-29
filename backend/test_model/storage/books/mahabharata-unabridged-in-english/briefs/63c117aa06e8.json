@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Draupadi cites Prahlada’s teaching that rulers must balance forgiveness and force, but Yudhishthira replies that anger leads to destruction and must be restrained.",
+  "importance": 0.7,
+  "themes": [
+    "forgiveness vs power",
+    "anger and self-control",
+    "ethics of kingship",
+    "justice and punishment"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Draupadi passionately urges Yudhishthira to rise against the Kauravas while the exiled king sits calm and restrained in the forest.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "The wise Prahlada instructs his grandson Vali in a royal hall about when to wield forgiveness and when to use might.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "A wrathful king like a snake in a house terrifies the people around him as courtiers shrink back in fear.",
+      "visual_strength": 0.68
+    }
+  ]
+}

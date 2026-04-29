@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section depicts intertwined duels and the strategic crisis faced by the Pandavas during Drona’s command. Duryodhana and Satyaki confront each other with bitter nostalgia, recalling their childhood friendship before engaging in a fierce exchange of arrows. The battle expands as Karna attempts to rescue Duryodhana but is intercepted by Bhima, who smashes Karna’s chariot with his mace. Meanwhile Drona devastates the Panchala forces with overwhelming skill, invoking celestial weapons and slaughtering thousands, spreading despair among the Pandavas. Recognizing that Drona cannot be defeated in direct combat, Krishna proposes a controversial stratagem: convince him his son Ashwatthaman has died so he will abandon his weapons. Bhima kills an elephant named Ashwatthaman and spreads the claim, setting the stage for Yudhishthira’s fateful moral dilemma.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Duryodhana’s lament over lost childhood friendship with Satyaki captures the tragic irony of comrades forced into mortal combat."
+    },
+    {
+      "start": 900,
+      "length": 130,
+      "color_hex": "#FFEB3B",
+      "why": "Satyaki’s declaration that Kshatriyas must fight even their own loved ones underscores the harsh warrior code driving the conflict."
+    },
+    {
+      "start": 2500,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "The vivid description of arrows filling earth and sky illustrates the epic scale and intensity typical of Mahabharata battlefield imagery."
+    },
+    {
+      "start": 4200,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna’s strategic insight that Drona can only be defeated if he abandons his weapons introduces the crucial deception plot."
+    },
+    {
+      "start": 6200,
+      "length": 150,
+      "color_hex": "#F48FB1",
+      "why": "The moment Bhima kills the elephant named Ashwatthaman and proclaims the death foreshadows Yudhishthira’s moral crisis over truth and deception."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Satyaki and Duryodhana face each other on chariots amid a storm of arrows, their expressions mixing anger and the sorrow of former friendship.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Bhima smashes Karna’s chariot with a massive mace, breaking a wheel while Karna stands defiant on the damaged car like a mountain.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Drona, blazing like a smokeless fire, unleashes the Brahma weapon while terrified soldiers fall around him and the sky darkens with arrows.",
+      "visual_strength": 0.95
+    }
+  ]
+}

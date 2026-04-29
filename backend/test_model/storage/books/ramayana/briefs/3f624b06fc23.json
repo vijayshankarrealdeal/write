@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Indrajit incapacitates Rama and Lakshmana, causing despair among the monkey army until Vibhishana reassures Sugriva and restores hope.",
+  "importance": 0.66,
+  "themes": [
+    "despair in battle",
+    "illusion of victory",
+    "loyal counsel",
+    "war morale",
+    "demonic magic"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama and Lakshmana lie motionless on a bed of arrows, their golden bodies drenched in blood as grieving monkey warriors gather around them.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The invisible Indrajit rains fiery arrows upon the monkey chiefs while shouting triumph across the battlefield.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Vibhishana gently washes Sugriva’s tear-filled eyes with water while speaking words of courage amid the shaken army.",
+      "visual_strength": 0.67
+    }
+  ]
+}

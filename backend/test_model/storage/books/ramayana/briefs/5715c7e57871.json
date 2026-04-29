@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Manthara learns of Rama’s planned coronation and incites Queen Kaikeyi by portraying it as a threat to her and her son Bharata.",
+  "importance": 0.75,
+  "themes": [
+    "jealousy and manipulation",
+    "political intrigue",
+    "royal succession",
+    "loyalty and betrayal"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "From a palace balcony, the hunchback Manthara gazes over Ayodhya’s streets filled with garlands, flags, musicians, and joyful crowds celebrating Rama’s coming coronation.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Manthara urgently wakes Queen Kaikeyi in her chamber, leaning over her bed with a tense, whispering warning while the queen rises in confusion.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "With a sly, sorrowful expression, Manthara gestures dramatically as she warns Kaikeyi that Rama’s coronation will destroy her fortune and elevate Kausalya.",
+      "visual_strength": 0.66
+    }
+  ]
+}

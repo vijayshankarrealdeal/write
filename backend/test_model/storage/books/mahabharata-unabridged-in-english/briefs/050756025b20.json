@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts the debate between King Janaka and the yogini Sulabha on true emancipation, knowledge, renunciation, and the nature of self and perception.",
+  "importance": 0.78,
+  "themes": [
+    "true renunciation vs outward asceticism",
+    "knowledge and liberation",
+    "self and consciousness",
+    "philosophical debate",
+    "social roles and spirituality"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The yogini Sulabha, radiant and serene, sits before King Janaka in the crowded court of Mithila after mystically entering his mind through yogic power.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Invisible in subtle form, Sulabha and Janaka confront each other in a mental realm while their physical bodies remain seated in the royal court.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Sulabha calmly addresses the king and his gathered Brahmanas, explaining the nature of speech, senses, mind, and the many principles composing the body.",
+      "visual_strength": 0.62
+    }
+  ]
+}

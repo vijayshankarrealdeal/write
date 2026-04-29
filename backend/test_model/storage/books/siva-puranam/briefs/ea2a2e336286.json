@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sati tests Rama, is rebuked, later humiliated by Daksha and immolates herself at his sacrifice, prompting Shiva to create Virabhadra to destroy the yajna.",
+  "importance": 0.86,
+  "themes": [
+    "divine pride and insult",
+    "devotion and doubt",
+    "self‑immolation of Sati",
+    "cosmic revelation",
+    "divine vengeance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sati, surrounded by shocked sages and blazing ritual fires, leaps into the sacrificial flames after denouncing her father Daksha.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "Shiva tears a braid from his matted hair and hurls it onto a mountain, from which the fierce thousand‑armed warrior Virabhadra erupts.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "Rama reveals his universal form to Sati, his body containing suns, gods, and countless beings shining in cosmic radiance.",
+      "visual_strength": 0.9
+    }
+  ]
+}

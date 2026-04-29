@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dyumatsena regains sight and searches anxiously for Satyavan until Savitri returns with him, bringing relief and confirmation of the sages’ hopeful predictions.",
+  "importance": 0.72,
+  "themes": [
+    "parental love",
+    "faith in virtue",
+    "prophetic assurance",
+    "family reunion",
+    "ascetic authority"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The blind king Dyumatsena, his sight newly restored, wanders through the dark forest with his queen, their feet bleeding from thorns as they search desperately for Satyavan.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A circle of ascetics in a forest hermitage reassure the grieving king and queen beside a small fire, raising calm hands while the night forest surrounds them.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Savitri enters the hermitage at night supporting Satyavan on her shoulder as the waiting parents and sages look on in astonished relief.",
+      "visual_strength": 0.87
+    }
+  ]
+}

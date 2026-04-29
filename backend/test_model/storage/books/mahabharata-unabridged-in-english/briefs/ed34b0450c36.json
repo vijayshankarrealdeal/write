@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma extols Krishna/Vasudeva as the supreme cosmic being and urges Duryodhana to make peace with the Pandavas under his protection.",
+  "importance": 0.68,
+  "themes": [
+    "divinity of Krishna",
+    "cosmic creation myth",
+    "praise hymn",
+    "warning to Duryodhana",
+    "divine protection of Pandavas"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The cosmic form of Vishnu lies upon the primordial waters in yogic sleep while creation—fire, wind, gods, and worlds—emerges from his body.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhishma speaks gravely to Duryodhana in the war camp, urging him to make peace with the Pandavas under Krishna’s divine protection.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Vishnu slays the fierce demon Madhu who arose from the secretions of his ear and threatened Brahman.",
+      "visual_strength": 0.7
+    }
+  ]
+}

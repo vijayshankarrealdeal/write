@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Insulted in the Kaurava court, the Pandavas swear deadly vows against their enemies before departing, while Yudhishthira formally bids farewell.",
+  "importance": 0.85,
+  "themes": [
+    "vows of vengeance",
+    "honor and insult",
+    "brotherly resolve",
+    "foreshadowing war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima, furious and lion-like, points at Dussasana in the royal assembly while swearing to drink his blood.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Duryodhana mockingly imitates Bhima’s proud gait in the court while the enraged Bhima turns back toward him.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The five Pandava brothers, arms raised and eyes blazing, proclaim their vows of vengeance before leaving the Kaurava court.",
+      "visual_strength": 0.82
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Two years after the Pandavas return to Hastinapura, the sage Narada visits King Yudhishthira. When asked about the fate of Dhritarashtra, Narada recounts what happened after the blind king renounced the world. Dhritarashtra, accompanied by Gandhari, Kunti, Sanjaya, and priests, retired to the forests near the Ganga and practiced severe austerities. Emaciated by penance and wandering without attachment, they lived as ascetics. One day a fierce forest fire surrounded them. Too weak to escape, Dhritarashtra calmly ordered Sanjaya to flee while he, Gandhari, and Kunti accepted death as a fitting end for renunciants. Sitting in meditation facing the east, they allowed the flames to consume them. When Yudhishthira hears this, the Pandavas and the royal household erupt in grief, mourning both the old king and Kunti’s tragic end.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The opening situates the narrative after the Pandavas’ return and introduces Narada’s significant visit to Yudhishthira."
+    },
+    {
+      "start": 320,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Describes Dhritarashtra’s extreme ascetic practices, showing his renunciation and spiritual transformation after the war."
+    },
+    {
+      "start": 980,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "The moment when the forest fire erupts, creating the central crisis that leads to the king and queens’ final decision."
+    },
+    {
+      "start": 1400,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Dhritarashtra’s philosophical acceptance of death by the elements, framing the event within the ideals of ascetic renunciation."
+    },
+    {
+      "start": 2100,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "The Pandavas’ emotional reaction, especially Yudhishthira grieving for his mother Kunti, underscores the human cost of the epic’s long conflict."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Dhritarashtra, Gandhari, and Kunti sit in meditation facing the east in a forest clearing as a ring of wildfire closes around them while Sanjaya reluctantly departs.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "The aged Dhritarashtra performing severe penance in the forest, skeletal and silent with pebbles in his mouth, while Gandhari and Kunti stand beside him among ascetics.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "In the palace of Hastinapura, Yudhishthira raises his arms and weeps upon hearing Narada’s news while the Pandavas and royal women lament in the background.",
+      "visual_strength": 0.8
+    }
+  ]
+}

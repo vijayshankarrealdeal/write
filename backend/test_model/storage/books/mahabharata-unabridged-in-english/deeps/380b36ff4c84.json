@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Bhishma continues instructing Yudhishthira on the duties and realities of kingship. A ruler must combine diligence, intelligence, surveillance, and strategic deception, never underestimating enemies and always prioritizing exertion and preparedness. Bhishma stresses that effective rule requires both candour and calculated cunning, because kingdoms are coveted and vulnerable. Yudhishthira then asks a deeper question: why one man, the king, rules over many equals. Bhishma answers with a mythic history. In the earliest age, people governed themselves righteously without kings, but moral decline—greed, lust, anger, and confusion—destroyed order and even caused the Vedas to disappear. The gods appealed to Brahma, who created the science of governance, Dandaniti, the doctrine of rule through law, discipline, and punishment, establishing the philosophical foundation of kingship.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "A dense catalogue of practical royal duties—administration, intelligence, discipline, treasury, and military morale—showing the breadth of responsibilities expected of a king."
+    },
+    {
+      "start": 400,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "The teaching that exertion is the root of kingship, illustrated by mythic examples like Indra gaining sovereignty through effort."
+    },
+    {
+      "start": 820,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "The vivid analogy that even a small spark or a drop of poison can destroy—warning rulers never to underestimate minor enemies."
+    },
+    {
+      "start": 1700,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "The philosophical claim that a king must combine candour with strategic crookedness, revealing the pragmatic political realism of the text."
+    },
+    {
+      "start": 2600,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Yudhishthira’s reflective question about why one human rules many others, capturing his moral unease about power and authority."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhishma lying on his bed of arrows on the battlefield while the Pandavas, Krishna, sages, and warriors gather around him at dawn to hear his teachings on kingship.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "In the primordial age, people living peacefully without kings until greed, lust, and anger spread among them, symbolized by a once-harmonious society descending into chaos.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The gods standing before Brahma in fear as he composes the vast treatise of Dandaniti, a cosmic manuscript containing the laws of governance and punishment.",
+      "visual_strength": 0.87
+    }
+  ]
+}

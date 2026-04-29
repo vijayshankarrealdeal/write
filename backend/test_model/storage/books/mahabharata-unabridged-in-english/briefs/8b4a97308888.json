@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sweta avenges his brother Uttara, devastates Kaurava forces, and duels fiercely with Bhishma amid chaotic battlefield slaughter.",
+  "importance": 0.7,
+  "themes": [
+    "battle fury",
+    "brotherly vengeance",
+    "heroic duels",
+    "battlefield chaos",
+    "Bhishma's prowess"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Salya leaps from his chariot and slices off the trunk of Uttara’s elephant as the wounded beast screams and collapses.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Sweta stands in his chariot cutting seven warriors’ bows and darts from the sky with rapid arrows.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Bhishma and Sweta face each other amid dust and corpses, their chariots blazing with arrows as armies watch in dread.",
+      "visual_strength": 0.78
+    }
+  ]
+}

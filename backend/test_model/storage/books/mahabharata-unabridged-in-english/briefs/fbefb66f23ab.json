@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Skanda’s awe‑inspiring birth and feats, cosmic disturbances arise, sages dispute his origin, and the gods fear his power and plot to eliminate him.",
+  "importance": 0.62,
+  "themes": [
+    "divine birth",
+    "cosmic omens",
+    "misattributed parentage",
+    "fear of rising power",
+    "gods' political anxiety"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The six‑faced child Skanda stands on a mountain peak amid red lightning clouds, roaring while holding bow, dart, conch, and a red‑crested cock.",
+      "visual_strength": 0.91
+    },
+    {
+      "scene_text": "Skanda’s arrow shatters the mountain Krauncha, the peak splitting apart as birds scatter and surrounding hills cry out in terror.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The Earth, bereft of mountains that have fled in fear, approaches Skanda for protection as the mountains bow and return to their places.",
+      "visual_strength": 0.72
+    }
+  ]
+}

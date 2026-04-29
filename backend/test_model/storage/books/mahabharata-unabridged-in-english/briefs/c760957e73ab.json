@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Utanka reaches the Naga realm with Indra’s aid, invokes the fire god to force the Nagas to return the stolen earrings, and completes his guru’s task.",
+  "importance": 0.7,
+  "themes": [
+    "ascetic determination",
+    "divine intervention",
+    "descent to Naga world",
+    "power of fire",
+    "guru devotion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Utanka furiously digs the earth with his staff for days until Indra’s thunderbolt splits the ground open into a path to the Naga realm.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "In the jeweled underground world, a blazing black horse with a white tail reveals himself as the fire god and speaks to the astonished Utanka.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Thick smoke pours from the fiery steed and engulfs the golden palaces of the Nagas, driving the serpent kings out in panic to return the earrings.",
+      "visual_strength": 0.9
+    }
+  ]
+}

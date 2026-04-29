@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Markandeya continues recounting the backstory behind the Ramayana events to Yudhishthira. Earlier divine arrangements are described: the asura Dundubhi is reborn as the scheming hunchback Manthara, while gods sire powerful monkey and bear heroes destined to aid Rama. The narrative then shifts to Ayodhya. King Dasaratha, proud of his virtuous and beloved eldest son Rama, decides to install him as prince-regent. Manthara overhears the plan and manipulates Queen Kaikeyi, convincing her that Rama’s coronation will ruin her and her son Bharata. Reminding Dasaratha of a past promise, Kaikeyi demands two boons: Bharata’s coronation and Rama’s fourteen‑year exile to the forest. Bound by his word, the king is devastated, but Rama willingly departs with Sita and Lakshmana to preserve his father’s honor. Dasaratha dies of grief, while Bharata condemns the deed and sets out to bring Rama back.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the divine backstory: Dundubhi’s rebirth as Manthara and the cosmic setup that will indirectly trigger Rama’s exile."
+    },
+    {
+      "start": 121,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Describes the superhuman monkey allies born from the gods, foreshadowing the future alliance that will help Rama."
+    },
+    {
+      "start": 900,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Dasaratha’s decision to install Rama as prince-regent—this moment sets the entire exile drama in motion."
+    },
+    {
+      "start": 1500,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "Kaikeyi invokes her promised boons and demands Bharata’s coronation and Rama’s exile, the pivotal emotional turning point."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The hunchback Manthara whispering urgently to Queen Kaikeyi in a palace chamber, poisoning her mind against Rama’s coronation.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "King Dasaratha announcing Rama’s coronation while the court rejoices, unaware of the intrigue already unfolding.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Rama calmly departing for the forest with Sita and Lakshmana while the devastated Dasaratha watches helplessly.",
+      "visual_strength": 0.92
+    }
+  ]
+}

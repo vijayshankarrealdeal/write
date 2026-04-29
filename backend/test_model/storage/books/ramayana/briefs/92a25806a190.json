@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bharata prepares Ayodhya and journeys to meet Rama, joyfully reunites with him, returns the kingdom, and honors Rama before citizens and allies.",
+  "importance": 0.72,
+  "themes": [
+    "brotherly devotion",
+    "rightful kingship",
+    "loyalty and duty",
+    "homecoming",
+    "public celebration"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata, dressed in bark and antelope skin, carries Rama’s sandals on his head beneath a white parasol as the city procession marches toward Nandigrama.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The celestial chariot Pushpaka shines like the moon in the sky as citizens point upward and cry out that Rama has come.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Rama descends from the Pushpaka chariot and embraces Bharata, lifting his long-separated brother onto his lap before the gathered crowds.",
+      "visual_strength": 0.83
+    }
+  ]
+}

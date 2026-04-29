@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yayati explains humility, destiny, and the loss of heavenly merit through vanity while recounting his long stay in celestial realms before falling from Nandana.",
+  "importance": 0.62,
+  "themes": [
+    "humility vs vanity",
+    "destiny and fate",
+    "loss of merit",
+    "heavenly realms",
+    "moral consequences"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A grim celestial messenger in the gardens of Nandana shouts 'Ruined! Ruined! Ruined!' as King Yayati begins to fall from the radiant paradise.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Yayati, glowing with celestial splendor, walks among fragrant flowering trees and dancing Apsaras in the lush gardens of Nandana.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "As Yayati falls through the sky, grieving celestials watch from above while smoke from sacrificial fires rises from the sacred region below.",
+      "visual_strength": 0.83
+    }
+  ]
+}

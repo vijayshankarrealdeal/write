@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A Brahmana explains renunciation, equanimity, and yogic concentration as the path to realizing the soul and attaining liberation in Brahman.",
+  "importance": 0.72,
+  "themes": [
+    "renunciation",
+    "equanimity",
+    "yoga meditation",
+    "nature of the soul",
+    "liberation (moksha)"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A yogin sits in deep meditation as his subtle soul is drawn out from the body like the fibrous pith pulled from a blade of munja grass.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A serene sage sits unmoved amid scenes of decay and death around him, his calm gaze reflecting perfect detachment.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "In dreamlike contemplation, a meditator beholds the radiant Supreme Soul within his own heart during samadhi.",
+      "visual_strength": 0.75
+    }
+  ]
+}

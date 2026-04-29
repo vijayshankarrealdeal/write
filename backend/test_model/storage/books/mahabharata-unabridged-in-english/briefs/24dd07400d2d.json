@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Ghatotkacha’s death, Sanjaya explains Karna’s unused divine dart and fate’s role while Yudhishthira grieves and rashly advances to fight Karna.",
+  "importance": 0.66,
+  "themes": [
+    "fate vs strategy",
+    "Krishna protecting Arjuna",
+    "grief for Ghatotkacha",
+    "battle strategy debate",
+    "resolve to confront Karna"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the dark battlefield night, Yudhishthira sits on his chariot with tearful face while shattered Pandava troops fight under flickering torches.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Krishna urgently drives Arjuna’s white-steeded chariot through the night to catch up with the grief-stricken Yudhishthira rushing toward Karna.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "The Kaurava army roars in triumph around Karna after Ghatotkacha’s fall, their weapons raised in the darkness of the night battle.",
+      "visual_strength": 0.69
+    }
+  ]
+}

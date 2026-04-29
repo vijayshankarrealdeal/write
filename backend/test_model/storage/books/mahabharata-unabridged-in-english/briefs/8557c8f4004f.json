@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vidura secretly warns Yudhishthira of a deadly plot involving an inflammable house at Varanavata, which the Pandavas enter while remaining cautiously aware.",
+  "importance": 0.7,
+  "themes": [
+    "political intrigue",
+    "coded warning",
+    "loyalty of Vidura",
+    "assassination plot",
+    "caution and strategy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vidura leans close to Yudhishthira and speaks in a secret tongue while crowds surround the departing Pandavas, unaware of the hidden warning.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Yudhishthira sniffs the walls of the ornate palace at Varanavata, realizing from the smell of ghee and lac that the beautiful mansion is built to burn.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The Pandavas, richly dressed, enter the glittering 'Blessed Home' while Purochana stands before them, the palace glowing warmly like a hidden trap.",
+      "visual_strength": 0.75
+    }
+  ]
+}

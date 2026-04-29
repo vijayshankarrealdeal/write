@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Shiva and Parvati’s divine wedding is celebrated with rituals, blessings, philosophical teachings, and a farewell as Parvati departs for Kailasa.",
+  "importance": 0.78,
+  "themes": [
+    "divine marriage",
+    "ritual and tradition",
+    "devotion and humility",
+    "cosmic unity of Trinity",
+    "marital duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Shiva arrives on his white bull Nandi while gods, sages, and celestial beings fill the Himalayan capital in celebration.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A golden screen falls away at the auspicious moment as Shiva and Parvati gaze into each other's eyes during their wedding ceremony.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Menaka kisses Parvati farewell as the bride sits in a golden palanquin departing for Kailasa while mountains, animals, and flowers seem to mourn.",
+      "visual_strength": 0.84
+    }
+  ]
+}

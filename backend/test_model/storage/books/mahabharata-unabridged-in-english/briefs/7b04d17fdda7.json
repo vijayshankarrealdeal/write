@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Satyaki, after assuring Yudhishthira’s protection and describing the formidable enemies ahead, prepares ceremonially and sets out to follow Arjuna toward Jayadratha.",
+  "importance": 0.5,
+  "themes": [
+    "duty and loyalty",
+    "battle preparation",
+    "confidence in Arjuna",
+    "warrior vows",
+    "looming confrontation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Satyaki stands beside his chariot with a golden lion banner while priests bless him and attendants yoke four golden-hued horses to the weapon-laden car.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Rows of armored war elephants ridden by fierce Kirata warriors loom like rain clouds on the battlefield as Satyaki prepares to charge through them.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "After ritual bathing and drinking honeyed liquor, Satyaki with reddened eyes lifts his bow, shining like a blazing fire amid cheering maidens and chanting Brahmanas.",
+      "visual_strength": 0.81
+    }
+  ]
+}

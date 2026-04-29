@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section intertwines a discourse on truth with the dramatic humiliation of Draupadi in the Kuru court. Kasyapa teaches Prahlada that truthfulness is sacred: false testimony binds a person with the 'nooses of Varuna,' and assemblies share guilt if they fail to condemn wrongdoing. Prahlada demonstrates this principle by judging fairly even against his own son, valuing virtue over affection. Vidura then urges the Kuru assembly to apply these moral principles to Draupadi’s case. Yet the court remains silent. Karna orders Dussasana to drag Draupadi away, and she laments her public humiliation, asking whether she was rightfully won in the dice game. Bhishma admits the subtlety of dharma and, unable to judge clearly, warns that the Kuru dynasty’s moral confusion foreshadows its destruction.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the moral teaching about truth and the metaphor of Varuna’s nooses, framing the section’s concern with honesty and responsibility."
+    },
+    {
+      "start": 260,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Explains the shared guilt of an assembly that fails to rebuke wrongdoing—an ethical principle directly relevant to the silent Kuru court."
+    },
+    {
+      "start": 1080,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Marks the moment when Dussasana drags Draupadi before the court, a pivotal and emotionally charged turning point."
+    },
+    {
+      "start": 1500,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Draupadi’s lament about being publicly exposed captures the depth of her humiliation and appeals to the moral conscience of the assembly."
+    },
+    {
+      "start": 2600,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "Bhishma reflects on the subtlety of dharma and the danger of power defining morality, revealing the ethical crisis at the heart of the episode."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Dussasana violently dragging Draupadi by the hair into the crowded Kuru royal court while kings and elders sit in stunned silence.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Draupadi fallen on the court floor, hands raised in anguish, addressing the assembly of kings while the Pandavas sit helpless and ashamed.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Bhishma seated among the elders, head bowed in moral conflict as Draupadi demands justice before the silent court.",
+      "visual_strength": 0.82
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "rich_summary": "In heaven, the apsara Urvasi confesses her desire for Arjuna, saying she has long been drawn to his virtues. Arjuna, embarrassed and resolute, refuses her advances, explaining that he regards her as a mother because she was connected with the ancient ancestors of his lineage. Urvasi insists that apsaras are free in love, but Arjuna continues to treat her with reverence and declines. Enraged at being rejected, she curses him to live among women as a eunuch and dancer. Arjuna later reports the event to Chitrasena, and Indra reassures him that the curse will ultimately help him during the Pandavas’ future year of hiding. The passage highlights Arjuna’s restraint and reframes the curse as a strategic blessing.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Urvasi’s passionate confession sets up the central emotional conflict of desire versus restraint."
+    },
+    {
+      "start": 200,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Arjuna’s bashful rejection emphasizes his moral discipline and his view of Urvasi as a maternal figure."
+    },
+    {
+      "start": 600,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The pivotal moment where Urvasi curses Arjuna, triggering a consequence that later becomes crucial during exile."
+    },
+    {
+      "start": 900,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Indra reframes the curse as beneficial, underscoring the theme that apparent misfortune can serve destiny."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In a celestial hall, the radiant apsara Urvasi declares her love while Arjuna, embarrassed, covers his ears and bows in respectful refusal.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Urvasi, trembling with fury and brows knotted, pronounces a curse upon Arjuna as divine light glows around the heavenly palace.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Indra smiles reassuringly beside his throne while Arjuna listens, learning that Urvasi’s curse will one day aid him during his hidden exile.",
+      "visual_strength": 0.74
+    }
+  ]
+}

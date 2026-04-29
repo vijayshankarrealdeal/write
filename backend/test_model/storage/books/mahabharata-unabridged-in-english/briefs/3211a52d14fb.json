@@ -1,0 +1,20 @@
+{
+  "summary_1line": "A guest advises the questioning Brahmana to seek the wise Naga Padmanabha at Naimisha forest, who can explain the highest form of religion.",
+  "importance": 0.45,
+  "themes": [
+    "search for true dharma",
+    "spiritual guidance",
+    "sacred geography",
+    "wise serpent sage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the forest of Naimisha by the Gomati, assembled gods perform a grand sacrifice beneath tall sacrificial posts and rising smoke.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The radiant Naga sage Padmanabha sits in serene dignity in his city, surrounded by attendants while teaching righteousness.",
+      "visual_strength": 0.72
+    }
+  ]
+}

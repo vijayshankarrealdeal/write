@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama sends Hanuman ahead to Ayodhya to inform Bharata of his return and gauge his reaction; Bharata, living ascetically, rejoices upon hearing the news.",
+  "importance": 0.72,
+  "themes": [
+    "loyalty of Bharata",
+    "return from exile",
+    "messenger mission",
+    "renunciation of power",
+    "brotherly devotion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman arrives at the hermitage and sees Bharata in bark garments and matted hair ruling before Rama’s sandals placed on a seat.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Overwhelmed with joy at Hanuman’s news, Bharata faints and then rises to embrace the monkey messenger with tears streaming down his face.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Hanuman speeds across rivers and forests toward Ayodhya like Garuda swooping upon a great serpent.",
+      "visual_strength": 0.66
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Through Vyasa’s grace the dead warriors reunite with living kin for a joyful night, reconcile, then return to their realms as widows join husbands in the Ganges.",
+  "importance": 0.7,
+  "themes": [
+    "reunion of dead and living",
+    "reconciliation after war",
+    "afterlife realms",
+    "ritual liberation",
+    "grief and closure"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Pandavas joyfully embrace Karna and their fallen sons among radiant warriors gathered like gods on the banks of the Ganges at night.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "At Vyasa’s command, widowed queens step into the sacred Bhagirathi and rise again in celestial forms beside their husbands’ shining chariots.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The assembled dead warriors with banners and chariots vanish in an instant from the riverbank as they depart to the realms of gods and kings.",
+      "visual_strength": 0.8
+    }
+  ]
+}

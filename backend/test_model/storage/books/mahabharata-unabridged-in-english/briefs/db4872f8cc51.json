@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sauti begins narrating the Mahabharata’s origins, cosmology, and transmission, introducing Vyasa, Ganesha as scribe, and a brief overview of the Pandavas–Kauravas conflict.",
+  "importance": 0.65,
+  "themes": [
+    "sacred narration frame",
+    "cosmic creation",
+    "authorship and transmission",
+    "dynastic origins",
+    "envy leading to conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Vyasa dictates the epic while the elephant‑headed god Ganesha writes rapidly with an unbroken pen beside him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "In a forest hermitage at Naimisha, the storyteller Sauti bows before a circle of austere sages gathered around the sacrificial fire.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Prince Duryodhana stumbles in Maya’s illusion-filled crystal hall while Bhima laughs and courtiers watch amid glittering wealth.",
+      "visual_strength": 0.78
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "A pigeon laments his missing wife, who—captured by a fowler—urges him from the cage to show hospitality to the very hunter who trapped her.",
+  "importance": 0.56,
+  "themes": [
+    "hospitality to strangers",
+    "marital devotion",
+    "self-sacrifice",
+    "dharma of householders"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A weary fowler sleeps beneath a vast blue-hued tree filled with countless birds while stars glitter across the clear night sky.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A lonely pigeon on a branch cries into the night sky, lamenting for his missing mate as the forest darkens around him.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Inside the hunter’s cage, the she-pigeon gazes up at her husband on the branch and urges him to show hospitality to the very fowler who captured her.",
+      "visual_strength": 0.86
+    }
+  ]
+}

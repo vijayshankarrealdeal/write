@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Kaikeyi reminds King Dasaratha of his earlier promise of two boons and prepares to claim them to advance her ambition for Bharata.",
+  "importance": 0.72,
+  "themes": [
+    "promises and oaths",
+    "manipulation",
+    "royal duty",
+    "maternal ambition",
+    "desire and vulnerability"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Kaikeyi sits sternly on the floor of the chamber while King Dasaratha lifts her head into his arms, swearing by Rama to grant whatever she asks.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "With a severe expression, Kaikeyi invokes the gods, sun, moon, and universe as witnesses while demanding the two promised boons from the king.",
+      "visual_strength": 0.66
+    }
+  ]
+}

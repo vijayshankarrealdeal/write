@@ -1,0 +1,55 @@
+{
+  "rich_summary": "Drona tests his royal pupils with a famous lesson in focus: each prince must shoot the head of a bird placed on a tree. Yudhishthira, Duryodhana, and the others fail because they describe everything they see—the tree, their teacher, their companions—revealing scattered attention. Only Arjuna says he sees nothing but the bird, and even more precisely, only its head. Pleased, Drona orders him to shoot, and Arjuna instantly severs the bird’s head. Later, while bathing in the Ganga, Drona is seized by an alligator and calls for help; Arjuna alone reacts instantly, killing the creature with arrows. Convinced of Arjuna’s unmatched skill and discipline, Drona grants him the devastating Brahmasira weapon and prophesies that no archer will surpass him. The section establishes Arjuna’s extraordinary focus and his special bond with his teacher.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "The opening of the archery test that introduces Drona’s teaching method and the theme of disciplined perception."
+    },
+    {
+      "start": 620,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "The repeated failure of the princes who see everything at once, illustrating why ordinary attention cannot achieve mastery."
+    },
+    {
+      "start": 1180,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Arjuna’s defining reply that he sees only the bird, demonstrating the extreme focus that sets him apart."
+    },
+    {
+      "start": 1760,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Drona’s emotional delight and embrace after Arjuna successfully strikes the target."
+    },
+    {
+      "start": 2360,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "The dramatic river incident where Arjuna instantly rescues Drona from the alligator, proving readiness in real danger."
+    },
+    {
+      "start": 2920,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Drona grants the terrible Brahmasira weapon and foretells Arjuna’s unmatched future as an archer."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Arjuna stands perfectly still with his bow drawn, eyes fixed upward on the bird atop the tree while Drona watches intently and the other princes wait behind him.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Arjuna’s arrow flashes through the air and cleanly cuts off the bird’s head as it falls from the treetop before the astonished pupils.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "In the waters of the Ganga, Drona struggles as an alligator grips his thigh while Arjuna fires arrows into the water to slay the creature.",
+      "visual_strength": 0.9
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa briefly reunites Janamejaya with his dead father Parikshit; Dhritarashtra releases the Pandavas to return and rule while he and the elders pursue austere penance.",
+  "importance": 0.7,
+  "themes": [
+    "impermanence and soul",
+    "filial devotion",
+    "renunciation and penance",
+    "royal duty",
+    "grief and detachment"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vyasa summons Parikshit from heaven, and King Janamejaya beholds his radiant father standing before him in the same royal form as in life.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The aged Dhritarashtra embraces the Pandavas one by one in the forest hermitage before sending them back to rule their kingdom.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Kunti smells the heads of her sons in farewell while Gandhari blesses them, as the royal family prepares to depart the forest retreat.",
+      "visual_strength": 0.76
+    }
+  ]
+}

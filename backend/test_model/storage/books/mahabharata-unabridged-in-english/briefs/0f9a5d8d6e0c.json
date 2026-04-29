@@ -1,0 +1,20 @@
+{
+  "summary_1line": "While the Pandavas live disguised in a Brahmana’s house, Kunti hears the host family lament a deadly dilemma threatening one of their lives.",
+  "importance": 0.53,
+  "themes": [
+    "hospitality and gratitude",
+    "family sacrifice",
+    "despair over fate",
+    "dharma and duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Kunti rushes into the Brahmana’s chamber to find the family seated together, weeping in despair over the fate awaiting one of them.",
+      "visual_strength": 0.71
+    },
+    {
+      "scene_text": "The sorrowful Brahmana sits with his wife, son, and daughter, lamenting the cruelty of life and the impossibility of choosing who must die.",
+      "visual_strength": 0.77
+    }
+  ]
+}

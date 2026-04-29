@@ -1,0 +1,21 @@
+{
+  "summary_1line": "In the Kuru court, Bhishma supports the Pandavas’ rightful claim and peace, Karna defiantly rejects yielding land, and Dhritarashtra decides to send Sanjaya as envoy.",
+  "importance": 0.66,
+  "themes": [
+    "diplomacy before war",
+    "rival counsel in the Kuru court",
+    "Pandavas' rightful inheritance",
+    "Karna versus Bhishma",
+    "approaching Kurukshetra conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the royal council hall, the aged Bhishma rises in shining armor while Karna angrily interrupts him before the gathered Kuru nobles.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Blind king Dhritarashtra sits on his throne as courtiers surround him and he orders Sanjaya to go as envoy to the Pandavas.",
+      "visual_strength": 0.6
+    }
+  ]
+}

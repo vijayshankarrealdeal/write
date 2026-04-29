@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Night battles rage: Aswatthaman wounds Ghatotkacha, Bhima and Duryodhana duel fiercely, and Karna humiliates and disarms Sahadeva.",
+  "importance": 0.55,
+  "themes": [
+    "night warfare",
+    "heroic duels",
+    "martial prowess",
+    "humiliation in battle",
+    "chaotic battlefield"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Aswatthaman fires a golden-winged shaft that pierces Ghatotkacha’s chest and drives into the earth as the Rakshasa collapses on his chariot.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Bhima hurls a blazing iron mace that smashes Duryodhana’s chariot, killing the horses and driver in the darkness of the battlefield.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Weaponless Sahadeva leaps down and hurls a chariot wheel at Karna, who shreds it midair with a storm of arrows.",
+      "visual_strength": 0.8
+    }
+  ]
+}

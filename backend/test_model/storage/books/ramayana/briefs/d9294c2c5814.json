@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After Sita returns to the earth, Rama grieves and angrily threatens the earth until Brahma reminds him of his divine nature and Sita’s eventual reunion with him.",
+  "importance": 0.72,
+  "themes": [
+    "grief and anger",
+    "divine identity",
+    "separation and reunion",
+    "cosmic reassurance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama stands trembling with tears, leaning on the sacrificial staff while threatening the Earth to return Sita who has just vanished into the ground.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The Earth closes after Sita descends while monkeys and sages cry out, and Rama stands stunned in grief before the assembly.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Brahma appears among the gathered gods before the grieving Rama, reminding him of his true identity as Vishnu.",
+      "visual_strength": 0.74
+    }
+  ]
+}

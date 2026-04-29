@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama poetically describes the monsoon landscape while lamenting his separation from Sita and deciding to wait until the rains end to resume the search.",
+  "importance": 0.46,
+  "themes": [
+    "monsoon nature imagery",
+    "longing for Sita",
+    "patience and waiting",
+    "seasonal pause in warfare",
+    "gratitude and duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Dark monsoon clouds split by lightning hang over green mountains while Rama stands with Lakshmana watching the rain-soaked forests and dancing peacocks below.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A massive waterfall crashes from a rain-washed mountain like a string of broken pearls scattering into the valley.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Rama gazes at the stormy sky, comparing the lightning tearing through a black cloud to Sita struggling in Ravana’s grasp.",
+      "visual_strength": 0.76
+    }
+  ]
+}

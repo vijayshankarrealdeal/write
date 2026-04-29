@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Yudhishthira extols forgiveness and restraint over anger, urging Draupadi to trust peace, while Draupadi begins challenging his passive stance.",
+  "importance": 0.62,
+  "themes": [
+    "forgiveness vs wrath",
+    "moral restraint",
+    "peace versus vengeance",
+    "kingship and responsibility",
+    "Draupadi's dissent"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira calmly instructs Draupadi in the forest while she stands tense and indignant, the Pandavas listening nearby.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Draupadi raises her hands in frustration, bowing ironically to fate while rebuking Yudhishthira for his excessive forgiveness.",
+      "visual_strength": 0.68
+    }
+  ]
+}

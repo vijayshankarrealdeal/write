@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa explains expiations, purity rules on food and gifts, and the ethical logic of virtue, sin, and consequences in response to Yudhishthira’s questions.",
+  "importance": 0.55,
+  "themes": [
+    "expiation and penance",
+    "ritual purity",
+    "ethics of food and gifts",
+    "varna duties",
+    "karma and consequences"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An assembly of austere rishis approaches the seated creator Manu to ask about duties, purity, and righteous conduct.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A Brahmana performs severe penance by plunging into a river with his clothes on beneath the open sky, observing silence.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "King Yudhishthira stands respectfully before Vyasa, asking about pure food, worthy recipients of gifts, and righteous conduct.",
+      "visual_strength": 0.66
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Manikya Vachaka is saved by Siva through miraculous horses and a flood, while the narrative then shifts to the birth and rise of the devotee Basava.",
+  "importance": 0.72,
+  "themes": [
+    "divine intervention",
+    "devotion vs royal authority",
+    "miracles of Siva",
+    "saintly initiation",
+    "birth of Basava"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lord Siva’s ghostly attendants ride into Madura on dazzling horses as dust rises over the city and the imprisoned minister watches in awe.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "The magnificent horses in the royal stables transform overnight into howling jackals that scatter through the dark streets of Madura.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Floodwaters from the Vegavati river surge toward Madura while the king realizes his mistake and the shackled Manikya prays to Siva.",
+      "visual_strength": 0.8
+    }
+  ]
+}

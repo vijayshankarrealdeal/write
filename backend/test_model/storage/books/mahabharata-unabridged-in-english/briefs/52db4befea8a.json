@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Bhishma explains that disciplined virtue, truth, restraint, hospitality, and just conduct enable people—especially rulers and Brahmanas—to overcome life's difficulties.",
+  "importance": 0.53,
+  "themes": [
+    "dharma and virtue",
+    "self-restraint",
+    "truthfulness",
+    "hospitality and duty",
+    "righteous kingship"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira sits beside the arrow‑pierced Bhishma on the battlefield as the aged grandsire instructs him about the virtues that overcome all difficulties.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "A serene sage offers shelter and food to a weary traveler at his hermitage fire, embodying hospitality and restraint.",
+      "visual_strength": 0.6
+    }
+  ]
+}

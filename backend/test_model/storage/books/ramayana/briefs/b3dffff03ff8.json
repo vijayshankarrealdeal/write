@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dasaratha’s Ashvamedha sacrifice is conducted flawlessly, with vast feasts, elaborate rites, the horse sacrifice by Queen Kaushalya, and immense gifts to priests.",
+  "importance": 0.6,
+  "themes": [
+    "Vedic sacrifice",
+    "royal generosity",
+    "ritual precision",
+    "religious authority",
+    "charity and merit"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Queen Kaushalya reverently strikes the consecrated horse with a sword beside the Sarayu during the Ashvamedha sacrifice.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "The golden sacrificial altar shaped like a great eagle with gem-studded wings gleams amid eighteen tall gilded pillars.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "King Dasaratha distributes heaps of gold and silver to assembled priests and beggars after the sacrifice.",
+      "visual_strength": 0.72
+    }
+  ]
+}

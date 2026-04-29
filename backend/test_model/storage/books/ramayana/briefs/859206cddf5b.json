@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama orders Lakshmana to secretly leave Sita near Valmiki’s hermitage, and Lakshmana sorrowfully takes her toward the Ganges while hiding the truth.",
+  "importance": 0.84,
+  "themes": [
+    "duty versus compassion",
+    "exile of Sita",
+    "royal obedience",
+    "omens and foreboding",
+    "sacrifice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lakshmana, eyes downcast with grief, helps the joyful and unsuspecting Sita climb into a richly cushioned chariot outside the palace.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Sita in the chariot on the road to the Ganges, touching her twitching eye and speaking anxiously of ominous signs while Lakshmana listens silently in anguish.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "At dawn by a quiet riverside hermitage near the Ganges, Lakshmana stands beside the chariot, burdened with sorrow as the journey toward Sita’s abandonment continues.",
+      "visual_strength": 0.72
+    }
+  ]
+}

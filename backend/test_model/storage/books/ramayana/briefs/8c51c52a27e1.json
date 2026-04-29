@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Hanuman proves his identity with Rama’s ring, and Sita questions him anxiously about Rama while Hanuman reassures her of Rama’s grief and coming rescue.",
+  "importance": 0.72,
+  "themes": [
+    "faith and proof",
+    "longing for reunion",
+    "devotion and loyalty",
+    "messenger’s reassurance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita in the Ashoka grove receives Rama’s ring from Hanuman and gazes at it with tearful joy as if seeing Rama himself.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Hanuman stands respectfully with folded palms before Sita beneath the trees of the grove while she questions him anxiously about Rama.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Far away in the forest, Rama sits thin and sorrowful, murmuring Sita’s name while insects crawl on him unnoticed.",
+      "visual_strength": 0.86
+    }
+  ]
+}

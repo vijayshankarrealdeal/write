@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma begins recounting Viswamitra’s lineage and the tale of Richika, Satyavati, and the exchanged sacrificial offerings that altered the destinies of their sons.",
+  "importance": 0.46,
+  "themes": [
+    "lineage and genealogy",
+    "boons and curses",
+    "varna transformation",
+    "maternal ambition",
+    "sacrificial ritual"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "From the waters of the Ganga, a thousand moon-bright horses with one black ear each surge forth before the astonished sage Richika.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Satyavati and her mother secretly exchange the consecrated bowls of charu and the sacred trees they were instructed to embrace.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "The sage Richika confronts his pregnant wife after perceiving through ascetic insight that the sacred offerings had been switched.",
+      "visual_strength": 0.55
+    }
+  ]
+}

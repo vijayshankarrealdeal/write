@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts Panchasikha teaching King Janaka that death and decay are inevitable, and only knowledge of the eternal path transcends the cycle of birth and death.",
+  "importance": 0.6,
+  "themes": [
+    "inevitability of death",
+    "knowledge vs ritual",
+    "renunciation path",
+    "time's current metaphor",
+    "liberation (moksha)"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Panchasikha stands before King Janaka in his court, explaining as the king listens intently on his throne.",
+      "visual_strength": 0.46
+    },
+    {
+      "scene_text": "Human beings are swept helplessly down a vast river of time where two monstrous alligators named Decrepitude and Death lurk in the waters.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Cloud-like masses of people drift together and separate in a windy sky, symbolizing fleeting human relationships.",
+      "visual_strength": 0.62
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Swetaki completes his sacrifice with Durvasa’s help; Agni, sick from excess ghee, is advised by Brahma to burn Khandava with aid from Krishna and Arjuna.",
+  "importance": 0.72,
+  "themes": [
+    "sacrifice and ritual excess",
+    "divine intervention",
+    "Agni's illness",
+    "Khandava forest",
+    "Krishna and Arjuna as incarnations"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Agni, pale and weakened from drinking endless ghee, bows before Brahma on his radiant seat seeking a cure.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "The forest of Khandava erupts in flames as Agni and Vayu ignite it while elephants and serpents rush to douse the fire with torrents of water.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Brahma tells Agni that Nara and Narayana now walk the earth as Arjuna and Krishna, urging him to seek their help in burning Khandava.",
+      "visual_strength": 0.58
+    }
+  ]
+}

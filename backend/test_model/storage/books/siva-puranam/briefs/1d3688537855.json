@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Parvati creates Ganapati, Siva beheads then revives him with an elephant head, grants him primacy; later he wins lordship, marries Siddhi and Buddhi, and Siva destroys Tripura.",
+  "importance": 0.78,
+  "themes": [
+    "origin of Ganesha",
+    "obedience and duty",
+    "divine repentance and restoration",
+    "wisdom over speed",
+    "destruction of Tripura"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Siva hurls his spear and Ganapati’s head is severed while the boy stands guarding Parvati’s bath door with a staff.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Siva attaches the elephant head of Gajasura onto the lifeless body of Ganapati as Parvati watches in grief and hope.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Siva rides a cosmic chariot made of Earth with sun and moon as wheels and fires a divine arrow that destroys the three floating cities of Tripura.",
+      "visual_strength": 0.92
+    }
+  ]
+}

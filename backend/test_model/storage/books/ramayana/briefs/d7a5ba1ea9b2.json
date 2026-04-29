@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sugriva confronts the titan Virupaksha in fierce combat, defeats him after a brutal exchange, and restores courage to the monkey army.",
+  "importance": 0.55,
+  "themes": [
+    "heroic duel",
+    "battlefield chaos",
+    "leadership in war",
+    "revenge and fury"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sugriva leaps forward and smashes the head of Virupaksha’s elephant with a massive tree, causing the great beast to collapse screaming.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Virupaksha, sword drawn and armored in bull hide, charges on foot toward Sugriva as the battlefield rages with monkeys and titans clashing around them.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Sugriva strikes Virupaksha on the temple like a thunderbolt, sending the blood-covered titan crashing to the ground before the roaring armies.",
+      "visual_strength": 0.86
+    }
+  ]
+}

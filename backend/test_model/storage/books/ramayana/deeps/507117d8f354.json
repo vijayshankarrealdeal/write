@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Hidden in the flowering Ashoka grove of Lanka, Hanuman waits in a tree, reasoning that Sita—devoted to nature and grief-stricken in captivity—must eventually come to the nearby pool. From his perch he surveys Ravana’s magnificent garden, described like a second heaven, filled with blooming trees, birds, temples, and shining pools. Amid this splendor he suddenly sees a sorrowful woman in soiled yellow silk, surrounded by fearsome female demons. Emaciated from fasting and grief yet still radiant, she appears like a flame veiled in smoke. Hanuman studies her carefully, comparing her features with what he knows of Rama’s beloved, and concludes that this suffering figure must indeed be Sita. The moment is pivotal: after the long search, the divine mission of locating her finally succeeds.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 56,
+      "color_hex": "#A5D6A7",
+      "why": "Sets the location: Ravana’s enchanted grove where Hanuman expects Sita to appear."
+    },
+    {
+      "start": 1200,
+      "length": 80,
+      "color_hex": "#FFEB3B",
+      "why": "The sudden pivotal moment when Hanuman finally sees the mysterious sorrowful woman."
+    },
+    {
+      "start": 1340,
+      "length": 40,
+      "color_hex": "#F48FB1",
+      "why": "The striking image comparing Sita to a flame shrouded in smoke, capturing her dimmed but enduring radiance."
+    },
+    {
+      "start": 1600,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The metaphor-rich passage describing Sita’s beauty and virtue obscured by suffering and captivity."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Hanuman concealed high in a flowering Ashoka tree overlooking Ravana’s radiant garden filled with golden lotuses, temples, and birds.",
+      "visual_strength": 0.79
+    },
+    {
+      "scene_text": "Hanuman’s first sight of Sita: a sorrowful woman in worn yellow silk beneath the trees, surrounded by grim demonesses in the lush grove.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Sita seated on the ground in austerity like an ascetic, her dim radiance compared to a flame wrapped in smoke while Hanuman watches silently from above.",
+      "visual_strength": 0.9
+    }
+  ]
+}

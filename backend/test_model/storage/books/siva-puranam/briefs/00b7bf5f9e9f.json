@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narratives recount Basava’s miracles and departure, the life and debates of Pandit Mallikarjuna, and the transformation of poet Malhana through love and devotion to Siva.",
+  "importance": 0.58,
+  "themes": [
+    "Saivite devotion",
+    "miracles and divine union",
+    "religious debate",
+    "renunciation of worldly desire",
+    "saintly biographies"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "As Gangamba removes her silk saree to give away, new shimmering sarees miraculously appear again and again on her body.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Mallikarjuna cuts off his own head before the king, yet the severed head miraculously rejoins his body as astonished onlookers watch.",
+      "visual_strength": 0.91
+    },
+    {
+      "scene_text": "At the temple at dusk, Pushpagandhi and Malhana stand before a Siva shrine as he begins composing devotional verses after renouncing sensual life.",
+      "visual_strength": 0.78
+    }
+  ]
+}

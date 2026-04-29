@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After fierce fighting and Dushkarna’s death, night falls; Duryodhana anxiously consults Bhishma, who vows total effort and rallies the vast Kaurava army.",
+  "importance": 0.56,
+  "themes": [
+    "battlefield carnage",
+    "warrior vows",
+    "Duryodhana’s anxiety",
+    "Bhishma’s loyalty",
+    "army mobilization"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Satanika’s arrow pierces Dushkarna’s chest and the warrior falls to the earth like a lightning-struck tree amid clashing chariots.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Bhishma, blazing with wrath, stands in his chariot loosing straight shafts that cut down Panchala warriors across the battlefield.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The Kaurava army advances under multicolored banners as red dust rises like dawn light and the thunder of bows roars like a churned ocean.",
+      "visual_strength": 0.86
+    }
+  ]
+}

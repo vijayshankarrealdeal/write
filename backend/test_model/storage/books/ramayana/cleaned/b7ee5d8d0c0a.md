@@ -1,0 +1,11 @@
+## UTTARA KANDA
+## CHAPTER 73
+The Death of a Brahmin's Son
+
+Having said farewell to Shatrughna, the fortunate Rama found satisfaction in ruling his kingdom in equity.
+
+Now some time after, an aged peasant, a brahmin, bearing his dead child in his arms came to the palace gate, weeping and crying out again and again:—
+
+> “What sin did I commit in a previous existence?”
+
+Overcome with paternal grief, he repeated unceasingly, “O my son, my son! Ah! Of what fault was I formerly guilty in another body that I should see mine only son meet with death? This boy had not yet reached adolescence, his fourteenth year not having been completed! To my misfortune, before his time, this dear child has been struck down by death! In a few days, I and thy mother too will die of grief, O dear child! I do not recollect ever to have uttered a lie; I do not remember ever inflicting an injury on any animal or doing harm to any person! For what misdeed has this child, born to me, gone to the abode of Vaivaswata this day, ere he had performed a son's duties to his sire? Never before have I witnessed or heard of such a dreadful thing as, in Rama's reign, for people to die prematurely. Rama must have committed a serious fault since in his kingdom, children succumb. Assuredly the young who inhabit other countries need not fear death! O King, give me back the life of my child, who has fallen under the sway of death! With my wife, I shall yield up my life at the gate of the king as if I were without a protector! Thereafter, having been guilty of Brahmanicide, O Rama, be happy! Mayest thou live long with thy brothers! O Mighty Monarch, under thy rule, after a period of prosperity in thine empire, misfortune has now overtaken us, placing us under death's dominion, O Rama! From now on we shall not enjoy the least felicity since the empire of the magnanimous Ikshvakus no longer has a support. With Rama as its protector, the death of children is certain. People perish under the unrighteous rule of an impious monarch. The

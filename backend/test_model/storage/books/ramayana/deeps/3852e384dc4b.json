@@ -1,0 +1,39 @@
+{
+  "rich_summary": "Rama arrives at the royal palace amid the joy and admiration of Ayodhya’s people, moving serenely through the sacred spaces and into the king’s private chambers. There he finds King Dasaratha pale, anguished, and unable to speak, seated beside Queen Kaikeyi. Disturbed by his father’s condition, Rama humbly asks the cause and declares his absolute obedience to his father’s will, even to the point of death. Kaikeyi, cold and calculating, reveals the truth: long ago the king granted her two boons, and she now claims them—Bharata must be crowned king and Rama must go into exile in the Dandaka forest for fourteen years. Rama receives the decree without visible distress, while Dasaratha, foreseeing his son’s suffering, is crushed by grief. The moment marks the decisive turning point that sends Rama into exile and sets the epic’s central journey in motion.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces Rama’s revered presence among the people and the anticipation surrounding his expected coronation."
+    },
+    {
+      "start": 780,
+      "length": 210,
+      "color_hex": "#F48FB1",
+      "why": "Dasaratha’s silent anguish and Rama’s alarm create the emotional tension that precedes the revelation."
+    },
+    {
+      "start": 1390,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Rama’s vow of absolute obedience—willing even to die if commanded—reveals his defining virtue of filial devotion."
+    },
+    {
+      "start": 1710,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "Kaikeyi finally states her demands: Bharata’s coronation and Rama’s fourteen‑year exile, the pivotal command that drives the rest of the epic."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Rama entering the dim royal chamber, bowing at the feet of a pale, tearful King Dasaratha while the stern Kaikeyi sits beside him on the couch.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Kaikeyi coldly declaring her boons—Bharata crowned and Rama exiled—while the king collapses in grief and Rama stands calm and resolute.",
+      "visual_strength": 0.9
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama and Khara exchange taunts; after destroying Khara’s attacks, Rama kills him with a divine arrow, ending the demon assault in Dandaka.",
+  "importance": 0.88,
+  "themes": [
+    "heroic combat",
+    "divine weapons",
+    "good versus evil",
+    "protection of sages",
+    "boast and retribution"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Khara hurls a blazing gold‑ringed mace through the forest sky as Rama shatters it midair with a volley of arrows.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The enraged demon Khara uproots a tall palm tree and whirls it above his head before flinging it at Rama.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Rama releases a fire‑bright divine arrow that strikes Khara’s chest, and the demon collapses as gods shower flowers from the sky.",
+      "visual_strength": 0.92
+    }
+  ]
+}

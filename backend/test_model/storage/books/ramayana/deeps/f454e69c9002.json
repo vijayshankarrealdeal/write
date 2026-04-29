@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Bharata, tormented by grief and loyalty, presses deeper into the forest to find his exiled brother Rama. Declaring he will know no peace until Rama is restored to the throne, he advances on foot with companions and eventually spots smoke from Rama’s hermitage on Chitrakuta. Leaving the army behind, he hastens forward. Following signs left by Rama and Lakshmana, Bharata reaches the Mandakini and finally beholds the austere hermitage filled with weapons, ritual items, and forest implements. Inside he sees Rama seated like a radiant ascetic, with matted locks, bark garments, Sita and Lakshmana beside him. The sight overwhelms Bharata: he laments that the rightful king lives like a hermit because of him. Choked with grief and devotion, he rushes forward but collapses unconscious before reaching Rama, while Shatrughna weeps at their brother’s feet.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Bharata’s vow-driven devotion sets the moral and emotional stakes for the reunion with Rama."
+    },
+    {
+      "start": 250,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "The moment Bharata spots signs of Rama’s hermitage marks the turning point from search to encounter."
+    },
+    {
+      "start": 600,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "Descriptions of the hermitage—ritual fires, weapons, and forest tools—symbolize Rama’s fusion of warrior and ascetic roles."
+    },
+    {
+      "start": 900,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Bharata’s lament over Rama living in hardship reveals the depth of his guilt and brotherly love."
+    },
+    {
+      "start": 1100,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The climactic emotional beat: Bharata rushes toward Rama but collapses in tears before reaching him."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bharata standing atop a tall shala tree in the vast forest, spotting smoke rising from Rama’s hidden hermitage in the mountains of Chitrakuta.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Rama seated like a radiant ascetic with matted locks and bark garments on a kusa‑grass platform beside Sita and Lakshmana, glowing like sacred fire inside the forest hermitage.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Overwhelmed Bharata running toward Rama through the hermitage clearing before collapsing to the ground in tears as Shatrughna rushes behind him.",
+      "visual_strength": 0.86
+    }
+  ]
+}

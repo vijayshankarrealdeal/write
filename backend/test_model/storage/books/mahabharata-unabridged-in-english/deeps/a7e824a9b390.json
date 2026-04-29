@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section narrates the climactic end of the Ramayana war. Enraged by his son’s death, Ravana rides into battle and unleashes terrifying illusions, multiplying demons and even creating false forms of Rama and Lakshmana. Rama counters the magic and, aided by Matali who brings Indra’s celestial chariot, confronts Ravana directly. After a fierce exchange of weapons, Rama invokes the Brahmastra and annihilates Ravana utterly. The gods rejoice, and Vibhishana becomes king of Lanka. Yet the victory turns emotionally harsh when Rama, fearing dishonor, rejects Sita because she lived in Ravana’s captivity. Sita collapses in grief and proclaims her purity before the cosmic elements. The gods—including Brahma, Agni, and Vayu—testify to her innocence, explaining that Ravana could not violate her. Rama accepts her again, the slain monkeys are revived, Hanuman receives a blessing, and the heroes prepare to return to Ayodhya.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "Avindhya persuades Ravana not to kill Sita directly, revealing political reasoning and the moral tension surrounding her captivity."
+    },
+    {
+      "start": 800,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Ravana unleashes illusions that generate countless warriors and even false versions of Rama and Lakshmana, emphasizing the supernatural scale of the battle."
+    },
+    {
+      "start": 2100,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Rama prepares and releases the Brahmastra, the decisive divine weapon that ends Ravana’s life and the war."
+    },
+    {
+      "start": 3400,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Rama’s harsh rejection of Sita after the victory introduces one of the most emotionally controversial and tragic moments of the epic."
+    },
+    {
+      "start": 4200,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "The gods publicly affirm Sita’s purity and explain the divine protection that prevented Ravana from violating her."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Ravana in a golden chariot unleashing demonic illusions as armies of monkeys and bears clash around him on the battlefield.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama standing on Indra’s radiant chariot, drawing his bow and releasing the blazing Brahmastra toward Ravana.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "Sita collapsing in grief before Rama while gods appear in the sky to testify to her purity.",
+      "visual_strength": 0.88
+    }
+  ]
+}

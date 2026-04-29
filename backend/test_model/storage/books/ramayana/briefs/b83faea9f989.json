@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sukesha’s three powerful sons perform austerities, gain boons from Brahma, oppress the worlds, and settle in the golden city of Lanka with their families.",
+  "importance": 0.55,
+  "themes": [
+    "boons from Brahma",
+    "rise of Rakshasa power",
+    "austerity and arrogance",
+    "founding of Lanka",
+    "demonic lineage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The three Rakshasa brothers stand emaciated in fierce penance on Mount Meru as Brahma descends in a radiant chariot from the sky.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Vishvakarma describes the golden-walled city of Lanka atop the Trikuta mountain rising above the southern sea.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "The Rakshasa hosts enter the glittering city of Lanka with its golden palaces and massive gates surrounded by the ocean.",
+      "visual_strength": 0.74
+    }
+  ]
+}

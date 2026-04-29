@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains that true authority comes from protecting people and outlines the virtues required of priests and the moral foundations of sacrifice and penance.",
+  "importance": 0.55,
+  "themes": [
+    "legitimacy of rulership",
+    "duties of priests",
+    "sacrifice and dakshina",
+    "moral character over ritual",
+    "protection of society"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A lone protector stands with raised staff between terrified villagers and a band of robbers on a dusty road.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Bhishma lies on his bed of arrows while Yudhishthira stands beside him listening intently amid gathered sages.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A sacrificial fire burns as a calm priest pours clarified butter into the flames while chanting Vedic hymns.",
+      "visual_strength": 0.62
+    }
+  ]
+}

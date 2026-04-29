@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna consoles the grieving women, prepares Arjuna for the night, and secretly resolves to ensure Arjuna can fulfill his vow to kill Jayadratha next day.",
+  "importance": 0.63,
+  "themes": [
+    "grief after Abhimanyu's death",
+    "Krishna's loyalty to Arjuna",
+    "war preparation",
+    "vow and destiny",
+    "divine strategy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna sprinkles water on the fainting Subhadra as Draupadi and Uttara weep beside her in the dim war camp.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Krishna meditates alone at night in the Pandava camp, weapons glinting nearby while the camp stays sleepless with worry.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Krishna instructs Daruka to ready his chariot with the Garuda standard and celestial weapons under the night sky.",
+      "visual_strength": 0.71
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Mahodara rebukes Kumbhakarna’s reckless confidence against Rama and proposes a deceptive plan to trick Sita by spreading false news of Rama’s death.",
+  "importance": 0.58,
+  "themes": [
+    "reckless pride vs caution",
+    "war strategy",
+    "deception",
+    "loyalty to Ravana"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Mahodara stands in Ravana’s court admonishing the towering Kumbhakarna while other rakshasas watch tensely.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Mahodara describes warriors returning from battle drenched in blood with arrows engraved with Rama’s name stuck in their limbs.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Ravana seated on a royal elephant while the city celebrates the false news of Rama’s death with garlands, gold, and feasting.",
+      "visual_strength": 0.67
+    }
+  ]
+}

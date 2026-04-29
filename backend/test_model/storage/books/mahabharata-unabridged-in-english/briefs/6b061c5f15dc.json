@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Spies fail to find the Pandavas; Duryodhana and his court debate new searches while Drona warns the Pandavas are capable and likely still hidden.",
+  "importance": 0.45,
+  "themes": [
+    "search and espionage",
+    "fear of Pandava return",
+    "court counsel",
+    "political strategy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Duryodhana sits in a crowded royal court with Bhishma, Drona, Karna, and warriors as spies report their fruitless search for the Pandavas.",
+      "visual_strength": 0.56
+    },
+    {
+      "scene_text": "Karna passionately urges the king to send disguised spies across kingdoms, rivers, temples, and mountains to hunt for the hidden Pandavas.",
+      "visual_strength": 0.47
+    },
+    {
+      "scene_text": "The aged Drona, calm amid the tense court, declares that heroes like the Pandavas cannot easily perish or be defeated.",
+      "visual_strength": 0.52
+    }
+  ]
+}

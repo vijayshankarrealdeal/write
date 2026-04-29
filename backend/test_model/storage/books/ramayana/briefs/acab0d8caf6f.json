@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Rama and Lakshmana fall unconscious, Jambavan sends Hanuman to fetch healing herbs from the Himalayas, leading Hanuman to uproot and carry the entire mountain peak.",
+  "importance": 0.88,
+  "themes": [
+    "heroic rescue",
+    "devotion and duty",
+    "healing herbs",
+    "divine warfare",
+    "Hanuman's power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman tears an entire glowing mountain peak of medicinal herbs from the Himalayas and rises into the sky carrying it.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "At night, Hanuman and Vibhishana walk through a battlefield strewn with severed limbs and fallen monkeys lit by flickering torches.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The wounded Jambavan, pierced with arrows and barely conscious, speaks to Hanuman and commands him to save the army.",
+      "visual_strength": 0.74
+    }
+  ]
+}

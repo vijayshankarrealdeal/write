@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman defeats Ravana’s five generals and devastates their armies outside Lanka after Ravana orders them to capture the mysterious monkey.",
+  "importance": 0.68,
+  "themes": [
+    "heroic combat",
+    "divine strength",
+    "Ravana's anxiety",
+    "destruction of armies",
+    "Hanuman's supremacy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman leaps through the sky and crashes onto Durdharsha’s chariot like lightning, smashing the horses and hurling the general to the ground.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Hanuman uproots a massive Sala tree and swings it down upon Virupaksha and Yupaksha, crushing the two demon generals.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Bleeding but furious like the rising sun, Hanuman lifts a mountain peak and hurls it onto Praghasa and Bhasakarna, destroying them amid beasts and trees.",
+      "visual_strength": 0.92
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Armies gather at Kurukshetra, omens appear, conches sound, and both sides establish formal rules of warfare before the battle begins.",
+  "importance": 0.62,
+  "themes": [
+    "war preparations",
+    "battlefield omens",
+    "codes of warfare",
+    "epic scale of armies",
+    "ritual invocation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna and Arjuna standing together on a single chariot blow their celestial conches as terrified soldiers tremble beneath a darkened sky.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A black cloud rains flesh and blood over the vast armies of Kurukshetra while dust rises and the sun disappears.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Two immense armies stretching across the plain face each other like twin oceans, banners and elephants filling the horizon.",
+      "visual_strength": 0.88
+    }
+  ]
+}

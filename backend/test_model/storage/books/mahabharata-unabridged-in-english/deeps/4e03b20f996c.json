@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Garuda continues his quest to seize the Amrita (Soma), overcoming the divine defenses set by the gods. After slaughtering powerful Yakshas and extinguishing a vast ring of celestial fire by drinking up the waters of many rivers, he reaches the guarded nectar. Shrinking his body, he slips through a deadly revolving steel wheel and blinds the two fiery serpents guarding the treasure, tearing them apart. Garuda takes the Amrita but refuses to drink it. On his return he meets Vishnu, who, impressed by Garuda’s restraint, grants him immortality and freedom from disease; Garuda in turn becomes Vishnu’s mount. When Indra strikes him with the thunderbolt, Garuda calmly shows his invulnerability and earns Indra’s respect, establishing a new cosmic alliance.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The opening transition situates Garuda after the Yaksha battle and sets the stage for his final approach to the Amrita."
+    },
+    {
+      "start": 620,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Garuda’s clever maneuver—shrinking himself to pass through the lethal spinning wheel—shows ingenuity overcoming divine defenses."
+    },
+    {
+      "start": 1180,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "Garuda blinds and slays the two fiery serpents guarding the Soma, a dramatic and violent turning point securing the nectar."
+    },
+    {
+      "start": 1700,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "Garuda refuses to drink the Amrita and is rewarded by Vishnu with immortality and a place above him, establishing their legendary bond."
+    },
+    {
+      "start": 2350,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Garuda’s calm response to Indra’s thunderbolt demonstrates his immense power and leads to a respectful friendship between them."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Garuda shrinks his massive golden body and darts through the razor-edged spokes of a blazing rotating steel wheel guarding the Amrita.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The colossal bird blinds two fire-breathing serpents with dust and tears them apart beside the glowing vessel of Soma.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "In the sky Garuda meets Vishnu, radiant and calm, and accepts the role of divine mount as the god blesses him with immortality.",
+      "visual_strength": 0.82
+    }
+  ]
+}

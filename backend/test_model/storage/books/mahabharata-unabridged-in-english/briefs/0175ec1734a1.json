@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A virtuous fowler teaches that serving one’s parents is the highest worship and rebukes a Brahmana who abandoned his grieving parents for study.",
+  "importance": 0.66,
+  "themes": [
+    "filial piety",
+    "householder duty",
+    "true spirituality vs asceticism",
+    "service as worship",
+    "moral instruction"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The fowler bows with his head at the feet of his white‑robed aged parents seated in a fragrant mansion while a Brahmana watches.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Inside a grand four‑chambered house perfumed and palace‑like, the Brahmana stands astonished before the humble fowler’s prosperous home.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "The fowler gently washes his elderly parents’ feet and serves them food with his own hands as an honored guest observes.",
+      "visual_strength": 0.76
+    }
+  ]
+}

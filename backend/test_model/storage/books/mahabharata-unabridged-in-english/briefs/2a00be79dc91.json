@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vidura, Drona, Gandhari, and Dhritarashtra urge Duryodhana to grant the Pandavas their rightful share and avert the Kuru dynasty’s destruction.",
+  "importance": 0.78,
+  "themes": [
+    "dynastic succession",
+    "counsel vs stubbornness",
+    "dharma and legitimacy",
+    "family conflict",
+    "looming civil war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vidura stands sorrowfully in the royal assembly, warning that Duryodhana’s greed will destroy the Kuru race as kings and elders listen in silence.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Queen Gandhari, veiled and stern, rises before the gathered monarchs and publicly condemns Duryodhana’s unrighteous claim to the throne.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "The blind king Dhritarashtra addresses Duryodhana in the crowded court while Bhishma, Drona, and the assembled rulers watch anxiously.",
+      "visual_strength": 0.68
+    }
+  ]
+}

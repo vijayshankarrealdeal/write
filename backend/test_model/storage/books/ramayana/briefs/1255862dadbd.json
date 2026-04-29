@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Sumali’s fall, Indrajit routs the gods, Jayanta is captured by Puloman, and Indra rides out with celestial hosts to confront Ravana.",
+  "importance": 0.62,
+  "themes": [
+    "divine warfare",
+    "heroic combat",
+    "cosmic omens",
+    "capture of Jayanta",
+    "Indra vs Ravana"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indrajit stands in his chariot unleashing a storm of weapons as darkness spreads across the battlefield and confused gods strike one another.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The Daitya Puloman seizes the warrior Jayanta and plunges with him into the sea amid the chaos of battle.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Indra departs in his radiant chariot surrounded by Rudras, Maruts, and Apsaras while lightning tears through dark clouds above.",
+      "visual_strength": 0.9
+    }
+  ]
+}

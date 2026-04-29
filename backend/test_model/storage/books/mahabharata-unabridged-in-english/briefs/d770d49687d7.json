@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma praises the spiritual supremacy of Brahmanas and begins a tale of Kartavirya Arjuna whose pride challenges that hierarchy.",
+  "importance": 0.55,
+  "themes": [
+    "Brahmana supremacy",
+    "ascetic power",
+    "social hierarchy",
+    "royal pride",
+    "boons and responsibility"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The mighty king Kartavirya Arjuna appears in battle with a thousand arms radiating around him like a blazing sun.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "An invisible voice echoes from the sky rebuking the proud king who boasts of his unmatched power.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The ascetic Dattatreya grants boons to the kneeling king after receiving his lavish gifts.",
+      "visual_strength": 0.72
+    }
+  ]
+}

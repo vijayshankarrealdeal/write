@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Bharata humbly visits sage Bharadwaja, denies any role in Rama’s exile, and asks where Rama lives so he can bring him back.",
+  "importance": 0.63,
+  "themes": [
+    "brotherly loyalty",
+    "testing of character",
+    "sage–king dialogue",
+    "repudiation of injustice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata, dressed in simple silk and leaving his army behind, walks on foot through the forest toward Bharadwaja’s leaf-thatched hermitage with Vasishtha.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "The aged sage Bharadwaja rises from his seat as disciples bring ritual water while Bharata bows deeply before him in the forest hermitage.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "With tear-filled eyes and folded hands, Bharata declares before the sage that he had no part in Rama’s exile and seeks only to bring his brother home.",
+      "visual_strength": 0.74
+    }
+  ]
+}

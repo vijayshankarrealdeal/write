@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A dog petitions Rama for justice after a brahmin injures it, leading to a paradoxical punishment revealing the karmic burden of religious authority.",
+  "importance": 0.55,
+  "themes": [
+    "justice and kingship",
+    "dharma",
+    "karma and rebirth",
+    "anger and self-control",
+    "moral irony"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A wounded dog with a gashed skull stands humbly before King Rama’s royal court, surrounded by sages and ministers.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The brahmin Sarvartha-siddha, honored yet bewildered, rides an elephant after being appointed head of the Kalanjava monastery.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "The dog reveals its past life as a former monastery head while Rama and the gathered sages listen in stunned silence.",
+      "visual_strength": 0.6
+    }
+  ]
+}

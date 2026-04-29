@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Shveta recounts his past as a righteous king who performed severe austerities but in heaven suffers hunger due to a flaw in his conduct.",
+  "importance": 0.45,
+  "themes": [
+    "kingship and renunciation",
+    "austerity and penance",
+    "karma and consequences",
+    "heavenly reward with lingering fault"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged king Shveta crowns his brother Suratha and walks alone into a silent forest to begin severe penance beside a lonely lake.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "After ascending to Brahmaloka, the radiant Shveta stands before Brahma pleading to know why unbearable hunger and thirst torment him.",
+      "visual_strength": 0.63
+    }
+  ]
+}

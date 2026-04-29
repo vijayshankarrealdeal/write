@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After a thousand years of extreme austerities and restraint, Vishwamitra is finally recognized by Brahma and Vasistha as a Brahmarishi.",
+  "importance": 0.82,
+  "themes": [
+    "ascetic perseverance",
+    "mastery over anger",
+    "recognition of spiritual status",
+    "divine approval",
+    "rivalry resolved"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Emaciated Vishwamitra stands motionless in austerity as smoke rises from his head, shaking the three worlds.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Indra disguised as a humble brahmin receives the only meal prepared by the silent sage Vishwamitra.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Brahma and the assembled gods appear before the ascetic and proclaim him a Brahmarishi while he bows in reverence.",
+      "visual_strength": 0.88
+    }
+  ]
+}

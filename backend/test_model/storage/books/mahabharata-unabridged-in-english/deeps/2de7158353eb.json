@@ -1,0 +1,37 @@
+{
+  "rich_summary": "Dhritarashtra laments to Sanjaya the fall of Bhishma, the Kuru grandsire, unable to comprehend how the nearly invincible warrior—once undefeated even by Parashurama—could be slain by Shikhandin with Arjuna’s aid. Sanjaya recounts the aftermath: Bhishma lies on a bed of arrows, his body suspended above the earth, and both armies are struck with grief and awe. The natural world itself seems to mourn. Fighting halts as Kurus and Pandavas alike gather around the fallen elder. When Bhishma asks for a fitting pillow, Arjuna reverently shoots three arrows into the ground to support his head. Pleased, Bhishma praises him and declares he will remain alive on the arrow-bed until the sun turns northward (Uttarayana), demonstrating his mastery over death and embodying the warrior ideal.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Dhritarashtra’s grief-stricken opening lament over Bhishma’s death establishes the emotional weight of the moment."
+    },
+    {
+      "start": 400,
+      "length": 90,
+      "color_hex": "#A5D6A7",
+      "why": "Description of Bhishma lying upon a bed of arrows, a powerful and symbolic image central to the epic."
+    },
+    {
+      "start": 900,
+      "length": 90,
+      "color_hex": "#FFEB3B",
+      "why": "Arjuna creates a pillow of arrows for Bhishma, a pivotal act of reverence and warrior duty."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhishma, pierced by countless arrows, lies suspended above the ground on a bed of shafts while both armies gather silently around him.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Arjuna solemnly draws the Gandiva and shoots three arrows into the earth to form a pillow supporting the fallen grandsire’s head.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The battlefield falls still at sunset as warriors from both sides remove their armor and approach the radiant but fallen Bhishma in reverence.",
+      "visual_strength": 0.88
+    }
+  ]
+}

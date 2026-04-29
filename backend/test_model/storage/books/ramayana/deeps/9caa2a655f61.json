@@ -1,0 +1,49 @@
+{
+  "rich_summary": "As Rama and Lakshmana travel with the sage Vishwamitra, they reach the beautiful city of Vishala. At Rama’s request, Vishwamitra recounts a cosmic legend he once heard from Indra: the churning of the Ocean of Milk. Devas and asuras, seeking immortality, use Mount Mandara as a churning rod and the serpent Vasuki as a rope. The process releases a catastrophic poison that threatens the universe until Shiva compassionately drinks it. Vishnu then supports the sinking mountain in the form of a tortoise. From the ocean emerge wonders—Dhanvantari, countless apsaras, Varuni, the celestial horse Uchchaishravas, the Kaustubha jewel, and finally the nectar of immortality—triggering a fierce battle in which Vishnu, as the enchantress Mohini, secures victory for the gods.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "A sacred framing that promises spiritual merit to anyone who hears or recites the story, emphasizing the myth’s religious importance."
+    },
+    {
+      "start": 640,
+      "length": 168,
+      "color_hex": "#FFEB3B",
+      "why": "The pivotal setup of the cosmic churning: devas and asuras using Mount Mandara and the serpent Vasuki to churn the Ocean of Milk."
+    },
+    {
+      "start": 1030,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Shiva’s dramatic act of compassion—drinking the deadly poison to save gods and the world."
+    },
+    {
+      "start": 1680,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "Vishnu’s Kurma (tortoise) incarnation supporting the mountain, a central mythological revelation in Hindu cosmology."
+    },
+    {
+      "start": 2520,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "The climax: Vishnu’s enchanting Mohini form deceives the combatants and secures the nectar for the gods."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Mount Mandara spins in the Ocean of Milk while devas and asuras pull the serpent Vasuki from opposite sides, waves and divine energy erupting around them.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Shiva calmly drinks the deadly cosmic poison as terrified gods look on, the dark venom glowing in his throat against the backdrop of the churning ocean.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Vishnu as the enchanting Mohini stands amid the warring devas and asuras, gracefully holding the pot of nectar while the armies pause in awe and confusion.",
+      "visual_strength": 0.88
+    }
+  ]
+}

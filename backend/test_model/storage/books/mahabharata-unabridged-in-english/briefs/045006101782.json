@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Draupadi explains to Satyabhama the duties and discipline by which a wife wins her husband’s devotion, stressing service, loyalty, restraint, and household responsibility.",
+  "importance": 0.55,
+  "themes": [
+    "marital duty",
+    "household management",
+    "female virtue",
+    "loyalty and discretion",
+    "friendship between queens"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Draupadi and Satyabhama sit together in a forest hermitage as Draupadi calmly instructs her friend on the duties of a devoted wife.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Draupadi rises at dawn in the royal palace, overseeing servants and the vast treasury while the Pandava court awakens around her.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Satyabhama embraces Draupadi before departing with Krishna, offering comforting words about the future defeat of the Kauravas.",
+      "visual_strength": 0.64
+    }
+  ]
+}

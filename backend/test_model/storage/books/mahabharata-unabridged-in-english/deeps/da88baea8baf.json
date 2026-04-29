@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section of the Astika Parva describes the climax of King Janamejaya’s snake‑sacrifice. The priests invoke powerful mantras to drag the serpent king Takshaka into the sacrificial fire, even though he has taken refuge with Indra. Indra appears in splendor, but when the ritual begins to pull Takshaka down from the heavens, he abandons the snake in fear. As Takshaka falls helplessly toward the flames, the young sage Astika intervenes and asks Janamejaya for a boon: that the sacrifice stop. The king, driven by vengeance, tries to offer wealth instead, but Astika refuses anything except the end of the slaughter to save his serpent relatives. The priests insist the king honor his promise. The narrative then begins listing the countless serpents already consumed by the fire, emphasizing the vast destruction caused by the ritual.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#A5D6A7",
+      "why": "Establishes Sauti’s authority and the tradition of transmission, grounding the episode in the Puranic storytelling lineage."
+    },
+    {
+      "start": 111,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Introduces the crucial claim that Indra granted Takshaka protection from Agni, raising the stakes of the sacrifice and divine involvement."
+    },
+    {
+      "start": 400,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Janamejaya’s furious command to cast Takshaka into the fire even if he is with Indra shows the king’s extreme vengeance and defiance of the gods."
+    },
+    {
+      "start": 900,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Astika’s intervention at the exact moment Takshaka is about to fall into the flames creates the emotional and moral turning point of the sacrifice."
+    },
+    {
+      "start": 1200,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "The beginning of the long list of serpent names emphasizes the scale of destruction and the tragic consequences of the curse and the king’s ritual."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Indra arrives in a radiant celestial chariot surrounded by gods, clouds, singers, and dancing apsaras while the terrified serpent Takshaka hides within his garment.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Takshaka, dragged by sacrificial mantras, tumbles helplessly through the sky toward the blazing ritual fire as Indra abandons him and returns to heaven.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Young sage Astika raises his hand before King Janamejaya’s great fire altar, stopping the sacrifice at the very moment the serpent king is about to fall into the flames.",
+      "visual_strength": 0.9
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Krishna describes how Salwa besieged Dwaraka and how the Vrishnis meticulously fortified and organized the city for defense.",
+  "importance": 0.44,
+  "themes": [
+    "siege warfare",
+    "city fortification",
+    "Krishna and Salwa conflict",
+    "military preparedness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The fortified city of Dwaraka bristles with banners, towers, engines, elephants, and armed warriors as Salwa's forces shower weapons from above.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "City guards drive out dancers and musicians while soldiers barricade streets and prepare engines for hurling fire and stones from the walls.",
+      "visual_strength": 0.53
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Drunk on honey after Hanuman’s success, the monkeys ravage Madhuvana and clash with the enraged guardian Dadhimukha and his forest guards.",
+  "importance": 0.45,
+  "themes": [
+    "celebration and excess",
+    "duty vs revelry",
+    "forest guardianship",
+    "monkey chaos"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bands of intoxicated monkeys leap from tree to tree in Madhuvana, tearing honeycombs and flinging wax while laughing and shouting.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Dadhimukha, furious and elderly, charges forward brandishing a huge tree while his guards arm themselves with rocks and branches.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Drunken monkeys sprawl under the trees of the honey grove, some singing like lions roaring while others hurl combs and wrestle wildly.",
+      "visual_strength": 0.65
+    }
+  ]
+}

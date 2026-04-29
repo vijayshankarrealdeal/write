@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A Brahmana deduces many causes of a Rakshasa’s sorrow; Bhishma then explains gifts, Sraddha rites, and moral rules that please gods and ancestors.",
+  "importance": 0.55,
+  "themes": [
+    "moral suffering",
+    "dharma teachings",
+    "sraddha rituals",
+    "gifts and merit",
+    "sins and expiation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A gaunt Rakshasa listens as a calm Brahmana lists the hidden sorrows that have made him pale and lean.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "At a Sraddha rite, a man offers three rice-balls—one cast into water, one given to his wife, and one placed into the blazing fire.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A penitent ascetic stands on one foot atop a mountain with arms raised, gazing at a blazing fire under the scorching sun.",
+      "visual_strength": 0.73
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Arjuna visits cursed sacred waters, fights a crocodile that transforms into an apsara, who recounts being cursed with companions by an ascetic they tried to seduce.",
+  "importance": 0.45,
+  "themes": [
+    "curse and redemption",
+    "ascetic power",
+    "divine transformation",
+    "pilgrimage",
+    "temptation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna wrestles a massive crocodile from the sacred pool and drags it onto the shore where it transforms into a radiant jeweled apsara.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Five celestial apsaras descend into a forest clearing to tempt a radiant young ascetic absorbed in meditation beneath towering trees.",
+      "visual_strength": 0.78
+    }
+  ]
+}

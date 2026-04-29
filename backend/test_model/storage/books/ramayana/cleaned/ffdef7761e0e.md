@@ -1,0 +1,21 @@
+## AYODHYA KANDA
+
+The lover of his brother, Shri Bbarata, turning to the royal counsellors, addressed the wise Sumantra seated near them and said: “Go speedily and summon the army in my name to accompany me to the forest and bring the leaders here.” Sumantra gladly carried out the commands of Prince Bharata. The military commanders were filled with joy at the order of Prince Bbarata to proceed with the army to recall Shri Rama. In every home, wives joyfully urged their husbands to go with all speed and bring back Shri Rama.
+
+The leaders of the army riding their swift horses or in bullock carts and chariots gave the order to march. His preceptor the Guru Vasishtha being near, Shri Bbarata said to Sumantra who was at his side, “Speedily prepare my chariot.” Sumantra replied with reverence, “Be it so,” and highly pleased brought the chariot to which excellent horses were yoked. The Prince, filled with fortitude, illustrious, of fixed vows and a hero of the region of truth, resolving to recall Shri Rama from the forest, addressed Sumantra saying: “O Sumantra, mobilise the army and order my friends and the chiefs of the people to be prepared. I desire to recall Rama for the good of the world.”
+
+As instructed by the great prince, Sumantra speedily issued the command to the chiefs of the army and the friends of Bbarata, fully explaining its purpose. In every dwelling the brahmins, the warriors, the merchants and the labourers brought together camels, chariots, mules, elephants and excellent horses.
+
+## CHAPTER 83
+
+THE riddle of the river Ganga
+
+EARLY in the morning, the prince rose and mounting an excellent chariot, set out in haste, desirous of seeing Rama. Shri Bbarata's chariot was preceded by ministers on horseback and priests in coaches and shone like the vehicle of the sun. Nine thousand richly bedecked elephants and army thousand carts with archers, together with a hundred thousand troops, accompanied the self-controlled prince, the devotee of truth. Kaikeyi, Sumitra and the renowned Kaushalya riding in resplendent chariots, went forward to bring Rama home. The multitude of the twice born proceeding from the capital, conversed solely of Shri Ramachandra and listened only to that which related to him. They said: “When shall we behold Shri Rama, that cloud-complexioned, mighty armed one, of fixed purpose; the destroyer of the grief of the world? As the rising sun ends the darkness of the earth, so by the mere beholding of Shri Rama will our grief disappear.”
+
+Conversing thus of Rama and embracing each other, the citizens went forward, filled with gladness.
+
+The foremost merchants of Ayodhya who had received permission from Bharata to accompany him, also those who had not been so favoured and others, went forward happily to meet Rama. Skilful engravers, potters, weavers and workers in gems, those who made fans of peacocks' feathers, woodcutters, plasterers, workers in glass and ivory, masons and perfumers, famous goldsmiths, makers of woollen cloth, washermen, masseurs, appliers of unguents, physicians and those who fumigated the dwellings with incense, also retailers of wine were present. Fullers, tailors, chiefs of villages, cowherds, dancing men and women, fishermen, and countless Vedic scholars of subdued mind, devoted to Rama, followed Prince Bharata in carts drawn by bullocks. All apparelled in pure raiment, their bodies anointed with red sandalwood, mounted on vehicles of various kinds, followed in the wake of Prince Bharata. The leaders of the army joyfully accompanied the prince, now going forth to bring Prince Rama home.
+
+Mounted in chariots, palanquins, bullock carts or on horses and elephants, the people proceeded a considerable distance and reached the banks of the Ganges at Shrangaverapur, where the friend of Shri Rama, Guha, dwelt with his people, guarding his country with vigilance. Arriving at the banks of Shri Gunga, the haunt of the chakravaka bird, those following the prince halted. The eloquent Bharata, seeing the beautiful Ganges, reviewed his troops and said to his ministers:-
+
+> “Chakravaka” = Indian brahminy duck.

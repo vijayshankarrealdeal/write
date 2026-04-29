@@ -1,0 +1,49 @@
+{
+  "rich_summary": "As the war in Lanka intensifies, Indrajita (Meghanada), Ravana’s formidable son, confronts the defector Vibhishana and the allied forces of Rama. Enraged by Vibhishana’s rebukes, Indrajita rides forth in a magnificent chariot drawn by black steeds, appearing like Death itself. Lakshmana, seated upon Hanuman’s back and radiant like the rising sun, steps forward to challenge him. The two exchange fierce taunts: Indrajita boasts of his deadly skill and past victories, while Lakshmana condemns his use of invisibility in battle as the tactic of a rogue. The clash begins as Indrajita releases torrents of arrows that strike Lakshmana like venomous serpents. Though pierced and bloodied, Lakshmana shines with undiminished resolve. The passage highlights the psychological warfare, heroic pride, and mythic scale of this pivotal duel between two supreme warriors.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 210,
+      "color_hex": "#A5D6A7",
+      "why": "A fierce opening challenge invoking Yama and divine justice, framing the battle as a cosmic reckoning."
+    },
+    {
+      "start": 420,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "The vivid introduction of Indrajita in his chariot, likened to Death itself, establishing the epic scale of the confrontation."
+    },
+    {
+      "start": 900,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "Lakshmana’s sharp rebuke condemning Indrajita’s invisibility in battle as dishonorable—an important statement of warrior ethics."
+    },
+    {
+      "start": 1250,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "The moment when Indrajita’s serpent‑like arrows pierce Lakshmana, yet he shines 'like a smokeless flame' despite the bloodshed."
+    },
+    {
+      "start": 1500,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Indrajita’s grim prophecy that jackals and vultures will devour Lakshmana—an ominous expression of battlefield ferocity."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Indrajita standing in a golden chariot drawn by black horses, bow raised, looming like Death as he advances against the monkey army.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Lakshmana seated on Hanuman’s back glowing like the rising sun while confronting Indrajita across the battlefield.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "A storm of serpent‑like arrows from Indrajita striking Lakshmana, whose blood‑streaked body still shines like a smokeless flame amid battle.",
+      "visual_strength": 0.9
+    }
+  ]
+}

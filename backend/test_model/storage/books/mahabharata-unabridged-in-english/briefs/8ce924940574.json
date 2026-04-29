@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma concludes a fable about provoking the powerful, then teaches Yudhishthira that covetousness is the root of sin and countless moral corruptions.",
+  "importance": 0.72,
+  "themes": [
+    "covetousness as root of sin",
+    "political prudence",
+    "moral corruption",
+    "self-restraint and virtue",
+    "didactic fable"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The furious Wind rushes through the forest, toppling great trees as it confronts the now-stripped Salmali tree standing bare and ashamed.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The once-mighty Salmali tree stands trunk-only, its branches lopped off, while the Wind hovers triumphantly around it.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Bhishma lies upon his bed of arrows addressing Yudhishthira while warriors gather around to hear his teaching about covetousness.",
+      "visual_strength": 0.74
+    }
+  ]
+}

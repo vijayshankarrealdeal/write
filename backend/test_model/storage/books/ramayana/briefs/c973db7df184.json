@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Kaikeyi demands Rama’s exile and Bharata’s coronation; King Dasaratha collapses in anguish, pleading desperately but bound by his promise.",
+  "importance": 0.9,
+  "themes": [
+    "dharma vs attachment",
+    "oath and truth",
+    "parental grief",
+    "court intrigue",
+    "exile"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dasaratha collapses to the floor crying 'O Rama, Rama!' while Kaikeyi sits unmoved beside him in the dim royal chamber.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Dasaratha, distraught, bows at Kaikeyi’s feet in supplication as she coldly demands Rama’s fourteen-year exile and Bharata’s coronation.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The aged king lies fainted on the palace floor like a felled tree while Kaikeyi stands firm, her expression hardened by resolve.",
+      "visual_strength": 0.82
+    }
+  ]
+}

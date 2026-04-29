@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sanjaya recounts Drona taking command and promising to capture Yudhishthira alive if Arjuna can be drawn away from the battlefield.",
+  "importance": 0.6,
+  "themes": [
+    "battle strategy",
+    "fate and destiny",
+    "loyalty and conflict of duty",
+    "deception in war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Drona, standing in a chariot before the assembled Kaurava army, promises Duryodhana he will seize Yudhishthira if Arjuna is kept away.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Duryodhana secretly confers with Karna and Duhsasana before asking Drona to capture Yudhishthira alive instead of killing him.",
+      "visual_strength": 0.48
+    },
+    {
+      "scene_text": "Sanjaya narrates the plan while the Kaurava troops spread the news that Drona has vowed to capture Yudhishthira.",
+      "visual_strength": 0.32
+    }
+  ]
+}

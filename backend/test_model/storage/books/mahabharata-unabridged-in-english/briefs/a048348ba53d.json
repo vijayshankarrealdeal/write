@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vidura warns Dhritarashtra through parables that disunity and greedy ambition will destroy the Kauravas, urging reconciliation with the Pandavas.",
+  "importance": 0.67,
+  "themes": [
+    "kinship unity",
+    "greed and downfall",
+    "political counsel",
+    "war warning",
+    "moral parable"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Two birds trapped in a hunter’s net lift the snare together into the sky while the fowler runs beneath them across the earth.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The two ensnared birds quarrel midair and fall tangled to the ground as the waiting fowler rushes forward to seize them.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "On a steep mountain cliff glowing with herbs, hunters reach for a jar of golden honey guarded by coiled venomous snakes.",
+      "visual_strength": 0.82
+    }
+  ]
+}

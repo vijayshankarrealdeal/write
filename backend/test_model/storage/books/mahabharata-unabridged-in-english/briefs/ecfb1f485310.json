@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A pigeon sacrifices himself to feed a freezing fowler guest; the hunter repents, renounces violence, and the pigeons attain heaven through supreme hospitality and devotion.",
+  "importance": 0.83,
+  "themes": [
+    "hospitality as sacred duty",
+    "self-sacrifice",
+    "repentance and moral transformation",
+    "marital devotion",
+    "righteousness (dharma)"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The pigeon circles a small fire of dry leaves and then leaps into the flames before the stunned fowler.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The fowler drops his nets, staff, and iron cage and releases the captured she-pigeon into the forest.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "In the sky, the radiant pigeon and his wife sit upon a celestial car surrounded by garlanded beings.",
+      "visual_strength": 0.74
+    }
+  ]
+}

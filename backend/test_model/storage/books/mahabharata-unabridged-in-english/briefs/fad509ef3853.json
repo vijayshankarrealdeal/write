@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yajnavalkya explains Sankhya cosmology to King Janaka: principles of Prakriti, stages of creation, cosmic time cycles, and the mind’s primacy over the senses.",
+  "importance": 0.63,
+  "themes": [
+    "Sankhya cosmology",
+    "creation stages",
+    "cosmic time cycles",
+    "mind and senses",
+    "metaphysical principles"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Yajnavalkya sits before King Janaka in a royal court, calmly teaching while courtiers listen in silence.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "From a radiant golden cosmic egg, Brahma emerges after a year of meditation and begins shaping the heavens and the earth.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The five great elements—earth, wind, space, water, and light—unfold outward from a luminous consciousness filling the universe.",
+      "visual_strength": 0.75
+    }
+  ]
+}

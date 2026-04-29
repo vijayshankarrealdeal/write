@@ -1,0 +1,25 @@
+{
+  "summary_1line": "King Vishwamitra visits Sage Vasishtha’s hermitage, receives a warm welcome, and is offered hospitality sustained by the sage’s divine resources.",
+  "importance": 0.55,
+  "themes": [
+    "sage-king encounter",
+    "sacred hospitality",
+    "hermitage life",
+    "righteous kingship",
+    "divine abundance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Vishwamitra bows respectfully before Sage Vasishtha seated in meditation within a serene forest hermitage.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The peaceful hermitage filled with yogis and their wives among trees and huts, resembling a divine realm in the forest.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "The sacred wish‑fulfilling cow Shabala standing near Vasishtha as preparations begin to offer abundant hospitality to the visiting king.",
+      "visual_strength": 0.78
+    }
+  ]
+}

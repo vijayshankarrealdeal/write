@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Agastya explains to Rama the primordial origin of Rakshasas and Yakshas, tracing the Rakshasa lineage from Prajapati through Heti, Bhaya, and their descendants.",
+  "importance": 0.45,
+  "themes": [
+    "cosmic origins",
+    "Rakshasa genealogy",
+    "creation myths",
+    "divine intervention"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Shiva and Parvati riding the bull Nandi pause in the sky as they hear an abandoned infant crying on Mandara Mountain.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "The terrified Rakshasi mother leaves her newborn on Mandara Mountain while clouds gather around the lonely crying child.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Prajapati addresses the hungry newly created beings, who declare 'Rakshami' and 'Yakshami' beneath the cosmic waters.",
+      "visual_strength": 0.66
+    }
+  ]
+}

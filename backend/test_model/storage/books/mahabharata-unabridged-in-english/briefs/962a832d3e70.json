@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts dialogues teaching that knowledge, self-restraint, and virtuous conduct free one from sorrow, confusion about scriptures, and the cycles of pleasure and grief.",
+  "importance": 0.55,
+  "themes": [
+    "knowledge vs ignorance",
+    "detachment from pleasure and grief",
+    "conduct and virtue",
+    "fate and past actions",
+    "spiritual discipline"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Samanga wanders calmly across the earth like one who has drunk nectar, smiling and carefree while others around him struggle with grief and fear.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Narada watches as Samanga prostrates fully on the ground in reverence, his chest touching the earth before his elders.",
+      "visual_strength": 0.45
+    },
+    {
+      "scene_text": "A symbolic river of stupefaction flows across the world while a seeker crosses it on the raft of Knowledge toward the far shore.",
+      "visual_strength": 0.74
+    }
+  ]
+}

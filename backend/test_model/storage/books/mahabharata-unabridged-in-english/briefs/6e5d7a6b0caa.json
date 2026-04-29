@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A Gandharva recounts Tapati and Samvarana’s tale and Arjuna’s lineage, then introduces Viswamitra’s visit to Vasishtha and desire for the wish‑giving cow Nandini.",
+  "importance": 0.46,
+  "themes": [
+    "royal lineage",
+    "sage–king relations",
+    "divine drought and restoration",
+    "sacred cow Nandini",
+    "origins of Kuru line"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The desolate capital during a twelve‑year drought, its starving people wandering among empty streets under a cloudless sky.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Vasishtha’s miraculous cow Nandini producing abundant foods, gems, and garments as the amazed king Viswamitra and his army watch.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "King Viswamitra standing before the sage Vasishtha in the forest hermitage, offering his kingdom in exchange for the wondrous cow.",
+      "visual_strength": 0.74
+    }
+  ]
+}

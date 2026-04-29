@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Angada recounts the lineage of the monkey kings and explains Rama’s alliance with Sugriva after Bali’s death while addressing the doubtful vulture Sampati.",
+  "importance": 0.45,
+  "themes": [
+    "monkey lineage",
+    "Rama–Sugriva alliance",
+    "Jatayu's sacrifice",
+    "quest for Sita"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The weakened vulture Sampati is helped down from a mountain peak by a circle of wary monkeys who sit prepared to fast to death.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Jatayu battles Ravana in the sky, shattering the demon king’s chariot while Sita struggles in Ravana’s grasp.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama solemnly performs the funeral rites of the fallen vulture Jatayu in the forest.",
+      "visual_strength": 0.74
+    }
+  ]
+}

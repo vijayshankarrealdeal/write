@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma teaches that the highest sacred pilgrimage is the inner 'Manasa Tirtha'—purity of mind and conduct—greater than external holy waters.",
+  "importance": 0.62,
+  "themes": [
+    "inner purity",
+    "sacred pilgrimage",
+    "self-restraint and renunciation",
+    "knowledge as purification",
+    "inner vs external ritual"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies on his bed of arrows while instructing Yudhishthira about the invisible sacred lake of the mind called Manasa Tirtha.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "A serene sage sits in meditation beside still water, symbolizing the inner lake of truth and understanding within the mind.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Pilgrims bathe in a river while a solitary ascetic purifies himself through meditation and self-denial on the riverbank.",
+      "visual_strength": 0.71
+    }
+  ]
+}

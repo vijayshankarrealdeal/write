@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sugriva appeals to Rama for protection and help against Bali, recounting his suffering and sealing their friendship as Rama promises to slay Bali.",
+  "importance": 0.72,
+  "themes": [
+    "friendship oath",
+    "appeal for justice",
+    "brotherly conflict",
+    "promise of vengeance",
+    "loyalty and refuge"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sugriva, eyes filled with tears, leans toward Rama on a mountain seat of Sala branches while Hanuman and Lakshmana stand nearby in the flowering forest.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Rama lifts his golden‑hafted arrows resembling thunderbolts, promising to strike down Bali like a mountain crumbling into dust.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Sugriva wipes tears from his eyes as he recounts how Bali seized his kingdom and wife, the monkey chiefs gathered solemnly around him.",
+      "visual_strength": 0.69
+    }
+  ]
+}

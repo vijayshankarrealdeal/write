@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Duryodhana and Satyaki clash despite recalling childhood friendship, while Drona devastates the Pandava forces and Krishna proposes deceiving him about Ashwatthaman’s death.",
+  "importance": 0.82,
+  "themes": [
+    "tragic former friendship",
+    "kshatriya duty vs emotion",
+    "Drona's battlefield supremacy",
+    "moral dilemma of deception",
+    "Krishna's strategic counsel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Satyaki and Duryodhana stand on their chariots under a storm of arrows, their shafts filling the sky as the armies roar around them.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Bhima smashes Karna’s chariot, breaking a wheel while Karna stands firm on the crippled car like a mountain amid battle.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Sages appear in the sky before the blazing Drona, urging him to lay down his weapons while the battlefield below is strewn with slain warriors.",
+      "visual_strength": 0.9
+    }
+  ]
+}

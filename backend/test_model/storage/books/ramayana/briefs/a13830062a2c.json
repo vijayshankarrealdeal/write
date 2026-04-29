@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Before departing for exile, Rama distributes his wealth generously to brahmins, servants, and the needy, including gifting many cows to the poor brahmin Trijata.",
+  "importance": 0.55,
+  "themes": [
+    "charity and generosity",
+    "renunciation before exile",
+    "duty to brahmins",
+    "loyalty of servants",
+    "testing a brahmin"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama and Lakshmana stand before heaps of gold and silver in the palace as they distribute riches to brahmins, servants, and the poor.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "The poor brahmin Trijata, dressed in tattered rags, whirls his staff and hurls it across the Sarayu toward a distant herd of royal cows.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Thousands of royal cows and bulls grazing by the Sarayu are driven toward the humble hermitage of the astonished brahmin Trijata.",
+      "visual_strength": 0.72
+    }
+  ]
+}

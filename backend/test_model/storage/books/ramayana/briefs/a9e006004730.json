@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Tara mourns over Bali’s corpse, lamenting his death, her widowhood, and Sugriva’s victory while recalling Bali’s strength and fate.",
+  "importance": 0.68,
+  "themes": [
+    "grief and widowhood",
+    "fallen hero",
+    "fate and war",
+    "loyalty and love",
+    "aftermath of battle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Tara collapses beside Bali’s blood-covered body, clinging to him like a vine around a fallen tree on the battlefield.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "General Nala pulls Rama’s arrow from Bali’s chest, the shaft gleaming like a serpent leaving a mountain cave as blood flows anew.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Tara wipes dust from Bali’s lifeless face and washes him with her tears while gazing down in grief.",
+      "visual_strength": 0.78
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Arjuna, burning with grief and fury over Abhimanyu’s death, vows before Krishna that he will slay Jayadratha the next day even if all gods and creatures protect him. He boasts of the irresistible power of his Gandiva bow and the divine weapons he has received from the gods, declaring that he will cut through Drona’s formation and reach his target. His speech mixes wrath, confidence, and devotion to Krishna, whom he credits as the source of victory. That night neither Krishna nor Arjuna can sleep, and terrifying omens shake the world, foreshadowing immense slaughter. Krishna then goes to comfort Subhadra and Abhimanyu’s widow, explaining that the fallen hero has attained the glorious destiny of a true Kshatriya.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Arjuna begins his defiant declaration of superiority over the Kaurava warriors."
+    },
+    {
+      "start": 300,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Arjuna’s central vow that he will slay Jayadratha even if protected by gods and all beings."
+    },
+    {
+      "start": 900,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "His vivid prophecy of the next day’s carnage, with blood flowing and warriors falling to his arrows."
+    },
+    {
+      "start": 1500,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Arjuna’s confidence rooted in Krishna’s presence as charioteer and the divine certainty of victory."
+    },
+    {
+      "start": 2100,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Cosmic omens—winds, thunder, trembling earth—signaling the magnitude of the coming battle."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Arjuna standing on his chariot beside Krishna, raising the Gandiva and swearing before the battlefield that Jayadratha will die tomorrow.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "A night filled with ominous signs—earth trembling, strange shapes on the sun, winds raging—while Arjuna and Krishna sit awake in grim silence.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Krishna gently consoling the grieving Subhadra and Abhimanyu’s widow in the dimly lit chamber after the hero’s death.",
+      "visual_strength": 0.78
+    }
+  ]
+}

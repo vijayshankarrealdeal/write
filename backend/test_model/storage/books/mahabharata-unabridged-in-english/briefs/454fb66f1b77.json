@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Markandeya recounts the origins of sacred fires and begins the tale leading to Kartikeya’s birth, including Indra rescuing Devasena from the Asura Kesin.",
+  "importance": 0.55,
+  "themes": [
+    "origins of sacred fire",
+    "cosmic genealogy",
+    "Indra vs Asuras",
+    "divine rescue",
+    "foreshadowing Kartikeya"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra hurls his thunderbolt through the air, shattering the Asura Kesin’s flying mace while the terrified Devasena stands nearby.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Atharvan searches the vast ocean while gods gather anxiously as the lost cosmic fire is recovered from the waters.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "At sunrise on the Udaya mountain, Indra witnesses red clouds, battling gods and Asuras, and Agni entering the blazing disc of the Sun.",
+      "visual_strength": 0.75
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dasaratha proposes installing Rama as regent; assembled kings, brahmins, and elders enthusiastically approve and praise Rama’s virtues and fitness to rule.",
+  "importance": 0.66,
+  "themes": [
+    "legitimate kingship",
+    "public consent",
+    "virtues of Rama",
+    "royal succession",
+    "praise of dharma"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dasaratha sits on the throne in a grand assembly hall surrounded by kings, brahmins, and elders who raise a thunderous cry of approval.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "The aged King Dasaratha addresses the court with uplifted hand while rows of crowned rulers and ministers listen beneath the royal canopy.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Courtiers and elders acclaim Rama as future regent, their cheers echoing through the palace like thunder and peacocks calling before a storm.",
+      "visual_strength": 0.6
+    }
+  ]
+}

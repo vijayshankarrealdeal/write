@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dhritarashtra instructs Yudhishthira on statecraft: analyzing political mandalas, choosing war or peace strategically, managing allies, treaties, resources, and treatment of weak or strong enemies.",
+  "importance": 0.55,
+  "themes": [
+    "political strategy",
+    "mandala theory",
+    "war and diplomacy",
+    "kingship duties",
+    "power balance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Courtiers present the young prince of a defeated king as a hostage while a solemn ruler seals a treaty in the royal court.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "A calculating king offers barren fields and dull, impure gold to an enemy envoy during reluctant peace negotiations.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "A small kingdom’s ruler bends like a cane before a powerful invading army massed at his borders.",
+      "visual_strength": 0.68
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ghatotkacha and other Rakshasas carry the Pandavas through wondrous lands to the sacred hermitage of Nara and Narayana near Mount Kailasa.",
+  "importance": 0.45,
+  "themes": [
+    "supernatural travel",
+    "father-son bond",
+    "sacred geography",
+    "ascetic hermitage",
+    "divine hospitality"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ghatotkacha lifts Draupadi onto his shoulders while other Rakshasas bear the Pandavas through the sky over forests and mountains.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The Pandavas arrive before the vast honey-dropping jujube tree beside Mount Kailasa, surrounded by sages and celestial birds.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Yudhishthira approaches the radiant hermitage of Nara and Narayana where ascetic sages chant the Vedas amid sacrificial fires.",
+      "visual_strength": 0.72
+    }
+  ]
+}

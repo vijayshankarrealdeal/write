@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Garuda seizes an elephant and tortoise, rescues the Valakhilya sages from a falling branch, and seeks a safe place to drop the massive limb.",
+  "importance": 0.66,
+  "themes": [
+    "Garuda's strength",
+    "protection of sages",
+    "ascetic power",
+    "divine naming",
+    "cosmic journey"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Garuda grips an elephant and a tortoise in his claws while clutching a massive banyan branch in his beak, tiny Valakhilya sages hanging upside down from it.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The colossal bird Garuda soars through the sky shaking mountains with his wings, carrying the elephant and tortoise across vast landscapes below.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Kasyapa stands in ascetic meditation on Mount Gandhamadana as the immense Garuda approaches from the sky bearing his burdens.",
+      "visual_strength": 0.68
+    }
+  ]
+}

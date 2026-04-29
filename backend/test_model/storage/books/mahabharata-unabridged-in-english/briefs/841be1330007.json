@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna and Arjuna slaughter forest creatures as Khandava burns; Indra tries to quench the fire, but Arjuna counters the rains and continues the devastation.",
+  "importance": 0.65,
+  "themes": [
+    "divine conflict",
+    "destruction of nature",
+    "heroic warfare",
+    "Agni's hunger",
+    "Indra vs Arjuna"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna and Arjuna stand in their chariots on opposite sides of the blazing Khandava forest while terrified animals flee and arrows rain down upon them.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "A serpent mother rises from the burning earth while swallowing her son to save him, only for Arjuna to sever her head with a sharp arrow.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Indra fills the sky with storm clouds and lightning over the burning forest while Arjuna releases a divine weapon that scatters the clouds and dries the rain.",
+      "visual_strength": 0.85
+    }
+  ]
+}

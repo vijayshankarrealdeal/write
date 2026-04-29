@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bharata pleads passionately for Rama to return and rule Ayodhya, but Rama remains firm in his vow to honor their father's command and stay in exile.",
+  "importance": 0.75,
+  "themes": [
+    "dharma and duty",
+    "brotherly devotion",
+    "obedience to father",
+    "renunciation of power",
+    "moral persuasion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata bows with his head at Rama’s feet in the forest, pleading for him to return while sages, citizens, and weeping women look on.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Rama stands calm and resolute in ascetic garb beneath forest trees while Bharata argues before him with folded hands.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "A gathered crowd of brahmins, merchants, priests, and grieving mothers raise their voices together, begging Rama to return to Ayodhya.",
+      "visual_strength": 0.65
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Yudhishthira defeats Srutayush in fierce combat while other duels rage, including Chekitana and Kripa fighting with bows, mace, and swords until both collapse.",
+  "importance": 0.55,
+  "themes": [
+    "battlefield duels",
+    "warrior rage",
+    "heroic prowess",
+    "Pandava momentum"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira, blazing with wrath like the sun at the end of the age, stands in his chariot as terrified warriors watch and the cosmos seems to tremble.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Chekitana leaps from his shattered chariot and swings a massive mace while Kripa on foot shoots arrows that shatter the weapon in midair.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Chekitana and Kripa rush at each other with gleaming sabres, striking until both warriors collapse together onto the dusty battlefield.",
+      "visual_strength": 0.7
+    }
+  ]
+}

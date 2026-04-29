@@ -1,0 +1,24 @@
+{
+  "summary_1line": "On the tenth day’s fierce battles, many duels erupt as the Pandavas push forward with Sikhandin and Arjuna to bring about Bhishma’s fall.",
+  "importance": 0.72,
+  "themes": [
+    "approach of Bhishma's fall",
+    "heroic duels",
+    "battle chaos",
+    "duty and sacrifice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna drives forward with Sikhandin before him toward Bhishma while waves of Kaurava warriors rush in shouting to stop them.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Bhima smashes through the elephant division as gigantic elephants collapse like mountains around his chariot.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Dhrishtaketu and Paurava, their chariots destroyed, circle each other on foot with shining swords and star-studded shields like two lions in combat.",
+      "visual_strength": 0.8
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira orders the Pandavas to rescue captive Duryodhana from Gandharvas despite enmity, leading to a fierce battle as Arjuna confronts the celestial warriors.",
+  "importance": 0.7,
+  "themes": [
+    "dharma and honor",
+    "aid to an enemy",
+    "battle with Gandharvas",
+    "Pandava unity",
+    "royal duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The four armored Pandavas on golden chariots charge through the forest toward the sky‑borne Gandharvas holding Duryodhana captive.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Arjuna standing on his chariot releases a blazing celestial weapon, its fiery shafts raining upon ranks of radiant Gandharvas.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Yudhishthira calmly instructs Bhima and Arjuna to rescue their humiliated rival Duryodhana despite their deep enmity.",
+      "visual_strength": 0.55
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Yudhishthira asks about managing loyal nobles; Bhishma explains that unity between king and aristocracy, avoiding greed and wrath, preserves the kingdom while disunion destroys it.",
+  "importance": 0.53,
+  "themes": [
+    "royal governance",
+    "unity vs disunion",
+    "aristocracy and power",
+    "political strategy",
+    "internal threats"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An aged Bhishma lies on his bed of arrows while Yudhishthira stands beside him listening to counsel on kings and nobles.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A council of stern nobles gathered around a king, whispering in factions as tension and distrust divide the court.",
+      "visual_strength": 0.64
+    }
+  ]
+}

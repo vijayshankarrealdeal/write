@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Yudhishthira prepares and begins the Rajasuya sacrifice, appoints priests, gathers materials, invites all kingdoms, and hosts vast assemblies including the Kauravas.",
+  "importance": 0.48,
+  "themes": [
+    "royal sacrifice",
+    "ritual preparation",
+    "political gathering of kings",
+    "generosity and hospitality"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira enters the vast sacrificial compound surrounded by thousands of Brahmanas, his brothers, and gathered kings from many lands.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Craftsmen build fragrant halls and pavilions like divine temples within the enormous Rajasuya sacrificial enclosure.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Rows of Brahmanas feast and converse while gifts of cows, gold, beds, and garments are distributed throughout the bustling camp.",
+      "visual_strength": 0.67
+    }
+  ]
+}

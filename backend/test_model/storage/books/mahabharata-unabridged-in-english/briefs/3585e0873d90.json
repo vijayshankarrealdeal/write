@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Describes the soul’s departure at death, its carrying of karma, rebirth through the womb, heavenly and hellish realms, and the righteous conduct leading toward liberation.",
+  "importance": 0.66,
+  "themes": [
+    "death process",
+    "karma and rebirth",
+    "soul and Brahman",
+    "heaven and hell",
+    "righteous conduct"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A dying man exhales his final breath as a subtle luminous soul rises from his trembling body while unseen sages watch with spiritual vision.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A tiny radiant soul enters a womb and spreads through the forming fetus like fire glowing within a mass of iron.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Creatures hang head downward in a fiery hell where they are cooked in misery beneath a dark sky.",
+      "visual_strength": 0.76
+    }
+  ]
+}

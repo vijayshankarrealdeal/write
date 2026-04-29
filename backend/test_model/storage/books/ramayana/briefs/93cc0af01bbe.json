@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Khara’s demon army advances on Rama; ominous signs appear, Rama sends Lakshmana and Sita away, and prepares to face fourteen thousand demons alone.",
+  "importance": 0.78,
+  "themes": [
+    "impending battle",
+    "omens and prophecy",
+    "heroic resolve",
+    "divine spectatorship",
+    "duty and protection"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Dark clouds rain blood over the forest as Rama points out dreadful omens to Lakshmana before the approaching demon army.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Lakshmana escorts Sita into a hidden mountain cave while Rama stands outside in shining armor, preparing to face the demons alone.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Rama, blazing like fire in golden armor, twangs his bow so loudly that the four directions echo while gods and sages watch from the sky.",
+      "visual_strength": 0.9
+    }
+  ]
+}

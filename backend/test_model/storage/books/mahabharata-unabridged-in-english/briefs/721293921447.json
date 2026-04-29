@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Humiliated after being freed by the Pandavas, Duryodhana laments his shame, resolves to starve to death, and offers the throne to Dussasana while Karna urges him to endure.",
+  "importance": 0.63,
+  "themes": [
+    "humiliation and pride",
+    "enemy mercy",
+    "despair and suicide resolve",
+    "brotherly loyalty",
+    "counsel and resilience"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bound and disgraced, Duryodhana stands before Yudhishthira after being delivered by the Gandharvas while the Pandavas and royal women look on.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Dussasana collapses at Duryodhana’s feet in tears, begging him not to abandon the throne.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Karna steps forward solemnly to console the weeping Kuru brothers, urging Duryodhana to rise and return to his city.",
+      "visual_strength": 0.64
+    }
+  ]
+}

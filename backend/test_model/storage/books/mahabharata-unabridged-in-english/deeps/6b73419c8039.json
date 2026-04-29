@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Damayanti, separated from Nala and reduced to wandering in misery, reaches the city of the Chedi king Suvahu wearing only half a garment. Frightened, exhausted, and surrounded by curious townspeople, she is noticed by the compassionate queen‑mother, who senses nobility beneath her distress. Questioned by the nurse, Damayanti recounts her loyalty to her husband Nala, his ruin at dice, and how he abandoned her in the forest after cutting away half her cloth. The queen offers refuge, and Damayanti accepts under strict vows protecting her dignity and fidelity. Meanwhile, the narrative shifts to Nala in the forest, where he rescues the cursed serpent Karkotaka from a wildfire. The serpent bites him deliberately, transforming his appearance to hide him and promising protection while the spirit that ruined him suffers within.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces Damayanti’s destitute arrival at the Chedi city, setting the tone of exile and endurance."
+    },
+    {
+      "start": 900,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Damayanti recounts how Nala cut away half her garment and abandoned her in the forest, a key emotional revelation."
+    },
+    {
+      "start": 1700,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "Damayanti’s conditions for staying in the palace emphasize her strict loyalty and personal dignity."
+    },
+    {
+      "start": 2500,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "The encounter with the serpent Karkotaka begins, shifting the story back to Nala and introducing a supernatural turning point."
+    },
+    {
+      "start": 3000,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Karkotaka’s bite transforms Nala’s appearance and traps the evil influence within him, marking the start of his hidden journey."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A ragged Damayanti in half a garment, hair dusty and disheveled, walks through the crowded streets of the Chedi city as curious children follow and the queen-mother watches from a palace terrace.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "In a dark forest blazing with wildfire, Nala strides through the flames to rescue a coiled serpent crying out for help.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The serpent Karkotaka bites Nala as he counts his steps, and his handsome form twists into a new hidden appearance while the snake reveals its true power.",
+      "visual_strength": 0.86
+    }
+  ]
+}

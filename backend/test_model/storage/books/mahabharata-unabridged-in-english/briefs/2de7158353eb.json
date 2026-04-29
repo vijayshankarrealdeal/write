@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After Bhishma falls, warriors gather; Arjuna creates an arrow-pillow for him, and Bhishma resolves to lie on his bed of arrows until the sun’s northern course.",
+  "importance": 0.85,
+  "themes": [
+    "heroic death",
+    "warrior duty",
+    "reverence for elders",
+    "fate and timing of death"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies suspended on a bed of arrows above the ground as Arjuna shoots three shafts beneath his head to form a pillow.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "Both Kaurava and Pandava warriors lay down their arms and gather solemnly around the fallen Bhishma on the battlefield.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Arjuna, eyes filled with tears, draws the Gandiva and releases the arrows that lift the grandsire’s head.",
+      "visual_strength": 0.8
+    }
+  ]
+}

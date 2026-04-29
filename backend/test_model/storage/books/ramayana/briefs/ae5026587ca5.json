@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama awakens to find Lakshmana seemingly slain and, overcome with grief, laments his brother’s fate and questions the purpose of victory or life without him.",
+  "importance": 0.78,
+  "themes": [
+    "brotherly devotion",
+    "grief and lamentation",
+    "duty vs despair",
+    "war’s cost"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama kneels beside Lakshmana’s blood‑soaked body bound by arrows while grieving monkeys stand in a silent circle on the battlefield.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Lakshmana lies motionless on a bed of arrows, his body pierced and bathed in blood as Rama weeps over him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama, eyes filled with tears, raises his arms in despair while the monkey army watches helplessly around the fallen prince.",
+      "visual_strength": 0.74
+    }
+  ]
+}

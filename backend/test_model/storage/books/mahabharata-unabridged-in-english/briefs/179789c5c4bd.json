@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Janamejaya asks about Vishnu’s horse‑headed form; the tale recounts how Narayana as Hayagriva recovers the stolen Vedas from the demons Madhu and Kaitabha.",
+  "importance": 0.75,
+  "themes": [
+    "divine cosmology",
+    "Vedas as sacred knowledge",
+    "Vishnu avatars",
+    "creation and dissolution",
+    "battle with Madhu and Kaitabha"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The cosmic horse‑headed form of Vishnu arises, with sun and moon as his eyes and the sky as his crown.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The demons Madhu and Kaitabha seize the four Vedas from Brahma inside the primeval lotus and dive into the dark ocean.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Narayana lies in yoga‑sleep upon the fiery‑hooded serpent in the cosmic ocean as the two demons awaken him for battle.",
+      "visual_strength": 0.88
+    }
+  ]
+}

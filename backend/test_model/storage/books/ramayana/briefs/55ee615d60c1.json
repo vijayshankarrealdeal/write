@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana surveys besieged Lanka as Rama’s monkey army assaults the city gates and Ravana orders the titans to launch a counterattack.",
+  "importance": 0.62,
+  "themes": [
+    "siege of Lanka",
+    "war mobilization",
+    "Rama's grief for Sita",
+    "monkey army assault",
+    "Ravana's defiance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana stands on the palace height gazing over Lanka as endless brown waves of monkeys surround the city from every side.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Monkeys roar and hurl rocks and uprooted trees against the golden gates and battlements of Lanka while shouting victory to Rama.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "War drums with moon‑white faces thunder across Lanka as the titan army prepares to sortie from the city gates.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vipula, proud of his ascetic success, fetches celestial flowers but becomes disturbed when strangers invoke his supposed sinful fate during disputes.",
+  "importance": 0.47,
+  "themes": [
+    "ascetic pride",
+    "karma and conscience",
+    "guru–disciple duty",
+    "divine temptation",
+    "moral self-scrutiny"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Celestial flowers fall from a heavenly nymph drifting through the sky, scattering fragrant blossoms near a forest hermitage.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Vipula pauses on a forest path holding glowing celestial flowers while a quarrelling couple nearby swears an oath invoking his fate.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Six excited gamblers with gold and silver dice argue fiercely, raising their hands as they swear an oath about Vipula’s doom.",
+      "visual_strength": 0.67
+    }
+  ]
+}

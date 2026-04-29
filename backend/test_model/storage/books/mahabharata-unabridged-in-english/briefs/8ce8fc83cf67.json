@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman reveals his colossal form to Bhima, explains why he let Rama slay Ravana, and instructs Bhima on duty, humility, and proper conduct.",
+  "importance": 0.72,
+  "themes": [
+    "divine revelation",
+    "brotherhood",
+    "humility and restraint",
+    "dharma and social order",
+    "heroic power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman expands into a mountain-like form towering over the plantain grove while Bhima stands awestruck with hair bristling.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The gigantic Hanuman, copper-eyed and fanged, stretches across the forest with his long tail lashing as Bhima closes his eyes before the blazing sight.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Hanuman gently addressing Bhima after shrinking his form, the two wind-born brothers facing each other in the forest.",
+      "visual_strength": 0.65
+    }
+  ]
+}

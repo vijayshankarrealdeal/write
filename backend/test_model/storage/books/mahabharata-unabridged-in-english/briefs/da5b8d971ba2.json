@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Nightfall battle rages; Duryodhana charges and devastates the Pandava ranks until Yudhishthira cuts his bow and wounds him, prompting Drona to intervene.",
+  "importance": 0.56,
+  "themes": [
+    "battle fury",
+    "Duryodhana's valor",
+    "chaos of war",
+    "Yudhishthira versus Duryodhana",
+    "Drona's protection"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Duryodhana's chariot thunders into the Pandava host as he showers blazing arrows like the midday sun scorching the battlefield.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Yudhishthira slices Duryodhana's golden-backed bow into three pieces with two broad-headed arrows as soldiers roar that the king is slain.",
+      "visual_strength": 0.79
+    },
+    {
+      "scene_text": "Infuriated elephants clash tusk to tusk amid a darkening battlefield filled with whistling arrows after sunset.",
+      "visual_strength": 0.74
+    }
+  ]
+}

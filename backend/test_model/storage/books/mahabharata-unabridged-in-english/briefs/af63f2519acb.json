@@ -1,0 +1,24 @@
+{
+  "summary_1line": "The ascetic Jaratkaru learns his ancestors suffer for lack of descendants and reluctantly vows to marry to produce a son who will save them.",
+  "importance": 0.63,
+  "themes": [
+    "filial duty",
+    "asceticism vs family life",
+    "ancestral salvation",
+    "fate and lineage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Jaratkaru beholds his ancestors hanging upside down in a dark pit, clinging to a fraying root gnawed by a rat symbolizing Time.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The sorrowful sage Jaratkaru stands in the forest crying out three times to all creatures, begging for a bride to save his ancestors.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "The serpent king Vasuki approaches the ascetic in the forest, presenting his ornamented sister as a bride offered like alms.",
+      "visual_strength": 0.82
+    }
+  ]
+}

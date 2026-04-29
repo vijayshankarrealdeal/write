@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhima battles the rakshasa Hidimva in the forest while Hidimva’s sister confesses love for Bhima and reveals the attack to Kunti and the Pandavas.",
+  "importance": 0.65,
+  "themes": [
+    "heroic combat",
+    "rakshasas",
+    "love and attraction",
+    "protection of family",
+    "forest peril"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima lifts the blue-skinned rakshasa Hidimva high into the air and whirls him repeatedly amid shattered trees in the dark forest.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhima and Hidimva grapple like enraged elephants, tearing trees and raising clouds of dust that shroud them like mist around cliffs.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The Pandavas and Kunti awaken in the forest to see the beautiful rakshasi Hidimva standing before them while Bhima battles her brother in the distance.",
+      "visual_strength": 0.72
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "rich_summary": "This section recounts the climax and aftermath of Indra’s battle with the Asura Vritra. After Vritra overwhelms Indra through powerful illusions, the sage Vasishtha restores Indra’s courage, reminding him of the gods and sages watching. Empowered through Yoga, Indra dispels Vritra’s illusions while Vishnu enters Indra’s thunderbolt and Shiva’s energy manifests as a devastating fever that weakens the Asura. As ominous portents appear around Vritra, Indra strikes while the demon yawns under the fever’s grip, killing him with the thunderbolt. Yet the victory brings consequence: the embodied sin of Brahmanicide emerges from Vritra’s corpse and clings to Indra. Terrified, Indra hides for years until Brahma arranges to divide the sin among Agni, plants, Apsaras, and the Waters, establishing ritual and moral rules explaining how that sin transfers to humans.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces Vritra’s use of illusion to stupefy Indra, setting up the central divine struggle and the theme of spiritual power overcoming deception."
+    },
+    {
+      "start": 1030,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The decisive moment where Indra, aided by divine forces and Vritra’s weakening, hurls the thunderbolt that finally destroys the mighty Asura."
+    },
+    {
+      "start": 1300,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The dramatic emergence of the personified sin of Brahmanicide from Vritra’s body, turning victory into moral crisis for Indra."
+    },
+    {
+      "start": 2100,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Brahma’s decision to divide the sin among cosmic elements introduces mythic explanations for ritual taboos and human moral responsibility."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Indra on his celestial chariot hurling the blazing thunderbolt at the gigantic Vritra as ominous meteors fall and vultures circle overhead.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The terrifying figure of Brahmanicide emerging from Vritra’s corpse—dark, skull-garlanded, blood‑stained, with wild hair and dreadful eyes—reaching toward Indra.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "Indra hiding inside the hollow fibers of a lotus stalk while the shadowy presence of Brahmanicide looms outside searching for him.",
+      "visual_strength": 0.8
+    }
+  ]
+}

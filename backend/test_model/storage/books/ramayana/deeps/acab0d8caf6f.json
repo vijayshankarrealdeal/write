@@ -1,0 +1,37 @@
+{
+  "rich_summary": "After Indrajit’s devastating celestial weapon fells Rama, Lakshmana, and vast numbers of the monkey army, despair spreads across the battlefield. Vibhishana reassures the survivors that the princes only submitted to the weapon to honor Brahma’s power. Searching the field at night among mutilated bodies, he and Hanuman find the ancient bear Jambavan badly wounded. Jambavan asks first whether Hanuman lives, declaring that if Hanuman survives, the army is not truly defeated. He instructs Hanuman to fly to the Himalayas and retrieve four luminous healing herbs—Mritasanjivani, Vishalyakarani, Suvarnakarani, and Sandhani. When the herbs hide themselves, Hanuman uproots the entire mountain peak and carries it through the sky back to Lanka. The fragrance revives Rama, Lakshmana, and the fallen monkeys, restoring the army and renewing the war.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 90,
+      "color_hex": "#F48FB1",
+      "why": "The opening aftermath of Indrajit's attack establishes the devastation and apparent defeat of Rama's forces."
+    },
+    {
+      "start": 1,
+      "length": 110,
+      "color_hex": "#FFEB3B",
+      "why": "Early battlefield context that frames the crisis leading to Jambavan's crucial recognition of Hanuman as the army's hope."
+    },
+    {
+      "start": 2,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Thematically reflects the epic’s idea that divine destiny and faith in a single hero can reverse total defeat."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Hanuman stands atop a mountain in Lanka, enlarging with immense power as the ground cracks beneath him and terrified demons watch before he launches into the sky.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Hanuman flying across the night sky carrying an entire glowing Himalayan mountain peak filled with radiant medicinal herbs.",
+      "visual_strength": 1.0
+    },
+    {
+      "scene_text": "The battlefield of Lanka as the fragrance of the herbs revives Rama, Lakshmana, and thousands of fallen monkey warriors rising like sleepers awakening at dawn.",
+      "visual_strength": 0.86
+    }
+  ]
+}

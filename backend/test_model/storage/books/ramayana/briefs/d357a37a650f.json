@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Malyavan counsels Ravana to return Sita and make peace with Rama, warning that unrighteousness and ominous signs foretell the destruction of the titans.",
+  "importance": 0.58,
+  "themes": [
+    "wise counsel ignored",
+    "dharma vs adharma",
+    "omens of doom",
+    "hubris of rulers"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In Ravana’s hall, the aged titan Malyavan stands before the throne warning the ten‑headed king as anxious ministers look on.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Dark clouds over Lanka rain hot blood while jackals and vultures gather in the city squares beneath a dim sky.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Ravana pauses amid the sound of drums and trumpets, reflecting as the distant roar of the monkey army shakes the earth.",
+      "visual_strength": 0.76
+    }
+  ]
+}

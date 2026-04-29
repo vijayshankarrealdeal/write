@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Ravana, having approached Sita in the guise of an ascetic, reveals his true identity after she fiercely rebukes his advances and warns him that harming Rama’s wife will bring certain destruction. Enraged, the titan king casts off his disguise and manifests his terrifying form with ten heads and twenty arms, boasting of his cosmic power. Ignoring her defiance, he violently seizes Sita and lifts her into his golden chariot, which rises into the sky. As Ravana carries her away through the air, Sita cries out desperately for Rama and Lakshmana, condemns Ravana’s fate, and calls upon the forest, the Godavari river, and all living creatures to bear witness and deliver news of her abduction. Spotting the vulture Jatayu, she begs him to tell Rama what has happened, setting in motion the coming pursuit and battle.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "Sita boldly rebukes Ravana and foretells the destruction that will follow the abduction of Rama’s wife."
+    },
+    {
+      "start": 320,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Ravana boasts of his immense, almost cosmic power before revealing his true demonic nature."
+    },
+    {
+      "start": 760,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "The pivotal moment when Ravana abandons his disguise and appears with ten heads and twenty arms."
+    },
+    {
+      "start": 1120,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "The violent seizure of Sita and her forced ascent into Ravana’s golden chariot."
+    },
+    {
+      "start": 1500,
+      "length": 260,
+      "color_hex": "#F48FB1",
+      "why": "Sita’s anguished cries to Rama, Lakshmana, and the forest itself as she is carried through the sky."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Ravana discards his ascetic disguise and towers in his true form—ten heads and twenty arms blazing with ornaments—before the defiant Sita in the forest clearing.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Ravana seizes Sita and lifts her into his golden chariot drawn by braying mules as it rises into the sky above the forest.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "Sita, struggling in Ravana’s grasp high in the air, cries out to the forests and rivers below while the vulture Jatayu watches from a tree.",
+      "visual_strength": 0.9
+    }
+  ]
+}

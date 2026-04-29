@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Deities describe meritorious rituals—offerings to ants, cows, moon—and declare that hearing or reciting these sacred duties grants purification and spiritual merit.",
+  "importance": 0.35,
+  "themes": [
+    "ritual offerings",
+    "merit of charity",
+    "sacred cows",
+    "religious instruction",
+    "power of recitation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Devotees place raw sugar and rice upon a flower-strewn ant-hill at sunset as the sky glows in the west.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "A worshipper feeds gentle cows at dawn while sacred bulls stand beneath Shiva’s banner bearing the bull emblem.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Under a bright full moon, a devotee lifts a copper vessel of honey-mixed food as an offering to the rising moon.",
+      "visual_strength": 0.72
+    }
+  ]
+}

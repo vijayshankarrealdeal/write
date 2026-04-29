@@ -1,0 +1,43 @@
+{
+  "rich_summary": "This section continues Bhishma’s discourse on Yoga and spiritual liberation. The text first describes the discipline of a Yogin: solitude, sensory restraint, mental concentration on the Eternal, indifference to praise or blame, and equal regard for gain and loss. Through steady practice and detachment—even from the pursuit of wealth—the practitioner may perceive Brahman and attain inner realization. The dialogue then shifts to Suka questioning the apparent contradiction in the Vedas, which both command action and renunciation. Vyasa explains that the scriptures describe two distinct paths: the path of action (pravritti) and the path of knowledge (nivritti). Action leads to repeated rebirth and the cycle of pleasure and pain, while knowledge leads to emancipation and union with the eternal, unmanifest Brahman. The passage emphasizes discernment, self‑mastery, and the superiority of liberating knowledge over ritual action.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 121,
+      "color_hex": "#A5D6A7",
+      "why": "Evocative opening instruction describing the serene settings and disciplined posture appropriate for Yogic meditation."
+    },
+    {
+      "start": 900,
+      "length": 40,
+      "color_hex": "#FFEB3B",
+      "why": "A stark doctrinal statement contrasting the consequences of action and knowledge."
+    },
+    {
+      "start": 1200,
+      "length": 86,
+      "color_hex": "#FFEB3B",
+      "why": "Highlights the fundamental divide between the two spiritual paths—knowledge versus action."
+    },
+    {
+      "start": 520,
+      "length": 110,
+      "color_hex": "#F48FB1",
+      "why": "The teaching that a true Yogin views clod, stone, and gold alike expresses the emotional and ethical core of detachment."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A solitary yogin seated before dawn on a mountain summit beneath a tree, eyes closed in deep meditation as the first light spreads across the sky.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "A serene ascetic calmly holding a clod of earth, a stone, and a piece of gold with the same indifferent gaze.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Vyasa teaching Suka beside a forest hermitage, gesturing as he explains the two diverging paths of action and knowledge.",
+      "visual_strength": 0.8
+    }
+  ]
+}

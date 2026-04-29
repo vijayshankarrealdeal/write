@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vipula enters his teacher’s wife by yogic power to guard her from Indra, restrains her senses, and confronts the god when the seduction attempt fails.",
+  "importance": 0.63,
+  "themes": [
+    "ascetic power",
+    "chastity protection",
+    "temptation by Indra",
+    "guru–disciple duty",
+    "self-control"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vipula sits motionless beside the ascetic’s wife while his subtle form slips through her gaze into her body like wind entering space.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Indra, dazzling in celestial beauty, stands before the unmoving woman in the hermitage while Vipula’s empty body sits rigid like a lifeless statue nearby.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Vipula emerges from the woman’s body and rebukes the startled Indra, who trembles after perceiving the ascetic hidden within her like a reflection in a mirror.",
+      "visual_strength": 0.74
+    }
+  ]
+}

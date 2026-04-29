@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains the spiritual merits of digging water tanks, planting trees, and giving compassionate gifts, emphasizing generosity and support of the virtuous.",
+  "importance": 0.55,
+  "themes": [
+    "charity and generosity",
+    "environmental stewardship",
+    "religious merit",
+    "support of Brahmanas",
+    "compassion for the needy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A newly dug tank gleams with water while cows, birds, and travelers gather along its banks to drink under the sun.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A man plants young trees beside a tank and tends them like children while travelers rest in the shade of older flowering trees.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A weary, emaciated scholar is offered food and water by a generous householder at the doorway of his home.",
+      "visual_strength": 0.64
+    }
+  ]
+}

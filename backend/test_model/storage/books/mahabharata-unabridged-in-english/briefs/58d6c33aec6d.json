@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Drona arms Duryodhana with a sacred armor before battle as Pandavas clash fiercely with Drona’s forces at the formation’s gate.",
+  "importance": 0.6,
+  "themes": [
+    "divine armor transmission",
+    "battle formations",
+    "Drona vs Dhrishtadyumna",
+    "epic warfare imagery",
+    "Pandava–Kaurava conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Drona ties the celestial armor onto Duryodhana with sacred mantras while warriors and elephants wait for battle.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Dhrishtadyumna and Drona face each other amid chariots and elephants as torrents of arrows darken the sky.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The two vast armies surge toward each other like storm clouds, chariots flashing like lightning and weapons raining down.",
+      "visual_strength": 0.82
+    }
+  ]
+}

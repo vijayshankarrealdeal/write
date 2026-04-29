@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna devastates the Samsaptakas, defeats Susarman, and advances toward Bhagadatta, whose elephant challenges him in a fierce chariot-versus-elephant duel.",
+  "importance": 0.63,
+  "themes": [
+    "heroic warfare",
+    "Arjuna's prowess",
+    "battle dilemmas",
+    "duel with Bhagadatta",
+    "dharma in combat"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna unleashes the Brahma weapon as severed arms, banners, and warriors fall while elephants collapse across the battlefield.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Krishna drives the white, gold-armored horses as Arjuna rains arrows like a storm, scattering the surrounding army.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Bhagadatta charges atop a towering elephant while Arjuna stands in his chariot, the two circling each other in a tense car-versus-elephant duel.",
+      "visual_strength": 0.83
+    }
+  ]
+}

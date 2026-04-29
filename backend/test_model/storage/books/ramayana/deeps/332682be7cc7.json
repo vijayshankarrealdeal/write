@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Rama and Ravana continue their colossal duel, battling across sky, ground, and mountain while gods, demons, and spirits watch. For seven days neither warrior yields. Seeing no clear victory, Matali—the charioteer of the gods—reminds Rama of his true power and urges him to use Brahma’s divine weapon, whose use has been foretold by the gods. Rama prepares the celestial arrow given by the sage Agastya, a cosmic missile embodying wind, fire, sun, and the elements. After invoking sacred formulas, he releases it with immense force. The irresistible shaft pierces Ravana’s chest, extinguishing his life before returning to Rama’s quiver. Ravana falls like the demon Vritra struck by Indra’s thunderbolt. With their king dead, the rakshasas flee toward Lanka while the victorious monkey army pursues them, marking the decisive end of the war’s central tyrant.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Opening description of the immense battle between Rama and Ravana, emphasizing the scale and ferocity of their clash."
+    },
+    {
+      "start": 500,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Matali’s crucial intervention urging Rama to use Brahma’s divine weapon, revealing that Ravana’s destined end has arrived."
+    },
+    {
+      "start": 800,
+      "length": 420,
+      "color_hex": "#FFEB3B",
+      "why": "Extended mythic description of Brahma’s weapon—its cosmic composition and terrifying power—heightening the epic stakes."
+    },
+    {
+      "start": 1300,
+      "length": 260,
+      "color_hex": "#F48FB1",
+      "why": "The decisive moment when Rama’s arrow pierces Ravana’s chest and ends his life."
+    },
+    {
+      "start": 1600,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Aftermath of Ravana’s fall: the rakshasas flee while the monkey army surges forward in triumph."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Rama stands in his chariot drawing the blazing Brahma weapon while gods and spirits watch from the sky and the earth trembles beneath him.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "The divine arrow streaks like lightning across the battlefield and strikes Ravana in the chest as the ten‑headed king reels in his chariot.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Ravana falls from his chariot like a thunderstruck titan while monkey warriors surge forward and the surviving rakshasas flee toward Lanka.",
+      "visual_strength": 0.9
+    }
+  ]
+}

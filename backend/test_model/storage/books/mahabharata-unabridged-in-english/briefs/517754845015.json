@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts teachings praising renunciation: poverty and detachment bring peace, while desire for wealth breeds anxiety, suffering, and endless craving.",
+  "importance": 0.6,
+  "themes": [
+    "renunciation",
+    "desire vs detachment",
+    "wealth and anxiety",
+    "destiny and effort",
+    "spiritual liberation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A camel suddenly runs down the road with two young bulls tangled and dangling from a yoke around its neck while their owner watches helplessly.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A wandering ascetic sleeps peacefully on bare earth using his arm as a pillow beneath the open sky.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Manki stands watching in shock as his last possessions—two bulls—are carried away by a running camel across a dusty road.",
+      "visual_strength": 0.75
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Shatrughna confronts the demon Lavana at the gate of Madhupura, trading fierce words and declaring his intent to kill him.",
+  "importance": 0.62,
+  "themes": [
+    "heroic confrontation",
+    "vengeance",
+    "dharma vs demon",
+    "boast and challenge"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Shatrughna stands with bow drawn at the gate of Madhupura as the demon Lavana returns carrying captured creatures at noon.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The gigantic Rakshasa Lavana laughs mockingly at the lone warrior Shatrughna standing before the city gate.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Shatrughna, trembling with rage and tears, declares his lineage as Rama’s brother while sparks of fury seem to burst from his body.",
+      "visual_strength": 0.7
+    }
+  ]
+}

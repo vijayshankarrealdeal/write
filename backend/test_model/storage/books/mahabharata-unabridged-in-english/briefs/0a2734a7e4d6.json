@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Uma asks Shiva about the duties and practices of forest recluses and ascetics, and Shiva describes their severe disciplines, rituals, virtues, and spiritual rewards.",
+  "importance": 0.53,
+  "themes": [
+    "ascetic disciplines",
+    "forest hermits",
+    "yogic austerities",
+    "righteous conduct",
+    "spiritual rewards"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An emaciated forest ascetic sits in meditation surrounded by four blazing fires under the blazing summer sun while wearing bark garments.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Tiny thumb-sized Valkhilya sages glow with radiance as they dwell within the solar disc.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A hermit in the forest gathers fallen leaves and moss for food while deer graze peacefully around him.",
+      "visual_strength": 0.72
+    }
+  ]
+}

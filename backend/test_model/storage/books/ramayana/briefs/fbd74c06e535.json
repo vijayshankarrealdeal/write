@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Valmiki, moved by a hunter killing a bird, spontaneously utters the first metrical verse; Brahma then commands him to compose the epic of Rama.",
+  "importance": 0.86,
+  "themes": [
+    "origin of poetry",
+    "compassion and grief",
+    "divine inspiration",
+    "storytelling mandate"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A hidden hunter shoots a male krauncha bird while it mates, as the grieving female cries beside the fallen body before the shocked sage Valmiki.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Valmiki stands by the clear Tamasa River with disciple Bharadwaja, raising his hand in sorrow as he utters the first poetic curse.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The four-faced god Brahma appears radiantly in Valmiki’s forest hermitage, blessing the sage and commanding him to compose the story of Rama.",
+      "visual_strength": 0.86
+    }
+  ]
+}

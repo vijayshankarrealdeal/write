@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Ravana approaches the captive Sita and tries to persuade her to become his queen with flattery, promises of luxury, and boasts of his power.",
+  "importance": 0.63,
+  "themes": [
+    "temptation",
+    "loyalty to Rama",
+    "abuse of power",
+    "seduction and coercion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The emaciated Sita sits beneath trees in the Ashoka grove with folded hands in prayer while the richly adorned Ravana approaches surrounded by demonesses.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Ravana, crowned and imposing, gestures grandly as he offers jewels and a kingdom to the sorrowful Sita seated on the bare ground.",
+      "visual_strength": 0.79
+    },
+    {
+      "scene_text": "Sita in soiled garments and a single braid turns away modestly, trying to cover herself as Ravana gazes at her with desire.",
+      "visual_strength": 0.75
+    }
+  ]
+}

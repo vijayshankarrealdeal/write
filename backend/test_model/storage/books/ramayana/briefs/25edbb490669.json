@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Hanuman kills the demon general Akampana with an uprooted tree, causing the terrified rakshasa army to flee back to Lanka.",
+  "importance": 0.66,
+  "themes": [
+    "heroic combat",
+    "battlefield rout",
+    "monkey valor",
+    "demonic defeat"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman, pierced by arrows yet blazing with fury, uproots a massive tree and smashes it down upon the demon general Akampana.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The demon army drops their weapons and flees in panic toward Lanka while monkeys chase them across the battlefield.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Hanuman stands victorious amid cheering monkeys as the gods, Rama, and Lakshmana honor him after the battle.",
+      "visual_strength": 0.75
+    }
+  ]
+}

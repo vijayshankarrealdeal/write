@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Bhishma explains types of friends, cautious trust, qualities of ministers, and the complex role of kinsmen in royal policy.",
+  "importance": 0.53,
+  "themes": [
+    "political strategy",
+    "trust and suspicion",
+    "qualities of ministers",
+    "friendship types",
+    "kinsmen dynamics"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged Bhishma lies on his bed of arrows while instructing Yudhishthira about kings, friends, and the dangers of misplaced trust.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A wary king sits in council, observing ministers and kinsmen around him while secretly weighing whom he can trust.",
+      "visual_strength": 0.72
+    }
+  ]
+}

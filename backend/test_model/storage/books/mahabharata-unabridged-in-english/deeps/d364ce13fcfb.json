@@ -1,0 +1,31 @@
+{
+  "rich_summary": "This section recounts the climactic duel between Bhishma and the Pandava general Sweta during the early phase of the Kurukshetra war. Bhishma devastates Sweta’s chariot, killing his horses and charioteer, forcing Sweta to fight on foot in a rage. Sweta hurls a terrible golden dart and later smashes Bhishma’s chariot with a mace, showing immense valor. A celestial voice then urges Bhishma to seize the destined moment. Even as Pandava heroes like Bhima, Satyaki, Abhimanyu, and Dhrishtadyumna attempt to intervene, Bhishma holds them back and focuses on Sweta. Finally, he releases a divinely empowered arrow that pierces Sweta and kills him. The Pandava army mourns their fallen commander while the Kauravas celebrate, and the armies withdraw for the night, shaken by the ferocity of the combat.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The opening vividly shows Bhishma’s overwhelming battlefield skill as he destroys Sweta’s chariot in a precise sequence of shots."
+    },
+    {
+      "start": 1,
+      "length": 110,
+      "color_hex": "#F48FB1",
+      "why": "This early passage captures the escalating fury of the duel and sets the emotional tone of Sweta’s desperate resistance."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Sweta, standing on the ground in fury, hurls a blazing golden dart like a meteor toward the calm and unmoved Bhishma.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Bhishma releases a divine arrow glowing like fire that pierces Sweta’s armor and body as gods and spirits watch from the sky.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "After Sweta falls like a collapsing mountain peak, Dussasana dances in triumph on the battlefield while the Pandava warriors lament.",
+      "visual_strength": 0.78
+    }
+  ]
+}

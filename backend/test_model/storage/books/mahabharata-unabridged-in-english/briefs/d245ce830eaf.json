@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A king resolves a gift dispute revealing Desire and Wrath’s test, after which Bhishma explains the spiritual destinies of Gayatri reciters.",
+  "importance": 0.55,
+  "themes": [
+    "dharma and duty",
+    "reciprocity of gifts",
+    "desire and wrath as forces",
+    "spiritual fruits of Gayatri",
+    "liberation vs attachment"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The king stretches out his hand as drops of water fall upon it while the Brahmana offers the fruits of his Gayatri recitation.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Virupa reveals to the king that he and Vikrita are Desire and Wrath who tested him under the watch of Time, Dharma, and Death.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A radiant ascetic rises through realms of fire, sun, wind, and space before dissolving into a boundless luminous Brahman.",
+      "visual_strength": 0.76
+    }
+  ]
+}

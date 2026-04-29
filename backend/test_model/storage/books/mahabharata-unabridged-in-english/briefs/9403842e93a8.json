@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira asks about Agni and Angiras; Markandeya recounts how Angiras’ penance rivaled Agni, leading to reconciliation and the birth of Vrihaspati.",
+  "importance": 0.36,
+  "themes": [
+    "Agni mythology",
+    "ascetic power",
+    "divine roles and identity",
+    "origin of Vrihaspati",
+    "sacrificial fire traditions"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Angiras sits in deep penance while his blazing radiance lights the universe like a second sun, outshining the fire-god Agni.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Agni, distressed and dimmed by Angiras’s brilliance, approaches the meditating sage with hesitation and folded hands.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "Angiras and the fire-god stand together in luminous light as they agree that Agni will resume his cosmic role and Angiras will become his first father through Vrihaspati.",
+      "visual_strength": 0.63
+    }
+  ]
+}

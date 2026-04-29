@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Satyaki reveals to Krishna, Dhritarashtra, and Vidura that Duryodhana and his allies secretly plan to seize Krishna by force in the Kuru court. The scheme is mocked as foolish—like trying to grasp fire with cloth. Vidura warns Dhritarashtra that such an attempt will doom his sons, since Krishna is invincible and yet too righteous to retaliate with unjust violence. Krishna calmly confirms this: though he has the power to subdue them all and hand them to the Pandavas, he refuses to commit a wrongful act in the king’s presence. Alarmed, Dhritarashtra summons Duryodhana and rebukes him, comparing the attempt to seizing the wind or reaching the moon. Vidura reinforces the warning by recounting Krishna’s divine feats and victories over demons and kings, emphasizing that attacking him would bring certain destruction.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Satyaki reveals the conspiracy and sets the tense political moment in the Kuru court."
+    },
+    {
+      "start": 230,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "The vivid metaphor comparing the conspirators to children trying to seize blazing fire captures the folly of opposing Krishna."
+    },
+    {
+      "start": 930,
+      "length": 130,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna declares that although he has the power to subdue them all, he will not commit a sinful act—revealing his restraint and adherence to dharma."
+    },
+    {
+      "start": 1550,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "Dhritarashtra’s metaphors—seizing the wind or reaching the moon—emphasize the impossibility of overpowering Krishna."
+    },
+    {
+      "start": 2300,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "Vidura’s long recounting of Krishna’s divine feats builds awe and dread, underscoring the catastrophic consequences of Duryodhana’s arrogance."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In the Kuru court, Satyaki strides back like a lion and announces the secret plot while elders and kings react in shock.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Blind king Dhritarashtra angrily rebukes Duryodhana in the crowded royal hall as Karna and Dussasana stand beside him.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Krishna stands calm and radiant in the assembly while Vidura recounts his legendary deeds, the gathered kings staring in awe and fear.",
+      "visual_strength": 0.83
+    }
+  ]
+}

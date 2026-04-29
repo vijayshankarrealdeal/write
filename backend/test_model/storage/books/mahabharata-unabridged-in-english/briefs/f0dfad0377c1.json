@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Suka asks how to realize Brahman, and Vyasa explains the nature of soul, senses, and the disciplined path of knowledge and Yoga leading to liberation.",
+  "importance": 0.75,
+  "themes": [
+    "realization of Brahman",
+    "mind and senses control",
+    "nature of the soul",
+    "Sankhya and Yoga paths",
+    "spiritual equality of beings"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A yogi seated in deep meditation perceives the soul within himself blazing like a smokeless fire or radiant sun.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The mind is depicted as a charioteer skillfully guiding five powerful horses representing the senses along different paths.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Within a human body shown as a ‘nine‑gated city,’ the subtle, luminous soul shines like lightning in the inner sky.",
+      "visual_strength": 0.86
+    }
+  ]
+}

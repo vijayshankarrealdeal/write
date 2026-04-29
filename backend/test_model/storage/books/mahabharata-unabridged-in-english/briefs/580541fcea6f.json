@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada consoles the grieving king Srinjaya by recounting the immense wealth, sacrifices, and eventual deaths of great kings like Suhotra and Paurava.",
+  "importance": 0.44,
+  "themes": [
+    "impermanence of kings",
+    "royal generosity",
+    "sacrifice and ritual",
+    "consolation in grief",
+    "divine favor"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Golden rain falls from dark clouds over King Suhotra’s kingdom as rivers glitter like streams of liquid gold.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "At a vast sacrifice, King Paurava distributes golden-decked elephants, horses, and ornamented maidens among gathered Brahmanas.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The sage Narada stands before the grieving King Srinjaya, who sits collapsed in sorrow for his dead son.",
+      "visual_strength": 0.65
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma instructs Yudhishthira on royal duties: self-mastery, intelligence networks, justice, taxation, war strategy, and defensive measures to protect the kingdom.",
+  "importance": 0.66,
+  "themes": [
+    "kingship duties",
+    "self-control in leadership",
+    "espionage and statecraft",
+    "justice and punishment",
+    "war and defense strategy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An ancient king sits in council while disguised spies—posing as beggars, fools, and blind men—quietly observe the bustling city around him.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "A fortified city stands with water-filled trenches lined with stakes and crocodiles while soldiers place weapons on the ramparts.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Bhishma, lying on a bed of arrows, instructs Yudhishthira about the discipline and burdens of kingship.",
+      "visual_strength": 0.83
+    }
+  ]
+}

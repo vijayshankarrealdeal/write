@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sumantra recounts a prophecy that sage Rishyasringa will be brought from the forest and his presence will lead to events enabling King Dasharatha to obtain a son.",
+  "importance": 0.58,
+  "themes": [
+    "prophecy",
+    "ascetic power",
+    "royal duty",
+    "drought and divine displeasure",
+    "marriage alliance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The minister Sumantra stands in private audience before King Dasharatha, recounting the ancient prophecy of the forest sage Rishyasringa.",
+      "visual_strength": 0.42
+    },
+    {
+      "scene_text": "The young ascetic Rishyasringa lives deep in the forest beside his father Vibhandaka, performing fire sacrifice and unaware of the outside world.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "King Lomapada consults anxious brahmins during a devastating drought, asking how he might atone for the sins that brought it.",
+      "visual_strength": 0.63
+    }
+  ]
+}

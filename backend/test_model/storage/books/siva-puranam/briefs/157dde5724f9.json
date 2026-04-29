@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Skanda defeats Taraka, meets and marries Valli after Narada’s prophecy, returns to Kailasa with both wives, while the demon Gajasura later traps Siva in his heart.",
+  "importance": 0.55,
+  "themes": [
+    "prophecy and fate",
+    "divine marriage",
+    "disguise and revelation",
+    "devotion of demons",
+    "family harmony"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Skanda hurls the Brahma missile that beheads Taraka, whose severed head falls at the god’s feet begging union with Siva.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "In the garden, Skanda reveals his radiant six-headed form before the astonished Valli and her maids.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Brahma and Vishnu, disguised as wandering performers, make a decorated bull dance while hidden Siva stirs painfully within Gajasura’s chest.",
+      "visual_strength": 0.76
+    }
+  ]
+}

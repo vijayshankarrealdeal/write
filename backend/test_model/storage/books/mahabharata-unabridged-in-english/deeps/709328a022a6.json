@@ -1,0 +1,55 @@
+{
+  "rich_summary": "This section depicts the ferocious climax of Arjuna’s advance toward Jayadratha during the Kurukshetra war. Arjuna and Karna exchange overwhelming showers of arrows while other Kaurava heroes attempt to shield Jayadratha. Displaying superhuman speed and mastery, Arjuna unleashes celestial weapons such as the Aindra weapon, devastates the Kaurava army, and turns the battlefield into a ghastly landscape of severed limbs, shattered chariots, and rivers of blood. As sunset approaches—the deadline for Arjuna’s vow to kill Jayadratha—Krishna uses yogic power to create an illusion of dusk. Jayadratha emerges, believing the day is over. Krishna then instructs Arjuna how to kill him without triggering a curse tied to his father, setting up the decisive moment that will fulfill Arjuna’s vow and shift the war’s momentum.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "The opening clash between Arjuna and Karna establishes the epic scale of the duel and the intervention of other warriors."
+    },
+    {
+      "start": 850,
+      "length": 190,
+      "color_hex": "#FFEB3B",
+      "why": "Arjuna destroys Karna’s horses and charioteer, a pivotal tactical moment that briefly leaves Karna helpless on the battlefield."
+    },
+    {
+      "start": 2700,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Description of Arjuna invoking the Aindra weapon and filling the sky with blazing arrows, emphasizing his near‑divine combat prowess."
+    },
+    {
+      "start": 4200,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "The horrific imagery of the battlefield turned into a river of blood highlights the emotional and moral gravity of the war."
+    },
+    {
+      "start": 6900,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna reveals his plan to shroud the sun with yoga, a crucial strategic deception enabling Arjuna to reach Jayadratha."
+    },
+    {
+      "start": 8300,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna explains the curse tied to Jayadratha’s father and instructs Arjuna how to kill him without triggering it, setting up the decisive strike."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Arjuna on Krishna’s chariot unleashing thousands of blazing arrows that fill the sky like meteors while terrified Kaurava warriors fall across a battlefield of shattered chariots and elephants.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "The battlefield transformed into a gruesome river of blood, bodies, severed weapons, and broken standards as Arjuna’s arrows rain down like fire from the heavens.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Krishna quietly conjures darkness over the battlefield as the sun appears to set, while Jayadratha lifts his head in relief and Arjuna prepares a divine arrow on the Gandiva.",
+      "visual_strength": 0.92
+    }
+  ]
+}

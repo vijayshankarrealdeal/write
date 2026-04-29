@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After slaying Vritra and incurring brahmanicide, Indra hides in despair until the gods perform an Ashvamedha sacrifice to purify and restore him.",
+  "importance": 0.5,
+  "themes": [
+    "guilt and purification",
+    "divine kingship",
+    "sacrifice ritual",
+    "cosmic disorder",
+    "divine intervention"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The guilt-stricken Indra hides at the edge of the world, withdrawn like a serpent shedding its skin.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The parched earth lies desolate with dried forests and empty rivers as the rain-god Indra remains in hiding.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Gods and rishis gather around a grand Ashvamedha sacrifice altar to cleanse Indra of brahmanicide.",
+      "visual_strength": 0.8
+    }
+  ]
+}

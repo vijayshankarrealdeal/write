@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains indirect acts counted as Brahmanicide and begins listing sacred rivers and pilgrimage sites whose baths grant purification and heavenly merit.",
+  "importance": 0.45,
+  "themes": [
+    "moral transgression",
+    "Brahmanicide ethics",
+    "pilgrimage and sacred rivers",
+    "ritual purification",
+    "religious merit"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A lone pilgrim fasts and bathes at the confluence of the Ganga and Yamuna while priests offer water to the ancestors at dawn.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Ascetics’ forest hermitage burns as flames spread through huts and trees, symbolizing a grave sin against holy men.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Waves of the Chandrabhaga river shimmer as a fasting devotee stands waist‑deep in the water during a seven‑day purification vow.",
+      "visual_strength": 0.63
+    }
+  ]
+}

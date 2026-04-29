@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A king seeking his lost son questions an ascetic about hope, learns its fragility, and witnesses the sage reveal himself as the god of righteousness.",
+  "importance": 0.55,
+  "themes": [
+    "nature of hope",
+    "humility before sages",
+    "repentance and forgiveness",
+    "parental longing",
+    "divine revelation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The emaciated sage Tanu stands before the anxious king in the forest hermitage, surrounded by silent ascetics as he speaks about the thinness of hope.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "The sage miraculously brings the lost young prince before his father, the royal family bowing with heads touching the ascetic’s feet.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "After rebuking the king, the ascetic reveals a radiant divine form as the god of righteousness before disappearing into the forest.",
+      "visual_strength": 0.82
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma tells Yudhishthira that Brahmanas deserve highest reverence and protection, praising learning, charity, and penance while warning of the power of ascetic wrath.",
+  "importance": 0.42,
+  "themes": [
+    "reverence for Brahmanas",
+    "dharma and social hierarchy",
+    "power of penance",
+    "charity and humility",
+    "truth and righteousness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma, pierced by countless arrows on the battlefield, speaks calmly to Yudhishthira and the gathered princes who listen in reverent silence.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Wise Brahmanas in white robes stand in a royal court, speaking like a flock of swans while kings listen respectfully.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "A humble king offers clean, steaming food with bowed head to seated Brahmanas during a sacred meal.",
+      "visual_strength": 0.55
+    }
+  ]
+}

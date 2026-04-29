@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Vishwamitra unleashes a devastating barrage of divine weapons upon the hermitage of the sage Vasishtha, driving sages, animals, and disciples into terrified flight. Enraged by the destruction, Vasishtha confronts the warrior-king and challenges him to use every celestial weapon he possesses. Vishwamitra releases a vast arsenal granted by the gods, yet Vasishtha calmly neutralizes each one with the spiritual power embodied in his Brahma staff. In desperation Vishwamitra invokes the terrible Brahman‑astra, shaking the three worlds with fear, but even this supreme weapon is subdued by Vasishtha’s mastery of Brahman‑vidya. Witnessing the triumph of spiritual ascetic power over martial force, Vishwamitra realizes the superiority of spiritual attainment and resolves to abandon his warrior pride and pursue the path of penance to become a Brahmin sage.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "The chaotic opening where sages, animals, and disciples flee the blazing hermitage conveys the emotional shock and devastation caused by Vishwamitra’s assault."
+    },
+    {
+      "start": 220,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Vasishtha’s fearless declaration—promising to destroy Vishwamitra as the sun dispels mist—reveals the serene confidence of spiritual power."
+    },
+    {
+      "start": 900,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "The pivotal moment where Vasishtha destroys all of Vishwamitra’s divine weapons with only his staff, demonstrating the supremacy of ascetic spiritual force."
+    },
+    {
+      "start": 1050,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "The raising of the Brahman‑astra, terrifying gods and shaking the three worlds, marks the battle’s cosmic climax."
+    },
+    {
+      "start": 1400,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Vishwamitra’s realization that spiritual power surpasses warrior strength is the chapter’s thematic turning point and motivates his future penances."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Vishwamitra unleashes a storm of celestial weapons while Vasishtha stands firm, raising his glowing Brahma staff as divine missiles streak across the sky.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The Brahman‑astra erupts in cosmic radiance, the three worlds trembling while sages and gods watch in terror as Vasishtha confronts it.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Vasishtha blazing with spiritual energy, light bursting from every pore of his body as his flaming staff neutralizes the supreme weapon.",
+      "visual_strength": 0.9
+    }
+  ]
+}

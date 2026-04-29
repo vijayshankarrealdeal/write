@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains the links between virtue, wealth, and pleasure, and narrates how Prahlada’s righteous conduct grants sovereignty and attracts virtue and righteousness.",
+  "importance": 0.56,
+  "themes": [
+    "virtue and conduct",
+    "wealth and desire",
+    "kingship ethics",
+    "teacher-disciple devotion",
+    "loss and transfer of righteousness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A radiant, shadowy figure representing Prahlada’s Behaviour rises from his body and departs toward the disguised Brahmana.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Duryodhana, pale with envy, describes Yudhishthira’s palace where thousands of Brahmanas dine from golden plates.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Indra disguised as a humble Brahmana stands respectfully before King Prahlada, asking the secret of his power.",
+      "visual_strength": 0.78
+    }
+  ]
+}

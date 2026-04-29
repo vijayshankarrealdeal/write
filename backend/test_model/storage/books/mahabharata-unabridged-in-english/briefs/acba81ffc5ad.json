@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa describes the cosmic dissolution where elements collapse into subtler principles until all merges into Brahman and the cycle of creation resumes.",
+  "importance": 0.72,
+  "themes": [
+    "cosmic dissolution",
+    "cycle of creation",
+    "Time as cosmic force",
+    "elements merging",
+    "Brahman"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A dozen blazing suns and roaring cosmic fire engulf the universe as planets, mountains, and creatures dissolve into flame.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The earth stripped bare of trees and life lies smooth and empty like a tortoise shell before being swallowed by surging cosmic waters.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Vast elements collapse one into another—fire into wind, wind into space—until the universe fades into a silent, unmanifest void.",
+      "visual_strength": 0.8
+    }
+  ]
+}

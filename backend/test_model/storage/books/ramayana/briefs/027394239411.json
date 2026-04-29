@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana assaults the apsara Rambha despite her pleas, prompting Nalakuvara to curse him that forced violation will shatter his head.",
+  "importance": 0.74,
+  "themes": [
+    "sexual violence",
+    "curse and consequence",
+    "abuse of power",
+    "divine justice",
+    "foreshadowing Ravana's limits"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Under the moonlit forests of Mount Kailasa, Ravana seizes the jeweled apsara Rambha as blossoms fall and celestial music drifts through the night.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Rambha, disheveled and trembling with torn garlands, collapses at Nalakuvara’s feet to report Ravana’s assault.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Nalakuvara, eyes blazing, lifts sacred water in his hand and pronounces a fiery curse as flowers rain from the heavens.",
+      "visual_strength": 0.77
+    }
+  ]
+}

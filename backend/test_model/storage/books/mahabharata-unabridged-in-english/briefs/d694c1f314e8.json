@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna proposes a covert plan for Bhima to defeat the invincible Jarasandha, and Yudhishthira approves as the three heroes set out in disguise.",
+  "importance": 0.72,
+  "themes": [
+    "strategy and diplomacy",
+    "heroic alliance",
+    "fate of Jarasandha",
+    "prelude to Rajasuya",
+    "disguise and infiltration"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna, Bhima, and Arjuna depart together disguised as radiant Brahmanas, their warrior strength barely concealed as the people watch in awe.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Krishna speaks firmly before Yudhishthira and the Pandavas, declaring that only Bhima in personal combat can destroy the mighty Jarasandha.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "From Girivraja, Jarasandha whirls a massive mace ninety-nine times and hurls it across the vast distance toward Mathura.",
+      "visual_strength": 0.83
+    }
+  ]
+}

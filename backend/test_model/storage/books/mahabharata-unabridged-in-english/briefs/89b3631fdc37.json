@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada teaches life’s unpredictability and detachment; Suka resolves to seek liberation through Yoga and union with the Sun’s effulgence.",
+  "importance": 0.72,
+  "themes": [
+    "impermanence of worldly life",
+    "detachment",
+    "quest for liberation",
+    "yogic transcendence",
+    "fate and disparity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Suka stands beneath the open sky declaring to gods, mountains, trees, and all beings that he will enter the blazing Sun through the power of Yoga.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "The young sage Suka calmly circles his father Vyasa, who looks at him with longing as the son prepares to leave worldly life forever.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "On the lonely summit of Mount Kailasa, Suka sits facing the rising sun, limbs drawn in, beginning deep yogic concentration.",
+      "visual_strength": 0.79
+    }
+  ]
+}

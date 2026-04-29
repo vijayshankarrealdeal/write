@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama performs rites at Agastya’s hermitage, receives the sage’s praise and blessings, departs in Pushpaka, and returns to Ayodhya.",
+  "importance": 0.45,
+  "themes": [
+    "sage blessing",
+    "divine kingship",
+    "departure and return",
+    "ritual devotion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama bows with folded hands before the sage Agastya in the forest hermitage at dawn.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Rama stands in the golden Pushpaka chariot hovering in the sky like the moon surrounded by clouds.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Sages gathered below raise their hands in blessing as Rama departs in the radiant aerial chariot.",
+      "visual_strength": 0.78
+    }
+  ]
+}

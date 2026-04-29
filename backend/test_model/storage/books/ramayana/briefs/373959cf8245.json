@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama tells Queen Kaushalya of his exile; she collapses in grief and laments the fate that will leave her powerless in the palace.",
+  "importance": 0.66,
+  "themes": [
+    "maternal grief",
+    "duty versus attachment",
+    "palace sorrow",
+    "exile announcement",
+    "royal family conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Queen Kaushalya collapses to the ground like a severed tree branch after Rama tells her he must leave for fourteen years of exile.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama gently lifts his dust-covered mother from the floor and brushes the dirt from her body while Lakshmana stands nearby in anguish.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Kaushalya in white robes offers oblations into a sacred fire at dawn, surrounded by ritual vessels and garlands before Rama enters.",
+      "visual_strength": 0.74
+    }
+  ]
+}

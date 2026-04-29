@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma devastates the Pandava forces until Bhima confronts him and slays several of Duryodhana’s brothers, spreading fear and recalling Vidura’s warnings.",
+  "importance": 0.7,
+  "themes": [
+    "heroic combat",
+    "Bhishma's prowess",
+    "Bhima's vengeance",
+    "fraternal loss",
+    "fate and ignored counsel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima stands in his chariot loosing arrows as the severed heads of Duryodhana’s armored brothers fall to the blood-soaked battlefield around him.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Bhishma, blazing like the sun, rains arrows in every direction while shattered chariots, riderless elephants, and fallen warriors cover the field.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Bhima’s arrow slays Bhishma’s charioteer, and the uncontrolled horses drag the great warrior’s chariot wildly across the battlefield.",
+      "visual_strength": 0.73
+    }
+  ]
+}

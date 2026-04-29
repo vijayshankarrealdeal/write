@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Narada tells Valmiki the life story of Rama—from virtues and exile to Sita’s abduction, Ravana’s defeat, and Rama’s just rule in Ayodhya.",
+  "importance": 0.72,
+  "themes": [
+    "ideal kingship",
+    "dharma and obedience",
+    "exile and devotion",
+    "good versus evil",
+    "divine incarnation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Narada stands before Valmiki in a forest hermitage, describing the radiant blue‑hued prince Rama with celestial calm.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "Hanuman leaps across the vast ocean toward the golden city of Lanka under a wide sky.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Sita steps calmly into a blazing fire before an assembly of gods and warriors to prove her purity.",
+      "visual_strength": 0.86
+    }
+  ]
+}

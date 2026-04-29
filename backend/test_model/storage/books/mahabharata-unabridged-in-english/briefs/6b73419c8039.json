@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Damayanti, destitute, finds refuge with the Chedi queen under strict vows while Nala rescues the cursed serpent Karkotaka and is transformed by its bite.",
+  "importance": 0.73,
+  "themes": [
+    "exile and loyalty",
+    "hidden identity",
+    "divine curse and fate",
+    "hospitality and protection"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A ragged, half‑clad Damayanti with dust‑matted hair walks through the crowded streets of Chedi while curious boys trail behind her and the queen‑mother watches from a terrace.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "In a blazing forest fire, Nala strides into the flames and lifts a tiny coiled serpent that had shrunk to the size of a thumb.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The serpent Karkotaka bites Nala as he counts his steps, and his handsome form twists into a different, unrecognizable shape.",
+      "visual_strength": 0.8
+    }
+  ]
+}

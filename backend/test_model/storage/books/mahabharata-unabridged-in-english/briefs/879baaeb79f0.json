@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After the princes’ birth, Bhishma’s rule brings prosperity to the Kuru realm; Dhritarashtra, Pandu, and Vidura grow into learned and skilled young men.",
+  "importance": 0.45,
+  "themes": [
+    "prosperous kingdom",
+    "ideal kingship",
+    "upbringing of princes",
+    "virtue and governance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The prosperous city of Hastinapura rises with hundreds of palaces and dark cloudlike gates as joyful citizens gather in markets and gardens.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Young Pandu, Dhritarashtra, and Vidura train in martial arts—archery, mace, sword, and horsemanship—under the watchful care of Bhishma.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Festive Kuru lands filled with fruitful trees, full lakes, and people celebrating sacrifices beneath rows of sacred stakes.",
+      "visual_strength": 0.55
+    }
+  ]
+}

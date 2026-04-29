@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Jambavan encourages Hanuman to recall his divine origin and immense powers, urging him to leap the ocean and save the despairing monkey army.",
+  "importance": 0.83,
+  "themes": [
+    "awakening hidden power",
+    "divine birth of Hanuman",
+    "leadership and encouragement",
+    "destiny and duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged bear Jambavan stands before the despondent monkey army, pointing toward the distant ocean as he calls on Hanuman seated quietly apart.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Young Hanuman leaps toward the blazing sun in the sky, mistaking it for a fruit, as Indra hurls a thunderbolt that strikes him midair.",
+      "visual_strength": 0.91
+    },
+    {
+      "scene_text": "The wind-god Vayu cradles the injured child Hanuman while the distressed gods gather around and grant the boy invincible boons.",
+      "visual_strength": 0.86
+    }
+  ]
+}

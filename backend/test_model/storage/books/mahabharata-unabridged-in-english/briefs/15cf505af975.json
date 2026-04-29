@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Karna insists on giving alms even to Indra but, warned by Surya, plans to trade his divine earrings and armor for Indra’s unfailing spear.",
+  "importance": 0.62,
+  "themes": [
+    "charity and honor",
+    "divine intervention",
+    "fate versus prudence",
+    "rivalry with Arjuna",
+    "divine weapons"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The radiant Sun-god appears before Karna in a dream, warning him not to give away his shining earrings and armor.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Karna stands with folded hands beneath the blazing light of Surya, vowing he would rather die than refuse a Brahmana seeking alms.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The thousand-rayed Surya suddenly vanishes into the sky as Karna resolves to bargain with Indra for a deadly celestial dart.",
+      "visual_strength": 0.66
+    }
+  ]
+}

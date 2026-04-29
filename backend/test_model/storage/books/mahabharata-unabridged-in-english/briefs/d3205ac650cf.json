@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna reveals himself and the Pandavas to Jarasandha, condemns his capture of kings for sacrifice, and challenges him to release them or fight.",
+  "importance": 0.82,
+  "themes": [
+    "challenge before battle",
+    "dharma and kingship",
+    "human sacrifice condemned",
+    "revealed identities",
+    "warrior honor"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna stands calmly before the suspicious Jarasandha in the royal hall, revealing his identity while the disguised Pandava heroes stand beside him.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Krishna, Arjuna, and Bhima cast aside the pretense of Brahmanas and openly challenge the powerful king Jarasandha in his court.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Jarasandha sits on his throne surrounded by Magadha warriors as Krishna denounces his plan to sacrifice captive kings to Rudra.",
+      "visual_strength": 0.67
+    }
+  ]
+}

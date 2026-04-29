@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna praises Shiva as the supreme reality; Shiva and Uma, pleased, grant Krishna numerous boons including power, devotion, prosperity, and many sons and wives.",
+  "importance": 0.62,
+  "themes": [
+    "divine praise",
+    "boons and blessings",
+    "supreme divinity",
+    "devotion and yoga",
+    "cosmic unity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna bows before Shiva and Uma as celestial flowers rain down and gods, sages, and spirits gather around in reverence.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Shiva, radiant beside the goddess Uma, offers Krishna eight boons while the assembled universe watches in awe.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Showers of fragrant celestial flowers fall upon Krishna as winds blow softly and the gathered deities bow to Shiva.",
+      "visual_strength": 0.72
+    }
+  ]
+}

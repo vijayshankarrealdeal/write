@@ -1,0 +1,49 @@
+{
+  "rich_summary": "King Dasaratha, broken by Rama’s exile, confesses to Queen Kaushalya the youthful sin that now returns as fate. While hunting by sound at the Sarayu river, he once mistook the filling of a water pot for an animal and shot an arrow, mortally wounding a young ascetic who had been gathering water for his blind parents. Dasaratha carried the water to the hermitage and revealed the tragedy. The grieving parents mourned over their son’s body; the son briefly appeared in a celestial form and ascended to heaven. Before dying, the father cursed the king: he too would die from grief caused by separation from his son. Remembering this curse as Rama remains in exile, Dasaratha realizes destiny has arrived. Overwhelmed by remorse and longing to see Rama once more, he laments bitterly and finally dies in the night.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 13,
+      "color_hex": "#A5D6A7",
+      "why": "The chapter opening situates the episode within the Ayodhya Kanda, framing the tragic confession that explains Dasaratha’s fate."
+    },
+    {
+      "start": 620,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Dasaratha’s confession describing how he mistakenly shot the ascetic while hunting by sound—the pivotal action that drives the curse and the king’s eventual death."
+    },
+    {
+      "start": 1180,
+      "length": 150,
+      "color_hex": "#F48FB1",
+      "why": "The blind father’s anguished lament over his dead son, one of the most emotionally powerful passages in the episode."
+    },
+    {
+      "start": 1760,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The dead ascetic’s ascent to heaven in a celestial form and aerial chariot introduces a brief divine revelation amid the tragedy."
+    },
+    {
+      "start": 2290,
+      "length": 150,
+      "color_hex": "#F48FB1",
+      "why": "Dasaratha’s final lament for Rama and his realization that the sage’s curse has come true, culminating in his death from grief."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The dying young ascetic rises in a radiant celestial form beside Indra and ascends into the sky in a shining aerial chariot while his grieving parents watch below.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The blind ascetic parents kneel in the forest, embracing the blood‑stained body of their son as King Dasaratha stands nearby in horror and remorse.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Inside the dark palace chamber at midnight, the aged King Dasaratha lies collapsing in grief, calling out Rama’s name as Kaushalya and Sumitra stand beside him.",
+      "visual_strength": 0.8
+    }
+  ]
+}

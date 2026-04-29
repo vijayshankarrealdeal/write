@@ -1,0 +1,25 @@
+{
+  "summary_1line": "A mongoose recounts how a poor Brahmana’s sincere gift outweighed a grand sacrifice, teaching that devotion and righteousness surpass wealth and ritual.",
+  "importance": 0.65,
+  "themes": [
+    "true merit of charity",
+    "devotion over ritual",
+    "righteousness and self-restraint",
+    "critique of sacrifice",
+    "moral exemplars"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A half‑golden mongoose stands among astonished Brahmanas at a royal horse sacrifice, its body gleaming as it speaks of a poor Brahmana’s humble gift.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The impoverished Brahmana offers his last handful of powdered barley and water to a guest while his family watches in hunger inside a bare hut.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "A celestial chariot descends amid falling flowers as the deity of Righteousness invites the Brahmana and his family to ascend to Heaven.",
+      "visual_strength": 0.9
+    }
+  ]
+}

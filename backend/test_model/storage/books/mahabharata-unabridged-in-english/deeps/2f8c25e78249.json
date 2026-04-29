@@ -1,0 +1,55 @@
+{
+  "rich_summary": "Draupadi, living in disguise as Sairindhri during the Pandavas’ incognito year in Virata’s court, pours out her anguish to Bhima. Once a queen served by many, she now grinds sandalwood and obeys Queen Sudeshna, her hands hardened with corns. She laments the cruel reversal of fate that has reduced the mighty Pandavas to servitude and herself to fear and humiliation. Bhima is overcome with grief and rage, cursing his own strength for failing to protect her and recalling how he restrained himself from killing Kichaka when Yudhishthira signaled him to remain silent. To console her, he invokes legendary devoted wives like Sukanya, Sita, Lopamudra, and Savitri, urging patience until the exile ends. Draupadi then reveals Kichaka’s relentless harassment and Sudeshna’s complicity, setting the stage for Bhima’s coming vengeance.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Draupadi begins lamenting her suffering and attributing it to fate and divine displeasure, establishing the emotional tone."
+    },
+    {
+      "start": 520,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Her description of once ruling the earth yet now serving Sudeshna captures the theme of the dramatic reversal of fortune."
+    },
+    {
+      "start": 900,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "The moment she shows Bhima her hands hardened with corns vividly symbolizes her humiliation and suffering."
+    },
+    {
+      "start": 1650,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Bhima condemns his own strength and Arjuna’s bow for failing to prevent Draupadi’s hardship, revealing his burning shame and anger."
+    },
+    {
+      "start": 2600,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Bhima cites examples of faithful wives like Sita and Savitri, framing Draupadi within the epic tradition of steadfast devotion."
+    },
+    {
+      "start": 3150,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "Draupadi explains Kichaka’s lust and Sudeshna’s role in sending her to him, setting up the central conflict that will soon demand action."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Draupadi silently weeping before Bhima, showing him her once-soft hands now rough with corns from grinding sandalwood.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Bhima holding Draupadi’s worn hands and weeping in fury and grief, struggling to restrain his strength in the dim palace chamber.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Kichaka confronting Draupadi in his quarters with predatory confidence while she warns him of her unseen Gandharva husbands.",
+      "visual_strength": 0.86
+    }
+  ]
+}

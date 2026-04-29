@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Chyavana praises the sanctity of cows, blesses fishermen to heaven, and Bhishma transitions to Yudhishthira’s questions about Parashurama and Vishvamitra’s lineage.",
+  "importance": 0.55,
+  "themes": [
+    "sacredness of cows",
+    "ascetic power",
+    "charity and merit",
+    "heavenly reward",
+    "lineage and caste transformation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Chyavana raises his hand in blessing as astonished fishermen and the fish in their nets rise together toward heaven.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "King Nahusha stands in wonder as radiant fishermen ascend skyward with their nets full of fish.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The aged Bhishma lies on his bed of arrows while Yudhishthira respectfully questions him about the birth and deeds of Rama Jamadagni’s son.",
+      "visual_strength": 0.72
+    }
+  ]
+}

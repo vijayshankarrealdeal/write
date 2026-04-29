@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After honoring Jatayu, Rama and Lakshmana encounter the demoness Ayomukhi and the monstrous Kabandha while searching the forest for Sita.",
+  "importance": 0.45,
+  "themes": [
+    "funeral rites for Jatayu",
+    "forest dangers",
+    "demonic encounters",
+    "brotherly loyalty",
+    "omens and fate"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama offers balls of deer flesh on fresh green grass as an oblation to the fallen vulture king Jatayu in the quiet forest.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Lakshmana slices off the ears and nose of the hideous demoness Ayomukhi as she flees screaming into the dark forest.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "The gigantic headless demon Kabandha, with a mouth in his belly and a single eye in his chest, stretches his enormous arms to seize Rama and Lakshmana.",
+      "visual_strength": 0.9
+    }
+  ]
+}

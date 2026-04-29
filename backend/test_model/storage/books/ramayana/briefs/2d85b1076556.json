@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Queen Kaushalya laments Rama’s exile, condemns Kaikeyi, and mourns the imagined hardships her son, Sita, and Lakshmana now face in the forest.",
+  "importance": 0.56,
+  "themes": [
+    "maternal grief",
+    "exile of Rama",
+    "condemnation of Kaikeyi",
+    "longing for reunion",
+    "royal sorrow"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Queen Kaushalya sits beside the grief-stricken King Dasharatha on a couch in the dark palace, both lamenting Rama’s exile.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Kaushalya raises her hands in anguish while imagining Rama, Sita, and Lakshmana walking deep into the forest with bows and simple garments.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "The queen compares herself to a cow whose calf has been seized by a lion, grieving with tear-filled eyes in the silent palace.",
+      "visual_strength": 0.6
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Celestials gather to witness Arjuna’s battle as he duels Kripa, overpowering him with superior archery yet sparing him out of respect.",
+  "importance": 0.6,
+  "themes": [
+    "divine spectatorship",
+    "heroic duel",
+    "archery mastery",
+    "honor in combat"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra stands in a jewel-studded celestial chariot amid gods and sages crowding the sky to watch Arjuna fight below.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arjuna blows the Devadatta conch from his chariot as its thunderous sound echoes across the battlefield and heavens.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Arjuna’s arrows slice Kripa’s bow and armor apart while the two warriors face each other like twin suns on their chariots.",
+      "visual_strength": 0.8
+    }
+  ]
+}

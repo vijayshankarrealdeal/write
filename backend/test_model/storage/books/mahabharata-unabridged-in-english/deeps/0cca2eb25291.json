@@ -1,0 +1,49 @@
+{
+  "rich_summary": "The insulted Valakhilya sages, enraged by Indra’s arrogance, begin a powerful sacrifice intended to create another Indra capable of rivaling the king of the gods. Alarmed, Indra seeks refuge with the sage Kasyapa, who persuades the ascetics not to contradict Brahma’s decree that Indra rule the three worlds. Instead, their sacrifice will produce a mighty lord of birds. Through Kasyapa and Vinata are born Aruna, the charioteer of the Sun, and Garuda, destined to rule all winged beings. The narrative then shifts to Garuda’s immense power: he assaults the gods guarding the nectar of immortality (amrita), darkening the heavens with the storm of his wings and battling the celestials in a terrifying display of strength.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "The opening describes the sages’ humiliation and anger, the emotional catalyst that drives the entire episode."
+    },
+    {
+      "start": 200,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "The sages’ declaration that another Indra will arise reveals the scale of their ritual power and threatens the cosmic order."
+    },
+    {
+      "start": 900,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Kasyapa’s compromise—creating a lord of birds instead of a rival Indra—reshapes the outcome and sets the stage for Garuda’s birth."
+    },
+    {
+      "start": 1700,
+      "length": 240,
+      "color_hex": "#FFEB3B",
+      "why": "Garuda’s attack on the gods, darkening the heavens with dust from his wings, marks the dramatic emergence of his legendary might."
+    },
+    {
+      "start": 2100,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "The vivid combat imagery—gods wounded by Garuda’s beak and talons—captures the terror he inspires even among the immortals."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The tiny but furious Valakhilya sages gathered around a blazing sacrificial fire, chanting mantras that threaten to create a new Indra.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Garuda bursts into the heavens, his colossal wings raising a storm of dust that darkens the sky while the gods stagger and lose sight of him.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "In midair battle, Garuda slashes through the celestial hosts with talons and beak as Indra and the armed gods surround him with flashing weapons.",
+      "visual_strength": 0.9
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ghatotkacha terrorizes Kaurava forces, destroys an elephant division, duels Duryodhana, and prompts Bhishma to send major Kaurava warriors to rescue the king.",
+  "importance": 0.6,
+  "themes": [
+    "rakshasa warfare",
+    "vengeance for Draupadi",
+    "heroic duel",
+    "elephant corps destruction",
+    "loyalty and rescue"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ghatotkacha, gigantic and roaring like thunder, raises a blazing spear while Rakshasas swarm behind him and terrified soldiers freeze across the battlefield.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The Rakshasa hurls a blazing dart that strikes Bhagadatta’s massive hill‑like elephant, which collapses bloodied before Duryodhana’s chariot.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Ghatotkacha with red eyes and drawn bow covers Duryodhana in a storm of arrows like monsoon clouds pouring over a mountain.",
+      "visual_strength": 0.74
+    }
+  ]
+}

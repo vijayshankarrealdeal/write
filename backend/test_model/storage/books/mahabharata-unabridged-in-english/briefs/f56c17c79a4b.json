@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Indra visits the Pandavas, blesses Yudhishthira, and Arjuna begins recounting his austerities and the encounter with the mysterious hunter after slaying a boar.",
+  "importance": 0.6,
+  "themes": [
+    "divine visitation",
+    "ascetic austerities",
+    "divine weapons",
+    "brotherly reunion",
+    "test by disguised deity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra, blazing with beauty, descends from a golden chariot amid Gandharvas and Apsaras while the Pandavas stand in reverence.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Arjuna with matted hair bows humbly before Indra as Yudhishthira joyfully smells the crown of his head.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "In the forest, Arjuna and a fierce hunter simultaneously shoot a charging wild boar as it tears up the earth.",
+      "visual_strength": 0.9
+    }
+  ]
+}

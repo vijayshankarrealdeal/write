@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vasishtha urges Rama to accept the throne, but Rama insists on obeying Dasharatha’s command as Bharata mournfully pleads for his return.",
+  "importance": 0.74,
+  "themes": [
+    "filial obedience",
+    "dharma and duty",
+    "royal succession",
+    "brotherly devotion",
+    "guru counsel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bharata sits on a seat of kusha grass before Rama’s forest hut, grieving and vowing to remain until his brother agrees to return.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Sage Vasishtha addresses Rama before assembled princes, brahmins, and citizens, urging him to accept the throne.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Rama gently asks Bharata to rise from the kusha seat in front of the hut as gathered citizens watch in solemn silence.",
+      "visual_strength": 0.72
+    }
+  ]
+}

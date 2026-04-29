@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna defends Arjuna’s abduction of Subhadra, reconciliation follows, their marriage is celebrated, and their son Abhimanyu is born and grows into a promising warrior.",
+  "importance": 0.65,
+  "themes": [
+    "marriage alliance",
+    "Krishna’s diplomacy",
+    "family reconciliation",
+    "birth of Abhimanyu",
+    "dynastic prosperity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna stands calmly in the assembly of angry Yadava warriors, persuading them that Arjuna’s abduction of Subhadra is honorable.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Subhadra in simple cowherd dress bows before Draupadi and Kunti in the palace, humbly declaring herself Draupadi’s maid.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The infant Abhimanyu is presented in the royal court as Krishna and the Pandavas look on with joy and priests perform birth rites.",
+      "visual_strength": 0.75
+    }
+  ]
+}

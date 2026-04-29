@@ -1,0 +1,55 @@
+{
+  "rich_summary": "Krishna describes the discipline of meditation and devotion (yoga) that leads to union with the divine. The true devotee is one who has mastered the senses and treats all beings—friends, enemies, strangers, good and wicked—with equal vision. Krishna explains practical meditation: sitting steadily in a clean place, controlling the body and mind, focusing attention inward, and practicing moderation in food, sleep, and activity. When the mind becomes steady like a lamp in a windless place, the practitioner experiences a happiness beyond the senses and becomes free from sorrow. Arjuna objects that the mind is too restless to control, but Krishna replies that it can be mastered through practice and detachment. Even failed efforts are not wasted; spiritual progress carries into future lives. Ultimately, the highest path is devotion—seeing the divine in all beings and all beings in the divine.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 115,
+      "color_hex": "#A5D6A7",
+      "why": "Defines the sage who has subdued the senses and sees worldly objects like clods, stones, and gold as equal."
+    },
+    {
+      "start": 116,
+      "length": 210,
+      "color_hex": "#FFEB3B",
+      "why": "Key statement of spiritual equality: the enlightened person views friends, enemies, relatives, and the wicked with the same impartial vision."
+    },
+    {
+      "start": 720,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Instruction on meditation posture and disciplined inward focus, central to the practical method of yoga."
+    },
+    {
+      "start": 1180,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The famous metaphor comparing the steady mind of a meditator to a lamp that does not flicker in a windless place."
+    },
+    {
+      "start": 2330,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Arjuna’s emotional confession that the mind is as hard to restrain as the wind, expressing a universal human struggle with meditation."
+    },
+    {
+      "start": 3300,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna’s assurance that spiritual effort is never wasted and that even those who fall from practice continue their progress in future lives."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A lone yogi sits motionless on a simple grass and deerskin seat in a quiet forest clearing, spine straight, eyes lowered to the tip of the nose, surrounded by stillness.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "A small lamp burning steadily in a perfectly windless dark space, symbolizing the unmoving mind of a meditator.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Krishna teaching Arjuna on the battlefield chariot as Arjuna gestures in frustration about the restless mind while Krishna calmly explains the path of practice and detachment.",
+      "visual_strength": 0.82
+    }
+  ]
+}

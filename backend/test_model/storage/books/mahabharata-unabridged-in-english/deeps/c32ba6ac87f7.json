@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section recounts the rapid downfall of King Nala under the malignant influence of Kali. Obsessed with gambling, Nala steadily loses his wealth and ignores pleas from his citizens and from his wife Damayanti. Realizing the danger, Damayanti secretly acts to protect their children, sending them away with the loyal charioteer Varshneya to her father’s kingdom in Vidarbha. Eventually Pushkara wins Nala’s entire kingdom and cruelly proposes staking Damayanti herself. Refusing to continue, Nala abandons all ornaments and leaves the city with Damayanti, both dressed in a single cloth. Banished and shunned by their own people, they wander in hunger. In a final humiliation, golden birds—revealed to be the very dice that ruined him—steal Nala’s last garment, symbolizing the total stripping away of his fortune and dignity.",
+  "highlight_spans": [
+    {
+      "start": 96,
+      "length": 114,
+      "color_hex": "#FFEB3B",
+      "why": "Nala, under Kali’s influence, begins losing his wealth at dice—this marks the turning point of his downfall."
+    },
+    {
+      "start": 1190,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "Damayanti prudently sends her children away with Varshneya, revealing her foresight and protective love amid the crisis."
+    },
+    {
+      "start": 1880,
+      "length": 138,
+      "color_hex": "#F48FB1",
+      "why": "Pushkara’s cruel suggestion to stake Damayanti intensifies the moral degradation of the gambling conflict."
+    },
+    {
+      "start": 2050,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Nala and Damayanti leaving the city in a single cloth captures the emotional depth of their fall from royal splendor."
+    },
+    {
+      "start": 2600,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "The golden birds revealing themselves as the dice that ruined Nala symbolizes fate and the consequences of destructive obsession."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Damayanti secretly entrusts her young children to the loyal charioteer Varshneya beside Nala’s swift horses, sending them away from the doomed palace at night.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Nala removes his royal ornaments and walks out of the city in a single cloth while Damayanti follows him silently, the palace and grieving citizens behind them.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Starving in the wilderness, Nala throws his last cloth over golden birds, only for them to rise into the sky and mock him as the very dice that ruined him.",
+      "visual_strength": 0.93
+    }
+  ]
+}

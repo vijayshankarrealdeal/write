@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana angrily rebukes his spies for praising Rama, sends new agents to scout; they are captured by Vibhishana but released by Rama and return reporting the army.",
+  "importance": 0.45,
+  "themes": [
+    "tyrannical leadership",
+    "espionage",
+    "mercy of Rama",
+    "loyalty and betrayal",
+    "war preparations"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana, eyes blazing on his throne in Lanka, angrily rebukes the bowed spies Shuka and Sarana before his demon court.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Disguised demon spies creep toward Rama’s vast monkey army near Mount Suvela as Vibhishana suddenly points them out.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Rama compassionately orders the release of the battered spy Shardula while monkeys crowd around the captive demons.",
+      "visual_strength": 0.74
+    }
+  ]
+}

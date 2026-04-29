@@ -1,0 +1,10 @@
+{
+  "scene_id": "cover",
+  "chunk_id": null,
+  "chapter_title": "(book cover)",
+  "score": 1.0,
+  "prompt": "In ornate Indian miniature style, Rama with bow drawn stands beside Sita and Lakshmana beneath a radiant sky while Hanuman leaps across the ocean toward golden Lanka in the distance, armies of monkeys and rakshasas gathering below amid lush forests and jeweled palaces, all framed by intricate floral borders and glowing gold leaf.",
+  "scene_text": "In ornate Indian miniature style, Rama with bow drawn stands beside Sita and Lakshmana beneath a radiant sky while Hanuman leaps across the ocean toward golden Lanka in the distance, armies of monkeys and rakshasas gathering below amid lush forests and jeweled palaces, all framed by intricate floral borders and glowing gold leaf.",
+  "image_path": "/home/verti/write/backend/test_model/storage/books/ramayana/images/cover.png",
+  "is_cover": true
+}

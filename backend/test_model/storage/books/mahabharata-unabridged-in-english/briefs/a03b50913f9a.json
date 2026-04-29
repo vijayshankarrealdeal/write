@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma begins a tale where Indra questions a loyal parrot that refuses to abandon its withered home tree, illustrating compassion and gratitude.",
+  "importance": 0.45,
+  "themes": [
+    "compassion",
+    "gratitude",
+    "loyalty to benefactor",
+    "virtue in animals",
+    "moral dialogue"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A lone parrot clings to the hollow of a withered, leafless tree struck by a poisoned arrow in a silent forest.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Indra disguised as a Brahmana stands beneath the dead tree speaking to the frail parrot perched in its hollow.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The forest tree pierced by a hunter’s poisoned arrow begins to wither as leaves and fruits fall around it.",
+      "visual_strength": 0.63
+    }
+  ]
+}

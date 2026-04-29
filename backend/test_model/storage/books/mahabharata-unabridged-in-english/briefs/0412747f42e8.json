@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Jayadratha abducts Draupadi despite her warnings; meanwhile the Pandavas sense ominous signs in the forest and return to discover her disappearance.",
+  "importance": 0.7,
+  "themes": [
+    "abduction of Draupadi",
+    "hubris and warning",
+    "omens",
+    "loyalty and honor",
+    "impending pursuit"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Draupadi forcefully pushes Jayadratha so that he falls to the ground like a tree cut from its roots while soldiers surround them.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Jayadratha seizes Draupadi by her upper garment and drags her toward his chariot as the priest Dhaumya protests among the soldiers.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "In the forest, the Pandava brothers pause with their hunting bows as a jackal howls to their left under the dim woodland light.",
+      "visual_strength": 0.7
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vibhishana guides Lakshmana to Indrajit’s ritual site; Indrajit condemns his uncle’s betrayal while Vibhishana defends abandoning Ravana’s unrighteousness.",
+  "importance": 0.6,
+  "themes": [
+    "loyalty vs righteousness",
+    "family conflict",
+    "betrayal accusations",
+    "moral duty",
+    "approaching duel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lakshmana stands with drawn bow beside Vibhishana in a dark forest as the massive Nyagrodha tree looms over Indrajit’s sacrificial ground.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Indrajit appears in a blazing chariot clad in armor, banner flying, confronting Lakshmana and angrily pointing at his uncle Vibhishana.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Vibhishana faces Indrajit amid the battlefield, calmly rebuking him while the young warrior rages in his chariot.",
+      "visual_strength": 0.67
+    }
+  ]
+}

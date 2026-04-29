@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa explains a worm’s rebirth through karmic progression across species and castes, guiding the transformed Kshatriya toward righteous duty to eventually attain Brahminhood.",
+  "importance": 0.63,
+  "themes": [
+    "karma and rebirth",
+    "ascetic power",
+    "caste progression",
+    "righteous duty",
+    "spiritual redemption"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A tiny worm remains on a dusty road as a massive chariot wheel rolls over it while the sage Vyasa watches with serene knowledge.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "A newly reborn Kshatriya prince bows with joined palms at the feet of the sage Vyasa in a forest hermitage.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Vyasa instructs the armored Kshatriya king in the wilderness, speaking of duty while animals gather peacefully nearby.",
+      "visual_strength": 0.66
+    }
+  ]
+}

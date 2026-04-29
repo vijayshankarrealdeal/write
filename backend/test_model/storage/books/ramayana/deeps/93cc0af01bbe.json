@@ -1,0 +1,49 @@
+{
+  "rich_summary": "As Khara advances on Rama’s hermitage with a vast host of titans, ominous portents fill the sky—blood‑like rain, strange cries of birds, and Rama’s weapons trembling as if eager for battle. Reading these signs as foretelling the demons’ destruction, Rama orders Lakshmana to take Sita to a hidden mountain cave so he may face the enemy alone. Lakshmana reluctantly obeys. Rama then arms himself in blazing armor, standing solitary on the battlefield and sounding his bow so that the quarters echo. Meanwhile gods, rishis, and celestial beings gather in the sky to witness the coming clash, praying for Rama’s victory yet wondering how a single warrior could defeat fourteen thousand demons. In their eyes he begins to resemble the terrible, avenging god Rudra.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The opening comparison to Vishnu defeating the Asuras frames Rama’s battle as a divine, cosmic struggle."
+    },
+    {
+      "start": 150,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The gathering of Khara and his fierce commanders signals the scale and menace of the approaching demonic army."
+    },
+    {
+      "start": 350,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Rama interprets terrifying omens—blood‑like rain and trembling weapons—as signs that the demons’ destruction is near."
+    },
+    {
+      "start": 700,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Rama orders Lakshmana to take Sita to safety so he may face the titans alone, establishing the heroic single‑combat premise."
+    },
+    {
+      "start": 1050,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Celestial beings watch from the sky, marveling and doubting whether one man can defeat fourteen thousand demons."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Rama stands alone in blazing armor before his hermitage, drawing his bow so its thunderous twang echoes across the forest while dark clouds rain blood overhead.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Lakshmana escorts Sita into a hidden mountain cave through dense forest while Rama remains behind preparing to face the approaching demonic army.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "High above the battlefield, gods, rishis, and celestial beings watch from radiant aerial chariots as the vast host of titans surges toward the solitary Rama.",
+      "visual_strength": 0.9
+    }
+  ]
+}

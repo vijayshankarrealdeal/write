@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ruru mourns Pramadvara’s snakebite death, trades half his life to revive her, they marry, and he vows to destroy all serpents.",
+  "importance": 0.7,
+  "themes": [
+    "love and sacrifice",
+    "fate and death",
+    "divine intervention",
+    "marriage",
+    "vengeance against serpents"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Pramadvara lies pale and motionless on the forest floor after the serpent’s bite while sages gather around her grieving.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Ruru weeps alone in a deep forest as a radiant celestial messenger appears before him with the offer to restore his bride.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Pramadvara rises as if from sleep, restored to life by half of Ruru’s lifespan as divine figures look on.",
+      "visual_strength": 0.76
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "King Pandu accidentally kills the sage Kindama disguised as a deer during mating and is cursed to die if he approaches his wife sexually.",
+  "importance": 0.87,
+  "themes": [
+    "curse and fate",
+    "sexual taboo",
+    "karmic retribution",
+    "origins of the Pandavas",
+    "hunting ethics"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Pandu in the forest releases golden-feathered arrows that strike a mating pair of deer on a wooded Himalayan slope.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The dying deer transforms in voice into the sage Kindama, lying pierced by arrows while reproaching Pandu in the forest.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Mortally wounded Kindama curses Pandu on the forest floor while his deer-mate stands beside him and the shocked king listens.",
+      "visual_strength": 0.8
+    }
+  ]
+}

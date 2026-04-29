@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Agastya explains the origins of Bali and Sugriva, then begins a legend where Ravana questions Sanatkumara about the supreme deity Narayana.",
+  "importance": 0.55,
+  "themes": [
+    "origins of Bali and Sugriva",
+    "divine kingship of monkeys",
+    "Ravana seeking knowledge",
+    "supremacy of Narayana"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The celestial messenger installs Riksharajas as king in the jeweled city of Kishkindha while vanaras gather around him.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Ravana stands with folded hands before the radiant sage Sanatkumara seated in a luminous forest hermitage.",
+      "visual_strength": 0.83
+    }
+  ]
+}

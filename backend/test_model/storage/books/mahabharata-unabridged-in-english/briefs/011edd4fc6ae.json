@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yajnavalkya explains post‑death soul paths, death omens, meditation on the Supreme, and narrates receiving Vedic knowledge from Surya and teaching Prakriti–Purusha philosophy.",
+  "importance": 0.7,
+  "themes": [
+    "paths of the soul after death",
+    "omens of approaching death",
+    "union with the Supreme Soul",
+    "origin of Vedic knowledge",
+    "Prakriti and Purusha philosophy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The goddess Saraswati enters Yajnavalkya’s open mouth as the radiant Sun‑god Surya stands before him, filling him with blazing knowledge.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Overwhelmed by the burning energy of Saraswati within him, Yajnavalkya plunges into a flowing river while Surya watches from the sky.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A dying man’s soul rises from the crown of his head like a subtle light, ascending toward the luminous realm of Brahman.",
+      "visual_strength": 0.78
+    }
+  ]
+}

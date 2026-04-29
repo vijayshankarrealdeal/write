@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna confronts his son Vabhruvahana during the Ashvamedha quest, provoking a duel that ends with Arjuna struck down and both collapsing.",
+  "importance": 0.78,
+  "themes": [
+    "father-son conflict",
+    "kshatriya duty",
+    "honor and battle",
+    "provocation to fulfill duty",
+    "tragic combat"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Prince Vabhruvahana in golden armor raises a lion-bannered standard as he rides out to confront his father Arjuna guarding the sacrificial horse.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "A sharp arrow from Vabhruvahana pierces Arjuna’s shoulder and drives into the earth as the great warrior staggers with his bow Gandiva in hand.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Arjuna collapses unconscious on the battlefield while his son Vabhruvahana, wounded and grief-stricken, also falls to the ground amid scattered arrows.",
+      "visual_strength": 0.9
+    }
+  ]
+}

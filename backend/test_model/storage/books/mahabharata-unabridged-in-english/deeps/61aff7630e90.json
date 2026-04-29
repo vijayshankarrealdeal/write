@@ -1,0 +1,49 @@
+{
+  "rich_summary": "After Arjuna (Dhananjaya) is slain in combat by his own son Vabhruvahana, Ulupi reveals that the entire event was arranged for Arjuna’s ultimate good. She had brought a celestial gem capable of restoring life and instructs the prince to place it on Arjuna’s chest, reviving him. When Arjuna awakens, heavenly signs—flowers, celestial drums, and voices—celebrate the moment. Ulupi then explains the deeper cause: Arjuna had incurred a curse from the Vasus for killing Bhishma through what they judged an unrighteous stratagem during the great war. The curse decreed that Arjuna must be cast down in battle by his own son; only then would he be freed from sin. With the curse lifted, reconciliation follows. Arjuna invites Vabhruvahana to attend Yudhishthira’s upcoming horse sacrifice, but refuses to enter the city himself because he must continue following the wandering sacrificial horse in observance of his vow.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Sets up the deception and purpose behind the battle between father and son."
+    },
+    {
+      "start": 430,
+      "length": 150,
+      "color_hex": "#FFEB3B",
+      "why": "The magical gem is placed on Arjuna’s chest, leading to his dramatic resurrection."
+    },
+    {
+      "start": 650,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Cosmic celebration—celestial flowers, drums, and voices—marks Arjuna’s return from death."
+    },
+    {
+      "start": 1100,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "Ulupi reveals the moral core: Arjuna’s slaying of Bhishma incurred a divine curse that required this event."
+    },
+    {
+      "start": 1900,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Resolution and future direction as Arjuna invites his son to the upcoming horse sacrifice."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Vabhruvahana places the glowing celestial gem on Arjuna’s chest and the fallen hero suddenly awakens, red‑eyed, rising as if from deep sleep.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "Heaven celebrates Arjuna’s revival as flowers rain from the sky and invisible celestial drums thunder above the battlefield.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Ulupi calmly explains the divine curse to the newly revived Arjuna while Chitrangada and Vabhruvahana listen on the quiet battlefield.",
+      "visual_strength": 0.78
+    }
+  ]
+}

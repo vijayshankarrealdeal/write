@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana attacks a mysterious cosmic Maha‑Purusha, glimpses the universe within him, and is humbled but spared due to Brahma’s boon.",
+  "importance": 0.55,
+  "themes": [
+    "cosmic theophany",
+    "Ravana’s arrogance",
+    "divine supremacy",
+    "boons and destiny",
+    "Vishnu-Lakshmi imagery"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana hurls weapons at the blazing Maha‑Purusha standing unmoved on an island, his gigantic body radiant like the sun and ringed with flames.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The colossal Purusha casually strikes Ravana with a lightning‑like hand, sending the demon king crashing to the ground like an uprooted tree.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Inside a cavernous chamber, Lakshmi fans the sleeping flame‑wreathed deity on a white couch while Ravana approaches her with desire.",
+      "visual_strength": 0.9
+    }
+  ]
+}

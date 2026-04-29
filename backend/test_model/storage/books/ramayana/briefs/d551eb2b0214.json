@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Ravana sends seven ministers’ sons with an army to attack Hanuman, who nimbly evades their storm of arrows at the city gate.",
+  "importance": 0.55,
+  "themes": [
+    "heroic combat",
+    "Ravana's wrath",
+    "warriors' valor",
+    "Hanuman's agility"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Seven armored princes in golden chariots thunder out of Lanka’s palace gates, their bows flashing like lightning as they charge toward Hanuman.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Hanuman stands at the gate of Lanka as a dense rain of arrows from the chariots darkens the sky and conceals his body.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Leaping through the air, Hanuman twists between volleys of arrows and racing chariots like a storm-god playing among lightning.",
+      "visual_strength": 0.79
+    }
+  ]
+}

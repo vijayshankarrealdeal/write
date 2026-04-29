@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma outlines rules of righteous daily conduct and begins a philosophical teaching on creation, the elements, mind, intelligence, soul, and the three qualities of nature.",
+  "importance": 0.72,
+  "themes": [
+    "daily dharma",
+    "ritual purity",
+    "cosmology of elements",
+    "mind and soul distinction",
+    "three gunas"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies on his bed of arrows while Yudhishthira stands beside him listening as the aged warrior teaches the nature of soul, mind, and the universe.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The Supreme Soul withdraws the universe like a tortoise pulling its limbs inward as the five elements dissolve back into their source.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A luminous soul shines like a covered lamp through the senses, illuminating the surrounding world while remaining only a silent witness.",
+      "visual_strength": 0.74
+    }
+  ]
+}

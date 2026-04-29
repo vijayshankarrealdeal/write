@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains the sacred origin and supremacy of gold as a purifying gift, recounting ancestral visions and sages’ teachings to Rama about gold’s divine essence.",
+  "importance": 0.53,
+  "themes": [
+    "sacred gifts",
+    "origin of gold",
+    "ritual purity",
+    "scriptural authority",
+    "ancestral rites"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "During the funeral rite, a jeweled arm suddenly rises from the earth through the kusa grass as Bhishma prepares to offer the obsequial cake.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Bhishma sleeps at night as radiant ancestral spirits appear in his dream, praising his adherence to sacred law.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Rishis including Vasishtha speak to the warrior Rama, explaining that brilliant gold sprang from the fiery seed of Agni.",
+      "visual_strength": 0.66
+    }
+  ]
+}

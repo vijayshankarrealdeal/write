@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma forms the Sarvatobhadra battle array as both armies advance amid ominous portents, while Arjuna prepares Sikhandin to confront Bhishma.",
+  "importance": 0.62,
+  "themes": [
+    "battle formations",
+    "protection of Bhishma",
+    "impending duel",
+    "omens of doom",
+    "war mobilization"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Two vast armies roar forward with conches and drums while Bhishma stands at the front of the Kaurava formation, surrounded by chariots and elephants.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Dark omens fill the sky as meteors fall, jackals howl, and birds circle over the battlefield while the sun grows dim above the assembled armies.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Arjuna speaks to Dhrishtadyumna, pointing toward Bhishma while ordering that Sikhandin be placed before him under Arjuna’s protection.",
+      "visual_strength": 0.63
+    }
+  ]
+}

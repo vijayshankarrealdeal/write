@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Shatrughna battles the demon Lavana, recovers from a blow, and prepares a terrifying divine arrow of Vishnu to destroy him.",
+  "importance": 0.77,
+  "themes": [
+    "heroic combat",
+    "divine weapons",
+    "good versus evil",
+    "cosmic fear",
+    "demon slaying"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lavana hurls a massive tree at Shatrughna, who slices it into hundreds of pieces with flashing arrows in midair.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Shatrughna lies unconscious after a crushing blow while sages, gods, and celestial beings cry out in alarm from the sky.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Shatrughna raises a blazing celestial arrow that lights the ten directions, making gods and spirits tremble across the universe.",
+      "visual_strength": 0.92
+    }
+  ]
+}

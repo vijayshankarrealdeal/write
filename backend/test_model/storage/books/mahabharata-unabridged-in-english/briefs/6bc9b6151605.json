@@ -1,0 +1,25 @@
+{
+  "summary_1line": "King Parikshit fortifies himself against Takshaka’s curse while the healer Kasyapa proves his power but accepts Takshaka’s bribe and turns back.",
+  "importance": 0.66,
+  "themes": [
+    "fate vs intervention",
+    "power of ascetic knowledge",
+    "corruption by wealth",
+    "inevitability of curse",
+    "royal fear and protection"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Takshaka in serpent form bites a great banyan tree, which instantly bursts into flames and collapses into ashes before Kasyapa.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Kasyapa gathers the ashes of the burnt banyan and, chanting, restores it step by step until the full tree stands alive again.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "High above the ground, King Parikshit sits in a guarded palace built on a single pillar, surrounded by priests, physicians, and watchful ministers.",
+      "visual_strength": 0.72
+    }
+  ]
+}

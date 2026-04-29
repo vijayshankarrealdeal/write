@@ -1,0 +1,49 @@
+{
+  "rich_summary": "After the fall of one of his chief generals, Ravana personally enters the battlefield, enraged and determined to annihilate Rama’s monkey army. Vibhishana identifies the principal Rakshasa champions to Rama, highlighting the immense might and terrifying splendor of Lanka’s war leaders. Ravana plunges into battle like a storm, wounding Sugriva and scattering the monkey forces. Hanuman confronts him directly and exchanges mighty blows, while Nila briefly confounds the titan king with agile tactics before being struck down. Lakshmana then duels Ravana in a fierce contest of divine weapons, but Ravana’s spear pierces him and he collapses. Hanuman rescues Lakshmana and fells Ravana with a devastating strike. Finally Rama himself advances, riding Hanuman’s shoulders, destroys Ravana’s chariot, shatters his crown, and defeats him—yet magnanimously spares his life, ordering the exhausted king to return to Lanka and come back ready for a final battle.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Sets the aftermath of the titan general’s death and the grief and fury that drive Ravana to personally enter the war."
+    },
+    {
+      "start": 1500,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Rama beholds Ravana’s overwhelming majesty and power, acknowledging the awe-inspiring presence of his greatest foe."
+    },
+    {
+      "start": 3500,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Hanuman confronts Ravana directly, declaring that monkeys—excluded from Ravana’s boon of invulnerability—will bring about his downfall."
+    },
+    {
+      "start": 5500,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Lakshmana’s fierce duel with Ravana escalates into the exchange of divine weapons, marking a pivotal escalation in the battle."
+    },
+    {
+      "start": 7500,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Rama defeats Ravana but grants him mercy, a crucial moment revealing Rama’s dharma and moral greatness even toward a deadly enemy."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Rama rides on Hanuman’s shoulders across the battlefield like Vishnu upon Garuda, confronting Ravana amid shattered chariots and raining arrows.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Hanuman strikes Ravana with a thunderous fist, the ten‑headed king staggering as blood pours from his mouths while gods and sages watch from the sky.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Rama’s arrow shatters Ravana’s radiant crown, the diadem blazing like the sun as it falls while the titan king stands stunned on the battlefield.",
+      "visual_strength": 0.9
+    }
+  ]
+}

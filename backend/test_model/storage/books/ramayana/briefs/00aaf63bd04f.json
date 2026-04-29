@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After his forces are routed, the demon Vajradamshtra battles Angada in a brutal duel amid a gruesome battlefield during the monkey–rakshasa war.",
+  "importance": 0.55,
+  "themes": [
+    "heroic duel",
+    "battle carnage",
+    "rage and vengeance",
+    "monkey vs rakshasa warfare"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Angada whirls a massive boulder overhead and hurls it onto Vajradamshtra’s chariot, smashing the horses and wheels amid the chaos of battle.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Vajradamshtra, red‑eyed with fury, releases a storm of arrows that pierce multiple monkeys at once as they scatter across the blood-soaked field.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Angada lifts a huge crag covered with trees and crashes it onto Vajradamshtra’s head, leaving the demon staggering and vomiting blood.",
+      "visual_strength": 0.9
+    }
+  ]
+}

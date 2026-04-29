@@ -1,0 +1,77 @@
+{
+  "chunk": {
+    "id": "81428d093a37",
+    "chapter_title": "19. Vishwamitra's request",
+    "page_start": 61,
+    "page_end": 61,
+    "text": "CBAPTBR 19 \nYishr.tlamitra's request \nHI!ARING the laudatory and admirable words of that Lion 111110113 \nkings, Dasaratha, the great Sage Vishwamitra answered : \" 0 \nGreat Ki.Dg, who in the world save one of the Houae of \nIkshwaku, instructed by Shri Vasishtha, could give tongue to \nsuch utterances ? 0 Dlustrinus Monarch, I will now unfold my \npurpose, do thou fulfil it and prove the truth of thy words. \n\" 0 Chief of Men. when I undertake the observance of sacred \nsacrifices to enhance my perfection, two rakshasas, adepts in \nmagic, cn:ate great impediments. When, after long effort, the \nsacrifice approaches consummation, then these two rakshasas, \nMaricha and Suvahu destroy the rite and defile the altar with \nblood and flesh. My holy endeavours being thus frustrated, \nI become despondent and leave the place of sacrifice. 0 King, \nit is not permitted to me to show wrath when engaged in sacrifice, \nand I therefore refrain from cursing them. Do thou lend me \nthe services of thy son, Shri Ramachandra, the truthful, the \nbrave, that hero, whose locks fall on his cheeks. \n\" Under my protection, he will destroy those mischievous \nrakshasas and I will confer great blessings on him. I will \ninstruct him for his good in many sciences and he will become \nfamous in the three worlds. The rakshasas will not be able \nto stand against Rama and no one else can destroy them. They \nare proud and powerful, but now, owing to their sins, their \ndestructinn is imminent, they will not be able to withstand Shri \nRamachandra, \n\"Do not allow a father's affection to overcome thee ; I assure \nthee that in the presence of Shri Ramachandra, the rakshasas \nare as good as slain. Rama's virtues are known to Shri Vasishtha \nand other ascetics. 0 Ki.Dg, if thou seekest everlasting renown \nand merit in this world, then let Shri Rama go with me. \nSeek \nthe advice of Shri Vasishtha and thy counsellors and if they \napprove the project, give me Ramachandra. Be pleased, 0 \nKing, to give up thy beloved son for the space of ten days, \nso that I may complete the sacrifice. 0 King, help me in \n46"
+  },
+  "brief": {
+    "summary_1line": "Sage Vishwamitra asks King Dasaratha to send Rama with him to protect a sacrifice from the demons Maricha and Subahu.",
+    "importance": 0.75,
+    "themes": [
+      "sage\u2013king relationship",
+      "duty over parental attachment",
+      "protection of sacrifice",
+      "emergence of Rama's heroism"
+    ],
+    "image_candidates": [
+      {
+        "scene_text": "Sage Vishwamitra stands before King Dasaratha in the royal court, requesting that the young prince Rama accompany him to defeat the demons.",
+        "visual_strength": 0.68
+      },
+      {
+        "scene_text": "Two demons, Maricha and Subahu, hurl blood and flesh onto a sacred fire altar while sages look on in horror.",
+        "visual_strength": 0.9
+      },
+      {
+        "scene_text": "Vishwamitra gestures solemnly as he promises to guide and protect the youthful Rama during the mission.",
+        "visual_strength": 0.55
+      }
+    ]
+  },
+  "deep": {
+    "rich_summary": "The sage Vishwamitra responds to King Dasaratha\u2019s courteous welcome by revealing the true reason for his visit. While performing sacred sacrifices meant to increase his spiritual power, he is repeatedly attacked by two powerful rakshasas, Maricha and Suvahu, who defile the ritual with blood and flesh just as it nears completion. Because the vows of sacrifice forbid him from giving way to anger or cursing them, Vishwamitra cannot retaliate. Instead, he asks Dasaratha to send the young prince Rama with him for ten days so the boy may guard the rite and destroy the demons. Vishwamitra promises protection, divine instruction, and future glory for Rama. The request marks a crucial turning point: it is the moment when Rama first leaves the royal court and begins the heroic, world-shaping deeds that will reveal his divine destiny.",
+    "highlight_spans": [
+      {
+        "start": 0,
+        "length": 120,
+        "color_hex": "#A5D6A7",
+        "why": "The opening exchange establishes the respect between sage and king and frames the gravity of Vishwamitra\u2019s request."
+      },
+      {
+        "start": 250,
+        "length": 120,
+        "color_hex": "#FFEB3B",
+        "why": "Introduces the central threat: the rakshasas Maricha and Suvahu who repeatedly desecrate the sacred sacrifice."
+      },
+      {
+        "start": 500,
+        "length": 120,
+        "color_hex": "#A5D6A7",
+        "why": "Vishwamitra\u2019s insistence that Rama alone can defeat the demons hints at the prince\u2019s extraordinary destiny."
+      },
+      {
+        "start": 720,
+        "length": 110,
+        "color_hex": "#F48FB1",
+        "why": "The emotional appeal to Dasaratha to set aside paternal attachment underscores the personal cost of sending Rama away."
+      }
+    ],
+    "top_scenes": [
+      {
+        "scene_text": "In the royal court, the ascetic sage Vishwamitra stands before King Dasaratha, requesting that the young prince Rama accompany him to defend a sacred forest sacrifice.",
+        "visual_strength": 0.74
+      },
+      {
+        "scene_text": "A sacred fire altar in the forest is suddenly desecrated as the rakshasas Maricha and Suvahu hurl blood and flesh from the sky, terrifying the gathered sages.",
+        "visual_strength": 0.9
+      },
+      {
+        "scene_text": "The youthful Rama, with bow in hand and locks falling on his cheeks, stands beside the imposing sage Vishwamitra as they prepare to leave the palace for the demon-haunted wilderness.",
+        "visual_strength": 0.82
+      }
+    ]
+  },
+  "scene_ids": []
+}

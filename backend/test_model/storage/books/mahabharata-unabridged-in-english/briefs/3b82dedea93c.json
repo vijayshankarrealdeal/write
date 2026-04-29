@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira reaches the mysterious Hemakuta region where a sage’s curse makes speech summon storms, then continues pilgrimage to the sacred Kausiki and Viswamitra’s hermitage.",
+  "importance": 0.45,
+  "themes": [
+    "sacred geography",
+    "sage's curse",
+    "pilgrimage",
+    "austerity and purity",
+    "divine presence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "On the eerie Hemakuta hill, clouds suddenly gather and stones rain down the moment a traveler speaks aloud.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Yudhishthira stands with Lomasa before the misty peak of Rishava where winds howl, rain falls endlessly, and unseen priests chant Vedic hymns.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "The Pandava king bathes in the clear river Kausiki beside the quiet hermitage of Viswamitra surrounded by sacred trees and kusa grass.",
+      "visual_strength": 0.67
+    }
+  ]
+}

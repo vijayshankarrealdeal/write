@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Tara mourns over the dying Bali, lamenting fate, his faults, Rama’s action, and the uncertain future of her son Angada.",
+  "importance": 0.62,
+  "themes": [
+    "grief and widowhood",
+    "karma and consequence",
+    "loyalty and regret",
+    "royal succession anxiety"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Tara kneels beside the fallen Bali, embracing his arrow‑pierced body as monkey queens gather around and cry in the forest clearing.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Tara bows her head at Bali’s feet while young Angada stands nearby surrounded by grieving monkey women.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The massive body of Bali lies like a fallen elephant on the earth, Rama’s arrow lodged in his chest as Tara weeps over him.",
+      "visual_strength": 0.82
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains the righteous code of warfare for kings: fight fairly, spare the helpless, treat the defeated justly, and never pursue victory through unrighteous means.",
+  "importance": 0.64,
+  "themes": [
+    "just war ethics",
+    "kshatriya duty",
+    "righteous conduct",
+    "treatment of defeated enemies",
+    "consequences of sin"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A wounded enemy warrior is carried from the battlefield while physicians tend his wounds under the victor king’s protection.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Two evenly matched chariot warriors face each other on an open battlefield, both armored and ready, observing the rules of honorable combat.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "A lone Brahmana steps fearlessly between two opposing armies, raising his hand to halt the battle.",
+      "visual_strength": 0.82
+    }
+  ]
+}

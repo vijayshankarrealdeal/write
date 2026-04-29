@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana orders Hanuman’s tail burned and paraded through Lanka, but Sita’s prayer protects him and he prepares to retaliate.",
+  "importance": 0.7,
+  "themes": [
+    "humiliation of envoy",
+    "Sita's devotion",
+    "divine protection",
+    "Hanuman's restraint",
+    "impending retaliation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Demons parade the bound Hanuman through Lanka’s streets with his long tail wrapped in burning cloth as crowds gather to watch.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Sita stands before the sacred fire praying that the flames on Hanuman’s tail turn cool and spare him harm.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Hanuman breaks his bonds at the city gate, towering like a mountain with his flaming tail blazing behind him as he seizes an iron bar.",
+      "visual_strength": 0.88
+    }
+  ]
+}

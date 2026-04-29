@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Myths recount Udbhata’s divine mission and self‑sacrifice, the miraculous devotion of Kinnera Brahmayya, and the early trials of the pious Mallamma.",
+  "importance": 0.46,
+  "themes": [
+    "Shaivite devotion",
+    "saintly miracles",
+    "divine curse and redemption",
+    "guru lineage",
+    "persecution of the pious"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Udbhata sits in deep yogic posture as his life breath rises from his head while smoke from his funeral pyre frees the cursed sprites in the banyan tree.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Brahmayya seizes the lover’s blade inside the temple and with one stroke sends the man’s head flying before the shrine of Tripurantaka.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Mallamma collapses beside a grinding stone with blistered fingers as Lord Mallikarjuna invisibly finishes grinding the corn for her.",
+      "visual_strength": 0.72
+    }
+  ]
+}

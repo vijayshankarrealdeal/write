@@ -1,0 +1,55 @@
+{
+  "rich_summary": "Markandeya recounts the chain of events that leads to Sita’s abduction. After Rama defeats the Rakshasas of Janasthana, the humiliated Surpanakha informs Ravana, who seeks out the Rakshasa Maricha. Maricha warns Ravana that provoking Rama will bring destruction, recalling Rama’s terrifying prowess, but Ravana threatens him with death unless he helps. Resigned, Maricha agrees to assist in a deception: he will transform into a golden deer to lure Rama away while Ravana abducts Sita. The plan unfolds at Rama’s forest hermitage. Enchanted by the deer, Sita asks Rama to capture it; Rama pursues and eventually kills the disguised Maricha. With his dying breath Maricha imitates Rama’s voice calling for help, prompting Sita—fearful and desperate—to send Lakshmana after him, leaving her vulnerable to Ravana’s scheme.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Maricha’s courteous reception of Ravana begins the crucial dialogue that foreshadows the disaster about to unfold."
+    },
+    {
+      "start": 520,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Maricha warns Ravana not to provoke Rama, emphasizing Rama’s overwhelming power and hinting at the doom awaiting Ravana."
+    },
+    {
+      "start": 980,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Ravana explains the central plot: Maricha must become the golden deer to lure Rama away so Ravana can seize Sita."
+    },
+    {
+      "start": 1650,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "The enchanted golden deer appears before Sita, the pivotal illusion that sets the abduction in motion."
+    },
+    {
+      "start": 2400,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Maricha’s dying cry in Rama’s voice manipulates Sita’s fear and triggers the emotional conflict between her and Lakshmana."
+    },
+    {
+      "start": 2700,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Sita’s suspicion and harsh words toward Lakshmana show the tragic human tension that allows Ravana’s plan to succeed."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Maricha transformed into a radiant golden deer with jeweled horns wandering before Sita in the forest hermitage while Rama prepares his bow.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Ravana, the ten‑headed king, secretly plotting with the reluctant ascetic Maricha in a forest hermitage.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Sita anxiously urging Lakshmana to go after Rama while the forest around the lonely hut grows tense and foreboding.",
+      "visual_strength": 0.82
+    }
+  ]
+}

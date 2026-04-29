@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Yudhishthira defends faith in virtue and divine order; Draupadi replies that action, effort, and intelligent striving—along with fate—are essential for success.",
+  "importance": 0.7,
+  "themes": [
+    "faith vs skepticism",
+    "karma and destiny",
+    "value of action",
+    "divine order",
+    "practical ethics"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Draupadi, distressed yet resolute, speaks passionately to Yudhishthira in the forest exile while the Pandava brothers listen around her.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "A symbolic farmer ploughs and sows seeds while dark clouds gather above, illustrating Draupadi’s analogy of effort awaiting rain.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Ascetic rishis glowing with spiritual power stand in a forest hermitage, portrayed as capable of blessing or cursing even the gods.",
+      "visual_strength": 0.72
+    }
+  ]
+}

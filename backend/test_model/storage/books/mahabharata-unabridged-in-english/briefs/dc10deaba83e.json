@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sanat‑sujata teaches Dhritarashtra that true knowledge of Brahman comes from truthfulness, discipline, and Brahmacharya, not mere Vedic study or ritual.",
+  "importance": 0.72,
+  "themes": [
+    "knowledge vs ritual",
+    "truthfulness",
+    "Brahman realization",
+    "Brahmacharya discipline",
+    "self-knowledge"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sanat‑sujata sits before the blind king Dhritarashtra in a quiet court, expounding the path to Brahman while the king listens intently.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "A disciplined student lives in his teacher’s hermitage, serving humbly and practicing Brahmacharya beneath forest trees.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "A yogi sits motionless in meditation, senses restrained, as a subtle inner light symbolizes the revelation of Brahman.",
+      "visual_strength": 0.73
+    }
+  ]
+}

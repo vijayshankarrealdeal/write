@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Arjuna and Vyasa urge grieving Yudhishthira to follow Kshatriya duty—rule justly, perform sacrifices, and uphold the household order rather than renounce the world.",
+  "importance": 0.63,
+  "themes": [
+    "dharma of Kshatriyas",
+    "nonviolence and righteousness",
+    "duty vs renunciation",
+    "kingship and governance",
+    "destiny and war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna speaks firmly to the sorrowful Yudhishthira seated amid the aftermath of war, urging him to rise and rule as a Kshatriya.",
+      "visual_strength": 0.71
+    },
+    {
+      "scene_text": "The sage Vyasa addresses the silent king, explaining the duties of household life while courtiers listen in a solemn royal hall.",
+      "visual_strength": 0.64
+    }
+  ]
+}

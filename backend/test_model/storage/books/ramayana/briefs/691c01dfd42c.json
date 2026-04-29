@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama, urged by Vishwamitra to uphold dharma, battles the demoness Taraka and ultimately slays her with an arrow.",
+  "importance": 0.7,
+  "themes": [
+    "dharma and duty",
+    "justice against evil",
+    "initiation of heroism",
+    "divine approval"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama stands in the forest drawing his bow as the gigantic demoness Taraka charges through a cloud of dust with raised arms.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Taraka hurls a magical rain of rocks from the sky while Rama and Lakshmana defend themselves amid the storm of stones.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Rama releases a sound-seeking arrow that pierces Taraka’s heart as she roars and collapses in the forest while the gods watch from the heavens.",
+      "visual_strength": 0.87
+    }
+  ]
+}

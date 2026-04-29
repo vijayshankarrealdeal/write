@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section centers on the controversial intervention of Arjuna during Bhurisravas’s near‑victory over Satyaki. As Bhurisravas drags the exhausted Satyaki by the hair and prepares to behead him, Krishna urges Arjuna to act. Arjuna shoots a razor‑headed arrow that severs Bhurisravas’s arm. Outraged, Bhurisravas accuses Arjuna of violating the ethics of war by striking an opponent engaged with another. Arjuna counters that protecting an ally—especially a disciple fighting for one’s cause—is a warrior’s duty, and reminds him of the unjust killing of Abhimanyu. Bhurisravas then renounces battle and prepares for death through a yogic vow. Yet Satyaki, recalling his humiliation, beheads the meditating warrior, provoking widespread moral unease and debate over fate, vengeance, and dharma.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The brutal moment where Bhurisravas drags Satyaki by the hair and prepares to behead him establishes the emotional and moral tension of the episode."
+    },
+    {
+      "start": 350,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Krishna urges Arjuna to notice Satyaki’s peril, prompting the decisive intervention that changes the course of the duel."
+    },
+    {
+      "start": 1500,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Bhurisravas rebukes Arjuna for striking from the side while he was engaged with another—raising the central ethical question about the rules of war."
+    },
+    {
+      "start": 3000,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Arjuna’s justification: a warrior must protect allies fighting for his cause, framing duty and loyalty as higher obligations in battle."
+    },
+    {
+      "start": 5200,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "Satyaki beheads the meditating Bhurisravas despite widespread disapproval, creating one of the Mahabharata’s most morally troubling moments."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhurisravas stands over the exhausted Satyaki, gripping his hair and raising a sword as dust, chariots, and warriors swirl across the battlefield.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Arjuna releases a blazing razor‑headed arrow from the Gandiva, the missile streaking like a meteor as it severs Bhurisravas’s sword‑bearing arm mid‑battle.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The maimed Bhurisravas sits in yogic meditation on a bed of arrows, eyes fixed on the sun, while Satyaki rushes forward with a sword amid shocked armies.",
+      "visual_strength": 0.9
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ravana angrily marches to battle with a vast army despite ominous portents foretelling his death and begins slaughtering monkeys on the battlefield.",
+  "importance": 0.7,
+  "themes": [
+    "doom foreshadowing",
+    "hubris",
+    "omens and fate",
+    "war mobilization",
+    "cosmic justice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana stands on his radiant chariot glittering like many suns as armies roar around him and war drums thunder across Lanka.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "A vulture lands on Ravana’s banner while meteors fall, jackals howl, and the darkened sky rains blood as he rides out to war.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Ravana whirls his chariot in battle, golden arrows flying as monkeys fall wounded and scattered across the field.",
+      "visual_strength": 0.78
+    }
+  ]
+}

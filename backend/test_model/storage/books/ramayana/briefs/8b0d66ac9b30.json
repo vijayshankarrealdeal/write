@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama, Sita, and Lakshmana reach Mount Chitrakuta, admire its beauty, meet Valmiki, and build and consecrate a forest hermitage to live in exile.",
+  "importance": 0.47,
+  "themes": [
+    "forest exile life",
+    "sacred landscape",
+    "hermitage building",
+    "ritual purification",
+    "nature's beauty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama, Sita, and Lakshmana stand before the lush slopes of Mount Chitrakuta filled with flowering trees, birds, and wandering elephants.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "Lakshmana builds a leaf‑thatched forest hut from freshly cut wood while Rama and Sita watch in the shade of tall trees.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Rama performs sacred rites before entering the new hut, offering prayers and meat from a black antelope at small altars facing the eight directions.",
+      "visual_strength": 0.69
+    }
+  ]
+}

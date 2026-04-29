@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna rejoices after Ghatotkacha’s death, revealing Karna has wasted his invincible dart, ensuring Arjuna’s survival and explaining earlier strategic killings of dangerous foes.",
+  "importance": 0.85,
+  "themes": [
+    "strategic sacrifice",
+    "fate of Karna",
+    "Krishna’s war strategy",
+    "grief versus hidden victory",
+    "removal of powerful enemies"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The gigantic dying Ghatotkacha crashes onto the battlefield like a mountain, crushing a mass of Kaurava soldiers beneath his enormous body.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Krishna stands on Arjuna’s chariot shouting and dancing in fierce joy while the grieving Pandavas stare in confusion beside the fallen battlefield.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Krishna leans toward Arjuna on the chariot, revealing that Karna’s divine dart has been spent, while the night battlefield smolders around them.",
+      "visual_strength": 0.7
+    }
+  ]
+}

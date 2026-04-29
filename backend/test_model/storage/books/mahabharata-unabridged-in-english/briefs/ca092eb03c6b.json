@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Jayadratha, empowered by Shiva’s boon, single‑handedly holds back the Pandavas and their allies, displaying swift archery and repeatedly repelling their attempts to break Drona’s formation.",
+  "importance": 0.56,
+  "themes": [
+    "divine boon",
+    "battle prowess",
+    "blocking the Pandavas",
+    "archery duels",
+    "battlefield spectacle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Jayadratha stands on his jeweled chariot with a silver boar banner and white umbrella, loosing arrows in all directions as the Pandava heroes converge on him.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Bhima leaps from his wrecked chariot onto Satyaki’s car like a lion climbing a mountain after Jayadratha’s arrows cut down his steeds.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Jayadratha rapidly seizes a fresh bow the instant Yudhishthira cuts his first one, immediately showering arrows back at the Pandava leaders.",
+      "visual_strength": 0.64
+    }
+  ]
+}

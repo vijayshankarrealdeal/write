@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Various sages and deities describe religious taboos, rituals, and household conduct that bring merit or sin, especially regarding guests, cows, lunar rites, and offerings.",
+  "importance": 0.34,
+  "themes": [
+    "hospitality duty",
+    "ritual purity and taboos",
+    "veneration of cows and Brahmanas",
+    "ancestral offerings",
+    "household morality"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Seven ancient Rishis led by Vasishtha stand with folded hands around the lotus-born Brahman after circumambulating him in reverence.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A devotee stands under the open night sky during the bright fortnight, gazing upward and 'drinking' the rays of the full moon.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "A worshipper offers a palmful of water and rice mixed with ghee to the glowing full moon while standing beneath its light.",
+      "visual_strength": 0.69
+    }
+  ]
+}

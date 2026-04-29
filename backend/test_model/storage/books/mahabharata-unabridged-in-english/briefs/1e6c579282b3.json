@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Story of King Uparichara Vasu, the miraculous birth of Satyavati and Vyasa, and the divine events leading to the compiler of the Mahabharata.",
+  "importance": 0.82,
+  "themes": [
+    "divine intervention",
+    "miraculous births",
+    "royal lineage",
+    "origin of Vyasa",
+    "sacred kingship"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Uparichara Vasu rides a crystal chariot through the sky while Gandharvas and Apsaras gather around him in the air.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Two hawks fight midair over the Yamuna, dropping the king’s seed into the river where a great fish waits below.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The sage Parasara surrounds the riverboat in sudden mystical fog as Satyavati stands blushing on the Yamuna.",
+      "visual_strength": 0.88
+    }
+  ]
+}

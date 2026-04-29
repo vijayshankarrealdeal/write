@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Kichaka insults Draupadi, she rebukes the court, is restrained by Yudhishthira, and secretly seeks Bhima at night to avenge the outrage.",
+  "importance": 0.73,
+  "themes": [
+    "humiliation and honor",
+    "restraint under disguise",
+    "appeal for vengeance",
+    "courtly injustice",
+    "marital loyalty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Draupadi, hair disheveled and eyes blazing with tears, stands in Virata’s court accusing Kichaka while courtiers watch in shock.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "At night Draupadi slips into Bhima’s chamber where the giant hero sleeps like a lion in the dim cooking hall.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Draupadi clings to Bhima like a vine around a great tree, awakening him in anger to avenge her insult.",
+      "visual_strength": 0.83
+    }
+  ]
+}

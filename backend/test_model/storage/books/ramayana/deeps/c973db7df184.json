@@ -1,0 +1,27 @@
+{
+  "rich_summary": "Queen Kaikeyi claims the two boons King Dasaratha once promised her after she saved him in battle. With calculated calm she demands that her son Bharata be installed as regent and that Prince Rama be exiled to the forest for fourteen years in ascetic garb. The demand devastates Dasaratha. Overcome with grief and disbelief, he collapses, denounces Kaikeyi as cruel and destructive, and pleads with her to withdraw the request. He praises Rama’s virtues, reminding her that Rama has always honored her like a mother and is beloved by the entire kingdom. Yet Kaikeyi remains unmoved, arguing that a king must keep his word and invoking examples of legendary rulers who sacrificed everything to uphold truth. The chapter centers on the tragic conflict between royal duty (keeping a vow) and paternal love, setting in motion Rama’s exile and the epic’s central journey.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 90,
+      "color_hex": "#A5D6A7",
+      "why": "Kaikeyi reminds the king of the battlefield promise that legally and morally binds him to grant her two boons."
+    },
+    {
+      "start": 90,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The crucial setup of the demand: the king had pledged two boons, which Kaikeyi now insists must be fulfilled."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "King Dasaratha collapsing to the palace floor in anguish as Queen Kaikeyi coldly demands Rama’s fourteen‑year exile.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The aged king clutching Kaikeyi’s feet in desperate supplication inside the dim royal chamber while she stands rigid and unmoved.",
+      "visual_strength": 0.78
+    }
+  ]
+}

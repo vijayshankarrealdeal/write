@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Lakshmana angrily argues that Rama should defy the exile order and promises to defeat anyone who blocks his coronation.",
+  "importance": 0.63,
+  "themes": [
+    "brotherly loyalty",
+    "fate vs human effort",
+    "anger and righteousness",
+    "political legitimacy",
+    "dharma debate"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lakshmana, trembling with rage like a provoked lion, stands before Rama with bow and sword, vowing to crush anyone who blocks Rama’s coronation.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "In the palace chamber, Lakshmana gestures fiercely while Rama listens calmly, the tension between duty and rebellion visible between the brothers.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Lakshmana raises his powerful arms and bow, declaring that even the guardians of the four directions cannot stop Rama’s installation.",
+      "visual_strength": 0.71
+    }
+  ]
+}

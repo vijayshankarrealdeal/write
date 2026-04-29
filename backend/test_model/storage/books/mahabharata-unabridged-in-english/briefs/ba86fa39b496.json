@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Indra, disguised as a Brahmana, obtains Karna’s divine armor and earrings in exchange for a one‑use spear after Karna willingly cuts them from his own body.",
+  "importance": 0.86,
+  "themes": [
+    "self-sacrifice",
+    "divine deception",
+    "honor and vows",
+    "fate and vulnerability",
+    "exchange of divine weapons"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Karna calmly slices the natural armor from his own chest as gods shower flowers and celestial drums thunder in the sky.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Indra, revealed in divine radiance, receives Karna’s blood‑dripping armor and earrings while handing him the blazing Vasavi spear.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Celestial beings, men, and demons watch in awe as Karna smiles while cutting the armor from his body.",
+      "visual_strength": 0.78
+    }
+  ]
+}

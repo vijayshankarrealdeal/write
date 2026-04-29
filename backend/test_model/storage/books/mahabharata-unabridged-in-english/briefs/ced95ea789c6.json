@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna receives Indra’s celestial chariot and weapons, journeys to the demons’ city, and begins a massive battle against the Nivata-Kavachas.",
+  "importance": 0.78,
+  "themes": [
+    "divine empowerment",
+    "heroic warfare",
+    "celestial endorsement",
+    "battle against demons",
+    "cosmic spectacle"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra places a radiant diadem on Arjuna’s head as Matali waits beside a blazing celestial chariot with peacock‑down banners.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Arjuna blows the conch Devadatta before the underground demon city as thousands of armored Danavas gather with weapons behind their gates.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Arjuna’s chariot races across the battlefield while Matali drives the divine horses and arrows from the Gandiva rain down upon the Nivata-Kavachas.",
+      "visual_strength": 0.84
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "rich_summary": "Rama sits with the sage while Bharata, accompanied by ministers and citizens, approaches him in humility. The gathered assembly senses that a decisive appeal is coming. Bharata, grieving over their father’s death and ashamed of Kaikeyi’s actions, begs Rama to return to Ayodhya and assume the throne that rightfully belongs to him. Declaring himself Rama’s servant despite being Kaikeyi’s son, he pleads for Rama to relieve the kingdom’s sorrow. Bharata even places his head at Rama’s feet in anguish. Rama responds with compassion but firm resolve: a son must obey his father’s command. Since their father ordered his exile, Rama insists he must remain in the forest for fourteen years and urges Bharata to rule instead.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "The opening reverential imagery comparing Rama’s respect to Indra honoring Brihaspati establishes the sacred, ceremonial atmosphere of the meeting."
+    },
+    {
+      "start": 151,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The comparison of Rama, Bharata, and Lakshmana to three sacrificial fires symbolically elevates the brothers and frames the moment as morally and ritually significant."
+    },
+    {
+      "start": 760,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Bharata’s emotional confession about their father’s death and his mother’s wrongdoing reveals his grief and moral anguish."
+    },
+    {
+      "start": 1130,
+      "length": 150,
+      "color_hex": "#F48FB1",
+      "why": "The moment when Bharata places his head at Rama’s feet marks the emotional climax of his plea."
+    },
+    {
+      "start": 1630,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Rama’s declaration that sovereignty is worthless if gained by defying his father encapsulates the chapter’s central ethical principle of filial duty and righteousness."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In a forest hermitage clearing, Bharata with tear-filled eyes falls at Rama’s feet before assembled sages, ministers, and warriors while Rama in bark garments lifts him up compassionately.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Rama, Bharata, and Lakshmana seated together before the gathered citizens, their presence compared to three sacred ritual fires glowing in a solemn forest assembly.",
+      "visual_strength": 0.65
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhima and Karna fight fiercely; Bhima repeatedly wrecks Karna’s chariot and kills Durmukha, forcing Karna to withdraw despite stubborn resistance.",
+  "importance": 0.7,
+  "themes": [
+    "heroic duel",
+    "battle fury",
+    "loyalty and sacrifice",
+    "war fate",
+    "rivalry Bhima and Karna"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima hurls a massive golden six-sided mace that smashes Karna’s horses and wrecks his chariot amid the chaos of battle.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Karna stands on the battlefield without chariot, bow drawn, still resisting Bhima while arrows streak through the sky around him.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Durmukha lies slain on the blood-soaked field as Karna, tearful, walks around the fallen prince before returning to battle.",
+      "visual_strength": 0.78
+    }
+  ]
+}

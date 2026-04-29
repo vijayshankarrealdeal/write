@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains that kingly (Kshatriya) duties uphold all social and religious orders, illustrated through Indra’s discourse to King Mandhatri about divine kingship.",
+  "importance": 0.64,
+  "themes": [
+    "kingship and dharma",
+    "social order protection",
+    "Kshatriya duty",
+    "divine authority",
+    "Vishnu and cosmic order"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "During a grand sacrifice, King Mandhatri bows before Indra who appears in divine splendor amid gathered kings and sacred fires.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Indra, radiant and godlike, addresses King Mandhatri in the sacrificial hall while priests and flames surround them.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Vishnu in a heroic form defeats the Asuras, restoring peace to gods, sages, and the earth.",
+      "visual_strength": 0.78
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Krishna travels toward Hastinapura as envoy; Dhritarashtra orders lavish honors and gifts, but Krishna ignores the ornate pavilions prepared for him.",
+  "importance": 0.55,
+  "themes": [
+    "diplomatic mission",
+    "royal hospitality",
+    "political tension",
+    "reverence for Krishna"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna descends from his chariot at sunset in Vrikasthala, the sky red behind him as villagers and Brahmanas gather to greet him.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Along the road to Hastinapura stand glittering gem-studded pavilions filled with garlands, dancers, and rich gifts awaiting Krishna.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Krishna’s chariot passes the magnificent pavilions without stopping, their jewels shining while he rides straight toward the Kuru capital.",
+      "visual_strength": 0.78
+    }
+  ]
+}

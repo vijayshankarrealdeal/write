@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Amid chaotic battle, Arjuna devastates Kaurava forces while Bhishma counterattacks, and both armies fight indiscriminately seeking glory and heaven.",
+  "importance": 0.62,
+  "themes": [
+    "battle carnage",
+    "heroic prowess",
+    "chaotic warfare",
+    "duty and glory",
+    "Bhishma vs Pandavas"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna standing on his chariot with the ape-banner, releasing countless arrows from the radiant Gandiva as enemy warriors fall around him.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The battlefield carpeted with slain warriors, broken chariots, elephants, and red-stained earth while vultures and jackals gather.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Bhishma charging forward invoking a blazing celestial weapon as Sikhandin rushes to intercept him before Arjuna.",
+      "visual_strength": 0.8
+    }
+  ]
+}

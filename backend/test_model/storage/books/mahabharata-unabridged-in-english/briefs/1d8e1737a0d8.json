@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After defeating a Gandharva, Arjuna hears why they were censured and begins the tale explaining the epithet 'Tapatya' through the story of Surya’s daughter Tapati.",
+  "importance": 0.42,
+  "themes": [
+    "warrior ethics",
+    "Brahmin–king relationship",
+    "celestial lineage",
+    "night battle rules",
+    "origin story"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna stands victorious at night before the defeated Gandharva, who speaks beside his radiant wife under the dark sky.",
+      "visual_strength": 0.64
+    },
+    {
+      "scene_text": "The sun god Surya beholds the beautiful Tapati, radiant and unmatched in beauty among celestial beings.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "King Samvarana performs austere worship to Surya with garlands and offerings while the blazing sun watches from the heavens.",
+      "visual_strength": 0.68
+    }
+  ]
+}

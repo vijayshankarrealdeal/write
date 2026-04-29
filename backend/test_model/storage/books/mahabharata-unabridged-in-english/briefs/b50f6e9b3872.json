@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma teaches that detachment, ethical conduct, disciplined speech and senses, and yogic self‑control lead to knowledge of the Self and final emancipation.",
+  "importance": 0.72,
+  "themes": [
+    "detachment from senses",
+    "ethical speech and conduct",
+    "self‑restraint and yoga",
+    "ignorance vs knowledge",
+    "path to emancipation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An austere mendicant sits in solitude, eyes closed, while the five senses symbolically withdraw into his mind like rays returning to the sun.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A yogi living on sparse alms—roots, grains, and fruits—meditates beneath a tree as the sun slowly rises, symbolizing Brahman gradually shining within.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "Robbers hurriedly dropping stolen sheep on a dark road to escape the king’s watch, symbolizing the casting off of passions and sinful acts.",
+      "visual_strength": 0.61
+    }
+  ]
+}

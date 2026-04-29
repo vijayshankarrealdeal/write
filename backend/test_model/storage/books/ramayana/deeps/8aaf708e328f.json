@@ -1,0 +1,49 @@
+{
+  "rich_summary": "On their first night in the forest after leaving Ayodhya, Rama performs his evening devotion and speaks with Lakshmana beneath a tree. They prepare a simple bed of leaves for Sita and themselves, a stark contrast to Rama’s royal life. Rama worries deeply about the consequences of their exile: the frailty of King Dasaratha under Kaikeyi’s influence, the possible suffering of his mothers, and the moral weakness that led to the king’s decision. Though he admits he could conquer the world in anger, he refuses to violate righteousness by taking the throne by force. Rama spends the night lamenting his mother’s grief until Lakshmana reminds him that Ayodhya is empty without him and pledges unwavering loyalty. Resolute at last, Rama accepts destiny and begins the long exile, the two princes dwelling in the wilderness like fearless lions.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "The opening scene shows Rama calmly performing his evening devotion beneath a forest tree and preparing for the first night of exile, marking the transition from royal life to ascetic wandering."
+    },
+    {
+      "start": 180,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Rama reflects on Dasaratha’s weakness and Kaikeyi’s ambition, revealing the moral and political tragedy that caused the exile."
+    },
+    {
+      "start": 400,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Rama’s lament for his mother Kaushalya expresses the emotional heart of the chapter—his grief at causing her suffering despite his obedience."
+    },
+    {
+      "start": 650,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "Rama declares that though he could conquer the world in anger, he will not seize the kingdom by force, affirming dharma as the guiding principle of the epic."
+    },
+    {
+      "start": 900,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "The closing lines describe Rama and Lakshmana dwelling in the forest like lions on a mountain summit, a powerful mythic image of heroic exile."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "At dusk in the forest, Rama sits beneath a great tree performing his evening devotion while Lakshmana gathers leaves and grass to make a bed for Sita.",
+      "visual_strength": 0.71
+    },
+    {
+      "scene_text": "Rama lies on a humble bed of leaves on the forest floor, speaking sorrowfully to Lakshmana under the night sky as Sita rests nearby.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "The two princes of Raghu stand watch in the lonely wilderness, serene and fearless like lions upon a mountain summit as the exile truly begins.",
+      "visual_strength": 0.76
+    }
+  ]
+}

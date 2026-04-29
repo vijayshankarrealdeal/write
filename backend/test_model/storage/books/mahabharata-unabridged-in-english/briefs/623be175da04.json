@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Yudhishthira asks how a weakened king should act; Bhishma explains that in crises rulers may use harsh means to restore power while preserving life and future stability.",
+  "importance": 0.55,
+  "themes": [
+    "crisis kingship",
+    "moral pragmatism",
+    "dharma vs survival",
+    "statecraft and treasury",
+    "duties in distress"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The god Yama appears before the ascetic Gotama performing severe penance in a lonely hermitage on the Paripatra hills.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Yudhishthira sits before the aged Bhishma on the battlefield bed of arrows, asking how a ruined king should survive among enemies.",
+      "visual_strength": 0.77
+    }
+  ]
+}

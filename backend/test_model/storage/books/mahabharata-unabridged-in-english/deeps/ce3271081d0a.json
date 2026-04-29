@@ -1,0 +1,31 @@
+{
+  "rich_summary": "This chapter recounts the early fate of Karna after Kunti secretly sets her divine child afloat in a basket to hide her shame. The infant, protected by the celestial armor and earrings he was born with, drifts through several rivers until reaching the city of Champa. There, the charioteer Adhiratha and his wife Radha—long childless—discover the radiant child and adopt him, naming him Vasusena. Raised as a Suta’s son, Karna grows into a formidable warrior, studies arms under renowned teachers, and becomes the close ally of Duryodhana and rival of Arjuna. Known for extraordinary generosity, he gives freely to Brahmanas during his daily worship of the Sun. This generosity sets the stage for a pivotal moment when Indra, disguised as a Brahmana, approaches Karna to ask for his divine armor and earrings.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Kunti’s opening blessing captures the emotional anguish of a mother abandoning her divine child while praying for his protection."
+    },
+    {
+      "start": 141,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "The invocation of many gods emphasizes the child’s cosmic significance and destiny."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "At night, the grieving Kunti places her radiant infant—wearing golden armor and earrings—into a basket and releases it onto a dark, flowing river under the starlit sky.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "Radha and Adhiratha open a mysterious river-drifted box and find a glowing infant inside, his body shining like the morning sun.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Karna stands waist-deep in the river at noon worshipping the Sun while a disguised Indra approaches him like a humble Brahmana asking for alms.",
+      "visual_strength": 0.86
+    }
+  ]
+}

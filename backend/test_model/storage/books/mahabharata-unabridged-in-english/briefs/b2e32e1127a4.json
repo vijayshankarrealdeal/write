@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna battles Drona and multiple Kaurava warriors while pushing forward to fulfill his vow to kill Jayadratha; Srutayudha dies when his divine mace rebounds upon him.",
+  "importance": 0.75,
+  "themes": [
+    "guru–disciple conflict",
+    "battle prowess",
+    "fate and divine weapons",
+    "vengeance for Abhimanyu",
+    "advancing toward Jayadratha"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna and Drona stand on their chariots unleashing dense storms of arrows that darken the sky between them.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "The mace hurled by King Srutayudha strikes Krishna’s shoulder, rebounds through the air, and kills its own wielder.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Arjuna’s chariot with white steeds charges through shattered chariots and falling elephants as armies flee before his arrows.",
+      "visual_strength": 0.8
+    }
+  ]
+}

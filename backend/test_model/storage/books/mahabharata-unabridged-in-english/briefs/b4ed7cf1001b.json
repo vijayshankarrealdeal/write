@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After being rescued by the Pandavas from the Gandharvas, a humiliated Duryodhana travels home and confesses the truth of his defeat to Karna.",
+  "importance": 0.53,
+  "themes": [
+    "humiliation of Duryodhana",
+    "Pandava magnanimity",
+    "honor and shame",
+    "loyalty of Karna"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Duryodhana sits on an elevated couch in the night camp, head bowed in shame like an eclipsed moon, while Karna approaches to speak with him.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Arjuna fills the sky with a dense net of arrows as Gandharvas flee through the air dragging the captive Kauravas behind them.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Arjuna and the Gandharva king Chitrasena meet mid-battle and embrace like friends while the Pandavas and Gandharvas lower their weapons around them.",
+      "visual_strength": 0.7
+    }
+  ]
+}

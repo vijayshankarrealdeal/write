@@ -1,0 +1,43 @@
+{
+  "rich_summary": "This section first recounts Vishnu’s descent in the form of a colossal boar to the netherworld, where he confronts thousands of Daityas. Though the demons surround and try to overpower him, they fail; his terrifying roars shake the cosmos, paralyzing the Danavas and striking fear even among the gods. Vishnu slaughters the demons and is praised as the eternal, supreme being—Sanatana, Padmanabha, the source and lord of all creation. The narrative then shifts to a philosophical dialogue: Yudhishthira asks Bhishma about the yoga that leads to liberation. Bhishma introduces an ancient teaching in which a disciple questions his guru about the origin of beings, the nature of reality, and the meaning of Vedic teachings, beginning a discourse on Adhyatma and the supreme nature of Vasudeva.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the divine incarnation: the supreme deity assuming the form of a boar to confront the demons."
+    },
+    {
+      "start": 500,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The moment Vishnu’s cosmic roars erupt, a pivotal display of divine power that shakes the universe."
+    },
+    {
+      "start": 1100,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Depicts the terror and collapse of the Danavas, emphasizing the overwhelming force of Vishnu’s presence."
+    },
+    {
+      "start": 1800,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Marks the philosophical transition where Yudhishthira asks about the yoga leading to emancipation, setting up the spiritual discourse."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A colossal divine boar bursts through the dark netherworld as thousands of armored Daityas swarm around it, their weapons raised while the creature glows with supernatural power.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Vishnu in boar form throws back his head and releases a thunderous roar that ripples across the cosmos, while gods in the heavens and demons below recoil in terror.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A serene forest hermitage where a humble disciple bows at the feet of a radiant sage, asking profound questions about the origin of existence and liberation.",
+      "visual_strength": 0.74
+    }
+  ]
+}

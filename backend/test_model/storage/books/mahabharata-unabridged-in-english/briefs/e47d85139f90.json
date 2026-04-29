@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna saves Satyaki by severing Bhurisravas’ arm, sparking a moral dispute, after which Satyaki kills the meditating, disarmed Bhurisravas.",
+  "importance": 0.77,
+  "themes": [
+    "war ethics",
+    "loyalty and protection",
+    "revenge and vows",
+    "honor and shame",
+    "destiny versus choice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna’s razor-headed arrow flashes like a meteor and severs Bhurisravas’ sword-wielding arm as he prepares to behead the fallen Satyaki.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Bhurisravas, one arm cut off, sits on a bed of arrows in yogic meditation beneath the sun as armies watch in silence.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Satyaki rises and with a swift sword stroke decapitates the meditating Bhurisravas while warriors on both sides cry out in disapproval.",
+      "visual_strength": 0.9
+    }
+  ]
+}

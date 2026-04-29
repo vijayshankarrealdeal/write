@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This chapter launches Hanuman’s legendary leap across the ocean in search of the abducted Sita. Expanding his body to colossal size on a mountain crowded with celestial beings, he vows to reach Lanka or bring Ravana back in chains. His leap shakes the earth and sends trees and flowers flying as he rockets into the sky like a meteor. The gods watch and aid him: the ocean raises the golden mountain Mainaka to offer him rest, recalling an ancient debt to the Wind-god, but Hanuman refuses to delay his mission. The serpent-mother Surasa tests him by demanding he enter her mouth; he outwits her by shrinking and escaping. Later the shadow‑seizing demoness Singhika attacks, and Hanuman slays her from within. The chapter celebrates courage, divine favor, and ingenuity as Hanuman’s mythic journey toward Lanka begins.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 110,
+      "color_hex": "#FFEB3B",
+      "why": "Opening moment establishing Hanuman preparing for the epic quest to find Sita."
+    },
+    {
+      "start": 1570,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Hanuman’s bold vow that he will reach Lanka, seize Ravana, or uproot the city itself if necessary."
+    },
+    {
+      "start": 4180,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "The appearance of the golden mountain Mainaka rising from the sea, representing divine aid and ancient cosmic relationships."
+    },
+    {
+      "start": 6550,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "The clever contest with Surasa where Hanuman expands and then shrinks to escape her mouth."
+    },
+    {
+      "start": 8450,
+      "length": 170,
+      "color_hex": "#F48FB1",
+      "why": "Hanuman’s violent struggle with the shadow‑snatching demoness Singhika, whom he destroys from within."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Hanuman enlarges his body atop the mountain and launches into the sky, trees and blossoms torn up and swirling behind him as he leaps over the ocean.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "The golden mountain Mainaka rises from the sea with radiant peaks while Hanuman streaks overhead through clouds and celestial beings watch from the sky.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Hanuman shrinks to thumb size, darts into the gigantic open jaws of Surasa that stretch across the sky, and instantly bursts back out into the air.",
+      "visual_strength": 0.9
+    }
+  ]
+}

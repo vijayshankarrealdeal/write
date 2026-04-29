@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Rama departs for exile, the palace, city, and even nature fall into grief, lamenting the loss of the virtuous prince.",
+  "importance": 0.62,
+  "themes": [
+    "collective grief",
+    "virtue of Rama",
+    "exile consequences",
+    "loyalty and devotion",
+    "cosmic inauspiciousness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The women of the palace weep together in the inner chambers, crying out for Rama like cows bereft of their calves.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "King Dasaratha stands trembling and drenched in sweat, staring helplessly at Rama’s chariot disappearing into the distance.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "In ominous skies, dark planets crowd around the moon while the stars dim, reflecting the sorrow of the world after Rama’s exile.",
+      "visual_strength": 0.66
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Janamejaya asks for the Kuru lineage; Vaisampayana praises King Dushmanta’s ideal reign and begins the story of his hunt leading toward the Sakuntala episode.",
+  "importance": 0.45,
+  "themes": [
+    "royal ideal kingship",
+    "genealogy of Kurus",
+    "prosperous kingdom",
+    "royal hunt",
+    "heroic praise"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dushmanta marches toward the forest with chariots, elephants, horses, and roaring warriors as women on palace terraces shower flowers upon him.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The mighty king is described as strong enough to lift Mount Mandara with its forests upon his arms.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Dushmanta’s army enters a wild forest filled with deer, lions, rocky ground, and towering trees as the king rides a swift chariot.",
+      "visual_strength": 0.67
+    }
+  ]
+}

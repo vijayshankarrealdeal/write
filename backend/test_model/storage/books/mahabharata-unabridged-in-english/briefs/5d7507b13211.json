@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts Brahma’s revelation that the supreme Vasudeva will incarnate among humans to destroy Asuras and support the Pandavas, affirming Krishna’s divine supremacy.",
+  "importance": 0.76,
+  "themes": [
+    "divine incarnation",
+    "Krishna's supremacy",
+    "cosmic order and dharma",
+    "prophecy of victory",
+    "devotion to Vasudeva"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Brahma humbly addresses the radiant Lord Vasudeva as the deity appears briefly before the gathered gods and sages.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The assembled gods, rishis, and gandharvas gaze in wonder as the mysterious deity vanishes after promising to incarnate among humans.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Bhishma, lying on his bed of arrows, declares before a king that where Krishna stands there dwell righteousness and inevitable victory.",
+      "visual_strength": 0.83
+    }
+  ]
+}

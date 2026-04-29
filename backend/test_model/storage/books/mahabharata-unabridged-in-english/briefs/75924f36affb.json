@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Abhimanyu devastates Kaurava forces, defeats the Rakshasa Alamvusha’s illusions, and draws major warriors into a widening clash including Arjuna, Bhishma, Satyaki, and Ashwatthaman.",
+  "importance": 0.72,
+  "themes": [
+    "heroic warfare",
+    "father-son valor",
+    "illusion vs divine weapons",
+    "escalating battle",
+    "rakshasa combat"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Abhimanyu stands blazing on his golden chariot amid shattered warriors and animals, his bow a circle of flashing light as arrows stream like swarms of bees.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The Rakshasa Alamvusha casts a supernatural darkness over the battlefield until Abhimanyu releases a radiant solar weapon that floods the field with light.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Arjuna races toward the battlefield to rescue his son while Bhishma advances to meet him, the two armies massed around them like Rahu approaching the sun.",
+      "visual_strength": 0.86
+    }
+  ]
+}

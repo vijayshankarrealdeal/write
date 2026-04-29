@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vaka teaches Indra that independence and humble hospitality bring true happiness; later Narada settles a dispute between kings Suhotra and Sivi over who should yield.",
+  "importance": 0.55,
+  "themes": [
+    "contentment and independence",
+    "hospitality and merit",
+    "social injustice",
+    "humility versus pride",
+    "righteous kingship"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra, radiant on a seat of honor, questions the aged sage Vaka in a hermitage while offerings of water, fruits, and roots lie before him.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "Two royal chariots halt face to face on a forest road as kings Suhotra and Sivi refuse to yield, while the celestial sage Narada appears between them.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A humble Brahmana serves food first to guests and ancestors before quietly eating the remaining rice in his simple home.",
+      "visual_strength": 0.6
+    }
+  ]
+}

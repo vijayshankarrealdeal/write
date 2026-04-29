@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Daksha’s sacrifice is destroyed, Shiva revives him, cosmic harmony is restored, and events are set in motion for Parvati’s birth and marriage to Shiva.",
+  "importance": 0.7,
+  "themes": [
+    "divine forgiveness",
+    "cosmic justice",
+    "Shiva–Vishnu unity",
+    "rebirth and destiny",
+    "devotion and penance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Shiva’s attendants attach a sheep’s head to Daksha’s lifeless body while the gods watch as he awakens and bows at Shiva’s feet.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Under a vast banyan tree on Mount Kailasa, ash-covered Shiva sits in deep meditation while sages and celestial beings gather around him.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The weapons of Dadhichi and King Kshupa transform into the living forms of Shiva and Vishnu, causing both men to bow their heads in shame.",
+      "visual_strength": 0.78
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama recounts how King Nriga, cursed by two brahmins over a disputed cow, abdicates and accepts years of suffering in a ditch awaiting future liberation.",
+  "importance": 0.53,
+  "themes": [
+    "curse of sages",
+    "kingly duty and justice",
+    "acceptance of destiny",
+    "karma and consequence",
+    "abdication and penance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Two furious brahmin sages stand before King Nriga and pronounce a terrible curse that he will become a lizard and dwell unseen in a ditch for ages.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "King Nriga calmly installs his son Vasu on the throne before ministers and citizens, announcing his acceptance of the curse.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "The king descends into a deep, gem-adorned ditch surrounded by flowering trees and fragrant blossoms to begin his long expiation.",
+      "visual_strength": 0.75
+    }
+  ]
+}

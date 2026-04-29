@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Draupadi persuades Bhima to avenge Kichaka’s assault, lures Kichaka to a nighttime tryst, and Bhima secretly kills him in a brutal wrestling fight.",
+  "importance": 0.86,
+  "themes": [
+    "revenge for dishonor",
+    "sexual predation",
+    "secret justice",
+    "loyalty between spouses",
+    "disguise and strategy"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a dark empty dancing hall, Bhima disguised on a bed suddenly rises as Kichaka approaches expecting Draupadi.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Bhima seizes Kichaka by the hair and the two giants wrestle violently in the shadowy hall, shaking the building.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Bhima whirls the exhausted Kichaka and crushes him in his arms, roaring like a tiger over the defeated body.",
+      "visual_strength": 0.85
+    }
+  ]
+}

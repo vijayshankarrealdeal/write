@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Ominous portents fill the battlefield as Rama and Ravana prepare for the climax of their duel. Birds fall shrieking from the sky, Rama’s horses emit both sparks and tears, and other supernatural signs foretell Ravana’s doom while promising Rama’s victory. Interpreting these omens with confidence, Rama enters the combat energized and certain of triumph, while Ravana inwardly senses death approaching. Their chariot duel escalates so fiercely that the watching armies—monkeys and titans alike—freeze in awe, forgetting their own battle. Ravana launches storms of enchanted weapons in vast numbers, but Rama counters with equal force, even cutting down Ravana’s banner. The sky fills with colliding arrows, creating what seems like a second heaven made of weapons, as the two champions exchange relentless blows in a terrifying, world‑shaking clash.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "Apocalyptic omens—falling birds and eerie signs—set a supernatural tone and foreshadow Ravana’s downfall."
+    },
+    {
+      "start": 230,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "Rama interprets the omens and becomes filled with divine confidence, framing the duel as destiny unfolding."
+    },
+    {
+      "start": 650,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "The two armies stop fighting to watch the duel, emphasizing that the fate of the war rests entirely on Rama and Ravana."
+    },
+    {
+      "start": 1350,
+      "length": 200,
+      "color_hex": "#FFEB3B",
+      "why": "The sky becomes a storm of weapons as the two heroes unleash thousands of missiles, forming a 'second heaven' of arrows."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Rama and Ravana facing each other in blazing chariots while the sky darkens with omens and hundreds of birds fall shrieking around them.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama’s arrow slices through Ravana’s towering battle standard, the banner tumbling to the earth as the demon king burns with rage.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The heavens filled with countless arrows from both warriors colliding midair, forming a glittering storm of weapons above the stunned armies.",
+      "visual_strength": 0.94
+    }
+  ]
+}

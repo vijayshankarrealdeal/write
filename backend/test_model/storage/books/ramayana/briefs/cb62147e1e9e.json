@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Bali’s funeral, Sugriva is crowned king of Kishkindha, Angada is made heir, and Rama waits through the rainy season before the planned campaign against Ravana.",
+  "importance": 0.65,
+  "themes": [
+    "kingship succession",
+    "funeral rites",
+    "loyalty to vows",
+    "alliance with Rama",
+    "ritual coronation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Angada, weeping, circles the blazing funeral pyre of Bali while Sugriva and the monkeys stand in mourning.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Sugriva sits on a golden throne beneath a white canopy as Hanuman and other monkey chiefs pour sacred waters from golden vessels over him.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Rama and Lakshmana stand at the mouth of a mountain cave while the monkey hosts bow before Sugriva entering the city of Kishkindha.",
+      "visual_strength": 0.62
+    }
+  ]
+}

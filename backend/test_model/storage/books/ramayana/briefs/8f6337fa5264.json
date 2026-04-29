@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Demonesses in Lanka try to persuade Sita to accept Ravana as husband by praising his lineage, power, and wealth.",
+  "importance": 0.45,
+  "themes": [
+    "temptation",
+    "loyalty to Rama",
+    "intimidation",
+    "praise of Ravana's power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A circle of grotesque demonesses with blazing eyes crowd around the sorrowful Sita beneath a tree, angrily urging her to accept Ravana.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "One furious demoness with catlike rolling eyes points accusingly at Sita while boasting of Ravana’s victories over gods and celestial beings.",
+      "visual_strength": 0.64
+    }
+  ]
+}

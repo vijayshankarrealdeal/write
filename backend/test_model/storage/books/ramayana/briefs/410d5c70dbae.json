@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Angada rebukes the fleeing monkey army, urging them to reclaim courage against Kumbhakarna, briefly rallying them though the titan continues devastating their ranks.",
+  "importance": 0.53,
+  "themes": [
+    "battle courage",
+    "leadership exhortation",
+    "fear vs honor",
+    "overwhelming foe"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The gigantic Kumbhakarna leaps over the city wall and roars, towering like a mountain while the monkey army scatters in terror.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Prince Angada stands defiantly before the fleeing monkeys, raising his arm and shouting for them to return to battle.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Monkeys hurl trees and mountain rocks at Kumbhakarna, the missiles shattering harmlessly against his colossal body.",
+      "visual_strength": 0.76
+    }
+  ]
+}

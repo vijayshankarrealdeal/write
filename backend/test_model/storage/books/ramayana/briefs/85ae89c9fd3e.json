@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Ravana uses a magician’s illusion of Rama’s severed head and bow to convince Sita that Rama and his allies have been slain.",
+  "importance": 0.72,
+  "themes": [
+    "deception and illusion",
+    "psychological warfare",
+    "Sita's suffering",
+    "Ravana's manipulation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the Ashoka grove, the demon magician drops an illusionary severed head of Rama before the grief-stricken Sita seated on the ground.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Ravana stands proudly holding Rama’s great bow while captive Sita sits beneath the Ashoka trees surrounded by grim demoness guards.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Sita sits with bowed head in the Ashoka grove, thin and sorrowful, watched by grotesque titan women as Ravana approaches.",
+      "visual_strength": 0.7
+    }
+  ]
+}

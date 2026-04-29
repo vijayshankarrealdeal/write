@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Uttara reveals a mysterious celestial youth won the battle, while Arjuna remains disguised; later the Pandavas appear royally, provoking Virata’s anger at Kanka.",
+  "importance": 0.62,
+  "themes": [
+    "hidden identity",
+    "humility and truth",
+    "royal pride",
+    "approaching revelation",
+    "battle glory"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Prince Uttara trembles on the chariot while a radiant warrior single‑handedly showers arrows upon the Kuru army.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The celestial hero laughs amid shattered chariots and strips the defeated Kuru warriors of their garments like a tiger among beasts.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The five Pandavas, bathed and dressed in white with shining ornaments, stride into Virata’s hall like five mighty elephants and sit upon royal thrones.",
+      "visual_strength": 0.86
+    }
+  ]
+}

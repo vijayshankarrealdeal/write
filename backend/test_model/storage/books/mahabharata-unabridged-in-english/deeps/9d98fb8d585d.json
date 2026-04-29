@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This passage depicts the astonishing ferocity of Abhimanyu during the Kurukshetra battle. Surrounded by elite Kaurava warriors—Kripa, Aswatthaman, Karna, Kritavarman, and others—the young son of Arjuna fights with relentless skill. He kills several princes and even slays Vrihadvala, causing thousands of kings to flee in panic. His duel with Karna is especially intense, both warriors bloodied yet radiant in battle. Abhimanyu continues cutting down chariots, steeds, and warriors, demonstrating speed and mastery that amazes even his enemies. Drona himself praises the youth’s unmatched agility and compares him to Arjuna, admitting no flaw can be found in his fighting. Recognizing they cannot defeat him fairly, the Kaurava leaders discuss strategy: they must first disable his bow and chariot. Acting on Drona’s advice, Karna finally cuts Abhimanyu’s bow, marking a crucial turning point that foreshadows the treacherous tactics soon to follow.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 47,
+      "color_hex": "#A5D6A7",
+      "why": "Opens with Abhimanyu’s aggressive assault, immediately establishing the relentless pace of his attack."
+    },
+    {
+      "start": 200,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Shows Abhimanyu standing firm despite a barrage of arrows from powerful warriors, underscoring his near-superhuman resilience."
+    },
+    {
+      "start": 600,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "The slaying of King Vrihadvala triggers fear among thousands of kings, capturing the emotional shock of Abhimanyu’s dominance."
+    },
+    {
+      "start": 1200,
+      "length": 160,
+      "color_hex": "#A5D6A7",
+      "why": "Drona’s admiration of Abhimanyu’s speed and skill reveals the youth’s legendary prowess, even in the eyes of his enemies."
+    },
+    {
+      "start": 1800,
+      "length": 160,
+      "color_hex": "#FFEB3B",
+      "why": "Drona explains the only possible way to defeat Abhimanyu—by disabling his bow and chariot—foreshadowing the unfair tactics that follow."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Abhimanyu standing in his chariot at the center of the battlefield while arrows rain upon him from multiple legendary warriors, yet he remains unmoving like a mountain.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The moment Abhimanyu’s arrow pierces King Vrihadvala’s chest as surrounding kings recoil and begin fleeing the battlefield.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Drona and Karna watching the whirling chariot of Abhimanyu, his bow drawn in a perfect circle as shafts fly in every direction across the battlefield.",
+      "visual_strength": 0.9
+    }
+  ]
+}

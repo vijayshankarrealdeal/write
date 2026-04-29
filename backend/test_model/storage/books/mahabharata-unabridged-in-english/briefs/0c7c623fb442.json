@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Devasarman reveals that cosmic witnesses saw Vipula’s hidden act, absolves him of sin, and Bhishma discusses women’s nature and lawful forms of marriage.",
+  "importance": 0.58,
+  "themes": [
+    "hidden actions witnessed by cosmos",
+    "guru-disciple ethics",
+    "moral accountability",
+    "views on women",
+    "marriage laws"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vipula stands before the sage Devasarman as the rishi reveals that the circling figures of Day and Night and the six Seasons witnessed his secret act.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Personified Day and Night revolve like a cosmic wheel above the forest while the six Seasons sit laughing and casting dice.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The sage Devasarman, with his wife Ruchi and disciple Vipula, ascends together toward heaven in radiant light.",
+      "visual_strength": 0.78
+    }
+  ]
+}

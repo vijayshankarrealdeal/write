@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Parvati wins Siva’s permission to serve him through devotion while, elsewhere, the demon Taraka gains a boon and begins rising to power.",
+  "importance": 0.6,
+  "themes": [
+    "devotion and testing",
+    "divine love",
+    "asceticism",
+    "demonic ambition",
+    "boons and destiny"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Parvati kneels at Siva’s feet in the forest hermitage, washing them with consecrated water while he sits in meditation beneath the Himalayas.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Parvati stands sleepless on the palace terrace under a bright moon, the Malaya breeze moving the garden trees as she longs for Siva.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "The demon Taraka is born amid cosmic omens—earthquakes, dark clouds swallowing the sun, storms raging, and animals fleeing in terror.",
+      "visual_strength": 0.9
+    }
+  ]
+}

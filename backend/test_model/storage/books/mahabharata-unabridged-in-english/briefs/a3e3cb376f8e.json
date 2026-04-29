@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Iravat, Arjuna’s Naga-born son, joins the Kurukshetra battle, devastates Sakuni’s brothers and cavalry despite being surrounded and heavily wounded.",
+  "importance": 0.55,
+  "themes": [
+    "lineage and hidden heirs",
+    "cavalry warfare",
+    "heroic valor against odds",
+    "family ties in war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Iravat, bleeding and on foot with sword and shield, whirls among mounted Gandhara princes, severing their arms as golden weapons fall to the blood-soaked field.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Two great cavalry forces collide as swift, gold-adorned horses crash chest to chest, riders slashing while the battlefield fills with dust and chaos.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "In Indra’s celestial court, Arjuna embraces Iravat, the son he had not seen since the Naga princess bore him in the serpent realm.",
+      "visual_strength": 0.62
+    }
+  ]
+}

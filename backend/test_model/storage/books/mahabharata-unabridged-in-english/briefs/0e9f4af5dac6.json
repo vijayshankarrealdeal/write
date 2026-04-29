@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Arjuna charges into battle against Bhishma, terrifying the Kaurava army as massive clashes erupt across the field amid chaos, dust, and slaughter.",
+  "importance": 0.7,
+  "themes": [
+    "Arjuna vs Bhishma",
+    "battlefield chaos",
+    "war omens",
+    "heroic warfare",
+    "fear and morale"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna on his chariot raises the Gandiva as arrows rain in all directions, his banner blazing like a comet while terrified warriors scatter below.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Dust darkens the sun as elephants, chariots, and horses crash together while severed banners, shields, and weapons cover the battlefield.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A massive war elephant crushes chariots and soldiers beneath its feet while wounded horses drag broken chariots across the blood‑stained field.",
+      "visual_strength": 0.85
+    }
+  ]
+}

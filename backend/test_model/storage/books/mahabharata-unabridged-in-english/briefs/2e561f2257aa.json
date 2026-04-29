@@ -1,0 +1,24 @@
+{
+  "summary_1line": "King Somaka sacrifices his only son to gain a hundred sons; later he finds his priest suffering in hell for the act.",
+  "importance": 0.72,
+  "themes": [
+    "sacrificial ritual",
+    "desire for heirs",
+    "parental grief",
+    "karma and moral consequence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The priest drags the crying boy Jantu toward the sacrificial fire while a circle of mothers clutch at him and scream in anguish.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The sacrificial fire blazes as the mothers collapse to the ground after smelling the smoke of the offering.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "In the afterlife Somaka sees his family priest being scorched in a fiery hell and speaks to him across the flames.",
+      "visual_strength": 0.84
+    }
+  ]
+}

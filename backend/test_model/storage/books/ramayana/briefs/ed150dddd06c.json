@@ -1,0 +1,20 @@
+{
+  "summary_1line": "After Sita emerges unharmed from the fire, the Fire God declares her purity and returns her to Rama, who explains the trial was for public opinion.",
+  "importance": 0.85,
+  "themes": [
+    "trial by fire",
+    "public duty vs personal feeling",
+    "divine testimony",
+    "chastity and honor"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The Fire God rises from the extinguished pyre holding Sita in his arms, radiant in red robes and gold ornaments before Rama and the assembled hosts.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Agni stands before Rama and the gathered warriors, presenting Sita and proclaiming her purity after the ordeal by fire.",
+      "visual_strength": 0.78
+    }
+  ]
+}

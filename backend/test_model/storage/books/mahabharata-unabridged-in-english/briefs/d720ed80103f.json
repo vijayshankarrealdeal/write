@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Parasara explains how attachment in household life breeds desire and wrongdoing, urging rulers toward virtue, restraint, self-knowledge, and penance as the path to true happiness.",
+  "importance": 0.55,
+  "themes": [
+    "attachment and desire",
+    "kingship ethics",
+    "penance and austerity",
+    "virtue vs sin",
+    "spiritual awakening"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "An aged sage instructs a listening king in a forest hermitage while disciples sit nearby under tall trees.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "A wealthy householder surrounded by family, servants, and treasures gazes anxiously at his possessions.",
+      "visual_strength": 0.58
+    },
+    {
+      "scene_text": "An ascetic standing in austere penance beneath the open sky while celestial beings look on approvingly.",
+      "visual_strength": 0.64
+    }
+  ]
+}

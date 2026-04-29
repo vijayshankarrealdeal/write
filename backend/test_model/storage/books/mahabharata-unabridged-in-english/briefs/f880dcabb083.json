@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Drona trains the Kuru princes; Arjuna proves most devoted, Ekalavya sacrifices his thumb, and rivalries among the students intensify.",
+  "importance": 0.8,
+  "themes": [
+    "teacher–student devotion",
+    "jealousy and rivalry",
+    "social hierarchy and exclusion",
+    "sacrifice for guru",
+    "rise of Arjuna"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ekalavya calmly cuts off his right thumb and offers it to Drona before the clay statue of the teacher in the forest.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "A hunting dog runs back to the princes with its mouth sealed by seven perfectly placed arrows without a drop of blood.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "At night Arjuna practices archery in darkness while Drona embraces him, hearing the twang of the bowstring.",
+      "visual_strength": 0.8
+    }
+  ]
+}

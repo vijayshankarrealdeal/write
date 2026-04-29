@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Indra praises Bali’s understanding of Time’s power, then Bhishma recounts how Lakshmi abandoned the morally decayed Asuras and chose the virtuous gods.",
+  "importance": 0.72,
+  "themes": [
+    "power of Time",
+    "virtue and prosperity",
+    "moral decline",
+    "divine favor",
+    "social order and duty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Indra stands before the bound Asura Bali, thunderbolt raised, while Bali remains calm despite the glowing nooses of Varuna around him.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The radiant goddess Lakshmi descends from the sky on a blazing celestial vehicle, surrounded by Apsaras, appearing like a second sun before Indra and Narada.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Indra and the sage Narada stand at the river Ganga at dawn, hymning the rising sun as golden light spreads across the water.",
+      "visual_strength": 0.65
+    }
+  ]
+}

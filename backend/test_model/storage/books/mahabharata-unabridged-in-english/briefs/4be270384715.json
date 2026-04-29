@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts Vyasa urging his son Suka toward renunciation, warning of life's brevity, death's certainty, and the need for righteousness and spiritual liberation.",
+  "importance": 0.72,
+  "themes": [
+    "renunciation",
+    "mortality awareness",
+    "righteous conduct",
+    "karma and afterlife",
+    "yogic liberation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vyasa stands before his son Suka in a forest hermitage, warning him while the young ascetic listens among silent trees.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "A symbolic ocean filled with monsters of Desire and Wrath while a lone seeker crosses it on a small raft labeled Yoga.",
+      "visual_strength": 0.79
+    },
+    {
+      "scene_text": "Death like a she-wolf snatches a lamb from a distracted man still clutching his wealth and pleasures.",
+      "visual_strength": 0.82
+    }
+  ]
+}

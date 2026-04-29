@@ -1,0 +1,49 @@
+{
+  "rich_summary": "After Ravana’s defeat, Rama shocks the gathered hosts by rejecting Sita, declaring he fought the war only to restore his honor, not out of attachment to her. He suggests she may go to another protector, implying her time in Ravana’s captivity has tainted her. The accusation devastates Sita. In front of the assembled warriors, she laments the injustice, insisting her heart has always remained faithful and that any contact with Ravana occurred against her will. She reproaches Rama for doubting her despite her proven devotion and the suffering endured to rescue her. Concluding that public shame leaves her no other recourse, she commands Lakshmana to prepare a funeral pyre so she may prove her purity through fire. As Rama stands stern and silent, Lakshmana reluctantly obeys and Sita approaches the flames, invoking the gods before the ordeal.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Rama’s shocking declaration that he no longer wants Sita establishes the central crisis and moral tension of the scene."
+    },
+    {
+      "start": 170,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The vivid simile of Sita weeping like a creeper torn by an elephant captures the emotional devastation of Rama’s words."
+    },
+    {
+      "start": 400,
+      "length": 220,
+      "color_hex": "#A5D6A7",
+      "why": "Sita’s defense of her inner fidelity—distinguishing between her captive body and faithful heart—expresses a core ethical theme of purity and intention."
+    },
+    {
+      "start": 760,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Her command to Lakshmana to build a pyre marks the decisive turning point leading to the famous trial by fire."
+    },
+    {
+      "start": 980,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "The moment Sita approaches the blazing fire before the silent assembly heightens the tragic and sacred drama."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Before a vast assembly of warriors, Sita in sorrowful dignity walks toward a blazing funeral pyre while Rama stands stern and silent nearby.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "Lakshmana, anguished yet obedient, prepares the funeral pyre as armies of monkeys and allies watch in stunned silence.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Sita with folded hands stands before the roaring flames, invoking the gods as the wind lifts her garments and the battlefield court looks on.",
+      "visual_strength": 0.9
+    }
+  ]
+}

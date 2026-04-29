@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sita firmly rejects Ravana’s temptations, rebukes his immorality, prophesies Lanka’s destruction, and declares unwavering devotion to Rama.",
+  "importance": 0.8,
+  "themes": [
+    "chastity and fidelity",
+    "defiance of tyranny",
+    "dharma and morality",
+    "prophecy of downfall",
+    "devotion to Rama"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sita places a blade of straw between herself and Ravana as she turns away and rebukes him in the Ashoka grove.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Sita, thin and sorrowful in torn garments beneath the trees, fearlessly warns Ravana that Rama’s arrows will soon rain upon Lanka.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Ravana stands richly adorned before Sita offering wealth and power while she sits resolute on the ground, refusing him with calm disdain.",
+      "visual_strength": 0.83
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Parasara explains penance, fleeting sensory pleasure, and how social orders and lineages arose from Brahman through conduct, mixture, and ascetic power.",
+  "importance": 0.55,
+  "themes": [
+    "asceticism and penance",
+    "transience of sensory pleasure",
+    "varna origins",
+    "moral conduct and duty",
+    "spiritual status through austerity"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The cosmic being gives rise to people from his mouth, arms, thighs, and feet, symbolizing the four social orders.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "A serene ascetic sits in deep penance while kings and sages stand around him, acknowledging the spiritual power that transcends birth.",
+      "visual_strength": 0.64
+    }
+  ]
+}

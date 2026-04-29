@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After ominous portents, Dhritarashtra grants Draupadi boons freeing the Pandavas; Karna acknowledges her saving them, and Bhima fumes at the humiliation.",
+  "importance": 0.78,
+  "themes": [
+    "justice and dharma",
+    "omens and fate",
+    "humiliation and honor",
+    "royal authority",
+    "loyalty in marriage"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In the royal hall, Draupadi stands before blind king Dhritarashtra as he grants her boons that free the Pandavas from bondage.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "A jackal howls inside the palace sacrificial chamber while asses bray and ominous birds cry across the darkened court.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Bhima, blazing with wrath like a burning tree, glares across the assembly as sparks seem to burst from his body.",
+      "visual_strength": 0.8
+    }
+  ]
+}

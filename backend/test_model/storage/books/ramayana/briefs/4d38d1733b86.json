@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Hanuman returns from Lanka after finding Sita, crosses the ocean again, reunites with the waiting monkeys, and joyfully announces that he has seen her.",
+  "importance": 0.72,
+  "themes": [
+    "mission success",
+    "heroic return",
+    "loyalty to Rama",
+    "messenger role",
+    "collective relief and celebration"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman soars across the sky above the ocean, bursting through multicolored clouds like the moon appearing and vanishing among them.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Hanuman lands thunderously on Mahendra Mountain while excited monkeys leap from rocks and treetops, waving garments and shouting with joy.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Surrounded by eager monkeys, Hanuman calmly declares, 'I have seen the Goddess,' as their faces erupt with overwhelming relief and celebration.",
+      "visual_strength": 0.83
+    }
+  ]
+}

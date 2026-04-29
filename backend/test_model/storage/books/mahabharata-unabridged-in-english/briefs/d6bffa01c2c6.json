@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Parasara explains righteous conduct, proper duties of social classes, merit of honest wealth and gifts, and a myth of gods restoring righteousness after lust and wrath corrupt humanity.",
+  "importance": 0.56,
+  "themes": [
+    "varna duties",
+    "righteous livelihood",
+    "ethics of charity",
+    "moral corruption by desire and anger",
+    "divine restoration of order"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Mahadeva releases a single blazing arrow that strikes down the Asuras of Desire, Wrath, and Greed as they hover in the sky with their celestial strongholds.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "The assembled gods approach Shiva and pour their combined energies into him as he stands radiant and many-formed.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "After the Asuras fall, sages gather to install Indra as ruler of heaven while humanity resumes studying the Vedas.",
+      "visual_strength": 0.64
+    }
+  ]
+}

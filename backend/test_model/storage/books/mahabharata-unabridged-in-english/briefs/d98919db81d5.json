@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma explains when Brahmanas may adopt other livelihoods, trade restrictions, and when all orders—including Brahmanas—may take up arms to protect order and themselves.",
+  "importance": 0.63,
+  "themes": [
+    "varna duties",
+    "economic ethics",
+    "social order in crisis",
+    "religious hierarchy",
+    "justified violence"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A group of ascetic Brahmanas in simple robes stand beside a king, chanting Vedic hymns as their ritual fire blazes to strengthen his faltering power.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "A lone Brahmana, normally a priest, lifts a weapon amid chaos as robbers devastate the land and people of all orders prepare to fight.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Bhishma explains to Yudhishthira the analogy of iron striking stone and fire meeting water, illustrating how Kshatriya power weakens before Brahmanas.",
+      "visual_strength": 0.4
+    }
+  ]
+}

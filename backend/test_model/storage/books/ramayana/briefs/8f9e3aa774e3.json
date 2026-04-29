@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sage Agastya tells Rama that Narada once explained the cause of Ravana’s abduction of Sita and begins recounting Ravana’s conquests.",
+  "importance": 0.42,
+  "themes": [
+    "sage narration",
+    "origin of Sita's abduction",
+    "Ravana's pride",
+    "sacred storytelling merit"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Agastya bows before Rama and begins narrating a divine tale while sages and celestial beings listen in reverence.",
+      "visual_strength": 0.56
+    },
+    {
+      "scene_text": "Narada stands atop Mount Meru surrounded by gods, gandharvas, and sages as he proclaims the story of Ravana.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Ravana, proud and powerful, marches across the earth with ranks of rakshasa warriors seeking conquest.",
+      "visual_strength": 0.74
+    }
+  ]
+}

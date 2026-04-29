@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna consoles Subhadra promising Arjuna will kill Jayadratha; Subhadra laments deeply over Abhimanyu’s fallen body and prays for his noble afterlife.",
+  "importance": 0.7,
+  "themes": [
+    "maternal grief",
+    "warrior honor",
+    "vengeance vow",
+    "impermanence of life",
+    "afterlife blessings"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Subhadra imagines Abhimanyu lying on the battlefield, his ornamented body pierced with arrows and dust-covered face shining like the rising moon.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Krishna solemnly promises that Arjuna will cut off the head of the Sindhu king and make it roll upon the field of Samantapanchaka.",
+      "visual_strength": 0.65
+    },
+    {
+      "scene_text": "A grieving mother raises her arms and mourns her son who once slept on silk but now lies on the bare earth among jackals.",
+      "visual_strength": 0.85
+    }
+  ]
+}

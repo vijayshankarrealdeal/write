@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Utathya instructs King Mandhatri that righteous rule protects the weak, preserves social order, and determines the prosperity or ruin of the entire realm.",
+  "importance": 0.55,
+  "themes": [
+    "duties of kingship",
+    "dharma and governance",
+    "protection of the weak",
+    "social order and varna",
+    "consequences of unrighteous rule"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A righteous king sits in judgment while distressed villagers and the poor approach him, their tears contrasted with the king’s calm authority.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "A mighty sheltering tree filled with birds and animals is suddenly cut down, leaving the creatures scattered and homeless.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "A weak, weeping man raises his tearful eyes toward a powerful king, the tears glowing like fire that threatens to burn the king’s lineage.",
+      "visual_strength": 0.86
+    }
+  ]
+}

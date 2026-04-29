@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vyasa recounts the decline of righteousness, a vision of the equine-headed deity commissioning Brahma, and Krishna explaining the divine names and unity of Narayana and Rudra.",
+  "importance": 0.72,
+  "themes": [
+    "decline of dharma",
+    "divine cosmology",
+    "Narayana-Rudra unity",
+    "incarnation and cosmic cycles",
+    "power of sacred recitation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The great deity appears before Brahma with a vast equine head, holding a kamandalu and triple staff while reciting the Vedas.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Brahma stands with folded hands as the radiant equine‑headed deity embraces him before disappearing.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Krishna speaks to Arjuna, explaining the cosmic origins of Brahma from a lotus and Rudra from divine wrath.",
+      "visual_strength": 0.6
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "King Parikshit insults a silent sage by placing a dead snake on him; the sage’s son Sringin angrily curses the king to die by serpent Takshaka.",
+  "importance": 0.86,
+  "themes": [
+    "royal arrogance",
+    "ascetic power",
+    "curse and fate",
+    "anger and restraint",
+    "brahmin–king tension"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The weary king Parikshit lifts a dead snake with the tip of his bow and drapes it across the silent sage’s shoulders in the forest cow-pen.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Young ascetic Sringin, eyes blazing with anger, touches water and pronounces a curse that the serpent king Takshaka will kill Parikshit in seven nights.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The meditating sage sits unmoving in a rustic cow-pen, calves drinking milk nearby while a dead snake lies across his shoulders.",
+      "visual_strength": 0.76
+    }
+  ]
+}

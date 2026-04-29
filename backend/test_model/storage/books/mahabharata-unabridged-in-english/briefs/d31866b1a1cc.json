@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma urges Yudhishthira to rule actively rather than renounce, explaining kingly duty and how a ruler should judge and manage Brahmanas by conduct.",
+  "importance": 0.63,
+  "themes": [
+    "duty of kingship",
+    "renunciation vs action",
+    "protection of subjects",
+    "social order of varnas",
+    "justice and governance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma, lying on his bed of arrows, raises his hand while advising the troubled Yudhishthira who stands beside him in royal garments.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A righteous king sits on a throne as frightened villagers approach him for protection while soldiers stand ready to punish wrongdoers.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "A majestic tree heavy with fruit shelters many birds beneath its branches, symbolizing people taking refuge under a just king.",
+      "visual_strength": 0.55
+    }
+  ]
+}

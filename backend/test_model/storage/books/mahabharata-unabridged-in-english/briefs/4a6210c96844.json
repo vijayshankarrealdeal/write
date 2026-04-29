@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Duryodhana secretly orders Purochana to build a flammable palace at Varanavata to burn the Pandavas, who depart amid sorrowful farewells from citizens.",
+  "importance": 0.76,
+  "themes": [
+    "treachery and conspiracy",
+    "political intrigue",
+    "loyalty of citizens",
+    "duty and obedience",
+    "impending assassination"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Duryodhana grips Purochana’s hand in a private chamber, whispering the plan to build a palace of lac and burn the Pandavas within.",
+      "visual_strength": 0.67
+    },
+    {
+      "scene_text": "The Pandavas mount their chariots while touching the feet of Bhishma, Dhritarashtra, and the elders, as grieving citizens gather around.",
+      "visual_strength": 0.63
+    },
+    {
+      "scene_text": "Crowds of distressed citizens follow the departing Pandavas out of the city, raising their hands in protest and sorrow.",
+      "visual_strength": 0.71
+    }
+  ]
+}

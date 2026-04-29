@@ -1,0 +1,49 @@
+{
+  "rich_summary": "In this section, the Pandavas stay with King Drupada after the revelation of their identities. Drupada initially proposes that Arjuna formally marry his daughter, Draupadi. However, Yudhishthira announces an unexpected decision: Draupadi will become the wife of all five Pandava brothers, following their mother Kunti’s command and their custom of sharing whatever they obtain. Drupada and his son Dhrishtadyumna object, arguing that polyandry contradicts tradition, morality, and the Vedas. As the debate intensifies, the sage Vyasa arrives. Drupada seeks his judgment, while each participant expresses uncertainty about the subtle nature of dharma. Yudhishthira defends the proposal by citing ancient precedents and emphasizing obedience to one’s mother. The episode highlights a central Mahabharata theme: dharma is complex, contextual, and often disputed even among the wise.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the political setting and Drupada’s assurance to restore Yudhishthira, establishing trust and alliance before the marriage debate."
+    },
+    {
+      "start": 600,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Yudhishthira declares that Draupadi will be the common wife of all five brothers—one of the most pivotal and surprising decisions in the epic."
+    },
+    {
+      "start": 1100,
+      "length": 140,
+      "color_hex": "#F48FB1",
+      "why": "Drupada’s shocked objection expresses the emotional and moral tension surrounding the unprecedented proposal."
+    },
+    {
+      "start": 1700,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The discussion about the subtle nature of morality (dharma) highlights a major philosophical theme of the Mahabharata."
+    },
+    {
+      "start": 2300,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Yudhishthira cites ancient precedents and the authority of the mother, forming the central justification for the unusual marriage."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Yudhishthira solemnly declaring before King Drupada and the gathered court that Draupadi shall become the common wife of all five Pandava brothers.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "King Drupada and Dhrishtadyumna reacting with shock and concern as the proposal of Draupadi marrying five brothers is debated in the royal hall.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The sage Vyasa entering the assembly while kings and warriors rise in reverence, bringing authority to the moral dispute.",
+      "visual_strength": 0.8
+    }
+  ]
+}

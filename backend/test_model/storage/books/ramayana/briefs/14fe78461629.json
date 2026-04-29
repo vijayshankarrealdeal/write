@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sugriva sends Angada, Hanuman, and other monkey chiefs south, detailing lands, mountains, and dangers to search for Sita and Ravana’s island.",
+  "importance": 0.43,
+  "themes": [
+    "quest directions",
+    "geography and exploration",
+    "loyal service",
+    "dangerous frontiers"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sugriva stands before the gathered monkey chiefs, pointing south while Angada, Hanuman, and Jambavan listen among a vast army.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Across the ocean rises the golden mountain Mahendra, its slopes crowded with gods, sages, and celestial beings above the waves.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "In the ocean a fearsome demoness seizes flying creatures by grasping their shadows on the water below.",
+      "visual_strength": 0.83
+    }
+  ]
+}

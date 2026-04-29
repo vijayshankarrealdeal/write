@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dhritarashtra asks the citizens’ forgiveness and permission to retire to the forest; a Brahmana replies that the war’s destruction was destiny, not the king’s fault.",
+  "importance": 0.53,
+  "themes": [
+    "repentance and forgiveness",
+    "royal renunciation",
+    "destiny vs responsibility",
+    "public loyalty",
+    "grief after war"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The aged blind king Dhritarashtra stands with folded hands beside grieving Gandhari, pleading before a crowd of tearful citizens.",
+      "visual_strength": 0.79
+    },
+    {
+      "scene_text": "Citizens of Kurujangala cover their faces with garments and hands, weeping as they hear their old king speak of leaving for the forest.",
+      "visual_strength": 0.73
+    },
+    {
+      "scene_text": "A learned Brahmana named Samba rises before the silent assembly to deliver the people’s reply to the sorrowful king.",
+      "visual_strength": 0.56
+    }
+  ]
+}

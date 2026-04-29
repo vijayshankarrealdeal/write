@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Matali brings Indra’s celestial chariot for Arjuna, who performs rituals, ascends to heaven, and beholds the luminous realms and the city of Amaravati.",
+  "importance": 0.7,
+  "themes": [
+    "divine invitation",
+    "journey to heaven",
+    "ascetic merit and virtue",
+    "celestial realms",
+    "Arjuna and Indra"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna stands before Indra’s radiant chariot drawn by thousands of golden horses, its emerald Vaijayanta banner blazing in the sky.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "After bathing and praying by the Ganges, Arjuna bids farewell to Mount Mandara before stepping onto the celestial chariot.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Arjuna rides through the star-filled heavens in Indra’s chariot, passing shining sages and warriors while Airavata the four‑tusked elephant guards heaven’s gate.",
+      "visual_strength": 0.88
+    }
+  ]
+}

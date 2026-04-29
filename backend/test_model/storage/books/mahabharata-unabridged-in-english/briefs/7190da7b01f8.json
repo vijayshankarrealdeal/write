@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma outlines moral restraints and introduces a discourse on Shiva’s greatness as Krishna recounts seeking Mahadeva through penance at a Himalayan hermitage.",
+  "importance": 0.55,
+  "themes": [
+    "moral conduct",
+    "praise of Shiva",
+    "asceticism and penance",
+    "divine hierarchy",
+    "Krishna's quest for a son"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna arrives at a serene Himalayan hermitage where tigers and deer wander peacefully among ascetics beneath flowering trees beside the Ganga.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "The sage Upamanyu with matted locks and ragged robes greets Krishna in the forest retreat, surrounded by disciples and sacred fires.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Ascetics in the mountain ashram practice extreme vows—some living on air, some on smoke, others meditating beside piles of ash and sacred fires.",
+      "visual_strength": 0.72
+    }
+  ]
+}

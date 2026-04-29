@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhrigu teaches that the soul survives bodily death, migrates between forms, and that social orders arise from conduct rather than inherent birth.",
+  "importance": 0.72,
+  "themes": [
+    "immortal soul",
+    "mind and senses",
+    "five elements cosmology",
+    "karma and rebirth",
+    "varna by conduct"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A radiant soul like a drop of water resting within a lotus-shaped heart inside a meditating sage’s body.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "The moment of death as a faint luminous essence rises from a fallen body and drifts into the vast sky.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Ancient sages Bhrigu and Bharadwaja seated in a forest hermitage debating while disciples listen under tall trees.",
+      "visual_strength": 0.62
+    }
+  ]
+}

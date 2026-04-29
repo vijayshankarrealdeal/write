@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Dhritarashtra questions Yudhishthira about righteous kingship, and the ascetic Vidura mystically transfers his life-force into Yudhishthira through yogic power.",
+  "importance": 0.83,
+  "themes": [
+    "righteous kingship",
+    "asceticism and renunciation",
+    "yogic power",
+    "transference of life-force",
+    "dharma embodied"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a lonely forest clearing, the emaciated ascetic Vidura leans against a tree while his gaze fixes on Yudhishthira and his life-force mystically enters the king.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Yudhishthira runs through the deep forest calling out to the gaunt, naked Vidura with matted locks as the hermit flees among the trees.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Vidura, skeletal and dust-covered with matted hair, stands motionless against a tree in meditation while Yudhishthira approaches reverently.",
+      "visual_strength": 0.78
+    }
+  ]
+}

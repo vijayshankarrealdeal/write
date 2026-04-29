@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Krishna battles Salwa amid powerful illusions, briefly believes his father Vasudeva slain, realizes the deception, and resumes the fight with divine weapons.",
+  "importance": 0.7,
+  "themes": [
+    "divine warfare",
+    "illusion and deception",
+    "filial grief",
+    "heroic resilience"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sky blazes like a hundred suns and a hundred moons as Krishna and Salwa hurl celestial weapons amid darkness and fire.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Krishna’s charioteer Daruka stands bleeding and pierced with arrows, still gripping the reins as blood streams like red chalk washed by rain.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Krishna watches in horror as an illusory vision of his father Vasudeva falls from a golden chariot toward the earth like a star cast from heaven.",
+      "visual_strength": 0.95
+    }
+  ]
+}

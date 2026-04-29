@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Bharata returns to Ayodhya expecting a joyful reunion with his father and brothers but instead finds the city desolate and filled with mourning. Disturbed by the ominous signs, he enters the palace and goes to his mother Kaikeyi’s chamber, where he learns the shocking news that King Dasharatha has died. Overcome with grief, Bharata collapses and laments his father, recalling the king’s affection and wondering why he died without seeing him again. Kaikeyi reveals that Dasharatha died calling out for Rama, Sita, and Lakshmana. When Bharata anxiously asks where Rama is, Kaikeyi discloses that Rama has gone into exile in the Dandaka forest wearing bark garments. The chapter marks the beginning of Bharata’s discovery of the disastrous consequences of Kaikeyi’s ambition, setting up his moral response and the coming conflict over the throne.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 27,
+      "color_hex": "#A5D6A7",
+      "why": "The opening situates the reader in the epic narrative voice of Valmiki’s Ramayana."
+    },
+    {
+      "start": 300,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "Bharata first senses the ominous sorrow hanging over Ayodhya, foreshadowing the tragedy he is about to learn."
+    },
+    {
+      "start": 900,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "Bharata collapses in grief upon hearing of Dasharatha’s death, an emotional turning point that reveals his devotion to his father."
+    },
+    {
+      "start": 1500,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Kaikeyi reveals that Rama, Sita, and Lakshmana have gone into exile in the Dandaka forest—one of the pivotal revelations of the Ayodhya narrative."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Prince Bharata entering the gloomy, dust-covered city of Ayodhya, its streets empty and citizens wandering in grief beneath darkened skies.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Bharata collapsing to the palace floor in anguish after hearing of King Dasharatha’s death while Queen Kaikeyi stands above him.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Kaikeyi calmly telling Bharata that Rama, clad in bark garments, has departed into the vast Dandaka forest with Sita and Lakshmana.",
+      "visual_strength": 0.66
+    }
+  ]
+}

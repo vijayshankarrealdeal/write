@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Saraswati instructs Tarkshya on virtuous conduct and the heavenly rewards of Vedic study and charitable gifts, especially the donation of cows.",
+  "importance": 0.42,
+  "themes": [
+    "kingship and authority",
+    "Brahmana-Kshatriya cooperation",
+    "religious charity",
+    "gift of cows",
+    "heavenly rewards"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The sage Sanatkumara teaches assembled rishis that the power of Brahmanas and Kshatriyas together burns enemies like wind-fed fire in a forest.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "King Vainya joyfully presents heaps of gold coins and ornaments to the sage Atri after being praised before the gathered sages.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "The goddess Saraswati speaks to the sage Tarkshya beside serene celestial lakes filled with golden lilies and surrounded by radiant apsaras.",
+      "visual_strength": 0.72
+    }
+  ]
+}

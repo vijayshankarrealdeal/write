@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama proves his power by piercing seven Sala trees; Sugriva challenges Bali but is defeated when Rama cannot distinguish the brothers during their fight.",
+  "importance": 0.72,
+  "themes": [
+    "proof of strength",
+    "brotherly rivalry",
+    "trust and alliance",
+    "battle confusion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama releases a golden arrow that streaks through seven Sala trees, a mountain, and the earth before returning to his quiver.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Bali and Sugriva, nearly identical, clash with thunderous palm strikes and diamond-hard fists while Rama watches with drawn bow.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Bloodied and exhausted, Sugriva flees toward the forested Rishyamuka Mountain as Bali halts at the edge, restrained by a curse.",
+      "visual_strength": 0.75
+    }
+  ]
+}

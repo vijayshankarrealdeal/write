@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Vishnu as the cosmic Boar destroys the Danavas, after which a dialogue begins on the supreme yoga and Vasudeva as the ultimate reality.",
+  "importance": 0.74,
+  "themes": [
+    "divine intervention",
+    "Vishnu Varaha",
+    "cosmic power",
+    "yoga and emancipation",
+    "metaphysics of Vasudeva"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The colossal boar-form of Vishnu stands amid the netherworld, surrounded by thousands of Danavas struggling to drag him from all sides.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Vishnu in boar form unleashes a thunderous roar that freezes gods and demons alike as the universe trembles.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A devoted disciple stands with folded hands at his radiant preceptor’s feet, asking about the origin of the self and the path to emancipation.",
+      "visual_strength": 0.6
+    }
+  ]
+}

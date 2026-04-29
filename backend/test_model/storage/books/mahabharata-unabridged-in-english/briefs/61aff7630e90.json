@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ulupi reveals Arjuna’s death by his son fulfilled a curse for Bhishma’s killing; Arjuna revives, reconciles with Vabhruvahana, and continues the Ashvamedha journey.",
+  "importance": 0.75,
+  "themes": [
+    "curse and expiation",
+    "father-son reconciliation",
+    "divine intervention",
+    "aftermath of Kurukshetra",
+    "dharma and guilt"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vabhruvahana places the radiant celestial gem on Arjuna’s chest as the fallen warrior suddenly opens his red eyes and rises from death.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Celestial flowers rain from the sky while invisible drums thunder as Arjuna awakens and embraces his son on the battlefield.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Ulupi stands calmly beside the grieving Chitrangada and Vabhruvahana while explaining to Arjuna the curse of the Vasus and its expiation.",
+      "visual_strength": 0.6
+    }
+  ]
+}

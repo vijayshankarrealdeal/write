@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Vaka’s death the Pandavas stay in Ekachakra, hear a traveling Brahmana recount Draupadi’s birth and the early history of Drona and Drupada.",
+  "importance": 0.45,
+  "themes": [
+    "aftermath of Vaka",
+    "storytelling frame",
+    "origins of Drona",
+    "Drupada friendship and rivalry",
+    "miraculous births"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The Pandavas sit with Kunti in a humble Brahmana’s house at Ekachakra listening intently to a traveling ascetic narrate distant kingdoms and marvels.",
+      "visual_strength": 0.52
+    },
+    {
+      "scene_text": "On the Ganga’s bank the wind disrobes the apsara Ghritachi as the sage Bharadwaja, overcome by sudden desire, captures his seed in a pot.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Parashurama stands in austere calm handing his divine weapons and their secret mantras to the eager young Drona.",
+      "visual_strength": 0.7
+    }
+  ]
+}

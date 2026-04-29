@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Sisupala insults Krishna and Bhishma over Jarasandha’s death, enraging Bhima; Bhishma restrains him and begins recounting Sisupala’s ominous birth and prophecy.",
+  "importance": 0.66,
+  "themes": [
+    "insult and rivalry",
+    "anger restrained",
+    "prophecy of death",
+    "divine destiny",
+    "royal assembly tension"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhima, eyes red and wide with rage, grinds his teeth and rises to leap while Bhishma firmly restrains him before the gathered kings.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The newborn Sisupala lies with three eyes and four arms, braying like an ass as frightened parents and courtiers stare in dread.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Baby Sisupala placed on Krishna’s lap suddenly loses his extra arms and third eye as the astonished queen of Chedi watches in alarm.",
+      "visual_strength": 0.88
+    }
+  ]
+}

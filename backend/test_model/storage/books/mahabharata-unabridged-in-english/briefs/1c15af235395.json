@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Draupadi hosts Jayadratha, who becomes infatuated and urges her to abandon the exiled Pandavas; she angrily rebukes his insults and waits for her husbands.",
+  "importance": 0.72,
+  "themes": [
+    "desire and lust",
+    "loyalty in adversity",
+    "honor and insult",
+    "hospitality customs",
+    "impending conflict"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Jayadratha steps into the lonely forest hermitage and gazes at Draupadi standing in the doorway, radiant and stern.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Draupadi, brows furrowed and eyes blazing with anger, rebukes Jayadratha inside the quiet woodland cottage.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Jayadratha stands arrogantly beside his chariot outside the hermitage, urging Draupadi to leave the exiled Pandavas and ride away with him.",
+      "visual_strength": 0.74
+    }
+  ]
+}

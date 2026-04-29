@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bhishma recounts how death is governed by karma and time, then begins a tale of a virtuous householder whose hospitality vow will challenge death.",
+  "importance": 0.72,
+  "themes": [
+    "karma and fate",
+    "moral responsibility",
+    "hospitality as sacred duty",
+    "cosmic order",
+    "trial of virtue"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Kala appears before the serpent, Mrityu, and the fowler, declaring that the child's own karma caused its death.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "The fire-god Agni, disguised as a Brahmana, asks King Duryodhana for the hand of the radiant princess Sudarsana.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "A lone Brahmana guest asks the ashamed princess Oghavati to offer her own body in hospitality while her husband is away.",
+      "visual_strength": 0.82
+    }
+  ]
+}

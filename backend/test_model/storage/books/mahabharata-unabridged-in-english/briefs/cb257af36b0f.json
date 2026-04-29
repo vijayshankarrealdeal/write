@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Drona devastates the Pandava forces in battle, likened to a river of blood, while many warriors attack him and Duryodhana exults at the rout.",
+  "importance": 0.62,
+  "themes": [
+    "battle carnage imagery",
+    "Drona's martial dominance",
+    "Pandava retreat",
+    "Kaurava morale",
+    "heroic warfare"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The battlefield becomes a grotesque river of blood filled with armor waves, severed limbs, elephants like crocodiles, and broken standards like trees.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Drona stands in his golden chariot at the center of the field while dozens of Pandava warriors surround him, loosing arrows from every side.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Yudhishthira turns his chariot and flees as Drona advances through the shattered ranks of soldiers and fallen princes.",
+      "visual_strength": 0.72
+    }
+  ]
+}

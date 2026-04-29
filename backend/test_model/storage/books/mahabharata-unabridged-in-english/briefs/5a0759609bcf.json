@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna explains Kshetra (body/matter) and Kshetrajna (knower/spirit), true knowledge, the nature of Brahman, and liberation through understanding spirit distinct from nature.",
+  "importance": 0.86,
+  "themes": [
+    "matter vs spirit",
+    "true knowledge",
+    "nature and qualities",
+    "supreme self",
+    "liberation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna reveals the cosmic presence of the Supreme with countless eyes, heads, and hands pervading the entire universe.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "A radiant sun illuminates the whole world as a metaphor for the Spirit lighting up all matter.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Krishna teaching Arjuna on the battlefield while describing the body as a field and the self as its knower.",
+      "visual_strength": 0.62
+    }
+  ]
+}

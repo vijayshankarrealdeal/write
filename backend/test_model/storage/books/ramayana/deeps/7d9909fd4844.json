@@ -1,0 +1,43 @@
+{
+  "rich_summary": "Ravana and Rama clash in a ferocious escalation of the great war. After Rama destroys one of his weapons, Ravana unleashes a succession of supernatural arms—the Rudra and Solar weapons—filling the sky with blazing discs and stormlike missiles. Rama counters each with divine skill, shattering them in midair. Lakshmana and Vibhishana join the fray, crippling Ravana’s chariot, but the enraged titan hurls a terrible spear forged by Maya. Though Lakshmana bravely shields Vibhishana, the spear pierces his chest and fells him. Grief-stricken yet resolute, Rama breaks the embedded spear and vows before the monkey hosts that the war will end that day—either Ravana or Rama will perish. Their renewed duel shakes the battlefield until Ravana, overwhelmed by Rama’s storm of arrows, is forced to retreat.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 260,
+      "color_hex": "#A5D6A7",
+      "why": "The opening vividly depicts Ravana unleashing supernatural weapons that fill the sky like cosmic destruction, establishing the mythic scale of the duel."
+    },
+    {
+      "start": 980,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Lakshmana steps forward to defend Vibhishana, showing loyalty and bravery just before the fatal spear is hurled."
+    },
+    {
+      "start": 1450,
+      "length": 260,
+      "color_hex": "#F48FB1",
+      "why": "The spear strikes Lakshmana and he falls, creating the chapter’s emotional turning point that transforms Rama’s grief into fury."
+    },
+    {
+      "start": 1880,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "Rama’s vow before the monkey army—that either he or Ravana will die today—marks a decisive heroic declaration in the epic battle."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Ravana unleashes celestial weapons as blazing discs and flaming missiles flood the sky while Rama counters with radiant arrows.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The magical spear of Ravana, glowing like lightning and ringing with bells, slams into Lakshmana’s chest in the midst of battle.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Rama, standing over the fallen Lakshmana, breaks the embedded spear and swears before the gathered monkey army to destroy Ravana.",
+      "visual_strength": 0.9
+    }
+  ]
+}

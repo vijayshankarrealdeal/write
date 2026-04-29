@@ -1,0 +1,37 @@
+{
+  "rich_summary": "In this moral tale recounted by Bhishma, a pigeon offers shelter to a freezing fowler—the very hunter who kills birds like him. The pigeon insists that hospitality must be given even to an enemy who seeks refuge, comparing it to a tree that does not deny shade even to the man who cuts it down. After warming the fowler, the pigeon realizes he has no food to offer and, believing a host must feed a guest, sacrifices himself by entering the fire. Witnessing this extraordinary act of selfless duty, the fowler is overcome with remorse. He renounces his cruel profession, frees the captured she‑pigeon, and embraces a life of penance. The grieving she‑pigeon later joins her husband in the fire, and both are rewarded in heaven, illustrating the power of hospitality, sacrifice, and moral awakening.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 500,
+      "color_hex": "#A5D6A7",
+      "why": "The opening discourse on hospitality, including the metaphor that a tree does not deny shade even to the one who cuts it down, establishes the central ethical principle of the story."
+    },
+    {
+      "start": 0,
+      "length": 1200,
+      "color_hex": "#FFEB3B",
+      "why": "Covers the pivotal sequence where the pigeon resolves to honor the guest and ultimately sacrifices himself in the fire—an unforgettable example of radical hospitality and duty."
+    },
+    {
+      "start": 0,
+      "length": 1800,
+      "color_hex": "#F48FB1",
+      "why": "Includes the fowler’s remorse and moral transformation after witnessing the pigeon’s sacrifice, highlighting the emotional and ethical turning point of the narrative."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A small pigeon tending a newly lit fire of dry leaves while a weary fowler stretches his hands toward the flames in the dark forest.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The pigeon solemnly circling the fire and then leaping into the flames while the stunned fowler watches in horror and dawning remorse.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "In the heavens, the pigeon and his mate sit together on a radiant celestial chariot surrounded by garlands and other blessed beings.",
+      "visual_strength": 0.82
+    }
+  ]
+}

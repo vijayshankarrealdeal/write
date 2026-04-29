@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Maricha warns Ravana that his obsession with Sita will bring ruin. Speaking bitterly yet resignedly, he predicts that Rama will destroy Ravana, Lanka, and the race of titans, and that he himself will die the moment he appears before Rama. Despite knowing the plan is fatal, Maricha agrees to help. Ravana embraces him and carries him in a gem‑encrusted flying chariot across forests and kingdoms to Rama’s hermitage in the Dandaka forest. There Ravana orders him to begin the deception. Maricha transforms into a dazzling, supernatural deer—its body glittering with gemlike colors and radiant hues—and wanders near the hermitage to attract Sita’s attention. This moment sets in motion the famous golden-deer illusion that will lure Rama away and enable Sita’s abduction, a pivotal turning point in the epic.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 180,
+      "color_hex": "#A5D6A7",
+      "why": "Maricha condemns Ravana’s tyranny and predicts destruction, framing the moral and prophetic tone of the episode."
+    },
+    {
+      "start": 181,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "Maricha’s fatalistic acceptance that he will die before Rama underscores the tragic inevitability of the coming events."
+    },
+    {
+      "start": 650,
+      "length": 180,
+      "color_hex": "#FFEB3B",
+      "why": "Ravana urges Maricha to carry out the plan at Rama’s hermitage—this command initiates the deception that leads to Sita’s abduction."
+    },
+    {
+      "start": 1000,
+      "length": 300,
+      "color_hex": "#A5D6A7",
+      "why": "The lush description of the magical deer reveals Maricha’s supernatural transformation, one of the most iconic illusions in the Ramayana."
+    },
+    {
+      "start": 1400,
+      "length": 220,
+      "color_hex": "#F48FB1",
+      "why": "The deer wandering near the hermitage to captivate Sita shows the trap being carefully set."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Ravana and Maricha flying through the sky in a gem‑studded celestial chariot pulled by mules with goblin heads, forests and rivers far below them.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Maricha transforming into a radiant jewel‑studded deer whose horns, hooves, and rainbow‑colored body illuminate the forest near Rama’s hermitage.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "The enchanted deer wandering through flowers and palm trees before the hermitage while Sita glimpses it between the Karnikara trees.",
+      "visual_strength": 0.9
+    }
+  ]
+}

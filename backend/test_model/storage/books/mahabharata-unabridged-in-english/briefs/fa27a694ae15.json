@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Yudhishthira awakens to royal music, performs purification and worship rituals, donates lavish gifts to Brahmanas, and formally receives Krishna in court.",
+  "importance": 0.35,
+  "themes": [
+    "royal ritual",
+    "piety and charity",
+    "courtly ceremony",
+    "auspicious omens"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Yudhishthira bathes while a hundred white-clad attendants pour fragrant water from golden jars.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Yudhishthira presents golden coins, ornamented horses, and decorated cows to thousands of Vedic Brahmanas gathered in a great chamber.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Krishna enters the royal hall as Yudhishthira sits on a pearl‑studded golden throne while attendants wave white yak‑tail fans.",
+      "visual_strength": 0.78
+    }
+  ]
+}

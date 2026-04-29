@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Yudhishthira asks Bhishma a fundamental question: what truly constitutes righteousness, and whether it serves this world, the next, or both. Bhishma replies that righteousness is known through four sources—the Vedas, the Smritis, the conduct of the virtuous, and the intention behind actions. He explains that dharma sustains social order and brings happiness in both worlds, yet it is subtle and situational. Through examples of thieves, hypocrites, and powerful men, Bhishma shows how people condemn faults in others while ignoring their own. Truth, non‑stealing, charity, and empathy—treating others as oneself—are presented as core principles. Fearlessness belongs to the pure-hearted, while wrongdoing breeds constant anxiety. Yudhishthira then challenges the explanation, arguing that duty cannot be determined by scripture alone because circumstances, especially times of distress, change what is right.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Yudhishthira’s opening question frames the entire philosophical inquiry into the nature and purpose of righteousness."
+    },
+    {
+      "start": 360,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Bhishma identifies the classic four sources of dharma—Vedas, Smritis, conduct of the good, and purpose of action."
+    },
+    {
+      "start": 920,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "The reflection on truth as the foundation of all order highlights a central moral theme of the passage."
+    },
+    {
+      "start": 1560,
+      "length": 150,
+      "color_hex": "#F48FB1",
+      "why": "The comparison of a thief’s fear to a deer driven into a village vividly illustrates the inner anxiety produced by wrongdoing."
+    },
+    {
+      "start": 2060,
+      "length": 140,
+      "color_hex": "#A5D6A7",
+      "why": "The ethical rule of empathy—never doing to others what one dislikes for oneself—expresses a universal moral principle."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The aged Bhishma lying on the bed of arrows while Yudhishthira stands before him asking profound questions about righteousness.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "A thief anxiously glancing around like a frightened deer in a crowded village, haunted by the fear of punishment.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Bhishma teaching calmly as sages’ ideas—truth, charity, restraint—symbolically radiate outward, holding the world together.",
+      "visual_strength": 0.66
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Devotee Mallamma’s steadfast faith brings miracles and reconciliation, while the boy Gopala’s intense devotion wins a direct vision of Lord Siva.",
+  "importance": 0.62,
+  "themes": [
+    "devotion and divine grace",
+    "tests of faith",
+    "humility and forgiveness",
+    "divine revelation",
+    "temple restoration"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Lord Mallesvara reveals his radiant true form before the kneeling Mallamma in the forest shrine after she threatens to break her head against the idol.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Cow dung touched by Hema Reddi inside Mallamma’s humble cattle shed miraculously transforms into shining gold.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The child Gopala opens his eyes to behold Lord Mallikarjuna and goddess Bhramaramba standing alive before the temple idol.",
+      "visual_strength": 0.86
+    }
+  ]
+}

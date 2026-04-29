@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ashwatthama devastates Panchala forces; Pandavas counterattack Drona while Satyaki advances to duel Somadatta amid the chaotic battlefield.",
+  "importance": 0.63,
+  "themes": [
+    "heroic duels",
+    "battlefield carnage",
+    "Pandava counterattack",
+    "martial prowess",
+    "war chaos"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ashwatthama stands blazing on his chariot after slaughtering thousands, roaring like thunder while terrified Panchala warriors flee across the blood-soaked field.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "Elephants struck by arrows collapse like hills as severed trunks writhe on the ground, making the battlefield resemble a plain covered with moving snakes.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Satyaki and Somadatta circle each other in chariots, both pierced with arrows and drenched in blood, shining like two red Kinsuka trees in spring.",
+      "visual_strength": 0.82
+    }
+  ]
+}

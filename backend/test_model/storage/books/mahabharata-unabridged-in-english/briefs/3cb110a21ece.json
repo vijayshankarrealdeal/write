@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Daksha’s hymn appeases Shiva and earns boons, after which Bhishma begins explaining Adhyatma: the elements, senses, mind, understanding, and the witnessing soul.",
+  "importance": 0.72,
+  "themes": [
+    "appeasement of Shiva",
+    "Pasupata doctrine",
+    "five elements cosmology",
+    "mind and senses",
+    "soul as witness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Daksha stands with folded hands before the wrathful Shiva, who calms and grants him boons amid a ruined sacrificial ground.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Shiva with Uma and his attendants appears radiant before Daksha and then vanishes from sight after granting the Pasupata teaching.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "An allegorical vision of the five elements—earth, water, fire, wind, and space—giving rise to living beings like waves emerging from an ocean.",
+      "visual_strength": 0.66
+    }
+  ]
+}

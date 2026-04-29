@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section recounts the violent destruction of Daksha’s sacrifice after Daksha insults Shiva. From Shiva’s wrath is born the terrifying warrior Virabhadra, accompanied by Bhadrakali and vast hordes of spirits. They storm the sacrificial grounds, unleashing cosmic chaos—darkness spreads, mountains shake, and the sacred ritual is torn apart as the spirits devour offerings and terrify the gods. When confronted, Virabhadra declares he has come solely to destroy the sacrifice as an instrument of Shiva’s anger. Terrified, Daksha finally bows to Shiva and offers an immense hymn praising him as the universal being present in all forms of existence—time, nature, sacrifice, and destruction. Shiva appears from the sacrificial fire, accepts the praise, and grants Daksha a boon, restoring meaning to the ruined rite.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 140,
+      "color_hex": "#FFEB3B",
+      "why": "Introduces Virabhadra as the living embodiment of Shiva’s wrath, establishing the divine force behind the coming destruction."
+    },
+    {
+      "start": 520,
+      "length": 150,
+      "color_hex": "#F48FB1",
+      "why": "Describes the cosmic disturbances—darkened sun, trembling earth, and terrified beings—signaling the magnitude of Shiva’s anger."
+    },
+    {
+      "start": 1080,
+      "length": 150,
+      "color_hex": "#A5D6A7",
+      "why": "Depicts the chaotic devastation of the sacrifice by Rudra’s spirit-hosts, symbolizing the collapse of ritual pride before divine power."
+    },
+    {
+      "start": 1820,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Virabhadra reveals his identity and mission, clarifying that he is born from Shiva’s wrath and sent specifically to destroy Daksha’s sacrifice."
+    },
+    {
+      "start": 2480,
+      "length": 170,
+      "color_hex": "#A5D6A7",
+      "why": "Shiva manifests from the sacrificial fire after Daksha’s submission, marking the turning point from destruction to reconciliation."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Virabhadra and countless terrifying spirit warriors descend upon Daksha’s sacrificial arena as storms rage, mountains shake, and the sky darkens.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The hordes of Rudra’s spirits smash the sacrificial altar, devour offerings, and scatter vessels while terrified gods flee in every direction.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Shiva suddenly rises from the blazing sacrificial fire pit, radiant like a thousand suns, as Daksha trembles and bows in fear.",
+      "visual_strength": 0.91
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "During the rigged dice game, Yudhishthira repeatedly stakes vast wealth—servants, animals, chariots, troops, and jewels—and loses each throw to Sakuni’s deceit.",
+  "importance": 0.7,
+  "themes": [
+    "gambling and deception",
+    "loss of royal wealth",
+    "moral downfall",
+    "court tension"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Sakuni casts the dice with a sly smile while Yudhishthira, tense and pale, watches as courtiers sit in anxious silence.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "A vision of Yudhishthira’s immense wealth—elephants with golden girdles, chariots with tall banners, and rows of ornamented servants—being wagered away in the royal hall.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Sakuni laughing lightly as he declares 'I have won!' while Yudhishthira sits rigid on the gambling floor surrounded by stunned elders.",
+      "visual_strength": 0.8
+    }
+  ]
+}

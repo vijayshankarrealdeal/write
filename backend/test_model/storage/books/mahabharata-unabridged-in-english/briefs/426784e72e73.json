@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Arjuna leaves Yudhishthira guarded by Satyajit and confronts the Samsaptaka Trigartas, terrifying them with his conch and devastating their forces in battle.",
+  "importance": 0.72,
+  "themes": [
+    "battle vows",
+    "strategic diversion",
+    "heroic warfare",
+    "duty and protection"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna blows the golden conch Devadatta beside Krishna as the vast Samsaptaka army freezes in terror on the open plain.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Arjuna’s jeweled diadem bristles with golden‑winged arrows, making him shine like a newly risen sun amid the battlefield.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "With a single broad-headed arrow, Arjuna severs Sudhanwan’s head as the warrior’s horses collapse and the Trigarta ranks panic.",
+      "visual_strength": 0.8
+    }
+  ]
+}

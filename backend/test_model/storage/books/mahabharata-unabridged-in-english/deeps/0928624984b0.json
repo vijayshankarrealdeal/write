@@ -1,0 +1,31 @@
+{
+  "rich_summary": "This section captures the explosive aftermath of the dice-game humiliation. Dussasana mocks the Pandavas openly in the Kuru court, provoking Bhima’s fury. Bound by dharma and unable to act immediately, Bhima responds with terrible vows: he swears to tear open Dussasana’s chest and drink his blood, and to destroy those who support the Kauravas. Duryodhana further insults him by mockingly imitating Bhima’s gait, deepening the outrage. As the Pandavas depart, each brother declares a solemn oath of vengeance—Bhima against Duryodhana and Dussasana, Arjuna against Karna, Sahadeva against Sakuni, and Nakula against the Kauravas who insulted Draupadi. These vows foreshadow the future war and define the personal targets that will shape the great battles of the Mahabharata.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 121,
+      "color_hex": "#FFEB3B",
+      "why": "The opening establishes the provocation: Dussasana’s cruel public insults toward the Pandavas."
+    },
+    {
+      "start": 121,
+      "length": 200,
+      "color_hex": "#F48FB1",
+      "why": "Bhima’s furious response, likening himself to a lion confronting a jackal, begins the chain of vengeance vows."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Bhima, dressed in deer-skins and blazing with rage, confronts the taunting Dussasana in the crowded Kuru assembly hall.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Duryodhana mockingly imitates Bhima’s proud lion-like stride while the Pandavas turn back in anger before leaving the court.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "The five Pandava brothers departing the court, each raising a solemn vow of vengeance before the stunned elders of the Kuru dynasty.",
+      "visual_strength": 0.84
+    }
+  ]
+}

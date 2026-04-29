@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Multiple duels erupt in the Kurukshetra battle—Nakula vs Duryodhana, Sahadeva vs Duhsasana, Bhima vs Karna, and Arjuna vs Drona—amid a vividly described battlefield carnage.",
+  "importance": 0.6,
+  "themes": [
+    "heroic duels",
+    "battlefield carnage",
+    "revenge and wrath",
+    "warrior skill",
+    "preceptor vs pupil"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The battlefield strewn with severed limbs, shattered chariots, fallen elephants, and glittering ornaments shines like a star-filled sky.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Sahadeva's arrow cleanly severs the head of Duhsasana's charioteer while the chariot races forward with uncontrolled horses.",
+      "visual_strength": 0.85
+    },
+    {
+      "scene_text": "Bhima and Karna roar like enraged bulls and clash with maces beside their chariots amid watching armies.",
+      "visual_strength": 0.88
+    }
+  ]
+}

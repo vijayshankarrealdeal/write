@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Suka attains complete detachment, ascends through the cosmos, and dissolves into attribute-less Brahman amid cosmic wonders and universal reverence.",
+  "importance": 0.86,
+  "themes": [
+    "liberation (moksha)",
+    "yogic transcendence",
+    "cosmic recognition",
+    "detachment from gunas",
+    "union with Brahman"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Suka, radiant like the sun, flies through the sky while gods, rishis, and celestial beings shower flowers from heaven.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "The ascetic Suka crashes through two colossal mountain summits—one golden, one silver—splitting them apart as he continues northward through the sky.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "As Suka merges into the attribute-less Brahman, meteors streak across the sky, the earth trembles, and the directions blaze with uncanny light.",
+      "visual_strength": 0.82
+    }
+  ]
+}

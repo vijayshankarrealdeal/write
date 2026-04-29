@@ -1,0 +1,43 @@
+{
+  "rich_summary": "In a ferocious clash between the Gods and the Rakshasas, the battlefield becomes a gruesome spectacle where celestial hosts and demons slaughter one another amid rivers of blood. Ravana (Dashagriva), enraged at the destruction of his forces, plunges into the fray and challenges Indra himself. Their duel fills the sky with arrows until darkness shrouds the battle. Indra attempts to contain Ravana, knowing he cannot kill him due to a boon, and instead urges the gods to capture him. Amid the chaos, Ravana’s son Ravani (Meghanada), using magical invisibility and supernatural power, strikes at the exhausted Indra, binds him through sorcery, and carries him away captive. With the king of the gods seized, Ravani urges Ravana to withdraw, declaring victory and humiliating the celestial hosts—an episode that foreshadows his later fame as Indrajit, the conqueror of Indra.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 200,
+      "color_hex": "#A5D6A7",
+      "why": "Opens with chaotic close-quarters combat, emphasizing the brutal, mythic scale of the battle between gods and rakshasas."
+    },
+    {
+      "start": 620,
+      "length": 220,
+      "color_hex": "#FFEB3B",
+      "why": "Ravana’s furious entrance and challenge to Indra marks the turning point where the demon king directly confronts the ruler of the gods."
+    },
+    {
+      "start": 2550,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "The decisive moment where the invisible Ravani magically binds and captures Indra, achieving the legendary feat that earns him the name Indrajit."
+    },
+    {
+      "start": 300,
+      "length": 180,
+      "color_hex": "#F48FB1",
+      "why": "The haunting image of the battlefield river of blood filled with weapons and carrion birds conveys the emotional horror and epic devastation of the war."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "A vast battlefield where gods and rakshasas fight amid a river of blood filled with floating weapons while vultures circle overhead.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Ravana and Indra firing blazing arrows at each other as the sky darkens, their chariots surrounded by stormlike clouds of missiles.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "The invisible Ravani magically binding a weary Indra in the sky and dragging the king of the gods away as celestial armies look on in shock.",
+      "visual_strength": 0.95
+    }
+  ]
+}

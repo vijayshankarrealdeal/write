@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Bharata hears from Guha how Rama, Sita, and Lakshmana spent their first exile night fasting on grass by the Ganges while Lakshmana kept vigilant guard.",
+  "importance": 0.55,
+  "themes": [
+    "fraternal devotion",
+    "ascetic duty",
+    "exile hardship",
+    "loyal guardianship",
+    "grief of Bharata"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Rama and Sita sleep on a simple bed of kusa grass beneath an Ingudi tree while Lakshmana, bow drawn and quiver full, paces guard in the moonlit night.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bharata collapses unconscious upon hearing Guha’s tale as the grieving queens and Shatrughna gather around him.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Lakshmana kneels to wash the feet of Rama and Sita beside the quiet riverbank before taking up his vigil.",
+      "visual_strength": 0.83
+    }
+  ]
+}

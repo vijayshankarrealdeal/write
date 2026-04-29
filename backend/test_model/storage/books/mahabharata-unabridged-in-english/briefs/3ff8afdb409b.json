@@ -1,0 +1,21 @@
+{
+  "summary_1line": "Bhishma explains how a king should fill his treasury: seize wealth from the irreligious or unjust and redistribute it for sacrifice, public good, and righteous rule.",
+  "importance": 0.43,
+  "themes": [
+    "righteous kingship",
+    "just taxation",
+    "religious duty and sacrifice",
+    "redistribution of wealth",
+    "moral governance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A king orders officials to gather the hoarded wealth of impious men and distribute it among priests, soldiers, and sacrificial fires.",
+      "visual_strength": 0.56
+    },
+    {
+      "scene_text": "Dust placed between two grinding stones becomes finer and finer as scholars debate subtle questions of morality.",
+      "visual_strength": 0.42
+    }
+  ]
+}

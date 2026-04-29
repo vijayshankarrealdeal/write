@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna reveals Bhishma’s nearing death, grants him relief and divine clarity, and urges him to teach Yudhishthira while sages witness auspicious signs.",
+  "importance": 0.77,
+  "themes": [
+    "divine revelation",
+    "approaching death",
+    "dharma instruction",
+    "grace and devotion",
+    "cosmic auspiciousness"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Bhishma lies on a bed of arrows while Krishna stands beside him granting a boon as sages gather around.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "A celestial shower of flowers falls from the sky as rishis chant and heavenly music fills the air around Krishna, Bhishma, and Yudhishthira.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Bhishma gazes upward from his arrow-bed as radiant deities in fiery chariots wait invisibly in the heavens for his passing.",
+      "visual_strength": 0.74
+    }
+  ]
+}

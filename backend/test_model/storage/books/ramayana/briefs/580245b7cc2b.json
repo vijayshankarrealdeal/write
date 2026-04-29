@@ -1,0 +1,24 @@
+{
+  "summary_1line": "After Shabari ascends to heaven, Rama and Lakshmana travel to the beautiful Lake Pampa near Rishyamuka, where Rama grieves for Sita and seeks Sugriva.",
+  "importance": 0.6,
+  "themes": [
+    "devotion rewarded",
+    "sacred landscape",
+    "grief for Sita",
+    "approach to Sugriva alliance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Shabari, clad in bark and matted locks, rises like a bright flame into the sky from the fire, now adorned with celestial garlands and ornaments.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama and Lakshmana stand at the lotus-covered Lake Pampa, surrounded by flowering trees, cranes in the reeds, and peacocks calling in the forest.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Rama, sorrowful for Sita, steps slowly into the clear waters of Lake Pampa while Lakshmana watches beside the flowering shore.",
+      "visual_strength": 0.75
+    }
+  ]
+}

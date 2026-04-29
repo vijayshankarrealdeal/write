@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama meets his grief-stricken father Dasharatha, refuses the throne, and insists on honoring the exile decree despite the king’s desperate pleas.",
+  "importance": 0.82,
+  "themes": [
+    "filial duty",
+    "truth and vows",
+    "royal grief",
+    "exile decision",
+    "dharma over power"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "King Dasharatha rushes toward Rama with his queens but collapses unconscious to the floor before reaching him.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Rama and Lakshmana lift the fainted king while hundreds of palace women cry out 'Rama, Rama' in a hall filled with lamentation.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama stands calmly before the grieving king and queens, declaring he will enter the forest while Sita and Lakshmana stand beside him.",
+      "visual_strength": 0.78
+    }
+  ]
+}

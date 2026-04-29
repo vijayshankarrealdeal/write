@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Ghatotkacha slays the Rakshasa Alamvusha and then wages a terrifying illusion-filled night battle against Karna that throws the Kaurava army into chaos.",
+  "importance": 0.72,
+  "themes": [
+    "night warfare",
+    "rakshasa illusions",
+    "Ghatotkacha vs Karna",
+    "vengeance and demon lineage",
+    "battlefield terror"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ghatotkacha seizes Alamvusha, hacks off his roaring head with a scimitar, and hurls the blood-soaked head onto Duryodhana's chariot.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "The gigantic Ghatotkacha towers on his many-wheeled chariot beneath a banner with a blood-red vulture as Karna stands firm amid fleeing armies at night.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "In the dark sky Ghatotkacha becomes a vast mountain raining spears and rocks while Karna calmly shatters the illusion with a celestial weapon.",
+      "visual_strength": 0.9
+    }
+  ]
+}

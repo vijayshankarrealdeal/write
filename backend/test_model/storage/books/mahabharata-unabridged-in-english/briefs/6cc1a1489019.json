@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Sanjaya describes witnessing Krishna and Arjuna together and relays Krishna’s stern warning to Dhritarashtra about Arjuna’s unmatched power and the looming war.",
+  "importance": 0.56,
+  "themes": [
+    "Krishna-Arjuna alliance",
+    "diplomatic warning",
+    "inevitability of war",
+    "divine authority"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna reclines with his feet on Arjuna’s lap while Arjuna’s feet rest on Krishna and Satyabhama as they sit together on a gem-studded golden dais.",
+      "visual_strength": 0.84
+    },
+    {
+      "scene_text": "Sanjaya enters the inner chamber and sees Krishna and Arjuna radiant with garlands and ornaments, seated together like Indra and Vishnu.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Krishna rises like a banner of Indra and solemnly speaks a warning message for Dhritarashtra about the unstoppable power of Arjuna and the coming war.",
+      "visual_strength": 0.67
+    }
+  ]
+}

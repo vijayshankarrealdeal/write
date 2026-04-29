@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Rama, Sita, and Lakshmana settle peacefully in the hermitage until the demoness Shurpanakha arrives, becomes infatuated with Rama, and questions his presence in the forest.",
+  "importance": 0.68,
+  "themes": [
+    "temptation and desire",
+    "contrast of virtue and ugliness",
+    "forest exile life",
+    "foreshadowing conflict with Ravana"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Shurpanakha, a grotesque demoness, gazes lustfully at the radiant Rama standing beside Sita in the forest hermitage.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rama, Sita, and Lakshmana perform ablutions in the Godavari River at sunrise before returning to their leaf-thatched hermitage.",
+      "visual_strength": 0.62
+    },
+    {
+      "scene_text": "Rama with matted locks and bow in hand stands calmly in the forest while the enamored Shurpanakha approaches him.",
+      "visual_strength": 0.74
+    }
+  ]
+}

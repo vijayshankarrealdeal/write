@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Vyasa instructs disciples on proper transmission of the Vedas; they depart to spread them, and Narada urges Vyasa to resume Vedic recitation with his son.",
+  "importance": 0.52,
+  "themes": [
+    "Vedic transmission",
+    "teacher-disciple duties",
+    "sacred recitation",
+    "authority of Brahmanas"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Vyasa’s disciples joyfully embrace each other on the mountain after receiving his permission to spread and subdivide the Vedas.",
+      "visual_strength": 0.56
+    },
+    {
+      "scene_text": "Narada arrives at the quiet mountain hermitage and questions Vyasa sitting alone in silence where Vedic chants once echoed.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Vyasa and his son Suka sit together in the hermitage loudly reciting the Vedas, their voices imagined as filling the three worlds.",
+      "visual_strength": 0.74
+    }
+  ]
+}

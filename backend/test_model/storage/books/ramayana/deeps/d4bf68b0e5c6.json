@@ -1,0 +1,31 @@
+{
+  "rich_summary": "As the monkey search party despairs after failing to find Sita within the time limit set by Sugriva, they resolve to fast to death rather than face punishment. Their lament is overheard by the aged vulture Sampati, brother of the slain Jatayu. Moved by the news of his brother’s death and unable to avenge him due to his burned wings, Sampati recounts how he once shielded Jatayu from the sun during a reckless flight toward it, sacrificing his own wings. Though weakened, he offers crucial knowledge: he witnessed Ravana abducting a beautiful woman crying out for Rama and Lakshmana, dropping her ornaments as she was carried away. Concluding she was Sita, Sampati reveals that Ravana dwells in the golden island-city of Lanka far across the southern sea. This revelation transforms the monkeys’ despair into direction, pointing the quest toward its decisive ocean crossing.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 15,
+      "color_hex": "#FFEB3B",
+      "why": "Chapter heading marking the pivotal moment when Sampati reveals Sita’s location, shifting the entire search toward Lanka."
+    },
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Opening context showing the monkeys’ despair and failed search, which heightens the dramatic impact of Sampati’s later revelation."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Sampati, the ancient wing-scorched vulture perched on a rocky height, speaks to the exhausted monkeys while recalling the moment he saw Ravana flying through the sky with the crying Sita.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "In a blazing sky near the sun, the young vultures Sampati and Jatayu soar upward until Sampati spreads his vast wings to shield his brother, the feathers burning as they fall toward the Vindhya mountains.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Ravana streaks through the sky carrying Sita as she struggles and throws down her shining ornaments, her bright silk flashing like lightning against the dark demon’s form far above the earth.",
+      "visual_strength": 0.95
+    }
+  ]
+}

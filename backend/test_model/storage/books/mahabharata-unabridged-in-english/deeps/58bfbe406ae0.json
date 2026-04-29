@@ -1,0 +1,49 @@
+{
+  "rich_summary": "This section recounts the origins and rise of the great Rakshasa figures tied to the Ramayana. The brothers Ravana, Kumbhakarna, and Vibhishana—sons of Visrava—perform terrible austerities to obtain boons from Brahma after envying the wealth of Kuvera. Ravana’s extreme penance, including offering his own heads into the sacred fire, wins him near invulnerability against gods and supernatural beings, though he arrogantly ignores the threat of humans. Kumbhakarna receives the strange boon of prolonged sleep, while the righteous Vibhishana asks only for unwavering adherence to dharma and is granted immortality. Empowered, Ravana conquers Lanka from Kuvera and terrorizes the worlds. Alarmed sages appeal to Brahma, who reveals that Vishnu will incarnate to destroy Ravana, while the gods will be born on earth as monkeys and bears to aid him.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Introduces the birth and lineage of Ravana, Kumbhakarna, and Vibhishana, establishing the central figures of the episode."
+    },
+    {
+      "start": 250,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Contrasts the characters of the siblings, especially Vibhishana’s piety versus the violent tendencies of the others."
+    },
+    {
+      "start": 700,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Describes Ravana’s extreme penance, including standing for a thousand years and sacrificing his own heads, a pivotal mythic moment."
+    },
+    {
+      "start": 1200,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "Brahma grants Ravana near invulnerability, with the crucial exception of humans—foreshadowing the role of Rama."
+    },
+    {
+      "start": 2000,
+      "length": 120,
+      "color_hex": "#F48FB1",
+      "why": "The gods, oppressed by Ravana, appeal to Brahma, leading to the divine plan for Vishnu’s incarnation and the eventual downfall of Ravana."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Ravana performing terrible austerities amid the five sacred fires, standing on one leg while offering his severed heads into a blazing sacrificial fire.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "Brahma appearing in radiant light before Ravana, Kumbhakarna, and Vibhishana to grant their boons after a thousand years of penance.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "The frightened gods and sages gathered before Brahma while he proclaims that Vishnu will incarnate on earth and that the gods must be born as monkeys and bears.",
+      "visual_strength": 0.82
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "summary_1line": "Arjuna reveals his identities and explains his ten names to Uttara, then prepares for battle while assuring the prince of victory.",
+  "importance": 0.55,
+  "themes": [
+    "heroic identity",
+    "revelation of disguise",
+    "war preparation",
+    "royal loyalty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Arjuna standing beside the chariot recites his ten heroic names while the prince Uttara listens in awe beneath a spreading tree.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Uttara climbs down from a tree carrying Arjuna’s hidden weapons as the warrior prepares to arm himself.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "Arjuna on the chariot with the Gandiva bow describes the car as a fortress while the anxious prince stands ready to drive.",
+      "visual_strength": 0.65
+    }
+  ]
+}

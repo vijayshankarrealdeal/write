@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Duryodhana poisons and drowns Bhima, but snake venom revives him in the Naga realm where he drinks nectar granting immense strength.",
+  "importance": 0.82,
+  "themes": [
+    "treachery",
+    "divine protection",
+    "family rivalry",
+    "supernatural aid",
+    "power transformation"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Duryodhana secretly binds the unconscious Bhima with forest vines and pushes his heavy body into a dark river at dusk.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "In the underwater Naga realm, thousands of serpents coil around Bhima and strike him with glowing fangs.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Bhima sits among jeweled serpent kings and lifts a massive jar of nectar, drinking it in one breath while serpents watch.",
+      "visual_strength": 0.87
+    }
+  ]
+}

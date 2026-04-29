@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Rama and Ravana unleash divine weapons; Lakshmana is struck down by Ravana’s spear, prompting Rama’s furious vow before Ravana briefly retreats.",
+  "importance": 0.86,
+  "themes": [
+    "brotherly devotion",
+    "divine weapons in battle",
+    "Rama’s wrath and resolve",
+    "heroic sacrifice",
+    "turning point in duel"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Ravana hurls a blazing spear with eight ringing bells that streaks like lightning and pierces Lakshmana’s chest on the battlefield.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Rama kneels beside the fallen Lakshmana, blood covering his body, while monkeys struggle to pull the spear embedded deep into the earth.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arrows from Rama and Ravana collide and rain from the sky as blazing fragments while the titan king finally flees like a storm cloud driven by wind.",
+      "visual_strength": 0.76
+    }
+  ]
+}

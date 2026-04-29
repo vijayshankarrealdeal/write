@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Duryodhana’s fall, Ashvatthama, inspired by an owl killing sleeping crows, resolves to massacre the sleeping Pandava allies at night despite Kripa’s counsel.",
+  "importance": 0.82,
+  "themes": [
+    "revenge and grief",
+    "fate versus human effort",
+    "moral decline after war",
+    "deception in warfare",
+    "omens and inspiration"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Under a vast banyan at night, Ashvatthama watches an owl silently slaughter rows of sleeping crows on the branches.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "Ashvatthama, sleepless and breathing like a serpent, sits beneath the banyan while Kripa and Kritavarma lie exhausted on the bare forest ground.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "The owl’s attack leaves the ground beneath the banyan strewn with torn black feathers and lifeless crows in the moonlit forest.",
+      "visual_strength": 0.8
+    }
+  ]
+}

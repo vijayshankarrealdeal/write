@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Karna and Sakuni persuade Duryodhana to visit Dwaitavana under a cattle‑inspection pretext despite Dhritarashtra’s warnings about the nearby exiled Pandavas.",
+  "importance": 0.46,
+  "themes": [
+    "deception and plotting",
+    "royal counsel",
+    "ominous warnings",
+    "envy of the Pandavas",
+    "royal expedition"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Karna, Duryodhana, and Sakuni clasp hands and laugh together in secret agreement over their scheme.",
+      "visual_strength": 0.55
+    },
+    {
+      "scene_text": "The blind king Dhritarashtra sits on his throne warning anxiously while the princes stand before him requesting permission.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Duryodhana departs with a massive retinue—chariots, elephants, horses, soldiers, traders, and nobles—rolling like a storm toward the forest of Dwaitavana.",
+      "visual_strength": 0.78
+    }
+  ]
+}

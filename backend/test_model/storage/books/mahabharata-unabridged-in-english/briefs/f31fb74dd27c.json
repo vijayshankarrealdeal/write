@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Yudhishthira asks Bhishma about true friendship; Bhishma lists traits of people to avoid and virtues of those worthy of alliance.",
+  "importance": 0.46,
+  "themes": [
+    "friendship ethics",
+    "moral character",
+    "kingship counsel",
+    "virtue vs vice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Yudhishthira sits before the arrow‑bed of Bhishma and respectfully asks his grandsire about the nature of true friends.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Bhishma, lying upon a bed of arrows, raises his hand while instructing gathered princes on the many vices that make a man unfit for friendship.",
+      "visual_strength": 0.74
+    }
+  ]
+}

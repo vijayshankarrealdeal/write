@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Krishna explains renunciation, the three gunas in knowledge/action/agents, duties by nature, and ends by urging Arjuna to surrender to Him and fight.",
+  "importance": 0.95,
+  "themes": [
+    "renunciation vs abandonment",
+    "three gunas",
+    "duty and caste dharma",
+    "devotion to Krishna",
+    "liberation through surrender"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Krishna stands as Arjuna's charioteer on the battlefield, instructing him while armies wait on the plain of Kurukshetra.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Arjuna bows with folded hands in the chariot, declaring his delusion destroyed as Krishna looks on calmly.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Sanjaya narrates to the blind king Dhritarashtra in the palace while envisioning the divine dialogue between Krishna and Arjuna.",
+      "visual_strength": 0.7
+    }
+  ]
+}

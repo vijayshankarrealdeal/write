@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Maricha recounts his past attack on Rama and the terror it left in him, urging Ravana to abandon his plan against Rama.",
+  "importance": 0.52,
+  "themes": [
+    "fear of Rama",
+    "warning ignored",
+    "past defeat",
+    "ascetic forests",
+    "demonic cruelty"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Maricha in the form of a deer charges at Rama in the forest while Rama releases three lightning-like arrows from his drawn bow.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Terrified Maricha flees through the Dandaka forest as Rama’s arrows streak behind him and his two demon companions fall slain.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Maricha, now an ascetic, trembles in the forest imagining Rama in every tree, the entire woodland filled with countless visions of Rama holding his bow.",
+      "visual_strength": 0.74
+    }
+  ]
+}

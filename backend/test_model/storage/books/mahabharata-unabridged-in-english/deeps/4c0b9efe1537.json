@@ -1,0 +1,43 @@
+{
+  "rich_summary": "In exile, the Pandavas relocate from Dwaitavana to the forest of Kamyaka after Vyasa advises Yudhishthira. Before leaving, Vyasa imparts a powerful body of knowledge to Yudhishthira, which he preserves and recites. Living austerely in Kamyaka with many Brahmanas, the brothers hunt, practice archery, and perform sacred rites. Remembering Vyasa’s counsel, Yudhishthira privately summons Arjuna and explains the strategic danger they face: the greatest masters of arms—Bhishma, Drona, Kripa, Karna, and Ashwatthama—stand with Duryodhana. Since Arjuna is their chief hope, Yudhishthira instructs him to undertake severe asceticism and seek Indra to obtain celestial weapons. Armed with the Gandiva and blessed by Brahmanas and Draupadi, Arjuna departs northward to gain divine power for the coming war, marking the beginning of his quest for heavenly arms.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 120,
+      "color_hex": "#A5D6A7",
+      "why": "Sets the ecological and ascetic context of the forest life, showing why the Pandavas must move and how their presence affects the hermitage."
+    },
+    {
+      "start": 610,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "Yudhishthira explains that the greatest masters of weapons stand with Duryodhana, establishing the strategic crisis that motivates Arjuna’s quest."
+    },
+    {
+      "start": 1180,
+      "length": 170,
+      "color_hex": "#FFEB3B",
+      "why": "The key instruction: Yudhishthira directs Arjuna to perform austerities and seek Indra to obtain celestial weapons, launching the next major arc."
+    },
+    {
+      "start": 2040,
+      "length": 190,
+      "color_hex": "#F48FB1",
+      "why": "Draupadi’s emotional blessing and lament at Arjuna’s departure underscores the personal cost of the Pandavas’ struggle and exile."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "Yudhishthira privately clasping Arjuna’s hands in the forest hermitage, earnestly instructing him to seek the celestial weapons of Indra.",
+      "visual_strength": 0.77
+    },
+    {
+      "scene_text": "Arjuna fully armed with the Gandiva bow and shining armor, standing beneath the forest canopy as Brahmanas raise their hands in blessing.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Draupadi offering a solemn farewell blessing while Arjuna prepares to depart northward, the Pandava brothers gathered around him in the forest camp.",
+      "visual_strength": 0.82
+    }
+  ]
+}

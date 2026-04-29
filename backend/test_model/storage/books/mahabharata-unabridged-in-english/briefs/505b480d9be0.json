@@ -1,0 +1,24 @@
+{
+  "summary_1line": "In exile, Draupadi laments the Pandavas’ fall from royal luxury and urges Yudhishthira to feel anger and act against the injustice of the Kauravas.",
+  "importance": 0.72,
+  "themes": [
+    "exile and loss",
+    "righteous anger vs forgiveness",
+    "royal duty",
+    "humiliation and injustice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Draupadi in the forest, dressed in simple garments, passionately reproaches Yudhishthira seated on kusa grass while the Pandava brothers listen in silence.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "Yudhishthira sits in worn deer-skin upon a bed of grass in the twilight forest, contrasting with Draupadi’s memory of his former jeweled ivory throne.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "The mighty Bhima and Arjuna, once surrounded by royal splendor, now stand armed but austere among forest trees as Draupadi points to their undeserved hardship.",
+      "visual_strength": 0.71
+    }
+  ]
+}

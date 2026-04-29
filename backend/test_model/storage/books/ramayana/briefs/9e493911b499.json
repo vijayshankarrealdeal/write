@@ -1,0 +1,25 @@
+{
+  "summary_1line": "After Narantaka’s fall, fierce battles erupt as Angada, Hanuman, Nila, and Rishabha kill Devantaka, Mahodara, Trishiras, and Mahaparshwa in brutal combat.",
+  "importance": 0.68,
+  "themes": [
+    "heroic combat",
+    "vengeance",
+    "monkeys vs rakshasas",
+    "martial valor",
+    "divine-scale warfare"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hanuman seizes Trishiras by the crown and with a blazing sword cuts off his three jeweled heads, which fall like stars from the sky.",
+      "visual_strength": 0.94
+    },
+    {
+      "scene_text": "Angada rips a tusk from the fallen elephant of Mahodara and strikes Devantaka with it amid a storm of rocks and shattered trees.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Rishabha, bleeding from the chest, leaps forward and smashes Mahaparshwa with a mighty fist, sending the titan crashing to the ground.",
+      "visual_strength": 0.78
+    }
+  ]
+}
