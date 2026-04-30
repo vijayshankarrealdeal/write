@@ -36,8 +36,11 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
 
-  # Self-hosted backend (FastAPI + PostgreSQL + MinIO)
-  google_sign_in: ^7.2.0  # For Google OAuth (ID token sent to backend)
+  # Self-hosted backend (FastAPI + PostgreSQL + MinIO).
+  # Google OAuth runs entirely on the backend — the app only opens the
+  # backend URL in a browser (`url_launcher` on native, full-page redirect
+  # on web) and either receives tokens via URL fragment (web) or polls the
+  # backend's session endpoint for them (native).
 
   cupertino_icons: ^1.0.8
   provider: ^6.1.5+1

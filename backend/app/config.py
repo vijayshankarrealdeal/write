@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     minio_public_url: str = "http://localhost:9000"
 
     google_client_id: str = ""
+    google_client_secret: str = ""
+    google_oauth_redirect_uri: str = ""
+    frontend_origin: str = ""
     cors_origins: str = "http://localhost:3000,http://localhost:8080,http://localhost:5174"
 
     azure_openai_api_key: str = ""

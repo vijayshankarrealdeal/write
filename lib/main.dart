@@ -77,6 +77,19 @@ void main() {
 
     final storage = StorageService();
     await storage.init();
+
+    // Web-only: if we just came back from the backend's Google OAuth callback,
+    // the tokens ride in the URL fragment. Persist them before AuthProvider
+    // boots so its restoreSession picks them up like any other resume.
+    if (kIsWeb) {
+      final tokens = web_utils.consumeOAuthTokensFromUrl();
+      if (tokens != null) {
+        await storage.saveAuthToken(tokens.access);
+        await storage.saveRefreshToken(tokens.refresh);
+        log.i('[auth] Imported Google OAuth tokens from URL fragment');
+      }
+    }
+
     final connectivity = ConnectivityService();
     await connectivity.init();
     // The outbox stays closed until AuthProvider opens the per-user sandbox

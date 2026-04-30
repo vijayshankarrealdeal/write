@@ -1,25 +1,23 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
 import 'package:inkspacex/models/user_model.dart' as app;
 import 'package:inkspacex/services/api/api_client.dart';
 import 'package:inkspacex/services/storage_service.dart';
+import 'package:inkspacex/web_utils_stub.dart'
+    if (dart.library.html) 'package:inkspacex/web_utils.dart' as web_utils;
 
 /// Auth service backed by the FastAPI backend.
 class ApiAuthService {
-  // Web/Server OAuth client ID. Backend verifies ID tokens against this.
-  // On native we pass it as `serverClientId` so Google mints a token whose
-  // `aud` matches the backend's `GOOGLE_CLIENT_ID`. Override per-build via
-  // `--dart-define=GOOGLE_CLIENT_ID=...`.
-  static const String _googleServerClientId = String.fromEnvironment(
-    'GOOGLE_CLIENT_ID',
-    defaultValue:
-        '995532374345-6lpf0d1nnp51k228oi1lkqbqtib06v6t.apps.googleusercontent.com',
-  );
-
   final ApiClient _client;
   final StorageService _storage;
-  bool _googleSignInInitialized = false;
+  static const _uuid = Uuid();
+
+  // How long to wait for the user to finish the Google flow in the system
+  // browser before we give up. Backend's pending-token TTL is 5min — match it.
+  static const Duration _googlePollTimeout = Duration(minutes: 5);
+  static const Duration _googlePollInterval = Duration(seconds: 2);
 
   ApiAuthService(this._client, this._storage);
 
@@ -68,31 +66,56 @@ class ApiAuthService {
     return Exception(fallback);
   }
 
-  /// Google Sign-In → sends ID token to backend for verification.
+  /// Google Sign-In — fully server-side. The app never talks to Google.
+  ///
+  /// - Web: full-page redirect to `/api/auth/google/start`. The backend does
+  ///   the OAuth dance and bounces the browser back to the SPA with tokens
+  ///   in the URL fragment (consumed in main.dart on next boot).
+  /// - Native: opens the same backend URL in the system browser via
+  ///   `url_launcher`, then polls `/api/auth/google/session/{id}` until the
+  ///   backend has parked the freshly-minted tokens against that id.
   Future<app.User> signInWithGoogle() async {
-    String? idToken;
-
     if (kIsWeb) {
-      // On web, use Google Sign-In popup
-      await _ensureGoogleSignInInitialized();
-      final account = await GoogleSignIn.instance
-          .authenticate(scopeHint: ['email', 'profile']);
-      idToken = account.authentication.idToken;
-    } else {
-      // Native: use google_sign_in
-      await _ensureGoogleSignInInitialized();
-      final account = await GoogleSignIn.instance
-          .authenticate(scopeHint: ['email', 'profile']);
-      idToken = account.authentication.idToken;
+      web_utils.redirectToGoogleSignIn(ApiClient.baseUrl);
+      // Page navigates away; this future never resolves on the unloaded page.
+      return Completer<app.User>().future;
     }
 
-    if (idToken == null) throw Exception('Failed to get Google ID token');
+    final sessionId = _uuid.v4();
+    final startUrl = Uri.parse(
+      '${ApiClient.baseUrl}/api/auth/google/start?session_id=$sessionId',
+    );
 
-    final response = await _client.post('/api/auth/google', data: {
-      'id_token': idToken,
-    });
-    await _saveTokens(response.data);
+    final launched = await launchUrl(startUrl, mode: LaunchMode.externalApplication);
+    if (!launched) {
+      throw Exception('Could not open browser for Google sign-in');
+    }
+
+    final tokens = await _pollForGoogleTokens(sessionId);
+    await _saveTokens(tokens);
     return _fetchMe();
+  }
+
+  /// Polls the backend's session endpoint. The endpoint returns 404 until the
+  /// user finishes the OAuth flow in the browser, then 200 with tokens.
+  Future<Map<String, dynamic>> _pollForGoogleTokens(String sessionId) async {
+    final deadline = DateTime.now().add(_googlePollTimeout);
+    while (DateTime.now().isBefore(deadline)) {
+      await Future.delayed(_googlePollInterval);
+      try {
+        final response =
+            await _client.get('/api/auth/google/session/$sessionId');
+        if (response.data is Map<String, dynamic>) {
+          return response.data as Map<String, dynamic>;
+        }
+      } on ApiException catch (e) {
+        // 404 = "user hasn't finished yet" — keep polling. Anything else
+        // (network error, 5xx) we let bubble up.
+        if (e.statusCode == 404) continue;
+        rethrow;
+      }
+    }
+    throw Exception('Google sign-in timed out. Please try again.');
   }
 
   /// Restore session from stored tokens.
@@ -127,13 +150,9 @@ class ApiAuthService {
     await _client.post('/api/auth/reset-password', data: {'email': email});
   }
 
-  /// Sign out.
+  /// Sign out. The backend holds no Google session for us — auth is just our
+  /// own JWTs — so all we do is clear local state.
   Future<void> logout() async {
-    if (!kIsWeb) {
-      try {
-        await GoogleSignIn.instance.signOut();
-      } catch (_) {}
-    }
     await _storage.clearAuth();
   }
 
@@ -147,17 +166,6 @@ class ApiAuthService {
   Future<void> _saveTokens(Map<String, dynamic> data) async {
     await _storage.saveAuthToken(data['access_token']);
     await _storage.saveRefreshToken(data['refresh_token']);
-  }
-
-  Future<void> _ensureGoogleSignInInitialized() async {
-    if (_googleSignInInitialized) return;
-    await GoogleSignIn.instance.initialize(
-      // Web SDK needs `clientId`; native uses `serverClientId` so the issued
-      // ID token's `aud` is the backend's Web client (matches GOOGLE_CLIENT_ID).
-      clientId: kIsWeb ? _googleServerClientId : null,
-      serverClientId: kIsWeb ? null : _googleServerClientId,
-    );
-    _googleSignInInitialized = true;
   }
 
   app.User _userFromJson(Map<String, dynamic> json) {

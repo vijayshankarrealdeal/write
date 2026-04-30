@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,6 +7,8 @@ import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/mdi.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/web_utils_stub.dart'
+    if (dart.library.html) 'package:inkspacex/web_utils.dart' as web_utils;
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -51,6 +54,15 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
       curve: Curves.easeOutCubic,
     ));
     _animController.forward();
+
+    if (kIsWeb) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final err = web_utils.consumeGoogleErrorFromUrl();
+        if (err != null && mounted) {
+          _showError('Google sign-in failed: $err');
+        }
+      });
+    }
   }
 
   @override
