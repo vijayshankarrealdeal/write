@@ -1,5 +1,10 @@
 import 'package:web/web.dart' as web;
 import 'dart:js_interop';
+import 'package:flutter_web_plugins/url_strategy.dart';
+
+void useWebPathUrlStrategy() {
+  usePathUrlStrategy();
+}
 
 void listenForUpdates() {
   web.window.navigator.serviceWorker.addEventListener(

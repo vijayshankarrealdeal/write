@@ -53,6 +53,7 @@ bool _shouldSuppress(String msg) =>
 void main() {
   runZonedGuarded(() async {
     if (kIsWeb) {
+      web_utils.useWebPathUrlStrategy();
       web_utils.listenForUpdates();
     }
     WidgetsFlutterBinding.ensureInitialized();
