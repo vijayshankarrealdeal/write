@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 
@@ -33,6 +34,13 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
   @override
   void initState() {
     super.initState();
+    AnalyticsService.instance.track(
+      'profile_viewed',
+      screen: '/u/:id',
+      action: 'view',
+      entityType: 'user',
+      entityId: widget.userId,
+    );
     _user = widget.seed;
     _loadingUser = widget.seed == null;
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());

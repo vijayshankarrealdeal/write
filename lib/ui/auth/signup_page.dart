@@ -7,6 +7,7 @@ import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/mdi.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/web_utils_stub.dart'
     if (dart.library.html) 'package:inkspacex/web_utils.dart' as web_utils;
 
@@ -38,6 +39,11 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    AnalyticsService.instance.track(
+      'auth_signup_viewed',
+      screen: '/signup',
+      action: 'view',
+    );
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),

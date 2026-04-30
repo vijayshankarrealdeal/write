@@ -2,10 +2,62 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, Float, ForeignKey, Index, Integer, String, Text, text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import INET, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, UUIDMixin
+
+
+class AnalyticsEvent(Base, UUIDMixin):
+    """User-behaviour event log.
+
+    Designed around the question "what did this user do, in what order?".
+    `user_id` is the primary lens; `client_id` is the stable anonymous
+    identity used to stitch pre-auth events to the user once they sign in.
+    Per-session funnels use `session_id`. The `properties` JSONB carries
+    event-specific context (post_id, target_user_id, search_query, etc.)
+    and has a GIN index so `properties @> '{"post_id": "..."}'` is fast.
+
+    Never store passwords, tokens, or PII in `properties` — the analytics
+    service strips them client-side, but the contract bears repeating.
+    """
+
+    __tablename__ = "analytics_events"
+
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    client_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    session_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    event_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    screen: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    # view / click / submit / success / fail / impression / etc.
+    action: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    entity_type: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    entity_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    source_screen: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    properties: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
+    client_ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    server_ts: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("now()"), nullable=False
+    )
+    user_agent: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    ip: Mapped[str | None] = mapped_column(INET, nullable=True)
+
+    __table_args__ = (
+        Index("ix_analytics_events_user_server_ts", "user_id", "server_ts"),
+        Index("ix_analytics_events_event_server_ts", "event_name", "server_ts"),
+        Index("ix_analytics_events_client_server_ts", "client_id", "server_ts"),
+        Index("ix_analytics_events_session_server_ts", "session_id", "server_ts"),
+        Index(
+            "ix_analytics_events_properties_gin",
+            "properties",
+            postgresql_using="gin",
+        ),
+    )
 
 
 class PageVisit(Base, UUIDMixin):

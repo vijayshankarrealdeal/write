@@ -21,6 +21,8 @@ import 'package:inkspacex/provider/notification_provider.dart';
 import 'package:inkspacex/provider/offline_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
 import 'package:inkspacex/router.dart';
+import 'package:inkspacex/services/analytics_service.dart';
+import 'package:inkspacex/services/api/api_client.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/local_notification_service.dart';
@@ -105,6 +107,15 @@ void main() {
     // service simply never publishes anything.
     final localNotifications = LocalNotificationService();
     await localNotifications.init();
+
+    // Analytics: spins up its own ApiClient (stateless aside from the
+    // shared storage handle for auth tokens) so behaviour events flow
+    // even before AuthProvider — pre-login screens are first-class
+    // entries in the funnel. Disabled by default in debug builds; flip
+    // with --dart-define=ANALYTICS_ENABLED=true.
+    await AnalyticsService.init(api: ApiClient(storage));
+    AnalyticsService.instance.track('app_started', action: 'lifecycle');
+
     runApp(MyApp(
       storage: storage,
       connectivity: connectivity,
@@ -126,7 +137,7 @@ void main() {
   ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final StorageService storage;
   final ConnectivityService connectivity;
   final Outbox outbox;
@@ -140,6 +151,48 @@ class MyApp extends StatelessWidget {
     required this.mergeLog,
     required this.localNotifications,
   });
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Analytics session boundaries — fg/bg tracking, plus a final flush
+    // on background so events written right before the OS may evict us
+    // don't get lost.
+    switch (state) {
+      case AppLifecycleState.resumed:
+        AnalyticsService.instance.onAppForegrounded();
+        break;
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        AnalyticsService.instance.onAppBackgrounded();
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+        break;
+    }
+  }
+
+  StorageService get storage => widget.storage;
+  ConnectivityService get connectivity => widget.connectivity;
+  Outbox get outbox => widget.outbox;
+  MergeLog get mergeLog => widget.mergeLog;
+  LocalNotificationService get localNotifications => widget.localNotifications;
 
   @override
   Widget build(BuildContext context) {

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show ChangeNotifier;
 import 'package:inkspacex/models/user_model.dart' as app;
 import 'package:inkspacex/models/user_preferences_model.dart';
+import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_auth_service.dart';
 import 'package:inkspacex/services/api/api_client.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
@@ -140,6 +141,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
+    AnalyticsService.instance.track('auth_login_submitted', action: 'submit');
     try {
       final user = await _authService.login(email, password);
       await _openUserScope(user.id);
@@ -147,10 +149,15 @@ class AuthProvider extends ChangeNotifier {
       _isAuthenticated = true;
       log.i('[auth] Login succeeded (uid=${user.id})');
       await _storage.saveUser(user.toJson());
+      AnalyticsService.instance.setUserId(user.id);
+      // Anchor event for backend identity stitching.
+      AnalyticsService.instance
+          .track('auth_login_succeeded', action: 'success', entityType: 'user', entityId: user.id);
     } catch (e, st) {
       _isLoading = false;
       notifyListeners();
       log.e('[auth] Login failed', error: e, stackTrace: st);
+      AnalyticsService.instance.track('auth_login_failed', action: 'fail');
       rethrow;
     }
     _isLoading = false;
@@ -160,6 +167,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> signup(String name, String email, String password) async {
     _isLoading = true;
     notifyListeners();
+    AnalyticsService.instance.track('auth_signup_submitted', action: 'submit');
     try {
       final user = await _authService.signup(name, email, password);
       await _openUserScope(user.id);
@@ -167,10 +175,18 @@ class AuthProvider extends ChangeNotifier {
       _isAuthenticated = true;
       log.i('[auth] Signup succeeded (uid=${user.id})');
       await _storage.saveUser(user.toJson());
+      AnalyticsService.instance.setUserId(user.id);
+      AnalyticsService.instance.track(
+        'signup_completed',
+        action: 'success',
+        entityType: 'user',
+        entityId: user.id,
+      );
     } catch (e, st) {
       _isLoading = false;
       notifyListeners();
       log.e('[auth] Signup failed', error: e, stackTrace: st);
+      AnalyticsService.instance.track('auth_signup_failed', action: 'fail');
       rethrow;
     }
     _isLoading = false;
@@ -180,6 +196,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> signInWithGoogle() async {
     _isLoading = true;
     notifyListeners();
+    AnalyticsService.instance.track('auth_google_clicked', action: 'click');
     try {
       final user = await _authService.signInWithGoogle();
       await _openUserScope(user.id);
@@ -187,10 +204,18 @@ class AuthProvider extends ChangeNotifier {
       _isAuthenticated = true;
       log.i('[auth] Google sign-in succeeded (uid=${user.id})');
       await _storage.saveUser(user.toJson());
+      AnalyticsService.instance.setUserId(user.id);
+      AnalyticsService.instance.track(
+        'auth_google_succeeded',
+        action: 'success',
+        entityType: 'user',
+        entityId: user.id,
+      );
     } catch (e, st) {
       _isLoading = false;
       notifyListeners();
       log.e('[auth] Google sign-in failed', error: e, stackTrace: st);
+      AnalyticsService.instance.track('auth_google_failed', action: 'fail');
       rethrow;
     }
     _isLoading = false;
@@ -199,6 +224,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     log.i('[auth] Logout');
+    AnalyticsService.instance.track('auth_logout', action: 'click');
 
     // Best-effort final drain while the auth token is still valid. Bounded
     // so a slow network can't block the sign-out flow indefinitely; any ops
@@ -228,6 +254,7 @@ class AuthProvider extends ChangeNotifier {
     await _closeUserScope();
     _isAuthenticated = false;
     _currentUser = null;
+    AnalyticsService.instance.setUserId(null);
     notifyListeners();
   }
 

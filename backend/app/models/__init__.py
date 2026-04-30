@@ -1,4 +1,10 @@
-from app.models.analytics import AppLog, CrashReport, PageVisit, RecommendationEvent
+from app.models.analytics import (
+    AnalyticsEvent,
+    AppLog,
+    CrashReport,
+    PageVisit,
+    RecommendationEvent,
+)
 from app.models.base import Base
 from app.models.bookmark import Bookmark
 from app.models.bookshelf import Bookshelf
@@ -13,6 +19,7 @@ from app.models.user import User
 from app.models.writing import Writing
 
 __all__ = [
+    "AnalyticsEvent",
     "AppLog",
     "Base",
     "Bookmark",

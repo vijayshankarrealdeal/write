@@ -20,6 +20,7 @@ from app.middleware import RequestLoggingMiddleware
 from app.offline.router import router as offline_router
 from app.routers import (
     admin,
+    analytics,
     auth,
     bookmarks,
     bookshelves,
@@ -142,6 +143,7 @@ app.include_router(crashes.router)
 app.include_router(logs.router)
 app.include_router(notifications.router)
 app.include_router(realtime.router)
+app.include_router(analytics.router)
 
 # Request logging middleware
 app.add_middleware(RequestLoggingMiddleware)

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'package:inkspacex/main.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/services/analytics_observer.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/ui/auth/login_page.dart';
 import 'package:inkspacex/ui/auth/signup_page.dart';
@@ -38,7 +39,7 @@ GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
     refreshListenable: authProvider,
     initialLocation: '/',
-    observers: [_NavigationLogger()],
+    observers: [_NavigationLogger(), AnalyticsNavigatorObserver()],
     redirect: (context, state) {
       final auth = authProvider;
       final location = state.matchedLocation;

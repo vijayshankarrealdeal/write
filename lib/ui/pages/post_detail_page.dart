@@ -24,6 +24,7 @@ import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/bookmark_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/provider/offline_provider.dart';
+import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 
 // ---------------------------------------------------------------------------
@@ -277,6 +278,13 @@ class _PostDetailPageState extends State<PostDetailPage>
   @override
   void initState() {
     super.initState();
+    AnalyticsService.instance.track(
+      'post_viewed',
+      screen: '/post/:id',
+      action: 'view',
+      entityType: 'post',
+      entityId: widget.item.id,
+    );
     _likeAnimController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
