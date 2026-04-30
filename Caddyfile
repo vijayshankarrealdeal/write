@@ -1,3 +1,21 @@
+# Dedicated API host. Flutter mobile/web/desktop builds point at this URL
+# so the API is reachable without going through the SPA host. Routers in
+# FastAPI already carry their own `/api/...` prefix, so paths are unchanged
+# (e.g. https://api.{$DOMAIN}/api/feed). DNS: A record api.{$DOMAIN} → VM IP.
+api.{$DOMAIN} {
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+
+	reverse_proxy fastapi:8000
+
+	handle_errors {
+		header Content-Type application/json
+		respond `{"detail":"Upstream API unavailable","status":{err.status_code}}` {err.status_code}
+	}
+}
+
 {$DOMAIN}, www.{$DOMAIN} {
 	# Security headers that can't be set via <meta> — handled here.
 	header {

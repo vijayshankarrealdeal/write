@@ -42,7 +42,10 @@ class Settings(BaseSettings):
     # that case so a misconfigured deployment fails loudly, not quietly.
     inkx_license_signing_key: str = ""
 
-    model_config = {"env_file": ".env"}
+    # `extra="ignore"` matches prod's docker-compose `environment:` injection (which
+    # passes vars not declared here, e.g. AZURE_OPENAI_MAP_DEPLOYMENT consumed by
+    # app.ai.* via os.getenv). Without it, env_file loads (local dev) reject those.
+    model_config = {"env_file": ".env", "extra": "ignore"}
 
     @field_validator("jwt_secret")
     @classmethod

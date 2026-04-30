@@ -7,6 +7,16 @@ import 'package:inkspacex/services/storage_service.dart';
 
 /// Auth service backed by the FastAPI backend.
 class ApiAuthService {
+  // Web/Server OAuth client ID. Backend verifies ID tokens against this.
+  // On native we pass it as `serverClientId` so Google mints a token whose
+  // `aud` matches the backend's `GOOGLE_CLIENT_ID`. Override per-build via
+  // `--dart-define=GOOGLE_CLIENT_ID=...`.
+  static const String _googleServerClientId = String.fromEnvironment(
+    'GOOGLE_CLIENT_ID',
+    defaultValue:
+        '995532374345-6lpf0d1nnp51k228oi1lkqbqtib06v6t.apps.googleusercontent.com',
+  );
+
   final ApiClient _client;
   final StorageService _storage;
   bool _googleSignInInitialized = false;
@@ -141,7 +151,12 @@ class ApiAuthService {
 
   Future<void> _ensureGoogleSignInInitialized() async {
     if (_googleSignInInitialized) return;
-    await GoogleSignIn.instance.initialize();
+    await GoogleSignIn.instance.initialize(
+      // Web SDK needs `clientId`; native uses `serverClientId` so the issued
+      // ID token's `aud` is the backend's Web client (matches GOOGLE_CLIENT_ID).
+      clientId: kIsWeb ? _googleServerClientId : null,
+      serverClientId: kIsWeb ? null : _googleServerClientId,
+    );
     _googleSignInInitialized = true;
   }
 
