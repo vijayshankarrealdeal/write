@@ -145,6 +145,46 @@ class _EditiorPageState extends State<EditiorPage>
         GoogleFonts.getFont(font);
       } catch (_) {}
     }
+    HardwareKeyboard.instance.addHandler(_handleGlobalKey);
+  }
+
+  // Global key handler — runs even while the Quill editor has focus, where
+  // a wrapping KeyboardListener with an unfocused FocusNode silently never
+  // fires. Returning `true` marks the event handled so it stops bubbling.
+  bool _handleGlobalKey(KeyEvent event) {
+    if (!mounted) return false;
+    // Don't steal keys if a dialog or sheet is on top.
+    if (ModalRoute.of(context)?.isCurrent != true) return false;
+
+    // Slash menu eats arrows / Enter / Esc when open.
+    if (_slashMenu?.handleKey(event) ?? false) return true;
+    if (event is! KeyDownEvent) return false;
+
+    if (event.logicalKey == LogicalKeyboardKey.escape) {
+      if (_findReplaceOpen) {
+        setState(() => _findReplaceOpen = false);
+        return true;
+      }
+      if (_focusMode) {
+        _toggleFocusMode();
+        return true;
+      }
+      return false;
+    }
+
+    final ctrlOrCmd = HardwareKeyboard.instance.isControlPressed ||
+        HardwareKeyboard.instance.isMetaPressed;
+    if (!ctrlOrCmd) return false;
+
+    if (event.logicalKey == LogicalKeyboardKey.keyF && !_isCanvasMode) {
+      setState(() => _findReplaceOpen = !_findReplaceOpen);
+      return true;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.keyK) {
+      _openCommandPalette();
+      return true;
+    }
+    return false;
   }
 
   @override
@@ -199,6 +239,7 @@ class _EditiorPageState extends State<EditiorPage>
 
   @override
   void dispose() {
+    HardwareKeyboard.instance.removeHandler(_handleGlobalKey);
     WidgetsBinding.instance.removeObserver(this);
     _focusModeController.dispose();
     _slashMenu?.dispose();
@@ -1315,41 +1356,7 @@ class _EditiorPageState extends State<EditiorPage>
         backgroundColor: bgColor,
         body: SafeArea(
           child: _isReady
-              ? KeyboardListener(
-                  focusNode: FocusNode(),
-                  onKeyEvent: (event) {
-                    // Slash menu eats arrows / Enter / Esc when open.
-                    if (_slashMenu?.handleKey(event) ?? false) return;
-                    if (event is! KeyDownEvent) return;
-                    // Escape exits focus mode (or closes find bar).
-                    if (event.logicalKey == LogicalKeyboardKey.escape) {
-                      if (_findReplaceOpen) {
-                        setState(() => _findReplaceOpen = false);
-                        return;
-                      }
-                      if (_focusMode) {
-                        _toggleFocusMode();
-                        return;
-                      }
-                    }
-                    final ctrlOrCmd = HardwareKeyboard
-                            .instance.isControlPressed ||
-                        HardwareKeyboard.instance.isMetaPressed;
-                    // Ctrl/Cmd + F → toggle Find & Replace.
-                    if (event.logicalKey == LogicalKeyboardKey.keyF &&
-                        ctrlOrCmd &&
-                        !_isCanvasMode) {
-                      setState(() => _findReplaceOpen = !_findReplaceOpen);
-                      return;
-                    }
-                    // Ctrl/Cmd + K → command palette.
-                    if (event.logicalKey == LogicalKeyboardKey.keyK &&
-                        ctrlOrCmd) {
-                      _openCommandPalette();
-                      return;
-                    }
-                  },
-                  child: Stack(
+              ? Stack(
                     children: [
                       Column(
                         children: [
@@ -1463,8 +1470,9 @@ class _EditiorPageState extends State<EditiorPage>
                                                               .read<EditorProvider>()
                                                               .controller,
                                                           isDark: isDark,
-                                                          onOpenLink: () =>
-                                                              _openLinkDialogShortcut(),
+                                                          onOpenLink:
+                                                              _openLinkDialogShortcut,
+                                                          onAI: _showAIPanel,
                                                         ),
                                                       ),
                                                     ),
@@ -1537,8 +1545,7 @@ class _EditiorPageState extends State<EditiorPage>
                           ),
                         ),
                     ],
-                  ),
-                )
+                  )
               : const Center(child: CupertinoActivityIndicator(radius: 14)),
         ),
       ),
@@ -4313,11 +4320,15 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
 
   @override
   Widget build(BuildContext context) {
+    // Dropdown chrome: in dark mode, sit just barely above the toolbar bg
+    // instead of the old 0xFF2A2D33 high-contrast slab. The tint reads as
+    // an affordance, not as a separate surface fighting with the toolbar.
     final borderColor = widget.isDark
-        ? Colors.white.withValues(alpha: 0.18)
-        : const Color(0xFFB8BCC4);
-    final fillColor =
-        widget.isDark ? const Color(0xFF2A2D33) : const Color(0xFFFAFAFA);
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.10);
+    final fillColor = widget.isDark
+        ? Colors.white.withValues(alpha: 0.04)
+        : Colors.black.withValues(alpha: 0.025);
     final accentColor = widget.isDark
         ? const Color(0xFF93B4F5)
         : const Color(0xFF5B8DEF);
@@ -4329,8 +4340,8 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
     final alignValue = _currentAlignValue();
 
     final clusterBg = widget.isDark
-        ? Colors.white.withValues(alpha: 0.03)
-        : Colors.black.withValues(alpha: 0.025);
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.04);
 
     Widget cluster(List<Widget> children) => Container(
           margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -4691,11 +4702,11 @@ class _HeadingMenu extends StatelessWidget {
       child: Container(
         height: 28,
         width: 110,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           color: fillColor,
           border: Border.all(color: borderColor),
-          borderRadius: BorderRadius.circular(2),
+          borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
           children: [
@@ -4706,7 +4717,8 @@ class _HeadingMenu extends StatelessWidget {
                 style: TextStyle(fontSize: 13, color: textColor),
               ),
             ),
-            Icon(Icons.arrow_drop_down, size: 18, color: textColor),
+            Icon(Icons.keyboard_arrow_down,
+                size: 16, color: textColor.withValues(alpha: 0.6)),
           ],
         ),
       ),
@@ -5455,12 +5467,12 @@ class _FontFamilyDropdown extends StatelessWidget {
           .toList(),
       child: Container(
         height: 28,
-        width: 168,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        width: 158,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           color: fillColor,
           border: Border.all(color: borderColor),
-          borderRadius: BorderRadius.circular(2),
+          borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
           children: [
@@ -5471,7 +5483,8 @@ class _FontFamilyDropdown extends StatelessWidget {
                 style: TextStyle(fontSize: 13, color: textColor),
               ),
             ),
-            Icon(Icons.arrow_drop_down, size: 18, color: textColor),
+            Icon(Icons.keyboard_arrow_down,
+                size: 16, color: textColor.withValues(alpha: 0.6)),
           ],
         ),
       ),
@@ -5514,12 +5527,12 @@ class _FontSizeDropdown extends StatelessWidget {
           .toList(),
       child: Container(
         height: 28,
-        width: 56,
+        width: 54,
         padding: const EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(
           color: fillColor,
           border: Border.all(color: borderColor),
-          borderRadius: BorderRadius.circular(2),
+          borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
           children: [
@@ -5529,7 +5542,8 @@ class _FontSizeDropdown extends StatelessWidget {
                 style: TextStyle(fontSize: 13, color: textColor),
               ),
             ),
-            Icon(Icons.arrow_drop_down, size: 18, color: textColor),
+            Icon(Icons.keyboard_arrow_down,
+                size: 16, color: textColor.withValues(alpha: 0.6)),
           ],
         ),
       ),
