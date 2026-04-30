@@ -20,12 +20,7 @@ void listenForUpdates() {
 /// Clears the fragment from the address bar on success so a refresh doesn't
 /// re-import stale tokens.
 ({String access, String refresh})? consumeOAuthTokensFromUrl() {
-  final hash = web.window.location.hash;
-  if (hash.isEmpty) return null;
-  final raw = hash.startsWith('#') ? hash.substring(1) : hash;
-  if (!raw.contains('access_token=')) return null;
-
-  final params = Uri.splitQueryString(raw);
+  final params = _parseFragmentParams(web.window.location.hash);
   final access = params['access_token'];
   final refresh = params['refresh_token'];
   if (access == null || refresh == null || access.isEmpty || refresh.isEmpty) {
@@ -43,19 +38,36 @@ void listenForUpdates() {
 /// the login page can surface it. Removes the param from the URL on read.
 String? consumeGoogleErrorFromUrl() {
   final loc = web.window.location;
-  final hash = loc.hash;
-  String? err;
-
-  if (hash.isNotEmpty) {
-    final raw = hash.startsWith('#') ? hash.substring(1) : hash;
-    final params = Uri.splitQueryString(raw);
-    err = params['google_error'];
-    if (err != null) {
-      web.window.history.replaceState(null, '', '${loc.pathname}${loc.search}');
-      return err;
-    }
+  final params = _parseFragmentParams(loc.hash);
+  final err = params['google_error'];
+  if (err != null) {
+    web.window.history.replaceState(null, '', '${loc.pathname}${loc.search}');
+    return err;
   }
   return null;
+}
+
+/// Parse a URL fragment into params, defensive against legacy hash-routing
+/// residue (e.g. `#/login#access_token=…&refresh_token=…`, where the first
+/// `#` is the routing prefix and the second is the OAuth fragment glued on
+/// by an old build). The browser collapses both `#` into one fragment, so
+/// the literal `#` survives inside the fragment string and ends up as part
+/// of the first key. Strip any leading prefix up to (and including) the
+/// last `#` in each segment's key before matching.
+Map<String, String> _parseFragmentParams(String hash) {
+  if (hash.isEmpty) return const {};
+  final raw = hash.startsWith('#') ? hash.substring(1) : hash;
+  final out = <String, String>{};
+  for (final segment in raw.split('&')) {
+    final eq = segment.indexOf('=');
+    if (eq <= 0) continue;
+    var key = segment.substring(0, eq);
+    final lastHash = key.lastIndexOf('#');
+    if (lastHash >= 0) key = key.substring(lastHash + 1);
+    final value = Uri.decodeComponent(segment.substring(eq + 1));
+    out[key] = value;
+  }
+  return out;
 }
 
 /// Redirects the browser to the backend's Google OAuth start endpoint.

@@ -189,7 +189,8 @@ async def google_callback(
     fragment = urllib.parse.urlencode(
         {"access_token": access, "refresh_token": refresh}
     )
-    return RedirectResponse(url=f"{callback_uri}#{fragment}", status_code=302)
+    sep = "&" if "#" in callback_uri else "#"
+    return RedirectResponse(url=f"{callback_uri}{sep}{fragment}", status_code=302)
 
 
 @router.get("/google/session/{session_id}", response_model=TokenResponse)
