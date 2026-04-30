@@ -56,11 +56,7 @@ class _NewBookAdditionState extends State<NewBookAddition>
   }
 
   Future<void> _pickImage() async {
-    final picked = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1200,
-      imageQuality: 70,
-    );
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked != null) {
       final bytes = await picked.readAsBytes();
       setState(() => _imageBytes = bytes);

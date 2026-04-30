@@ -14,7 +14,10 @@ import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/gemini_service.dart';
 import 'package:inkspacex/ui/editor/canvas_editor.dart';
+import 'package:inkspacex/ui/editor/command_palette.dart';
+import 'package:inkspacex/ui/editor/floating_format_bar.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
+import 'package:inkspacex/ui/editor/slash_menu.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 
 // Resolved Google Fonts styles, keyed by family name. Quill calls the
@@ -119,6 +122,7 @@ class _EditiorPageState extends State<EditiorPage>
   String? _activePrompt;
   late AnimationController _focusModeController;
   late Animation<double> _focusModeAnimation;
+  SlashMenuController? _slashMenu;
   @override
   void initState() {
     super.initState();
@@ -171,8 +175,18 @@ class _EditiorPageState extends State<EditiorPage>
       if (mounted) {
         setState(() => _isReady = true);
         _initSessionTracking();
+        _initSlashMenu();
       }
     }
+  }
+
+  void _initSlashMenu() {
+    _slashMenu?.dispose();
+    _slashMenu = SlashMenuController(
+      controller: context.read<EditorProvider>().controller,
+      context: context,
+      onAction: _applySlashAction,
+    );
   }
 
   void _initSessionTracking() {
@@ -187,7 +201,327 @@ class _EditiorPageState extends State<EditiorPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _focusModeController.dispose();
+    _slashMenu?.dispose();
     super.dispose();
+  }
+
+  // ─── Link dialog (used by floating selection bar) ───
+  Future<void> _openLinkDialogShortcut() async {
+    final controller = context.read<EditorProvider>().controller;
+    final selection = controller.selection;
+    if (!selection.isValid) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final selStyle = controller.getSelectionStyle();
+    final existing =
+        selStyle.attributes[Attribute.link.key]?.value as String?;
+    String selectedText = '';
+    if (!selection.isCollapsed) {
+      final start = math.min(selection.baseOffset, selection.extentOffset);
+      final end = math.max(selection.baseOffset, selection.extentOffset);
+      selectedText = controller.document.getPlainText(start, end - start);
+    }
+    final result = await showDialog<_LinkDialogResult>(
+      context: context,
+      builder: (ctx) => _LinkDialog(
+        initialText: selectedText,
+        initialUrl: existing ?? '',
+        canRemove: existing != null,
+        isDark: isDark,
+      ),
+    );
+    if (result == null) return;
+    if (result.remove) {
+      controller.formatSelection(Attribute.clone(Attribute.link, null));
+      return;
+    }
+    final url = result.url.trim();
+    if (url.isEmpty) return;
+    if (selection.isCollapsed) {
+      final insertText = result.text.trim().isEmpty ? url : result.text;
+      final start = selection.baseOffset.clamp(0, controller.document.length);
+      controller.replaceText(
+        start,
+        0,
+        insertText,
+        TextSelection.collapsed(offset: start + insertText.length),
+      );
+      controller.formatText(start, insertText.length, LinkAttribute(url));
+    } else {
+      controller.formatSelection(LinkAttribute(url));
+    }
+  }
+
+  // ─── Slash menu action handler ───
+  void _applySlashAction(SlashAction action) {
+    final controller = context.read<EditorProvider>().controller;
+    switch (action) {
+      case SlashAction.h1:
+        controller.formatSelection(Attribute.h1);
+        break;
+      case SlashAction.h2:
+        controller.formatSelection(Attribute.h2);
+        break;
+      case SlashAction.h3:
+        controller.formatSelection(Attribute.h3);
+        break;
+      case SlashAction.body:
+        controller.formatSelection(Attribute.clone(Attribute.header, null));
+        break;
+      case SlashAction.bullet:
+        controller.formatSelection(
+            Attribute.fromKeyValue(Attribute.list.key, 'bullet')!);
+        break;
+      case SlashAction.numbered:
+        controller.formatSelection(
+            Attribute.fromKeyValue(Attribute.list.key, 'ordered')!);
+        break;
+      case SlashAction.checklist:
+        controller.formatSelection(
+            Attribute.fromKeyValue(Attribute.list.key, 'unchecked')!);
+        break;
+      case SlashAction.quote:
+        controller.formatSelection(Attribute.blockQuote);
+        break;
+      case SlashAction.code:
+        controller.formatSelection(Attribute.codeBlock);
+        break;
+      case SlashAction.divider:
+        final idx = controller.selection.baseOffset;
+        controller.replaceText(
+          idx,
+          0,
+          '\n———\n',
+          TextSelection.collapsed(offset: idx + 5),
+        );
+        break;
+      case SlashAction.image:
+        _insertImage();
+        break;
+    }
+  }
+
+  // ─── Command palette (Cmd/Ctrl+K) ───
+  void _openCommandPalette() {
+    final controller = context.read<EditorProvider>().controller;
+    final provider = context.read<EditorProvider>();
+
+    void apply(Attribute attr) {
+      controller.formatSelection(attr);
+    }
+
+    void clear(Attribute attr) {
+      controller.formatSelection(Attribute.clone(attr, null));
+    }
+
+    final commands = <PaletteCommand>[
+      // ── Format ──
+      PaletteCommand(
+        id: 'h1',
+        group: 'Format',
+        label: 'Heading 1',
+        icon: Icons.title,
+        keywords: const ['title', 'h1'],
+        run: () => apply(Attribute.h1),
+      ),
+      PaletteCommand(
+        id: 'h2',
+        group: 'Format',
+        label: 'Heading 2',
+        icon: Icons.title,
+        keywords: const ['subtitle', 'h2'],
+        run: () => apply(Attribute.h2),
+      ),
+      PaletteCommand(
+        id: 'h3',
+        group: 'Format',
+        label: 'Heading 3',
+        icon: Icons.title,
+        run: () => apply(Attribute.h3),
+      ),
+      PaletteCommand(
+        id: 'body',
+        group: 'Format',
+        label: 'Body text',
+        icon: Icons.notes,
+        keywords: const ['paragraph'],
+        run: () => clear(Attribute.header),
+      ),
+      PaletteCommand(
+        id: 'bold',
+        group: 'Format',
+        label: 'Bold',
+        icon: Icons.format_bold,
+        shortcut: '⌘B',
+        run: () => apply(Attribute.bold),
+      ),
+      PaletteCommand(
+        id: 'italic',
+        group: 'Format',
+        label: 'Italic',
+        icon: Icons.format_italic,
+        shortcut: '⌘I',
+        run: () => apply(Attribute.italic),
+      ),
+      PaletteCommand(
+        id: 'underline',
+        group: 'Format',
+        label: 'Underline',
+        icon: Icons.format_underline,
+        shortcut: '⌘U',
+        run: () => apply(Attribute.underline),
+      ),
+      PaletteCommand(
+        id: 'strike',
+        group: 'Format',
+        label: 'Strikethrough',
+        icon: Icons.format_strikethrough,
+        run: () => apply(Attribute.strikeThrough),
+      ),
+      PaletteCommand(
+        id: 'code',
+        group: 'Format',
+        label: 'Inline code',
+        icon: Icons.code,
+        run: () => apply(Attribute.inlineCode),
+      ),
+      PaletteCommand(
+        id: 'quote',
+        group: 'Format',
+        label: 'Blockquote',
+        icon: Icons.format_quote,
+        run: () => apply(Attribute.blockQuote),
+      ),
+      PaletteCommand(
+        id: 'codeblock',
+        group: 'Format',
+        label: 'Code block',
+        icon: Icons.code,
+        run: () => apply(Attribute.codeBlock),
+      ),
+
+      // ── Insert ──
+      PaletteCommand(
+        id: 'image',
+        group: 'Insert',
+        label: 'Insert image',
+        icon: Icons.image,
+        keywords: const ['photo', 'picture'],
+        run: _insertImage,
+      ),
+      PaletteCommand(
+        id: 'bullet',
+        group: 'Insert',
+        label: 'Bulleted list',
+        icon: Icons.format_list_bulleted,
+        run: () =>
+            apply(Attribute.fromKeyValue(Attribute.list.key, 'bullet')!),
+      ),
+      PaletteCommand(
+        id: 'numbered',
+        group: 'Insert',
+        label: 'Numbered list',
+        icon: Icons.format_list_numbered,
+        run: () =>
+            apply(Attribute.fromKeyValue(Attribute.list.key, 'ordered')!),
+      ),
+      PaletteCommand(
+        id: 'checklist',
+        group: 'Insert',
+        label: 'Checklist',
+        icon: Icons.checklist,
+        keywords: const ['todo', 'task'],
+        run: () =>
+            apply(Attribute.fromKeyValue(Attribute.list.key, 'unchecked')!),
+      ),
+
+      // ── View ──
+      PaletteCommand(
+        id: 'focus',
+        group: 'View',
+        label: _focusMode ? 'Exit focus mode' : 'Enter focus mode',
+        icon: CupertinoIcons.eye_slash,
+        keywords: const ['distraction', 'zen'],
+        run: _toggleFocusMode,
+      ),
+      PaletteCommand(
+        id: 'outline',
+        group: 'View',
+        label: _showOutline ? 'Hide outline' : 'Show outline',
+        icon: CupertinoIcons.list_bullet_indent,
+        run: () => setState(() => _showOutline = !_showOutline),
+      ),
+      PaletteCommand(
+        id: 'find',
+        group: 'View',
+        label: 'Find & replace',
+        icon: Icons.search,
+        shortcut: '⌘F',
+        run: () => setState(() => _findReplaceOpen = !_findReplaceOpen),
+      ),
+      PaletteCommand(
+        id: 'mode',
+        group: 'View',
+        label: _isCanvasMode ? 'Switch to Write mode' : 'Switch to Creative mode',
+        icon: _isCanvasMode ? CupertinoIcons.pencil : CupertinoIcons.paintbrush,
+        run: () => _switchMode(!_isCanvasMode),
+      ),
+      PaletteCommand(
+        id: 'sections',
+        group: 'View',
+        label: 'Toggle sections sidebar',
+        icon: CupertinoIcons.sidebar_left,
+        run: provider.toggleShowSections,
+      ),
+      PaletteCommand(
+        id: 'prompt',
+        group: 'View',
+        label: 'Surface a writing prompt',
+        icon: CupertinoIcons.lightbulb,
+        run: _showRandomPrompt,
+      ),
+
+      // ── Actions ──
+      PaletteCommand(
+        id: 'newSection',
+        group: 'Actions',
+        label: 'New section',
+        icon: CupertinoIcons.add,
+        run: _promptNewSection,
+      ),
+      PaletteCommand(
+        id: 'save',
+        group: 'Actions',
+        label: 'Save now',
+        icon: CupertinoIcons.cloud_upload,
+        shortcut: '⌘S',
+        run: provider.forceSaveImmediately,
+      ),
+      PaletteCommand(
+        id: 'ai',
+        group: 'Actions',
+        label: 'AI assist',
+        icon: CupertinoIcons.wand_stars,
+        run: _showAIPanel,
+      ),
+
+      // ── Jump to section ──
+      for (final s in provider.allBooksSection)
+        PaletteCommand(
+          id: 'jump_${s.id}',
+          group: 'Jump to section',
+          label: s.title.isEmpty ? 'Untitled' : s.title,
+          icon: CupertinoIcons.text_alignleft,
+          keywords: const ['go', 'navigate'],
+          run: () {
+            provider.forceSaveImmediately();
+            provider.setActiveSection(s);
+            provider.initEditor();
+            _initSessionTracking();
+          },
+        ),
+    ];
+
+    showCommandPalette(context: context, commands: commands);
   }
 
   // ─── Focus Mode ───
@@ -284,11 +618,7 @@ class _EditiorPageState extends State<EditiorPage>
     if (auth.currentUser == null) return;
 
     final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1200,
-      imageQuality: 70,
-    );
+    final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null || !mounted) return;
 
     final bytes = await picked.readAsBytes();
@@ -988,6 +1318,8 @@ class _EditiorPageState extends State<EditiorPage>
               ? KeyboardListener(
                   focusNode: FocusNode(),
                   onKeyEvent: (event) {
+                    // Slash menu eats arrows / Enter / Esc when open.
+                    if (_slashMenu?.handleKey(event) ?? false) return;
                     if (event is! KeyDownEvent) return;
                     // Escape exits focus mode (or closes find bar).
                     if (event.logicalKey == LogicalKeyboardKey.escape) {
@@ -1000,13 +1332,21 @@ class _EditiorPageState extends State<EditiorPage>
                         return;
                       }
                     }
-                    // Ctrl/Cmd + F → toggle Find & Replace.
-                    final isF = event.logicalKey == LogicalKeyboardKey.keyF;
                     final ctrlOrCmd = HardwareKeyboard
                             .instance.isControlPressed ||
                         HardwareKeyboard.instance.isMetaPressed;
-                    if (isF && ctrlOrCmd && !_isCanvasMode) {
+                    // Ctrl/Cmd + F → toggle Find & Replace.
+                    if (event.logicalKey == LogicalKeyboardKey.keyF &&
+                        ctrlOrCmd &&
+                        !_isCanvasMode) {
                       setState(() => _findReplaceOpen = !_findReplaceOpen);
+                      return;
+                    }
+                    // Ctrl/Cmd + K → command palette.
+                    if (event.logicalKey == LogicalKeyboardKey.keyK &&
+                        ctrlOrCmd) {
+                      _openCommandPalette();
+                      return;
                     }
                   },
                   child: Stack(
@@ -1104,11 +1444,31 @@ class _EditiorPageState extends State<EditiorPage>
                                                     _findReplaceOpen = false),
                                               ),
                                             Expanded(
-                                              child: _buildEditorArea(
-                                                isDark: isDark,
-                                                bgColor: bgColor,
-                                                textColor: textColor,
-                                                isMobile: isMobile,
+                                              child: Stack(
+                                                children: [
+                                                  _buildEditorArea(
+                                                    isDark: isDark,
+                                                    bgColor: bgColor,
+                                                    textColor: textColor,
+                                                    isMobile: isMobile,
+                                                  ),
+                                                  if (!isMobile)
+                                                    Positioned(
+                                                      top: 0,
+                                                      left: 0,
+                                                      right: 0,
+                                                      child: Center(
+                                                        child: FloatingFormatBar(
+                                                          controller: context
+                                                              .read<EditorProvider>()
+                                                              .controller,
+                                                          isDark: isDark,
+                                                          onOpenLink: () =>
+                                                              _openLinkDialogShortcut(),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
                                               ),
                                             ),
                                           ],
@@ -3968,269 +4328,292 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
     final listValue = _currentListValue();
     final alignValue = _currentAlignValue();
 
-    Widget divider() => Container(
-          width: 1,
-          height: 18,
+    final clusterBg = widget.isDark
+        ? Colors.white.withValues(alpha: 0.03)
+        : Colors.black.withValues(alpha: 0.025);
+
+    Widget cluster(List<Widget> children) => Container(
           margin: const EdgeInsets.symmetric(horizontal: 4),
-          color: borderColor,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          decoration: BoxDecoration(
+            color: clusterBg,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: children),
         );
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _UndoRedoButton(
-              controller: widget.controller,
-              undo: true,
-              textColor: widget.textColor,
-            ),
-            _UndoRedoButton(
-              controller: widget.controller,
-              undo: false,
-              textColor: widget.textColor,
-            ),
-            divider(),
-            _HeadingMenu(
-              current: _currentHeadingLabel,
-              borderColor: borderColor,
-              fillColor: fillColor,
-              textColor: widget.textColor,
-              onSelected: _applyHeading,
-            ),
-            const SizedBox(width: 6),
-            _FontFamilyDropdown(
-              current: _currentFontFamily,
-              items: _editorFonts.keys.toList(),
-              borderColor: borderColor,
-              fillColor: fillColor,
-              textColor: widget.textColor,
-              onSelected: _setFontFamily,
-            ),
-            const SizedBox(width: 6),
-            _FontSizeDropdown(
-              current: _currentFontSize,
-              items: _wordFontSizes,
-              borderColor: borderColor,
-              fillColor: fillColor,
-              textColor: widget.textColor,
-              onSelected: _setFontSize,
-            ),
-            const SizedBox(width: 6),
-            _GrowShrinkButton(
-              grow: true,
-              textColor: widget.textColor,
-              onPressed: () => _stepFontSize(1),
-            ),
-            _GrowShrinkButton(
-              grow: false,
-              textColor: widget.textColor,
-              onPressed: () => _stepFontSize(-1),
-            ),
-            divider(),
-            _FormatToggleButton(
-              icon: Icons.format_bold,
-              tooltip: 'Bold',
-              isActive: _isInlineActive(Attribute.bold),
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _toggleInline(Attribute.bold),
-            ),
-            _FormatToggleButton(
-              icon: Icons.format_italic,
-              tooltip: 'Italic',
-              isActive: _isInlineActive(Attribute.italic),
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _toggleInline(Attribute.italic),
-            ),
-            _FormatToggleButton(
-              icon: Icons.format_underline,
-              tooltip: 'Underline',
-              isActive: _isInlineActive(Attribute.underline),
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _toggleInline(Attribute.underline),
-            ),
-            _FormatToggleButton(
-              icon: Icons.format_strikethrough,
-              tooltip: 'Strikethrough',
-              isActive: _isInlineActive(Attribute.strikeThrough),
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _toggleInline(Attribute.strikeThrough),
-            ),
-            _FormatToggleButton(
-              icon: Icons.code,
-              tooltip: 'Inline code',
-              isActive: _isInlineActive(Attribute.inlineCode),
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _toggleInline(Attribute.inlineCode),
-            ),
-            _FormatToggleButton(
-              icon: Icons.subscript,
-              tooltip: 'Subscript',
-              isActive: _currentScript() == ScriptAttributes.sub.value,
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _toggleScript(ScriptAttributes.sub),
-            ),
-            _FormatToggleButton(
-              icon: Icons.superscript,
-              tooltip: 'Superscript',
-              isActive: _currentScript() == ScriptAttributes.sup.value,
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _toggleScript(ScriptAttributes.sup),
-            ),
-            divider(),
-            _ColorSwatchButton(
-              icon: Icons.format_color_text,
-              tooltip: 'Text color',
-              currentColor: _currentColorOf(Attribute.color),
-              textColor: widget.textColor,
-              isDark: widget.isDark,
-              onSelected: (c) => _applyColor(Attribute.color, c),
-            ),
-            _ColorSwatchButton(
-              icon: Icons.format_color_fill,
-              tooltip: 'Highlight',
-              currentColor: _currentColorOf(Attribute.background),
-              textColor: widget.textColor,
-              isDark: widget.isDark,
-              onSelected: (c) => _applyColor(Attribute.background, c),
-            ),
-            _FormatToggleButton(
-              icon: Icons.link,
-              tooltip: 'Insert link',
-              isActive: _hasLink,
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: _openLinkDialog,
-            ),
-            divider(),
-            _FormatToggleButton(
-              icon: Icons.format_list_bulleted,
-              tooltip: 'Bulleted list',
-              isActive: listValue == 'bullet',
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _toggleList('bullet'),
-            ),
-            _FormatToggleButton(
-              icon: Icons.format_list_numbered,
-              tooltip: 'Numbered list',
-              isActive: listValue == 'ordered',
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _toggleList('ordered'),
-            ),
-            _FormatToggleButton(
-              icon: Icons.checklist,
-              tooltip: 'Checklist',
-              isActive: listValue == 'unchecked' || listValue == 'checked',
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _toggleList('unchecked'),
-            ),
-            _FormatToggleButton(
-              icon: Icons.format_indent_decrease,
-              tooltip: 'Decrease indent',
-              isActive: false,
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _stepIndent(-1),
-            ),
-            _FormatToggleButton(
-              icon: Icons.format_indent_increase,
-              tooltip: 'Increase indent',
-              isActive: false,
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _stepIndent(1),
-            ),
-            divider(),
-            _FormatToggleButton(
-              icon: Icons.format_align_left,
-              tooltip: 'Align left',
-              isActive: alignValue == null || alignValue == 'left',
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _setAlign('left'),
-            ),
-            _FormatToggleButton(
-              icon: Icons.format_align_center,
-              tooltip: 'Align center',
-              isActive: alignValue == 'center',
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _setAlign('center'),
-            ),
-            _FormatToggleButton(
-              icon: Icons.format_align_right,
-              tooltip: 'Align right',
-              isActive: alignValue == 'right',
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _setAlign('right'),
-            ),
-            _FormatToggleButton(
-              icon: Icons.format_align_justify,
-              tooltip: 'Justify',
-              isActive: alignValue == 'justify',
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _setAlign('justify'),
-            ),
-            divider(),
-            _FormatToggleButton(
-              icon: Icons.format_quote,
-              tooltip: 'Quote',
-              isActive: _isInlineActive(Attribute.blockQuote),
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: () => _toggleInline(Attribute.blockQuote),
-            ),
-            _FormatToggleButton(
-              icon: Icons.format_clear,
-              tooltip: 'Clear formatting',
-              isActive: false,
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: _clearFormatting,
-            ),
-            divider(),
-            _FormatToggleButton(
-              icon: Icons.search,
-              tooltip: 'Find & Replace (Ctrl+F)',
-              isActive: widget.findReplaceOpen,
-              textColor: widget.textColor,
-              activeBg: activeBg,
-              activeColor: accentColor,
-              onPressed: widget.onToggleFindReplace,
-            ),
+            // ── History ──
+            cluster([
+              _UndoRedoButton(
+                controller: widget.controller,
+                undo: true,
+                textColor: widget.textColor,
+              ),
+              _UndoRedoButton(
+                controller: widget.controller,
+                undo: false,
+                textColor: widget.textColor,
+              ),
+            ]),
+
+            // ── Text (heading + font + size) ──
+            cluster([
+              _HeadingMenu(
+                current: _currentHeadingLabel,
+                borderColor: borderColor,
+                fillColor: fillColor,
+                textColor: widget.textColor,
+                onSelected: _applyHeading,
+              ),
+              const SizedBox(width: 6),
+              _FontFamilyDropdown(
+                current: _currentFontFamily,
+                items: _editorFonts.keys.toList(),
+                borderColor: borderColor,
+                fillColor: fillColor,
+                textColor: widget.textColor,
+                onSelected: _setFontFamily,
+              ),
+              const SizedBox(width: 6),
+              _FontSizeDropdown(
+                current: _currentFontSize,
+                items: _wordFontSizes,
+                borderColor: borderColor,
+                fillColor: fillColor,
+                textColor: widget.textColor,
+                onSelected: _setFontSize,
+              ),
+              const SizedBox(width: 4),
+              _GrowShrinkButton(
+                grow: true,
+                textColor: widget.textColor,
+                onPressed: () => _stepFontSize(1),
+              ),
+              _GrowShrinkButton(
+                grow: false,
+                textColor: widget.textColor,
+                onPressed: () => _stepFontSize(-1),
+              ),
+            ]),
+
+            // ── Style (inline marks + color + link) ──
+            cluster([
+              _FormatToggleButton(
+                icon: Icons.format_bold,
+                tooltip: 'Bold',
+                isActive: _isInlineActive(Attribute.bold),
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _toggleInline(Attribute.bold),
+              ),
+              _FormatToggleButton(
+                icon: Icons.format_italic,
+                tooltip: 'Italic',
+                isActive: _isInlineActive(Attribute.italic),
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _toggleInline(Attribute.italic),
+              ),
+              _FormatToggleButton(
+                icon: Icons.format_underline,
+                tooltip: 'Underline',
+                isActive: _isInlineActive(Attribute.underline),
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _toggleInline(Attribute.underline),
+              ),
+              _FormatToggleButton(
+                icon: Icons.format_strikethrough,
+                tooltip: 'Strikethrough',
+                isActive: _isInlineActive(Attribute.strikeThrough),
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _toggleInline(Attribute.strikeThrough),
+              ),
+              _FormatToggleButton(
+                icon: Icons.code,
+                tooltip: 'Inline code',
+                isActive: _isInlineActive(Attribute.inlineCode),
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _toggleInline(Attribute.inlineCode),
+              ),
+              _FormatToggleButton(
+                icon: Icons.subscript,
+                tooltip: 'Subscript',
+                isActive: _currentScript() == ScriptAttributes.sub.value,
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _toggleScript(ScriptAttributes.sub),
+              ),
+              _FormatToggleButton(
+                icon: Icons.superscript,
+                tooltip: 'Superscript',
+                isActive: _currentScript() == ScriptAttributes.sup.value,
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _toggleScript(ScriptAttributes.sup),
+              ),
+              _ColorSwatchButton(
+                icon: Icons.format_color_text,
+                tooltip: 'Text color',
+                currentColor: _currentColorOf(Attribute.color),
+                textColor: widget.textColor,
+                isDark: widget.isDark,
+                onSelected: (c) => _applyColor(Attribute.color, c),
+              ),
+              _ColorSwatchButton(
+                icon: Icons.format_color_fill,
+                tooltip: 'Highlight',
+                currentColor: _currentColorOf(Attribute.background),
+                textColor: widget.textColor,
+                isDark: widget.isDark,
+                onSelected: (c) => _applyColor(Attribute.background, c),
+              ),
+              _FormatToggleButton(
+                icon: Icons.link,
+                tooltip: 'Insert link',
+                isActive: _hasLink,
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: _openLinkDialog,
+              ),
+            ]),
+
+            // ── Lists & indent ──
+            cluster([
+              _FormatToggleButton(
+                icon: Icons.format_list_bulleted,
+                tooltip: 'Bulleted list',
+                isActive: listValue == 'bullet',
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _toggleList('bullet'),
+              ),
+              _FormatToggleButton(
+                icon: Icons.format_list_numbered,
+                tooltip: 'Numbered list',
+                isActive: listValue == 'ordered',
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _toggleList('ordered'),
+              ),
+              _FormatToggleButton(
+                icon: Icons.checklist,
+                tooltip: 'Checklist',
+                isActive: listValue == 'unchecked' || listValue == 'checked',
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _toggleList('unchecked'),
+              ),
+              _FormatToggleButton(
+                icon: Icons.format_indent_decrease,
+                tooltip: 'Decrease indent',
+                isActive: false,
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _stepIndent(-1),
+              ),
+              _FormatToggleButton(
+                icon: Icons.format_indent_increase,
+                tooltip: 'Increase indent',
+                isActive: false,
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _stepIndent(1),
+              ),
+            ]),
+
+            // ── Align ──
+            cluster([
+              _FormatToggleButton(
+                icon: Icons.format_align_left,
+                tooltip: 'Align left',
+                isActive: alignValue == null || alignValue == 'left',
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _setAlign('left'),
+              ),
+              _FormatToggleButton(
+                icon: Icons.format_align_center,
+                tooltip: 'Align center',
+                isActive: alignValue == 'center',
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _setAlign('center'),
+              ),
+              _FormatToggleButton(
+                icon: Icons.format_align_right,
+                tooltip: 'Align right',
+                isActive: alignValue == 'right',
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _setAlign('right'),
+              ),
+              _FormatToggleButton(
+                icon: Icons.format_align_justify,
+                tooltip: 'Justify',
+                isActive: alignValue == 'justify',
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _setAlign('justify'),
+              ),
+            ]),
+
+            // ── Block + find ──
+            cluster([
+              _FormatToggleButton(
+                icon: Icons.format_quote,
+                tooltip: 'Quote',
+                isActive: _isInlineActive(Attribute.blockQuote),
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: () => _toggleInline(Attribute.blockQuote),
+              ),
+              _FormatToggleButton(
+                icon: Icons.format_clear,
+                tooltip: 'Clear formatting',
+                isActive: false,
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: _clearFormatting,
+              ),
+              _FormatToggleButton(
+                icon: Icons.search,
+                tooltip: 'Find & Replace (Ctrl+F)',
+                isActive: widget.findReplaceOpen,
+                textColor: widget.textColor,
+                activeBg: activeBg,
+                activeColor: accentColor,
+                onPressed: widget.onToggleFindReplace,
+              ),
+            ]),
           ],
         ),
       ),

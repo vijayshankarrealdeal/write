@@ -115,11 +115,7 @@ class _PublishPageState extends State<PublishPage> {
   }
 
   Future<void> _pickCoverImage() async {
-    final picked = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1200,
-      imageQuality: 70,
-    );
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked == null) return;
     final bytes = await picked.readAsBytes();
     setState(() => _coverBytes = bytes);

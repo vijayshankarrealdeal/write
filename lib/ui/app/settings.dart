@@ -373,11 +373,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _pickAndUploadPhoto() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 512,
-      imageQuality: 70,
-    );
+    final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
     final Uint8List bytes = await picked.readAsBytes();
     if (!mounted) return;

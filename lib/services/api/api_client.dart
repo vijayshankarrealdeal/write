@@ -75,12 +75,12 @@ class ApiClient {
   final StorageService _storage;
   final http.Client _http = http.Client();
 
-  // Dedicated API host so mobile/web/desktop builds all hit the same URL
-  // independently of where the SPA is served from. Override via
+  // Main domain proxies /api/* to FastAPI via Caddy, so web hits same-origin
+  // and native builds reach the same backend. Override via
   // --dart-define=API_BASE_URL=... (e.g. http://localhost:8000 for dev).
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://api.inkspacex.com',
+    defaultValue: 'https://inkspacex.com',
   );
 
   static const Duration _timeout = Duration(seconds: 30);

@@ -44,11 +44,7 @@ class _CreateBookshelfPageState extends State<CreateBookshelfPage> {
 
   // ── Cover image picker ──
   Future<void> _pickCover() async {
-    final picked = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1600,
-      imageQuality: 80,
-    );
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked == null) return;
     final bytes = await picked.readAsBytes();
     if (!mounted) return;

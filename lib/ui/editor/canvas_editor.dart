@@ -241,11 +241,7 @@ class CanvasEditorState extends State<CanvasEditor>
 
   Future<void> _pickAndAddImage() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1200,
-      imageQuality: 75,
-    );
+    final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null || !mounted) return;
 
     final bytes = await picked.readAsBytes();
@@ -1106,11 +1102,7 @@ class CanvasEditorState extends State<CanvasEditor>
   /// Pick an image and assign it to a specific element (for placeholders).
   Future<void> _pickImageForElement(CanvasElement e) async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1200,
-      imageQuality: 75,
-    );
+    final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null || !mounted) return;
 
     final bytes = await picked.readAsBytes();
@@ -1843,7 +1835,7 @@ class CanvasEditorState extends State<CanvasEditor>
                     onPressed: () async {
                       Navigator.pop(ctx);
                       final picker = ImagePicker();
-                      final picked = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1600, imageQuality: 80);
+                      final picked = await picker.pickImage(source: ImageSource.gallery);
                       if (picked == null || !mounted) return;
                       final bytes = await picked.readAsBytes();
                       if (!mounted) return;
