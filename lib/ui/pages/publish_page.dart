@@ -8,6 +8,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/ui/utilities/writing_type_style.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 
@@ -173,6 +174,20 @@ class _PublishPageState extends State<PublishPage> {
         isDraft: _isDraft,
       );
 
+      AnalyticsService.instance.track(
+        _isDraft ? 'editor_draft_saved' : 'post_published',
+        screen: '/publish',
+        action: 'success',
+        entityType: 'writing',
+        entityId: widget.book.id,
+        properties: {
+          'section_count': processedSections.length,
+          'tag_count': _tags.length,
+          'is_update': _isUpdate,
+          'has_canvas': _includeCanvas,
+        },
+      );
+
       if (mounted) {
         Navigator.pop(context);
         showCupertinoDialog(
@@ -200,6 +215,13 @@ class _PublishPageState extends State<PublishPage> {
         );
       }
     } catch (e) {
+      AnalyticsService.instance.track(
+        'post_publish_failed',
+        screen: '/publish',
+        action: 'fail',
+        entityType: 'writing',
+        entityId: widget.book.id,
+      );
       if (mounted) {
         setState(() => _isPublishing = false);
         _showAlert("Error", e.toString().replaceFirst('Exception: ', ''));

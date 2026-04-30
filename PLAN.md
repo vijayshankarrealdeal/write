@@ -222,8 +222,116 @@ chip away at the list as they touch each surface.
 
 ## What's left (at a glance)
 
-These are the things you'd still need to build before declaring the
-analytics surface "done":
+### Round 2 — shipped
+
+Pulled the data-quality wins forward (semantic events + dwell time +
+real DB-backed test + a small web bonus). Bigger infra commitments
+stay deferred.
+
+**Shipped:**
+
+- **a. Semantic events** wired inside the actual handlers (not on
+  screens that don't exist):
+  - `post_liked` / `post_unliked` —
+    `lib/provider/auth_provider.dart#toggleLike`.
+  - `post_favorited` / `post_unfavorited` —
+    `lib/provider/auth_provider.dart#toggleFavorite` (the "save"
+    affordance).
+  - `bookmark_added` / `bookmark_removed` —
+    `lib/provider/bookmark_provider.dart#addBookmark` /
+    `deleteBookmark`.
+  - `post_comment_added` / `post_comment_deleted` —
+    `lib/provider/feed_provider.dart#addComment` / `deleteComment`.
+  - `post_link_copied` — `_shareItem` in `lib/ui/app/feed.dart` and
+    the `Clipboard.setData` path in
+    `lib/ui/pages/post_detail_page.dart`.
+  - `editor_opened` — `lib/ui/pages/editior_page.dart#initState`.
+  - `editor_draft_saved` (when `is_draft=true`) /
+    `post_published` / `post_publish_failed` —
+    `lib/ui/pages/publish_page.dart#_publish`.
+  - `search_submitted` + `search_results_loaded` —
+    `lib/ui/app/search_page.dart#_runSearch`. Properties carry
+    `query_length` and `scope` — never the raw query, so a partial
+    title or someone's name doesn't leak into analytics.
+  - `post_deleted` — `lib/provider/editor_provider.dart#deleteBook`.
+  - `onboarding_completed` —
+    `lib/provider/auth_provider.dart#completeOnboarding`.
+- **b. Dwell-time pairing** in `lib/services/analytics_observer.dart`.
+  The observer holds `_activeName`/`_activeStartedAt` and on every
+  push/pop/replace emits a `screen_left` event for the route the user
+  is leaving with `duration_ms`. `source_screen` on `screen_left`
+  points at where they're going next (the mirror of `screen_viewed`'s
+  `source_screen`, which points at where they came from), so funnel
+  queries can reconstruct edges from either direction. Pop is
+  modelled as a fresh `screen_viewed` for the previous route — each
+  foreground appearance gets its own dwell. No per-screen timing
+  code needed.
+- **c. Backend integration test** —
+  `backend/tests/test_analytics_integration.py` boots a Postgres
+  container via testcontainers, runs the real `alembic upgrade head`,
+  reloads `app.config` + `app.database` so the engine binds to the
+  test DB, then exercises `POST /api/analytics/events` twice through
+  FastAPI's `TestClient`: one anonymous batch with three events, one
+  authenticated batch with the same `client_id` and one event. Asserts
+  `stitched_count == 3` on the authed call, then queries the table
+  directly to confirm every row now carries `user_id`, then sends a
+  third authed batch and asserts `stitched_count == 0`
+  (idempotency). Skips cleanly if `testcontainers[postgres]` isn't
+  installed or Docker isn't reachable — see
+  `backend/requirements-dev.txt`.
+- **d. Web tab-visibility flush** —
+  `_MyAppState.didChangeAppLifecycleState` now treats
+  `AppLifecycleState.hidden` as "flush, don't roll the session". On
+  Flutter web the browser fires `hidden` on tab visibility loss and
+  this gets the buffer to disk before the OS may reclaim the tab.
+  On native it's effectively a no-op since `paused` / `detached`
+  already cover the same beat.
+
+**Tests added:**
+
+- `backend/tests/test_analytics_integration.py` — described above.
+- `backend/requirements-dev.txt` — declares `testcontainers[postgres]`
+  as a test-only dep so production images don't pull it in.
+- `test/analytics_service_test.dart` — extra case verifies
+  `AnalyticsNavigatorObserver` emits paired `screen_viewed` /
+  `screen_left` with positive `duration_ms` and a populated
+  `source_screen`.
+
+**Deferred this round (with reasons):**
+
+- **Idempotency on the ingest endpoint.** Wants a client-generated
+  event UUID, a unique-on-conflict insert, and a schema migration.
+  Surface is bigger than a single feature toggle — its own PR.
+- **Partitioning + retention.** Needs an ops decision on partition
+  cadence and retention window. Premature at current volume; the
+  GIN + btree indexes are still doing the work.
+- **Warehouse export.** Depends on a product choice of warehouse
+  (BigQuery vs Snowflake vs S3+Athena) before any code.
+- **Admin dashboard.** Separate UI/UX surface. The legacy
+  `/api/admin/analytics/*` reads cover the older
+  `page_visits`/`crash_reports` tables — adding views over the
+  new table is a bigger UI commitment than fits here.
+- **Exponential backoff on retry.** Marginal; the 5 s timer tick is
+  fast enough that an outage doesn't visibly compound.
+- **PII-safety lint.** Custom Dart analyzer plugins are real
+  infrastructure for a guardrail that mostly catches "user typed
+  the wrong key into a literal".
+
+**Still TODO after Round 2:**
+
+- A `post_shared` event for the platform-share path — currently
+  only `post_link_copied` (clipboard) is instrumented. The app uses
+  `Clipboard.setData` rather than `share_plus` so this is academic
+  until a real share sheet ships.
+- A `feed_refreshed` event for pull-to-refresh — auto-capture only
+  for now; semantic event would let us measure "refresh fatigue".
+- Reading-progress events (`section_read_started` / `_completed`) —
+  the data is in `reading_progress` already; emitting analytics
+  edges around it would unify both signals onto one timeline.
+- The deferred items above (idempotency, partitioning, warehouse
+  export, admin dashboard, backoff, PII lint) all remain open.
+
+### Original list
 
 1. **Semantic events for the rest of the surface.** Phase 4 covers
    auth + post-viewed + profile-viewed + lifecycle. Like / save /

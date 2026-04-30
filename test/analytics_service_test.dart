@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
+import 'package:inkspacex/services/analytics_observer.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 
 void main() {
@@ -87,5 +89,43 @@ void main() {
     svc.track('something');
     await svc.flush();
     expect(posted, 0);
+  });
+
+  test('observer pairs screen_viewed with screen_left + duration', () async {
+    final captured = <List<Map<String, dynamic>>>[];
+    await AnalyticsService.initForTest(
+      poster: (events) async => captured.add(events),
+    );
+    final observer = AnalyticsNavigatorObserver();
+
+    Route<dynamic> _route(String name) =>
+        PageRouteBuilder(
+          settings: RouteSettings(name: name),
+          pageBuilder: (_, __, ___) => const SizedBox.shrink(),
+        );
+
+    observer.didPush(_route('/login'), null);
+    // Dwell on /login for a measurable amount.
+    await Future<void>.delayed(const Duration(milliseconds: 25));
+    observer.didPush(_route('/'), _route('/login'));
+    // Now on /. Pop back — should emit screen_left for /.
+    await Future<void>.delayed(const Duration(milliseconds: 15));
+    observer.didPop(_route('/'), _route('/login'));
+
+    await AnalyticsService.instance.flush();
+
+    final allEvents = captured.expand((batch) => batch).toList();
+    final names = allEvents.map((e) => e['event_name']).toList();
+
+    // Three screen_viewed (initial /login push, push to /, pop returns
+    // focus to /login) plus two screen_left (leave /login, leave /).
+    expect(names.where((n) => n == 'screen_viewed').length, 3);
+    expect(names.where((n) => n == 'screen_left').length, 2);
+
+    final loginLeft = allEvents.firstWhere(
+      (e) => e['event_name'] == 'screen_left' && e['screen'] == '/login',
+    );
+    expect(loginLeft['duration_ms'], greaterThanOrEqualTo(20));
+    expect(loginLeft['source_screen'], '/');
   });
 }

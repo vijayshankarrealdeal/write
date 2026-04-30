@@ -5,6 +5,7 @@ import 'package:inkspacex/models/comment_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/reading_progress_model.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
+import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 
 class FeedProvider extends ChangeNotifier {
@@ -370,6 +371,12 @@ class FeedProvider extends ChangeNotifier {
 
   Future<void> addComment(CommentModel comment) async {
     await _dataService!.addComment(comment);
+    AnalyticsService.instance.track(
+      'post_comment_added',
+      action: 'submit',
+      entityType: 'post',
+      entityId: comment.feedItemId,
+    );
     final idx = _items.indexWhere((i) => i.id == comment.feedItemId);
     if (idx != -1) {
       _items[idx] = _items[idx].copyWith(
@@ -381,6 +388,13 @@ class FeedProvider extends ChangeNotifier {
 
   Future<void> deleteComment(String feedItemId, String commentId) async {
     await _dataService!.deleteComment(feedItemId, commentId);
+    AnalyticsService.instance.track(
+      'post_comment_deleted',
+      action: 'click',
+      entityType: 'comment',
+      entityId: commentId,
+      properties: {'post_id': feedItemId},
+    );
     final idx = _items.indexWhere((i) => i.id == feedItemId);
     if (idx != -1) {
       _items[idx] = _items[idx].copyWith(

@@ -8,6 +8,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
+import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/feed_filter_chip_row.dart';
@@ -1381,6 +1382,13 @@ class _FeedState extends State<Feed> {
 
   void _shareItem(FeedItemModel item) {
     Clipboard.setData(ClipboardData(text: _getShareUrl(item.id)));
+    AnalyticsService.instance.track(
+      'post_link_copied',
+      screen: '/',
+      action: 'click',
+      entityType: 'post',
+      entityId: item.id,
+    );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

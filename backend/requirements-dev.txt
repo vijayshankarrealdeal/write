@@ -1,0 +1,9 @@
+# Test/dev-only dependencies. Not installed by the production
+# Dockerfile — pulled in locally with:
+#   pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+#
+# `testcontainers[postgres]` spins up a throwaway Postgres in Docker so
+# the integration test in `tests/test_analytics_integration.py` can
+# exercise the stitching UPDATE end-to-end. The test gracefully skips
+# if Docker isn't available on the host.
+testcontainers[postgres]==4.9.0

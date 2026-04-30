@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/gemini_service.dart';
 import 'package:inkspacex/ui/editor/canvas_editor.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
@@ -121,6 +122,11 @@ class _EditiorPageState extends State<EditiorPage>
   @override
   void initState() {
     super.initState();
+    AnalyticsService.instance.track(
+      'editor_opened',
+      screen: '/editor',
+      action: 'view',
+    );
     WidgetsBinding.instance.addObserver(this);
     _focusModeController = AnimationController(
       vsync: this,

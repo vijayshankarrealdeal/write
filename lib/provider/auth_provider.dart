@@ -274,6 +274,17 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> completeOnboarding(UserPreferences preferences) async {
     if (_currentUser == null) return;
+    AnalyticsService.instance.track(
+      'onboarding_completed',
+      action: 'success',
+      entityType: 'user',
+      entityId: _currentUser!.id,
+      properties: {
+        'genre_count': preferences.preferredGenres.length,
+        'writing_type_count': preferences.preferredWritingTypes.length,
+        'interest_count': preferences.interests.length,
+      },
+    );
 
     // Optimistic: update local state + notify router immediately so navigation
     // happens even if Firestore's Future hangs (known web SDK quirk).
@@ -307,6 +318,12 @@ class AuthProvider extends ChangeNotifier {
   }) async {
     if (_currentUser == null) return;
     final liked = _currentUser!.likes.contains(feedItemId);
+    AnalyticsService.instance.track(
+      liked ? 'post_unliked' : 'post_liked',
+      action: 'click',
+      entityType: 'post',
+      entityId: feedItemId,
+    );
 
     // Optimistic update: update UI immediately
     if (liked) {
@@ -433,6 +450,12 @@ class AuthProvider extends ChangeNotifier {
   Future<void> toggleFavorite(String feedItemId) async {
     if (_currentUser == null) return;
     final favorited = _currentUser!.favoritePosts.contains(feedItemId);
+    AnalyticsService.instance.track(
+      favorited ? 'post_unfavorited' : 'post_favorited',
+      action: 'click',
+      entityType: 'post',
+      entityId: feedItemId,
+    );
 
     // Optimistic update
     if (favorited) {

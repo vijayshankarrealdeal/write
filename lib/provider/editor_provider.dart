@@ -8,6 +8,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
@@ -561,6 +562,12 @@ class EditorProvider extends ChangeNotifier {
   }
 
   Future<void> deleteBook(WritingModel book) async {
+    AnalyticsService.instance.track(
+      'post_deleted',
+      action: 'click',
+      entityType: 'writing',
+      entityId: book.id,
+    );
     allBooks.remove(book);
     if (activeBook?.id == book.id) {
       if (allBooks.isNotEmpty) {

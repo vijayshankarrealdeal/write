@@ -182,8 +182,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       case AppLifecycleState.detached:
         AnalyticsService.instance.onAppBackgrounded();
         break;
-      case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
+        // Flutter web fires `hidden` on tab visibility loss (user
+        // switched tabs / minimised the window) — the user's still
+        // around, so don't roll the session, just flush so events
+        // written right before the tab was hidden don't sit in memory
+        // until the OS evicts us. On native this state is rare and
+        // already covered by paused/detached above.
+        unawaited(AnalyticsService.instance.flush());
+        break;
+      case AppLifecycleState.inactive:
         break;
     }
   }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/services/sync/outbox.dart';
 import 'package:inkspacex/services/sync/outbox_drainer.dart';
@@ -148,6 +149,16 @@ class BookmarkProvider extends ChangeNotifier {
     notifyListeners();
     await _outbox.enqueue(concrete);
     _drainer.kick();
+    AnalyticsService.instance.track(
+      'bookmark_added',
+      action: 'click',
+      entityType: 'post',
+      entityId: feedItemId,
+      properties: {
+        'section_index': sectionIndex,
+        'has_label': label != null,
+      },
+    );
     return bookmark;
   }
 
@@ -159,6 +170,12 @@ class BookmarkProvider extends ChangeNotifier {
       payload: {'bookmarkId': bookmarkId},
     ));
     _drainer.kick();
+    AnalyticsService.instance.track(
+      'bookmark_removed',
+      action: 'click',
+      entityType: 'bookmark',
+      entityId: bookmarkId,
+    );
   }
 
   void _applyRemap(IdRemapEvent event) {

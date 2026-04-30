@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
@@ -121,6 +122,18 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _runSearch(String q) async {
+    AnalyticsService.instance.track(
+      'search_submitted',
+      screen: '/search',
+      action: 'submit',
+      // Capture only the query length and scope — the raw query can leak
+      // PII (an author's full name, an email, a private title in
+      // progress) and we don't need it for funnel/health questions.
+      properties: {
+        'query_length': q.length,
+        'scope': _scope.name,
+      },
+    );
     final api = context.read<AuthProvider>().dataService;
     try {
       // Fire stories + authors in parallel — they're independent and the
@@ -138,6 +151,16 @@ class _SearchPageState extends State<SearchPage> {
         _results = stories;
         _searching = false;
       });
+      AnalyticsService.instance.track(
+        'search_results_loaded',
+        screen: '/search',
+        action: 'success',
+        properties: {
+          'story_count': stories.length,
+          'user_count': users.length,
+          'query_length': q.length,
+        },
+      );
     } catch (_) {
       if (!mounted) return;
       setState(() => _searching = false);

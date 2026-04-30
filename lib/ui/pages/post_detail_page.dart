@@ -4593,6 +4593,13 @@ class _ActionRow extends StatelessWidget {
                       Clipboard.setData(
                         ClipboardData(text: shareUrl),
                       );
+                      AnalyticsService.instance.track(
+                        'post_link_copied',
+                        screen: '/post/:id',
+                        action: 'click',
+                        entityType: 'post',
+                        entityId: item.id,
+                      );
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
