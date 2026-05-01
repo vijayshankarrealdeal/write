@@ -33,10 +33,17 @@ Working list for: comments/annotations, version history, offline spell-check.
 - [x] Version history: settings sheet gains "Version history" + "Save current as named version" entries
 - [x] Version history: bottom-sheet `_VersionHistorySheet` lists snapshots, distinguishes manual vs auto, restore + delete + save-current
 
+- [x] Spell-check: bundled `assets/dictionaries/en_us.txt` (~210k common English words, filtered from BSD `/usr/share/dict/words`, ~2.1MB raw)
+- [x] Spell-check: `SpellCheckService` singleton — async asset load, `check`/`checkAsync` (isolate-backed for >2k chars), Damerau-Levenshtein suggestions with case-pattern preservation
+- [x] Spell-check: `SpellCheckProvider` debounces scan (~600ms after last edit), persists enable + personal-dictionary "ignore" list per user
+- [x] Spell-check: provider registered in `main.dart`; dictionary warmed at boot
+- [x] Spell-check: status-bar chip shows issue count, click → `_SpellCheckSheet` listing each misspelling with suggestion chips and "Ignore"
+- [x] Spell-check: Writer Settings → "Editing assist" → spell check toggle (defaults on)
+- [x] Spell-check: section change reattaches the provider to the active QuillController
+
 ## What's in progress
 
-- [ ] Spell-check: dictionary + suggestion engine in isolate
-- [ ] Spell-check: overlay underlines + suggestion menu in Quill
+(none — spell-check inline squiggle painting is parked as a follow-up; see Open questions.)
 
 ## What's left
 
@@ -45,5 +52,7 @@ Working list for: comments/annotations, version history, offline spell-check.
 ## Open questions to revisit
 
 - Annotation panel placement — right floating pill is currently duplicate of left rail; consider folding annotations into one of them.
-- Where does the version-history entry point live? Settings sheet, or a dedicated icon in the top bar?
-- Spell-check on Quill needs a custom paint pass — confirm performance on long sections (>10k words) before shipping.
+- Where does the version-history entry point live? Settings sheet, or a dedicated icon in the top bar? (Currently in settings.)
+- **Inline spell-check squigglies** — v1 ships with a status-bar chip + sheet (jump + replace), no in-document underlines. Painting requires either a custom Quill embed/attribute pass or a CustomPainter overlay tied to QuillEditor's text layout. Shippable as a follow-up; defer until perf on a 10k-word section is measured.
+- **Dictionary size** — 2.1MB raw asset is fine for desktop/mobile but adds to web download. Future: swap for a frequency-ranked top-50k list (~400KB) or gzip the asset and decode on first load.
+- Spell-check has no grammar layer — that's the future server-side LanguageTool integration.

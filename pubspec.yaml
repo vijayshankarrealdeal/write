@@ -118,6 +118,7 @@ flutter:
 
   assets:
     - assets/svg/
+    - assets/dictionaries/
 
   fonts:
     - family: Merriweather

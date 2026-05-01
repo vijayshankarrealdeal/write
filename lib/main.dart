@@ -21,7 +21,9 @@ import 'package:inkspacex/provider/nav_provider.dart';
 import 'package:inkspacex/provider/notification_provider.dart';
 import 'package:inkspacex/provider/offline_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
+import 'package:inkspacex/provider/spell_check_provider.dart';
 import 'package:inkspacex/provider/version_history_provider.dart';
+import 'package:inkspacex/services/spell_check_service.dart';
 import 'package:inkspacex/router.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_client.dart';
@@ -109,6 +111,11 @@ void main() {
     // service simply never publishes anything.
     final localNotifications = LocalNotificationService();
     await localNotifications.init();
+
+    // Warm the spell-check dictionary. Fire-and-forget — the editor will
+    // also call ensureLoaded on first use; this just gets it ready so the
+    // first scan doesn't block on asset I/O.
+    unawaited(SpellCheckService.instance.ensureLoaded());
 
     // Analytics: spins up its own ApiClient (stateless aside from the
     // shared storage handle for auth tokens) so behaviour events flow
@@ -269,6 +276,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => SettingsProvider(storage)),
         ChangeNotifierProvider(create: (_) => AnnotationProvider(storage)),
         ChangeNotifierProvider(create: (_) => VersionHistoryProvider(storage)),
+        ChangeNotifierProvider(create: (_) => SpellCheckProvider(storage)),
         ChangeNotifierProxyProvider<AuthProvider, FeedProvider>(
           create: (_) => FeedProvider(),
           update: (context, auth, previous) {

@@ -288,4 +288,29 @@ class StorageService {
     if (key == null) return;
     await _box.delete(key);
   }
+
+  // --- Spell check ---
+
+  static const String _keySpellEnabled = 'spell_check_enabled_v1';
+
+  bool getSpellCheckEnabled() {
+    return _box.get(_keySpellEnabled, defaultValue: true);
+  }
+
+  Future<void> saveSpellCheckEnabled(bool enabled) async {
+    await _box.put(_keySpellEnabled, enabled);
+  }
+
+  /// Personal dictionary — words the user has marked "ignore". Per-user.
+  List<String> getSpellCheckIgnored() {
+    final key = _userKeyOrNull('spell_check_ignored');
+    if (key == null) return const [];
+    final raw = _box.get(key);
+    if (raw is List) return raw.whereType<String>().toList();
+    return const [];
+  }
+
+  Future<void> saveSpellCheckIgnored(List<String> words) async {
+    await _box.put(_userKey('spell_check_ignored'), words);
+  }
 }

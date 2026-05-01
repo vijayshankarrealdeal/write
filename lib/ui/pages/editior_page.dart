@@ -16,7 +16,9 @@ import 'package:inkspacex/models/section_version_model.dart';
 import 'package:inkspacex/provider/annotation_provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/provider/spell_check_provider.dart';
 import 'package:inkspacex/provider/version_history_provider.dart';
+import 'package:inkspacex/services/spell_check_service.dart' as spellsvc;
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/font_history.dart';
 import 'package:inkspacex/services/gemini_service.dart';
@@ -156,6 +158,7 @@ class _EditiorPageState extends State<EditiorPage>
   String? _versionSectionId;
   VoidCallback? _docListener;
   QuillController? _listenerAttachedTo;
+  String? _spellSectionId;
   PaperTheme _paperTheme = PaperTheme.defaultTheme;
   int _sessionStartWords = 0;
   bool _sessionStarted = false;
@@ -453,6 +456,86 @@ class _EditiorPageState extends State<EditiorPage>
     }
     _docListener = null;
     _listenerAttachedTo = null;
+  }
+
+  // ─── Spell check ───
+  // Provider holds the current section's misspellings; the editor wires
+  // it to the active QuillController on each section change. Status bar
+  // surfaces the count and opens a sheet for navigation + replace.
+  void _syncSpellSection(SectionModel? section) {
+    final sp = context.read<SpellCheckProvider>();
+    if (section == null) {
+      if (_spellSectionId != null) {
+        _spellSectionId = null;
+        sp.detach();
+      }
+      return;
+    }
+    if (_spellSectionId == section.id) return;
+    _spellSectionId = section.id;
+    sp.attach(context.read<EditorProvider>().controller);
+  }
+
+  void _replaceMisspelling(spellsvc.Misspelling m, String replacement) {
+    final controller = context.read<EditorProvider>().controller;
+    final text = controller.document.toPlainText();
+    int start = m.start;
+    int length = m.length;
+    final inBounds = start >= 0 && start + length <= text.length;
+    final stillMatches = inBounds &&
+        text.substring(start, start + length).toLowerCase() ==
+            text.substring(start, start + length).toLowerCase() &&
+        text.substring(start, start + length).toLowerCase().contains(
+            m.word.toLowerCase());
+    if (!stillMatches) {
+      // Re-find by word — closest occurrence to original offset.
+      final lower = text.toLowerCase();
+      final candidate = lower.indexOf(m.word.toLowerCase());
+      if (candidate < 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('That misspelling is no longer in the document.')),
+        );
+        return;
+      }
+      start = candidate;
+      length = m.word.length;
+    }
+    controller.replaceText(
+      start,
+      length,
+      replacement,
+      TextSelection.collapsed(offset: start + replacement.length),
+    );
+  }
+
+  void _showSpellCheckSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (sheetCtx, scroll) => _SpellCheckSheet(
+          scrollController: scroll,
+          isDark: Theme.of(context).brightness == Brightness.dark,
+          onJump: (m) {
+            final controller = context.read<EditorProvider>().controller;
+            controller.updateSelection(
+              TextSelection(
+                  baseOffset: m.start, extentOffset: m.start + m.length),
+              ChangeSource.local,
+            );
+          },
+          onReplace: _replaceMisspelling,
+          onIgnore: (m) =>
+              context.read<SpellCheckProvider>().ignoreWord(m.word),
+        ),
+      ),
+    );
   }
 
   Future<void> _saveManualVersion() async {
@@ -1594,6 +1677,35 @@ class _EditiorPageState extends State<EditiorPage>
 
                         const SizedBox(height: 22),
                         Text(
+                          'EDITING ASSIST',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: mutedColor,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Consumer<SpellCheckProvider>(
+                          builder: (_, sp, _) => _settingsToggle(
+                            icon: CupertinoIcons.checkmark_seal,
+                            label: 'Spell check',
+                            subtitle:
+                                'Underline misspellings and suggest fixes (offline)',
+                            value: sp.enabled,
+                            textColor: textColor,
+                            mutedColor: mutedColor,
+                            surfaceColor: surfaceColor,
+                            isDark: isDark,
+                            onChanged: (v) {
+                              setSheetState(() {});
+                              sp.setEnabled(v);
+                            },
+                          ),
+                        ),
+
+                        const SizedBox(height: 22),
+                        Text(
                           'DOCUMENT',
                           style: GoogleFonts.inter(
                             fontSize: 10,
@@ -1769,11 +1881,13 @@ class _EditiorPageState extends State<EditiorPage>
     final activeSection =
         context.select<EditorProvider, SectionModel?>((p) => p.activeSection);
     if (activeSection?.id != _annotationSectionId ||
-        activeSection?.id != _versionSectionId) {
+        activeSection?.id != _versionSectionId ||
+        activeSection?.id != _spellSectionId) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         _syncAnnotationSection(activeSection);
         _syncVersionSection(activeSection);
+        _syncSpellSection(activeSection);
       });
     }
 
@@ -3220,9 +3334,47 @@ class _EditiorPageState extends State<EditiorPage>
                   ),
                 ),
               ),
-              // Right: session + optional mode badge
+              // Right: spell-check chip + session + optional mode badge
+              Consumer<SpellCheckProvider>(
+                builder: (_, sp, _) {
+                  if (!sp.enabled) return const SizedBox.shrink();
+                  final issues = sp.issues.length;
+                  final color = issues == 0
+                      ? Colors.green.withValues(alpha: 0.55)
+                      : const Color(0xFFE26A4A).withValues(alpha: 0.85);
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(4),
+                      onTap: issues == 0 ? null : _showSpellCheckSheet,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            issues == 0
+                                ? CupertinoIcons.checkmark_seal
+                                : CupertinoIcons.exclamationmark_circle,
+                            size: 11,
+                            color: color,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            issues == 0
+                                ? 'No issues'
+                                : '$issues issue${issues == 1 ? '' : 's'}',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              color: color,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
               if (sessionWidget != null || _typewriterMode) ...[
-                const SizedBox(width: 8),
                 if (_typewriterMode) ...[
                   Icon(CupertinoIcons.text_cursor,
                       size: 10, color: mutedColor),
@@ -5083,6 +5235,7 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
                 onPressed: () => _toggleScript(ScriptAttributes.sup),
               ),
               _ColorSwatchButton(
+                controller: widget.controller,
                 icon: Icons.format_color_text,
                 tooltip: 'Text color',
                 currentColor: _currentColorOf(Attribute.color),
@@ -5091,6 +5244,7 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
                 onSelected: (c) => _applyColor(Attribute.color, c),
               ),
               _ColorSwatchButton(
+                controller: widget.controller,
                 icon: Icons.format_color_fill,
                 tooltip: 'Highlight',
                 currentColor: _currentColorOf(Attribute.background),
@@ -5414,6 +5568,7 @@ const List<Color> _swatchColors = <Color>[
 
 class _ColorSwatchButton extends StatelessWidget {
   const _ColorSwatchButton({
+    required this.controller,
     required this.icon,
     required this.tooltip,
     required this.currentColor,
@@ -5422,6 +5577,7 @@ class _ColorSwatchButton extends StatelessWidget {
     required this.onSelected,
   });
 
+  final QuillController controller;
   final IconData icon;
   final String tooltip;
   final Color? currentColor;
@@ -5435,7 +5591,20 @@ class _ColorSwatchButton extends StatelessWidget {
         (icon == Icons.format_color_text
             ? textColor
             : Colors.transparent);
-    return PopupMenuButton<int>(
+    // Snapshot the selection on pointer-down — *before* the popup opens
+    // and collapses controller.selection. Otherwise Select-All → pick
+    // color falls back to current-line-only via _applyInlineWithFallback.
+    TextSelection? snapshot;
+    void restore() {
+      final s = snapshot;
+      if (s != null && s.isValid) {
+        controller.updateSelection(s, ChangeSource.local);
+      }
+    }
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (_) => snapshot = controller.selection,
+      child: PopupMenuButton<int>(
       tooltip: tooltip,
       position: PopupMenuPosition.under,
       padding: EdgeInsets.zero,
@@ -5453,6 +5622,7 @@ class _ColorSwatchButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   onTap: () {
                     Navigator.pop(popupCtx);
+                    restore();
                     onSelected(null);
                   },
                   child: Padding(
@@ -5486,6 +5656,7 @@ class _ColorSwatchButton extends StatelessWidget {
                           GestureDetector(
                             onTap: () {
                               Navigator.pop(popupCtx);
+                              restore();
                               onSelected(_swatchColors[row * 6 + col]);
                             },
                             child: Container(
@@ -5536,6 +5707,7 @@ class _ColorSwatchButton extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -7316,5 +7488,246 @@ class _VersionHistorySheet extends StatelessWidget {
     final time = '${two(t.hour)}:${two(t.minute)}';
     if (isToday) return 'Today, $time';
     return '${t.year}-${two(t.month)}-${two(t.day)} $time';
+  }
+}
+
+// ── Spell check sheet ──
+//
+// Lists misspellings in document order. Tapping an entry shows its
+// suggestions inline; selecting a suggestion replaces the word in the
+// editor; "Ignore" adds it to the user's personal dictionary.
+class _SpellCheckSheet extends StatelessWidget {
+  const _SpellCheckSheet({
+    required this.scrollController,
+    required this.isDark,
+    required this.onJump,
+    required this.onReplace,
+    required this.onIgnore,
+  });
+
+  final ScrollController scrollController;
+  final bool isDark;
+  final void Function(spellsvc.Misspelling) onJump;
+  final void Function(spellsvc.Misspelling, String) onReplace;
+  final void Function(spellsvc.Misspelling) onIgnore;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = isDark ? const Color(0xFF0C0C0C) : Colors.white;
+    final fg = isDark ? Colors.white : const Color(0xFF1A1A1F);
+    final mutedFg = fg.withValues(alpha: 0.55);
+    final divider = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.06);
+    final sp = context.watch<SpellCheckProvider>();
+    final issues = sp.issues;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              margin: const EdgeInsets.only(top: 8, bottom: 12),
+              decoration: BoxDecoration(
+                color: fg.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: Row(
+              children: [
+                Icon(CupertinoIcons.checkmark_seal, size: 18, color: fg),
+                const SizedBox(width: 10),
+                Text(
+                  'Spelling',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: fg,
+                  ),
+                ),
+                const Spacer(),
+                if (sp.scanning)
+                  SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: mutedFg,
+                    ),
+                  )
+                else
+                  Text(
+                    issues.isEmpty
+                        ? 'No issues'
+                        : '${issues.length} issue${issues.length == 1 ? '' : 's'}',
+                    style: GoogleFonts.inter(fontSize: 12, color: mutedFg),
+                  ),
+              ],
+            ),
+          ),
+          Divider(color: divider, height: 1),
+          Expanded(
+            child: issues.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Text(
+                        sp.enabled
+                            ? 'Looking good — no spelling issues found.'
+                            : 'Spell check is turned off. Enable it from Writer Settings.',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 12.5,
+                          color: mutedFg,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    controller: scrollController,
+                    itemCount: issues.length,
+                    separatorBuilder: (_, _) =>
+                        Divider(color: divider, height: 1),
+                    itemBuilder: (_, i) {
+                      final m = issues[i];
+                      return _IssueRow(
+                        misspelling: m,
+                        fg: fg,
+                        mutedFg: mutedFg,
+                        onJump: () => onJump(m),
+                        onReplace: (s) {
+                          onReplace(m, s);
+                        },
+                        onIgnore: () => onIgnore(m),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _IssueRow extends StatefulWidget {
+  const _IssueRow({
+    required this.misspelling,
+    required this.fg,
+    required this.mutedFg,
+    required this.onJump,
+    required this.onReplace,
+    required this.onIgnore,
+  });
+
+  final spellsvc.Misspelling misspelling;
+  final Color fg;
+  final Color mutedFg;
+  final VoidCallback onJump;
+  final void Function(String) onReplace;
+  final VoidCallback onIgnore;
+
+  @override
+  State<_IssueRow> createState() => _IssueRowState();
+}
+
+class _IssueRowState extends State<_IssueRow> {
+  bool _expanded = false;
+  List<String>? _suggestions;
+
+  void _toggle() {
+    setState(() {
+      _expanded = !_expanded;
+      _suggestions ??=
+          spellsvc.SpellCheckService.instance.suggest(widget.misspelling.word);
+    });
+    widget.onJump();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final m = widget.misspelling;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: _toggle,
+            borderRadius: BorderRadius.circular(6),
+            child: Row(
+              children: [
+                Icon(
+                  _expanded
+                      ? CupertinoIcons.chevron_down
+                      : CupertinoIcons.chevron_right,
+                  size: 12,
+                  color: widget.mutedFg,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  m.word,
+                  style: GoogleFonts.inter(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: widget.fg,
+                    decoration: TextDecoration.underline,
+                    decorationStyle: TextDecorationStyle.wavy,
+                    decorationColor:
+                        const Color(0xFFE26A4A).withValues(alpha: 0.85),
+                  ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: widget.onIgnore,
+                  child: Text(
+                    'Ignore',
+                    style: GoogleFonts.inter(
+                        fontSize: 12, color: widget.mutedFg),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (_expanded) ...[
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.only(left: 22),
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: (_suggestions ?? const [])
+                    .map((s) => ActionChip(
+                          label: Text(
+                            s,
+                            style: GoogleFonts.inter(fontSize: 12),
+                          ),
+                          onPressed: () => widget.onReplace(s),
+                        ))
+                    .toList(),
+              ),
+            ),
+            if ((_suggestions ?? const []).isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 22, top: 4),
+                child: Text(
+                  'No suggestions.',
+                  style: GoogleFonts.inter(
+                      fontSize: 12, color: widget.mutedFg),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
   }
 }
