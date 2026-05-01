@@ -2,24 +2,29 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:inkspacex/services/font_history.dart';
+
 /// Modal picker over the full Google Fonts catalog (~1500 fonts).
 ///
 /// Each row renders the font name in its own font as a live preview;
 /// `ListView.builder` virtualises so only the visible rows actually trigger
-/// a font load. The user's curated/popular list is pinned to the top and
-/// remains visible while searching.
+/// a font load. The user's recently-picked fonts and curated/popular list
+/// are pinned to the top and remain visible while searching.
 Future<String?> showFontPicker(
   BuildContext context, {
   required String current,
   required List<String> popular,
   required bool isDark,
-}) {
+}) async {
+  await FontHistory.instance.load();
+  if (!context.mounted) return null;
   return showDialog<String>(
     context: context,
     barrierColor: Colors.black.withValues(alpha: 0.35),
     builder: (ctx) => _FontPickerDialog(
       current: current,
       popular: popular,
+      recent: FontHistory.instance.recent,
       isDark: isDark,
     ),
   );
@@ -29,11 +34,13 @@ class _FontPickerDialog extends StatefulWidget {
   const _FontPickerDialog({
     required this.current,
     required this.popular,
+    required this.recent,
     required this.isDark,
   });
 
   final String current;
   final List<String> popular;
+  final List<String> recent;
   final bool isDark;
 
   @override
@@ -162,6 +169,21 @@ class _FontPickerDialogState extends State<_FontPickerDialog> {
                   : CustomScrollView(
                       slivers: [
                         if (showPopular) ...[
+                          if (widget.recent.isNotEmpty) ...[
+                            SliverToBoxAdapter(
+                              child: _sectionLabel('Recent', muted),
+                            ),
+                            SliverList.builder(
+                              itemCount: widget.recent.length,
+                              itemBuilder: (_, i) => _row(
+                                widget.recent[i],
+                                fg,
+                                accent,
+                                activeBg,
+                                hoverBg,
+                              ),
+                            ),
+                          ],
                           SliverToBoxAdapter(
                             child: _sectionLabel('Popular', muted),
                           ),

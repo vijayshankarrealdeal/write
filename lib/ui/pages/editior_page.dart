@@ -9,9 +9,11 @@ import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/ph.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
+import 'package:inkspacex/services/font_history.dart';
 import 'package:inkspacex/services/gemini_service.dart';
 import 'package:inkspacex/ui/editor/canvas_editor.dart';
 import 'package:inkspacex/ui/editor/command_palette.dart';
@@ -148,6 +150,14 @@ class _EditiorPageState extends State<EditiorPage>
   late AnimationController _focusModeController;
   late Animation<double> _focusModeAnimation;
   SlashMenuController? _slashMenu;
+
+  // ── Page margins (functional ruler) ──
+  // Live values; dragging the ruler triangles updates these and the page
+  // card padding updates synchronously. Persisted in SharedPreferences so
+  // the layout the user dialed in survives reload.
+  static const double _defaultMargin = 48;
+  double _leftMargin = _defaultMargin;
+  double _rightMargin = _defaultMargin;
   @override
   void initState() {
     super.initState();
@@ -171,6 +181,31 @@ class _EditiorPageState extends State<EditiorPage>
       } catch (_) {}
     }
     HardwareKeyboard.instance.addHandler(_handleGlobalKey);
+    _loadMargins();
+  }
+
+  // ── Margin persistence ──
+  static const _kLeftMarginKey = 'editor_left_margin_v1';
+  static const _kRightMarginKey = 'editor_right_margin_v1';
+
+  Future<void> _loadMargins() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _leftMargin = prefs.getDouble(_kLeftMarginKey) ?? _defaultMargin;
+      _rightMargin = prefs.getDouble(_kRightMarginKey) ?? _defaultMargin;
+    });
+  }
+
+  void _setMargins(double left, double right) {
+    setState(() {
+      _leftMargin = left;
+      _rightMargin = right;
+    });
+    SharedPreferences.getInstance().then((p) {
+      p.setDouble(_kLeftMarginKey, left);
+      p.setDouble(_kRightMarginKey, right);
+    });
   }
 
   // Global key handler — runs even while the Quill editor has focus, where
@@ -1501,14 +1536,15 @@ class _EditiorPageState extends State<EditiorPage>
                                                         ),
                                                       ),
                                                     ),
-                                                  if (!isMobile && !_focusMode)
+                                                  if (!_focusMode)
                                                     Positioned(
-                                                      top: 60,
-                                                      right: 28,
+                                                      top: isMobile ? 16 : 60,
+                                                      right: isMobile ? 8 : 28,
                                                       child: _SideActionsPill(
                                                         isDark: isDark,
                                                         outlineActive:
                                                             _showOutline,
+                                                        focusActive: _focusMode,
                                                         onAI: _showAIPanel,
                                                         onPrompt:
                                                             _showRandomPrompt,
@@ -1516,6 +1552,8 @@ class _EditiorPageState extends State<EditiorPage>
                                                             setState(() =>
                                                                 _showOutline =
                                                                     !_showOutline),
+                                                        onToggleFocus:
+                                                            _toggleFocusMode,
                                                       ),
                                                     ),
                                                 ],
@@ -1863,9 +1901,6 @@ class _EditiorPageState extends State<EditiorPage>
     required Color borderColor,
     required Color surfaceColor,
   }) {
-    final accentColor =
-        isDark ? const Color(0xFF93B4F5) : const Color(0xFF5B8DEF);
-
     return Container(
       height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -1906,51 +1941,14 @@ class _EditiorPageState extends State<EditiorPage>
             color: borderColor,
           ),
 
-          // Outline toggle
-          _ToolbarIconButton(
-            icon: CupertinoIcons.list_bullet_indent,
-            tooltip: 'Document Outline',
-            color: _showOutline ? accentColor : textColor,
-            onPressed: () => setState(() => _showOutline = !_showOutline),
-          ),
-
-          // Writing Prompt
-          _ToolbarIconButton(
-            icon: CupertinoIcons.lightbulb,
-            tooltip: 'Writing Prompt',
-            color: Colors.amber.withValues(alpha: 0.8),
-            onPressed: _showRandomPrompt,
-          ),
-
-          // Focus Mode
-          _ToolbarIconButton(
-            icon: CupertinoIcons.eye_slash,
-            tooltip: 'Focus Mode',
-            color: textColor,
-            onPressed: _toggleFocusMode,
-          ),
-
-          // Writer Settings
+          // Writer Settings (paper themes / typewriter / goal etc.)
+          // Outline / Prompt / Focus mode / AI live in the side pill —
+          // keeping them here too creates the "wall of icons" feel.
           _ToolbarIconButton(
             icon: CupertinoIcons.slider_horizontal_3,
             tooltip: 'Writer Settings',
             color: textColor,
             onPressed: _showWriterSettings,
-          ),
-
-          Container(
-            width: 1,
-            height: 20,
-            margin: const EdgeInsets.symmetric(horizontal: 6),
-            color: borderColor,
-          ),
-
-          // AI Assist
-          _ToolbarIconButton(
-            icon: CupertinoIcons.wand_stars,
-            tooltip: 'AI Assist',
-            color: accentColor,
-            onPressed: _showAIPanel,
           ),
         ],
       ),
@@ -1964,9 +1962,6 @@ class _EditiorPageState extends State<EditiorPage>
     required Color textColor,
     required Color borderColor,
   }) {
-    final accentColor =
-        isDark ? const Color(0xFF93B4F5) : const Color(0xFF5B8DEF);
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
@@ -2000,26 +1995,13 @@ class _EditiorPageState extends State<EditiorPage>
             margin: const EdgeInsets.symmetric(horizontal: 2),
             color: borderColor,
           ),
-          // Writing Prompt
-          _ToolbarIconButton(
-            icon: CupertinoIcons.lightbulb,
-            tooltip: 'Prompt',
-            color: Colors.amber.withValues(alpha: 0.8),
-            onPressed: _showRandomPrompt,
-          ),
-          // Writer Settings (mobile)
+          // Writer Settings — Prompt / AI / Outline / Focus all live in
+          // the floating side pill so the row doesn't compete for space.
           _ToolbarIconButton(
             icon: CupertinoIcons.slider_horizontal_3,
             tooltip: 'Settings',
             color: textColor,
             onPressed: _showWriterSettings,
-          ),
-          // AI Assist
-          _ToolbarIconButton(
-            icon: CupertinoIcons.wand_stars,
-            tooltip: 'AI Assist',
-            color: accentColor,
-            onPressed: _showAIPanel,
           ),
         ],
       ),
@@ -2232,8 +2214,9 @@ class _EditiorPageState extends State<EditiorPage>
         ? Colors.white.withValues(alpha: 0.08)
         : Colors.black.withValues(alpha: 0.08);
 
-    final pagePadH = isMobile ? 18.0 : (_focusMode ? 64.0 : 48.0);
     final showRuler = !isMobile && !_focusMode;
+    final padL = isMobile ? 18.0 : (_focusMode ? 64.0 : _leftMargin);
+    final padR = isMobile ? 18.0 : (_focusMode ? 64.0 : _rightMargin);
 
     return Container(
       color: bgColor,
@@ -2252,12 +2235,16 @@ class _EditiorPageState extends State<EditiorPage>
               if (showRuler)
                 _RulerBar(
                   isDark: isDark,
-                  pagePadding: pagePadH,
+                  leftMargin: _leftMargin,
+                  rightMargin: _rightMargin,
+                  onChanged: _setMargins,
                 ),
               Expanded(
                 child: _buildPageCard(
                   isDark: isDark,
                   isMobile: isMobile,
+                  padL: padL,
+                  padR: padR,
                   paperColor: paperColor,
                   paperBorder: paperBorder,
                   focusBorder: focusBorder,
@@ -2274,6 +2261,8 @@ class _EditiorPageState extends State<EditiorPage>
   Widget _buildPageCard({
     required bool isDark,
     required bool isMobile,
+    required double padL,
+    required double padR,
     required Color paperColor,
     required Color paperBorder,
     required Color focusBorder,
@@ -2314,9 +2303,9 @@ class _EditiorPageState extends State<EditiorPage>
                   ],
                 ),
       padding: EdgeInsets.fromLTRB(
-        isMobile ? 18 : (_focusMode ? 64 : 48),
+        padL,
         _focusMode ? (isMobile ? 56 : 96) : 20,
-        isMobile ? 18 : (_focusMode ? 64 : 48),
+        padR,
         0,
       ),
       child: Builder(
@@ -4130,6 +4119,15 @@ class _WordStyleToolbar extends StatefulWidget {
 class _WordStyleToolbarState extends State<_WordStyleToolbar> {
   static const double _defaultSize = 12;
 
+  // Cached last-valid selection — popups (font picker, font-size menu,
+  // heading menu, colour swatch, link dialog) all steal focus, after
+  // which `controller.selection` can come back invalid. formatSelection
+  // is a no-op on an invalid selection, which is the bug where picking
+  // a font / size / colour seems to do nothing on an empty doc.
+  // We snapshot the last good selection here and restore it before
+  // applying any format that runs after a popup.
+  TextSelection? _lastValidSelection;
+
   @override
   void initState() {
     super.initState();
@@ -4143,7 +4141,20 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
   }
 
   void _onSelectionChanged() {
+    final sel = widget.controller.selection;
+    if (sel.isValid) _lastValidSelection = sel;
     if (mounted) setState(() {});
+  }
+
+  // Restore the last good selection if the current one was invalidated
+  // by a popup stealing focus. Without this, formatSelection becomes a
+  // no-op and the toggledStyle never lands on the next typed character.
+  void _ensureSelection() {
+    final sel = widget.controller.selection;
+    if (!sel.isValid && _lastValidSelection != null) {
+      widget.controller
+          .updateSelection(_lastValidSelection!, ChangeSource.local);
+    }
   }
 
   String get _currentFontFamily {
@@ -4165,6 +4176,7 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
   }
 
   void _setFontFamily(String family) {
+    _ensureSelection();
     widget.controller.formatSelection(Attribute.fromKeyValue(
       Attribute.font.key,
       family,
@@ -4173,6 +4185,7 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
   }
 
   void _setFontSize(double size) {
+    _ensureSelection();
     widget.controller.formatSelection(Attribute.fromKeyValue(
       Attribute.size.key,
       size.toStringAsFixed(0),
@@ -4285,6 +4298,7 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
   }
 
   void _applyHeading(int? level) {
+    _ensureSelection();
     if (level == null) {
       widget.controller
           .formatSelection(Attribute.clone(Attribute.header, null));
@@ -4307,6 +4321,7 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
   }
 
   void _applyColor(Attribute<String?> attr, Color? color) {
+    _ensureSelection();
     if (color == null) {
       widget.controller.formatSelection(Attribute.clone(attr, null));
     } else {
@@ -4464,6 +4479,7 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
               ),
               const SizedBox(width: 6),
               _FontFamilyDropdown(
+                controller: widget.controller,
                 current: _currentFontFamily,
                 items: _editorFonts,
                 borderColor: borderColor,
@@ -5514,6 +5530,7 @@ class _FormatToggleButton extends StatelessWidget {
 
 class _FontFamilyDropdown extends StatelessWidget {
   const _FontFamilyDropdown({
+    required this.controller,
     required this.current,
     required this.items,
     required this.borderColor,
@@ -5523,6 +5540,7 @@ class _FontFamilyDropdown extends StatelessWidget {
     required this.onSelected,
   });
 
+  final QuillController controller;
   final String current;
   // Curated/popular fonts pinned at the top of the picker.
   final List<String> items;
@@ -5539,13 +5557,24 @@ class _FontFamilyDropdown extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(6),
         onTap: () async {
+          // The picker dialog steals editor focus, which can leave
+          // controller.selection invalid by the time we apply the format
+          // (=> formatSelection becomes a no-op for an empty doc, which
+          // is exactly the "doesn't apply until I type" bug). Capture
+          // before, restore right after, then format.
+          final selBefore = controller.selection;
           final picked = await showFontPicker(
             context,
             current: current,
             popular: items,
             isDark: isDark,
           );
-          if (picked != null) onSelected(picked);
+          if (picked == null) return;
+          if (selBefore.isValid) {
+            controller.updateSelection(selBefore, ChangeSource.local);
+          }
+          FontHistory.instance.add(picked);
+          onSelected(picked);
         },
         child: Container(
           height: 28,
@@ -5658,16 +5687,20 @@ class _SideActionsPill extends StatelessWidget {
   const _SideActionsPill({
     required this.isDark,
     required this.outlineActive,
+    required this.focusActive,
     required this.onAI,
     required this.onPrompt,
     required this.onToggleOutline,
+    required this.onToggleFocus,
   });
 
   final bool isDark;
   final bool outlineActive;
+  final bool focusActive;
   final VoidCallback onAI;
   final VoidCallback onPrompt;
   final VoidCallback onToggleOutline;
+  final VoidCallback onToggleFocus;
 
   @override
   Widget build(BuildContext context) {
@@ -5723,6 +5756,14 @@ class _SideActionsPill extends StatelessWidget {
             active: outlineActive,
             onTap: onToggleOutline,
           ),
+          _SidePillButton(
+            icon: CupertinoIcons.eye_slash,
+            tooltip: focusActive ? 'Exit focus mode' : 'Focus mode',
+            color: focusActive ? accent : fg,
+            activeBg: activeBg,
+            active: focusActive,
+            onTap: onToggleFocus,
+          ),
         ],
       ),
     );
@@ -5752,22 +5793,33 @@ class _SidePillButton extends StatefulWidget {
   State<_SidePillButton> createState() => _SidePillButtonState();
 }
 
-// ── Page ruler (Docs-style) ──
+// ── Functional page ruler (Docs-style) ──
 //
-// Visual-only ruler that sits above the page card. Shows tick marks
-// across the page width and blue triangle markers at the left/right
-// margins of the writable text area. Hidden in focus mode where the
-// chrome would fight the distraction-free goal.
+// Sits above the page card. The two blue triangles are draggable —
+// pan horizontally to change the page's left and right text margins
+// in real time. The page card padding tracks these values, and they
+// persist across reloads via SharedPreferences.
+//
+// Hidden in focus mode where chrome fights the distraction-free goal.
 class _RulerBar extends StatelessWidget {
   const _RulerBar({
     required this.isDark,
-    required this.pagePadding,
+    required this.leftMargin,
+    required this.rightMargin,
+    required this.onChanged,
   });
 
   final bool isDark;
-  // Horizontal padding inside the page card (where text starts).
-  // The ruler draws margin triangles at +/- this offset from the edges.
-  final double pagePadding;
+  final double leftMargin;
+  final double rightMargin;
+  final void Function(double left, double right) onChanged;
+
+  static const double _height = 22;
+  static const double _minMargin = 12;
+  // Keep at least this much usable text width regardless of margin pull.
+  static const double _minTextWidth = 200;
+  // Triangle visual size + extra hit padding for usability.
+  static const double _handleHitWidth = 26;
 
   @override
   Widget build(BuildContext context) {
@@ -5782,32 +5834,150 @@ class _RulerBar extends StatelessWidget {
         : const Color(0xFF4A6CF7);
 
     return SizedBox(
-      height: 22,
-      child: CustomPaint(
-        painter: _RulerPainter(
-          tickColor: tickColor,
-          numberColor: numberColor,
-          marginColor: marginColor,
-          pagePadding: pagePadding,
-        ),
-        size: Size.infinite,
+      height: _height,
+      child: LayoutBuilder(
+        builder: (ctx, constraints) {
+          final width = constraints.maxWidth;
+
+          double clampLeft(double v) {
+            final maxLeft = width - rightMargin - _minTextWidth;
+            return v.clamp(_minMargin, maxLeft.clamp(_minMargin, double.infinity));
+          }
+
+          double clampRight(double v) {
+            final maxRight = width - leftMargin - _minTextWidth;
+            return v.clamp(_minMargin, maxRight.clamp(_minMargin, double.infinity));
+          }
+
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Ticks + numbers (background paint).
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: _RulerPainter(
+                    tickColor: tickColor,
+                    numberColor: numberColor,
+                  ),
+                ),
+              ),
+              // Left margin handle.
+              Positioned(
+                left: leftMargin - _handleHitWidth / 2,
+                top: 0,
+                bottom: 0,
+                width: _handleHitWidth,
+                child: _MarginHandle(
+                  color: marginColor,
+                  onPanUpdate: (delta) =>
+                      onChanged(clampLeft(leftMargin + delta), rightMargin),
+                ),
+              ),
+              // Right margin handle.
+              Positioned(
+                right: rightMargin - _handleHitWidth / 2,
+                top: 0,
+                bottom: 0,
+                width: _handleHitWidth,
+                child: _MarginHandle(
+                  color: marginColor,
+                  onPanUpdate: (delta) =>
+                      onChanged(leftMargin, clampRight(rightMargin - delta)),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
+}
+
+class _MarginHandle extends StatefulWidget {
+  const _MarginHandle({
+    required this.color,
+    required this.onPanUpdate,
+  });
+
+  final Color color;
+  final void Function(double deltaDx) onPanUpdate;
+
+  @override
+  State<_MarginHandle> createState() => _MarginHandleState();
+}
+
+class _MarginHandleState extends State<_MarginHandle> {
+  bool _hover = false;
+  bool _drag = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = _hover || _drag;
+    return MouseRegion(
+      cursor: SystemMouseCursors.resizeLeftRight,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onPanStart: (_) => setState(() => _drag = true),
+        onPanEnd: (_) => setState(() => _drag = false),
+        onPanCancel: () => setState(() => _drag = false),
+        onPanUpdate: (d) => widget.onPanUpdate(d.delta.dx),
+        child: Center(
+          child: CustomPaint(
+            size: const Size(14, _RulerBar._height),
+            painter: _MarginTrianglePainter(
+              color: widget.color,
+              active: active,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MarginTrianglePainter extends CustomPainter {
+  _MarginTrianglePainter({required this.color, required this.active});
+
+  final Color color;
+  final bool active;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final baseY = size.height - 6;
+    final paint = Paint()
+      ..color = color.withValues(alpha: active ? 1.0 : 0.85);
+    final path = Path()
+      ..moveTo(cx - 6, baseY - 3)
+      ..lineTo(cx + 6, baseY - 3)
+      ..lineTo(cx, baseY + 4)
+      ..close();
+    canvas.drawPath(path, paint);
+
+    // Subtle highlight ring while hovering / dragging.
+    if (active) {
+      final ringPaint = Paint()
+        ..color = color.withValues(alpha: 0.18)
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(Offset(cx, baseY), 9, ringPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_MarginTrianglePainter old) =>
+      old.color != color || old.active != active;
 }
 
 class _RulerPainter extends CustomPainter {
   _RulerPainter({
     required this.tickColor,
     required this.numberColor,
-    required this.marginColor,
-    required this.pagePadding,
   });
 
   final Color tickColor;
   final Color numberColor;
-  final Color marginColor;
-  final double pagePadding;
 
   // Visual scale: one "unit" on the ruler is 80 px.
   static const double _unit = 80;
@@ -5817,14 +5987,12 @@ class _RulerPainter extends CustomPainter {
     final tickPaint = Paint()
       ..color = tickColor
       ..strokeWidth = 1;
-    final marginPaint = Paint()..color = marginColor;
 
     final baseY = size.height - 6;
     final majorTickH = 6.0;
     final minorTickH = 3.0;
 
-    // Tick marks across the full ruler width.
-    final minorStep = _unit / 4; // every 1/4 unit
+    final minorStep = _unit / 4;
     for (double x = 0; x <= size.width; x += minorStep) {
       final isMajor = ((x / _unit) - (x ~/ _unit)).abs() < 0.001;
       final h = isMajor ? majorTickH : minorTickH;
@@ -5835,7 +6003,6 @@ class _RulerPainter extends CustomPainter {
       );
     }
 
-    // Inch / unit numbers at major ticks (skipping 0).
     for (double x = _unit; x < size.width; x += _unit) {
       final n = (x / _unit).round();
       final tp = TextPainter(
@@ -5849,30 +6016,14 @@ class _RulerPainter extends CustomPainter {
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-      tp.paint(canvas, Offset(x - tp.width / 2, baseY - majorTickH - tp.height - 1));
+      tp.paint(canvas,
+          Offset(x - tp.width / 2, baseY - majorTickH - tp.height - 1));
     }
-
-    // Margin triangles — blue downward arrow at the left and right
-    // edges of the writable text area.
-    void marginTriangle(double cx) {
-      final path = Path()
-        ..moveTo(cx - 5, baseY - 3)
-        ..lineTo(cx + 5, baseY - 3)
-        ..lineTo(cx, baseY + 3)
-        ..close();
-      canvas.drawPath(path, marginPaint);
-    }
-
-    marginTriangle(pagePadding);
-    marginTriangle(size.width - pagePadding);
   }
 
   @override
   bool shouldRepaint(_RulerPainter old) =>
-      old.tickColor != tickColor ||
-      old.numberColor != numberColor ||
-      old.marginColor != marginColor ||
-      old.pagePadding != pagePadding;
+      old.tickColor != tickColor || old.numberColor != numberColor;
 }
 
 class _SidePillButtonState extends State<_SidePillButton> {
