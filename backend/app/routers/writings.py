@@ -9,6 +9,7 @@ from app.database import get_db
 from app.models.section import Section
 from app.models.user import User
 from app.models.writing import Writing
+from app.realtime import hub
 from app.schemas.writing import (
     SectionCreate,
     SectionResponse,
@@ -74,6 +75,13 @@ async def update_writing(
         setattr(writing, field, value)
     await db.commit()
     await db.refresh(writing)
+    await hub.broadcast_writing(
+        writing_id,
+        {
+            "type": "writing.updated",
+            "writing": WritingResponse.model_validate(writing).model_dump(mode="json"),
+        },
+    )
     return writing
 
 
@@ -86,6 +94,10 @@ async def delete_writing(
     writing = await _get_user_writing(writing_id, user.id, db)
     await db.delete(writing)
     await db.commit()
+    await hub.broadcast_writing(
+        writing_id,
+        {"type": "writing.deleted", "writing_id": str(writing_id)},
+    )
 
 
 # --- Sections ---
@@ -118,6 +130,14 @@ async def create_section(
     writing.section_ids = [*(writing.section_ids or []), str(section.id)]
     await db.commit()
     await db.refresh(section)
+    await hub.broadcast_writing(
+        writing_id,
+        {
+            "type": "section.created",
+            "section": SectionResponse.model_validate(section).model_dump(mode="json"),
+            "section_ids": list(writing.section_ids or []),
+        },
+    )
     return section
 
 
@@ -140,6 +160,13 @@ async def update_section(
         setattr(section, field, value)
     await db.commit()
     await db.refresh(section)
+    await hub.broadcast_writing(
+        writing_id,
+        {
+            "type": "section.updated",
+            "section": SectionResponse.model_validate(section).model_dump(mode="json"),
+        },
+    )
     return section
 
 
@@ -160,6 +187,14 @@ async def delete_section(
     writing.section_ids = [sid for sid in (writing.section_ids or []) if sid != str(section_id)]
     await db.delete(section)
     await db.commit()
+    await hub.broadcast_writing(
+        writing_id,
+        {
+            "type": "section.deleted",
+            "section_id": str(section_id),
+            "section_ids": list(writing.section_ids or []),
+        },
+    )
 
 
 async def _get_user_writing(writing_id: UUID, user_id, db: AsyncSession) -> Writing:

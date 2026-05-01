@@ -78,6 +78,11 @@ class _Hub:
     ) -> None:
         await self.broadcast(f"feed:{feed_item_id}", payload)
 
+    async def broadcast_writing(
+        self, writing_id: UUID, payload: dict[str, Any]
+    ) -> None:
+        await self.broadcast(f"writing:{writing_id}", payload)
+
 
 def _default_json(value: Any) -> Any:
     if isinstance(value, UUID):

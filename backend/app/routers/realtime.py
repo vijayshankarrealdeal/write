@@ -18,6 +18,7 @@ from app.auth.jwt import decode_token
 from app.database import async_session
 from app.logger import get_logger
 from app.models.user import User
+from app.models.writing import Writing
 from app.realtime import event_stream
 
 log = get_logger("app.routers.realtime")
@@ -85,6 +86,34 @@ async def comments_stream(
             detail="Invalid or missing token",
         )
     channel = f"feed:{item_id}"
+    return StreamingResponse(
+        event_stream(channel),
+        media_type="text/event-stream",
+        headers=_SSE_HEADERS,
+    )
+
+
+@router.get("/writings/{writing_id}")
+async def writing_stream(
+    writing_id: UUID,
+    request: Request,
+    token: str | None = Query(default=None),
+):
+    user = await _resolve_user(_extract_token(request, token))
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing token",
+        )
+    async with async_session() as session:
+        result = await session.execute(
+            select(Writing).where(
+                Writing.id == writing_id, Writing.user_id == user.id
+            )
+        )
+        if result.scalar_one_or_none() is None:
+            raise HTTPException(status_code=404, detail="Writing not found")
+    channel = f"writing:{writing_id}"
     return StreamingResponse(
         event_stream(channel),
         media_type="text/event-stream",
