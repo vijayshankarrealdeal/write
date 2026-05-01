@@ -2026,6 +2026,16 @@ class _EditiorPageState extends State<EditiorPage>
             color: textColor,
             onPressed: _insertImage,
           ),
+          _ToolbarIconButton(
+            icon: CupertinoIcons.sidebar_right,
+            tooltip: 'Sections',
+            color: textColor,
+            onPressed: () => _showSectionsSheet(
+              isDark: isDark,
+              textColor: textColor,
+              borderColor: borderColor,
+            ),
+          ),
           Container(
             width: 1,
             height: 20,
