@@ -16,6 +16,7 @@ import 'package:inkspacex/services/gemini_service.dart';
 import 'package:inkspacex/ui/editor/canvas_editor.dart';
 import 'package:inkspacex/ui/editor/command_palette.dart';
 import 'package:inkspacex/ui/editor/floating_format_bar.dart';
+import 'package:inkspacex/ui/editor/font_picker.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
 import 'package:inkspacex/ui/editor/slash_menu.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
@@ -34,18 +35,42 @@ TextStyle _cachedFontStyle(String name) =>
     });
 
 // ─── Font families available in the editor ───
-const _editorFonts = <String, String>{
-  'Sans Serif': 'Inter',
-  'Serif': 'Merriweather',
-  'Display': 'Playfair Display',
-  'Handwritten': 'Caveat',
-  'Modern': 'DM Sans',
-  'Classic': 'Lora',
-  'Script': 'Dancing Script',
-  'Playful': 'Patrick Hand',
-  'Mono': 'JetBrains Mono',
-  'Elegant': 'Cormorant Garamond',
-};
+//
+// Curated Google Fonts grouped by visual family. Each entry is the actual
+// Google Font name — what the dropdown shows AND what gets stored on the
+// `font` attribute, so there is no label/value indirection to round-trip.
+const _editorFonts = <String>[
+  // Sans-serif
+  'Inter',
+  'Source Sans 3',
+  'IBM Plex Sans',
+  'Nunito',
+  'Work Sans',
+  'DM Sans',
+  // Serif
+  'Merriweather',
+  'Lora',
+  'Crimson Pro',
+  'EB Garamond',
+  'Source Serif 4',
+  'Spectral',
+  // Display
+  'Playfair Display',
+  'DM Serif Display',
+  'Bebas Neue',
+  'Abril Fatface',
+  // Elegant
+  'Cormorant Garamond',
+  'Italiana',
+  // Handwritten
+  'Caveat',
+  'Dancing Script',
+  'Patrick Hand',
+  'Kalam',
+  // Mono
+  'JetBrains Mono',
+  'Fira Code',
+];
 
 // ─── Paper Themes ───
 enum PaperTheme {
@@ -140,7 +165,7 @@ class _EditiorPageState extends State<EditiorPage>
       parent: _focusModeController,
       curve: Curves.easeOutCubic,
     );
-    for (final font in _editorFonts.values) {
+    for (final font in _editorFonts) {
       try {
         GoogleFonts.getFont(font);
       } catch (_) {}
@@ -1476,6 +1501,23 @@ class _EditiorPageState extends State<EditiorPage>
                                                         ),
                                                       ),
                                                     ),
+                                                  if (!isMobile && !_focusMode)
+                                                    Positioned(
+                                                      top: 60,
+                                                      right: 28,
+                                                      child: _SideActionsPill(
+                                                        isDark: isDark,
+                                                        outlineActive:
+                                                            _showOutline,
+                                                        onAI: _showAIPanel,
+                                                        onPrompt:
+                                                            _showRandomPrompt,
+                                                        onToggleOutline: () =>
+                                                            setState(() =>
+                                                                _showOutline =
+                                                                    !_showOutline),
+                                                      ),
+                                                    ),
                                                 ],
                                               ),
                                             ),
@@ -2222,10 +2264,19 @@ class _EditiorPageState extends State<EditiorPage>
                     )
                   : BoxDecoration(
                       color: paperColor,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(16),
-                      ),
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: paperBorder),
+                      // Soft floating-paper shadow — sells the page metaphor
+                      // without the high-contrast slab Material defaults to.
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(
+                              alpha: isDark ? 0.35 : 0.08),
+                          blurRadius: 32,
+                          spreadRadius: -10,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
           padding: EdgeInsets.fromLTRB(
             isMobile ? 18 : (_focusMode ? 64 : 48),
@@ -4066,12 +4117,9 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
     final attr =
         widget.controller.getSelectionStyle().attributes[Attribute.font.key];
     if (attr?.value is String && (attr!.value as String).isNotEmpty) {
-      for (final entry in _editorFonts.entries) {
-        if (entry.value == attr.value) return entry.key;
-      }
       return attr.value as String;
     }
-    return 'Sans Serif';
+    return 'Inter';
   }
 
   double get _currentFontSize {
@@ -4083,13 +4131,11 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
     return parsed ?? _defaultSize;
   }
 
-  void _setFontFamily(String label) {
-    final family = _editorFonts[label];
-    if (family == null) return;
+  void _setFontFamily(String family) {
     widget.controller.formatSelection(Attribute.fromKeyValue(
       Attribute.font.key,
       family,
-    ));
+    )!);
     setState(() {});
   }
 
@@ -4386,10 +4432,11 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
               const SizedBox(width: 6),
               _FontFamilyDropdown(
                 current: _currentFontFamily,
-                items: _editorFonts.keys.toList(),
+                items: _editorFonts,
                 borderColor: borderColor,
                 fillColor: fillColor,
                 textColor: widget.textColor,
+                isDark: widget.isDark,
                 onSelected: _setFontFamily,
               ),
               const SizedBox(width: 6),
@@ -4686,6 +4733,9 @@ class _HeadingMenu extends StatelessWidget {
       tooltip: 'Paragraph style',
       position: PopupMenuPosition.under,
       onSelected: onSelected,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       itemBuilder: (_) => items
           .map((it) => PopupMenuItem<int?>(
                 value: it.$1,
@@ -5436,59 +5486,70 @@ class _FontFamilyDropdown extends StatelessWidget {
     required this.borderColor,
     required this.fillColor,
     required this.textColor,
+    required this.isDark,
     required this.onSelected,
   });
 
   final String current;
+  // Curated/popular fonts pinned at the top of the picker.
   final List<String> items;
   final Color borderColor;
   final Color fillColor;
   final Color textColor;
+  final bool isDark;
   final ValueChanged<String> onSelected;
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
-      tooltip: 'Font',
-      position: PopupMenuPosition.under,
-      onSelected: onSelected,
-      itemBuilder: (_) => items
-          .map((label) => PopupMenuItem<String>(
-                value: label,
-                height: 32,
+    return Tooltip(
+      message: 'Font',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: () async {
+          final picked = await showFontPicker(
+            context,
+            current: current,
+            popular: items,
+            isDark: isDark,
+          );
+          if (picked != null) onSelected(picked);
+        },
+        child: Container(
+          height: 28,
+          width: 158,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: fillColor,
+            border: Border.all(color: borderColor),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Row(
+            children: [
+              Expanded(
                 child: Text(
-                  label,
-                  style: GoogleFonts.getFont(
-                    _editorFonts[label] ?? 'Inter',
+                  current,
+                  overflow: TextOverflow.ellipsis,
+                  style: _safeFontStyle(current).copyWith(
                     fontSize: 13,
+                    color: textColor,
                   ),
                 ),
-              ))
-          .toList(),
-      child: Container(
-        height: 28,
-        width: 158,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-          color: fillColor,
-          border: Border.all(color: borderColor),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                current,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 13, color: textColor),
               ),
-            ),
-            Icon(Icons.keyboard_arrow_down,
-                size: 16, color: textColor.withValues(alpha: 0.6)),
-          ],
+              Icon(Icons.keyboard_arrow_down,
+                  size: 16, color: textColor.withValues(alpha: 0.6)),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  TextStyle _safeFontStyle(String name) {
+    try {
+      return GoogleFonts.getFont(name);
+    } catch (_) {
+      return const TextStyle();
+    }
   }
 }
 
@@ -5515,6 +5576,9 @@ class _FontSizeDropdown extends StatelessWidget {
       tooltip: 'Font size',
       position: PopupMenuPosition.under,
       onSelected: onSelected,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       itemBuilder: (_) => items
           .map((size) => PopupMenuItem<double>(
                 value: size,
@@ -5545,6 +5609,144 @@ class _FontSizeDropdown extends StatelessWidget {
             Icon(Icons.keyboard_arrow_down,
                 size: 16, color: textColor.withValues(alpha: 0.6)),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Floating side-actions pill (right edge of the page) ──
+//
+// Inspired by Google Docs' floating AI / comments capsule. Vertical
+// rounded pill with quick access to AI, prompt, and outline. Sits in
+// the right margin of the editor area, hides during focus mode and
+// canvas mode where it would feel out of place.
+class _SideActionsPill extends StatelessWidget {
+  const _SideActionsPill({
+    required this.isDark,
+    required this.outlineActive,
+    required this.onAI,
+    required this.onPrompt,
+    required this.onToggleOutline,
+  });
+
+  final bool isDark;
+  final bool outlineActive;
+  final VoidCallback onAI;
+  final VoidCallback onPrompt;
+  final VoidCallback onToggleOutline;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = isDark ? const Color(0xFF1F2126) : Colors.white;
+    final fg = isDark ? Colors.white : const Color(0xFF1A1A1F);
+    final accent =
+        isDark ? const Color(0xFF93B4F5) : const Color(0xFF4A6CF7);
+    final activeBg = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : const Color(0xFFEFF3FE);
+    final border = isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.black.withValues(alpha: 0.08);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.45 : 0.12),
+            blurRadius: 24,
+            spreadRadius: -6,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _SidePillButton(
+            icon: CupertinoIcons.wand_stars,
+            tooltip: 'AI assist',
+            color: accent,
+            activeBg: activeBg,
+            highlight: true,
+            onTap: onAI,
+          ),
+          _SidePillButton(
+            icon: CupertinoIcons.lightbulb,
+            tooltip: 'Writing prompt',
+            color: Colors.amber.withValues(alpha: 0.85),
+            activeBg: activeBg,
+            onTap: onPrompt,
+          ),
+          _SidePillButton(
+            icon: CupertinoIcons.list_bullet_indent,
+            tooltip: outlineActive ? 'Hide outline' : 'Show outline',
+            color: outlineActive ? accent : fg,
+            activeBg: activeBg,
+            active: outlineActive,
+            onTap: onToggleOutline,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SidePillButton extends StatefulWidget {
+  const _SidePillButton({
+    required this.icon,
+    required this.tooltip,
+    required this.color,
+    required this.activeBg,
+    required this.onTap,
+    this.active = false,
+    this.highlight = false,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final Color color;
+  final Color activeBg;
+  final VoidCallback onTap;
+  final bool active;
+  final bool highlight;
+
+  @override
+  State<_SidePillButton> createState() => _SidePillButtonState();
+}
+
+class _SidePillButtonState extends State<_SidePillButton> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final showActiveBg = widget.active || _hover;
+    return Tooltip(
+      message: widget.tooltip,
+      preferBelow: false,
+      waitDuration: const Duration(milliseconds: 250),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 140),
+            curve: Curves.easeOutCubic,
+            width: 38,
+            height: 38,
+            margin: const EdgeInsets.symmetric(vertical: 2),
+            decoration: BoxDecoration(
+              color: showActiveBg ? widget.activeBg : Colors.transparent,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(widget.icon, size: 17, color: widget.color),
+          ),
         ),
       ),
     );
