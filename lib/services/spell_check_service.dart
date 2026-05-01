@@ -34,6 +34,14 @@ class SpellCheckService {
   SpellCheckService(this._api);
 
   final ApiClient _api;
+  // Per-session suggestion cache. The dictionary is stable enough during
+  // a session that re-fetching suggestions for the same word is wasted
+  // network — the inline correction bar fires a request every time the
+  // caret lands on an underline, which gets old fast on a doc with the
+  // same misspelling repeated. Capped so a long session can't grow
+  // unbounded.
+  static const int _suggestCacheLimit = 256;
+  final Map<String, List<String>> _suggestCache = {};
 
   Future<List<Misspelling>> check(
     String text, {
@@ -64,6 +72,9 @@ class SpellCheckService {
 
   Future<List<String>> suggest(String word, {int max = 5}) async {
     if (word.isEmpty) return const [];
+    final cacheKey = '${word.toLowerCase()}|$max';
+    final cached = _suggestCache[cacheKey];
+    if (cached != null) return cached;
     try {
       final res = await _api.post('/api/spellcheck/suggest', data: {
         'word': word,
@@ -73,7 +84,14 @@ class SpellCheckService {
       if (data is! Map) return const [];
       final list = data['suggestions'];
       if (list is! List) return const [];
-      return list.whereType<String>().toList();
+      final out = list.whereType<String>().toList(growable: false);
+      // Cheap LRU-ish bound: drop the oldest entry once over the cap.
+      // Real LRU would need a linked map; for ~256 words it's overkill.
+      if (_suggestCache.length >= _suggestCacheLimit) {
+        _suggestCache.remove(_suggestCache.keys.first);
+      }
+      _suggestCache[cacheKey] = out;
+      return out;
     } on ApiException catch (e) {
       log.w('spellcheck.suggest failed: ${e.message}');
       return const [];

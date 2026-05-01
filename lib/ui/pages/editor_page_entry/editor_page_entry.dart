@@ -8,6 +8,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/carbon.dart';
 import 'package:iconify_flutter/icons/ph.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +39,7 @@ import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/comment_compos
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/editor_constants.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/find_replace_bar.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/focus_widgets.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/inline_spell_check_bar.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/ruler_bar.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/side_actions_pill.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/spell_check_sheet.dart';
@@ -118,6 +120,22 @@ class _EditiorPageState extends State<EditiorPage>
   late AnimationController _focusModeController;
   late Animation<double> _focusModeAnimation;
   SlashMenuController? _slashMenu;
+
+  // Editor surface: a long-lived ScrollController + FocusNode + EditorState
+  // key let us drive typewriter-mode centering and selection theming
+  // directly. They're owned by the page so QuillEditor.basic can rebuild
+  // (e.g. on section switch via ValueKey) without losing scroll position
+  // or focus across the swap.
+  final ScrollController _editorScrollController = ScrollController();
+  final FocusNode _editorFocusNode = FocusNode();
+  final GlobalKey<EditorState> _editorStateKey = GlobalKey<EditorState>();
+  // Listener attached to the QuillController while typewriter mode is on,
+  // so detaching is a single removeListener call.
+  VoidCallback? _typewriterListener;
+  QuillController? _typewriterAttachedTo;
+  // Coalesces back-to-back typewriter scrolls (every keystroke fires a
+  // selection change) into one frame of work.
+  bool _typewriterPending = false;
 
   // ── Page margins (functional ruler) ──
   // Live values; dragging the ruler triangles updates these and the page
@@ -624,7 +642,88 @@ class _EditiorPageState extends State<EditiorPage>
     _focusModeController.dispose();
     _slashMenu?.dispose();
     _detachDocListener();
+    _detachTypewriterListener();
+    _editorScrollController.dispose();
+    _editorFocusNode.dispose();
     super.dispose();
+  }
+
+  // ─── Typewriter mode ───
+  // Listens for selection changes on the active QuillController and
+  // animates the editor scroll so the caret stays in the upper-middle
+  // band of the viewport — the "always typing on the same line" feel
+  // that makes long-form drafting addictive.
+  void _attachTypewriterListenerIfNeeded(QuillController controller) {
+    if (!_typewriterMode) {
+      _detachTypewriterListener();
+      return;
+    }
+    if (_typewriterAttachedTo == controller && _typewriterListener != null) {
+      return;
+    }
+    _detachTypewriterListener();
+    void listener() => _scheduleTypewriterRecenter();
+    controller.addListener(listener);
+    _typewriterListener = listener;
+    _typewriterAttachedTo = controller;
+  }
+
+  void _detachTypewriterListener() {
+    final l = _typewriterListener;
+    final c = _typewriterAttachedTo;
+    if (l != null && c != null) {
+      c.removeListener(l);
+    }
+    _typewriterListener = null;
+    _typewriterAttachedTo = null;
+  }
+
+  void _scheduleTypewriterRecenter() {
+    if (_typewriterPending) return;
+    _typewriterPending = true;
+    // One post-frame is enough — the EditorState has laid out the new
+    // caret position by the time selection-change listeners fire on the
+    // next frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _typewriterPending = false;
+      _recenterCaret();
+    });
+  }
+
+  void _recenterCaret() {
+    if (!mounted || !_typewriterMode) return;
+    final scroll = _editorScrollController;
+    if (!scroll.hasClients) return;
+    final editorState = _editorStateKey.currentState;
+    if (editorState == null) return;
+    final controller = context.read<EditorProvider>().controller;
+    final selection = controller.selection;
+    if (!selection.isValid) return;
+
+    Rect caret;
+    try {
+      caret = editorState.renderEditor.getLocalRectForCaret(
+        TextPosition(offset: selection.extentOffset),
+      );
+    } catch (_) {
+      return;
+    }
+    final viewportHeight = scroll.position.viewportDimension;
+    if (viewportHeight <= 0) return;
+
+    // Park the caret a bit above center — readers' eyes naturally rest
+    // higher than geometric middle, so "true center" feels low.
+    final targetY = caret.center.dy - viewportHeight * 0.42;
+    final clamped = targetY.clamp(
+      scroll.position.minScrollExtent,
+      scroll.position.maxScrollExtent,
+    );
+    if ((scroll.offset - clamped).abs() < 1.5) return;
+    scroll.animateTo(
+      clamped,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   // ─── Link dialog (used by floating selection bar) ───
@@ -1529,6 +1628,34 @@ class _EditiorPageState extends State<EditiorPage>
                           onChanged: (v) {
                             setSheetState(() {});
                             setState(() => _typewriterMode = v);
+                            final controller =
+                                context.read<EditorProvider>().controller;
+                            if (v) {
+                              _attachTypewriterListenerIfNeeded(controller);
+                              _scheduleTypewriterRecenter();
+                            } else {
+                              _detachTypewriterListener();
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        _settingsToggle(
+                          icon: CupertinoIcons.waveform,
+                          label: 'Typing Haptics',
+                          subtitle:
+                              'Soft tap at sentence and paragraph breaks',
+                          value: context
+                              .read<EditorProvider>()
+                              .typingHapticsEnabled,
+                          textColor: textColor,
+                          mutedColor: mutedColor,
+                          surfaceColor: surfaceColor,
+                          isDark: isDark,
+                          onChanged: (v) {
+                            setSheetState(() {});
+                            context
+                                .read<EditorProvider>()
+                                .setTypingHapticsEnabled(v);
                           },
                         ),
 
@@ -1932,6 +2059,9 @@ class _EditiorPageState extends State<EditiorPage>
         _syncAnnotationSection(activeSection);
         _syncVersionSection(activeSection);
         _syncSpellSection(activeSection);
+        _attachTypewriterListenerIfNeeded(
+          context.read<EditorProvider>().controller,
+        );
       });
     }
 
@@ -2059,16 +2189,44 @@ class _EditiorPageState extends State<EditiorPage>
                                                       left: 0,
                                                       right: 0,
                                                       child: Center(
-                                                        child: FloatingFormatBar(
-                                                          controller: context
-                                                              .read<EditorProvider>()
-                                                              .controller,
-                                                          isDark: isDark,
-                                                          onOpenLink:
-                                                              _openLinkDialogShortcut,
-                                                          onAI: _showAIPanel,
-                                                          onComment:
-                                                              _addAnnotationFromSelection,
+                                                        child: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            FloatingFormatBar(
+                                                              controller: context
+                                                                  .read<
+                                                                      EditorProvider>()
+                                                                  .controller,
+                                                              isDark: isDark,
+                                                              onOpenLink:
+                                                                  _openLinkDialogShortcut,
+                                                              onAI: _showAIPanel,
+                                                              onComment:
+                                                                  _addAnnotationFromSelection,
+                                                            ),
+                                                            InlineSpellCheckBar(
+                                                              controller: context
+                                                                  .read<
+                                                                      EditorProvider>()
+                                                                  .controller,
+                                                              isDark: isDark,
+                                                              onReplace:
+                                                                  _replaceMisspelling,
+                                                              onAddToDictionary:
+                                                                  (m) => context
+                                                                      .read<
+                                                                          SpellCheckProvider>()
+                                                                      .addToDictionary(
+                                                                          m.word),
+                                                              onIgnore: (m) =>
+                                                                  context
+                                                                      .read<
+                                                                          SpellCheckProvider>()
+                                                                      .dismissIssue(
+                                                                          m),
+                                                            ),
+                                                          ],
                                                         ),
                                                       ),
                                                     ),
@@ -2296,118 +2454,6 @@ class _EditiorPageState extends State<EditiorPage>
 
           const SizedBox(width: 6),
 
-          // Sync status chip — driven off outbox depth + connectivity, not
-          // a single saveStatus string.
-          //
-          // Listens to a small ValueListenable + the two outbox counters
-          // instead of the whole EditorProvider. That way the chip can
-          // flip "Saved → Typing" without rebuilding the rest of the
-          // editor scaffold on the first keystroke of every typing burst.
-          Builder(
-            builder: (context) {
-              final provider = context.read<EditorProvider>();
-              return ListenableBuilder(
-                listenable: Listenable.merge([
-                  provider.syncStatusListenable,
-                  provider.pendingOpsCount,
-                  provider.failedOpsCount,
-                ]),
-                builder: (context, _) {
-                  final status = provider.syncStatusListenable.value;
-                  final pending = provider.pendingOpsCount.value;
-                  final failed = provider.failedOpsCount.value;
-              IconData icon;
-              Color iconColor;
-              String label;
-              switch (status) {
-                case SyncStatus.idle:
-                  icon = CupertinoIcons.checkmark_alt_circle;
-                  iconColor = Colors.green.withValues(alpha: 0.7);
-                  label = 'Saved';
-                  break;
-                case SyncStatus.typing:
-                  icon = CupertinoIcons.pencil;
-                  iconColor = Colors.amber.withValues(alpha: 0.8);
-                  label = '';
-                  break;
-                case SyncStatus.saving:
-                  icon = CupertinoIcons.cloud_upload;
-                  iconColor = mutedColor;
-                  label = 'Saving';
-                  break;
-                case SyncStatus.offline:
-                  icon = CupertinoIcons.wifi_slash;
-                  iconColor = Colors.amber.withValues(alpha: 0.8);
-                  label = 'Offline · $pending pending';
-                  break;
-                case SyncStatus.syncing:
-                  icon = CupertinoIcons.arrow_2_circlepath;
-                  iconColor = mutedColor;
-                  label = 'Syncing $pending';
-                  break;
-                case SyncStatus.error:
-                  icon = CupertinoIcons.exclamationmark_circle;
-                  iconColor = Colors.red.withValues(alpha: 0.8);
-                  label = '$failed failed';
-                  break;
-              }
-
-              final tappable = status == SyncStatus.error;
-              final row = Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_imageUploading)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const AppSpinner(size: 12),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Uploading',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              color: mutedColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  if (status == SyncStatus.saving ||
-                      status == SyncStatus.syncing)
-                    const AppSpinner(size: 12)
-                  else
-                    Icon(icon, size: 14, color: iconColor),
-                  if (!isMobile && label.isNotEmpty) ...[
-                    const SizedBox(width: 5),
-                    Text(
-                      label,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: status == SyncStatus.error
-                            ? Colors.red.withValues(alpha: 0.9)
-                            : mutedColor,
-                      ),
-                    ),
-                  ],
-                ],
-              );
-
-                  if (!tappable) return row;
-                  return GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _showFailedOpsSheet(context, provider),
-                    child: row,
-                  );
-                },
-              );
-            },
-          ),
-
-          const SizedBox(width: 4),
-
           // New Section
           if (isMobile)
             ToolbarIconButton(
@@ -2445,6 +2491,102 @@ class _EditiorPageState extends State<EditiorPage>
             ),
         ],
       ),
+    );
+  }
+
+  // ─── Sync Status Chip ───
+  // Icon-only, sized to match ToolbarIconButton (size 19, 36×36 hitbox).
+  // Status name shows in the tooltip; color carries the state.
+  // Driven off outbox depth + connectivity — listens to a small
+  // ValueListenable + the two outbox counters so it flips "Saved → Typing"
+  // without rebuilding the rest of the editor scaffold on each keystroke.
+  Widget _buildSyncStatusChip({required Color mutedColor}) {
+    final provider = context.read<EditorProvider>();
+    return ListenableBuilder(
+      listenable: Listenable.merge([
+        provider.syncStatusListenable,
+        provider.pendingOpsCount,
+        provider.failedOpsCount,
+      ]),
+      builder: (context, _) {
+        final status = provider.syncStatusListenable.value;
+        final pending = provider.pendingOpsCount.value;
+        final failed = provider.failedOpsCount.value;
+        IconData icon;
+        Color iconColor;
+        String tooltip;
+        switch (status) {
+          case SyncStatus.idle:
+            icon = CupertinoIcons.cloud;
+            iconColor = Colors.green.withValues(alpha: 0.8);
+            tooltip = 'Saved';
+            break;
+          case SyncStatus.typing:
+            icon = CupertinoIcons.pencil;
+            iconColor = Colors.amber.withValues(alpha: 0.9);
+            tooltip = 'Typing';
+            break;
+          case SyncStatus.saving:
+            icon = CupertinoIcons.cloud_upload;
+            iconColor = mutedColor;
+            tooltip = 'Saving';
+            break;
+          case SyncStatus.offline:
+            icon = CupertinoIcons.wifi_slash;
+            iconColor = Colors.amber.withValues(alpha: 0.9);
+            tooltip = 'Offline · $pending pending';
+            break;
+          case SyncStatus.syncing:
+            icon = CupertinoIcons.arrow_2_circlepath;
+            iconColor = mutedColor;
+            tooltip = 'Syncing $pending';
+            break;
+          case SyncStatus.error:
+            icon = CupertinoIcons.exclamationmark_circle;
+            iconColor = Colors.red.withValues(alpha: 0.9);
+            tooltip = '$failed failed — tap to review';
+            break;
+        }
+
+        final inner =
+            (status == SyncStatus.saving || status == SyncStatus.syncing)
+                ? const AppSpinner(size: 19)
+                : Icon(icon, size: 19, color: iconColor);
+
+        final chip = Tooltip(
+          message: tooltip,
+          child: SizedBox(
+            width: 36,
+            height: 36,
+            child: Center(child: inner),
+          ),
+        );
+
+        Widget result = chip;
+        if (status == SyncStatus.error) {
+          result = GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _showFailedOpsSheet(context, provider),
+            child: chip,
+          );
+        }
+
+        if (!_imageUploading) return result;
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Tooltip(
+              message: 'Uploading image',
+              child: SizedBox(
+                width: 36,
+                height: 36,
+                child: Center(child: AppSpinner(size: 14)),
+              ),
+            ),
+            result,
+          ],
+        );
+      },
     );
   }
 
@@ -2510,11 +2652,17 @@ class _EditiorPageState extends State<EditiorPage>
             color: borderColor,
           ),
 
+          _buildSyncStatusChip(mutedColor: mutedColor),
+
           // Writer Settings (paper themes / typewriter / goal etc.)
           // Outline / Prompt / Focus mode / AI live in the side pill —
           // keeping them here too creates the "wall of icons" feel.
           ToolbarIconButton(
-            icon: CupertinoIcons.slider_horizontal_3,
+            iconWidget: Iconify(
+              Carbon.pending,
+              size: 19,
+              color: textColor,
+            ),
             tooltip: 'Writer Settings',
             color: textColor,
             onPressed: _showWriterSettings,
@@ -2555,6 +2703,8 @@ class _EditiorPageState extends State<EditiorPage>
   }) {
     final accentColor =
         isDark ? const Color(0xFF93B4F5) : const Color(0xFF5B8DEF);
+    final mutedColor =
+        isDark ? Colors.white.withValues(alpha: 0.55) : Colors.black54;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
@@ -2615,8 +2765,13 @@ class _EditiorPageState extends State<EditiorPage>
             color: textColor,
             onPressed: _toggleFocusMode,
           ),
+          _buildSyncStatusChip(mutedColor: mutedColor),
           ToolbarIconButton(
-            icon: CupertinoIcons.slider_horizontal_3,
+            iconWidget: Iconify(
+              Carbon.pending,
+              size: 19,
+              color: textColor,
+            ),
             tooltip: 'Writer settings',
             color: textColor,
             onPressed: _showWriterSettings,
@@ -2832,9 +2987,9 @@ class _EditiorPageState extends State<EditiorPage>
         ? Colors.white.withValues(alpha: 0.08)
         : Colors.black.withValues(alpha: 0.08);
 
-    final showRuler = !isMobile && !_focusMode;
-    final padL = isMobile ? 18.0 : (_focusMode ? 64.0 : _leftMargin);
-    final padR = isMobile ? 18.0 : (_focusMode ? 64.0 : _rightMargin);
+    final showRuler = !isMobile;
+    final padL = isMobile ? 18.0 : _leftMargin;
+    final padR = isMobile ? 18.0 : _rightMargin;
 
     return Container(
       color: bgColor,
@@ -2846,17 +3001,19 @@ class _EditiorPageState extends State<EditiorPage>
             isMobile ? 0 : (_focusMode ? 24 : 20),
             isMobile ? 0 : (_focusMode ? 24 : 12),
             isMobile ? 0 : (_focusMode ? 24 : 20),
-            isMobile ? 0 : (_focusMode ? 24 : 0),
+            0,
           ),
           child: Column(
             children: [
-              if (showRuler)
+              if (showRuler) ...[
                 RulerBar(
                   isDark: isDark,
                   leftMargin: _leftMargin,
                   rightMargin: _rightMargin,
                   onChanged: _setMargins,
                 ),
+                const SizedBox(height: 12),
+              ],
               Expanded(
                 child: _buildPageCard(
                   isDark: isDark,
@@ -2924,7 +3081,7 @@ class _EditiorPageState extends State<EditiorPage>
                 ),
       padding: EdgeInsets.fromLTRB(
         padL,
-        _focusMode ? (isMobile ? 56 : 96) : 20,
+        _focusMode ? (isMobile ? 4 : 4) : 4,
         padR,
         0,
       ),
@@ -2936,18 +3093,48 @@ class _EditiorPageState extends State<EditiorPage>
               final bottomPad = MediaQuery.of(ctx).padding.bottom +
                   MediaQuery.of(ctx).viewInsets.bottom +
                   (_typewriterMode ? MediaQuery.sizeOf(ctx).height * 0.4 : 120);
+              // Typewriter mode also wants a top runway so the very first
+              // line can sit near the middle of the page without bottoming
+              // out the scroll view's minScrollExtent.
+              final topPad = _typewriterMode
+                  ? MediaQuery.sizeOf(ctx).height * 0.32
+                  : 0.0;
+
+              // Buttery selection + cursor: a soft accent (not the harsh
+              // platform default), translucent selection, and matching
+              // handles. Quill resolves these from the ambient
+              // TextSelectionTheme, so wrapping the editor is enough.
+              final accent = isDark
+                  ? const Color(0xFFB4D4FF)
+                  : const Color(0xFF5B8DEF);
+              final selectionTint = accent.withValues(alpha: 0.22);
 
               final editor = QuillEditor.basic(
                 key: ValueKey(sectionId ?? 'none'),
                 controller: ctx.read<EditorProvider>().controller,
+                focusNode: _editorFocusNode,
+                scrollController: _editorScrollController,
                 config: QuillEditorConfig(
                   placeholder: 'Start writing...',
+                  editorKey: _editorStateKey,
+                  // BouncingScrollPhysics + AlwaysScrollableScrollPhysics
+                  // gives the iOS-style rubber-band on every platform —
+                  // small thing, but the soft overscroll bounce sells
+                  // the "page is alive under your finger" feel.
+                  scrollPhysics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  textSelectionThemeData: TextSelectionThemeData(
+                    cursorColor: accent,
+                    selectionColor: selectionTint,
+                    selectionHandleColor: accent,
+                  ),
                   embedBuilders: [
                     ImageEmbedBuilder(
                       controller: ctx.read<EditorProvider>().controller,
                     ),
                   ],
-                  padding: EdgeInsets.only(bottom: bottomPad),
+                  padding: EdgeInsets.only(top: topPad, bottom: bottomPad),
                   customStyleBuilder: _customStyleBuilder,
                   customStyles: DefaultStyles(
                     placeHolder: DefaultTextBlockStyle(

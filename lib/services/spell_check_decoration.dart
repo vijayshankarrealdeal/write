@@ -13,11 +13,14 @@ const String kSpellCheckErrorKey = 'spellcheck-error';
 Attribute<bool?> spellCheckErrorAttribute({bool present = true}) =>
     Attribute<bool?>(kSpellCheckErrorKey, AttributeScope.ignore, present ? true : null);
 
-/// Word/Google-Docs-style red wavy underline applied per misspelled span.
+/// Wavy underline applied per misspelled span. The hue matches the inline
+/// correction bar's accent (warm coral) instead of a harsh fire-engine red,
+/// so the underline reads as part of the editor's palette rather than an
+/// alarm pulled in from another app.
 const TextStyle kSpellCheckErrorStyle = TextStyle(
   decoration: TextDecoration.underline,
   decorationStyle: TextDecorationStyle.wavy,
-  decorationColor: Color(0xFFE53935),
+  decorationColor: Color(0xFFE26A4A),
   decorationThickness: 1.6,
 );
 

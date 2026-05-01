@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show ValueListenable;
+import 'package:flutter/foundation.dart'
+    show ValueListenable, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
@@ -108,6 +110,15 @@ class EditorProvider extends ChangeNotifier {
 
   bool _typing = false;
   bool _saving = false;
+
+  /// Tactile beat at sentence and paragraph boundaries — adds a small
+  /// punctuation feel to the typing rhythm. Toggled from the editor
+  /// settings sheet; off-platform (web/desktop) it's a no-op regardless.
+  bool typingHapticsEnabled = true;
+  bool get _hapticsAvailable =>
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.android;
+  DateTime _lastHapticAt = DateTime.fromMillisecondsSinceEpoch(0);
 
   Future<void> _enqueue(PendingOp op) async {
     await _outbox.enqueue(op);
@@ -993,6 +1004,7 @@ class EditorProvider extends ChangeNotifier {
       // Decoration-only mutations (spell-check underlines) compose with
       // ChangeSource.silent. They must not flip the typing/save state.
       if (event.source == ChangeSource.silent) return;
+      _maybeTypingHaptic(event);
       _onUserTyped();
     });
     _startPeriodicSync();
@@ -1008,6 +1020,39 @@ class EditorProvider extends ChangeNotifier {
   void _stopPeriodicSync() {
     _periodicSyncTimer?.cancel();
     _periodicSyncTimer = null;
+  }
+
+  /// Hot-path haptic emitter. Fires only at sentence and paragraph
+  /// boundaries — keystroke-level haptics get tiring fast, but a soft
+  /// beat at the end of each thought makes typing feel rhythmic. Coalesced
+  /// to one event per ~120ms so paste/IME bursts can't machine-gun.
+  void _maybeTypingHaptic(DocChange event) {
+    if (!typingHapticsEnabled || !_hapticsAvailable) return;
+    String? inserted;
+    for (final op in event.change.toList()) {
+      if (op.isInsert && op.data is String) {
+        inserted = op.data as String;
+      }
+    }
+    if (inserted == null || inserted.isEmpty) return;
+    final now = DateTime.now();
+    if (now.difference(_lastHapticAt).inMilliseconds < 120) return;
+    if (inserted.contains('\n')) {
+      _lastHapticAt = now;
+      HapticFeedback.lightImpact();
+      return;
+    }
+    final last = inserted[inserted.length - 1];
+    if (last == '.' || last == '!' || last == '?') {
+      _lastHapticAt = now;
+      HapticFeedback.selectionClick();
+    }
+  }
+
+  void setTypingHapticsEnabled(bool value) {
+    if (typingHapticsEnabled == value) return;
+    typingHapticsEnabled = value;
+    notifyListeners();
   }
 
   void _onUserTyped() {

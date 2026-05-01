@@ -47,6 +47,10 @@ api.{$DOMAIN} {
 
 	handle {
 		root * /srv/web
+		# skwasm renderer needs SharedArrayBuffer, which requires a
+		# cross-origin-isolated context (COOP + COEP headers).
+		header Cross-Origin-Opener-Policy "same-origin"
+		header Cross-Origin-Embedder-Policy "credentialless"
 		# Flutter web's bootstrap files don't carry content hashes in their
 		# names — if the browser caches them, users keep running yesterday's
 		# build forever. Force revalidate on every load. Hashed assets under
