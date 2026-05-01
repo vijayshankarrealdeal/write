@@ -1917,11 +1917,14 @@ class _EditiorPageState extends State<EditiorPage>
 
     // Reload annotations whenever the active section changes. Using
     // context.select keeps this rebuild-cheap — only fires when id changes.
+    // Gated on _isReady: initEditor() replaces EditorProvider.controller,
+    // so syncing earlier would attach providers to a soon-orphaned instance.
     final activeSection =
         context.select<EditorProvider, SectionModel?>((p) => p.activeSection);
-    if (activeSection?.id != _annotationSectionId ||
-        activeSection?.id != _versionSectionId ||
-        activeSection?.id != _spellSectionId) {
+    if (_isReady &&
+        (activeSection?.id != _annotationSectionId ||
+            activeSection?.id != _versionSectionId ||
+            activeSection?.id != _spellSectionId)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         _syncAnnotationSection(activeSection);

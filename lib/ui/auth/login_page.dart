@@ -126,7 +126,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     final isDark = theme.brightness == Brightness.dark;
     final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF212529);
     final subtleColor = textColor.withOpacity(0.5);
-    final surfaceColor = isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8F9FA);
     final borderColor = isDark ? const Color(0xFF2E2E2E) : const Color(0xFFE9ECEF);
 
     return Scaffold(
@@ -144,24 +143,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Logo
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          color: surfaceColor,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: borderColor),
-                        ),
-                        child: Icon(
-                          CupertinoIcons.pencil_outline,
-                          size: 32,
-                          color: textColor.withOpacity(0.8),
-                        ),
-                      ),
-
-                      const SizedBox(height: 32),
-
                       // Title
                       Text(
                         "Welcome back",

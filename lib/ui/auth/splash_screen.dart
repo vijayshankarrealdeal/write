@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
@@ -20,16 +19,10 @@ class SplashScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              CupertinoIcons.square_pencil,
-              size: 72,
-              color: textColor.withValues(alpha: 0.9),
-            ),
-            const SizedBox(height: 24),
             Text(
               "Inkspacex",
               style: GoogleFonts.playfairDisplay(
-                fontSize: 28,
+                fontSize: 38,
                 fontWeight: FontWeight.bold,
                 color: textColor,
               ),
