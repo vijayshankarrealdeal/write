@@ -21,6 +21,7 @@ import 'package:inkspacex/provider/nav_provider.dart';
 import 'package:inkspacex/provider/notification_provider.dart';
 import 'package:inkspacex/provider/offline_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
+import 'package:inkspacex/provider/version_history_provider.dart';
 import 'package:inkspacex/router.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_client.dart';
@@ -267,6 +268,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         ),
         ChangeNotifierProvider(create: (_) => SettingsProvider(storage)),
         ChangeNotifierProvider(create: (_) => AnnotationProvider(storage)),
+        ChangeNotifierProvider(create: (_) => VersionHistoryProvider(storage)),
         ChangeNotifierProxyProvider<AuthProvider, FeedProvider>(
           create: (_) => FeedProvider(),
           update: (context, auth, previous) {

@@ -12,9 +12,11 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inkspacex/models/editor_annotation_model.dart';
 import 'package:inkspacex/models/section_model.dart';
+import 'package:inkspacex/models/section_version_model.dart';
 import 'package:inkspacex/provider/annotation_provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/provider/version_history_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/font_history.dart';
 import 'package:inkspacex/services/gemini_service.dart';
@@ -148,6 +150,12 @@ class _EditiorPageState extends State<EditiorPage>
   // Tracks the section the AnnotationProvider is currently loaded for so we
   // only reload when the active section actually changes.
   String? _annotationSectionId;
+  // Mirrors the same idea for the version-history provider, plus a Quill
+  // listener handle so we can detach when the page disposes or the section
+  // changes.
+  String? _versionSectionId;
+  VoidCallback? _docListener;
+  QuillController? _listenerAttachedTo;
   PaperTheme _paperTheme = PaperTheme.defaultTheme;
   int _sessionStartWords = 0;
   bool _sessionStarted = false;
@@ -270,6 +278,11 @@ class _EditiorPageState extends State<EditiorPage>
         state == AppLifecycleState.inactive ||
         state == AppLifecycleState.detached) {
       context.read<EditorProvider>().forceSaveImmediately();
+      // Capture a snapshot for the version history too — the user may
+      // not return, and an idle-timer snapshot won't fire if the app is
+      // suspended before the timer expires.
+      final controller = context.read<EditorProvider>().controller;
+      context.read<VersionHistoryProvider>().flush(controller);
     }
   }
 
@@ -396,6 +409,123 @@ class _EditiorPageState extends State<EditiorPage>
     );
   }
 
+  // ─── Version history ───
+  // Auto-snapshots ride on the document's `changes` listener: every keystroke
+  // resets a 30s idle timer in the provider; the snapshot fires once typing
+  // stops. Section switches load that section's history; app pause flushes.
+
+  void _syncVersionSection(SectionModel? section) {
+    final vh = context.read<VersionHistoryProvider>();
+    final controller = context.read<EditorProvider>().controller;
+    if (section == null) {
+      _detachDocListener();
+      if (_versionSectionId != null) {
+        _versionSectionId = null;
+        vh.clear();
+      }
+      return;
+    }
+    if (_versionSectionId == section.id &&
+        _listenerAttachedTo == controller) {
+      return;
+    }
+    _versionSectionId = section.id;
+    vh.loadForSection(section.id);
+    _attachDocListener(controller, vh);
+  }
+
+  void _attachDocListener(QuillController controller, VersionHistoryProvider vh) {
+    if (_listenerAttachedTo == controller && _docListener != null) return;
+    _detachDocListener();
+    void listener() {
+      vh.scheduleSnapshot(controller);
+    }
+    controller.addListener(listener);
+    _docListener = listener;
+    _listenerAttachedTo = controller;
+  }
+
+  void _detachDocListener() {
+    final l = _docListener;
+    final c = _listenerAttachedTo;
+    if (l != null && c != null) {
+      c.removeListener(l);
+    }
+    _docListener = null;
+    _listenerAttachedTo = null;
+  }
+
+  Future<void> _saveManualVersion() async {
+    final controller = context.read<EditorProvider>().controller;
+    final label = await showDialog<String>(
+      context: context,
+      builder: (ctx) => _VersionLabelDialog(
+        isDark: Theme.of(ctx).brightness == Brightness.dark,
+      ),
+    );
+    if (label == null || !mounted) return;
+    final v = await context
+        .read<VersionHistoryProvider>()
+        .captureManual(controller, label: label);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(v == null
+            ? 'No changes since last version.'
+            : 'Saved version "${label.isEmpty ? 'untitled' : label}".'),
+      ),
+    );
+  }
+
+  void _showVersionHistory() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (sheetCtx, scroll) => _VersionHistorySheet(
+          scrollController: scroll,
+          isDark: Theme.of(context).brightness == Brightness.dark,
+          onSaveCurrent: () async {
+            Navigator.pop(sheetCtx);
+            await _saveManualVersion();
+          },
+          onRestore: (v) async {
+            final ok = await showDialog<bool>(
+              context: sheetCtx,
+              builder: (dctx) => AlertDialog(
+                title: const Text('Restore this version?'),
+                content: const Text(
+                  'The current document will be saved as a new version first '
+                  'so this is reversible.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(dctx, false),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(dctx, true),
+                    child: const Text('Restore'),
+                  ),
+                ],
+              ),
+            );
+            if (ok != true || !mounted) return;
+            final controller = context.read<EditorProvider>().controller;
+            await context.read<VersionHistoryProvider>().restore(v, controller);
+            if (!mounted) return;
+            if (sheetCtx.mounted) Navigator.pop(sheetCtx);
+          },
+        ),
+      ),
+    );
+  }
+
   Future<void> _deleteAnnotation(EditorAnnotation a) async {
     final controller = context.read<EditorProvider>().controller;
     final text = controller.document.toPlainText();
@@ -438,6 +568,7 @@ class _EditiorPageState extends State<EditiorPage>
     WidgetsBinding.instance.removeObserver(this);
     _focusModeController.dispose();
     _slashMenu?.dispose();
+    _detachDocListener();
     super.dispose();
   }
 
@@ -1460,6 +1591,97 @@ class _EditiorPageState extends State<EditiorPage>
                             ],
                           ),
                         ),
+
+                        const SizedBox(height: 22),
+                        Text(
+                          'DOCUMENT',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: mutedColor,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            _showVersionHistory();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: surfaceColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(CupertinoIcons.clock,
+                                    size: 18, color: textColor),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Version history',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: textColor,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'Browse and restore earlier snapshots of this section',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 11.5,
+                                          color: mutedColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(CupertinoIcons.chevron_right,
+                                    size: 14, color: mutedColor),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            _saveManualVersion();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: surfaceColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(CupertinoIcons.bookmark,
+                                    size: 18, color: textColor),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Save current as named version',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -1546,10 +1768,12 @@ class _EditiorPageState extends State<EditiorPage>
     // context.select keeps this rebuild-cheap — only fires when id changes.
     final activeSection =
         context.select<EditorProvider, SectionModel?>((p) => p.activeSection);
-    if (activeSection?.id != _annotationSectionId) {
+    if (activeSection?.id != _annotationSectionId ||
+        activeSection?.id != _versionSectionId) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         _syncAnnotationSection(activeSection);
+        _syncVersionSection(activeSection);
       });
     }
 
@@ -6815,5 +7039,282 @@ class _AnnotationsPanel extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// ── Version label dialog ──
+class _VersionLabelDialog extends StatefulWidget {
+  const _VersionLabelDialog({required this.isDark});
+  final bool isDark;
+
+  @override
+  State<_VersionLabelDialog> createState() => _VersionLabelDialogState();
+}
+
+class _VersionLabelDialogState extends State<_VersionLabelDialog> {
+  final _ctrl = TextEditingController();
+  final _focus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _focus.requestFocus());
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = widget.isDark;
+    final fg = isDark ? Colors.white : const Color(0xFF1A1A1F);
+    final mutedFg = fg.withValues(alpha: 0.55);
+    final bg = isDark ? const Color(0xFF1F2126) : Colors.white;
+    final fieldBg = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.04);
+    return Dialog(
+      backgroundColor: bg,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 380),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Save version',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: fg,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Optional label, e.g. "draft 2" or "before rewrite".',
+                style: GoogleFonts.inter(fontSize: 12, color: mutedFg),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _ctrl,
+                focusNode: _focus,
+                style: GoogleFonts.inter(fontSize: 13, color: fg),
+                decoration: InputDecoration(
+                  hintText: 'Label (optional)',
+                  hintStyle: GoogleFonts.inter(fontSize: 13, color: mutedFg),
+                  filled: true,
+                  fillColor: fieldBg,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                onSubmitted: (v) => Navigator.pop(context, v),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Cancel',
+                        style:
+                            GoogleFonts.inter(fontSize: 13, color: mutedFg)),
+                  ),
+                  const SizedBox(width: 4),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context, _ctrl.text.trim()),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4A6CF7),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                    ),
+                    child: Text('Save',
+                        style: GoogleFonts.inter(
+                            fontSize: 13, fontWeight: FontWeight.w600)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Version history sheet ──
+class _VersionHistorySheet extends StatelessWidget {
+  const _VersionHistorySheet({
+    required this.scrollController,
+    required this.isDark,
+    required this.onSaveCurrent,
+    required this.onRestore,
+  });
+
+  final ScrollController scrollController;
+  final bool isDark;
+  final VoidCallback onSaveCurrent;
+  final void Function(SectionVersion) onRestore;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = isDark ? const Color(0xFF0C0C0C) : Colors.white;
+    final fg = isDark ? Colors.white : const Color(0xFF1A1A1F);
+    final mutedFg = fg.withValues(alpha: 0.55);
+    final divider = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.06);
+    final vh = context.watch<VersionHistoryProvider>();
+    final items = [...vh.versions]
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              margin: const EdgeInsets.only(top: 8, bottom: 12),
+              decoration: BoxDecoration(
+                color: fg.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 12, 12),
+            child: Row(
+              children: [
+                Icon(CupertinoIcons.clock, size: 18, color: fg),
+                const SizedBox(width: 10),
+                Text(
+                  'Version history',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: fg,
+                  ),
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: onSaveCurrent,
+                  icon: Icon(CupertinoIcons.bookmark,
+                      size: 14, color: fg.withValues(alpha: 0.85)),
+                  label: Text('Save current',
+                      style: GoogleFonts.inter(fontSize: 12, color: fg)),
+                ),
+              ],
+            ),
+          ),
+          Divider(color: divider, height: 1),
+          Expanded(
+            child: items.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Text(
+                        'No versions yet. Snapshots are auto-saved when you '
+                        'pause typing for ~30 seconds, or hit "Save current".',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 12.5,
+                          color: mutedFg,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    controller: scrollController,
+                    itemCount: items.length,
+                    separatorBuilder: (_, _) =>
+                        Divider(color: divider, height: 1),
+                    itemBuilder: (_, i) {
+                      final v = items[i];
+                      return _row(context, v, fg, mutedFg);
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _row(BuildContext context, SectionVersion v, Color fg, Color mutedFg) {
+    final stamp = _format(v.createdAt);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Row(
+        children: [
+          Icon(
+            v.manual ? CupertinoIcons.bookmark_fill : CupertinoIcons.clock,
+            size: 14,
+            color: v.manual ? const Color(0xFFFFC857) : mutedFg,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  v.label.isNotEmpty ? v.label : stamp,
+                  style: GoogleFonts.inter(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: fg,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${v.label.isNotEmpty ? '$stamp · ' : ''}${v.wordCount} word${v.wordCount == 1 ? '' : 's'}',
+                  style: GoogleFonts.inter(fontSize: 11.5, color: mutedFg),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () => onRestore(v),
+            child: Text('Restore',
+                style: GoogleFonts.inter(
+                    fontSize: 12, fontWeight: FontWeight.w600)),
+          ),
+          IconButton(
+            tooltip: 'Delete',
+            iconSize: 14,
+            color: mutedFg,
+            icon: const Icon(CupertinoIcons.trash),
+            onPressed: () =>
+                context.read<VersionHistoryProvider>().deleteVersion(v.id),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _format(DateTime t) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    final today = DateTime.now();
+    final isToday = t.year == today.year &&
+        t.month == today.month &&
+        t.day == today.day;
+    final time = '${two(t.hour)}:${two(t.minute)}';
+    if (isToday) return 'Today, $time';
+    return '${t.year}-${two(t.month)}-${two(t.day)} $time';
   }
 }

@@ -23,10 +23,18 @@ Working list for: comments/annotations, version history, offline spell-check.
 - [x] Annotations: Quill `BackgroundAttribute` paints a yellow tint on the anchored range — the marker auto-tracks edits via Quill's delta
 - [x] Annotations: section change detection via `context.select` reloads provider on switch
 
+- [x] Version history: `SectionVersion` model — full Quill Delta JSON snapshot + word count + manual flag + label
+- [x] Version history: Hive-backed per-section storage in `StorageService`
+- [x] Version history: `VersionHistoryProvider` with idle (30s) auto-snapshot, manual capture, retention prune (50 recent autos + 1/day for 30 days; manuals never expire)
+- [x] Version history: non-destructive `restore` — captures current state as a labeled "before-restore" snapshot before swapping
+- [x] Version history: provider registered in `main.dart`
+- [x] Version history: doc-change listener attached on section load triggers `scheduleSnapshot`; detached on dispose / section switch
+- [x] Version history: `flush` on app pause / inactive / detached so suspends don't lose the last snapshot
+- [x] Version history: settings sheet gains "Version history" + "Save current as named version" entries
+- [x] Version history: bottom-sheet `_VersionHistorySheet` lists snapshots, distinguishes manual vs auto, restore + delete + save-current
+
 ## What's in progress
 
-- [ ] Version history: snapshot model + storage + scheduler
-- [ ] Version history: editor sheet (list, preview, restore)
 - [ ] Spell-check: dictionary + suggestion engine in isolate
 - [ ] Spell-check: overlay underlines + suggestion menu in Quill
 
