@@ -2145,22 +2145,6 @@ class _EditiorPageState extends State<EditiorPage>
                           ),
                         ),
 
-                      // ── Focus Mode Word Counter ──
-                      if (_focusMode)
-                        Positioned(
-                          bottom: 18,
-                          left: 0,
-                          right: 0,
-                          child: FadeTransition(
-                            opacity: _focusModeAnimation,
-                            child: Center(
-                              child: _FocusWordCounter(
-                                isDark: isDark,
-                                sessionStart: _sessionStartWords,
-                              ),
-                            ),
-                          ),
-                        ),
                     ],
                   )
               : const Center(child: CupertinoActivityIndicator(radius: 14)),
@@ -2195,31 +2179,6 @@ class _EditiorPageState extends State<EditiorPage>
               Navigator.pop(context);
             },
           ),
-
-          // Sidebar toggle (desktop) / Sections sheet (mobile)
-          if (isMobile)
-            IconButton(
-              icon:
-                  Icon(CupertinoIcons.list_bullet, size: 19, color: textColor),
-              onPressed: () => _showSectionsSheet(
-                isDark: isDark,
-                textColor: textColor,
-                borderColor: borderColor,
-              ),
-            )
-          else
-            IconButton(
-              icon: Icon(
-                context.select<EditorProvider, bool>(
-                        (p) => p.showSectionsList)
-                    ? CupertinoIcons.sidebar_left
-                    : CupertinoIcons.sidebar_right,
-                size: 19,
-                color: textColor,
-              ),
-              onPressed: () =>
-                  context.read<EditorProvider>().toggleShowSections(),
-            ),
 
           const SizedBox(width: 4),
 
@@ -2457,6 +2416,19 @@ class _EditiorPageState extends State<EditiorPage>
             tooltip: 'Insert Image',
             color: textColor,
             onPressed: _insertImage,
+          ),
+
+          // Sections sidebar toggle — paired with the image insert so the
+          // top bar stays focused on title + status + new section.
+          _ToolbarIconButton(
+            icon: context.select<EditorProvider, bool>(
+                    (p) => p.showSectionsList)
+                ? CupertinoIcons.sidebar_left
+                : CupertinoIcons.sidebar_right,
+            tooltip: 'Toggle sections sidebar',
+            color: textColor,
+            onPressed: () =>
+                context.read<EditorProvider>().toggleShowSections(),
           ),
 
           Container(
@@ -2837,6 +2809,17 @@ class _EditiorPageState extends State<EditiorPage>
                   themedTextColor: themedTextColor,
                 ),
               ),
+              if (_focusMode)
+                Padding(
+                  padding: const EdgeInsets.only(top: 14),
+                  child: FadeTransition(
+                    opacity: _focusModeAnimation,
+                    child: _FocusWordCounter(
+                      isDark: isDark,
+                      sessionStart: _sessionStartWords,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
