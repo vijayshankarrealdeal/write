@@ -1438,6 +1438,12 @@ class _EditiorPageState extends State<EditiorPage>
                           ),
 
                           // ── Toolbar (only in Write mode) ──
+                          // Desktop keeps the unified toolbar at the top.
+                          // Mobile splits: secondary actions (image / AI /
+                          // prompt / outline / focus / settings) at the
+                          // top, formatting toolbar pinned to the bottom
+                          // above the keyboard so it doesn't compete with
+                          // the writing surface.
                           if (!_isCanvasMode && !_focusMode) ...[
                             if (!isMobile)
                               _buildDesktopToolbar(
@@ -1449,7 +1455,7 @@ class _EditiorPageState extends State<EditiorPage>
                                 surfaceColor: surfaceColor,
                               ),
                             if (isMobile)
-                              _buildMobileToolbar(
+                              _buildMobileTopActions(
                                 isDark: isDark,
                                 bgColor: bgColor,
                                 textColor: textColor,
@@ -1536,10 +1542,15 @@ class _EditiorPageState extends State<EditiorPage>
                                                         ),
                                                       ),
                                                     ),
-                                                  if (!_focusMode)
+                                                  // Side pill is desktop-only:
+                                                  // on mobile it covered the
+                                                  // writing surface, so those
+                                                  // actions live in the new
+                                                  // top-actions row instead.
+                                                  if (!_focusMode && !isMobile)
                                                     Positioned(
-                                                      top: isMobile ? 16 : 60,
-                                                      right: isMobile ? 8 : 28,
+                                                      top: 60,
+                                                      right: 28,
                                                       child: _SideActionsPill(
                                                         isDark: isDark,
                                                         outlineActive:
@@ -1565,6 +1576,17 @@ class _EditiorPageState extends State<EditiorPage>
                                     ],
                                   ),
                           ),
+
+                          // ── Mobile formatting toolbar (BOTTOM) ──
+                          // Anchored above the keyboard via Scaffold's
+                          // resizeToAvoidBottomInset (default true).
+                          if (isMobile && !_isCanvasMode && !_focusMode)
+                            _buildMobileToolbar(
+                              isDark: isDark,
+                              bgColor: bgColor,
+                              textColor: textColor,
+                              borderColor: borderColor,
+                            ),
 
                           // ── Status Bar ──
                           if (!_isCanvasMode && !_focusMode)
@@ -1955,13 +1977,37 @@ class _EditiorPageState extends State<EditiorPage>
     );
   }
 
-  // ─── Mobile Toolbar ───
+  // ─── Mobile bottom toolbar (formatting only) ───
+  // Pinned to the bottom of the body. Image / AI / prompt / outline /
+  // focus / settings live in `_buildMobileTopActions` so this row is
+  // pure text formatting — comfortable to thumb while typing.
   Widget _buildMobileToolbar({
     required bool isDark,
     required Color bgColor,
     required Color textColor,
     required Color borderColor,
   }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        border: Border(top: BorderSide(color: borderColor)),
+      ),
+      child: _buildQuillToolbar(isDark: isDark, textColor: textColor),
+    );
+  }
+
+  // ─── Mobile top secondary actions ───
+  // Sits between the top bar and the editor. Holds the actions that
+  // were previously duplicated in the side pill plus the image insert.
+  Widget _buildMobileTopActions({
+    required bool isDark,
+    required Color bgColor,
+    required Color textColor,
+    required Color borderColor,
+  }) {
+    final accentColor =
+        isDark ? const Color(0xFF93B4F5) : const Color(0xFF5B8DEF);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
@@ -1983,23 +2029,38 @@ class _EditiorPageState extends State<EditiorPage>
           Container(
             width: 1,
             height: 20,
-            margin: const EdgeInsets.symmetric(horizontal: 2),
+            margin: const EdgeInsets.symmetric(horizontal: 6),
             color: borderColor,
           ),
-          Expanded(
-            child: _buildQuillToolbar(isDark: isDark, textColor: textColor),
+          const Spacer(),
+          _ToolbarIconButton(
+            icon: CupertinoIcons.wand_stars,
+            tooltip: 'AI assist',
+            color: accentColor,
+            onPressed: _showAIPanel,
           ),
-          Container(
-            width: 1,
-            height: 20,
-            margin: const EdgeInsets.symmetric(horizontal: 2),
-            color: borderColor,
+          _ToolbarIconButton(
+            icon: CupertinoIcons.lightbulb,
+            tooltip: 'Writing prompt',
+            color: Colors.amber.withValues(alpha: 0.85),
+            onPressed: _showRandomPrompt,
           ),
-          // Writer Settings — Prompt / AI / Outline / Focus all live in
-          // the floating side pill so the row doesn't compete for space.
+          _ToolbarIconButton(
+            icon: CupertinoIcons.list_bullet_indent,
+            tooltip: _showOutline ? 'Hide outline' : 'Show outline',
+            color: _showOutline ? accentColor : textColor,
+            onPressed: () =>
+                setState(() => _showOutline = !_showOutline),
+          ),
+          _ToolbarIconButton(
+            icon: CupertinoIcons.eye_slash,
+            tooltip: 'Focus mode',
+            color: textColor,
+            onPressed: _toggleFocusMode,
+          ),
           _ToolbarIconButton(
             icon: CupertinoIcons.slider_horizontal_3,
-            tooltip: 'Settings',
+            tooltip: 'Writer settings',
             color: textColor,
             onPressed: _showWriterSettings,
           ),
