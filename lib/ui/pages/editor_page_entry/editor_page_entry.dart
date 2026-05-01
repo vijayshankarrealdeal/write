@@ -18,9 +18,12 @@ import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/provider/spell_check_provider.dart';
 import 'package:inkspacex/provider/version_history_provider.dart';
+import 'package:inkspacex/services/spell_check_decoration.dart';
 import 'package:inkspacex/services/spell_check_service.dart' as spellsvc;
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/gemini_service.dart';
+import 'package:inkspacex/web_utils_stub.dart'
+    if (dart.library.html) 'package:inkspacex/web_utils.dart' as web_utils;
 import 'package:inkspacex/ui/editor/command_palette.dart';
 import 'package:inkspacex/ui/editor/floating_format_bar.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
@@ -86,11 +89,13 @@ class _EditiorPageState extends State<EditiorPage>
   bool _showOutline = false;
   bool _showAnnotations = false;
   bool _findReplaceOpen = false;
+  void Function()? _removeFindShortcutSuppressor;
 
-  // ── AI Assist (inline result panel) ──
+  // ── AI Assist (on-canvas result panel) ──
   // Set after the user picks an action from the bottom-sheet [AIActionPicker].
-  // While set, the editor card swaps QuillEditor for an AIAssistPanel overlay
-  // running that action. Cleared by Apply / Decline / X / Try another.
+  // While set, the editor card swaps QuillEditor for an AIAssistPanel that
+  // renders the diff directly on the paper using editor typography.
+  // Cleared by Apply / Decline / X / Try another.
   _AIPanelData? _aiPanel;
 
   // Tracks the section the AnnotationProvider is currently loaded for so we
@@ -143,6 +148,7 @@ class _EditiorPageState extends State<EditiorPage>
       } catch (_) {}
     }
     HardwareKeyboard.instance.addHandler(_handleGlobalKey);
+    _removeFindShortcutSuppressor = web_utils.installFindShortcutSuppressor();
     _loadMargins();
   }
 
@@ -183,8 +189,16 @@ class _EditiorPageState extends State<EditiorPage>
     if (event is! KeyDownEvent) return false;
 
     if (event.logicalKey == LogicalKeyboardKey.escape) {
+      if (_aiPanel != null) {
+        _closeAIPanel();
+        return true;
+      }
       if (_findReplaceOpen) {
         setState(() => _findReplaceOpen = false);
+        return true;
+      }
+      if (_activePrompt != null) {
+        setState(() => _activePrompt = null);
         return true;
       }
       if (_focusMode) {
@@ -207,6 +221,19 @@ class _EditiorPageState extends State<EditiorPage>
       return true;
     }
     return false;
+  }
+
+  // Wraps a modal sheet/dialog body so Escape pops the route on desktop/web.
+  // Focus(autofocus) is required when the sheet has no text input — without
+  // it CallbackShortcuts has no focused descendant and never fires.
+  Widget _escapeDismiss(BuildContext sheetCtx, Widget child) {
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): () =>
+            Navigator.of(sheetCtx).pop(),
+      },
+      child: Focus(autofocus: true, child: child),
+    );
   }
 
   @override
@@ -463,20 +490,23 @@ class _EditiorPageState extends State<EditiorPage>
         minChildSize: 0.4,
         maxChildSize: 0.95,
         expand: false,
-        builder: (sheetCtx, scroll) => SpellCheckSheet(
-          scrollController: scroll,
-          isDark: Theme.of(context).brightness == Brightness.dark,
-          onJump: (m) {
-            final controller = context.read<EditorProvider>().controller;
-            controller.updateSelection(
-              TextSelection(
-                  baseOffset: m.start, extentOffset: m.start + m.length),
-              ChangeSource.local,
-            );
-          },
-          onReplace: _replaceMisspelling,
-          onIgnore: (m) =>
-              context.read<SpellCheckProvider>().ignoreWord(m.word),
+        builder: (sheetCtx, scroll) => _escapeDismiss(
+          sheetCtx,
+          SpellCheckSheet(
+            scrollController: scroll,
+            isDark: Theme.of(context).brightness == Brightness.dark,
+            onJump: (m) {
+              final controller = context.read<EditorProvider>().controller;
+              controller.updateSelection(
+                TextSelection(
+                    baseOffset: m.start, extentOffset: m.start + m.length),
+                ChangeSource.local,
+              );
+            },
+            onReplace: _replaceMisspelling,
+            onIgnore: (m) =>
+                context.read<SpellCheckProvider>().ignoreWord(m.word),
+          ),
         ),
       ),
     );
@@ -522,24 +552,13 @@ class _EditiorPageState extends State<EditiorPage>
             await _saveManualVersion();
           },
           onRestore: (v) async {
-            final ok = await showDialog<bool>(
-              context: sheetCtx,
-              builder: (dctx) => AlertDialog(
-                title: const Text('Restore this version?'),
-                content: const Text(
-                  'The current document will be saved as a new version first '
-                  'so this is reversible.',
+            final ok = await Navigator.of(sheetCtx).push<bool>(
+              MaterialPageRoute(
+                fullscreenDialog: true,
+                builder: (_) => VersionPreviewPage(
+                  version: v,
+                  isDark: Theme.of(context).brightness == Brightness.dark,
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(dctx, false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(dctx, true),
-                    child: const Text('Restore'),
-                  ),
-                ],
               ),
             );
             if (ok != true || !mounted) return;
@@ -592,6 +611,7 @@ class _EditiorPageState extends State<EditiorPage>
   @override
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_handleGlobalKey);
+    _removeFindShortcutSuppressor?.call();
     WidgetsBinding.instance.removeObserver(this);
     _focusModeController.dispose();
     _slashMenu?.dispose();
@@ -1412,7 +1432,9 @@ class _EditiorPageState extends State<EditiorPage>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => StatefulBuilder(
+      builder: (ctx) => _escapeDismiss(
+        ctx,
+        StatefulBuilder(
         builder: (ctx, setSheetState) => Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(ctx).viewInsets.bottom,
@@ -1813,6 +1835,7 @@ class _EditiorPageState extends State<EditiorPage>
           ),
         ),
       ),
+      ),
     );
   }
 
@@ -2073,6 +2096,8 @@ class _EditiorPageState extends State<EditiorPage>
                                                               () => setState(
                                                                   () => _showAnnotations =
                                                                       !_showAnnotations),
+                                                          onVersionHistory:
+                                                              _showVersionHistory,
                                                         ),
                                                       ),
                                                     ),
@@ -2148,9 +2173,23 @@ class _EditiorPageState extends State<EditiorPage>
                           right: 16,
                           child: FadeTransition(
                             opacity: _focusModeAnimation,
-                            child: FocusExitButton(
-                              isDark: isDark,
-                              onTap: _toggleFocusMode,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                FocusExitButton(
+                                  isDark: isDark,
+                                  onTap: _toggleFocusMode,
+                                ),
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.only(right: 4),
+                                  child: FocusWordCounter(
+                                    isDark: isDark,
+                                    sessionStart: _sessionStartWords,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -2819,17 +2858,6 @@ class _EditiorPageState extends State<EditiorPage>
                   themedTextColor: themedTextColor,
                 ),
               ),
-              if (_focusMode)
-                Padding(
-                  padding: const EdgeInsets.only(top: 14),
-                  child: FadeTransition(
-                    opacity: _focusModeAnimation,
-                    child: FocusWordCounter(
-                      isDark: isDark,
-                      sessionStart: _sessionStartWords,
-                    ),
-                  ),
-                ),
             ],
           ),
         ),
@@ -3018,42 +3046,35 @@ class _EditiorPageState extends State<EditiorPage>
                   ? const Color(0xFF141414)
                   : const Color(0xFFF5F5F7);
 
-              return Stack(
-                children: [
-                  // Editor stays mounted underneath so the user can still see
-                  // their text behind the AI panel. IgnorePointer blocks
-                  // accidental edits while AI is open.
-                  IgnorePointer(child: editor),
-                  Positioned.fill(
-                    child: AIAssistPanel(
-                      gemini: _gemini,
-                      action: panel.action,
-                      sourceDelta: panel.sourceDelta,
-                      plainText: panel.plainText,
-                      hasSelection: panel.hasSelection,
-                      isDark: isDark,
-                      textColor: themedTextColor,
-                      mutedColor: mutedColor,
-                      surfaceColor: surfaceColor,
-                      // Translucent so the document text shows through. Chips
-                      // and pair cards have their own opaque surfaces, so the
-                      // panel's chrome stays readable.
-                      backgroundColor:
-                          paperColor.withValues(alpha: 0.82),
-                      onApply: (mergedJson) {
-                        _applyMergedDelta(
-                          ctx.read<EditorProvider>().controller,
-                          mergedJson,
-                          panel.replaceIndex,
-                          panel.replaceLength,
-                          stripTrailingNewline:
-                              !panel.sourceEndsWithNewline,
-                        );
-                      },
-                      onClose: _closeAIPanel,
-                    ),
-                  ),
-                ],
+              // Render the panel directly on the editor canvas — same paper
+              // background, same horizontal padding as the QuillEditor, so
+              // the diff appears to live inside the document instead of on
+              // top of it.
+              return AIAssistPanel(
+                gemini: _gemini,
+                action: panel.action,
+                sourceDelta: panel.sourceDelta,
+                plainText: panel.plainText,
+                hasSelection: panel.hasSelection,
+                isDark: isDark,
+                textColor: themedTextColor,
+                mutedColor: mutedColor,
+                surfaceColor: surfaceColor,
+                backgroundColor: paperColor,
+                focusMode: _focusMode,
+                // Horizontal & top padding come from the page card around
+                // this widget; only add internal vertical breathing room.
+                contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                onApply: (mergedJson) {
+                  _applyMergedDelta(
+                    ctx.read<EditorProvider>().controller,
+                    mergedJson,
+                    panel.replaceIndex,
+                    panel.replaceLength,
+                    stripTrailingNewline: !panel.sourceEndsWithNewline,
+                  );
+                },
+                onClose: _closeAIPanel,
               );
             },
           ),
@@ -3079,6 +3100,9 @@ class _EditiorPageState extends State<EditiorPage>
       if (size != null && size > 0) {
         return TextStyle(fontSize: size);
       }
+    }
+    if (attr.key == kSpellCheckErrorKey && attr.value == true) {
+      return kSpellCheckErrorStyle;
     }
     return const TextStyle();
   }
@@ -3382,9 +3406,26 @@ class _EditiorPageState extends State<EditiorPage>
                 builder: (_, sp, _) {
                   if (!sp.enabled) return const SizedBox.shrink();
                   final issues = sp.issues.length;
-                  final color = issues == 0
-                      ? Colors.green.withValues(alpha: 0.55)
-                      : const Color(0xFFE26A4A).withValues(alpha: 0.85);
+                  // Until the first scan resolves we don't actually know
+                  // whether there are issues — show a neutral "Checking…"
+                  // chip rather than a misleading green "No issues".
+                  final pending = !sp.hasScanned;
+                  final Color color;
+                  final IconData icon;
+                  final String label;
+                  if (pending) {
+                    color = Colors.white.withValues(alpha: 0.45);
+                    icon = CupertinoIcons.arrow_2_circlepath;
+                    label = 'Checking…';
+                  } else if (issues == 0) {
+                    color = Colors.green.withValues(alpha: 0.55);
+                    icon = CupertinoIcons.checkmark_seal;
+                    label = 'No issues';
+                  } else {
+                    color = const Color(0xFFE26A4A).withValues(alpha: 0.85);
+                    icon = CupertinoIcons.exclamationmark_circle;
+                    label = '$issues issue${issues == 1 ? '' : 's'}';
+                  }
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: InkWell(
@@ -3393,18 +3434,10 @@ class _EditiorPageState extends State<EditiorPage>
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            issues == 0
-                                ? CupertinoIcons.checkmark_seal
-                                : CupertinoIcons.exclamationmark_circle,
-                            size: 11,
-                            color: color,
-                          ),
+                          Icon(icon, size: 11, color: color),
                           const SizedBox(width: 4),
                           Text(
-                            issues == 0
-                                ? 'No issues'
-                                : '$issues issue${issues == 1 ? '' : 's'}',
+                            label,
                             style: GoogleFonts.inter(
                               fontSize: 11,
                               color: color,
@@ -3701,7 +3734,9 @@ class _EditiorPageState extends State<EditiorPage>
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
-        return SafeArea(
+        return _escapeDismiss(
+          ctx,
+          SafeArea(
           child: AnimatedBuilder(
             animation: provider,
             builder: (ctx, _) {
@@ -3783,6 +3818,7 @@ class _EditiorPageState extends State<EditiorPage>
               );
             },
           ),
+          ),
         );
       },
     );
@@ -3802,7 +3838,9 @@ class _EditiorPageState extends State<EditiorPage>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => DraggableScrollableSheet(
+      builder: (ctx) => _escapeDismiss(
+        ctx,
+        DraggableScrollableSheet(
         initialChildSize: 0.55,
         minChildSize: 0.3,
         maxChildSize: 0.85,
@@ -3853,6 +3891,7 @@ class _EditiorPageState extends State<EditiorPage>
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -3866,7 +3905,12 @@ class _EditiorPageState extends State<EditiorPage>
 
     showCupertinoDialog(
       context: context,
-      builder: (ctx) => CupertinoAlertDialog(
+      builder: (ctx) => CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.escape): () =>
+              Navigator.of(ctx).pop(),
+        },
+        child: CupertinoAlertDialog(
         title: Text(title),
         content: Padding(
           padding: const EdgeInsets.only(top: 12),
@@ -3881,6 +3925,10 @@ class _EditiorPageState extends State<EditiorPage>
                   : Colors.black.withValues(alpha: 0.04),
               borderRadius: BorderRadius.circular(10),
             ),
+            onSubmitted: (v) {
+              if (v.trim().isNotEmpty) onSave(v.trim());
+              Navigator.pop(ctx);
+            },
           ),
         ),
         actions: [
@@ -3898,6 +3946,7 @@ class _EditiorPageState extends State<EditiorPage>
             child: const Text('Save'),
           ),
         ],
+      ),
       ),
     );
   }

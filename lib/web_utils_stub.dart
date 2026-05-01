@@ -10,6 +10,8 @@ void listenForUpdates() {
 
 String? consumeGoogleErrorFromUrl() => null;
 
+void Function() installFindShortcutSuppressor() => () {};
+
 void redirectToGoogleSignIn(String apiBaseUrl) {
   throw UnsupportedError('redirectToGoogleSignIn is web-only');
 }

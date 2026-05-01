@@ -107,21 +107,23 @@ class FeedProvider extends ChangeNotifier {
 
   /// Feed items grouped by same author + same cover image.
   /// Merges sections from duplicate entries into one combined item.
-  List<FeedItemModel> get groupedItems {
-    if (_items.isEmpty) return _items;
+  List<FeedItemModel> get groupedItems => _groupByWork(_items);
+
+  /// Group by authorId + imageUrl (same author + same cover = same work).
+  /// Items without a cover image are never grouped.
+  static List<FeedItemModel> _groupByWork(List<FeedItemModel> items) {
+    if (items.isEmpty) return items;
 
     final Map<String, FeedItemModel> byKey = {};
     final List<String> order = [];
 
-    for (final item in _items) {
-      // Group by authorId + imageUrl (same author + same cover = same work)
+    for (final item in items) {
       final key = item.imageUrl.isNotEmpty
           ? '${item.authorId}|${item.imageUrl}'
-          : item.id; // never group items without a cover image
+          : item.id;
 
       if (byKey.containsKey(key)) {
         final existing = byKey[key]!;
-        // Merge sections (deduplicate by section id)
         final existingIds = existing.sections.map((s) => s.id).toSet();
         final newSections = item.sections
             .where((s) => !existingIds.contains(s.id))
@@ -238,7 +240,9 @@ class FeedProvider extends ChangeNotifier {
     if (_readingProgress.isEmpty || _items.isEmpty) return [];
     final progressIds =
         _readingProgress.where((p) => !p.completed).map((p) => p.feedItemId).toSet();
-    return _items.where((item) => progressIds.contains(item.id)).toList();
+    final matching =
+        _items.where((item) => progressIds.contains(item.id)).toList();
+    return _groupByWork(matching);
   }
 
   /// Silent background refresh: probe the server for items newer than

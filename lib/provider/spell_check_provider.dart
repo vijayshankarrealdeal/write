@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/flutter_quill.dart' show QuillController;
 
+import 'package:inkspacex/services/spell_check_decoration.dart';
 import 'package:inkspacex/services/spell_check_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 
@@ -23,16 +24,25 @@ class SpellCheckProvider extends ChangeNotifier {
   bool _enabled = true;
   List<Misspelling> _issues = const [];
   bool _scanning = false;
+  // Flips true after the first scan resolves for the currently attached
+  // controller. The status chip uses it to show "Checking…" on entry
+  // instead of falsely flashing "No issues" before results arrive.
+  bool _hasScanned = false;
   Timer? _debounceTimer;
   QuillController? _attached;
   VoidCallback? _listener;
   // Personal dictionary — words the user explicitly accepted. Skipped on
   // the next scan. Persisted per user, not per section.
   Set<String> _ignored = <String>{};
+  // The plain text of the last network scan. The controller listener
+  // fires on every document change — including the silent decoration
+  // composes we issue ourselves — so we gate work on real text changes.
+  String _lastScannedText = '';
 
   bool get enabled => _enabled;
   List<Misspelling> get issues => List.unmodifiable(_issues);
   bool get scanning => _scanning;
+  bool get hasScanned => _hasScanned;
   Set<String> get ignored => Set.unmodifiable(_ignored);
 
   Future<void> setEnabled(bool v) async {
@@ -42,7 +52,10 @@ class SpellCheckProvider extends ChangeNotifier {
     if (!v) {
       _issues = const [];
       _debounceTimer?.cancel();
+      final c = _attached;
+      if (c != null) applySpellCheckErrors(c, const []);
     } else if (_attached != null) {
+      _lastScannedText = '';
       _scheduleScan(_attached!);
     }
     notifyListeners();
@@ -56,10 +69,15 @@ class SpellCheckProvider extends ChangeNotifier {
     detach();
     _attached = controller;
     _ignored = _storage.getSpellCheckIgnored().toSet();
+    _lastScannedText = '';
+    _hasScanned = false;
     void listener() => _scheduleScan(controller);
     _listener = listener;
     controller.addListener(listener);
-    if (_enabled) _scheduleScan(controller);
+    // Run the first scan immediately rather than waiting on the typing
+    // debounce — the user just opened the section and expects underlines
+    // (and a real "Checking…/N issues" status) without an 800ms delay.
+    if (_enabled) unawaited(_runScan(controller));
   }
 
   void detach() {
@@ -70,6 +88,8 @@ class SpellCheckProvider extends ChangeNotifier {
     _listener = null;
     _debounceTimer?.cancel();
     _issues = const [];
+    _lastScannedText = '';
+    _hasScanned = false;
     notifyListeners();
   }
 
@@ -85,11 +105,17 @@ class SpellCheckProvider extends ChangeNotifier {
     await _storage.saveSpellCheckIgnored(_ignored.toList());
     _issues =
         _issues.where((i) => i.word.toLowerCase() != lower).toList();
+    final c = _attached;
+    if (c != null) applySpellCheckErrors(c, _issues);
     notifyListeners();
   }
 
   void _scheduleScan(QuillController controller) {
     if (!_enabled) return;
+    // Skip when the document text is unchanged. Quill emits change
+    // notifications for our own decoration composes too; without this
+    // guard each apply would queue another scan in a loop.
+    if (controller.document.toPlainText() == _lastScannedText) return;
     _debounceTimer?.cancel();
     _debounceTimer = Timer(_debounce, () => _runScan(controller));
   }
@@ -102,7 +128,10 @@ class SpellCheckProvider extends ChangeNotifier {
     if (_attached != controller) return;
     // Server already filters out the ignored personal-dictionary words.
     _issues = raw;
+    _lastScannedText = text;
     _scanning = false;
+    _hasScanned = true;
+    applySpellCheckErrors(controller, _issues);
     notifyListeners();
   }
 

@@ -14,6 +14,7 @@ class SideActionsPill extends StatelessWidget {
     required this.onToggleOutline,
     required this.onToggleFocus,
     required this.onToggleAnnotations,
+    required this.onVersionHistory,
   });
 
   final bool isDark;
@@ -26,6 +27,7 @@ class SideActionsPill extends StatelessWidget {
   final VoidCallback onToggleOutline;
   final VoidCallback onToggleFocus;
   final VoidCallback onToggleAnnotations;
+  final VoidCallback onVersionHistory;
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +95,13 @@ class SideActionsPill extends StatelessWidget {
             active: annotationsActive,
             badgeCount: annotationCount,
             onTap: onToggleAnnotations,
+          ),
+          _SidePillButton(
+            icon: CupertinoIcons.clock,
+            tooltip: 'Version history',
+            color: fg,
+            activeBg: activeBg,
+            onTap: onVersionHistory,
           ),
           _SidePillButton(
             icon: CupertinoIcons.eye_slash,

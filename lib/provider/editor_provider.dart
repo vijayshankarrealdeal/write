@@ -13,6 +13,7 @@ import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
+import 'package:inkspacex/services/spell_check_decoration.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/services/sync/merge_log.dart';
 import 'package:inkspacex/services/sync/outbox.dart';
@@ -989,6 +990,9 @@ class EditorProvider extends ChangeNotifier {
     _needsFirestoreSync = false;
     _docSubscription?.cancel();
     _docSubscription = controller.document.changes.listen((event) {
+      // Decoration-only mutations (spell-check underlines) compose with
+      // ChangeSource.silent. They must not flip the typing/save state.
+      if (event.source == ChangeSource.silent) return;
       _onUserTyped();
     });
     _startPeriodicSync();
@@ -1113,8 +1117,8 @@ class EditorProvider extends ChangeNotifier {
   }
 
   String dumpData() {
-    final deltaJson = controller.document.toDelta().toJson();
-    return jsonEncode(deltaJson);
+    final clean = stripSpellCheckErrors(controller.document.toDelta());
+    return jsonEncode(clean.toJson());
   }
 
   /// Save canvas data for the active section and trigger sync.

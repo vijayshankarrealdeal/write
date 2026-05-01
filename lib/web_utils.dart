@@ -70,6 +70,23 @@ Map<String, String> _parseFragmentParams(String hash) {
   return out;
 }
 
+/// Suppress the browser's Cmd/Ctrl+F shortcut so the in-app Find bar can
+/// claim it without the native find widget also opening. Returns a remover
+/// the caller must invoke on dispose.
+void Function() installFindShortcutSuppressor() {
+  void handle(web.Event event) {
+    final ke = event as web.KeyboardEvent;
+    if (!(ke.metaKey || ke.ctrlKey)) return;
+    if (ke.key.toLowerCase() == 'f') {
+      ke.preventDefault();
+    }
+  }
+
+  final jsHandler = handle.toJS;
+  web.window.addEventListener('keydown', jsHandler);
+  return () => web.window.removeEventListener('keydown', jsHandler);
+}
+
 /// Redirects the browser to the backend's Google OAuth start endpoint.
 /// The page navigates away — any code after this call won't run.
 void redirectToGoogleSignIn(String apiBaseUrl) {

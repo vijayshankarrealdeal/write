@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CommentComposeDialog extends StatefulWidget {
@@ -45,7 +46,12 @@ class _CommentComposeDialogState extends State<CommentComposeDialog> {
         ? '${widget.anchoredText.substring(0, 140)}…'
         : widget.anchoredText;
 
-    return Dialog(
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): () =>
+            Navigator.of(context).pop(),
+      },
+      child: Dialog(
       backgroundColor: bg,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ConstrainedBox(
@@ -143,6 +149,7 @@ class _CommentComposeDialogState extends State<CommentComposeDialog> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

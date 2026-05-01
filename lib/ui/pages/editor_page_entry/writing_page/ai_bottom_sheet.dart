@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:inkspacex/services/gemini_service.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
@@ -70,21 +72,58 @@ List<String> _tokenize(String text) {
   return tokens;
 }
 
-// ─── Block label helpers ───
+/// One renderable segment of a paragraph diff. Either an [equalText] run
+/// that's identical between original and edited, or an [_Edit] that pairs a
+/// (possibly null) removed run with a (possibly null) added run. Edits are
+/// the user's tap targets — accepting/rejecting toggles between using the
+/// added text or the removed text.
+class _Segment {
+  final String? equalText;
+  final String? removed;
+  final String? added;
 
-String? _blockLabel(Map<String, dynamic> blockAttrs) {
-  if (blockAttrs.containsKey('header')) {
-    final v = blockAttrs['header'];
-    if (v is int) return 'H$v';
-  }
-  if (blockAttrs['blockquote'] == true) return 'Quote';
-  if (blockAttrs['code-block'] == true) return 'Code';
-  final list = blockAttrs['list'];
-  if (list == 'ordered') return '1. List';
-  if (list == 'bullet') return '• List';
-  if (list == 'checked' || list == 'unchecked') return '☐ List';
-  return null;
+  const _Segment.equal(String text)
+      : equalText = text,
+        removed = null,
+        added = null;
+
+  const _Segment.edit({this.removed, this.added}) : equalText = null;
+
+  bool get isEdit => equalText == null;
 }
+
+/// Group flat diff spans into [_Segment]s. Consecutive (removed, added)
+/// pairs become a single edit so the UI treats "X → Y" as one tap target
+/// instead of two.
+List<_Segment> _groupSegments(List<_DiffSpan> spans) {
+  final out = <_Segment>[];
+  int i = 0;
+  while (i < spans.length) {
+    final s = spans[i];
+    if (s.type == _DiffType.equal) {
+      out.add(_Segment.equal(s.text));
+      i++;
+      continue;
+    }
+    String? removed;
+    String? added;
+    if (s.type == _DiffType.removed) {
+      removed = s.text;
+      i++;
+      if (i < spans.length && spans[i].type == _DiffType.added) {
+        added = spans[i].text;
+        i++;
+      }
+    } else {
+      added = s.text;
+      i++;
+    }
+    out.add(_Segment.edit(removed: removed, added: added));
+  }
+  return out;
+}
+
+// ─── Block style helpers ───
 
 Color? _parseColor(dynamic v) {
   if (v is! String) return null;
@@ -245,7 +284,14 @@ class AIActionPicker extends StatelessWidget {
     final accentColor =
         isDark ? const Color(0xFF93B4F5) : const Color(0xFF5B8DEF);
 
-    return Container(
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): () =>
+            Navigator.of(context).pop(),
+      },
+      child: Focus(
+        autofocus: true,
+        child: Container(
       color: backgroundColor,
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
@@ -320,6 +366,8 @@ class AIActionPicker extends StatelessWidget {
           ],
         ),
       ),
+        ),
+      ),
     );
   }
 }
@@ -378,7 +426,7 @@ class _PickerChip extends StatelessWidget {
   }
 }
 
-// ─── AI Assist Panel (inline) ───
+// ─── AI Assist Panel (on-canvas) ───
 
 enum _AIMode { transform, feedback }
 
@@ -388,6 +436,21 @@ class _Pair {
   final DeltaParagraph? original;
   final DeltaParagraph? edited;
   const _Pair(this.original, this.edited);
+}
+
+/// Resolved typography + container styling for one block, mirroring the
+/// QuillEditor's `customStyles` so the panel renders look like the editor.
+class _BlockStyle {
+  final TextStyle textStyle;
+  final EdgeInsets padding;
+  final BoxDecoration? decoration;
+  final EdgeInsets innerPadding;
+  const _BlockStyle({
+    required this.textStyle,
+    required this.padding,
+    this.decoration,
+    this.innerPadding = EdgeInsets.zero,
+  });
 }
 
 class AIAssistPanel extends StatefulWidget {
@@ -411,8 +474,18 @@ class AIAssistPanel extends StatefulWidget {
   final Color mutedColor;
   final Color surfaceColor;
 
-  /// Background of the panel itself (matches the editor card's paper color).
+  /// Paper color of the editor — the panel uses this as its own background so
+  /// the diff appears to live directly on the editor canvas.
   final Color backgroundColor;
+
+  /// When true, paragraph typography uses the larger focus-mode size (matches
+  /// the QuillEditor's behavior so the on-canvas diff doesn't reflow visually).
+  final bool focusMode;
+
+  /// Horizontal padding to apply around the diff content. Mirrors the editor
+  /// card's left/right padding so paragraph wraps line up with what the user
+  /// will see post-Apply.
+  final EdgeInsets contentPadding;
 
   /// Called with the merged Delta ops the caller should apply to the document.
   final ValueChanged<List<dynamic>> onApply;
@@ -432,6 +505,8 @@ class AIAssistPanel extends StatefulWidget {
     required this.mutedColor,
     required this.surfaceColor,
     required this.backgroundColor,
+    required this.focusMode,
+    required this.contentPadding,
     required this.onApply,
     required this.onClose,
   });
@@ -468,8 +543,11 @@ class _AIAssistPanelState extends State<AIAssistPanel> {
   // Transform results
   DeltaEditResult? _editResult;
   List<_Pair> _pairs = const [];
-  // Per-pair toggle: true = use edited, false = keep original.
-  List<bool> _accept = const [];
+  // Segments and per-edit accept flags, parallel to _pairs.
+  // _pairSegments[i] is the diff segments of pair i.
+  // _editAccepts[i] is one bool per edit segment in that pair (true = accept).
+  List<List<_Segment>> _pairSegments = const [];
+  List<List<bool>> _editAccepts = const [];
 
   // Feedback (advice) result
   String? _feedbackText;
@@ -480,7 +558,8 @@ class _AIAssistPanelState extends State<AIAssistPanel> {
       _error = null;
       _editResult = null;
       _pairs = const [];
-      _accept = const [];
+      _pairSegments = const [];
+      _editAccepts = const [];
       _feedbackText = null;
       _mode = _AIMode.transform;
     });
@@ -489,10 +568,19 @@ class _AIAssistPanelState extends State<AIAssistPanel> {
           await widget.gemini.textEditDelta(actionId, widget.sourceDelta);
       if (!mounted) return;
       final pairs = _buildPairs(result);
+      final segments = pairs
+          .map((p) =>
+              _groupSegments(_computeWordDiff(p.original?.text ?? '', p.edited?.text ?? '')))
+          .toList(growable: false);
+      final accepts = segments
+          .map((segs) =>
+              List<bool>.filled(segs.where((s) => s.isEdit).length, true))
+          .toList(growable: false);
       setState(() {
         _editResult = result;
         _pairs = pairs;
-        _accept = List<bool>.filled(pairs.length, true);
+        _pairSegments = segments;
+        _editAccepts = accepts;
       });
     } catch (e) {
       if (mounted) {
@@ -501,6 +589,12 @@ class _AIAssistPanelState extends State<AIAssistPanel> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  void _toggleEdit(int pairIdx, int editIdx) {
+    setState(() {
+      _editAccepts[pairIdx][editIdx] = !_editAccepts[pairIdx][editIdx];
+    });
   }
 
   Future<void> _runFeedback(String actionId) async {
@@ -548,32 +642,56 @@ class _AIAssistPanelState extends State<AIAssistPanel> {
     });
   }
 
-  /// Build the final Delta ops from per-pair selections. Emits one op per
-  /// run so per-word formatting (font/bold/color) survives intact.
+  /// Build the final Delta ops from per-edit selections. When every edit in a
+  /// paragraph is accepted (or rejected), emit the source paragraph verbatim
+  /// so per-run formatting (font/bold/color) survives intact. For mixed
+  /// paragraphs we have to compose plain text from segments and attach only
+  /// the paragraph's block attributes — per-word inline formatting is lost.
   List<dynamic> _composeMergedDelta() {
     final ops = <Map<String, dynamic>>[];
     for (var i = 0; i < _pairs.length; i++) {
       final pair = _pairs[i];
-      final useEdited = _accept[i];
-      final chosen = useEdited ? pair.edited : pair.original;
-      if (chosen == null) continue;
+      final accepts = _editAccepts[i];
+      final segs = _pairSegments[i];
 
-      if (chosen.runs.isNotEmpty) {
-        for (final run in chosen.runs) {
-          if (run.text.isEmpty) continue;
-          final op = <String, dynamic>{'insert': run.text};
-          if (run.attrs.isNotEmpty) {
-            op['attributes'] = Map<String, dynamic>.from(run.attrs);
-          }
-          ops.add(op);
-        }
-      } else if (chosen.text.isNotEmpty) {
-        ops.add({'insert': chosen.text});
+      final allAccepted = accepts.every((a) => a);
+      final allRejected = accepts.every((a) => !a);
+
+      if (allAccepted) {
+        if (pair.edited != null) _emitParagraph(ops, pair.edited!);
+        // Pure-add paragraph + accepted: already emitted.
+        // Pure-remove paragraph + accepted: skip — nothing to emit.
+        continue;
+      }
+      if (allRejected) {
+        if (pair.original != null) _emitParagraph(ops, pair.original!);
+        // Pure-add rejected: skip. Pure-remove rejected: original emitted.
+        continue;
       }
 
+      // Mixed: compose plain text by walking segments. Inline runs lost.
+      final buf = StringBuffer();
+      int editIdx = 0;
+      for (final seg in segs) {
+        if (!seg.isEdit) {
+          buf.write(seg.equalText);
+          continue;
+        }
+        final accepted = accepts[editIdx++];
+        if (accepted) {
+          if (seg.added != null) buf.write(seg.added);
+        } else {
+          if (seg.removed != null) buf.write(seg.removed);
+        }
+      }
+      final text = buf.toString();
+      if (text.isNotEmpty) ops.add({'insert': text});
+
+      final blockAttrs =
+          (pair.edited ?? pair.original)?.blockAttrs ?? const {};
       final nl = <String, dynamic>{'insert': '\n'};
-      if (chosen.blockAttrs.isNotEmpty) {
-        nl['attributes'] = Map<String, dynamic>.from(chosen.blockAttrs);
+      if (blockAttrs.isNotEmpty) {
+        nl['attributes'] = Map<String, dynamic>.from(blockAttrs);
       }
       ops.add(nl);
     }
@@ -581,289 +699,297 @@ class _AIAssistPanelState extends State<AIAssistPanel> {
     return ops;
   }
 
+  void _emitParagraph(List<Map<String, dynamic>> ops, DeltaParagraph p) {
+    if (p.runs.isNotEmpty) {
+      for (final run in p.runs) {
+        if (run.text.isEmpty) continue;
+        final op = <String, dynamic>{'insert': run.text};
+        if (run.attrs.isNotEmpty) {
+          op['attributes'] = Map<String, dynamic>.from(run.attrs);
+        }
+        ops.add(op);
+      }
+    } else if (p.text.isNotEmpty) {
+      ops.add({'insert': p.text});
+    }
+    final nl = <String, dynamic>{'insert': '\n'};
+    if (p.blockAttrs.isNotEmpty) {
+      nl['attributes'] = Map<String, dynamic>.from(p.blockAttrs);
+    }
+    ops.add(nl);
+  }
+
+  // Colors used by the inline diff and floating action bar. Picked once per
+  // build instead of recomputed inside every block widget.
+  Color get _addedColor =>
+      widget.isDark ? const Color(0xFF6BCB77) : const Color(0xFF28A745);
+  Color get _removedColor =>
+      widget.isDark ? const Color(0xFFFF6B6B) : const Color(0xFFDC3545);
+  Color get _addedBg =>
+      const Color(0xFF28A745).withValues(alpha: widget.isDark ? 0.18 : 0.12);
+  Color get _removedBg =>
+      const Color(0xFFDC3545).withValues(alpha: widget.isDark ? 0.18 : 0.12);
+
   @override
   Widget build(BuildContext context) {
-    final accentColor = widget.isDark
-        ? const Color(0xFF93B4F5)
-        : const Color(0xFF5B8DEF);
-
-    return Container(
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): widget.onClose,
+      },
+      child: Focus(
+        autofocus: true,
+        child: Container(
       color: widget.backgroundColor,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _header(accentColor),
-            const SizedBox(height: 4),
-            Text(
-              widget.hasSelection
-                  ? 'Working with selected text'
-                  : 'Working with full document',
-              style: GoogleFonts.inter(
-                  fontSize: 12, color: widget.mutedColor),
-            ),
-            const SizedBox(height: 16),
-            if (_loading) ...[
-              const SizedBox(height: 20),
-              Row(
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                widget.contentPadding.left,
+                widget.contentPadding.top,
+                widget.contentPadding.right,
+                // Reserve space below the diff so the floating action bar
+                // never covers the last paragraph.
+                widget.contentPadding.bottom + 96,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const AppSpinner(size: 16),
-                  const SizedBox(width: 10),
-                  Text(
-                    '${widget.action.label}...',
-                    style: GoogleFonts.inter(
-                        fontSize: 13, color: widget.mutedColor),
-                  ),
+                  _topBreadcrumb(),
+                  const SizedBox(height: 8),
+                  if (_loading) _loadingRow(),
+                  if (_error != null) ...[
+                    const SizedBox(height: 16),
+                    _errorBanner(_error!),
+                  ],
+                  if (_editResult != null &&
+                      !_loading &&
+                      _mode == _AIMode.transform)
+                    ..._diffBlocks(),
+                  if (_feedbackText != null &&
+                      !_loading &&
+                      _mode == _AIMode.feedback)
+                    _feedbackBlock(_feedbackText!),
                 ],
               ),
-            ],
-            if (_error != null) ...[
-              const SizedBox(height: 16),
-              _errorBanner(_error!),
-            ],
-            if (_editResult != null &&
-                !_loading &&
-                _mode == _AIMode.transform) ...[
-              _diffLegend(),
-              const SizedBox(height: 12),
-              ..._pairCards(),
-              const SizedBox(height: 16),
-              _applyRow(),
-            ],
-            if (_feedbackText != null &&
-                !_loading &&
-                _mode == _AIMode.feedback) ...[
-              _feedbackCard(_feedbackText!),
-              const SizedBox(height: 16),
-              _tryAnotherButton(),
-            ],
-          ],
+            ),
+          ),
+          // Floating action bar — sits over the canvas like the editor's
+          // other floating chrome (format bar, side actions pill).
+          if (!_loading && (_editResult != null || _feedbackText != null))
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 24,
+              child: Center(child: _floatingActionBar()),
+            ),
+        ],
+      ),
         ),
       ),
     );
   }
 
-  Widget _header(Color accentColor) {
+  // ─── Top breadcrumb (minimal header) ───
+
+  Widget _topBreadcrumb() {
+    final accentColor = widget.isDark
+        ? const Color(0xFF93B4F5)
+        : const Color(0xFF5B8DEF);
     return Row(
       children: [
-        Icon(CupertinoIcons.wand_stars, size: 20, color: accentColor),
-        const SizedBox(width: 10),
-        Text(
-          'AI Assist',
-          style: GoogleFonts.inter(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: widget.textColor,
+        Icon(CupertinoIcons.wand_stars, size: 14, color: accentColor),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            '${widget.action.label} • ${widget.hasSelection ? 'Selection' : 'Document'}',
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: widget.mutedColor,
+              letterSpacing: 0.4,
+            ),
           ),
         ),
         const Spacer(),
-        if ((_editResult != null || _feedbackText != null) && !_loading) ...[
-          GestureDetector(
-            onTap: widget.onClose,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(CupertinoIcons.arrow_left,
-                    size: 14, color: widget.mutedColor),
-                const SizedBox(width: 4),
-                Text(
-                  'Try another',
-                  style: GoogleFonts.inter(
-                      fontSize: 12, color: widget.mutedColor),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-        ],
         GestureDetector(
           onTap: widget.onClose,
           child: Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: widget.textColor.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Icon(CupertinoIcons.xmark,
-                size: 14, color: widget.mutedColor),
+                size: 12, color: widget.mutedColor),
           ),
         ),
       ],
     );
   }
 
-  Widget _diffLegend() {
-    return Row(
-      children: [
-        _legendDot(const Color(0xFFDC3545), 'Removed'),
-        const SizedBox(width: 16),
-        _legendDot(const Color(0xFF28A745), 'Added'),
-        const Spacer(),
-        Text(
-          '${_accept.where((b) => b).length}/${_pairs.length} accepted',
-          style: GoogleFonts.inter(fontSize: 11, color: widget.mutedColor),
-        ),
-      ],
-    );
-  }
-
-  Widget _legendDot(Color color, String label) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.18),
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 6),
-        Text(label,
+  Widget _loadingRow() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: Row(
+        children: [
+          const AppSpinner(size: 16),
+          const SizedBox(width: 10),
+          Text(
+            '${widget.action.label}...',
             style: GoogleFonts.inter(
-                fontSize: 11, color: widget.mutedColor)),
-      ],
+                fontSize: 13, color: widget.mutedColor),
+          ),
+        ],
+      ),
     );
   }
 
-  List<Widget> _pairCards() {
+  // ─── Inline diff blocks (rendered as if part of the editor) ───
+
+  List<Widget> _diffBlocks() {
     return List.generate(_pairs.length, (i) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: _PairCard(
-          index: i,
-          pair: _pairs[i],
-          accepted: _accept[i],
-          isDark: widget.isDark,
-          textColor: widget.textColor,
-          mutedColor: widget.mutedColor,
-          surfaceColor: widget.surfaceColor,
-          onToggle: (v) => setState(() => _accept[i] = v),
-        ),
+      // ValueKey on (pairIdx, edit count) so a fresh _DiffBlock state is
+      // created when the user runs a new transform (segments may differ).
+      final segs = _pairSegments[i];
+      final editCount = _editAccepts[i].length;
+      return _DiffBlock(
+        key: ValueKey('aipair-$i-$editCount'),
+        pair: _pairs[i],
+        segments: segs,
+        accepts: _editAccepts[i],
+        onToggleEdit: (editIdx) => _toggleEdit(i, editIdx),
+        textColor: widget.textColor,
+        mutedColor: widget.mutedColor,
+        isDark: widget.isDark,
+        focusMode: widget.focusMode,
+        addedColor: _addedColor,
+        removedColor: _removedColor,
+        addedBg: _addedBg,
+        removedBg: _removedBg,
       );
     });
   }
 
-  Widget _applyRow() {
-    final hasAcceptedEdit = () {
-      for (var i = 0; i < _pairs.length; i++) {
-        if (_accept[i] && _pairs[i].edited != null) return true;
-      }
-      return false;
-    }();
-    return Row(
-      children: [
-        Expanded(
-          child: CupertinoButton(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            color: const Color(0xFF28A745),
-            borderRadius: BorderRadius.circular(10),
-            onPressed: hasAcceptedEdit
-                ? () {
-                    widget.onApply(_composeMergedDelta());
-                    widget.onClose();
-                  }
-                : null,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(CupertinoIcons.checkmark_alt,
-                    size: 16, color: Colors.white),
-                const SizedBox(width: 8),
-                Text(
-                  'Apply Selection',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        CupertinoButton(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          borderRadius: BorderRadius.circular(10),
-          color: widget.isDark
-              ? const Color(0xFFDC3545).withValues(alpha: 0.15)
-              : const Color(0xFFDC3545).withValues(alpha: 0.08),
-          onPressed: widget.onClose,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(CupertinoIcons.xmark,
-                  size: 14,
-                  color: widget.isDark
-                      ? const Color(0xFFFF6B6B)
-                      : const Color(0xFFDC3545)),
-              const SizedBox(width: 6),
-              Text(
-                'Decline',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: widget.isDark
-                      ? const Color(0xFFFF6B6B)
-                      : const Color(0xFFDC3545),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _feedbackCard(String text) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: widget.surfaceColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: widget.isDark
-              ? Colors.white.withValues(alpha: 0.06)
-              : Colors.black.withValues(alpha: 0.06),
-        ),
-      ),
+  Widget _feedbackBlock(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
       child: SelectableText(
         text,
         style: GoogleFonts.inter(
-          fontSize: 14,
-          height: 1.7,
+          fontSize: widget.focusMode ? 18 : 17,
+          height: widget.focusMode ? 1.9 : 1.7,
           color: widget.textColor.withValues(alpha: 0.9),
         ),
       ),
     );
   }
 
-  Widget _tryAnotherButton() {
-    return CupertinoButton(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      borderRadius: BorderRadius.circular(10),
-      color: widget.surfaceColor,
-      onPressed: widget.onClose,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(CupertinoIcons.arrow_left, size: 14, color: widget.mutedColor),
-          const SizedBox(width: 8),
-          Text(
-            'Try another',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: widget.textColor.withValues(alpha: 0.85),
-            ),
+  // ─── Floating action bar ───
+
+  Widget _floatingActionBar() {
+    final hasTransformResult = _editResult != null;
+    final barColor = widget.isDark
+        ? const Color(0xFF1C1C1E)
+        : Colors.white;
+    final borderColor = widget.isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.08);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: barColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: widget.isDark ? 0.5 : 0.12),
+            blurRadius: 24,
+            spreadRadius: -6,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _barButton(
+            icon: CupertinoIcons.arrow_left,
+            label: 'Try another',
+            color: widget.mutedColor,
+            onTap: widget.onClose,
+          ),
+          if (hasTransformResult) ...[
+            _barDivider(),
+            _barButton(
+              icon: CupertinoIcons.xmark,
+              label: 'Decline',
+              color: _removedColor,
+              onTap: widget.onClose,
+            ),
+            const SizedBox(width: 4),
+            _barButton(
+              icon: CupertinoIcons.checkmark_alt,
+              label: 'Apply',
+              color: Colors.white,
+              filled: true,
+              fillColor: const Color(0xFF28A745),
+              onTap: () {
+                widget.onApply(_composeMergedDelta());
+                widget.onClose();
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _barButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+    bool filled = false,
+    Color? fillColor,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: filled ? fillColor : null,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: color),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _barDivider() {
+    return Container(
+      width: 1,
+      height: 18,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      color: widget.isDark
+          ? Colors.white.withValues(alpha: 0.08)
+          : Colors.black.withValues(alpha: 0.08),
     );
   }
 
@@ -891,250 +1017,249 @@ class _AIAssistPanelState extends State<AIAssistPanel> {
       ),
     );
   }
-
 }
 
-// ─── One paragraph pair card ───
+// ─── One paragraph, rendered inline using editor typography ───
 
-class _PairCard extends StatelessWidget {
-  final int index;
+/// Diff block matching the QuillEditor's `customStyles` so the on-canvas
+/// preview lines up with what the document looks like post-Apply.
+///
+/// Each edit (a removed/added pair) is its own tap target. Tapping toggles
+/// between accepted (red strikethrough on removed, green highlight on added)
+/// and rejected (original text shown plain, suggestion grayed out and struck
+/// through). Equal text is non-tappable.
+class _DiffBlock extends StatefulWidget {
   final _Pair pair;
-  final bool accepted;
-  final bool isDark;
+  final List<_Segment> segments;
+  final List<bool> accepts;
+  final void Function(int editIdx) onToggleEdit;
   final Color textColor;
   final Color mutedColor;
-  final Color surfaceColor;
-  final ValueChanged<bool> onToggle;
+  final bool isDark;
+  final bool focusMode;
+  final Color addedColor;
+  final Color removedColor;
+  final Color addedBg;
+  final Color removedBg;
 
-  const _PairCard({
-    required this.index,
+  const _DiffBlock({
+    super.key,
     required this.pair,
-    required this.accepted,
-    required this.isDark,
+    required this.segments,
+    required this.accepts,
+    required this.onToggleEdit,
     required this.textColor,
     required this.mutedColor,
-    required this.surfaceColor,
-    required this.onToggle,
+    required this.isDark,
+    required this.focusMode,
+    required this.addedColor,
+    required this.removedColor,
+    required this.addedBg,
+    required this.removedBg,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final orig = pair.original;
-    final edited = pair.edited;
+  State<_DiffBlock> createState() => _DiffBlockState();
+}
 
-    final origText = orig?.text ?? '';
-    final editText = edited?.text ?? '';
-    final spans = _computeWordDiff(origText, editText);
+class _DiffBlockState extends State<_DiffBlock> {
+  // One recognizer per edit index. Created lazily, lives until widget
+  // disposal — the recognizer's onTap closure is stable since it dereferences
+  // `widget.onToggleEdit` at call time, so we never need to recreate them.
+  final Map<int, TapGestureRecognizer> _recognizers = {};
 
-    final base = GoogleFonts.inter(
-      fontSize: 14,
-      height: 1.6,
-      color: textColor.withValues(alpha: 0.85),
-    );
-
-    // Pull inline attrs from the longest run of whichever side is the
-    // visual baseline. The diff overlay can't render per-run formatting
-    // (red/green strikethrough has to win), so we approximate with the
-    // dominant run's style. The actual document gets exact per-run
-    // formatting via _composeMergedDelta.
-    final baselineRuns = (accepted ? edited : orig)?.runs ?? const <TextRun>[];
-    final inline = _longestRunAttrs(baselineRuns);
-    final styledBase = _inlineStyleOf(Map<String, dynamic>.from(inline), base);
-
-    final block = (accepted ? edited : orig)?.blockAttrs ?? const {};
-    final blockLabel = _blockLabel(Map<String, dynamic>.from(block));
-
-    final addedColor = isDark ? const Color(0xFF6BCB77) : const Color(0xFF28A745);
-    final removedColor = isDark ? const Color(0xFFFF6B6B) : const Color(0xFFDC3545);
-
-    final addedBg = const Color(0xFF28A745).withValues(alpha: isDark ? 0.16 : 0.10);
-    final removedBg = const Color(0xFFDC3545).withValues(alpha: isDark ? 0.16 : 0.10);
-
-    final isPureAdd = orig == null && edited != null;
-    final isPureRemove = orig != null && edited == null;
-
-    return Opacity(
-      opacity: accepted ? 1.0 : 0.55,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-        decoration: BoxDecoration(
-          color: surfaceColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.06)
-                : Colors.black.withValues(alpha: 0.06),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 7, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: textColor.withValues(alpha: 0.06),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    '#${index + 1}',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: mutedColor,
-                    ),
-                  ),
-                ),
-                if (blockLabel != null) ...[
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 7, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF5B8DEF).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      blockLabel,
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF5B8DEF),
-                      ),
-                    ),
-                  ),
-                ],
-                if (isPureAdd) ...[
-                  const SizedBox(width: 6),
-                  _tag('Added paragraph', addedColor, addedBg),
-                ] else if (isPureRemove) ...[
-                  const SizedBox(width: 6),
-                  _tag('Removed paragraph', removedColor, removedBg),
-                ],
-                const Spacer(),
-                _AcceptToggle(
-                  value: accepted,
-                  onChanged: onToggle,
-                  isDark: isDark,
-                  mutedColor: mutedColor,
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            RichText(
-              text: TextSpan(
-                style: styledBase,
-                children: spans.map((s) {
-                  switch (s.type) {
-                    case _DiffType.removed:
-                      return TextSpan(
-                        text: s.text,
-                        style: TextStyle(
-                          color: removedColor,
-                          decoration: TextDecoration.lineThrough,
-                          decorationColor: removedColor,
-                          backgroundColor: removedBg,
-                        ),
-                      );
-                    case _DiffType.added:
-                      return TextSpan(
-                        text: s.text,
-                        style: TextStyle(
-                          color: addedColor,
-                          backgroundColor: addedBg,
-                        ),
-                      );
-                    case _DiffType.equal:
-                      return TextSpan(text: s.text);
-                  }
-                }).toList(),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  @override
+  void dispose() {
+    for (final r in _recognizers.values) {
+      r.dispose();
+    }
+    super.dispose();
   }
 
-  Widget _tag(String label, Color color, Color bg) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
-      ),
+  TapGestureRecognizer _recognizerFor(int editIdx) {
+    return _recognizers.putIfAbsent(editIdx, () {
+      return TapGestureRecognizer()
+        ..onTap = () => widget.onToggleEdit(editIdx);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final orig = widget.pair.original;
+    final edited = widget.pair.edited;
+
+    // Block style is keyed off whichever side exists. For pure adds/removes
+    // we fall back to the surviving side; for normal edits both have the
+    // same block attrs in practice.
+    final blockAttrs =
+        (edited ?? orig)?.blockAttrs ?? const <String, dynamic>{};
+    final block = _editorBlockStyle(
+      Map<String, dynamic>.from(blockAttrs),
+      textColor: widget.textColor,
+      isDark: widget.isDark,
+      focusMode: widget.focusMode,
+    );
+
+    // Inline attrs from the longest run on the surviving side. Approximates
+    // per-run styling (font/bold/color); the actual document gets exact
+    // per-run formatting via _composeMergedDelta on Apply (whole-paragraph
+    // accept/reject only — mixed paragraphs lose inline runs).
+    final baselineRuns = (edited ?? orig)?.runs ?? const <TextRun>[];
+    final inline = _longestRunAttrs(baselineRuns);
+    final styledBase = _inlineStyleOf(
+      Map<String, dynamic>.from(inline),
+      block.textStyle,
+    );
+
+    final rejectedTint = widget.textColor.withValues(alpha: 0.35);
+
+    final inlineSpans = <InlineSpan>[];
+    int editIdx = 0;
+    for (final seg in widget.segments) {
+      if (!seg.isEdit) {
+        inlineSpans.add(TextSpan(text: seg.equalText));
+        continue;
+      }
+      final eIdx = editIdx++;
+      final accepted = widget.accepts[eIdx];
+      final recognizer = _recognizerFor(eIdx);
+
+      if (seg.removed != null) {
+        inlineSpans.add(TextSpan(
+          text: seg.removed,
+          recognizer: recognizer,
+          style: accepted
+              // Accepted: removed text struck through in red.
+              ? TextStyle(
+                  color: widget.removedColor,
+                  decoration: TextDecoration.lineThrough,
+                  decorationColor: widget.removedColor,
+                  backgroundColor: widget.removedBg,
+                )
+              // Rejected: original text shown plain (no special styling so
+              // it reads like part of the document).
+              : null,
+        ));
+      }
+      if (seg.added != null) {
+        inlineSpans.add(TextSpan(
+          text: seg.added,
+          recognizer: recognizer,
+          style: accepted
+              // Accepted: added text highlighted green.
+              ? TextStyle(
+                  color: widget.addedColor,
+                  backgroundColor: widget.addedBg,
+                )
+              // Rejected: suggestion still visible but muted + struck through
+              // so the user knows what was proposed and can re-tap to accept.
+              : TextStyle(
+                  color: rejectedTint,
+                  decoration: TextDecoration.lineThrough,
+                  decorationColor: rejectedTint,
+                ),
+        ));
+      }
+    }
+
+    Widget content = RichText(text: TextSpan(style: styledBase, children: inlineSpans));
+
+    if (block.decoration != null) {
+      content = Container(
+        decoration: block.decoration,
+        padding: block.innerPadding,
+        child: content,
+      );
+    }
+
+    return Padding(
+      padding: block.padding,
+      child: content,
     );
   }
 }
 
-class _AcceptToggle extends StatelessWidget {
-  final bool value;
-  final ValueChanged<bool> onChanged;
-  final bool isDark;
-  final Color mutedColor;
-
-  const _AcceptToggle({
-    required this.value,
-    required this.onChanged,
-    required this.isDark,
-    required this.mutedColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final active = value;
-    final activeColor = const Color(0xFF28A745);
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: active
-              ? activeColor.withValues(alpha: 0.15)
-              : (isDark
-                  ? Colors.white.withValues(alpha: 0.05)
-                  : Colors.black.withValues(alpha: 0.05)),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: active
-                ? activeColor.withValues(alpha: 0.4)
-                : (isDark
-                    ? Colors.white.withValues(alpha: 0.08)
-                    : Colors.black.withValues(alpha: 0.08)),
+/// Mirror of the QuillEditor's `customStyles` block lookup, kept in sync with
+/// [editor_page_entry.dart]'s `customStyles:` so on-canvas diff typography
+/// matches the editor 1:1. Update both together when changing styles.
+_BlockStyle _editorBlockStyle(
+  Map<String, dynamic> blockAttrs, {
+  required Color textColor,
+  required bool isDark,
+  required bool focusMode,
+}) {
+  if (blockAttrs.containsKey('header')) {
+    final v = blockAttrs['header'];
+    if (v == 1) {
+      return _BlockStyle(
+        textStyle: GoogleFonts.inter(
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            height: 1.3,
+            color: textColor),
+        padding: const EdgeInsets.fromLTRB(0, 20, 0, 10),
+      );
+    }
+    if (v == 2) {
+      return _BlockStyle(
+        textStyle: GoogleFonts.inter(
+            fontSize: 26,
+            fontWeight: FontWeight.w600,
+            height: 1.35,
+            color: textColor),
+        padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+      );
+    }
+    if (v == 3) {
+      return _BlockStyle(
+        textStyle: GoogleFonts.inter(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            height: 1.4,
+            color: textColor),
+        padding: const EdgeInsets.fromLTRB(0, 14, 0, 6),
+      );
+    }
+  }
+  if (blockAttrs['blockquote'] == true) {
+    return _BlockStyle(
+      textStyle: GoogleFonts.inter(
+          fontSize: 17,
+          fontStyle: FontStyle.italic,
+          height: 1.6,
+          color: textColor.withValues(alpha: 0.7)),
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(
+            color: textColor.withValues(alpha: 0.2),
+            width: 3,
           ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              active ? CupertinoIcons.checkmark_alt : CupertinoIcons.minus,
-              size: 12,
-              color: active ? activeColor : mutedColor,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              active ? 'Use rewrite' : 'Keep original',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: active ? activeColor : mutedColor,
-              ),
-            ),
-          ],
-        ),
       ),
+      innerPadding: const EdgeInsets.only(left: 12),
     );
   }
+  if (blockAttrs['code-block'] == true) {
+    return _BlockStyle(
+      textStyle: GoogleFonts.jetBrainsMono(
+          fontSize: 14, height: 1.5, color: textColor.withValues(alpha: 0.85)),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.black.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      innerPadding: const EdgeInsets.all(12),
+    );
+  }
+  return _BlockStyle(
+    textStyle: GoogleFonts.inter(
+      fontSize: focusMode ? 18 : 17,
+      height: focusMode ? 1.9 : 1.7,
+      color: textColor.withValues(alpha: 0.9),
+    ),
+    padding: const EdgeInsets.only(top: 10),
+  );
 }

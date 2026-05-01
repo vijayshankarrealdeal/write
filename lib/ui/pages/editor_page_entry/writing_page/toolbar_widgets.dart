@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:inkspacex/services/font_history.dart';
@@ -377,7 +378,12 @@ class _LinkDialogState extends State<LinkDialog> {
   @override
   Widget build(BuildContext context) {
     final isDark = widget.isDark;
-    return AlertDialog(
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): () =>
+            Navigator.of(context).pop(),
+      },
+      child: AlertDialog(
       backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
       title: Text(
         widget.canRemove ? 'Edit Link' : 'Insert Link',
@@ -463,6 +469,7 @@ class _LinkDialogState extends State<LinkDialog> {
           child: Text(widget.canRemove ? 'Update' : 'Insert'),
         ),
       ],
+      ),
     );
   }
 }

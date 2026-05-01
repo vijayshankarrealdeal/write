@@ -31,6 +31,7 @@ class _FindReplaceBarState extends State<FindReplaceBar> {
   final _findFocus = FocusNode();
   bool _showReplace = false;
   bool _caseSensitive = false;
+  bool _wholeWord = false;
   List<int> _matches = const [];
   int _index = -1;
 
@@ -59,12 +60,11 @@ class _FindReplaceBarState extends State<FindReplaceBar> {
       });
       return;
     }
-    final text = widget.controller.document.toPlainText();
-    final pattern = RegExp(
-      RegExp.escape(query),
+    final found = widget.controller.document.search(
+      query,
       caseSensitive: _caseSensitive,
+      wholeWord: _wholeWord,
     );
-    final found = pattern.allMatches(text).map((m) => m.start).toList();
     setState(() {
       _matches = found;
       _index = found.isEmpty ? -1 : 0;
@@ -140,30 +140,34 @@ class _FindReplaceBarState extends State<FindReplaceBar> {
         decoration: BoxDecoration(
           color: fieldFill,
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: widget.borderColor),
+          border: Border.all(
+            color: widget.textColor.withValues(alpha: 0.12),
+          ),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Center(
-          child: TextField(
-            controller: controller,
-            focusNode: focus,
-            onChanged: (_) {
-              if (controller == _findCtrl) _recompute();
-            },
-            onSubmitted: onSubmitted,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              isCollapsed: true,
-              hintText: hint,
-              hintStyle: GoogleFonts.inter(
-                fontSize: 13,
-                color: mutedColor,
-              ),
-            ),
-            style: GoogleFonts.inter(
+        child: TextField(
+          controller: controller,
+          focusNode: focus,
+          textAlignVertical: TextAlignVertical.center,
+          onChanged: (_) {
+            if (controller == _findCtrl) _recompute();
+          },
+          onSubmitted: onSubmitted,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            isDense: true,
+            contentPadding: EdgeInsets.zero,
+            hintText: hint,
+            hintStyle: GoogleFonts.inter(
               fontSize: 13,
-              color: widget.textColor,
+              color: mutedColor,
+              height: 1.2,
             ),
+          ),
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            color: widget.textColor,
+            height: 1.2,
           ),
         ),
       );
@@ -249,6 +253,15 @@ class _FindReplaceBarState extends State<FindReplaceBar> {
                 active: _caseSensitive,
                 onTap: () {
                   setState(() => _caseSensitive = !_caseSensitive);
+                  _recompute();
+                },
+              ),
+              iconBtn(
+                icon: Icons.abc,
+                tooltip: 'Match whole word',
+                active: _wholeWord,
+                onTap: () {
+                  setState(() => _wholeWord = !_wholeWord);
                   _recompute();
                 },
               ),

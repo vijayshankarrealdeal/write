@@ -118,6 +118,10 @@ class _PaletteSheetState extends State<_PaletteSheet> {
       _run(_filtered[_highlight.clamp(0, _filtered.length - 1)]);
       return KeyEventResult.handled;
     }
+    if (event.logicalKey == LogicalKeyboardKey.escape) {
+      Navigator.of(context).pop();
+      return KeyEventResult.handled;
+    }
     return KeyEventResult.ignored;
   }
 
