@@ -47,6 +47,14 @@ class _WordStyleToolbarState extends State<WordStyleToolbar> {
   // — typing or deleting alone does NOT clear it. This matches what the
   // user expects: switch to font B → type → delete → keep typing → all
   // still in font B until they explicitly switch again.
+  //
+  // Paragraph-break exception: _pendingColor / _pendingBackground are
+  // cleared on Enter (see _onSelectionChanged). Heading size comes from
+  // the h1/h2/h3 block style and never carries to the next paragraph;
+  // letting an explicit colour pick carry while size resets felt
+  // inconsistent (orange body text under a body-sized cursor). On Enter
+  // we now reset colour/background so a fresh paragraph starts clean —
+  // the user can re-pick if they want orange to continue.
   String? _pendingFont;
   double? _pendingSize;
   String? _pendingColor;       // hex including leading '#'
@@ -56,10 +64,12 @@ class _WordStyleToolbarState extends State<WordStyleToolbar> {
   // toolbar reflects the doc.
   final Map<String, bool> _pendingInline = {};
   bool _reapplyingPending = false;
+  int _prevDocLength = 0;
 
   @override
   void initState() {
     super.initState();
+    _prevDocLength = widget.controller.document.length;
     widget.controller.addListener(_onSelectionChanged);
   }
 
@@ -80,6 +90,26 @@ class _WordStyleToolbarState extends State<WordStyleToolbar> {
     if (_reapplyingPending) return;
     final sel = widget.controller.selection;
     if (sel.isValid) _lastValidSelection = sel;
+
+    // Paragraph-break detection: doc grew (insert) and the caret now sits
+    // immediately after a '\n'. That's Enter (or paste with a newline).
+    // Drop sticky colour/background so the new paragraph starts clean —
+    // matches heading size, which never carries because it's a block attr.
+    final docLen = widget.controller.document.length;
+    if (sel.isValid &&
+        sel.isCollapsed &&
+        docLen > _prevDocLength &&
+        (_pendingColor != null || _pendingBackground != null)) {
+      final caret = sel.baseOffset;
+      if (caret > 0) {
+        final text = widget.controller.document.toPlainText();
+        if (caret <= text.length && text[caret - 1] == '\n') {
+          _pendingColor = null;
+          _pendingBackground = null;
+        }
+      }
+    }
+    _prevDocLength = docLen;
 
     if (sel.isValid && sel.isCollapsed && _hasAnyPending) {
       _reapplyPending();

@@ -100,6 +100,11 @@ class _PostDetailPageState extends State<PostDetailPage>
   // -- Quill controllers (keyed by section index) --
   final Map<int, quill.QuillController> _quillControllers = {};
 
+  // -- Editor + outer scroll keys per section, used to jump to a highlight's
+  //    pixel position when the user taps a row in the Quotes drawer.
+  final Map<int, GlobalKey<quill.EditorState>> _editorKeys = {};
+  final Map<int, ScrollController> _sectionScrollControllers = {};
+
   // -- Lazy-loaded section bodies for big books. The server returns the
   // first N sections with full `content`; the rest come down with empty
   // content and we fetch them on demand from /api/feed/{id}/sections/{i}.
@@ -159,6 +164,11 @@ class _PostDetailPageState extends State<PostDetailPage>
 
   // -- Reader brightness multiplier (0.4–1.0, applied as overlay) --
   double _readerBrightness = 1.0;
+
+  // -- Immersive (full) reading mode: hides app bar + bottom bar so the
+  // reading column owns the whole viewport. Toggled by single-tap on the
+  // section body. Resets when leaving the reader.
+  bool _immersiveReader = false;
 
   // -- Per-section text highlights: section index -> list of (start, length, colorHex) --
   final Map<int, List<_Highlight>> _highlights = {};
@@ -470,7 +480,7 @@ class _PostDetailPageState extends State<PostDetailPage>
             controller.formatText(
               start,
               length,
-              quill.BackgroundAttribute(colorHex),
+              quill.BackgroundAttribute(_themedHex(colorHex)),
             );
           } catch (_) {}
         }
@@ -534,6 +544,93 @@ class _PostDetailPageState extends State<PostDetailPage>
   }
 
   // --------------------------------------------------------------------------
+  // Scroll the section's outer ScrollView so the given highlight's first
+  // line is centered in the viewport. Best-effort: if the editor hasn't
+  // laid out yet (e.g. just navigated to the page), we retry on the next
+  // frame. Used by the Quotes drawer to jump to the exact passage.
+  // --------------------------------------------------------------------------
+  void _scrollToHighlight(int sectionIndex, _Highlight h) {
+    if (!mounted) return;
+
+    final scroll = _sectionScrollControllers[sectionIndex];
+    final editorKey = _editorKeys[sectionIndex];
+    if (scroll == null || editorKey == null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _scrollToHighlight(sectionIndex, h));
+      return;
+    }
+
+    final editorState = editorKey.currentState;
+    final editorBox = editorKey.currentContext?.findRenderObject() as RenderBox?;
+    if (editorState == null ||
+        editorBox == null ||
+        !editorBox.hasSize ||
+        !scroll.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _scrollToHighlight(sectionIndex, h));
+      return;
+    }
+
+    Rect localRect;
+    try {
+      localRect = editorState.renderEditor
+          .getLocalRectForCaret(TextPosition(offset: h.start));
+    } catch (_) {
+      return;
+    }
+
+    // Editor-local → global → outer-viewport-local, then add the current
+    // scroll offset to land in the ScrollView's content coordinate space.
+    final viewportBox = scroll.position.context.notificationContext
+        ?.findRenderObject() as RenderBox?;
+    if (viewportBox == null || !viewportBox.hasSize) return;
+    final globalTopLeft = editorBox.localToGlobal(localRect.topLeft);
+    final localInViewport = viewportBox.globalToLocal(globalTopLeft).dy;
+    final contentY = localInViewport + scroll.offset;
+
+    final viewportHeight = scroll.position.viewportDimension;
+    final target = (contentY - viewportHeight / 3)
+        .clamp(0.0, scroll.position.maxScrollExtent);
+
+    scroll.animateTo(
+      target,
+      duration: const Duration(milliseconds: 360),
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // Change the canonical color of an existing highlight (re-paints Quill in
+  // the current theme variant, persists canonical hex to backend).
+  // --------------------------------------------------------------------------
+  void _changeHighlightColor(
+      int sectionIndex, _Highlight h, String canonicalHex) {
+    final list = _highlights[sectionIndex];
+    if (list == null) return;
+    final idx = list.indexWhere((x) => x.id == h.id);
+    if (idx == -1) return;
+    list[idx] = list[idx].copyWith(colorHex: canonicalHex);
+    final controller = _quillControllers[sectionIndex];
+    if (controller != null) {
+      try {
+        controller.formatText(
+          h.start,
+          h.length,
+          quill.BackgroundAttribute(_themedHex(canonicalHex)),
+        );
+      } catch (_) {}
+    }
+    if (_userId != null) {
+      _dataService.updateHighlightColor(
+        userId: _userId!,
+        highlightId: h.id,
+        colorHex: canonicalHex,
+      );
+    }
+    if (mounted) setState(() {});
+  }
+
+  // --------------------------------------------------------------------------
   // Remove a single highlight (clears Quill background + local + remote)
   // --------------------------------------------------------------------------
   void _removeSingleHighlight(int sectionIndex, _Highlight h) {
@@ -567,11 +664,19 @@ class _PostDetailPageState extends State<PostDetailPage>
       transitionDuration: const Duration(milliseconds: 320),
       pageBuilder: (ctx, anim, secondary) => _NoteSheet(
         excerpt: excerpt,
-        accentColor: _hexToColor(highlight.colorHex),
         bg: palette.bg,
         textColor: palette.text,
         subtleColor: palette.subtle,
         initial: highlight.note,
+        initialCanonicalHex: highlight.colorHex,
+        swatches: [
+          for (final s in _swatchSlots)
+            (
+              display:
+                  _hexToColor(_isReaderDark() ? s.dark : s.light),
+              canonical: s.light,
+            ),
+        ],
       ),
       transitionBuilder: (ctx, anim, _, child) {
         final eased = CurvedAnimation(
@@ -600,25 +705,26 @@ class _PostDetailPageState extends State<PostDetailPage>
       return;
     }
     final newNote = result.note ?? '';
-    if (newNote == highlight.note) return;
-    _setHighlightNote(sectionIndex, highlight, newNote);
+    final newColor = result.canonicalHex ?? highlight.colorHex;
+    if (newColor != highlight.colorHex) {
+      _changeHighlightColor(sectionIndex, highlight, newColor);
+    }
+    if (newNote != highlight.note) {
+      _setHighlightNote(sectionIndex, highlight, newNote);
+    }
   }
 
   // --------------------------------------------------------------------------
   // Note button entry from selection toolbar — creates a default highlight
   // first if the selection isn't already inside one, then opens the sheet.
   // --------------------------------------------------------------------------
-  void _openNoteFromSelection(int sectionIndex, dynamic state) {
+  void _openNoteFromSelection(int sectionIndex) {
     final controller = _quillControllers[sectionIndex];
     if (controller == null) return;
     final sel = controller.selection;
-    if (sel.isCollapsed) return;
+    if (!sel.isValid || sel.isCollapsed) return;
     final start = sel.start;
     final length = sel.end - sel.start;
-
-    try {
-      state.hideToolbar();
-    } catch (_) {}
 
     final overlap = _findOverlappingHighlight(sectionIndex, start, length);
     if (overlap != null) {
@@ -629,7 +735,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     const defaultHex = '#FFE066';
     try {
       controller.formatText(
-          start, length, quill.BackgroundAttribute(defaultHex));
+          start, length, quill.BackgroundAttribute(_themedHex(defaultHex)));
     } catch (_) {}
     final id = const Uuid().v4();
     final h = _Highlight(
@@ -1794,6 +1900,9 @@ class _PostDetailPageState extends State<PostDetailPage>
     for (final c in _quillControllers.values) {
       c.dispose();
     }
+    for (final s in _sectionScrollControllers.values) {
+      s.dispose();
+    }
     _commentController.dispose();
     _commentFocus.dispose();
     super.dispose();
@@ -1848,15 +1957,22 @@ class _PostDetailPageState extends State<PostDetailPage>
         if (_selectedSectionIndex != null) {
           _pageController?.dispose();
           _pageController = null;
-          setState(() => _selectedSectionIndex = null);
+          setState(() {
+            _selectedSectionIndex = null;
+            _immersiveReader = false;
+          });
         }
       },
       child: AnnotatedRegion<SystemUiOverlayStyle>(
       value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
-      child: Scaffold(
+      child: Stack(
+        children: [
+          Scaffold(
         key: _scaffoldKey,
         backgroundColor: bgColor,
-        appBar: AppBar(
+        appBar: (inReader && _immersiveReader)
+            ? null
+            : AppBar(
           backgroundColor: bgColor,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
@@ -1866,7 +1982,10 @@ class _PostDetailPageState extends State<PostDetailPage>
               if (_selectedSectionIndex != null) {
                 _pageController?.dispose();
                 _pageController = null;
-                setState(() => _selectedSectionIndex = null);
+                setState(() {
+                  _selectedSectionIndex = null;
+                  _immersiveReader = false;
+                });
               } else {
                 Navigator.pop(context);
               }
@@ -2057,6 +2176,21 @@ class _PostDetailPageState extends State<PostDetailPage>
             ],
           ),
         ),
+      ),
+          // Reader brightness overlay — covers the *entire* reading page
+          // (app bar, body, bottom bar) when in reader mode and brightness
+          // < 1.0. Sits above the Scaffold so chrome dims with the content.
+          if (inReader && _readerBrightness < 0.99)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Container(
+                  color: Colors.black.withValues(
+                    alpha: (1.0 - _readerBrightness).clamp(0.0, 0.6),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       ),
     );
@@ -2257,7 +2391,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                                       width: 4,
                                       height: 28,
                                       decoration: BoxDecoration(
-                                        color: _hexToColor(h.colorHex),
+                                        color: _hexToColor(_themedHex(h.colorHex)),
                                         borderRadius:
                                             BorderRadius.circular(2),
                                       ),
@@ -2338,6 +2472,15 @@ class _PostDetailPageState extends State<PostDetailPage>
                                         _navigateToSection(entry.key);
                                       }
                                       Navigator.pop(context);
+                                      // Scroll to the exact passage once the
+                                      // page has settled. _scrollToHighlight
+                                      // self-retries until the editor lays
+                                      // out so this works whether the user
+                                      // was already on the chapter or not.
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        _scrollToHighlight(entry.key, h);
+                                      });
                                     },
                                     onLongPress: () {
                                       Navigator.pop(context);
@@ -2400,6 +2543,54 @@ class _PostDetailPageState extends State<PostDetailPage>
         ),
       ),
     );
+  }
+
+  // --------------------------------------------------------------------------
+  // Highlight swatch slots — canonical (light theme) hex paired with a
+  // dark-mode variant. Storage stays canonical; rendering picks the variant
+  // appropriate to the current reader theme so white-on-pastel and
+  // black-on-deep-tone never strain the user's eyes.
+  // --------------------------------------------------------------------------
+  static const _swatchSlots = <({String light, String dark})>[
+    (light: '#FFE066', dark: '#5C4A1F'), // yellow → deep amber
+    (light: '#FFB4A2', dark: '#5C3329'), // peach → rust
+    (light: '#B5EAD7', dark: '#1F4D3D'), // mint → forest
+    (light: '#B8C5FF', dark: '#2F3D70'), // periwinkle → indigo
+    (light: '#E0B0FF', dark: '#4D2F66'), // lilac → deep violet
+    (light: '#FFC8DD', dark: '#5C2F45'), // pink → mulberry
+  ];
+
+  bool _isReaderDark() =>
+      _readerTheme == 'black' || _readerTheme == 'grey';
+
+  // Resolve a stored (canonical) hex to the variant that should actually
+  // paint on the page right now. Unknown hexes pass through unchanged.
+  String _themedHex(String canonicalHex) {
+    if (canonicalHex.isEmpty) return canonicalHex;
+    final dark = _isReaderDark();
+    final upper = canonicalHex.toUpperCase();
+    for (final s in _swatchSlots) {
+      if (s.light.toUpperCase() == upper) return dark ? s.dark : s.light;
+      if (s.dark.toUpperCase() == upper) return dark ? s.dark : s.light;
+    }
+    return canonicalHex;
+  }
+
+  // Theme-aware style builder for the QuillEditor. Falls back to the
+  // top-level `_customStyleBuilder` for font/size, and overrides 'background'
+  // to render canonical highlight hexes in their current-theme variant. This
+  // lets us paint canonical hex into the document and decide the actual
+  // pixel color at render time, so theme switches re-tint instantly without
+  // mutating any data.
+  TextStyle _readerStyleBuilder(quill.Attribute attr) {
+    if (attr.key == quill.Attribute.background.key) {
+      final raw = attr.value;
+      if (raw is String && raw.isNotEmpty) {
+        return TextStyle(backgroundColor: _hexToColor(_themedHex(raw)));
+      }
+      return const TextStyle();
+    }
+    return _customStyleBuilder(attr);
   }
 
   // --------------------------------------------------------------------------
@@ -2838,21 +3029,51 @@ class _PostDetailPageState extends State<PostDetailPage>
                       curve: Curves.easeOutCubic,
                     ),
                   ),
+                Positioned(
+                  top: 14,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: _ReaderSelectionBar(
+                      key: ValueKey('selbar-$currentIndex-$_readerTheme'),
+                      controller: _quillControllers[currentIndex],
+                      sectionIndex: currentIndex,
+                      palette: _readerPalette(),
+                      paperAccent: _paperAccent,
+                      swatches: [
+                        for (final s in _swatchSlots)
+                          (
+                            display: _hexToColor(
+                                _isReaderDark() ? s.dark : s.light),
+                            canonical: s.light,
+                          ),
+                      ],
+                      onApplyHighlight: _applyHighlightAt,
+                      onOpenNote: _openNoteFromSelection,
+                      onOpenBookmark: (idx) {
+                        final c = _quillControllers[idx];
+                        if (c != null) _openBookmarkSheet(idx, c);
+                      },
+                      findOverlap: _findOverlappingHighlight,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         ),
-        _buildReaderBottomBar(
-          isDark: isDark,
-          textColor: textColor,
-          subtleColor: subtleColor,
-          bgColor: bgColor,
-          dividerColor: dividerColor,
-          currentIndex: currentIndex,
-          totalSections: totalSections,
-          // FAB takes over Listen at xwide so the bar stays calm.
-          showListen: !isXWide,
-        ),
+        if (!_immersiveReader)
+          _buildReaderBottomBar(
+            isDark: isDark,
+            textColor: textColor,
+            subtleColor: subtleColor,
+            bgColor: bgColor,
+            dividerColor: dividerColor,
+            currentIndex: currentIndex,
+            totalSections: totalSections,
+            // FAB takes over Listen at xwide so the bar stays calm.
+            showListen: !isXWide,
+          ),
       ],
     );
 
@@ -2886,14 +3107,15 @@ class _PostDetailPageState extends State<PostDetailPage>
               Expanded(child: readerColumn),
             ],
           ),
-          Positioned(
-            right: 28,
-            bottom: 28 + MediaQuery.of(context).padding.bottom,
-            child: _ReaderListenFab(
-              accent: _paperAccent,
-              onTap: _onListenPressed,
+          if (!_immersiveReader)
+            Positioned(
+              right: 28,
+              bottom: 28 + MediaQuery.of(context).padding.bottom,
+              child: _ReaderListenFab(
+                accent: _paperAccent,
+                onTap: _onListenPressed,
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -3055,7 +3277,12 @@ class _PostDetailPageState extends State<PostDetailPage>
       scale: effectiveScale,
     );
 
+    final scrollController = _sectionScrollControllers.putIfAbsent(
+      sectionIndex,
+      ScrollController.new,
+    );
     final body = SingleChildScrollView(
+      controller: scrollController,
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
       ),
@@ -3131,23 +3358,22 @@ class _PostDetailPageState extends State<PostDetailPage>
                 focusNode: FocusNode(canRequestFocus: false),
                 scrollController: ScrollController(),
                 config: quill.QuillEditorConfig(
+                  editorKey: _editorKeys.putIfAbsent(
+                    sectionIndex,
+                    GlobalKey<quill.EditorState>.new,
+                  ),
                   showCursor: false,
                   autoFocus: false,
                   expands: false,
-                  customStyleBuilder: _customStyleBuilder,
+                  customStyleBuilder: _readerStyleBuilder,
                   embedBuilders: [
                     ImageEmbedBuilder(
                       controller: _quillControllers[sectionIndex]!,
+                      readOnly: true,
                     ),
                   ],
                   padding: EdgeInsets.zero,
                   customStyles: styles,
-                  contextMenuBuilder: (ctx, rawState) =>
-                      _buildHighlightToolbar(
-                    ctx,
-                    rawState,
-                    sectionIndex,
-                  ),
                 ),
               ),
             ),
@@ -3157,245 +3383,61 @@ class _PostDetailPageState extends State<PostDetailPage>
       ),
     );
 
-    if (_readerBrightness >= 0.99) return body;
-    final dim = (1.0 - _readerBrightness).clamp(0.0, 0.6);
-    return Stack(
-      children: [
-        body,
-        Positioned.fill(
-          child: IgnorePointer(
-            child: Container(color: Colors.black.withValues(alpha: dim)),
-          ),
-        ),
-      ],
+    // Tap on the reading content toggles immersive (full) reading mode —
+    // hides the app bar + bottom bar so only the page chrome the user is
+    // actually reading remains. Long-press / drag-select still reaches the
+    // Quill below for highlight + note flow.
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => setState(() => _immersiveReader = !_immersiveReader),
+      child: body,
     );
   }
 
   // --------------------------------------------------------------------------
-  // Highlight toolbar shown when text is selected in the reader
+  // Apply / clear a highlight on the active selection of a section's editor.
+  // Used by the floating selection bar (replaces the old contextMenuBuilder
+  // path, which doesn't fire on desktop drag-select).
   // --------------------------------------------------------------------------
-  Widget _buildHighlightToolbar(
-    BuildContext context,
-    dynamic state, // EditableTextState in Quill 11
-    int sectionIndex,
-  ) {
-    final palette = _readerPalette();
+  void _applyHighlightAt(int sectionIndex, String? hex) {
     final controller = _quillControllers[sectionIndex];
-    if (controller == null) return const SizedBox.shrink();
-
-    const swatches = <(Color, String)>[
-      (Color(0xFFFFE066), '#FFE066'), // yellow
-      (Color(0xFFFFB4A2), '#FFB4A2'), // peach
-      (Color(0xFFB5EAD7), '#B5EAD7'), // mint
-      (Color(0xFFB8C5FF), '#B8C5FF'), // periwinkle
-      (Color(0xFFE0B0FF), '#E0B0FF'), // lilac
-      (Color(0xFFFFC8DD), '#FFC8DD'), // pink
-    ];
-
-    void applyHighlight(String? hex) {
-      final sel = controller.selection;
-      if (sel.isCollapsed) return;
-      final start = sel.start;
-      final length = sel.end - sel.start;
-      controller.formatText(
-        start,
-        length,
-        hex == null
-            ? quill.BackgroundAttribute(null)
-            : quill.BackgroundAttribute(hex),
-      );
-      if (hex == null) {
-        _removeHighlightsInRange(sectionIndex, start, length);
-      } else {
-        final id = const Uuid().v4();
-        _highlights.putIfAbsent(sectionIndex, () => []).add(
-              _Highlight(
-                id: id,
-                start: start,
-                length: length,
-                colorHex: hex,
-              ),
-            );
-        if (_userId != null) {
-          _dataService.addHighlight(
-            userId: _userId!,
-            feedItemId: widget.item.id,
-            highlightId: id,
-            sectionIndex: sectionIndex,
-            start: start,
-            length: length,
-            colorHex: hex,
-          );
-        }
-      }
-      if (mounted) setState(() {});
-      // Dismiss the selection menu
-      try {
-        state.hideToolbar();
-      } catch (_) {}
-    }
-
-    Offset anchor;
-    try {
-      anchor = state.contextMenuAnchors.primaryAnchor as Offset;
-    } catch (_) {
-      anchor = const Offset(120, 200);
-    }
-
+    if (controller == null) return;
     final sel = controller.selection;
-    final overlap = !sel.isCollapsed
-        ? _findOverlappingHighlight(
-            sectionIndex, sel.start, sel.end - sel.start)
-        : null;
-    final hasNote = overlap != null && overlap.note.isNotEmpty;
-
-    final mq = MediaQuery.of(context);
-    const barWidth = 304.0;
-    final left = (anchor.dx - barWidth / 2).clamp(12.0, mq.size.width - barWidth - 12);
-    final top = (anchor.dy - 56).clamp(mq.padding.top + 8, mq.size.height - 80);
-
-    return Stack(
-      children: [
-        Positioned(
-          left: left,
-          top: top,
-          child: Material(
-              elevation: 8,
-              borderRadius: BorderRadius.circular(28),
-              color: palette.bg,
-              shadowColor: Colors.black.withValues(alpha: 0.3),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(
-                    color: palette.text.withValues(alpha: 0.1),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (final s in swatches) ...[
-                      GestureDetector(
-                        onTap: () => applyHighlight(s.$2),
-                        child: Container(
-                          width: 26,
-                          height: 26,
-                          margin: const EdgeInsets.symmetric(horizontal: 3),
-                          decoration: BoxDecoration(
-                            color: s.$1,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: palette.text.withValues(alpha: 0.15),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(width: 4),
-                    GestureDetector(
-                      onTap: () => applyHighlight(null),
-                      child: Container(
-                        width: 26,
-                        height: 26,
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: palette.text.withValues(alpha: 0.4),
-                          ),
-                        ),
-                        child: Icon(
-                          CupertinoIcons.clear,
-                          size: 14,
-                          color: palette.text.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    // Note pencil — creates/edits a note on the selection.
-                    // Tiny accent dot indicates an existing note on the
-                    // overlapping highlight.
-                    GestureDetector(
-                      onTap: () => _openNoteFromSelection(sectionIndex, state),
-                      child: Container(
-                        width: 26,
-                        height: 26,
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: palette.text.withValues(alpha: 0.06),
-                          border: Border.all(
-                            color: palette.text.withValues(alpha: 0.4),
-                          ),
-                        ),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Icon(
-                              CupertinoIcons.pencil,
-                              size: 14,
-                              color: palette.text.withValues(alpha: 0.75),
-                            ),
-                            if (hasNote)
-                              Positioned(
-                                right: 1,
-                                top: 1,
-                                child: Container(
-                                  width: 7,
-                                  height: 7,
-                                  decoration: BoxDecoration(
-                                    color: _paperAccent,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: palette.bg,
-                                      width: 1.2,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    // Bookmark this paragraph. Lives on the highlight bar
-                    // because the user is already in "I want to mark this
-                    // bit" mode — adding a separate long-press path would
-                    // double the discovery surface for no extra value.
-                    GestureDetector(
-                      onTap: () {
-                        try {
-                          state.hideToolbar();
-                        } catch (_) {}
-                        _openBookmarkSheet(sectionIndex, controller);
-                      },
-                      child: Container(
-                        width: 26,
-                        height: 26,
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: palette.text.withValues(alpha: 0.06),
-                          border: Border.all(
-                            color: palette.text.withValues(alpha: 0.4),
-                          ),
-                        ),
-                        child: Icon(
-                          CupertinoIcons.bookmark,
-                          size: 14,
-                          color: palette.text.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+    if (!sel.isValid || sel.isCollapsed) return;
+    final start = sel.start;
+    final length = sel.end - sel.start;
+    controller.formatText(
+      start,
+      length,
+      hex == null
+          ? quill.BackgroundAttribute(null)
+          : quill.BackgroundAttribute(_themedHex(hex)),
     );
+    if (hex == null) {
+      _removeHighlightsInRange(sectionIndex, start, length);
+    } else {
+      final id = const Uuid().v4();
+      _highlights.putIfAbsent(sectionIndex, () => []).add(
+            _Highlight(
+              id: id,
+              start: start,
+              length: length,
+              colorHex: hex,
+            ),
+          );
+      if (_userId != null) {
+        _dataService.addHighlight(
+          userId: _userId!,
+          feedItemId: widget.item.id,
+          highlightId: id,
+          sectionIndex: sectionIndex,
+          start: start,
+          length: length,
+          colorHex: hex,
+        );
+      }
+    }
+    if (mounted) setState(() {});
   }
 
   Future<void> _onTapOfflineDownload(
@@ -5351,11 +5393,11 @@ class _Highlight {
     this.note = '',
   });
 
-  _Highlight copyWith({String? note}) => _Highlight(
+  _Highlight copyWith({String? note, String? colorHex}) => _Highlight(
         id: id,
         start: start,
         length: length,
-        colorHex: colorHex,
+        colorHex: colorHex ?? this.colorHex,
         note: note ?? this.note,
       );
 }
@@ -5365,8 +5407,9 @@ class _Highlight {
 // ============================================================================
 class _NoteSheetResult {
   final String? note;
+  final String? canonicalHex; // null means "leave color unchanged"
   final bool delete;
-  const _NoteSheetResult({this.note, this.delete = false});
+  const _NoteSheetResult({this.note, this.canonicalHex, this.delete = false});
 }
 
 // ============================================================================
@@ -5375,19 +5418,25 @@ class _NoteSheetResult {
 // ============================================================================
 class _NoteSheet extends StatefulWidget {
   final String excerpt;
-  final Color accentColor;
   final Color bg;
   final Color textColor;
   final Color subtleColor;
   final String initial;
+  // Display+canonical pairs the user can pick from. Display matches the
+  // current reader theme (paint color); canonical is what gets saved.
+  final List<({Color display, String canonical})> swatches;
+  // Canonical hex of the currently-applied highlight, used to mark the
+  // initially-selected swatch.
+  final String initialCanonicalHex;
 
   const _NoteSheet({
     required this.excerpt,
-    required this.accentColor,
     required this.bg,
     required this.textColor,
     required this.subtleColor,
     required this.initial,
+    required this.swatches,
+    required this.initialCanonicalHex,
   });
 
   @override
@@ -5397,12 +5446,18 @@ class _NoteSheet extends StatefulWidget {
 class _NoteSheetState extends State<_NoteSheet> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
+  late String _selectedCanonical;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initial);
     _focusNode = FocusNode();
+    _selectedCanonical = widget.initialCanonicalHex.isNotEmpty
+        ? widget.initialCanonicalHex
+        : (widget.swatches.isNotEmpty
+            ? widget.swatches.first.canonical
+            : '#FFE066');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _focusNode.requestFocus();
     });
@@ -5415,6 +5470,17 @@ class _NoteSheetState extends State<_NoteSheet> {
     super.dispose();
   }
 
+  Color get _accentColor {
+    for (final s in widget.swatches) {
+      if (s.canonical.toUpperCase() == _selectedCanonical.toUpperCase()) {
+        return s.display;
+      }
+    }
+    return widget.swatches.isNotEmpty
+        ? widget.swatches.first.display
+        : const Color(0xFFFFE066);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark =
@@ -5424,6 +5490,7 @@ class _NoteSheetState extends State<_NoteSheet> {
         ? Colors.white.withValues(alpha: 0.04)
         : Colors.black.withValues(alpha: 0.03);
     final outlineColor = widget.textColor.withValues(alpha: 0.08);
+    final accent = _accentColor;
 
     return Material(
       type: MaterialType.transparency,
@@ -5448,11 +5515,13 @@ class _NoteSheetState extends State<_NoteSheet> {
                     children: [
                       Row(
                         children: [
-                          Container(
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeOut,
                             width: 4,
                             height: 22,
                             decoration: BoxDecoration(
-                              color: widget.accentColor,
+                              color: accent,
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -5481,14 +5550,16 @@ class _NoteSheetState extends State<_NoteSheet> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
-                        child: Container(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOut,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 10),
                           decoration: BoxDecoration(
-                            color: widget.accentColor.withValues(alpha: 0.18),
+                            color: accent.withValues(alpha: 0.18),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: widget.accentColor.withValues(alpha: 0.35),
+                              color: accent.withValues(alpha: 0.35),
                             ),
                           ),
                           child: Text(
@@ -5504,7 +5575,30 @@ class _NoteSheetState extends State<_NoteSheet> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 12),
+                      // Swatch picker — taps update the live accent and the
+                      // canonical hex returned on save.
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            for (final s in widget.swatches) ...[
+                              _NoteSheetSwatch(
+                                color: s.display,
+                                selected: s.canonical.toUpperCase() ==
+                                    _selectedCanonical.toUpperCase(),
+                                ringColor: widget.textColor
+                                    .withValues(alpha: 0.4),
+                                onTap: () => setState(
+                                    () => _selectedCanonical = s.canonical),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: ConstrainedBox(
@@ -5516,7 +5610,7 @@ class _NoteSheetState extends State<_NoteSheet> {
                             maxLines: null,
                             minLines: 4,
                             textAlignVertical: TextAlignVertical.top,
-                            cursorColor: widget.accentColor,
+                            cursorColor: accent,
                             style: GoogleFonts.lora(
                               fontSize: 15,
                               color: widget.textColor,
@@ -5542,8 +5636,8 @@ class _NoteSheetState extends State<_NoteSheet> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                    color: widget.accentColor, width: 1.5),
+                                borderSide:
+                                    BorderSide(color: accent, width: 1.5),
                               ),
                             ),
                           ),
@@ -5596,7 +5690,9 @@ class _NoteSheetState extends State<_NoteSheet> {
                               onPressed: () {
                                 Navigator.of(context).pop(
                                   _NoteSheetResult(
-                                      note: _controller.text.trim()),
+                                    note: _controller.text.trim(),
+                                    canonicalHex: _selectedCanonical,
+                                  ),
                                 );
                               },
                               style: FilledButton.styleFrom(
@@ -5622,6 +5718,277 @@ class _NoteSheetState extends State<_NoteSheet> {
                     ],
                   ),
                 ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// A single swatch chip in the note sheet — animates a ring when selected.
+class _NoteSheetSwatch extends StatelessWidget {
+  final Color color;
+  final bool selected;
+  final Color ringColor;
+  final VoidCallback onTap;
+
+  const _NoteSheetSwatch({
+    required this.color,
+    required this.selected,
+    required this.ringColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: selected ? ringColor : ringColor.withValues(alpha: 0.25),
+            width: selected ? 2 : 1,
+          ),
+        ),
+        padding: EdgeInsets.all(selected ? 3 : 2),
+        child: Container(
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: Border.all(color: ringColor.withValues(alpha: 0.15)),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// Floating selection toolbar for the reader. Mirrors the writer's pattern:
+// listens to the active QuillController and surfaces highlight + note +
+// bookmark actions when the user has a non-collapsed selection. Lives at
+// top-center of the reader pane and slides in/out smoothly.
+// ============================================================================
+class _ReaderSelectionBar extends StatefulWidget {
+  final quill.QuillController? controller;
+  final int sectionIndex;
+  final ({Color bg, Color text, Color subtle}) palette;
+  final Color paperAccent;
+  // Pairs of (display color, canonical hex). The display color is theme-aware
+  // and used to paint the swatch circle; the canonical hex is what the parent
+  // saves so highlight identity stays stable across theme switches.
+  final List<({Color display, String canonical})> swatches;
+  final void Function(int sectionIndex, String? hex) onApplyHighlight;
+  final void Function(int sectionIndex) onOpenNote;
+  final void Function(int sectionIndex) onOpenBookmark;
+  final _Highlight? Function(int sectionIndex, int start, int length)
+      findOverlap;
+
+  const _ReaderSelectionBar({
+    super.key,
+    required this.controller,
+    required this.sectionIndex,
+    required this.palette,
+    required this.paperAccent,
+    required this.swatches,
+    required this.onApplyHighlight,
+    required this.onOpenNote,
+    required this.onOpenBookmark,
+    required this.findOverlap,
+  });
+
+  @override
+  State<_ReaderSelectionBar> createState() => _ReaderSelectionBarState();
+}
+
+class _ReaderSelectionBarState extends State<_ReaderSelectionBar> {
+  bool _visible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller?.addListener(_onControllerChange);
+  }
+
+  @override
+  void didUpdateWidget(covariant _ReaderSelectionBar old) {
+    super.didUpdateWidget(old);
+    if (old.controller != widget.controller) {
+      old.controller?.removeListener(_onControllerChange);
+      widget.controller?.addListener(_onControllerChange);
+      _onControllerChange();
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller?.removeListener(_onControllerChange);
+    super.dispose();
+  }
+
+  void _onControllerChange() {
+    final sel = widget.controller?.selection;
+    final next = sel != null && sel.isValid && !sel.isCollapsed;
+    if (next != _visible && mounted) {
+      setState(() => _visible = next);
+    } else if (next && mounted) {
+      // selection range changed but bar already visible — refresh hasNote dot
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = widget.controller;
+    final palette = widget.palette;
+
+    _Highlight? overlap;
+    if (controller != null) {
+      final sel = controller.selection;
+      if (sel.isValid && !sel.isCollapsed) {
+        overlap = widget.findOverlap(
+            widget.sectionIndex, sel.start, sel.end - sel.start);
+      }
+    }
+    final hasNote = overlap != null && overlap.note.isNotEmpty;
+
+    return IgnorePointer(
+      ignoring: !_visible,
+      child: AnimatedSlide(
+        offset: _visible ? Offset.zero : const Offset(0, -0.6),
+        duration: const Duration(milliseconds: 240),
+        curve: Curves.easeOutCubic,
+        child: AnimatedOpacity(
+          opacity: _visible ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          child: Material(
+            elevation: 10,
+            borderRadius: BorderRadius.circular(28),
+            color: palette.bg,
+            shadowColor: Colors.black.withValues(alpha: 0.35),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(
+                  color: palette.text.withValues(alpha: 0.1),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final s in widget.swatches)
+                    GestureDetector(
+                      onTap: () => widget
+                          .onApplyHighlight(widget.sectionIndex, s.canonical),
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        margin: const EdgeInsets.symmetric(horizontal: 3),
+                        decoration: BoxDecoration(
+                          color: s.display,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: palette.text.withValues(alpha: 0.15),
+                          ),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(width: 4),
+                  GestureDetector(
+                    onTap: () =>
+                        widget.onApplyHighlight(widget.sectionIndex, null),
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: palette.text.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: Icon(
+                        CupertinoIcons.clear,
+                        size: 14,
+                        color: palette.text.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  GestureDetector(
+                    onTap: () => widget.onOpenNote(widget.sectionIndex),
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: palette.text.withValues(alpha: 0.06),
+                        border: Border.all(
+                          color: palette.text.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Icon(
+                            CupertinoIcons.pencil,
+                            size: 14,
+                            color: palette.text.withValues(alpha: 0.75),
+                          ),
+                          if (hasNote)
+                            Positioned(
+                              right: 1,
+                              top: 1,
+                              child: Container(
+                                width: 7,
+                                height: 7,
+                                decoration: BoxDecoration(
+                                  color: widget.paperAccent,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: palette.bg,
+                                    width: 1.2,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  GestureDetector(
+                    onTap: () => widget.onOpenBookmark(widget.sectionIndex),
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: palette.text.withValues(alpha: 0.06),
+                        border: Border.all(
+                          color: palette.text.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: Icon(
+                        CupertinoIcons.bookmark,
+                        size: 14,
+                        color: palette.text.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

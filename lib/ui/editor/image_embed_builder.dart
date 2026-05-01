@@ -21,9 +21,12 @@ import 'package:inkspacex/ui/widgets/app_network_image.dart';
 /// Plain URLs / data URIs without a fragment render at full width,
 /// zero rotation, centered — preserving backward compatibility.
 class ImageEmbedBuilder extends EmbedBuilder {
-  ImageEmbedBuilder({required this.controller});
+  ImageEmbedBuilder({required this.controller, this.readOnly = false});
 
   final QuillController controller;
+  /// When true, suppress the tap-to-adjust sheet and drag-to-reposition
+  /// gesture so reader views render the image as a static embed.
+  final bool readOnly;
 
   @override
   String get key => BlockEmbed.imageType;
@@ -42,6 +45,7 @@ class ImageEmbedBuilder extends EmbedBuilder {
     return _EditableImageEmbed(
       controller: controller,
       node: embedContext.node,
+      readOnly: readOnly,
     );
   }
 }
@@ -167,10 +171,12 @@ class _EditableImageEmbed extends StatefulWidget {
   const _EditableImageEmbed({
     required this.controller,
     required this.node,
+    required this.readOnly,
   });
 
   final QuillController controller;
   final Node node;
+  final bool readOnly;
 
   @override
   State<_EditableImageEmbed> createState() => _EditableImageEmbedState();
@@ -542,12 +548,12 @@ class _EditableImageEmbedState extends State<_EditableImageEmbed> {
           final maxW = constraints.maxWidth;
           final targetW = maxW * _t.widthFactor;
           final freeSpace = math.max(0.0, maxW - targetW);
-          final canDrag = freeSpace > 0.5;
+          final canDrag = !widget.readOnly && freeSpace > 0.5;
           return Align(
             alignment: Alignment(_t.xOffset, 0),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: _showAdjustSheet,
+              onTap: widget.readOnly ? null : _showAdjustSheet,
               onHorizontalDragUpdate: !canDrag
                   ? null
                   : (d) {

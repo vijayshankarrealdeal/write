@@ -814,6 +814,16 @@ class ApiDataService implements SyncDispatcher {
     });
   }
 
+  Future<void> updateHighlightColor({
+    required String userId,
+    required String highlightId,
+    required String colorHex,
+  }) async {
+    await _client.put('/api/highlights/$highlightId', data: {
+      'color_hex': colorHex,
+    });
+  }
+
   Future<void> deleteHighlight({
     required String userId,
     required String highlightId,
