@@ -38,12 +38,18 @@ class PublicUser {
   final String? photoUrl;
   final ImageMeta? photoMeta;
   final int postsCount;
+  final int followersCount;
+  final int followingCount;
+  final bool isFollowing;
   const PublicUser({
     required this.id,
     required this.name,
     required this.photoUrl,
     required this.photoMeta,
     required this.postsCount,
+    this.followersCount = 0,
+    this.followingCount = 0,
+    this.isFollowing = false,
   });
 
   factory PublicUser.fromJson(Map<String, dynamic> j) => PublicUser(
@@ -52,6 +58,25 @@ class PublicUser {
         photoUrl: j['photo_url'] as String?,
         photoMeta: ImageMeta.tryFromJson(j['photo_meta']),
         postsCount: (j['posts_count'] as num?)?.toInt() ?? 0,
+        followersCount: (j['followers_count'] as num?)?.toInt() ?? 0,
+        followingCount: (j['following_count'] as num?)?.toInt() ?? 0,
+        isFollowing: j['is_following'] as bool? ?? false,
+      );
+
+  PublicUser copyWith({
+    int? followersCount,
+    int? followingCount,
+    bool? isFollowing,
+  }) =>
+      PublicUser(
+        id: id,
+        name: name,
+        photoUrl: photoUrl,
+        photoMeta: photoMeta,
+        postsCount: postsCount,
+        followersCount: followersCount ?? this.followersCount,
+        followingCount: followingCount ?? this.followingCount,
+        isFollowing: isFollowing ?? this.isFollowing,
       );
 }
 
@@ -514,6 +539,57 @@ class ApiDataService implements SyncDispatcher {
       return PublicUser.fromJson(data);
     } catch (_) {
       return null;
+    }
+  }
+
+  /// Follow another user. Idempotent server-side; returns the canonical
+  /// followers count + relationship state from the server so the caller
+  /// can reconcile any drift after an optimistic UI update.
+  Future<({bool isFollowing, int followersCount})> followUser(String userId) async {
+    final response = await _client.post('/api/users/$userId/follow');
+    final data = (response.data as Map<String, dynamic>?) ?? const {};
+    return (
+      isFollowing: data['is_following'] as bool? ?? true,
+      followersCount: (data['followers_count'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  Future<({bool isFollowing, int followersCount})> unfollowUser(String userId) async {
+    final response = await _client.delete('/api/users/$userId/follow');
+    final data = (response.data as Map<String, dynamic>?) ?? const {};
+    return (
+      isFollowing: data['is_following'] as bool? ?? false,
+      followersCount: (data['followers_count'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  Future<List<PublicUser>> getFollowers(String userId, {int limit = 50}) async {
+    try {
+      final response = await _client.get(
+        '/api/users/$userId/followers',
+        queryParams: {'limit': limit},
+      );
+      final raw = (response.data as List?) ?? const [];
+      return raw
+          .map((d) => PublicUser.fromJson(d as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  Future<List<PublicUser>> getFollowing(String userId, {int limit = 50}) async {
+    try {
+      final response = await _client.get(
+        '/api/users/$userId/following',
+        queryParams: {'limit': limit},
+      );
+      final raw = (response.data as List?) ?? const [];
+      return raw
+          .map((d) => PublicUser.fromJson(d as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return const [];
     }
   }
 

@@ -12,11 +12,11 @@ import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 /// Public profile for any author. Reached from search results — shows
-/// the author's avatar + name + post count, then their published feed
-/// items as tappable rows.
+/// the author's avatar + name + post count + follower stats, then their
+/// published feed items as tappable rows.
 ///
-/// Stays read-only: follow / message / report wiring lives in higher-
-/// level epics, this page is purely a discovery surface.
+/// Follow / unfollow lives here; messaging + reporting are higher-level
+/// epics handled elsewhere.
 class AuthorProfilePage extends StatefulWidget {
   final String userId;
   final PublicUser? seed;
@@ -31,6 +31,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
   List<FeedItemModel> _posts = const [];
   bool _loadingUser = true;
   bool _loadingPosts = true;
+  bool _followInFlight = false;
 
   @override
   void initState() {
@@ -50,18 +51,68 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
   Future<void> _load() async {
     final api = context.read<AuthProvider>().dataService;
     final futures = await Future.wait([
-      _user == null ? api.getPublicUser(widget.userId) : Future.value(_user),
+      api.getPublicUser(widget.userId),
       api.getFeedItemsByAuthor(widget.userId),
     ]);
     if (!mounted) return;
     setState(() {
-      _user = futures[0] as PublicUser?;
+      _user = (futures[0] as PublicUser?) ?? _user;
       _posts = (futures[1] as List<FeedItemModel>)
           .where((p) => !p.isDraft)
           .toList(growable: false);
       _loadingUser = false;
       _loadingPosts = false;
     });
+  }
+
+  Future<void> _toggleFollow() async {
+    final user = _user;
+    if (user == null || _followInFlight) return;
+    final wasFollowing = user.isFollowing;
+    // Optimistic update so the button feels instant; reconcile on response.
+    setState(() {
+      _followInFlight = true;
+      _user = user.copyWith(
+        isFollowing: !wasFollowing,
+        followersCount: (user.followersCount + (wasFollowing ? -1 : 1))
+            .clamp(0, 1 << 30),
+      );
+    });
+    final api = context.read<AuthProvider>().dataService;
+    try {
+      final result = wasFollowing
+          ? await api.unfollowUser(user.id)
+          : await api.followUser(user.id);
+      if (!mounted) return;
+      setState(() {
+        _user = _user?.copyWith(
+          isFollowing: result.isFollowing,
+          followersCount: result.followersCount,
+        );
+      });
+      AnalyticsService.instance.track(
+        wasFollowing ? 'user_unfollowed' : 'user_followed',
+        screen: '/u/:id',
+        action: 'click',
+        entityType: 'user',
+        entityId: user.id,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      // Revert on failure.
+      setState(() => _user = user);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            wasFollowing ? 'Could not unfollow' : 'Could not follow',
+            style: GoogleFonts.inter(fontSize: 13),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _followInFlight = false);
+    }
   }
 
   @override
@@ -71,6 +122,8 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final subtle = textColor.withValues(alpha: 0.55);
     final user = _user;
+    final viewerId = context.watch<AuthProvider>().currentUser?.id;
+    final isSelf = viewerId != null && viewerId == widget.userId;
 
     return Scaffold(
       backgroundColor: bg,
@@ -102,7 +155,21 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
                   child: ListView(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                     children: [
-                      _buildHeader(user, isDark, textColor, subtle),
+                      _buildHeader(user, isDark, textColor, subtle, isSelf),
+                      const SizedBox(height: 18),
+                      _StatsRow(
+                        user: user,
+                        textColor: textColor,
+                        subtle: subtle,
+                        onFollowersTap: () => context.push(
+                          '/u/${user.id}/followers',
+                          extra: user,
+                        ),
+                        onFollowingTap: () => context.push(
+                          '/u/${user.id}/following',
+                          extra: user,
+                        ),
+                      ),
                       const SizedBox(height: 24),
                       _buildPostsHeader(textColor, subtle),
                       const SizedBox(height: 12),
@@ -137,10 +204,12 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
     bool isDark,
     Color textColor,
     Color subtle,
+    bool isSelf,
   ) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        _Avatar(user: user, isDark: isDark, textColor: textColor, size: 64),
+        _Avatar(user: user, isDark: isDark, textColor: textColor, size: 72),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
@@ -163,6 +232,15 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
                     : '${user.postsCount} published stories',
                 style: GoogleFonts.inter(fontSize: 13, color: subtle),
               ),
+              if (!isSelf) ...[
+                const SizedBox(height: 10),
+                _FollowButton(
+                  isFollowing: user.isFollowing,
+                  loading: _followInFlight,
+                  isDark: isDark,
+                  onPressed: _toggleFollow,
+                ),
+              ],
             ],
           ),
         ),
@@ -191,6 +269,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
   }
 }
 
+/// Avatar with a refreshed brand-mark fallback. When the user has no
+/// photo we render a rounded-square monogram tile (instead of the old
+/// linked-rings circle) so the public profile reads as a "space" — a
+/// little card-like surface — rather than a chat bubble.
 class _Avatar extends StatelessWidget {
   final PublicUser user;
   final bool isDark;
@@ -207,48 +289,269 @@ class _Avatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final url = user.photoUrl;
     final hasImage = url != null && url.isNotEmpty;
-    final placeholder = Container(
+    if (hasImage) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(size * 0.22),
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: AppNetworkImage(
+            url: url,
+            meta: user.photoMeta,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            errorWidget: _BrandMark(
+              user: user,
+              isDark: isDark,
+              textColor: textColor,
+              size: size,
+            ),
+          ),
+        ),
+      );
+    }
+    return _BrandMark(
+      user: user,
+      isDark: isDark,
+      textColor: textColor,
+      size: size,
+    );
+  }
+}
+
+/// Rounded-square monogram tile — the new "inkspace" brand mark. The
+/// gradient + border treatment mirrors the brand surfaces in the rest of
+/// the app and reads better than a flat grey circle when an author has
+/// no profile photo.
+class _BrandMark extends StatelessWidget {
+  final PublicUser user;
+  final bool isDark;
+  final Color textColor;
+  final double size;
+  const _BrandMark({
+    required this.user,
+    required this.isDark,
+    required this.textColor,
+    required this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tileTop =
+        isDark ? const Color(0xFF1F1F23) : const Color(0xFFEFF1F4);
+    final tileBottom =
+        isDark ? const Color(0xFF111114) : const Color(0xFFFFFFFF);
+    final border = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.06);
+    return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isDark ? Colors.white12 : Colors.black12,
+        borderRadius: BorderRadius.circular(size * 0.22),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [tileTop, tileBottom],
+        ),
+        border: Border.all(color: border, width: 1),
       ),
       child: Text(
-        _initials(user.name ?? '?'),
-        style: GoogleFonts.inter(
-          fontSize: size * 0.32,
-          fontWeight: FontWeight.w700,
+        _initial(user.name),
+        style: GoogleFonts.playfairDisplay(
+          fontSize: size * 0.46,
+          fontWeight: FontWeight.w800,
           color: textColor,
-        ),
-      ),
-    );
-    if (!hasImage) return placeholder;
-    return ClipOval(
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: AppNetworkImage(
-          url: url,
-          meta: user.photoMeta,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorWidget: placeholder,
+          height: 1,
+          letterSpacing: -1,
         ),
       ),
     );
   }
 
-  String _initials(String name) {
-    final parts =
-        name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
-    if (parts.isEmpty) return '?';
-    final first = parts.first.substring(0, 1).toUpperCase();
-    final last =
-        parts.length > 1 ? parts.last.substring(0, 1).toUpperCase() : '';
-    return '$first$last';
+  String _initial(String? name) {
+    final t = (name ?? '').trim();
+    if (t.isEmpty) return 'I';
+    return t.substring(0, 1).toUpperCase();
+  }
+}
+
+class _FollowButton extends StatelessWidget {
+  final bool isFollowing;
+  final bool loading;
+  final bool isDark;
+  final VoidCallback onPressed;
+  const _FollowButton({
+    required this.isFollowing,
+    required this.loading,
+    required this.isDark,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = isFollowing
+        ? (isDark ? Colors.white : const Color(0xFF0F172A))
+        : (isDark ? Colors.black : Colors.white);
+    final bg = isFollowing
+        ? Colors.transparent
+        : (isDark ? Colors.white : const Color(0xFF0F172A));
+    final border = isFollowing
+        ? (isDark
+            ? Colors.white.withValues(alpha: 0.25)
+            : Colors.black.withValues(alpha: 0.15))
+        : Colors.transparent;
+    return SizedBox(
+      height: 34,
+      child: TextButton(
+        onPressed: loading ? null : onPressed,
+        style: TextButton.styleFrom(
+          backgroundColor: bg,
+          foregroundColor: fg,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(color: border, width: 1),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          minimumSize: const Size(96, 34),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: loading
+            ? SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation(fg),
+                ),
+              )
+            : Text(
+                isFollowing ? 'Following' : 'Follow',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: fg,
+                ),
+              ),
+      ),
+    );
+  }
+}
+
+class _StatsRow extends StatelessWidget {
+  final PublicUser user;
+  final Color textColor;
+  final Color subtle;
+  final VoidCallback onFollowersTap;
+  final VoidCallback onFollowingTap;
+  const _StatsRow({
+    required this.user,
+    required this.textColor,
+    required this.subtle,
+    required this.onFollowersTap,
+    required this.onFollowingTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _StatTile(
+          count: user.postsCount,
+          label: 'Stories',
+          textColor: textColor,
+          subtle: subtle,
+          onTap: null,
+        ),
+        _Divider(subtle: subtle),
+        _StatTile(
+          count: user.followersCount,
+          label: 'Followers',
+          textColor: textColor,
+          subtle: subtle,
+          onTap: onFollowersTap,
+        ),
+        _Divider(subtle: subtle),
+        _StatTile(
+          count: user.followingCount,
+          label: 'Following',
+          textColor: textColor,
+          subtle: subtle,
+          onTap: onFollowingTap,
+        ),
+      ],
+    );
+  }
+}
+
+class _StatTile extends StatelessWidget {
+  final int count;
+  final String label;
+  final Color textColor;
+  final Color subtle;
+  final VoidCallback? onTap;
+  const _StatTile({
+    required this.count,
+    required this.label,
+    required this.textColor,
+    required this.subtle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Column(
+            children: [
+              Text(
+                _fmt(count),
+                style: GoogleFonts.inter(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: textColor,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: GoogleFonts.inter(fontSize: 12, color: subtle),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  static String _fmt(int n) {
+    if (n < 1000) return '$n';
+    if (n < 1000000) {
+      final v = n / 1000;
+      return v >= 10 ? '${v.toStringAsFixed(0)}k' : '${v.toStringAsFixed(1)}k';
+    }
+    final v = n / 1000000;
+    return v >= 10 ? '${v.toStringAsFixed(0)}M' : '${v.toStringAsFixed(1)}M';
+  }
+}
+
+class _Divider extends StatelessWidget {
+  final Color subtle;
+  const _Divider({required this.subtle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 28,
+      color: subtle.withValues(alpha: 0.25),
+    );
   }
 }
 

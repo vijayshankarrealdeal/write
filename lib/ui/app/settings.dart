@@ -78,7 +78,7 @@ class SettingsPage extends StatelessWidget {
           ), // Premium readable width
           child: ListView(
             padding: const EdgeInsets.symmetric(
-              horizontal: 32.0,
+              horizontal: 16.0,
               vertical: 16.0,
             ),
             children: [

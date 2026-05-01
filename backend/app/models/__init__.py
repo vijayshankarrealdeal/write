@@ -10,6 +10,7 @@ from app.models.bookmark import Bookmark
 from app.models.bookshelf import Bookshelf
 from app.models.comment import Comment
 from app.models.feed_item import FeedItem
+from app.models.follow import Follow
 from app.models.highlight import Highlight
 from app.models.notification import Notification
 from app.models.push_subscription import PushSubscription
@@ -27,6 +28,7 @@ __all__ = [
     "Comment",
     "CrashReport",
     "FeedItem",
+    "Follow",
     "Highlight",
     "Notification",
     "PageVisit",

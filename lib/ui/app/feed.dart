@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -687,20 +689,53 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
       ],
     );
 
+    // The frame uses a fixed, predictable ratio. The image renders inside
+    // it with BoxFit.contain so the author's full artwork is always visible,
+    // and the empty space is filled by a heavily blurred copy of the same
+    // image — ambient color matches the cover instead of leaving grey bars.
+    final heroRatio = isMobile ? 16 / 10 : 4 / 5;
+    final hasImage = item.imageUrl.isNotEmpty || item.imageMeta != null;
     final cover = AspectRatio(
-      aspectRatio: isMobile ? 16 / 10 : 4 / 5,
+      aspectRatio: heroRatio,
       child: LayoutBuilder(
-        builder: (ctx, c) => (item.imageUrl.isNotEmpty || item.imageMeta != null)
-            ? AppNetworkImage(
+        builder: (ctx, c) {
+          if (!hasImage) {
+            return _buildPlaceholderCover(item.title, isMobile ? 180 : 380);
+          }
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              ImageFiltered(
+                imageFilter: ui.ImageFilter.blur(
+                  sigmaX: 32,
+                  sigmaY: 32,
+                  tileMode: TileMode.decal,
+                ),
+                child: AppNetworkImage(
+                  url: item.imageUrl,
+                  meta: item.imageMeta,
+                  width: c.maxWidth,
+                  height: c.maxHeight,
+                  fit: BoxFit.cover,
+                  errorWidget: const SizedBox.shrink(),
+                ),
+              ),
+              Container(
+                color: (isDark ? Colors.black : Colors.white)
+                    .withValues(alpha: 0.18),
+              ),
+              AppNetworkImage(
                 url: item.imageUrl,
                 meta: item.imageMeta,
                 width: c.maxWidth,
                 height: c.maxHeight,
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
                 errorWidget:
                     _buildPlaceholderCover(item.title, isMobile ? 180 : 380),
-              )
-            : _buildPlaceholderCover(item.title, isMobile ? 180 : 380),
+              ),
+            ],
+          );
+        },
       ),
     );
 
@@ -717,6 +752,15 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
                   ? Colors.white.withValues(alpha: 0.06)
                   : Colors.black.withValues(alpha: 0.06),
             ),
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
           ),
           clipBehavior: Clip.antiAlias,
           child: isMobile
@@ -1974,26 +2018,40 @@ class _BookCardState extends State<_BookCard> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(m ? 10 : 12),
-                child: AspectRatio(
-                  aspectRatio: 3 / 4,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      (widget.item.imageUrl.isNotEmpty ||
-                              widget.item.imageMeta != null)
-                          ? LayoutBuilder(
-                              builder: (ctx, c) => AppNetworkImage(
-                                url: widget.item.imageUrl,
-                                meta: widget.item.imageMeta,
-                                width: c.maxWidth,
-                                height: c.maxHeight,
-                                fit: BoxFit.cover,
-                                errorWidget: _buildPlaceholder(),
-                              ),
-                            )
-                          : _buildPlaceholder(),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(m ? 10 : 12),
+                  boxShadow: widget.isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withValues(
+                                alpha: _hovering ? 0.14 : 0.08),
+                            blurRadius: _hovering ? 18 : 10,
+                            offset: Offset(0, _hovering ? 8 : 4),
+                          ),
+                        ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(m ? 10 : 12),
+                  child: AspectRatio(
+                    aspectRatio: 3 / 4,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        (widget.item.imageUrl.isNotEmpty ||
+                                widget.item.imageMeta != null)
+                            ? LayoutBuilder(
+                                builder: (ctx, c) => AppNetworkImage(
+                                  url: widget.item.imageUrl,
+                                  meta: widget.item.imageMeta,
+                                  width: c.maxWidth,
+                                  height: c.maxHeight,
+                                  fit: BoxFit.cover,
+                                  errorWidget: _buildPlaceholder(),
+                                ),
+                              )
+                            : _buildPlaceholder(),
                       if (_hovering)
                         Container(
                           decoration: BoxDecoration(
@@ -2036,7 +2094,8 @@ class _BookCardState extends State<_BookCard> {
                             ),
                           ),
                         ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

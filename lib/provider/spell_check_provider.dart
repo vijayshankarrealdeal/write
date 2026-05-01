@@ -98,13 +98,29 @@ class SpellCheckProvider extends ChangeNotifier {
   Future<List<String>> suggest(String word, {int max = 5}) =>
       _service.suggest(word, max: max);
 
-  Future<void> ignoreWord(String word) async {
+  /// Permanently add a word to the user's personal dictionary. Future
+  /// scans (in this and other sections) will treat the word as known.
+  Future<void> addToDictionary(String word) async {
     final lower = word.toLowerCase();
     if (_ignored.contains(lower)) return;
     _ignored = {..._ignored, lower};
     await _storage.saveSpellCheckIgnored(_ignored.toList());
     _issues =
         _issues.where((i) => i.word.toLowerCase() != lower).toList();
+    final c = _attached;
+    if (c != null) applySpellCheckErrors(c, _issues);
+    notifyListeners();
+  }
+
+  /// Drop a single issue from the current scan results without persisting.
+  /// The next document change re-runs the scan and may surface it again.
+  void dismissIssue(Misspelling m) {
+    final before = _issues.length;
+    _issues = _issues
+        .where((i) =>
+            !(i.start == m.start && i.length == m.length && i.word == m.word))
+        .toList();
+    if (_issues.length == before) return;
     final c = _attached;
     if (c != null) applySpellCheckErrors(c, _issues);
     notifyListeners();

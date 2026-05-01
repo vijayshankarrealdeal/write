@@ -510,8 +510,10 @@ class _EditiorPageState extends State<EditiorPage>
               );
             },
             onReplace: _replaceMisspelling,
+            onAddToDictionary: (m) =>
+                context.read<SpellCheckProvider>().addToDictionary(m.word),
             onIgnore: (m) =>
-                context.read<SpellCheckProvider>().ignoreWord(m.word),
+                context.read<SpellCheckProvider>().dismissIssue(m),
           ),
         ),
       ),

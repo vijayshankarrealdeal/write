@@ -2131,7 +2131,16 @@ class _PostDetailPageState extends State<PostDetailPage>
         endDrawer: item.sections.length > 1
             ? _buildSectionsDrawer(isDark, textColor, subtleColor, bgColor, item)
             : null,
-        body: GestureDetector(
+        // Immersive reader hides the AppBar, which is also what was
+        // padding the body away from the status bar / dynamic island.
+        // Re-introduce the top inset (and the home-indicator inset)
+        // explicitly so reading text doesn't slide under system chrome.
+        body: SafeArea(
+          top: inReader && _immersiveReader,
+          bottom: inReader && _immersiveReader,
+          left: false,
+          right: false,
+          child: GestureDetector(
           onDoubleTap: _onDoubleTapLike,
           child: Stack(
             children: [
@@ -2175,6 +2184,7 @@ class _PostDetailPageState extends State<PostDetailPage>
               ),
             ],
           ),
+        ),
         ),
       ),
           // Reader brightness overlay — covers the *entire* reading page

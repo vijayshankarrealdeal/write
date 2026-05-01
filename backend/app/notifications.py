@@ -103,6 +103,8 @@ def _push_title(notif: Notification) -> str:
         return f"{actor} commented on your story"
     if notif.kind == "reply":
         return f"{actor} replied to your comment"
+    if notif.kind == "follow":
+        return f"{actor} started following you"
     return "InkSpaceX"
 
 

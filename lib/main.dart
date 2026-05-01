@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/ri.dart';
 import 'package:provider/provider.dart';
 
 import 'package:go_router/go_router.dart';
@@ -404,29 +406,42 @@ class _MobileHomePage extends StatelessWidget {
 
     return Consumer<NavProvider>(
       builder: (context, nav, _) {
+        final isProfileSelected =
+            nav.selectedPage == SelectedPage.settings;
+        final iconColor = isDark ? Colors.white : Colors.black;
         return CupertinoTabScaffold(
           tabBar: CupertinoTabBar(
-            activeColor: isDark ? Colors.white : Colors.black,
-            items: const [
+            activeColor: iconColor,
+            height: 56,
+            iconSize: 26,
+            items: [
               BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.house),
-                activeIcon: Icon(CupertinoIcons.house_fill),
-                label: "Home",
+                icon: Center(
+                  child: Iconify(
+                    Ri.home_2_line,
+                    size: 26,
+                    color: iconColor,
+                  ),
+                ),
+              ),
+              const BottomNavigationBarItem(
+                icon: Center(
+                  child: Icon(CupertinoIcons.pencil_outline),
+                ),
+              ),
+              const BottomNavigationBarItem(
+                icon: Center(child: Icon(CupertinoIcons.heart)),
+                activeIcon: Center(
+                  child: Icon(CupertinoIcons.heart_fill),
+                ),
               ),
               BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.pen),
-                activeIcon: Icon(CupertinoIcons.pen),
-                label: "Write",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.heart),
-                activeIcon: Icon(CupertinoIcons.heart_fill),
-                label: "My Books",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.person),
-                activeIcon: Icon(CupertinoIcons.person_fill),
-                label: "Profile",
+                icon: Center(
+                  child: _NavAvatar(
+                    isDark: isDark,
+                    isSelected: isProfileSelected,
+                  ),
+                ),
               ),
             ],
             currentIndex: nav.selectedPage.index,
@@ -448,6 +463,66 @@ class _MobileHomePage extends StatelessWidget {
               },
             );
           },
+        );
+      },
+    );
+  }
+}
+
+class _NavAvatar extends StatelessWidget {
+  const _NavAvatar({required this.isDark, required this.isSelected});
+
+  final bool isDark;
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(
+      builder: (context, auth, _) {
+        final user = auth.currentUser;
+        final name = user?.name ?? '';
+        final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
+        final ringColor = isSelected
+            ? (isDark ? Colors.white : Colors.black)
+            : Colors.transparent;
+        final fallbackColor = isDark
+            ? Colors.white.withValues(alpha: 0.12)
+            : Colors.black.withValues(alpha: 0.08);
+        final fallbackText = isDark ? Colors.white : Colors.black;
+
+        return Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: ringColor,
+              width: isSelected ? 1.5 : 0,
+            ),
+          ),
+          padding: EdgeInsets.all(isSelected ? 1.5 : 0),
+          child: ClipOval(
+            child: user?.photoUrl != null
+                ? AppNetworkImage(
+                    url: user!.photoUrl,
+                    meta: user.photoMeta,
+                    width: 28,
+                    height: 28,
+                    fit: BoxFit.cover,
+                  )
+                : Container(
+                    color: fallbackColor,
+                    alignment: Alignment.center,
+                    child: Text(
+                      initial,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: fallbackText,
+                      ),
+                    ),
+                  ),
+          ),
         );
       },
     );

@@ -10,7 +10,8 @@ import 'package:inkspacex/ui/widgets/app_spinner.dart';
 //
 // Lists misspellings in document order. Tapping an entry shows its
 // suggestions inline; selecting a suggestion replaces the word in the
-// editor; "Ignore" adds it to the user's personal dictionary.
+// editor; "Add" permanently adds the word to the personal dictionary;
+// "Ignore" dismisses just this one occurrence in the current scan.
 class SpellCheckSheet extends StatelessWidget {
   const SpellCheckSheet({
     super.key,
@@ -18,6 +19,7 @@ class SpellCheckSheet extends StatelessWidget {
     required this.isDark,
     required this.onJump,
     required this.onReplace,
+    required this.onAddToDictionary,
     required this.onIgnore,
   });
 
@@ -25,6 +27,7 @@ class SpellCheckSheet extends StatelessWidget {
   final bool isDark;
   final void Function(spellsvc.Misspelling) onJump;
   final void Function(spellsvc.Misspelling, String) onReplace;
+  final void Function(spellsvc.Misspelling) onAddToDictionary;
   final void Function(spellsvc.Misspelling) onIgnore;
 
   @override
@@ -117,6 +120,7 @@ class SpellCheckSheet extends StatelessWidget {
                         onReplace: (s) {
                           onReplace(m, s);
                         },
+                        onAddToDictionary: () => onAddToDictionary(m),
                         onIgnore: () => onIgnore(m),
                       );
                     },
@@ -135,6 +139,7 @@ class _IssueRow extends StatefulWidget {
     required this.mutedFg,
     required this.onJump,
     required this.onReplace,
+    required this.onAddToDictionary,
     required this.onIgnore,
   });
 
@@ -143,6 +148,7 @@ class _IssueRow extends StatefulWidget {
   final Color mutedFg;
   final VoidCallback onJump;
   final void Function(String) onReplace;
+  final VoidCallback onAddToDictionary;
   final VoidCallback onIgnore;
 
   @override
@@ -205,7 +211,39 @@ class _IssueRowState extends State<_IssueRow> {
                 ),
                 const Spacer(),
                 TextButton(
+                  onPressed: widget.onAddToDictionary,
+                  style: TextButton.styleFrom(
+                    minimumSize: Size.zero,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(CupertinoIcons.add,
+                          size: 12, color: widget.fg),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Add',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: widget.fg,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 4),
+                TextButton(
                   onPressed: widget.onIgnore,
+                  style: TextButton.styleFrom(
+                    minimumSize: Size.zero,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
                   child: Text(
                     'Ignore',
                     style: GoogleFonts.inter(

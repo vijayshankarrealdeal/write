@@ -37,23 +37,36 @@ void applySpellCheckErrors(
   final length = doc.length;
   if (length <= 1) return;
 
-  final clearOps = _collectErrorRanges(doc);
-  if (clearOps.isEmpty && issues.isEmpty) return;
-
-  final batch = Delta();
-  var cursor = 0;
-  final marks = <_Mark>[];
-  for (final r in clearOps) {
-    marks.add(_Mark(r.$1, r.$2, clear: true));
-  }
+  // Existing decorated ranges in the live document.
+  final existing = _collectErrorRanges(doc).toSet();
+  // Ranges we want decorated after this call.
+  final desired = <(int, int)>{};
   for (final m in issues) {
     if (m.start < 0 || m.length <= 0) continue;
     final end = m.start + m.length;
     if (end > length - 1) continue;
-    marks.add(_Mark(m.start, m.length, clear: false));
+    desired.add((m.start, m.length));
+  }
+
+  // Only diff against the live state — touching ranges that are already
+  // correctly decorated would emit overlapping clear+apply marks at the
+  // same offset, and the second mark gets skipped by the cursor walk
+  // below, accidentally wiping the underline.
+  final toClear = existing.difference(desired);
+  final toApply = desired.difference(existing);
+  if (toClear.isEmpty && toApply.isEmpty) return;
+
+  final marks = <_Mark>[];
+  for (final r in toClear) {
+    marks.add(_Mark(r.$1, r.$2, clear: true));
+  }
+  for (final r in toApply) {
+    marks.add(_Mark(r.$1, r.$2, clear: false));
   }
   marks.sort((a, b) => a.start.compareTo(b.start));
 
+  final batch = Delta();
+  var cursor = 0;
   for (final mark in marks) {
     if (mark.start < cursor) continue;
     if (mark.start > cursor) {

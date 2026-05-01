@@ -4,11 +4,14 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from app.auth.deps import get_current_user
 from app.database import get_db
 from app.models.feed_item import FeedItem
+from app.models.follow import Follow
 from app.models.user import User
+from app.notifications import create_notification
 from app.schemas.user import ListUpdateRequest, UserResponse, UserUpdate
 
 router = APIRouter(prefix="/api/users", tags=["users"])
@@ -26,8 +29,29 @@ class PublicUser(BaseModel):
     photo_url: str | None
     photo_meta: dict | None = None
     posts_count: int = 0
+    followers_count: int = 0
+    following_count: int = 0
+    is_following: bool = False
 
     model_config = {"from_attributes": True}
+
+
+def _follower_count_subquery(target_col):
+    return (
+        select(func.count(Follow.id))
+        .where(Follow.followee_id == target_col)
+        .correlate(User)
+        .scalar_subquery()
+    )
+
+
+def _following_count_subquery(target_col):
+    return (
+        select(func.count(Follow.id))
+        .where(Follow.follower_id == target_col)
+        .correlate(User)
+        .scalar_subquery()
+    )
 
 
 @router.get("/me", response_model=UserResponse)
@@ -56,24 +80,54 @@ async def search_users(
         .correlate(User)
         .scalar_subquery()
     )
+    followers_count = _follower_count_subquery(User.id)
+    following_count = _following_count_subquery(User.id)
     stmt = (
-        select(User, posts_count.label("posts_count"))
+        select(
+            User,
+            posts_count.label("posts_count"),
+            followers_count.label("followers_count"),
+            following_count.label("following_count"),
+        )
         .where(User.name.is_not(None))
         .where(User.name.ilike(pattern))
         .order_by(posts_count.desc(), User.name.asc())
         .limit(limit)
     )
     rows = (await db.execute(stmt)).all()
+    target_ids = [u.id for u, *_ in rows]
+    following_set = await _following_set(db, user.id, target_ids)
     return [
         PublicUser(
             id=u.id,
             name=u.name,
             photo_url=u.photo_url,
             photo_meta=u.photo_meta,
-            posts_count=int(c or 0),
+            posts_count=int(p or 0),
+            followers_count=int(fc or 0),
+            following_count=int(gc or 0),
+            is_following=u.id in following_set,
         )
-        for u, c in rows
+        for u, p, fc, gc in rows
     ]
+
+
+async def _following_set(
+    db: AsyncSession, viewer_id: UUID, target_ids: list[UUID]
+) -> set[UUID]:
+    """Return the subset of `target_ids` that `viewer_id` follows.
+
+    One round-trip instead of N — keeps search results O(1) DB hits.
+    """
+    if not target_ids:
+        return set()
+    rows = await db.execute(
+        select(Follow.followee_id).where(
+            Follow.follower_id == viewer_id,
+            Follow.followee_id.in_(target_ids),
+        )
+    )
+    return {r for (r,) in rows.all()}
 
 
 @router.get("/{user_id}", response_model=PublicUser)
@@ -90,18 +144,217 @@ async def get_public_user(
         .where(FeedItem.is_draft == False)  # noqa: E712
         .scalar_subquery()
     )
-    stmt = select(User, posts_count.label("posts_count")).where(User.id == user_id)
+    followers_count = (
+        select(func.count(Follow.id))
+        .where(Follow.followee_id == user_id)
+        .scalar_subquery()
+    )
+    following_count = (
+        select(func.count(Follow.id))
+        .where(Follow.follower_id == user_id)
+        .scalar_subquery()
+    )
+    stmt = (
+        select(
+            User,
+            posts_count.label("posts_count"),
+            followers_count.label("followers_count"),
+            following_count.label("following_count"),
+        )
+        .where(User.id == user_id)
+    )
     row = (await db.execute(stmt)).first()
     if not row:
         raise HTTPException(status_code=404, detail="User not found")
-    u, c = row
+    u, p, fc, gc = row
+    is_following = False
+    if user.id != user_id:
+        is_following = (
+            await db.execute(
+                select(Follow.id).where(
+                    Follow.follower_id == user.id,
+                    Follow.followee_id == user_id,
+                )
+            )
+        ).first() is not None
     return PublicUser(
         id=u.id,
         name=u.name,
         photo_url=u.photo_url,
         photo_meta=u.photo_meta,
-        posts_count=int(c or 0),
+        posts_count=int(p or 0),
+        followers_count=int(fc or 0),
+        following_count=int(gc or 0),
+        is_following=is_following,
     )
+
+
+@router.post("/{user_id}/follow")
+async def follow_user(
+    user_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Follow another user. Idempotent — re-follow is a no-op.
+
+    Self-follow is rejected at the DB layer (CHECK constraint) and here
+    so we can return a clean 400 instead of a 500.
+    """
+    if user_id == user.id:
+        raise HTTPException(status_code=400, detail="Cannot follow yourself")
+    target = (
+        await db.execute(select(User).where(User.id == user_id))
+    ).scalar_one_or_none()
+    if target is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    existing = (
+        await db.execute(
+            select(Follow.id).where(
+                Follow.follower_id == user.id,
+                Follow.followee_id == user_id,
+            )
+        )
+    ).first()
+    if existing is None:
+        db.add(Follow(follower_id=user.id, followee_id=user_id))
+        try:
+            await db.flush()
+        except IntegrityError:
+            # Race with a concurrent follow — treat as already-followed.
+            await db.rollback()
+        else:
+            await create_notification(
+                db,
+                recipient_id=user_id,
+                kind="follow",
+                actor=user,
+            )
+            await db.commit()
+
+    followers_count = (
+        await db.execute(
+            select(func.count(Follow.id)).where(Follow.followee_id == user_id)
+        )
+    ).scalar_one()
+    return {
+        "ok": True,
+        "is_following": True,
+        "followers_count": int(followers_count or 0),
+    }
+
+
+@router.delete("/{user_id}/follow")
+async def unfollow_user(
+    user_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Unfollow. Idempotent — no error if not currently following."""
+    follow = (
+        await db.execute(
+            select(Follow).where(
+                Follow.follower_id == user.id,
+                Follow.followee_id == user_id,
+            )
+        )
+    ).scalar_one_or_none()
+    if follow is not None:
+        await db.delete(follow)
+        await db.commit()
+
+    followers_count = (
+        await db.execute(
+            select(func.count(Follow.id)).where(Follow.followee_id == user_id)
+        )
+    ).scalar_one()
+    return {
+        "ok": True,
+        "is_following": False,
+        "followers_count": int(followers_count or 0),
+    }
+
+
+@router.get("/{user_id}/followers", response_model=list[PublicUser])
+async def list_followers(
+    user_id: UUID,
+    limit: int = Query(50, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    return await _list_relations(db, viewer_id=user.id, target_id=user_id, limit=limit, mode="followers")
+
+
+@router.get("/{user_id}/following", response_model=list[PublicUser])
+async def list_following(
+    user_id: UUID,
+    limit: int = Query(50, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    return await _list_relations(db, viewer_id=user.id, target_id=user_id, limit=limit, mode="following")
+
+
+async def _list_relations(
+    db: AsyncSession,
+    *,
+    viewer_id: UUID,
+    target_id: UUID,
+    limit: int,
+    mode: str,
+) -> list[PublicUser]:
+    """Resolve followers/following list for `target_id`.
+
+    `mode` selects which side of the join we walk: "followers" returns
+    users who follow target; "following" returns users target follows.
+    Each row carries the same enriched counts as a search hit so the
+    list rows can render exactly like search results.
+    """
+    if mode == "followers":
+        join_cond = Follow.follower_id == User.id
+        target_filter = Follow.followee_id == target_id
+    else:
+        join_cond = Follow.followee_id == User.id
+        target_filter = Follow.follower_id == target_id
+
+    posts_count = (
+        select(func.count(FeedItem.id))
+        .where(FeedItem.author_id == User.id)
+        .where(FeedItem.is_draft == False)  # noqa: E712
+        .correlate(User)
+        .scalar_subquery()
+    )
+    followers_count = _follower_count_subquery(User.id)
+    following_count = _following_count_subquery(User.id)
+    stmt = (
+        select(
+            User,
+            posts_count.label("posts_count"),
+            followers_count.label("followers_count"),
+            following_count.label("following_count"),
+            Follow.created_at,
+        )
+        .join(Follow, join_cond)
+        .where(target_filter)
+        .order_by(Follow.created_at.desc())
+        .limit(limit)
+    )
+    rows = (await db.execute(stmt)).all()
+    target_ids = [u.id for u, *_ in rows]
+    following_set = await _following_set(db, viewer_id, target_ids)
+    return [
+        PublicUser(
+            id=u.id,
+            name=u.name,
+            photo_url=u.photo_url,
+            photo_meta=u.photo_meta,
+            posts_count=int(p or 0),
+            followers_count=int(fc or 0),
+            following_count=int(gc or 0),
+            is_following=u.id in following_set,
+        )
+        for u, p, fc, gc, _ in rows
+    ]
 
 
 @router.put("/me", response_model=UserResponse)
