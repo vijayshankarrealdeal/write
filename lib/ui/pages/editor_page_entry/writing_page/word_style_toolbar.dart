@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'editor_constants.dart';
@@ -836,7 +837,9 @@ class _WordStyleToolbarState extends State<WordStyleToolbar> {
               ),
               FormatToggleButton(
                 icon: Icons.search,
-                tooltip: 'Find & Replace (Ctrl+F)',
+                tooltip: kIsWeb
+                    ? 'Find & Replace'
+                    : 'Find & Replace (Ctrl+F)',
                 isActive: widget.findReplaceOpen,
                 textColor: widget.textColor,
                 activeBg: activeBg,

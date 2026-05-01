@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -212,7 +213,12 @@ class _EditiorPageState extends State<EditiorPage>
         HardwareKeyboard.instance.isMetaPressed;
     if (!ctrlOrCmd) return false;
 
-    if (event.logicalKey == LogicalKeyboardKey.keyF && !_isCanvasMode) {
+    // On web, defer Cmd+F to the browser's native Find-in-Page so users don't
+    // see two find bars stacked. The toolbar button and command palette still
+    // open our custom bar for replace.
+    if (event.logicalKey == LogicalKeyboardKey.keyF &&
+        !_isCanvasMode &&
+        !kIsWeb) {
       setState(() => _findReplaceOpen = !_findReplaceOpen);
       return true;
     }
@@ -869,7 +875,7 @@ class _EditiorPageState extends State<EditiorPage>
         group: 'View',
         label: 'Find & replace',
         icon: Icons.search,
-        shortcut: '⌘F',
+        shortcut: kIsWeb ? null : '⌘F',
         run: () => setState(() => _findReplaceOpen = !_findReplaceOpen),
       ),
       PaletteCommand(
