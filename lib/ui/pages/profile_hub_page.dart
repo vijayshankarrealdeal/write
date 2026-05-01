@@ -107,38 +107,41 @@ class _ProfileHubPageState extends State<ProfileHubPage> {
                         color: textColor,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildStat(
-                          '${user?.readingList.length ?? 0}',
-                          'reading list',
-                          textColor,
+                    const SizedBox(height: 14),
+                    _StatsRow(
+                      textColor: textColor,
+                      dividerColor: textColor.withValues(alpha: 0.15),
+                      items: [
+                        _StatItem(
+                          count: user?.readingList.length ?? 0,
+                          label: 'Reading',
                         ),
-                        Container(
-                          width: 1,
-                          height: 14,
-                          margin: const EdgeInsets.symmetric(horizontal: 12),
-                          color: textColor.withValues(alpha: 0.15),
+                        _StatItem(
+                          count: user?.likes.length ?? 0,
+                          label: 'Liked',
                         ),
-                        _buildStat(
-                          '${user?.likes.length ?? 0}',
-                          'liked',
-                          textColor,
+                        _StatItem(
+                          count: pubSelf?.followersCount ?? 0,
+                          label: 'Followers',
+                          onTap: user == null
+                              ? null
+                              : () => context.push(
+                                  '/u/${user.id}/followers',
+                                  extra: pubSelf,
+                                ),
+                        ),
+                        _StatItem(
+                          count: pubSelf?.followingCount ?? 0,
+                          label: 'Following',
+                          onTap: user == null
+                              ? null
+                              : () => context.push(
+                                  '/u/${user.id}/following',
+                                  extra: pubSelf,
+                                ),
                         ),
                       ],
                     ),
-                    if (user != null) ...[
-                      const SizedBox(height: 12),
-                      _FollowSummary(
-                        userId: user.id,
-                        followers: pubSelf?.followersCount ?? 0,
-                        following: pubSelf?.followingCount ?? 0,
-                        textColor: textColor,
-                        seed: pubSelf,
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -229,27 +232,6 @@ class _ProfileHubPageState extends State<ProfileHubPage> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildStat(String count, String label, Color textColor) {
-    return RichText(
-      text: TextSpan(
-        style: GoogleFonts.inter(
-          fontSize: 13,
-          color: textColor.withValues(alpha: 0.65),
-        ),
-        children: [
-          TextSpan(
-            text: '$count ',
-            style: GoogleFonts.inter(
-              fontWeight: FontWeight.w600,
-              color: textColor,
-            ),
-          ),
-          TextSpan(text: label),
-        ],
       ),
     );
   }
@@ -352,77 +334,78 @@ class _ProfileHubPageState extends State<ProfileHubPage> {
   }
 }
 
-class _FollowSummary extends StatelessWidget {
-  final String userId;
-  final int followers;
-  final int following;
+class _StatItem {
+  final int count;
+  final String label;
+  final VoidCallback? onTap;
+  const _StatItem({
+    required this.count,
+    required this.label,
+    this.onTap,
+  });
+}
+
+class _StatsRow extends StatelessWidget {
+  final List<_StatItem> items;
   final Color textColor;
-  final PublicUser? seed;
-  const _FollowSummary({
-    required this.userId,
-    required this.followers,
-    required this.following,
+  final Color dividerColor;
+  const _StatsRow({
+    required this.items,
     required this.textColor,
-    required this.seed,
+    required this.dividerColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _link(
-          context,
-          followers,
-          'followers',
-          () => context.push('/u/$userId/followers', extra: seed),
-        ),
-        Container(
+    final children = <Widget>[];
+    for (var i = 0; i < items.length; i++) {
+      children.add(Expanded(child: _cell(items[i])));
+      if (i != items.length - 1) {
+        children.add(Container(
           width: 1,
-          height: 14,
-          margin: const EdgeInsets.symmetric(horizontal: 12),
-          color: textColor.withValues(alpha: 0.15),
-        ),
-        _link(
-          context,
-          following,
-          'following',
-          () => context.push('/u/$userId/following', extra: seed),
-        ),
-      ],
+          height: 28,
+          color: dividerColor,
+        ));
+      }
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: children,
     );
   }
 
-  Widget _link(
-    BuildContext context,
-    int count,
-    String label,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        child: RichText(
-          text: TextSpan(
+  Widget _cell(_StatItem item) {
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '${item.count}',
             style: GoogleFonts.inter(
-              fontSize: 13,
-              color: textColor.withValues(alpha: 0.65),
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: textColor,
+              height: 1.2,
             ),
-            children: [
-              TextSpan(
-                text: '$count ',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w600,
-                  color: textColor,
-                ),
-              ),
-              TextSpan(text: label),
-            ],
           ),
-        ),
+          const SizedBox(height: 2),
+          Text(
+            item.label,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: textColor.withValues(alpha: 0.55),
+              height: 1.2,
+            ),
+          ),
+        ],
       ),
+    );
+    if (item.onTap == null) return content;
+    return InkWell(
+      onTap: item.onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: content,
     );
   }
 }

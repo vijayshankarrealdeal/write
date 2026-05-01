@@ -1061,9 +1061,11 @@ class _EditiorPageState extends State<EditiorPage>
   }
 
   // ─── Paper Theme Colors ───
-  Color _getPaperColor(bool isDark) {
+  Color _getPaperColor(bool isDark) => _paperColorFor(_paperTheme, isDark);
+
+  Color _paperColorFor(PaperTheme theme, bool isDark) {
     if (isDark) {
-      switch (_paperTheme) {
+      switch (theme) {
         case PaperTheme.defaultTheme:
           return const Color(0xFF131315);
         case PaperTheme.sepia:
@@ -1080,7 +1082,7 @@ class _EditiorPageState extends State<EditiorPage>
           return const Color(0xFF0A0A14);
       }
     } else {
-      switch (_paperTheme) {
+      switch (theme) {
         case PaperTheme.defaultTheme:
           return Colors.white;
         case PaperTheme.sepia:
@@ -1096,6 +1098,28 @@ class _EditiorPageState extends State<EditiorPage>
         case PaperTheme.midnight:
           return const Color(0xFFEEEEF5);
       }
+    }
+  }
+
+  // Visible-on-dark swatch colors for the paper theme picker. The dark-mode
+  // paper colors are near-black, so the swatches would look like empty
+  // squares against the sheet surface — this returns a brighter sample.
+  Color _paperSwatchColor(PaperTheme theme) {
+    switch (theme) {
+      case PaperTheme.defaultTheme:
+        return const Color(0xFFFAFAFA);
+      case PaperTheme.sepia:
+        return const Color(0xFFF5ECD7);
+      case PaperTheme.warm:
+        return const Color(0xFFFFE9D6);
+      case PaperTheme.cool:
+        return const Color(0xFFD8E4F5);
+      case PaperTheme.green:
+        return const Color(0xFFD8EBD8);
+      case PaperTheme.rose:
+        return const Color(0xFFF7D6DD);
+      case PaperTheme.midnight:
+        return const Color(0xFF2A2A40);
     }
   }
 
@@ -1574,8 +1598,11 @@ class _EditiorPageState extends State<EditiorPage>
                         // Header
                         Row(
                           children: [
-                            Icon(CupertinoIcons.slider_horizontal_3,
-                                size: 20, color: textColor),
+                            Iconify(
+                              Carbon.pending,
+                              size: 20,
+                              color: textColor,
+                            ),
                             const SizedBox(width: 10),
                             Text(
                               'Writer Settings',
@@ -1677,6 +1704,7 @@ class _EditiorPageState extends State<EditiorPage>
                           runSpacing: 8,
                           children: PaperTheme.values.map((theme) {
                             final isActive = _paperTheme == theme;
+                            final swatch = _paperSwatchColor(theme);
                             return GestureDetector(
                               onTap: () {
                                 setSheetState(() {});
@@ -1685,20 +1713,20 @@ class _EditiorPageState extends State<EditiorPage>
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 10),
+                                    horizontal: 12, vertical: 9),
                                 decoration: BoxDecoration(
                                   color: isActive
                                       ? (isDark
                                           ? const Color(0xFF5B8DEF)
-                                              .withValues(alpha: 0.2)
+                                              .withValues(alpha: 0.18)
                                           : const Color(0xFF5B8DEF)
-                                              .withValues(alpha: 0.1))
+                                              .withValues(alpha: 0.10))
                                       : surfaceColor,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: isActive
                                         ? const Color(0xFF5B8DEF)
-                                            .withValues(alpha: 0.4)
+                                            .withValues(alpha: 0.55)
                                         : Colors.transparent,
                                     width: 1.5,
                                   ),
@@ -1710,16 +1738,26 @@ class _EditiorPageState extends State<EditiorPage>
                                       width: 16,
                                       height: 16,
                                       decoration: BoxDecoration(
-                                        color: _getPaperColor(isDark),
-                                        borderRadius: BorderRadius.circular(4),
+                                        color: swatch,
+                                        shape: BoxShape.circle,
                                         border: Border.all(
                                           color: isDark
                                               ? Colors.white
-                                                  .withValues(alpha: 0.15)
+                                                  .withValues(alpha: 0.18)
                                               : Colors.black
-                                                  .withValues(alpha: 0.1),
+                                                  .withValues(alpha: 0.12),
                                         ),
                                       ),
+                                      child: isActive
+                                          ? Icon(
+                                              CupertinoIcons.checkmark_alt,
+                                              size: 10,
+                                              color: theme ==
+                                                      PaperTheme.midnight
+                                                  ? Colors.white
+                                                  : Colors.black87,
+                                            )
+                                          : null,
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
@@ -1732,7 +1770,7 @@ class _EditiorPageState extends State<EditiorPage>
                                         color: isActive
                                             ? const Color(0xFF5B8DEF)
                                             : textColor
-                                                .withValues(alpha: 0.7),
+                                                .withValues(alpha: 0.75),
                                       ),
                                     ),
                                   ],
@@ -1798,35 +1836,40 @@ class _EditiorPageState extends State<EditiorPage>
                                           setSheetState(() {});
                                           setState(() => _dailyGoal = goal);
                                         },
-                                        child: Container(
+                                        child: AnimatedContainer(
+                                          duration: const Duration(
+                                              milliseconds: 180),
                                           margin: const EdgeInsets.symmetric(
-                                              horizontal: 2),
+                                              horizontal: 3),
                                           padding: const EdgeInsets.symmetric(
-                                              vertical: 8),
+                                              vertical: 10),
                                           decoration: BoxDecoration(
                                             color: _dailyGoal == goal
                                                 ? const Color(0xFF5B8DEF)
-                                                    .withValues(alpha: 0.15)
+                                                    .withValues(alpha: 0.18)
                                                 : isDark
                                                     ? Colors.white.withValues(
-                                                        alpha: 0.04)
+                                                        alpha: 0.05)
                                                     : Colors.black.withValues(
-                                                        alpha: 0.03),
+                                                        alpha: 0.04),
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                             border: Border.all(
                                               color: _dailyGoal == goal
                                                   ? const Color(0xFF5B8DEF)
-                                                      .withValues(alpha: 0.3)
+                                                      .withValues(alpha: 0.5)
                                                   : Colors.transparent,
+                                              width: 1.2,
                                             ),
                                           ),
                                           child: Center(
                                             child: Text(
                                               '$goal',
                                               style: GoogleFonts.inter(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
+                                                fontSize: 12.5,
+                                                fontWeight: _dailyGoal == goal
+                                                    ? FontWeight.w700
+                                                    : FontWeight.w600,
                                                 color: _dailyGoal == goal
                                                     ? const Color(0xFF5B8DEF)
                                                     : mutedColor,
