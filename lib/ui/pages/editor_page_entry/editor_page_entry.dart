@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/quill_delta.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/ph.dart';
@@ -1144,14 +1145,27 @@ class _EditiorPageState extends State<EditiorPage>
 
     final selection = controller.selection;
     final hasSelection = selection.baseOffset != selection.extentOffset;
-    final selectedText = hasSelection
-        ? controller.document.getPlainText(
-            selection.baseOffset,
-            selection.extentOffset - selection.baseOffset,
-          )
+
+    final int replaceIndex;
+    final int replaceLength;
+    if (hasSelection) {
+      replaceIndex = selection.baseOffset;
+      replaceLength = selection.extentOffset - selection.baseOffset;
+    } else {
+      replaceIndex = 0;
+      // Whole document minus its mandatory trailing newline.
+      replaceLength = controller.document.length - 1;
+    }
+
+    final sourceDelta = controller.document
+        .toDelta()
+        .slice(replaceIndex, replaceIndex + replaceLength);
+    final sourceJson = sourceDelta.toJson();
+    final plainText = hasSelection
+        ? controller.document.getPlainText(replaceIndex, replaceLength)
         : controller.document.toPlainText().trim();
 
-    if (selectedText.trim().isEmpty) {
+    if (plainText.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -1166,6 +1180,11 @@ class _EditiorPageState extends State<EditiorPage>
       return;
     }
 
+    // Did the source range end in a paragraph break? If not, the merged
+    // delta's trailing `\n` would split the user's paragraph in two; strip it
+    // on apply.
+    final sourceEndsWithNewline = _deltaEndsWithNewline(sourceDelta);
+
     showModalBottomSheet(
       context: context,
       backgroundColor: sheetBg,
@@ -1175,46 +1194,72 @@ class _EditiorPageState extends State<EditiorPage>
       ),
       builder: (ctx) => AIBottomSheet(
         gemini: _gemini,
-        text: selectedText,
+        sourceDelta: sourceJson,
+        plainText: plainText,
         hasSelection: hasSelection,
         isDark: isDark,
         textColor: textColor,
         mutedColor: mutedColor,
         surfaceColor: surfaceColor,
-        onApply: (result) {
+        onApply: (mergedJson) {
           Navigator.pop(ctx);
-          // Capture inline formatting (font, size, bold, color, …) at the
-          // selection start so the AI-generated replacement keeps it.
-          final styleOffset = hasSelection ? selection.baseOffset : 0;
-          final preservedAttrs = controller.document
-              .collectStyle(styleOffset, 0)
-              .attributes
-              .values
-              .where((a) => a.isInline)
-              .toList();
-
-          final int replaceIndex;
-          final int replaceLength;
-          if (hasSelection) {
-            replaceIndex = selection.baseOffset;
-            replaceLength = selection.extentOffset - selection.baseOffset;
-          } else {
-            replaceIndex = 0;
-            replaceLength = controller.document.length - 1;
-          }
-
-          controller.replaceText(
+          _applyMergedDelta(
+            controller,
+            mergedJson,
             replaceIndex,
             replaceLength,
-            result,
-            TextSelection.collapsed(offset: replaceIndex + result.length),
+            stripTrailingNewline: !sourceEndsWithNewline,
           );
-
-          for (final attr in preservedAttrs) {
-            controller.formatText(replaceIndex, result.length, attr);
-          }
         },
       ),
+    );
+  }
+
+  bool _deltaEndsWithNewline(Delta delta) {
+    final ops = delta.toList();
+    if (ops.isEmpty) return false;
+    final last = ops.last.data;
+    return last is String && last.endsWith('\n');
+  }
+
+  void _applyMergedDelta(
+    QuillController controller,
+    List<dynamic> mergedJson,
+    int replaceIndex,
+    int replaceLength, {
+    required bool stripTrailingNewline,
+  }) {
+    var newDelta = Delta.fromJson(mergedJson);
+
+    if (stripTrailingNewline) {
+      final ops = newDelta.toList();
+      if (ops.isNotEmpty) {
+        final last = ops.last;
+        final data = last.data;
+        if (data is String && data == '\n' && last.attributes == null) {
+          ops.removeLast();
+          newDelta = Delta.fromOperations(ops);
+        }
+      }
+    }
+
+    final transform = Delta();
+    if (replaceIndex > 0) transform.retain(replaceIndex);
+    if (replaceLength > 0) transform.delete(replaceLength);
+    for (final op in newDelta.toList()) {
+      transform.push(op);
+    }
+
+    var insertedLen = 0;
+    for (final op in newDelta.toList()) {
+      final data = op.data;
+      if (data is String) insertedLen += data.length;
+    }
+
+    controller.compose(
+      transform,
+      TextSelection.collapsed(offset: replaceIndex + insertedLen),
+      ChangeSource.local,
     );
   }
 

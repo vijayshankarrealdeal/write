@@ -13,6 +13,9 @@ from app.ai.schemas import (
     CanvasGenerateResponse,
     ChatRequest,
     ChatResponse,
+    DeltaParagraph,
+    DeltaTextEditRequest,
+    DeltaTextEditResponse,
     EmbeddingRequest,
     EmbeddingResponse,
     FeedbackRequest,
@@ -240,6 +243,48 @@ async def text_edit(
         max_completion_tokens=4096,
     )
     return TextEditResponse(result=resp.choices[0].message.content.strip())
+
+
+@router.post("/text-edit-delta", response_model=DeltaTextEditResponse)
+async def text_edit_delta(
+    body: DeltaTextEditRequest,
+    _user: User = Depends(get_current_user),
+):
+    """Delta-aware text edit. Extracts plain text from a Quill Delta, runs the
+    AI action, then re-projects block/inline formatting paragraph-by-paragraph
+    so headings/colors/etc. survive Accept on the client."""
+    ensure_ai_configured()
+    from app.ai.client import chat_client
+    from app.ai.delta_utils import extract_paragraphs, reproject_edited
+    from app.config import settings
+
+    prompts = _TEXT_EDIT_PROMPTS.get(body.action)
+    if not prompts:
+        raise HTTPException(400, f"Unknown action: {body.action}")
+
+    originals = extract_paragraphs(body.delta)
+    plain_text = "\n\n".join(p["text"] for p in originals if p["text"]).strip()
+    if not plain_text:
+        raise HTTPException(400, "Delta has no text content to edit")
+
+    system_prompt, user_template = prompts
+    user_prompt = user_template.format(text=plain_text, tone=body.tone or "")
+
+    resp = await chat_client.chat.completions.create(
+        model=settings.azure_openai_chat_deployment,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        max_completion_tokens=4096,
+    )
+    edited_text = resp.choices[0].message.content.strip()
+    edited = reproject_edited(edited_text, originals)
+
+    return DeltaTextEditResponse(
+        original_paragraphs=[DeltaParagraph(**p) for p in originals],
+        edited_paragraphs=[DeltaParagraph(**p) for p in edited],
+    )
 
 
 @router.post("/canvas", response_model=CanvasGenerateResponse)

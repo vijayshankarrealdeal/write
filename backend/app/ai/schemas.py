@@ -1,6 +1,7 @@
 """Request / response schemas for all AI endpoints."""
 
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -67,6 +68,23 @@ class TextEditRequest(BaseModel):
 
 class TextEditResponse(BaseModel):
     result: str
+
+
+class DeltaParagraph(BaseModel):
+    text: str
+    block_attrs: dict[str, Any] = {}
+    inline_attrs: dict[str, Any] = {}
+
+
+class DeltaTextEditRequest(BaseModel):
+    action: str
+    delta: list[dict[str, Any]]
+    tone: str | None = None
+
+
+class DeltaTextEditResponse(BaseModel):
+    original_paragraphs: list[DeltaParagraph]
+    edited_paragraphs: list[DeltaParagraph]
 
 
 class CanvasGenerateRequest(BaseModel):

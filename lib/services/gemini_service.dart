@@ -1,6 +1,45 @@
 import 'package:flutter/foundation.dart';
 import 'package:inkspacex/services/api/api_client.dart';
 
+/// One paragraph from a Delta — text plus block/inline formatting.
+class DeltaParagraph {
+  final String text;
+  final Map<String, dynamic> blockAttrs;
+  final Map<String, dynamic> inlineAttrs;
+
+  const DeltaParagraph({
+    required this.text,
+    this.blockAttrs = const {},
+    this.inlineAttrs = const {},
+  });
+
+  factory DeltaParagraph.fromJson(Map<String, dynamic> json) => DeltaParagraph(
+        text: json['text'] as String? ?? '',
+        blockAttrs: Map<String, dynamic>.from(
+            (json['block_attrs'] as Map?) ?? const {}),
+        inlineAttrs: Map<String, dynamic>.from(
+            (json['inline_attrs'] as Map?) ?? const {}),
+      );
+}
+
+/// Result of a delta-aware AI edit: original and rewritten paragraphs,
+/// already aligned by index.
+class DeltaEditResult {
+  final List<DeltaParagraph> original;
+  final List<DeltaParagraph> edited;
+
+  const DeltaEditResult({required this.original, required this.edited});
+
+  factory DeltaEditResult.fromJson(Map<String, dynamic> json) => DeltaEditResult(
+        original: ((json['original_paragraphs'] as List?) ?? const [])
+            .map((e) => DeltaParagraph.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        edited: ((json['edited_paragraphs'] as List?) ?? const [])
+            .map((e) => DeltaParagraph.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+}
+
 /// Singleton service for AI text editing and canvas generation.
 /// Calls the backend API which handles Azure OpenAI.
 class GeminiService {
@@ -42,6 +81,26 @@ class GeminiService {
 
   // Legacy — kept for any non-panel caller that still uses it.
   Future<String> fixSpelling(String text) => _textEdit('fix_spelling', text);
+
+  /// Delta-aware text edit. Sends the document's Delta to the backend, which
+  /// extracts text, runs the action, and re-projects formatting paragraph-by-
+  /// paragraph. Returns both sides so the UI can render a per-paragraph diff
+  /// and let the user accept/decline each one.
+  Future<DeltaEditResult> textEditDelta(
+    String action,
+    List<dynamic> deltaOps, {
+    String? tone,
+  }) async {
+    _ensureInit();
+    debugPrint('🟡 TextEditDelta ($action): calling /api/ai/text-edit-delta');
+    final response = await _apiClient!.post('/api/ai/text-edit-delta', data: {
+      'action': action,
+      'delta': deltaOps,
+      if (tone != null) 'tone': tone,
+    });
+    final data = response.data as Map<String, dynamic>;
+    return DeltaEditResult.fromJson(data);
+  }
 
   /// Generate a canvas layout via the backend.
   Future<String> generateCanvasLayout({
