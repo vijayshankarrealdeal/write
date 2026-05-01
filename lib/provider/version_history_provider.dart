@@ -205,7 +205,7 @@ class VersionHistoryProvider extends ChangeNotifier {
   String _newId() {
     final r = Random();
     final ts = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
-    final rand = r.nextInt(1 << 32).toRadixString(36);
+    final rand = r.nextInt(0xFFFFFFFF).toRadixString(36);
     return 'v_${ts}_$rand';
   }
 

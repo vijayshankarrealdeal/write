@@ -16,7 +16,7 @@ import 'package:inkspacex/ui/app/search_page.dart';
 import 'package:inkspacex/ui/app/settings.dart';
 import 'package:inkspacex/ui/pages/author_profile_page.dart';
 import 'package:inkspacex/ui/pages/post_detail_page.dart';
-import 'package:inkspacex/ui/pages/editior_page.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/editor_page_entry.dart';
 import 'package:inkspacex/ui/pages/publish_page.dart';
 import 'package:inkspacex/ui/pages/feed_preferences_page.dart';
 import 'package:inkspacex/ui/pages/drafts_page.dart';

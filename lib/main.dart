@@ -48,13 +48,6 @@ import 'package:flutter/foundation.dart';
 import 'package:inkspacex/web_utils_stub.dart'
     if (dart.library.html) 'package:inkspacex/web_utils.dart' as web_utils;
 
-// Messages we don't want in the log stream (noisy lib internals).
-const _debugPrintBlocklist = <String>[
-  'Got object store box',
-];
-
-bool _shouldSuppress(String msg) =>
-    _debugPrintBlocklist.any(msg.contains);
 
 void main() {
   runZonedGuarded(() async {
@@ -108,9 +101,11 @@ void main() {
     await mergeLog.init();
     // Local notifications: best-effort init — on platforms where the
     // package isn't supported (web, desktop) this is a no-op and the
-    // service simply never publishes anything.
+    // service simply never publishes anything. Fire-and-forget: on iOS
+    // this awaits a system permission dialog, which would otherwise
+    // block the first frame on cold start.
     final localNotifications = LocalNotificationService();
-    await localNotifications.init();
+    unawaited(localNotifications.init());
 
 // Analytics: spins up its own ApiClient (stateless aside from the
     // shared storage handle for auth tokens) so behaviour events flow
@@ -130,15 +125,7 @@ void main() {
   }, (error, stack) {
     // Top-level zone fallback — anything uncaught (including bare `print` errors).
     log.e('[zone] uncaught: $error', error: error, stackTrace: stack);
-  }, zoneSpecification: ZoneSpecification(
-    // Capture every print() call anywhere in the app.
-    print: (Zone self, ZoneDelegate parent, Zone zone, String line) {
-      if (!_shouldSuppress(line)) {
-        log.d('[print] $line');
-      }
-      parent.print(zone, line);
-    },
-  ));
+  });
 }
 
 class MyApp extends StatefulWidget {
