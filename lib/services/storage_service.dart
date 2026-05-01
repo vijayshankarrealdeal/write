@@ -226,4 +226,66 @@ class StorageService {
     }
     return null;
   }
+
+  // --- Editor annotations (per-section margin notes) ---
+  // Stored as a list of JSON-encoded annotation strings, keyed by section.
+  // Per-user-scoped so opening a different account doesn't surface another
+  // user's notes.
+
+  String _annotationsKey(String sectionId) =>
+      _userKey('annotations__$sectionId');
+
+  String? _annotationsKeyOrNull(String sectionId) =>
+      _userKeyOrNull('annotations__$sectionId');
+
+  List<String> getAnnotationStringsForSection(String sectionId) {
+    final key = _annotationsKeyOrNull(sectionId);
+    if (key == null) return const [];
+    final raw = _box.get(key);
+    if (raw is List) return raw.whereType<String>().toList();
+    return const [];
+  }
+
+  Future<void> saveAnnotationStringsForSection(
+    String sectionId,
+    List<String> jsonStrings,
+  ) async {
+    await _box.put(_annotationsKey(sectionId), jsonStrings);
+  }
+
+  Future<void> clearAnnotationsForSection(String sectionId) async {
+    final key = _annotationsKeyOrNull(sectionId);
+    if (key == null) return;
+    await _box.delete(key);
+  }
+
+  // --- Section version history ---
+  // Snapshots are list-of-JSON strings, ordered oldest → newest.
+
+  String _versionsKey(String sectionId) =>
+      _userKey('section_versions__$sectionId');
+
+  String? _versionsKeyOrNull(String sectionId) =>
+      _userKeyOrNull('section_versions__$sectionId');
+
+  List<String> getVersionStringsForSection(String sectionId) {
+    final key = _versionsKeyOrNull(sectionId);
+    if (key == null) return const [];
+    final raw = _box.get(key);
+    if (raw is List) return raw.whereType<String>().toList();
+    return const [];
+  }
+
+  Future<void> saveVersionStringsForSection(
+    String sectionId,
+    List<String> jsonStrings,
+  ) async {
+    await _box.put(_versionsKey(sectionId), jsonStrings);
+  }
+
+  Future<void> clearVersionsForSection(String sectionId) async {
+    final key = _versionsKeyOrNull(sectionId);
+    if (key == null) return;
+    await _box.delete(key);
+  }
 }

@@ -10,6 +10,9 @@ import 'package:iconify_flutter/icons/ph.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:inkspacex/models/editor_annotation_model.dart';
+import 'package:inkspacex/models/section_model.dart';
+import 'package:inkspacex/provider/annotation_provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
@@ -140,7 +143,11 @@ class _EditiorPageState extends State<EditiorPage>
   bool _focusMode = false;
   bool _typewriterMode = false;
   bool _showOutline = false;
+  bool _showAnnotations = false;
   bool _findReplaceOpen = false;
+  // Tracks the section the AnnotationProvider is currently loaded for so we
+  // only reload when the active section actually changes.
+  String? _annotationSectionId;
   PaperTheme _paperTheme = PaperTheme.defaultTheme;
   int _sessionStartWords = 0;
   bool _sessionStarted = false;
@@ -287,6 +294,134 @@ class _EditiorPageState extends State<EditiorPage>
       context: context,
       onAction: _applySlashAction,
     );
+  }
+
+  // ─── Annotations ───
+  // Yellow background tint applied to the anchored range as a visual marker.
+  // Quill's background attribute travels with the text through edits, so the
+  // marker stays in sync without us shifting offsets.
+  static const String _annotationHighlightHex = '#FFE066';
+
+  /// Reload annotations whenever the active section changes. Called from
+  /// the build method so it stays in sync with provider changes.
+  void _syncAnnotationSection(SectionModel? section) {
+    if (section == null) {
+      if (_annotationSectionId != null) {
+        _annotationSectionId = null;
+        context.read<AnnotationProvider>().clear();
+      }
+      return;
+    }
+    if (_annotationSectionId == section.id) return;
+    _annotationSectionId = section.id;
+    final controller = context.read<EditorProvider>().controller;
+    final plain = controller.document.toPlainText();
+    context.read<AnnotationProvider>().loadForSection(section.id, plain);
+  }
+
+  Future<void> _addAnnotationFromSelection() async {
+    final auth = context.read<AuthProvider>();
+    final editor = context.read<EditorProvider>();
+    final section = editor.activeSection;
+    if (section == null) return;
+    final controller = editor.controller;
+    final selection = controller.selection;
+    if (!selection.isValid || selection.isCollapsed) return;
+    final start = math.min(selection.baseOffset, selection.extentOffset);
+    final end = math.max(selection.baseOffset, selection.extentOffset);
+    final length = end - start;
+    if (length <= 0) return;
+    final anchored = controller.document.getPlainText(start, length);
+
+    final body = await showDialog<String>(
+      context: context,
+      builder: (ctx) => _CommentComposeDialog(
+        anchoredText: anchored,
+        isDark: Theme.of(ctx).brightness == Brightness.dark,
+      ),
+    );
+    if (body == null || body.trim().isEmpty || !mounted) return;
+
+    // Make sure the provider is loaded for this section before adding.
+    final ann = context.read<AnnotationProvider>();
+    if (ann.sectionId != section.id) {
+      ann.loadForSection(section.id, controller.document.toPlainText());
+    }
+    final user = auth.currentUser;
+    await ann.add(
+      authorId: user?.id ?? 'local',
+      authorName: user?.name ?? 'You',
+      body: body.trim(),
+      anchorStart: start,
+      anchorLength: length,
+      anchoredText: anchored,
+    );
+
+    // Paint the marker. BackgroundAttribute moves with the text on edits.
+    controller.formatText(
+      start,
+      length,
+      const BackgroundAttribute(_annotationHighlightHex),
+    );
+
+    if (mounted && !_showAnnotations) {
+      setState(() => _showAnnotations = true);
+    }
+  }
+
+  void _jumpToAnnotation(EditorAnnotation a) {
+    final controller = context.read<EditorProvider>().controller;
+    final text = controller.document.toPlainText();
+    int start = a.anchorStart;
+    int length = a.anchorLength;
+    final inBounds = start >= 0 && start + length <= text.length;
+    final stillMatches = inBounds &&
+        text.substring(start, start + length) == a.anchoredText;
+    if (!stillMatches && a.anchoredText.isNotEmpty) {
+      final found = text.indexOf(a.anchoredText);
+      if (found >= 0) {
+        start = found;
+        length = a.anchoredText.length;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Original text was removed from the document.')),
+        );
+        return;
+      }
+    }
+    controller.updateSelection(
+      TextSelection(baseOffset: start, extentOffset: start + length),
+      ChangeSource.local,
+    );
+  }
+
+  Future<void> _deleteAnnotation(EditorAnnotation a) async {
+    final controller = context.read<EditorProvider>().controller;
+    final text = controller.document.toPlainText();
+    int start = a.anchorStart;
+    int length = a.anchorLength;
+    final inBounds = start >= 0 && start + length <= text.length;
+    final stillMatches = inBounds &&
+        text.substring(start, start + length) == a.anchoredText;
+    if (!stillMatches && a.anchoredText.isNotEmpty) {
+      final found = text.indexOf(a.anchoredText);
+      if (found >= 0) {
+        start = found;
+        length = a.anchoredText.length;
+      } else {
+        // Anchor lost — just drop the data record; nothing to repaint.
+        await context.read<AnnotationProvider>().remove(a.id);
+        return;
+      }
+    }
+    // Strip the highlight tint we added on creation.
+    controller.formatText(
+      start,
+      length,
+      const BackgroundAttribute(null),
+    );
+    await context.read<AnnotationProvider>().remove(a.id);
   }
 
   void _initSessionTracking() {
@@ -1407,6 +1542,17 @@ class _EditiorPageState extends State<EditiorPage>
         : Colors.black.withValues(alpha: 0.06);
     final isMobile = Breakpoints.isMobile(MediaQuery.sizeOf(context).width);
 
+    // Reload annotations whenever the active section changes. Using
+    // context.select keeps this rebuild-cheap — only fires when id changes.
+    final activeSection =
+        context.select<EditorProvider, SectionModel?>((p) => p.activeSection);
+    if (activeSection?.id != _annotationSectionId) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _syncAnnotationSection(activeSection);
+      });
+    }
+
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
@@ -1539,6 +1685,8 @@ class _EditiorPageState extends State<EditiorPage>
                                                           onOpenLink:
                                                               _openLinkDialogShortcut,
                                                           onAI: _showAIPanel,
+                                                          onComment:
+                                                              _addAnnotationFromSelection,
                                                         ),
                                                       ),
                                                     ),
@@ -1551,20 +1699,33 @@ class _EditiorPageState extends State<EditiorPage>
                                                     Positioned(
                                                       top: 60,
                                                       right: 28,
-                                                      child: _SideActionsPill(
-                                                        isDark: isDark,
-                                                        outlineActive:
-                                                            _showOutline,
-                                                        focusActive: _focusMode,
-                                                        onAI: _showAIPanel,
-                                                        onPrompt:
-                                                            _showRandomPrompt,
-                                                        onToggleOutline: () =>
-                                                            setState(() =>
-                                                                _showOutline =
-                                                                    !_showOutline),
-                                                        onToggleFocus:
-                                                            _toggleFocusMode,
+                                                      child: Consumer<
+                                                          AnnotationProvider>(
+                                                        builder: (_, ann, _) =>
+                                                            _SideActionsPill(
+                                                          isDark: isDark,
+                                                          outlineActive:
+                                                              _showOutline,
+                                                          focusActive:
+                                                              _focusMode,
+                                                          annotationsActive:
+                                                              _showAnnotations,
+                                                          annotationCount:
+                                                              ann.unresolvedCount,
+                                                          onAI: _showAIPanel,
+                                                          onPrompt:
+                                                              _showRandomPrompt,
+                                                          onToggleOutline: () =>
+                                                              setState(() =>
+                                                                  _showOutline =
+                                                                      !_showOutline),
+                                                          onToggleFocus:
+                                                              _toggleFocusMode,
+                                                          onToggleAnnotations:
+                                                              () => setState(
+                                                                  () => _showAnnotations =
+                                                                      !_showAnnotations),
+                                                        ),
                                                       ),
                                                     ),
                                                 ],
@@ -1573,6 +1734,22 @@ class _EditiorPageState extends State<EditiorPage>
                                           ],
                                         ),
                                       ),
+                                      if (_showAnnotations &&
+                                          !isMobile &&
+                                          !_focusMode)
+                                        _AnnotationsPanel(
+                                          isDark: isDark,
+                                          textColor: textColor,
+                                          borderColor: borderColor,
+                                          surfaceColor: surfaceColor,
+                                          onJump: _jumpToAnnotation,
+                                          onResolveToggle: (a) => context
+                                              .read<AnnotationProvider>()
+                                              .setResolved(a.id, !a.resolved),
+                                          onDelete: _deleteAnnotation,
+                                          onClose: () => setState(() =>
+                                              _showAnnotations = false),
+                                        ),
                                     ],
                                   ),
                           ),
@@ -5797,19 +5974,25 @@ class _SideActionsPill extends StatelessWidget {
     required this.isDark,
     required this.outlineActive,
     required this.focusActive,
+    required this.annotationsActive,
+    required this.annotationCount,
     required this.onAI,
     required this.onPrompt,
     required this.onToggleOutline,
     required this.onToggleFocus,
+    required this.onToggleAnnotations,
   });
 
   final bool isDark;
   final bool outlineActive;
   final bool focusActive;
+  final bool annotationsActive;
+  final int annotationCount;
   final VoidCallback onAI;
   final VoidCallback onPrompt;
   final VoidCallback onToggleOutline;
   final VoidCallback onToggleFocus;
+  final VoidCallback onToggleAnnotations;
 
   @override
   Widget build(BuildContext context) {
@@ -5866,6 +6049,19 @@ class _SideActionsPill extends StatelessWidget {
             onTap: onToggleOutline,
           ),
           _SidePillButton(
+            icon: CupertinoIcons.chat_bubble_text,
+            tooltip: annotationsActive
+                ? 'Hide comments'
+                : (annotationCount > 0
+                    ? 'Comments ($annotationCount)'
+                    : 'Comments'),
+            color: annotationsActive ? accent : fg,
+            activeBg: activeBg,
+            active: annotationsActive,
+            badgeCount: annotationCount,
+            onTap: onToggleAnnotations,
+          ),
+          _SidePillButton(
             icon: CupertinoIcons.eye_slash,
             tooltip: focusActive ? 'Exit focus mode' : 'Focus mode',
             color: focusActive ? accent : fg,
@@ -5888,6 +6084,7 @@ class _SidePillButton extends StatefulWidget {
     required this.onTap,
     this.active = false,
     this.highlight = false,
+    this.badgeCount = 0,
   });
 
   final IconData icon;
@@ -5897,6 +6094,7 @@ class _SidePillButton extends StatefulWidget {
   final VoidCallback onTap;
   final bool active;
   final bool highlight;
+  final int badgeCount;
 
   @override
   State<_SidePillButton> createState() => _SidePillButtonState();
@@ -6161,7 +6359,39 @@ class _SidePillButtonState extends State<_SidePillButton> {
               color: showActiveBg ? widget.activeBg : Colors.transparent,
               shape: BoxShape.circle,
             ),
-            child: Icon(widget.icon, size: 17, color: widget.color),
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                Icon(widget.icon, size: 17, color: widget.color),
+                if (widget.badgeCount > 0)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Container(
+                      constraints:
+                          const BoxConstraints(minWidth: 14, minHeight: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE26A4A),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        widget.badgeCount > 9
+                            ? '9+'
+                            : widget.badgeCount.toString(),
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -6219,6 +6449,369 @@ class _GrowShrinkButton extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Comment compose dialog ──
+//
+// Shown when the user clicks "Comment" in the floating selection bar.
+// Displays the anchored snippet (read-only) and a body field. Returns
+// the entered body, or null on cancel.
+class _CommentComposeDialog extends StatefulWidget {
+  const _CommentComposeDialog({
+    required this.anchoredText,
+    required this.isDark,
+  });
+
+  final String anchoredText;
+  final bool isDark;
+
+  @override
+  State<_CommentComposeDialog> createState() => _CommentComposeDialogState();
+}
+
+class _CommentComposeDialogState extends State<_CommentComposeDialog> {
+  final _ctrl = TextEditingController();
+  final _focus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _focus.requestFocus());
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = widget.isDark;
+    final fg = isDark ? Colors.white : const Color(0xFF1A1A1F);
+    final mutedFg = fg.withValues(alpha: 0.55);
+    final bg = isDark ? const Color(0xFF1F2126) : Colors.white;
+    final snippetBg = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.04);
+    final preview = widget.anchoredText.length > 140
+        ? '${widget.anchoredText.substring(0, 140)}…'
+        : widget.anchoredText;
+
+    return Dialog(
+      backgroundColor: bg,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Add comment',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: fg,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: snippetBg,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border(
+                    left: BorderSide(
+                        color: const Color(0xFFFFC857), width: 3),
+                  ),
+                ),
+                child: Text(
+                  preview,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: mutedFg,
+                    fontStyle: FontStyle.italic,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _ctrl,
+                focusNode: _focus,
+                maxLines: 4,
+                minLines: 3,
+                style: GoogleFonts.inter(fontSize: 13, color: fg),
+                decoration: InputDecoration(
+                  hintText: 'Your comment…',
+                  hintStyle:
+                      GoogleFonts.inter(fontSize: 13, color: mutedFg),
+                  filled: true,
+                  fillColor: snippetBg,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                onSubmitted: (v) {
+                  if (v.trim().isNotEmpty) Navigator.pop(context, v);
+                },
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Cancel',
+                        style: GoogleFonts.inter(
+                            fontSize: 13, color: mutedFg)),
+                  ),
+                  const SizedBox(width: 4),
+                  ElevatedButton(
+                    onPressed: () {
+                      final body = _ctrl.text.trim();
+                      if (body.isEmpty) return;
+                      Navigator.pop(context, body);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4A6CF7),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                    ),
+                    child: Text(
+                      'Comment',
+                      style: GoogleFonts.inter(
+                          fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Annotations side panel ──
+//
+// A right-edge panel listing every annotation on the current section.
+// Click a row to jump to its anchor in the document. Resolved entries
+// fade and orphaned entries (anchor lost) sit at the bottom.
+class _AnnotationsPanel extends StatelessWidget {
+  const _AnnotationsPanel({
+    required this.isDark,
+    required this.textColor,
+    required this.borderColor,
+    required this.surfaceColor,
+    required this.onJump,
+    required this.onResolveToggle,
+    required this.onDelete,
+    required this.onClose,
+  });
+
+  final bool isDark;
+  final Color textColor;
+  final Color borderColor;
+  final Color surfaceColor;
+  final void Function(EditorAnnotation) onJump;
+  final void Function(EditorAnnotation) onResolveToggle;
+  final void Function(EditorAnnotation) onDelete;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final ann = context.watch<AnnotationProvider>();
+    final mutedFg = textColor.withValues(alpha: 0.55);
+    final items = [...ann.annotations];
+    items.sort((a, b) {
+      // Orphaned to the bottom; resolved below open; otherwise newest first.
+      if (a.orphaned != b.orphaned) return a.orphaned ? 1 : -1;
+      if (a.resolved != b.resolved) return a.resolved ? 1 : -1;
+      return b.createdAt.compareTo(a.createdAt);
+    });
+
+    return Container(
+      width: 300,
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        border: Border(left: BorderSide(color: borderColor)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 8, 10),
+            child: Row(
+              children: [
+                Icon(CupertinoIcons.chat_bubble_text,
+                    size: 16, color: textColor.withValues(alpha: 0.85)),
+                const SizedBox(width: 8),
+                Text(
+                  'Comments',
+                  style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: textColor),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '${items.length}',
+                  style: GoogleFonts.inter(fontSize: 12, color: mutedFg),
+                ),
+                const Spacer(),
+                IconButton(
+                  tooltip: 'Hide',
+                  icon: Icon(CupertinoIcons.xmark,
+                      size: 14, color: mutedFg),
+                  onPressed: onClose,
+                ),
+              ],
+            ),
+          ),
+          Divider(color: borderColor, height: 1),
+          Expanded(
+            child: items.isEmpty
+                ? _emptyState(mutedFg)
+                : ListView.separated(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: items.length,
+                    separatorBuilder: (_, _) =>
+                        Divider(color: borderColor, height: 1),
+                    itemBuilder: (_, i) {
+                      final a = items[i];
+                      return _row(a, mutedFg);
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _emptyState(Color mutedFg) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          'Select text and click the comment icon to add a margin note.',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(fontSize: 12, color: mutedFg, height: 1.45),
+        ),
+      ),
+    );
+  }
+
+  Widget _row(EditorAnnotation a, Color mutedFg) {
+    final fadedSnippet = a.anchoredText.length > 80
+        ? '${a.anchoredText.substring(0, 80)}…'
+        : a.anchoredText;
+    final fg = a.resolved || a.orphaned
+        ? textColor.withValues(alpha: 0.45)
+        : textColor;
+    final tag = a.orphaned
+        ? 'orphaned'
+        : (a.resolved ? 'resolved' : null);
+    return InkWell(
+      onTap: a.orphaned ? null : () => onJump(a),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    a.authorName.isEmpty ? 'You' : a.authorName,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: fg,
+                    ),
+                  ),
+                ),
+                if (tag != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: mutedFg.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(tag,
+                        style: GoogleFonts.inter(
+                            fontSize: 10, color: mutedFg)),
+                  ),
+                PopupMenuButton<String>(
+                  tooltip: 'More',
+                  iconSize: 14,
+                  padding: EdgeInsets.zero,
+                  onSelected: (v) {
+                    if (v == 'resolve') onResolveToggle(a);
+                    if (v == 'delete') onDelete(a);
+                  },
+                  itemBuilder: (_) => [
+                    PopupMenuItem(
+                      value: 'resolve',
+                      child: Text(a.resolved ? 'Reopen' : 'Resolve',
+                          style: GoogleFonts.inter(fontSize: 12)),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Delete',
+                          style: GoogleFonts.inter(
+                              fontSize: 12, color: Colors.redAccent)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              decoration: BoxDecoration(
+                color: mutedFg.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(6),
+                border: Border(
+                  left: BorderSide(
+                      color: const Color(0xFFFFC857).withValues(alpha: 0.7),
+                      width: 2),
+                ),
+              ),
+              child: Text(
+                fadedSnippet,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: mutedFg,
+                  fontStyle: FontStyle.italic,
+                  height: 1.35,
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              a.body,
+              style: GoogleFonts.inter(
+                fontSize: 12.5,
+                color: fg,
+                height: 1.4,
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import 'package:go_router/go_router.dart';
 
+import 'package:inkspacex/provider/annotation_provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/bookmark_provider.dart';
 import 'package:inkspacex/provider/bookshelf_provider.dart';
@@ -265,6 +266,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           },
         ),
         ChangeNotifierProvider(create: (_) => SettingsProvider(storage)),
+        ChangeNotifierProvider(create: (_) => AnnotationProvider(storage)),
         ChangeNotifierProxyProvider<AuthProvider, FeedProvider>(
           create: (_) => FeedProvider(),
           update: (context, auth, previous) {

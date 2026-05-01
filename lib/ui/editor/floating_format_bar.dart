@@ -24,12 +24,18 @@ class FloatingFormatBar extends StatefulWidget {
     required this.isDark,
     required this.onOpenLink,
     required this.onAI,
+    this.onComment,
   });
 
   final QuillController controller;
   final bool isDark;
   final VoidCallback onOpenLink;
   final VoidCallback onAI;
+
+  /// Optional: when provided, the bar shows a "comment" action that fires
+  /// with the current selection. Hidden when null so the bar still works
+  /// for callers that haven't wired annotations yet.
+  final VoidCallback? onComment;
 
   @override
   State<FloatingFormatBar> createState() => _FloatingFormatBarState();
@@ -47,6 +53,7 @@ const _idQuote = 'fmt.quote';
 const _idCode = 'fmt.code';
 const _idLink = 'fmt.link';
 const _idAi = 'fmt.ai';
+const _idComment = 'fmt.comment';
 
 class _FloatingFormatBarState extends State<FloatingFormatBar>
     with SingleTickerProviderStateMixin {
@@ -100,7 +107,7 @@ class _FloatingFormatBarState extends State<FloatingFormatBar>
   // remaining candidates sorted by lifetime click count.
   List<String> _computeOrder() {
     const pinned = [_idBold, _idItalic, _idUnderline];
-    const adaptive = [
+    final adaptive = <String>[
       _idStrike,
       _idH1,
       _idH2,
@@ -109,6 +116,7 @@ class _FloatingFormatBarState extends State<FloatingFormatBar>
       _idCode,
       _idLink,
       _idAi,
+      if (widget.onComment != null) _idComment,
     ];
     return [
       ...pinned,
@@ -171,6 +179,7 @@ class _FloatingFormatBarState extends State<FloatingFormatBar>
       case _idLink:
         return 'block';
       case _idAi:
+      case _idComment:
         return 'ai';
     }
     return 'misc';
@@ -295,6 +304,15 @@ class _FloatingFormatBarState extends State<FloatingFormatBar>
             fg: accent, accent: accent, activeBg: activeBg, onTap: () {
           ToolbarUsage.instance.increment(id);
           widget.onAI();
+        });
+      case _idComment:
+        final cb = widget.onComment;
+        if (cb == null) return const SizedBox.shrink();
+        return _miniBtn(CupertinoIcons.chat_bubble_text, 'Comment',
+            active: false,
+            fg: fg, accent: accent, activeBg: activeBg, onTap: () {
+          ToolbarUsage.instance.increment(id);
+          cb();
         });
     }
     return const SizedBox.shrink();
