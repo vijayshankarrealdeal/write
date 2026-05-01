@@ -4157,6 +4157,45 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
     }
   }
 
+  // Find the start and end of the line/paragraph containing `offset`.
+  // Returns (start, length). Empty doc → (0, 0).
+  (int, int) _currentLineRange(int offset) {
+    final text = widget.controller.document.toPlainText();
+    if (text.isEmpty) return (0, 0);
+    final clamped = offset.clamp(0, text.length);
+    var start = clamped;
+    while (start > 0 && text[start - 1] != '\n') {
+      start--;
+    }
+    var end = clamped;
+    while (end < text.length && text[end] != '\n') {
+      end++;
+    }
+    return (start, end - start);
+  }
+
+  // Apply an inline attribute. If the selection is collapsed we expand
+  // to the current line so the change is visible immediately, instead
+  // of silently parking the attribute on the next-character toggled
+  // style (where it's invisible until the user types something — which
+  // is exactly the "I changed font and nothing happened" bug).
+  // We also keep the toggled style so subsequent typing inherits it.
+  void _applyInlineWithFallback(Attribute attribute) {
+    _ensureSelection();
+    final sel = widget.controller.selection;
+    if (sel.isValid && !sel.isCollapsed) {
+      widget.controller.formatSelection(attribute);
+    } else {
+      final caret = sel.isValid ? sel.baseOffset : 0;
+      final (start, len) = _currentLineRange(caret);
+      if (len > 0) {
+        widget.controller.formatText(start, len, attribute);
+      }
+      // Also set toggled style so the next typed char carries the attr.
+      widget.controller.formatSelection(attribute);
+    }
+  }
+
   String get _currentFontFamily {
     final attr =
         widget.controller.getSelectionStyle().attributes[Attribute.font.key];
@@ -4176,20 +4215,16 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
   }
 
   void _setFontFamily(String family) {
-    _ensureSelection();
-    widget.controller.formatSelection(Attribute.fromKeyValue(
-      Attribute.font.key,
-      family,
-    )!);
+    _applyInlineWithFallback(
+      Attribute.fromKeyValue(Attribute.font.key, family)!,
+    );
     setState(() {});
   }
 
   void _setFontSize(double size) {
-    _ensureSelection();
-    widget.controller.formatSelection(Attribute.fromKeyValue(
-      Attribute.size.key,
-      size.toStringAsFixed(0),
-    ));
+    _applyInlineWithFallback(
+      Attribute.fromKeyValue(Attribute.size.key, size.toStringAsFixed(0))!,
+    );
     setState(() {});
   }
 
@@ -4321,15 +4356,15 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
   }
 
   void _applyColor(Attribute<String?> attr, Color? color) {
-    _ensureSelection();
     if (color == null) {
+      _ensureSelection();
       widget.controller.formatSelection(Attribute.clone(attr, null));
     } else {
       final hex = '#${_colorToHex(color)}';
       final next = attr.key == Attribute.color.key
           ? ColorAttribute(hex)
           : BackgroundAttribute(hex);
-      widget.controller.formatSelection(next);
+      _applyInlineWithFallback(next);
     }
     setState(() {});
   }
@@ -5552,54 +5587,57 @@ class _FontFamilyDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Capture selection on pointer-down — *before* the dialog steals focus
+    // and any focus listeners can clear controller.selection. Listener fires
+    // ahead of InkWell.onTap, so by the time the picker opens we already
+    // have a snapshot of where the cursor was.
+    TextSelection? snapshot;
     return Tooltip(
       message: 'Font',
-      child: InkWell(
-        borderRadius: BorderRadius.circular(6),
-        onTap: () async {
-          // The picker dialog steals editor focus, which can leave
-          // controller.selection invalid by the time we apply the format
-          // (=> formatSelection becomes a no-op for an empty doc, which
-          // is exactly the "doesn't apply until I type" bug). Capture
-          // before, restore right after, then format.
-          final selBefore = controller.selection;
-          final picked = await showFontPicker(
-            context,
-            current: current,
-            popular: items,
-            isDark: isDark,
-          );
-          if (picked == null) return;
-          if (selBefore.isValid) {
-            controller.updateSelection(selBefore, ChangeSource.local);
-          }
-          FontHistory.instance.add(picked);
-          onSelected(picked);
-        },
-        child: Container(
-          height: 28,
-          width: 158,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            color: fillColor,
-            border: Border.all(color: borderColor),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  current,
-                  overflow: TextOverflow.ellipsis,
-                  style: _safeFontStyle(current).copyWith(
-                    fontSize: 13,
-                    color: textColor,
+      child: Listener(
+        behavior: HitTestBehavior.translucent,
+        onPointerDown: (_) => snapshot = controller.selection,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(6),
+          onTap: () async {
+            final picked = await showFontPicker(
+              context,
+              current: current,
+              popular: items,
+              isDark: isDark,
+            );
+            if (picked == null) return;
+            if (snapshot != null && snapshot!.isValid) {
+              controller.updateSelection(snapshot!, ChangeSource.local);
+            }
+            FontHistory.instance.add(picked);
+            onSelected(picked);
+          },
+          child: Container(
+            height: 28,
+            width: 158,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: fillColor,
+              border: Border.all(color: borderColor),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    current,
+                    overflow: TextOverflow.ellipsis,
+                    style: _safeFontStyle(current).copyWith(
+                      fontSize: 13,
+                      color: textColor,
+                    ),
                   ),
                 ),
-              ),
-              Icon(Icons.keyboard_arrow_down,
-                  size: 16, color: textColor.withValues(alpha: 0.6)),
-            ],
+                Icon(Icons.keyboard_arrow_down,
+                    size: 16, color: textColor.withValues(alpha: 0.6)),
+              ],
+            ),
           ),
         ),
       ),
