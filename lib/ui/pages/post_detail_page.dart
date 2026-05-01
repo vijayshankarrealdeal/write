@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,6 +16,7 @@ import 'package:uuid/uuid.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
+import 'package:inkspacex/ui/widgets/author_link.dart';
 import 'package:inkspacex/ui/widgets/more_like_this_carousel.dart';
 
 import 'package:inkspacex/models/canvas_element_model.dart';
@@ -2697,6 +2699,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                   imageMeta: item.imageMeta,
                   title: item.title,
                   author: item.author,
+                  authorId: item.authorId,
                   isDark: isDark,
                   textColor: textColor,
                   subtleColor: subtleColor,
@@ -2767,6 +2770,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                   child: _ExcerptCard(
                     excerpt: firstExcerpt,
                     author: item.author,
+                    authorId: item.authorId,
                     onTap: () => _enterSectionDetail(0),
                   ),
                 ),
@@ -3707,6 +3711,7 @@ class _BookHeader extends StatelessWidget {
   final ImageMeta? imageMeta;
   final String title;
   final String author;
+  final String authorId;
   final bool isDark;
   final Color textColor;
   final Color subtleColor;
@@ -3716,6 +3721,7 @@ class _BookHeader extends StatelessWidget {
     this.imageMeta,
     required this.title,
     required this.author,
+    required this.authorId,
     required this.isDark,
     required this.textColor,
     required this.subtleColor,
@@ -3867,8 +3873,9 @@ class _BookHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 6),
-              Text(
-                author,
+              AuthorLink(
+                name: author,
+                authorId: authorId,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 15,
@@ -4078,8 +4085,9 @@ class _OverviewHeroDesktop extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          item.author,
+                        AuthorLink(
+                          name: item.author,
+                          authorId: item.authorId,
                           style: GoogleFonts.inter(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -4500,11 +4508,13 @@ class _ExpandableDescriptionState extends State<_ExpandableDescription> {
 class _ExcerptCard extends StatelessWidget {
   final String excerpt;
   final String author;
+  final String authorId;
   final VoidCallback onTap;
 
   const _ExcerptCard({
     required this.excerpt,
     required this.author,
+    required this.authorId,
     required this.onTap,
   });
 
@@ -4584,8 +4594,10 @@ class _ExcerptCard extends StatelessWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                Text(
-                  '\u2014 $author',
+                AuthorLink(
+                  name: author,
+                  authorId: authorId,
+                  prefix: '\u2014 ',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -4952,33 +4964,39 @@ class _CommentTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipOval(
-            child: SizedBox(
-              width: 34,
-              height: 34,
-              child: (comment.authorPhotoUrl != null &&
-                      comment.authorPhotoUrl!.isNotEmpty)
-                  ? AppNetworkImage(
-                      url: comment.authorPhotoUrl,
-                      meta: comment.authorPhotoMeta,
-                      width: 34,
-                      height: 34,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      color: const Color(0xFF2563EB),
-                      alignment: Alignment.center,
-                      child: Text(
-                        comment.authorName.isNotEmpty
-                            ? comment.authorName[0].toUpperCase()
-                            : 'U',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: comment.authorId.isEmpty
+                ? null
+                : () => context.push('/u/${comment.authorId}'),
+            child: ClipOval(
+              child: SizedBox(
+                width: 34,
+                height: 34,
+                child: (comment.authorPhotoUrl != null &&
+                        comment.authorPhotoUrl!.isNotEmpty)
+                    ? AppNetworkImage(
+                        url: comment.authorPhotoUrl,
+                        meta: comment.authorPhotoMeta,
+                        width: 34,
+                        height: 34,
+                        fit: BoxFit.cover,
+                      )
+                    : Container(
+                        color: const Color(0xFF2563EB),
+                        alignment: Alignment.center,
+                        child: Text(
+                          comment.authorName.isNotEmpty
+                              ? comment.authorName[0].toUpperCase()
+                              : 'U',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -4988,10 +5006,11 @@ class _CommentTile extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      comment.authorName.isNotEmpty
+                    AuthorLink(
+                      name: comment.authorName.isNotEmpty
                           ? comment.authorName
                           : 'User',
+                      authorId: comment.authorId,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,

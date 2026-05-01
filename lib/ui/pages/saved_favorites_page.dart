@@ -7,6 +7,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
+import 'package:inkspacex/ui/widgets/author_link.dart';
 enum CollectionType { saved, favorites }
 
 class SavedFavoritesPage extends StatefulWidget {
@@ -276,8 +277,9 @@ class _SavedItemCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      item.author,
+                    AuthorLink(
+                      name: item.author,
+                      authorId: item.authorId,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: subtleColor,

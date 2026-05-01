@@ -16,6 +16,7 @@ import 'package:inkspacex/ui/onboarding/onboarding_page.dart';
 import 'package:inkspacex/ui/app/search_page.dart';
 import 'package:inkspacex/ui/app/settings.dart';
 import 'package:inkspacex/ui/pages/author_profile_page.dart';
+import 'package:inkspacex/ui/pages/follow_list_page.dart';
 import 'package:inkspacex/ui/pages/post_detail_page.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/editor_page_entry.dart';
 import 'package:inkspacex/ui/pages/publish_page.dart';
@@ -166,6 +167,36 @@ GoRouter createRouter(AuthProvider authProvider) {
           final seed = extra is PublicUser ? extra : null;
           return CupertinoPage(
             child: AuthorProfilePage(userId: id, seed: seed),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/u/:id/followers',
+        pageBuilder: (_, state) {
+          final id = state.pathParameters['id'] ?? '';
+          final extra = state.extra;
+          final seed = extra is PublicUser ? extra : null;
+          return CupertinoPage(
+            child: FollowListPage(
+              userId: id,
+              mode: FollowListMode.followers,
+              seed: seed,
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/u/:id/following',
+        pageBuilder: (_, state) {
+          final id = state.pathParameters['id'] ?? '';
+          final extra = state.extra;
+          final seed = extra is PublicUser ? extra : null;
+          return CupertinoPage(
+            child: FollowListPage(
+              userId: id,
+              mode: FollowListMode.following,
+              seed: seed,
+            ),
           );
         },
       ),

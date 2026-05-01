@@ -14,6 +14,7 @@ import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
+import 'package:inkspacex/ui/widgets/author_link.dart';
 import 'package:inkspacex/ui/widgets/feed_filter_chip_row.dart';
 
 class Feed extends StatefulWidget {
@@ -262,7 +263,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
     final newest = [...all]
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-    final hPadding = isMobile ? 16.0 : (width > 1400 ? 48.0 : 32.0);
+    final hPadding = isMobile ? 10.0 : (width > 1400 ? 48.0 : 32.0);
     final cardWidth = isMobile ? 130.0 : 180.0;
     // cover aspect 3/4 → height = w*4/3; plus ~82px for labels/padding.
     final shelfHeight = (cardWidth * 4 / 3) + 86;
@@ -595,8 +596,10 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
       overflow: TextOverflow.ellipsis,
     );
 
-    final authorText = Text(
-      'by ${item.author}',
+    final authorText = AuthorLink(
+      name: item.author,
+      authorId: item.authorId,
+      prefix: 'by ',
       style: GoogleFonts.inter(
         fontSize: isMobile ? 13 : 14,
         color: subtle,
@@ -693,7 +696,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
     // it with BoxFit.contain so the author's full artwork is always visible,
     // and the empty space is filled by a heavily blurred copy of the same
     // image — ambient color matches the cover instead of leaving grey bars.
-    final heroRatio = isMobile ? 16 / 10 : 4 / 5;
+    final heroRatio = isMobile ? 1 / 1 : 4 / 5;
     final hasImage = item.imageUrl.isNotEmpty || item.imageMeta != null;
     final cover = AspectRatio(
       aspectRatio: heroRatio,
@@ -769,7 +772,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
                   children: [
                     cover,
                     Padding(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1065,8 +1068,9 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          item.author,
+                        AuthorLink(
+                          name: item.author,
+                          authorId: item.authorId,
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             color: textColor.withValues(alpha: 0.5),
@@ -1191,48 +1195,54 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
                     ),
 
                   // Author row + stats
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 14,
-                        backgroundColor: isDark
-                            ? Colors.white.withValues(alpha: 0.1)
-                            : Colors.black.withValues(alpha: 0.06),
-                        child: Text(
-                          item.author.isNotEmpty
-                              ? item.author[0].toUpperCase()
-                              : '?',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: textColor,
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: item.authorId.isEmpty
+                        ? null
+                        : () => context.push('/u/${item.authorId}'),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 14,
+                          backgroundColor: isDark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : Colors.black.withValues(alpha: 0.06),
+                          child: Text(
+                            item.author.isNotEmpty
+                                ? item.author[0].toUpperCase()
+                                : '?',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: textColor,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.author,
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: textColor,
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.author,
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
                               ),
-                            ),
-                            Text(
-                              _formatDate(item.createdAt),
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                color: textColor.withValues(alpha: 0.4),
+                              Text(
+                                _formatDate(item.createdAt),
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  color: textColor.withValues(alpha: 0.4),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
 
                   const SizedBox(height: 14),
@@ -1771,38 +1781,44 @@ class _FeedCard extends StatelessWidget {
                   const SizedBox(height: 8),
 
                   // Author row
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 11,
-                        backgroundColor: isDark
-                            ? Colors.white.withValues(alpha: 0.1)
-                            : Colors.black.withValues(alpha: 0.06),
-                        child: Text(
-                          item.author.isNotEmpty
-                              ? item.author[0].toUpperCase()
-                              : '?',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: textColor,
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: item.authorId.isEmpty
+                        ? null
+                        : () => context.push('/u/${item.authorId}'),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 11,
+                          backgroundColor: isDark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : Colors.black.withValues(alpha: 0.06),
+                          child: Text(
+                            item.author.isNotEmpty
+                                ? item.author[0].toUpperCase()
+                                : '?',
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: textColor,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          item.author,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: textColor.withValues(alpha: 0.7),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            item.author,
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: textColor.withValues(alpha: 0.7),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -2112,8 +2128,9 @@ class _BookCardState extends State<_BookCard> {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 2),
-              Text(
-                widget.item.author,
+              AuthorLink(
+                name: widget.item.author,
+                authorId: widget.item.authorId,
                 style: GoogleFonts.inter(
                   fontSize: m ? 11 : 12,
                   color: subtle,
@@ -2296,8 +2313,9 @@ class _RankedBookCardState extends State<_RankedBookCard> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: m ? 2 : 3),
-                    Text(
-                      widget.item.author,
+                    AuthorLink(
+                      name: widget.item.author,
+                      authorId: widget.item.authorId,
                       style: GoogleFonts.inter(
                         fontSize: m ? 11 : 12,
                         fontWeight: FontWeight.w500,

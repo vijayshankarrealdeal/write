@@ -7,6 +7,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/ui/pages/post_detail_page.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/author_link.dart';
 
 /// "More like this" — semantic-neighbour carousel rendered at the bottom
 /// of the read page. Powered by `/api/ai/recommendations/similar/{id}`
@@ -175,8 +176,9 @@ class _SimilarCard extends StatelessWidget {
                   ),
                   if (item.author.isNotEmpty) ...[
                     const SizedBox(height: 4),
-                    Text(
-                      item.author,
+                    AuthorLink(
+                      name: item.author,
+                      authorId: item.authorId,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.inter(

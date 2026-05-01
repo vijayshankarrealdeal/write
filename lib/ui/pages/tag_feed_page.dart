@@ -9,6 +9,7 @@ import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
+import 'package:inkspacex/ui/widgets/author_link.dart';
 
 /// Which kind of facet the page is drilling into. Drives the API call
 /// (`getFeedByTag` vs `getFeedByGenre`) and the page title.
@@ -461,8 +462,9 @@ class _DrillCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       if (item.author.isNotEmpty)
-                        Text(
-                          item.author,
+                        AuthorLink(
+                          name: item.author,
+                          authorId: item.authorId,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.inter(

@@ -10,6 +10,7 @@ import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/bookshelf_provider.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
+import 'package:inkspacex/ui/widgets/author_link.dart';
 
 class ViewBookshelfPage extends StatefulWidget {
   final String bookshelfId;
@@ -455,8 +456,9 @@ class _ShelfItemCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      item.author,
+                    AuthorLink(
+                      name: item.author,
+                      authorId: item.authorId,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: subtleColor,

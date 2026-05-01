@@ -10,6 +10,7 @@ import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/bookshelf_provider.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
+import 'package:inkspacex/ui/widgets/author_link.dart';
 
 class MyBooksPage extends StatefulWidget {
   const MyBooksPage({super.key});
@@ -309,8 +310,9 @@ class _CoverCard extends StatelessWidget {
                 color: textColor,
               ),
             ),
-            Text(
-              item.author,
+            AuthorLink(
+              name: item.author,
+              authorId: item.authorId,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.inter(fontSize: 11, color: subtleColor),

@@ -51,16 +51,19 @@ class AppNetworkImage extends StatelessWidget {
       return _wrap(_buildPlaceholder(context, isError: false));
     }
 
+    // Constraining both cache dims forces ResizeImage's exact policy, which
+    // stretches the decoded bitmap. Only safe when the fit fills the box
+    // anyway; otherwise pass width alone and let aspect ratio be preserved.
+    final fillsBox = fit == BoxFit.cover || fit == BoxFit.fill;
     final image = CachedNetworkImage(
       imageUrl: targetUrl,
       width: width,
       height: height,
       fit: fit,
       filterQuality: filterQuality,
-      // Memory-cache at the rendered pixel size so the engine doesn't decode
-      // a 1600px image into a 200px slot and burn 12x the memory needed.
       memCacheWidth: width != null ? (width! * dpr).round() : null,
-      memCacheHeight: height != null ? (height! * dpr).round() : null,
+      memCacheHeight:
+          (fillsBox && height != null) ? (height! * dpr).round() : null,
       cacheManager: AppImageCacheManager(),
       placeholder: (ctx, _) => _buildPlaceholder(ctx, isError: false),
       errorWidget: (ctx, _, __) => errorWidget ?? _buildPlaceholder(ctx, isError: true),

@@ -15,6 +15,7 @@ import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
+import 'package:inkspacex/ui/widgets/author_link.dart';
 
 const double _kMaxContentWidth = 1080;
 
@@ -848,8 +849,9 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              item.author,
+            AuthorLink(
+              name: item.author,
+              authorId: item.authorId,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.inter(
@@ -1338,8 +1340,9 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 ),
                 const SizedBox(height: 3),
-                Text(
-                  item.author,
+                AuthorLink(
+                  name: item.author,
+                  authorId: item.authorId,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(fontSize: 12, color: subtle),
