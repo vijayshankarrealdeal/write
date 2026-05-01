@@ -2232,60 +2232,95 @@ class _EditiorPageState extends State<EditiorPage>
         ? Colors.white.withValues(alpha: 0.08)
         : Colors.black.withValues(alpha: 0.08);
 
+    final pagePadH = isMobile ? 18.0 : (_focusMode ? 64.0 : 48.0);
+    final showRuler = !isMobile && !_focusMode;
+
     return Container(
       color: bgColor,
       alignment: Alignment.topCenter,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: _focusMode ? 760 : 820),
-        child: Container(
-          height: double.infinity,
-          margin: EdgeInsets.fromLTRB(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
             isMobile ? 0 : (_focusMode ? 24 : 20),
             isMobile ? 0 : (_focusMode ? 24 : 12),
             isMobile ? 0 : (_focusMode ? 24 : 20),
             isMobile ? 0 : (_focusMode ? 24 : 0),
           ),
-          decoration: isMobile
-              ? BoxDecoration(color: paperColor)
-              : _focusMode
-                  ? BoxDecoration(
-                      color: paperColor,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: focusBorder),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(
-                              alpha: isDark ? 0.45 : 0.10),
-                          blurRadius: 40,
-                          spreadRadius: -8,
-                          offset: const Offset(0, 12),
-                        ),
-                      ],
-                    )
-                  : BoxDecoration(
-                      color: paperColor,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: paperBorder),
-                      // Soft floating-paper shadow — sells the page metaphor
-                      // without the high-contrast slab Material defaults to.
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(
-                              alpha: isDark ? 0.35 : 0.08),
-                          blurRadius: 32,
-                          spreadRadius: -10,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-          padding: EdgeInsets.fromLTRB(
-            isMobile ? 18 : (_focusMode ? 64 : 48),
-            _focusMode ? (isMobile ? 56 : 96) : 20,
-            isMobile ? 18 : (_focusMode ? 64 : 48),
-            0,
+          child: Column(
+            children: [
+              if (showRuler)
+                _RulerBar(
+                  isDark: isDark,
+                  pagePadding: pagePadH,
+                ),
+              Expanded(
+                child: _buildPageCard(
+                  isDark: isDark,
+                  isMobile: isMobile,
+                  paperColor: paperColor,
+                  paperBorder: paperBorder,
+                  focusBorder: focusBorder,
+                  themedTextColor: themedTextColor,
+                ),
+              ),
+            ],
           ),
-          child: Builder(
-            builder: (ctx) {
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPageCard({
+    required bool isDark,
+    required bool isMobile,
+    required Color paperColor,
+    required Color paperBorder,
+    required Color focusBorder,
+    required Color themedTextColor,
+  }) {
+    return Container(
+      decoration: isMobile
+          ? BoxDecoration(color: paperColor)
+          : _focusMode
+              ? BoxDecoration(
+                  color: paperColor,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: focusBorder),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(
+                          alpha: isDark ? 0.45 : 0.10),
+                      blurRadius: 40,
+                      spreadRadius: -8,
+                      offset: const Offset(0, 12),
+                    ),
+                  ],
+                )
+              : BoxDecoration(
+                  color: paperColor,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: paperBorder),
+                  // Soft floating-paper shadow — sells the page metaphor
+                  // without the high-contrast slab Material defaults to.
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(
+                          alpha: isDark ? 0.35 : 0.08),
+                      blurRadius: 32,
+                      spreadRadius: -10,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+      padding: EdgeInsets.fromLTRB(
+        isMobile ? 18 : (_focusMode ? 64 : 48),
+        _focusMode ? (isMobile ? 56 : 96) : 20,
+        isMobile ? 18 : (_focusMode ? 64 : 48),
+        0,
+      ),
+      child: Builder(
+        builder: (ctx) {
               final sectionId = ctx.select<EditorProvider, String?>(
                 (p) => p.activeSection?.id,
               );
@@ -2404,9 +2439,7 @@ class _EditiorPageState extends State<EditiorPage>
               );
             },
           ),
-        ),
-      ),
-    );
+        );
   }
 
   /// Handles Google Fonts rendering for the `font` attribute.
@@ -5717,6 +5750,129 @@ class _SidePillButton extends StatefulWidget {
 
   @override
   State<_SidePillButton> createState() => _SidePillButtonState();
+}
+
+// ── Page ruler (Docs-style) ──
+//
+// Visual-only ruler that sits above the page card. Shows tick marks
+// across the page width and blue triangle markers at the left/right
+// margins of the writable text area. Hidden in focus mode where the
+// chrome would fight the distraction-free goal.
+class _RulerBar extends StatelessWidget {
+  const _RulerBar({
+    required this.isDark,
+    required this.pagePadding,
+  });
+
+  final bool isDark;
+  // Horizontal padding inside the page card (where text starts).
+  // The ruler draws margin triangles at +/- this offset from the edges.
+  final double pagePadding;
+
+  @override
+  Widget build(BuildContext context) {
+    final tickColor = isDark
+        ? Colors.white.withValues(alpha: 0.18)
+        : Colors.black.withValues(alpha: 0.30);
+    final numberColor = isDark
+        ? Colors.white.withValues(alpha: 0.40)
+        : Colors.black.withValues(alpha: 0.55);
+    final marginColor = isDark
+        ? const Color(0xFF93B4F5)
+        : const Color(0xFF4A6CF7);
+
+    return SizedBox(
+      height: 22,
+      child: CustomPaint(
+        painter: _RulerPainter(
+          tickColor: tickColor,
+          numberColor: numberColor,
+          marginColor: marginColor,
+          pagePadding: pagePadding,
+        ),
+        size: Size.infinite,
+      ),
+    );
+  }
+}
+
+class _RulerPainter extends CustomPainter {
+  _RulerPainter({
+    required this.tickColor,
+    required this.numberColor,
+    required this.marginColor,
+    required this.pagePadding,
+  });
+
+  final Color tickColor;
+  final Color numberColor;
+  final Color marginColor;
+  final double pagePadding;
+
+  // Visual scale: one "unit" on the ruler is 80 px.
+  static const double _unit = 80;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final tickPaint = Paint()
+      ..color = tickColor
+      ..strokeWidth = 1;
+    final marginPaint = Paint()..color = marginColor;
+
+    final baseY = size.height - 6;
+    final majorTickH = 6.0;
+    final minorTickH = 3.0;
+
+    // Tick marks across the full ruler width.
+    final minorStep = _unit / 4; // every 1/4 unit
+    for (double x = 0; x <= size.width; x += minorStep) {
+      final isMajor = ((x / _unit) - (x ~/ _unit)).abs() < 0.001;
+      final h = isMajor ? majorTickH : minorTickH;
+      canvas.drawLine(
+        Offset(x, baseY - h),
+        Offset(x, baseY),
+        tickPaint,
+      );
+    }
+
+    // Inch / unit numbers at major ticks (skipping 0).
+    for (double x = _unit; x < size.width; x += _unit) {
+      final n = (x / _unit).round();
+      final tp = TextPainter(
+        text: TextSpan(
+          text: '$n',
+          style: TextStyle(
+            color: numberColor,
+            fontSize: 9,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(canvas, Offset(x - tp.width / 2, baseY - majorTickH - tp.height - 1));
+    }
+
+    // Margin triangles — blue downward arrow at the left and right
+    // edges of the writable text area.
+    void marginTriangle(double cx) {
+      final path = Path()
+        ..moveTo(cx - 5, baseY - 3)
+        ..lineTo(cx + 5, baseY - 3)
+        ..lineTo(cx, baseY + 3)
+        ..close();
+      canvas.drawPath(path, marginPaint);
+    }
+
+    marginTriangle(pagePadding);
+    marginTriangle(size.width - pagePadding);
+  }
+
+  @override
+  bool shouldRepaint(_RulerPainter old) =>
+      old.tickColor != tickColor ||
+      old.numberColor != numberColor ||
+      old.marginColor != marginColor ||
+      old.pagePadding != pagePadding;
 }
 
 class _SidePillButtonState extends State<_SidePillButton> {
