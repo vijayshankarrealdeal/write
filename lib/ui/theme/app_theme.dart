@@ -137,6 +137,35 @@ class MonochromeTheme {
           borderSide: const BorderSide(color: textBlack, width: 2),
         ),
       ),
+
+      popupMenuTheme: PopupMenuThemeData(
+        color: bgWhite,
+        surfaceTintColor: Colors.transparent,
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: borderGrey),
+        ),
+        textStyle: GoogleFonts.inter(color: textBlack, fontSize: 14),
+      ),
+      menuTheme: MenuThemeData(
+        style: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(bgWhite),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+          elevation: const WidgetStatePropertyAll(8),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: borderGrey),
+            ),
+          ),
+        ),
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: accentBlue,
+        selectionColor: Color(0x333B82F6),
+        selectionHandleColor: accentBlue,
+      ),
     );
   }
 
@@ -277,6 +306,35 @@ class MonochromeTheme {
           borderRadius: BorderRadius.circular(_borderRadius),
           borderSide: const BorderSide(color: textWhite, width: 1.5),
         ),
+      ),
+
+      popupMenuTheme: PopupMenuThemeData(
+        color: surfaceDark,
+        surfaceTintColor: Colors.transparent,
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: borderDark),
+        ),
+        textStyle: GoogleFonts.inter(color: textWhite, fontSize: 14),
+      ),
+      menuTheme: MenuThemeData(
+        style: MenuStyle(
+          backgroundColor: const WidgetStatePropertyAll(surfaceDark),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+          elevation: const WidgetStatePropertyAll(8),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: borderDark),
+            ),
+          ),
+        ),
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: textWhite,
+        selectionColor: Color(0x33F1F5F9),
+        selectionHandleColor: textWhite,
       ),
     );
   }
