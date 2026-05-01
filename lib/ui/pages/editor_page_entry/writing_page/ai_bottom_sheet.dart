@@ -96,6 +96,18 @@ Color? _parseColor(dynamic v) {
   return n == null ? null : Color(n);
 }
 
+/// Pick the attrs of the longest run in a paragraph. Used purely for the
+/// visual baseline of the diff card — the merged Delta we apply uses each
+/// run's exact attrs, so this is just a display approximation.
+Map<String, dynamic> _longestRunAttrs(List<TextRun> runs) {
+  if (runs.isEmpty) return const {};
+  var best = runs.first;
+  for (final r in runs) {
+    if (r.text.length > best.text.length) best = r;
+  }
+  return best.attrs;
+}
+
 TextStyle _inlineStyleOf(
     Map<String, dynamic> attrs, TextStyle base) {
   var style = base;
@@ -114,7 +126,259 @@ TextStyle _inlineStyleOf(
   return style;
 }
 
-// ─── AI Bottom Sheet ───
+// ─── AI Assist actions ───
+
+enum AIActionKind { transform, feedback }
+
+/// One AI action the user can pick from the bottom-sheet picker. The
+/// resulting action is then handed off to [AIAssistPanel] which renders the
+/// loading + diff (or feedback) over the editor.
+class AIAction {
+  final String label;
+  final IconData? icon;
+  final AIActionKind kind;
+  /// For transforms, the backend action key (e.g. `'tighten'`). For feedback,
+  /// the dispatch key consumed by [AIAssistPanel] (`'critique'`, etc.).
+  final String id;
+  const AIAction({
+    required this.label,
+    required this.icon,
+    required this.kind,
+    required this.id,
+  });
+}
+
+const List<MapEntry<String, List<AIAction>>> _aiActionGroups = [
+  MapEntry('SHARPEN', [
+    AIAction(
+        label: 'Tighten',
+        icon: CupertinoIcons.bolt,
+        kind: AIActionKind.transform,
+        id: 'tighten'),
+    AIAction(
+        label: 'Sharpen opening',
+        icon: CupertinoIcons.text_alignleft,
+        kind: AIActionKind.transform,
+        id: 'sharpen_opening'),
+    AIAction(
+        label: 'Lift the thesis',
+        icon: CupertinoIcons.arrow_up_circle,
+        kind: AIActionKind.transform,
+        id: 'lift_thesis'),
+    AIAction(
+        label: 'Cut throat-clearing',
+        icon: CupertinoIcons.scissors,
+        kind: AIActionKind.transform,
+        id: 'cut_throat_clearing'),
+    AIAction(
+        label: 'Pick up where I left off',
+        icon: CupertinoIcons.arrow_right_circle,
+        kind: AIActionKind.transform,
+        id: 'continue_writing'),
+  ]),
+  MapEntry('REFRAME', [
+    AIAction(
+        label: 'For a beginner',
+        icon: null,
+        kind: AIActionKind.transform,
+        id: 'for_beginner'),
+    AIAction(
+        label: 'For an expert',
+        icon: null,
+        kind: AIActionKind.transform,
+        id: 'for_expert'),
+    AIAction(
+        label: 'Add an example',
+        icon: null,
+        kind: AIActionKind.transform,
+        id: 'add_example'),
+    AIAction(
+        label: 'Steel-man the other side',
+        icon: null,
+        kind: AIActionKind.transform,
+        id: 'steel_man'),
+  ]),
+  MapEntry('FEEDBACK', [
+    AIAction(
+        label: 'Critique honestly',
+        icon: CupertinoIcons.chat_bubble_text,
+        kind: AIActionKind.feedback,
+        id: 'critique'),
+    AIAction(
+        label: "What's missing?",
+        icon: CupertinoIcons.question_circle,
+        kind: AIActionKind.feedback,
+        id: 'whats_missing'),
+    AIAction(
+        label: 'Three new openings',
+        icon: CupertinoIcons.list_number,
+        kind: AIActionKind.feedback,
+        id: 'three_openings'),
+  ]),
+];
+
+// ─── AI Action Picker (bottom sheet) ───
+
+/// Compact picker shown in a modal bottom sheet. When the user taps a chip
+/// it pops the route with the selected [AIAction]; the editor then opens the
+/// inline [AIAssistPanel] overlay to actually run it.
+class AIActionPicker extends StatelessWidget {
+  final bool hasSelection;
+  final bool isDark;
+  final Color textColor;
+  final Color mutedColor;
+  final Color surfaceColor;
+  final Color backgroundColor;
+
+  const AIActionPicker({
+    super.key,
+    required this.hasSelection,
+    required this.isDark,
+    required this.textColor,
+    required this.mutedColor,
+    required this.surfaceColor,
+    required this.backgroundColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final accentColor =
+        isDark ? const Color(0xFF93B4F5) : const Color(0xFF5B8DEF);
+
+    return Container(
+      color: backgroundColor,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Icon(CupertinoIcons.wand_stars,
+                    size: 20, color: accentColor),
+                const SizedBox(width: 10),
+                Text(
+                  'AI Assist',
+                  style: GoogleFonts.inter(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
+                  ),
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: textColor.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Icon(CupertinoIcons.xmark,
+                        size: 14, color: mutedColor),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              hasSelection
+                  ? 'Working with selected text'
+                  : 'Working with full document',
+              style: GoogleFonts.inter(fontSize: 12, color: mutedColor),
+            ),
+            const SizedBox(height: 16),
+            for (var i = 0; i < _aiActionGroups.length; i++) ...[
+              if (i > 0) const SizedBox(height: 14),
+              Text(
+                _aiActionGroups[i].key,
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: mutedColor,
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final action in _aiActionGroups[i].value)
+                    _PickerChip(
+                      action: action,
+                      isDark: isDark,
+                      textColor: textColor,
+                      mutedColor: mutedColor,
+                      surfaceColor: surfaceColor,
+                      onTap: () => Navigator.of(context).pop(action),
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PickerChip extends StatelessWidget {
+  final AIAction action;
+  final bool isDark;
+  final Color textColor;
+  final Color mutedColor;
+  final Color surfaceColor;
+  final VoidCallback onTap;
+
+  const _PickerChip({
+    required this.action,
+    required this.isDark,
+    required this.textColor,
+    required this.mutedColor,
+    required this.surfaceColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.06),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (action.icon != null) ...[
+              Icon(action.icon, size: 14, color: mutedColor),
+              const SizedBox(width: 7),
+            ],
+            Text(
+              action.label,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: textColor.withValues(alpha: 0.8),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── AI Assist Panel (inline) ───
 
 enum _AIMode { transform, feedback }
 
@@ -126,8 +390,12 @@ class _Pair {
   const _Pair(this.original, this.edited);
 }
 
-class AIBottomSheet extends StatefulWidget {
+class AIAssistPanel extends StatefulWidget {
   final GeminiService gemini;
+
+  /// The action the user picked from [AIActionPicker]. The panel runs this on
+  /// mount; chip selection lives in the picker, not here.
+  final AIAction action;
 
   /// Quill Delta ops representing the editable scope (full doc or selection).
   /// Sent verbatim to the backend; the backend handles text extraction.
@@ -143,12 +411,19 @@ class AIBottomSheet extends StatefulWidget {
   final Color mutedColor;
   final Color surfaceColor;
 
+  /// Background of the panel itself (matches the editor card's paper color).
+  final Color backgroundColor;
+
   /// Called with the merged Delta ops the caller should apply to the document.
   final ValueChanged<List<dynamic>> onApply;
 
-  const AIBottomSheet({
+  /// Called when the user dismisses the panel (Decline / close / Try another).
+  final VoidCallback onClose;
+
+  const AIAssistPanel({
     super.key,
     required this.gemini,
+    required this.action,
     required this.sourceDelta,
     required this.plainText,
     required this.hasSelection,
@@ -156,18 +431,39 @@ class AIBottomSheet extends StatefulWidget {
     required this.textColor,
     required this.mutedColor,
     required this.surfaceColor,
+    required this.backgroundColor,
     required this.onApply,
+    required this.onClose,
   });
 
   @override
-  State<AIBottomSheet> createState() => _AIBottomSheetState();
+  State<AIAssistPanel> createState() => _AIAssistPanelState();
 }
 
-class _AIBottomSheetState extends State<AIBottomSheet> {
+class _AIAssistPanelState extends State<AIAssistPanel> {
   bool _loading = false;
   String? _error;
-  String _activeAction = '';
-  _AIMode _mode = _AIMode.transform;
+  late _AIMode _mode = widget.action.kind == AIActionKind.transform
+      ? _AIMode.transform
+      : _AIMode.feedback;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _runAction();
+    });
+  }
+
+  void _runAction() {
+    final a = widget.action;
+    if (a.kind == AIActionKind.transform) {
+      _runTransform(a.id);
+    } else {
+      _runFeedback(a.id);
+    }
+  }
 
   // Transform results
   DeltaEditResult? _editResult;
@@ -178,7 +474,7 @@ class _AIBottomSheetState extends State<AIBottomSheet> {
   // Feedback (advice) result
   String? _feedbackText;
 
-  Future<void> _runTransform(String label, String action) async {
+  Future<void> _runTransform(String actionId) async {
     setState(() {
       _loading = true;
       _error = null;
@@ -186,12 +482,11 @@ class _AIBottomSheetState extends State<AIBottomSheet> {
       _pairs = const [];
       _accept = const [];
       _feedbackText = null;
-      _activeAction = label;
       _mode = _AIMode.transform;
     });
     try {
       final result =
-          await widget.gemini.textEditDelta(action, widget.sourceDelta);
+          await widget.gemini.textEditDelta(actionId, widget.sourceDelta);
       if (!mounted) return;
       final pairs = _buildPairs(result);
       setState(() {
@@ -208,18 +503,31 @@ class _AIBottomSheetState extends State<AIBottomSheet> {
     }
   }
 
-  Future<void> _runFeedback(
-      String label, Future<String> Function() action) async {
+  Future<void> _runFeedback(String actionId) async {
     setState(() {
       _loading = true;
       _error = null;
       _editResult = null;
       _feedbackText = null;
-      _activeAction = label;
       _mode = _AIMode.feedback;
     });
     try {
-      final result = await action();
+      final g = widget.gemini;
+      final Future<String> task;
+      switch (actionId) {
+        case 'critique':
+          task = g.critique(widget.plainText);
+          break;
+        case 'whats_missing':
+          task = g.whatsMissing(widget.plainText);
+          break;
+        case 'three_openings':
+          task = g.threeOpenings(widget.plainText);
+          break;
+        default:
+          throw StateError('Unknown feedback action: $actionId');
+      }
+      final result = await task;
       if (mounted) setState(() => _feedbackText = result);
     } catch (e) {
       if (mounted) {
@@ -240,32 +548,29 @@ class _AIBottomSheetState extends State<AIBottomSheet> {
     });
   }
 
-  void _reset() {
-    setState(() {
-      _editResult = null;
-      _pairs = const [];
-      _accept = const [];
-      _feedbackText = null;
-      _error = null;
-    });
-  }
-
-  /// Build the final Delta ops from per-pair selections.
+  /// Build the final Delta ops from per-pair selections. Emits one op per
+  /// run so per-word formatting (font/bold/color) survives intact.
   List<dynamic> _composeMergedDelta() {
     final ops = <Map<String, dynamic>>[];
     for (var i = 0; i < _pairs.length; i++) {
       final pair = _pairs[i];
       final useEdited = _accept[i];
       final chosen = useEdited ? pair.edited : pair.original;
-      if (chosen == null) continue; // pair was a delete-and-rejected or vice versa
-      final text = chosen.text;
-      if (text.isNotEmpty) {
-        final op = <String, dynamic>{'insert': text};
-        if (chosen.inlineAttrs.isNotEmpty) {
-          op['attributes'] = Map<String, dynamic>.from(chosen.inlineAttrs);
+      if (chosen == null) continue;
+
+      if (chosen.runs.isNotEmpty) {
+        for (final run in chosen.runs) {
+          if (run.text.isEmpty) continue;
+          final op = <String, dynamic>{'insert': run.text};
+          if (run.attrs.isNotEmpty) {
+            op['attributes'] = Map<String, dynamic>.from(run.attrs);
+          }
+          ops.add(op);
         }
-        ops.add(op);
+      } else if (chosen.text.isNotEmpty) {
+        ops.add({'insert': chosen.text});
       }
+
       final nl = <String, dynamic>{'insert': '\n'};
       if (chosen.blockAttrs.isNotEmpty) {
         nl['attributes'] = Map<String, dynamic>.from(chosen.blockAttrs);
@@ -282,85 +587,58 @@ class _AIBottomSheetState extends State<AIBottomSheet> {
         ? const Color(0xFF93B4F5)
         : const Color(0xFF5B8DEF);
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Container(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * 0.85,
-        ),
+    return Container(
+      color: widget.backgroundColor,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                margin: const EdgeInsets.only(top: 8, bottom: 12),
-                decoration: BoxDecoration(
-                  color: widget.textColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+            _header(accentColor),
+            const SizedBox(height: 4),
+            Text(
+              widget.hasSelection
+                  ? 'Working with selected text'
+                  : 'Working with full document',
+              style: GoogleFonts.inter(
+                  fontSize: 12, color: widget.mutedColor),
             ),
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _header(accentColor),
-                    const SizedBox(height: 4),
-                    Text(
-                      widget.hasSelection
-                          ? 'Working with selected text'
-                          : 'Working with full document',
-                      style: GoogleFonts.inter(
-                          fontSize: 12, color: widget.mutedColor),
-                    ),
-                    const SizedBox(height: 16),
-                    if (_editResult == null &&
-                        _feedbackText == null) ..._actionChips(),
-                    if (_loading) ...[
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          const AppSpinner(size: 16),
-                          const SizedBox(width: 10),
-                          Text(
-                            '$_activeAction...',
-                            style: GoogleFonts.inter(
-                                fontSize: 13, color: widget.mutedColor),
-                          ),
-                        ],
-                      ),
-                    ],
-                    if (_error != null) ...[
-                      const SizedBox(height: 16),
-                      _errorBanner(_error!),
-                    ],
-                    if (_editResult != null &&
-                        !_loading &&
-                        _mode == _AIMode.transform) ...[
-                      _diffLegend(),
-                      const SizedBox(height: 12),
-                      ..._pairCards(),
-                      const SizedBox(height: 16),
-                      _applyRow(),
-                    ],
-                    if (_feedbackText != null &&
-                        !_loading &&
-                        _mode == _AIMode.feedback) ...[
-                      _feedbackCard(_feedbackText!),
-                      const SizedBox(height: 16),
-                      _tryAnotherButton(),
-                    ],
-                  ],
-                ),
+            const SizedBox(height: 16),
+            if (_loading) ...[
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  const AppSpinner(size: 16),
+                  const SizedBox(width: 10),
+                  Text(
+                    '${widget.action.label}...',
+                    style: GoogleFonts.inter(
+                        fontSize: 13, color: widget.mutedColor),
+                  ),
+                ],
               ),
-            ),
+            ],
+            if (_error != null) ...[
+              const SizedBox(height: 16),
+              _errorBanner(_error!),
+            ],
+            if (_editResult != null &&
+                !_loading &&
+                _mode == _AIMode.transform) ...[
+              _diffLegend(),
+              const SizedBox(height: 12),
+              ..._pairCards(),
+              const SizedBox(height: 16),
+              _applyRow(),
+            ],
+            if (_feedbackText != null &&
+                !_loading &&
+                _mode == _AIMode.feedback) ...[
+              _feedbackCard(_feedbackText!),
+              const SizedBox(height: 16),
+              _tryAnotherButton(),
+            ],
           ],
         ),
       ),
@@ -381,9 +659,9 @@ class _AIBottomSheetState extends State<AIBottomSheet> {
           ),
         ),
         const Spacer(),
-        if ((_editResult != null || _feedbackText != null) && !_loading)
+        if ((_editResult != null || _feedbackText != null) && !_loading) ...[
           GestureDetector(
-            onTap: _reset,
+            onTap: widget.onClose,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -398,74 +676,22 @@ class _AIBottomSheetState extends State<AIBottomSheet> {
               ],
             ),
           ),
+          const SizedBox(width: 12),
+        ],
+        GestureDetector(
+          onTap: widget.onClose,
+          child: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: widget.textColor.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(CupertinoIcons.xmark,
+                size: 14, color: widget.mutedColor),
+          ),
+        ),
       ],
     );
-  }
-
-  List<Widget> _actionChips() {
-    final g = widget.gemini;
-    return [
-      _sectionLabel('SHARPEN'),
-      const SizedBox(height: 8),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          _aiChip('Tighten', CupertinoIcons.bolt,
-              () => _runTransform('Tighten', 'tighten')),
-          _aiChip('Sharpen opening', CupertinoIcons.text_alignleft,
-              () => _runTransform('Sharpen opening', 'sharpen_opening')),
-          _aiChip('Lift the thesis', CupertinoIcons.arrow_up_circle,
-              () => _runTransform('Lift the thesis', 'lift_thesis')),
-          _aiChip('Cut throat-clearing', CupertinoIcons.scissors,
-              () => _runTransform('Cut throat-clearing', 'cut_throat_clearing')),
-          _aiChip('Pick up where I left off', CupertinoIcons.arrow_right_circle,
-              () => _runTransform(
-                  'Pick up where I left off', 'continue_writing')),
-        ],
-      ),
-      const SizedBox(height: 14),
-      _sectionLabel('REFRAME'),
-      const SizedBox(height: 8),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          _aiChip('For a beginner', null,
-              () => _runTransform('For a beginner', 'for_beginner')),
-          _aiChip('For an expert', null,
-              () => _runTransform('For an expert', 'for_expert')),
-          _aiChip('Add an example', null,
-              () => _runTransform('Add an example', 'add_example')),
-          _aiChip('Steel-man the other side', null,
-              () => _runTransform('Steel-man the other side', 'steel_man')),
-        ],
-      ),
-      const SizedBox(height: 14),
-      _sectionLabel('FEEDBACK'),
-      const SizedBox(height: 8),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          _aiChip(
-              'Critique honestly',
-              CupertinoIcons.chat_bubble_text,
-              () => _runFeedback('Critique honestly',
-                  () => g.critique(widget.plainText))),
-          _aiChip(
-              "What's missing?",
-              CupertinoIcons.question_circle,
-              () => _runFeedback("What's missing?",
-                  () => g.whatsMissing(widget.plainText))),
-          _aiChip(
-              'Three new openings',
-              CupertinoIcons.list_number,
-              () => _runFeedback('Three new openings',
-                  () => g.threeOpenings(widget.plainText))),
-        ],
-      ),
-    ];
   }
 
   Widget _diffLegend() {
@@ -536,7 +762,10 @@ class _AIBottomSheetState extends State<AIBottomSheet> {
             color: const Color(0xFF28A745),
             borderRadius: BorderRadius.circular(10),
             onPressed: hasAcceptedEdit
-                ? () => widget.onApply(_composeMergedDelta())
+                ? () {
+                    widget.onApply(_composeMergedDelta());
+                    widget.onClose();
+                  }
                 : null,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -563,7 +792,7 @@ class _AIBottomSheetState extends State<AIBottomSheet> {
           color: widget.isDark
               ? const Color(0xFFDC3545).withValues(alpha: 0.15)
               : const Color(0xFFDC3545).withValues(alpha: 0.08),
-          onPressed: _reset,
+          onPressed: widget.onClose,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -619,7 +848,7 @@ class _AIBottomSheetState extends State<AIBottomSheet> {
       padding: const EdgeInsets.symmetric(vertical: 12),
       borderRadius: BorderRadius.circular(10),
       color: widget.surfaceColor,
-      onPressed: _reset,
+      onPressed: widget.onClose,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -663,58 +892,6 @@ class _AIBottomSheetState extends State<AIBottomSheet> {
     );
   }
 
-  Widget _sectionLabel(String text) => Text(
-        text,
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: widget.mutedColor,
-          letterSpacing: 1,
-        ),
-      );
-
-  Widget _aiChip(String label, IconData? icon, VoidCallback onTap) {
-    final isActive = _loading && _activeAction == label;
-    return GestureDetector(
-      onTap: _loading ? null : onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-        decoration: BoxDecoration(
-          color: isActive
-              ? (widget.isDark
-                  ? const Color(0xFF5B8DEF).withValues(alpha: 0.15)
-                  : const Color(0xFF5B8DEF).withValues(alpha: 0.08))
-              : widget.surfaceColor,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isActive
-                ? const Color(0xFF5B8DEF).withValues(alpha: 0.3)
-                : (widget.isDark
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : Colors.black.withValues(alpha: 0.06)),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 14, color: widget.mutedColor),
-              const SizedBox(width: 7),
-            ],
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: widget.textColor.withValues(alpha: 0.8),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 // ─── One paragraph pair card ───
@@ -755,10 +932,13 @@ class _PairCard extends StatelessWidget {
       color: textColor.withValues(alpha: 0.85),
     );
 
-    // Pull inline attrs from whichever side we'll use as visual baseline.
-    // For diff display we keep things readable: only color/bold/italic from the
-    // edited paragraph if accepted, otherwise from the original.
-    final inline = (accepted ? edited : orig)?.inlineAttrs ?? const {};
+    // Pull inline attrs from the longest run of whichever side is the
+    // visual baseline. The diff overlay can't render per-run formatting
+    // (red/green strikethrough has to win), so we approximate with the
+    // dominant run's style. The actual document gets exact per-run
+    // formatting via _composeMergedDelta.
+    final baselineRuns = (accepted ? edited : orig)?.runs ?? const <TextRun>[];
+    final inline = _longestRunAttrs(baselineRuns);
     final styledBase = _inlineStyleOf(Map<String, dynamic>.from(inline), base);
 
     final block = (accepted ? edited : orig)?.blockAttrs ?? const {};

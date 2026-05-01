@@ -1,24 +1,40 @@
 import 'package:flutter/foundation.dart';
 import 'package:inkspacex/services/api/api_client.dart';
 
-/// One paragraph from a Delta — text plus block/inline formatting.
+/// One formatted run inside a paragraph — a contiguous span of text that
+/// shares the same inline attributes (bold, font, color, etc.).
+class TextRun {
+  final String text;
+  final Map<String, dynamic> attrs;
+
+  const TextRun({required this.text, this.attrs = const {}});
+
+  factory TextRun.fromJson(Map<String, dynamic> json) => TextRun(
+        text: json['text'] as String? ?? '',
+        attrs: Map<String, dynamic>.from((json['attrs'] as Map?) ?? const {}),
+      );
+}
+
+/// One paragraph from a Delta — plain text plus block-level attrs and the
+/// list of formatted runs that make up the inline content.
 class DeltaParagraph {
   final String text;
   final Map<String, dynamic> blockAttrs;
-  final Map<String, dynamic> inlineAttrs;
+  final List<TextRun> runs;
 
   const DeltaParagraph({
     required this.text,
     this.blockAttrs = const {},
-    this.inlineAttrs = const {},
+    this.runs = const [],
   });
 
   factory DeltaParagraph.fromJson(Map<String, dynamic> json) => DeltaParagraph(
         text: json['text'] as String? ?? '',
         blockAttrs: Map<String, dynamic>.from(
             (json['block_attrs'] as Map?) ?? const {}),
-        inlineAttrs: Map<String, dynamic>.from(
-            (json['inline_attrs'] as Map?) ?? const {}),
+        runs: ((json['runs'] as List?) ?? const [])
+            .map((e) => TextRun.fromJson(e as Map<String, dynamic>))
+            .toList(),
       );
 }
 

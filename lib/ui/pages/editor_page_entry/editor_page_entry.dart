@@ -42,6 +42,30 @@ import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/toolbar_widget
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/version_history_widgets.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/word_style_toolbar.dart';
 
+/// Snapshot of the document scope an inline AI Assist panel is editing,
+/// captured when the user picks an action from [AIActionPicker]. The panel
+/// uses this to run the action and to splice the merged delta back into the
+/// document on Apply — even if the user scrolls or interacts with chrome
+/// while the panel is open.
+class _AIPanelData {
+  final AIAction action;
+  final List<dynamic> sourceDelta;
+  final String plainText;
+  final bool hasSelection;
+  final int replaceIndex;
+  final int replaceLength;
+  final bool sourceEndsWithNewline;
+  const _AIPanelData({
+    required this.action,
+    required this.sourceDelta,
+    required this.plainText,
+    required this.hasSelection,
+    required this.replaceIndex,
+    required this.replaceLength,
+    required this.sourceEndsWithNewline,
+  });
+}
+
 class EditiorPage extends StatefulWidget {
   const EditiorPage({super.key});
 
@@ -62,6 +86,13 @@ class _EditiorPageState extends State<EditiorPage>
   bool _showOutline = false;
   bool _showAnnotations = false;
   bool _findReplaceOpen = false;
+
+  // ── AI Assist (inline result panel) ──
+  // Set after the user picks an action from the bottom-sheet [AIActionPicker].
+  // While set, the editor card swaps QuillEditor for an AIAssistPanel overlay
+  // running that action. Cleared by Apply / Decline / X / Try another.
+  _AIPanelData? _aiPanel;
+
   // Tracks the section the AnnotationProvider is currently loaded for so we
   // only reload when the active section actually changes.
   String? _annotationSectionId;
@@ -1131,17 +1162,9 @@ class _EditiorPageState extends State<EditiorPage>
   }
 
   // ─── AI Panel ───
-  void _showAIPanel() {
+  Future<void> _showAIPanel() async {
     final editorProvider = context.read<EditorProvider>();
     final controller = editorProvider.controller;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF111111);
-    final mutedColor = isDark
-        ? Colors.white.withValues(alpha: 0.45)
-        : Colors.black.withValues(alpha: 0.45);
-    final surfaceColor =
-        isDark ? const Color(0xFF141414) : const Color(0xFFF5F5F7);
-    final sheetBg = isDark ? const Color(0xFF0C0C0C) : Colors.white;
 
     final selection = controller.selection;
     final hasSelection = selection.baseOffset != selection.extentOffset;
@@ -1185,34 +1208,64 @@ class _EditiorPageState extends State<EditiorPage>
     // on apply.
     final sourceEndsWithNewline = _deltaEndsWithNewline(sourceDelta);
 
-    showModalBottomSheet(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseTextColor =
+        isDark ? Colors.white : const Color(0xFF1A1A1A);
+    final themedTextColor = _paperTheme == PaperTheme.defaultTheme
+        ? baseTextColor
+        : _getTextColor(isDark);
+    final mutedColor = isDark
+        ? Colors.white.withValues(alpha: 0.45)
+        : Colors.black.withValues(alpha: 0.45);
+    final surfaceColor =
+        isDark ? const Color(0xFF141414) : const Color(0xFFF5F5F7);
+    final sheetBackground =
+        isDark ? const Color(0xFF0D0D0D) : Colors.white;
+
+    final action = await showModalBottomSheet<AIAction>(
       context: context,
-      backgroundColor: sheetBg,
       isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: sheetBackground,
+      barrierColor: Colors.black.withValues(alpha: isDark ? 0.55 : 0.35),
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (ctx) => AIBottomSheet(
-        gemini: _gemini,
+      clipBehavior: Clip.antiAlias,
+      builder: (sheetCtx) {
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(sheetCtx).size.height * 0.85,
+          ),
+          child: AIActionPicker(
+            hasSelection: hasSelection,
+            isDark: isDark,
+            textColor: themedTextColor,
+            mutedColor: mutedColor,
+            surfaceColor: surfaceColor,
+            backgroundColor: sheetBackground,
+          ),
+        );
+      },
+    );
+
+    if (action == null || !mounted) return;
+
+    setState(() {
+      _aiPanel = _AIPanelData(
+        action: action,
         sourceDelta: sourceJson,
         plainText: plainText,
         hasSelection: hasSelection,
-        isDark: isDark,
-        textColor: textColor,
-        mutedColor: mutedColor,
-        surfaceColor: surfaceColor,
-        onApply: (mergedJson) {
-          Navigator.pop(ctx);
-          _applyMergedDelta(
-            controller,
-            mergedJson,
-            replaceIndex,
-            replaceLength,
-            stripTrailingNewline: !sourceEndsWithNewline,
-          );
-        },
-      ),
-    );
+        replaceIndex: replaceIndex,
+        replaceLength: replaceLength,
+        sourceEndsWithNewline: sourceEndsWithNewline,
+      );
+    });
+  }
+
+  void _closeAIPanel() {
+    if (_aiPanel != null) setState(() => _aiPanel = null);
   }
 
   bool _deltaEndsWithNewline(Delta delta) {
@@ -2800,7 +2853,8 @@ class _EditiorPageState extends State<EditiorPage>
           : _focusMode
               ? BoxDecoration(
                   color: paperColor,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(14)),
                   border: Border.all(color: focusBorder),
                   boxShadow: [
                     BoxShadow(
@@ -2814,7 +2868,8 @@ class _EditiorPageState extends State<EditiorPage>
                 )
               : BoxDecoration(
                   color: paperColor,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(14)),
                   border: Border.all(color: paperBorder),
                   // Soft floating-paper shadow — sells the page metaphor
                   // without the high-contrast slab Material defaults to.
@@ -2843,7 +2898,7 @@ class _EditiorPageState extends State<EditiorPage>
                   MediaQuery.of(ctx).viewInsets.bottom +
                   (_typewriterMode ? MediaQuery.sizeOf(ctx).height * 0.4 : 120);
 
-              return QuillEditor.basic(
+              final editor = QuillEditor.basic(
                 key: ValueKey(sectionId ?? 'none'),
                 controller: ctx.read<EditorProvider>().controller,
                 config: QuillEditorConfig(
@@ -2951,6 +3006,54 @@ class _EditiorPageState extends State<EditiorPage>
                     ),
                   ),
                 ),
+              );
+
+              if (_aiPanel == null) return editor;
+
+              final panel = _aiPanel!;
+              final mutedColor = isDark
+                  ? Colors.white.withValues(alpha: 0.45)
+                  : Colors.black.withValues(alpha: 0.45);
+              final surfaceColor = isDark
+                  ? const Color(0xFF141414)
+                  : const Color(0xFFF5F5F7);
+
+              return Stack(
+                children: [
+                  // Editor stays mounted underneath so the user can still see
+                  // their text behind the AI panel. IgnorePointer blocks
+                  // accidental edits while AI is open.
+                  IgnorePointer(child: editor),
+                  Positioned.fill(
+                    child: AIAssistPanel(
+                      gemini: _gemini,
+                      action: panel.action,
+                      sourceDelta: panel.sourceDelta,
+                      plainText: panel.plainText,
+                      hasSelection: panel.hasSelection,
+                      isDark: isDark,
+                      textColor: themedTextColor,
+                      mutedColor: mutedColor,
+                      surfaceColor: surfaceColor,
+                      // Translucent so the document text shows through. Chips
+                      // and pair cards have their own opaque surfaces, so the
+                      // panel's chrome stays readable.
+                      backgroundColor:
+                          paperColor.withValues(alpha: 0.82),
+                      onApply: (mergedJson) {
+                        _applyMergedDelta(
+                          ctx.read<EditorProvider>().controller,
+                          mergedJson,
+                          panel.replaceIndex,
+                          panel.replaceLength,
+                          stripTrailingNewline:
+                              !panel.sourceEndsWithNewline,
+                        );
+                      },
+                      onClose: _closeAIPanel,
+                    ),
+                  ),
+                ],
               );
             },
           ),

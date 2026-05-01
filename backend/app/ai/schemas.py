@@ -70,10 +70,15 @@ class TextEditResponse(BaseModel):
     result: str
 
 
+class TextRun(BaseModel):
+    text: str
+    attrs: dict[str, Any] = {}
+
+
 class DeltaParagraph(BaseModel):
     text: str
     block_attrs: dict[str, Any] = {}
-    inline_attrs: dict[str, Any] = {}
+    runs: list[TextRun] = []
 
 
 class DeltaTextEditRequest(BaseModel):
