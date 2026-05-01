@@ -4798,26 +4798,30 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
     return (start, end - start);
   }
 
-  // Apply an inline attribute. If the selection is collapsed we expand
-  // to the current line so the change is visible immediately, instead
-  // of silently parking the attribute on the next-character toggled
-  // style (where it's invisible until the user types something — which
-  // is exactly the "I changed font and nothing happened" bug).
-  // We also keep the toggled style so subsequent typing inherits it.
+  // Apply an inline attribute. With a real selection: format that range.
+  // With a collapsed caret on a *blank* line: format the empty line so
+  // the toggled style sticks reliably (no visible retroactive change).
+  // With a collapsed caret on a *non-empty* line: only arm the toggled
+  // style — do NOT rewrite the existing line text. Rewriting felt like
+  // "all changed??" to users who expected the picker to affect what
+  // they type next, not what's already on screen.
   void _applyInlineWithFallback(Attribute attribute) {
     _ensureSelection();
     final sel = widget.controller.selection;
     if (sel.isValid && !sel.isCollapsed) {
       widget.controller.formatSelection(attribute);
-    } else {
-      final caret = sel.isValid ? sel.baseOffset : 0;
-      final (start, len) = _currentLineRange(caret);
-      if (len > 0) {
-        widget.controller.formatText(start, len, attribute);
-      }
-      // Also set toggled style so the next typed char carries the attr.
-      widget.controller.formatSelection(attribute);
+      return;
     }
+    final caret = sel.isValid ? sel.baseOffset : 0;
+    final (start, len) = _currentLineRange(caret);
+    final plain = widget.controller.document.toPlainText();
+    final lineText =
+        len > 0 ? plain.substring(start, start + len) : '';
+    final lineIsBlank = lineText.trim().isEmpty;
+    if (lineIsBlank && len > 0) {
+      widget.controller.formatText(start, len, attribute);
+    }
+    widget.controller.formatSelection(attribute);
   }
 
   String get _currentFontFamily {
@@ -5472,6 +5476,7 @@ class _HeadingMenu extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: it.$3,
                     fontWeight: it.$4,
+                    color: textColor,
                   ),
                 ),
               ))

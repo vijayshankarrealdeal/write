@@ -163,17 +163,21 @@ class _TypeCardState extends State<TypeCard> {
                 ),
               ),
               const Spacer(),
-              Text(
-                widget.type.displayName,
-                style: GoogleFonts.inter(
-                  fontSize: compact ? 14 : 20,
-                  fontWeight: FontWeight.w700,
-                  color: widget.textColor,
-                  height: 1.1,
-                  letterSpacing: -0.2,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  widget.type.displayName,
+                  style: GoogleFonts.inter(
+                    fontSize: compact ? 14 : 20,
+                    fontWeight: FontWeight.w700,
+                    color: widget.textColor,
+                    height: 1.1,
+                    letterSpacing: -0.2,
+                  ),
+                  maxLines: 1,
+                  softWrap: false,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
               SizedBox(height: compact ? 2 : 6),
               Text(
