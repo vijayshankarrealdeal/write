@@ -41,6 +41,7 @@ class PublicUser {
   final int followersCount;
   final int followingCount;
   final bool isFollowing;
+  final bool isBlocked;
   const PublicUser({
     required this.id,
     required this.name,
@@ -50,6 +51,7 @@ class PublicUser {
     this.followersCount = 0,
     this.followingCount = 0,
     this.isFollowing = false,
+    this.isBlocked = false,
   });
 
   factory PublicUser.fromJson(Map<String, dynamic> j) => PublicUser(
@@ -61,12 +63,14 @@ class PublicUser {
         followersCount: (j['followers_count'] as num?)?.toInt() ?? 0,
         followingCount: (j['following_count'] as num?)?.toInt() ?? 0,
         isFollowing: j['is_following'] as bool? ?? false,
+        isBlocked: j['is_blocked'] as bool? ?? false,
       );
 
   PublicUser copyWith({
     int? followersCount,
     int? followingCount,
     bool? isFollowing,
+    bool? isBlocked,
   }) =>
       PublicUser(
         id: id,
@@ -77,6 +81,7 @@ class PublicUser {
         followersCount: followersCount ?? this.followersCount,
         followingCount: followingCount ?? this.followingCount,
         isFollowing: isFollowing ?? this.isFollowing,
+        isBlocked: isBlocked ?? this.isBlocked,
       );
 }
 
@@ -582,6 +587,41 @@ class ApiDataService implements SyncDispatcher {
     try {
       final response = await _client.get(
         '/api/users/$userId/following',
+        queryParams: {'limit': limit},
+      );
+      final raw = (response.data as List?) ?? const [];
+      return raw
+          .map((d) => PublicUser.fromJson(d as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  /// Drop another user's follow of the current user. Idempotent — safe
+  /// to call when the row no longer exists. Returns the canonical
+  /// followers count so callers can reconcile any optimistic UI.
+  Future<int> removeFollower(String userId) async {
+    final response = await _client.delete('/api/users/$userId/follower');
+    final data = (response.data as Map<String, dynamic>?) ?? const {};
+    return (data['followers_count'] as num?)?.toInt() ?? 0;
+  }
+
+  /// Block another user. Server-side this also tears down any existing
+  /// follow rows in either direction so the count drift is settled in
+  /// a single round-trip.
+  Future<void> blockUser(String userId) async {
+    await _client.post('/api/users/$userId/block');
+  }
+
+  Future<void> unblockUser(String userId) async {
+    await _client.delete('/api/users/$userId/block');
+  }
+
+  Future<List<PublicUser>> getBlockedUsers({int limit = 100}) async {
+    try {
+      final response = await _client.get(
+        '/api/users/me/blocked',
         queryParams: {'limit': limit},
       );
       final raw = (response.data as List?) ?? const [];

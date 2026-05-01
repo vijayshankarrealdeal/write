@@ -5,10 +5,36 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 
-class ProfileHubPage extends StatelessWidget {
+class ProfileHubPage extends StatefulWidget {
   const ProfileHubPage({super.key});
+
+  @override
+  State<ProfileHubPage> createState() => _ProfileHubPageState();
+}
+
+class _ProfileHubPageState extends State<ProfileHubPage> {
+  PublicUser? _publicSelf;
+  String? _loadedForUserId;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final uid = context.read<AuthProvider>().currentUser?.id;
+    if (uid != null && uid != _loadedForUserId) {
+      _loadedForUserId = uid;
+      _loadPublicSelf(uid);
+    }
+  }
+
+  Future<void> _loadPublicSelf(String uid) async {
+    final api = context.read<AuthProvider>().dataService;
+    final data = await api.getPublicUser(uid);
+    if (!mounted) return;
+    setState(() => _publicSelf = data);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +45,7 @@ class ProfileHubPage extends StatelessWidget {
         ? Colors.white.withValues(alpha: 0.08)
         : Colors.black.withValues(alpha: 0.05);
     final user = context.watch<AuthProvider>().currentUser;
+    final pubSelf = _publicSelf;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -102,6 +129,16 @@ class ProfileHubPage extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (user != null) ...[
+                      const SizedBox(height: 12),
+                      _FollowSummary(
+                        userId: user.id,
+                        followers: pubSelf?.followersCount ?? 0,
+                        following: pubSelf?.followingCount ?? 0,
+                        textColor: textColor,
+                        seed: pubSelf,
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -148,6 +185,12 @@ class ProfileHubPage extends StatelessWidget {
               _buildCardGroup(
                 cardColor: cardColor,
                 children: [
+                  _HubTile(
+                    icon: CupertinoIcons.person_crop_circle_badge_xmark,
+                    label: "Blocked accounts",
+                    onTap: () => context.push('/blocked'),
+                  ),
+                  _buildDivider(context),
                   _HubTile(
                     icon: CupertinoIcons.settings,
                     label: "Settings",
@@ -306,6 +349,81 @@ class ProfileHubPage extends StatelessWidget {
         SnackBar(content: Text('Could not open ${uri.toString()}')),
       );
     }
+  }
+}
+
+class _FollowSummary extends StatelessWidget {
+  final String userId;
+  final int followers;
+  final int following;
+  final Color textColor;
+  final PublicUser? seed;
+  const _FollowSummary({
+    required this.userId,
+    required this.followers,
+    required this.following,
+    required this.textColor,
+    required this.seed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _link(
+          context,
+          followers,
+          'followers',
+          () => context.push('/u/$userId/followers', extra: seed),
+        ),
+        Container(
+          width: 1,
+          height: 14,
+          margin: const EdgeInsets.symmetric(horizontal: 12),
+          color: textColor.withValues(alpha: 0.15),
+        ),
+        _link(
+          context,
+          following,
+          'following',
+          () => context.push('/u/$userId/following', extra: seed),
+        ),
+      ],
+    );
+  }
+
+  Widget _link(
+    BuildContext context,
+    int count,
+    String label,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(6),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        child: RichText(
+          text: TextSpan(
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: textColor.withValues(alpha: 0.65),
+            ),
+            children: [
+              TextSpan(
+                text: '$count ',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
+              ),
+              TextSpan(text: label),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

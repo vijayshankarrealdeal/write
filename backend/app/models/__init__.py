@@ -6,6 +6,7 @@ from app.models.analytics import (
     RecommendationEvent,
 )
 from app.models.base import Base
+from app.models.block import Block
 from app.models.bookmark import Bookmark
 from app.models.bookshelf import Bookshelf
 from app.models.comment import Comment
@@ -23,6 +24,7 @@ __all__ = [
     "AnalyticsEvent",
     "AppLog",
     "Base",
+    "Block",
     "Bookmark",
     "Bookshelf",
     "Comment",

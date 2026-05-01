@@ -16,6 +16,7 @@ import 'package:inkspacex/ui/onboarding/onboarding_page.dart';
 import 'package:inkspacex/ui/app/search_page.dart';
 import 'package:inkspacex/ui/app/settings.dart';
 import 'package:inkspacex/ui/pages/author_profile_page.dart';
+import 'package:inkspacex/ui/pages/blocked_users_page.dart';
 import 'package:inkspacex/ui/pages/follow_list_page.dart';
 import 'package:inkspacex/ui/pages/post_detail_page.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/editor_page_entry.dart';
@@ -219,6 +220,12 @@ GoRouter createRouter(AuthProvider authProvider) {
         path: '/notifications',
         pageBuilder: (_, __) => const CupertinoPage(
           child: NotificationsPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/blocked',
+        pageBuilder: (_, __) => const CupertinoPage(
+          child: BlockedUsersPage(),
         ),
       ),
       GoRoute(

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -111,6 +112,154 @@ class _FollowListPageState extends State<FollowListPage> {
     }
   }
 
+  Future<void> _removeFollower(PublicUser target) async {
+    if (_inFlight.contains(target.id)) return;
+    final ok = await _confirm(
+      title: 'Remove follower?',
+      message:
+          '${target.name ?? 'This person'} won\'t be told they were removed.',
+      confirmLabel: 'Remove',
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+    setState(() => _inFlight.add(target.id));
+    final api = context.read<AuthProvider>().dataService;
+    try {
+      await api.removeFollower(target.id);
+      if (!mounted) return;
+      setState(() {
+        _items = _items.where((u) => u.id != target.id).toList(growable: false);
+      });
+      AnalyticsService.instance.track(
+        'follower_removed',
+        screen: '/u/:id/followers',
+        action: 'click',
+        entityType: 'user',
+        entityId: target.id,
+      );
+    } catch (_) {
+      if (mounted) _toast('Could not remove follower');
+    } finally {
+      if (mounted) {
+        setState(() => _inFlight.remove(target.id));
+      }
+    }
+  }
+
+  Future<void> _block(PublicUser target) async {
+    if (_inFlight.contains(target.id)) return;
+    final ok = await _confirm(
+      title: 'Block ${target.name ?? 'this user'}?',
+      message:
+          'They won\'t be able to follow you or see your profile, and you won\'t see theirs.',
+      confirmLabel: 'Block',
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+    setState(() => _inFlight.add(target.id));
+    final api = context.read<AuthProvider>().dataService;
+    try {
+      await api.blockUser(target.id);
+      if (!mounted) return;
+      // Block also tears down follow rows server-side, so the row no
+      // longer belongs in either the followers or following list.
+      setState(() {
+        _items = _items.where((u) => u.id != target.id).toList(growable: false);
+      });
+      AnalyticsService.instance.track(
+        'user_blocked',
+        screen: widget.mode == FollowListMode.followers
+            ? '/u/:id/followers'
+            : '/u/:id/following',
+        action: 'click',
+        entityType: 'user',
+        entityId: target.id,
+      );
+    } catch (_) {
+      if (mounted) _toast('Could not block user');
+    } finally {
+      if (mounted) {
+        setState(() => _inFlight.remove(target.id));
+      }
+    }
+  }
+
+  Future<bool> _confirm({
+    required String title,
+    required String message,
+    required String confirmLabel,
+    bool destructive = false,
+  }) async {
+    final result = await showCupertinoModalPopup<bool>(
+      context: context,
+      builder: (_) => CupertinoActionSheet(
+        title: Text(title),
+        message: Text(message),
+        actions: [
+          CupertinoActionSheetAction(
+            isDestructiveAction: destructive,
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(confirmLabel),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+      ),
+    );
+    return result ?? false;
+  }
+
+  void _showRowActions(PublicUser target) {
+    final isFollower = widget.mode == FollowListMode.followers;
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (sheetCtx) => CupertinoActionSheet(
+        title: Text(target.name ?? 'Options'),
+        actions: [
+          if (isFollower)
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.pop(sheetCtx);
+                _removeFollower(target);
+              },
+              child: const Text('Remove follower'),
+            ),
+          CupertinoActionSheetAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.pop(sheetCtx);
+              _block(target);
+            },
+            child: const Text('Block'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(sheetCtx);
+              context.push('/u/${target.id}', extra: target);
+            },
+            child: const Text('View profile'),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(sheetCtx),
+          child: const Text('Cancel'),
+        ),
+      ),
+    );
+  }
+
+  void _toast(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.inter(fontSize: 13)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -118,6 +267,7 @@ class _FollowListPageState extends State<FollowListPage> {
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final subtle = textColor.withValues(alpha: 0.55);
     final viewerId = context.watch<AuthProvider>().currentUser?.id;
+    final isOwnList = viewerId != null && viewerId == widget.userId;
     final title = widget.mode == FollowListMode.followers
         ? 'Followers'
         : 'Following';
@@ -151,23 +301,56 @@ class _FollowListPageState extends State<FollowListPage> {
               : RefreshIndicator(
                   onRefresh: _load,
                   color: textColor,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-                    itemCount: _items.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 14),
-                    itemBuilder: (_, i) {
-                      final u = _items[i];
-                      return _UserRow(
-                        user: u,
-                        isDark: isDark,
-                        textColor: textColor,
-                        subtle: subtle,
-                        isSelf: viewerId != null && viewerId == u.id,
-                        followLoading: _inFlight.contains(u.id),
-                        onTap: () => context.push('/u/${u.id}', extra: u),
-                        onFollow: () => _toggleFollow(u),
-                      );
-                    },
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+                        child: Row(
+                          children: [
+                            Text(
+                              '${_items.length}',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              title.toLowerCase(),
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                color: subtle,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView.separated(
+                          padding:
+                              const EdgeInsets.fromLTRB(16, 4, 16, 32),
+                          itemCount: _items.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 14),
+                          itemBuilder: (_, i) {
+                            final u = _items[i];
+                            return _UserRow(
+                              user: u,
+                              isDark: isDark,
+                              textColor: textColor,
+                              subtle: subtle,
+                              isSelf: viewerId != null && viewerId == u.id,
+                              showOwnerActions: isOwnList,
+                              followLoading: _inFlight.contains(u.id),
+                              onTap: () =>
+                                  context.push('/u/${u.id}', extra: u),
+                              onFollow: () => _toggleFollow(u),
+                              onMore: () => _showRowActions(u),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
     );
@@ -180,18 +363,22 @@ class _UserRow extends StatelessWidget {
   final Color textColor;
   final Color subtle;
   final bool isSelf;
+  final bool showOwnerActions;
   final bool followLoading;
   final VoidCallback onTap;
   final VoidCallback onFollow;
+  final VoidCallback onMore;
   const _UserRow({
     required this.user,
     required this.isDark,
     required this.textColor,
     required this.subtle,
     required this.isSelf,
+    required this.showOwnerActions,
     required this.followLoading,
     required this.onTap,
     required this.onFollow,
+    required this.onMore,
   });
 
   @override
@@ -225,7 +412,14 @@ class _UserRow extends StatelessWidget {
               ],
             ),
           ),
-          if (!isSelf) ...[
+          if (showOwnerActions && !isSelf) ...[
+            const SizedBox(width: 10),
+            _MoreButton(
+              isDark: isDark,
+              loading: followLoading,
+              onPressed: onMore,
+            ),
+          ] else if (!isSelf) ...[
             const SizedBox(width: 10),
             _SmallFollowButton(
               isFollowing: user.isFollowing,
@@ -235,6 +429,54 @@ class _UserRow extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _MoreButton extends StatelessWidget {
+  final bool isDark;
+  final bool loading;
+  final VoidCallback onPressed;
+  const _MoreButton({
+    required this.isDark,
+    required this.loading,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = isDark ? Colors.white : const Color(0xFF0F172A);
+    return SizedBox(
+      width: 36,
+      height: 30,
+      child: TextButton(
+        onPressed: loading ? null : onPressed,
+        style: TextButton.styleFrom(
+          foregroundColor: fg,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.18)
+                  : Colors.black.withValues(alpha: 0.12),
+              width: 1,
+            ),
+          ),
+          padding: EdgeInsets.zero,
+          minimumSize: const Size(36, 30),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: loading
+            ? SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation(fg),
+                ),
+              )
+            : Icon(CupertinoIcons.ellipsis, size: 16, color: fg),
       ),
     );
   }
