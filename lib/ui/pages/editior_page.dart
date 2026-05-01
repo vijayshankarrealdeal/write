@@ -5130,6 +5130,7 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
             // ── Text (heading + font + size) ──
             cluster([
               _HeadingMenu(
+                controller: widget.controller,
                 current: _currentHeadingLabel,
                 borderColor: borderColor,
                 fillColor: fillColor,
@@ -5149,6 +5150,7 @@ class _WordStyleToolbarState extends State<_WordStyleToolbar> {
               ),
               const SizedBox(width: 6),
               _FontSizeDropdown(
+                controller: widget.controller,
                 current: _currentFontSize,
                 items: _wordFontSizes,
                 borderColor: borderColor,
@@ -5418,6 +5420,7 @@ String _colorToHex(Color color) {
 // ── Heading menu (Body / H1 / H2 / H3) ──
 class _HeadingMenu extends StatelessWidget {
   const _HeadingMenu({
+    required this.controller,
     required this.current,
     required this.borderColor,
     required this.fillColor,
@@ -5425,6 +5428,7 @@ class _HeadingMenu extends StatelessWidget {
     required this.onSelected,
   });
 
+  final QuillController controller;
   final String current;
   final Color borderColor;
   final Color fillColor;
@@ -5439,10 +5443,23 @@ class _HeadingMenu extends StatelessWidget {
       (2, 'Heading 2', 17, FontWeight.w700),
       (3, 'Heading 3', 14, FontWeight.w600),
     ];
-    return PopupMenuButton<int?>(
+    // Snapshot before the popup opens — same reason as _ColorSwatchButton:
+    // PopupMenuButton can collapse the controller's selection, which would
+    // make Select-All → Heading apply to only the line under the cursor.
+    TextSelection? snapshot;
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (_) => snapshot = controller.selection,
+      child: PopupMenuButton<int?>(
       tooltip: 'Paragraph style',
       position: PopupMenuPosition.under,
-      onSelected: onSelected,
+      onSelected: (v) {
+        final s = snapshot;
+        if (s != null && s.isValid) {
+          controller.updateSelection(s, ChangeSource.local);
+        }
+        onSelected(v);
+      },
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -5481,6 +5498,7 @@ class _HeadingMenu extends StatelessWidget {
                 size: 16, color: textColor.withValues(alpha: 0.6)),
           ],
         ),
+      ),
       ),
     );
   }
@@ -6299,6 +6317,7 @@ class _FontFamilyDropdown extends StatelessWidget {
 
 class _FontSizeDropdown extends StatelessWidget {
   const _FontSizeDropdown({
+    required this.controller,
     required this.current,
     required this.items,
     required this.borderColor,
@@ -6307,6 +6326,7 @@ class _FontSizeDropdown extends StatelessWidget {
     required this.onSelected,
   });
 
+  final QuillController controller;
   final double current;
   final List<double> items;
   final Color borderColor;
@@ -6316,10 +6336,23 @@ class _FontSizeDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<double>(
+    // Snapshot the selection on pointer-down — same fix as
+    // _ColorSwatchButton/_HeadingMenu, so Select-All → font size doesn't
+    // collapse to current-line-only via _applyInlineWithFallback.
+    TextSelection? snapshot;
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (_) => snapshot = controller.selection,
+      child: PopupMenuButton<double>(
       tooltip: 'Font size',
       position: PopupMenuPosition.under,
-      onSelected: onSelected,
+      onSelected: (v) {
+        final s = snapshot;
+        if (s != null && s.isValid) {
+          controller.updateSelection(s, ChangeSource.local);
+        }
+        onSelected(v);
+      },
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -6354,6 +6387,7 @@ class _FontSizeDropdown extends StatelessWidget {
                 size: 16, color: textColor.withValues(alpha: 0.6)),
           ],
         ),
+      ),
       ),
     );
   }
@@ -7643,14 +7677,22 @@ class _IssueRow extends StatefulWidget {
 class _IssueRowState extends State<_IssueRow> {
   bool _expanded = false;
   List<String>? _suggestions;
+  bool _loadingSuggestions = false;
 
-  void _toggle() {
-    setState(() {
-      _expanded = !_expanded;
-      _suggestions ??=
-          spellsvc.SpellCheckService.instance.suggest(widget.misspelling.word);
-    });
+  Future<void> _toggle() async {
+    final willExpand = !_expanded;
+    setState(() => _expanded = willExpand);
     widget.onJump();
+    if (willExpand && _suggestions == null && !_loadingSuggestions) {
+      setState(() => _loadingSuggestions = true);
+      final sp = context.read<SpellCheckProvider>();
+      final result = await sp.suggest(widget.misspelling.word);
+      if (!mounted) return;
+      setState(() {
+        _suggestions = result;
+        _loadingSuggestions = false;
+      });
+    }
   }
 
   @override
@@ -7700,31 +7742,55 @@ class _IssueRowState extends State<_IssueRow> {
           ),
           if (_expanded) ...[
             const SizedBox(height: 6),
-            Padding(
-              padding: const EdgeInsets.only(left: 22),
-              child: Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: (_suggestions ?? const [])
-                    .map((s) => ActionChip(
-                          label: Text(
-                            s,
-                            style: GoogleFonts.inter(fontSize: 12),
-                          ),
-                          onPressed: () => widget.onReplace(s),
-                        ))
-                    .toList(),
-              ),
-            ),
-            if ((_suggestions ?? const []).isEmpty)
+            if (_loadingSuggestions)
               Padding(
                 padding: const EdgeInsets.only(left: 22, top: 4),
-                child: Text(
-                  'No suggestions.',
-                  style: GoogleFonts.inter(
-                      fontSize: 12, color: widget.mutedFg),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 12,
+                      height: 12,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 1.5,
+                        color: widget.mutedFg,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Loading suggestions…',
+                      style: GoogleFonts.inter(
+                          fontSize: 12, color: widget.mutedFg),
+                    ),
+                  ],
+                ),
+              )
+            else ...[
+              Padding(
+                padding: const EdgeInsets.only(left: 22),
+                child: Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: (_suggestions ?? const [])
+                      .map((s) => ActionChip(
+                            label: Text(
+                              s,
+                              style: GoogleFonts.inter(fontSize: 12),
+                            ),
+                            onPressed: () => widget.onReplace(s),
+                          ))
+                      .toList(),
                 ),
               ),
+              if ((_suggestions ?? const []).isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(left: 22, top: 4),
+                  child: Text(
+                    'No suggestions.',
+                    style: GoogleFonts.inter(
+                        fontSize: 12, color: widget.mutedFg),
+                  ),
+                ),
+            ],
           ],
         ],
       ),

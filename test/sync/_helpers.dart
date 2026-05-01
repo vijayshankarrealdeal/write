@@ -31,7 +31,11 @@ class RecordingDispatcher implements SyncDispatcher {
   }
 
   @override
-  Future<WritingModel> createWriting(String userId, WritingModel book) async {
+  Future<WritingModel> createWriting(
+    String userId,
+    WritingModel book, {
+    String? opId,
+  }) async {
     calls.add('createWriting:${book.id}');
     _maybeThrow('createWriting');
     return book;
@@ -45,20 +49,29 @@ class RecordingDispatcher implements SyncDispatcher {
     String? description,
     String? coverImagePath,
     ImageMeta? coverImageMeta,
+    String? opId,
   }) async {
     calls.add('updateWritingMetadata:$writingId');
     _maybeThrow('updateWritingMetadata');
   }
 
   @override
-  Future<void> deleteWriting(String userId, String writingId) async {
+  Future<void> deleteWriting(
+    String userId,
+    String writingId, {
+    String? opId,
+  }) async {
     calls.add('deleteWriting:$writingId');
     _maybeThrow('deleteWriting');
   }
 
   @override
   Future<void> addSection(
-      String userId, String writingId, SectionModel section) async {
+    String userId,
+    String writingId,
+    SectionModel section, {
+    String? opId,
+  }) async {
     calls.add('addSection:$writingId/${section.id}');
     _maybeThrow('addSection');
   }
@@ -70,21 +83,31 @@ class RecordingDispatcher implements SyncDispatcher {
     String sectionId,
     String content, {
     String canvasData = '',
+    String? opId,
   }) async {
     calls.add('updateSectionContent:$writingId/$sectionId');
     _maybeThrow('updateSectionContent');
   }
 
   @override
-  Future<void> renameSection(String userId, String writingId, String sectionId,
-      String newTitle) async {
+  Future<void> renameSection(
+    String userId,
+    String writingId,
+    String sectionId,
+    String newTitle, {
+    String? opId,
+  }) async {
     calls.add('renameSection:$writingId/$sectionId');
     _maybeThrow('renameSection');
   }
 
   @override
   Future<void> deleteSection(
-      String userId, String writingId, String sectionId) async {
+    String userId,
+    String writingId,
+    String sectionId, {
+    String? opId,
+  }) async {
     calls.add('deleteSection:$writingId/$sectionId');
     _maybeThrow('deleteSection');
   }

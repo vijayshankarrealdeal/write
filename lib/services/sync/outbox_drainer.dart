@@ -327,7 +327,7 @@ class OutboxDrainer {
         subtype: fields['subtype'] as String? ?? '',
         sections: const <SectionModel>[],
       );
-      final result = await _dataService.createWriting('', book);
+      final result = await _dataService.createWriting('', book, opId: op.id);
       if (result.id != writingId) {
         await _propagateWritingRemap(writingId, result.id);
       }
@@ -339,12 +339,17 @@ class OutboxDrainer {
         description: fields['description'] as String?,
         coverImagePath: fields['coverImagePath'] as String?,
         coverImageMeta: ImageMeta.tryFromJson(fields['coverImageMeta']),
+        opId: op.id,
       );
     }
   }
 
   Future<void> _dispatchDeleteWriting(PendingOp op) async {
-    await _dataService.deleteWriting('', op.payload['writingId'] as String);
+    await _dataService.deleteWriting(
+      '',
+      op.payload['writingId'] as String,
+      opId: op.id,
+    );
   }
 
   Future<void> _dispatchUpsertSection(PendingOp op) async {
@@ -363,7 +368,7 @@ class OutboxDrainer {
         sectionColor:
             Color((fields['section_color'] as num?)?.toInt() ?? 0xFF1982C4),
       );
-      await _dataService.addSection('', writingId, section);
+      await _dataService.addSection('', writingId, section, opId: op.id);
       if (section.id != sectionId) {
         await _propagateSectionRemap(writingId, sectionId, section.id);
       }
@@ -381,6 +386,7 @@ class OutboxDrainer {
           writingId,
           sectionId,
           fields['title'] as String,
+          opId: op.id,
         );
       } else if (hasContent) {
         await _dataService.updateSectionContent(
@@ -389,6 +395,7 @@ class OutboxDrainer {
           sectionId,
           fields['content'] as String? ?? '',
           canvasData: fields['canvas_data'] as String? ?? '',
+          opId: op.id,
         );
       }
     }
@@ -399,6 +406,7 @@ class OutboxDrainer {
       '',
       op.payload['writingId'] as String,
       op.payload['sectionId'] as String,
+      opId: op.id,
     );
   }
 

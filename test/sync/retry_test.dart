@@ -31,36 +31,42 @@ class _ScriptedDispatcher implements SyncDispatcher {
   @override
   Future<void> updateSectionContent(String userId, String writingId,
       String sectionId, String content,
-      {String canvasData = ''}) async {
+      {String canvasData = '', String? opId}) async {
     _maybeThrow();
   }
 
   // The rest of the SyncDispatcher surface isn't exercised by these tests
   // — we throw to make accidental call-sites obvious.
   @override
-  Future<WritingModel> createWriting(String userId, WritingModel book) =>
+  Future<WritingModel> createWriting(String userId, WritingModel book,
+          {String? opId}) =>
       throw UnimplementedError();
   @override
   Future<void> updateWritingMetadata(String userId, String writingId,
           {String? title,
           String? description,
           String? coverImagePath,
-          ImageMeta? coverImageMeta}) =>
+          ImageMeta? coverImageMeta,
+          String? opId}) =>
       throw UnimplementedError();
   @override
-  Future<void> deleteWriting(String userId, String writingId) =>
+  Future<void> deleteWriting(String userId, String writingId,
+          {String? opId}) =>
       throw UnimplementedError();
   @override
   Future<void> addSection(
-          String userId, String writingId, SectionModel section) =>
+          String userId, String writingId, SectionModel section,
+          {String? opId}) =>
       throw UnimplementedError();
   @override
-  Future<void> renameSection(
-          String userId, String writingId, String sectionId, String newTitle) =>
+  Future<void> renameSection(String userId, String writingId, String sectionId,
+          String newTitle,
+          {String? opId}) =>
       throw UnimplementedError();
   @override
   Future<void> deleteSection(
-          String userId, String writingId, String sectionId) =>
+          String userId, String writingId, String sectionId,
+          {String? opId}) =>
       throw UnimplementedError();
   @override
   Future<String> upsertBookmark(BookmarkModel bookmark,

@@ -1,3 +1,4 @@
+import asyncio
 import os
 import traceback
 from contextlib import asynccontextmanager
@@ -18,6 +19,8 @@ from app.models.analytics import CrashReport
 from app.ai.router import router as ai_router
 from app.middleware import RequestLoggingMiddleware
 from app.offline.router import router as offline_router
+from app.realtime import hub as realtime_hub
+from app import spellcheck as spellcheck_engine
 from app.routers import (
     admin,
     analytics,
@@ -32,6 +35,7 @@ from app.routers import (
     notifications,
     reading,
     realtime,
+    spellcheck,
     upload,
     users,
     writings,
@@ -100,9 +104,14 @@ async def lifespan(app: FastAPI):
             "ON feed_facets (kind, count DESC)"
         ))
     await start_drain()
+    await realtime_hub.start()
+    # Warm the spell-check dictionary so the first /api/spellcheck/check
+    # doesn't pay ~200ms of file I/O. Off the event loop — file is ~2MB.
+    asyncio.get_running_loop().run_in_executor(None, spellcheck_engine.warm)
     log.info("InkSpaceX API started")
     yield
     log.info("InkSpaceX API shutting down")
+    await realtime_hub.stop()
     await stop_drain()
     await engine.dispose()
 
@@ -144,6 +153,7 @@ app.include_router(logs.router)
 app.include_router(notifications.router)
 app.include_router(realtime.router)
 app.include_router(analytics.router)
+app.include_router(spellcheck.router)
 
 # Request logging middleware
 app.add_middleware(RequestLoggingMiddleware)

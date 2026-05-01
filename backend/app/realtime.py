@@ -1,16 +1,24 @@
-"""In-process pub/sub hub for SSE channels.
+"""Pub/sub hub for SSE channels.
 
 Each subscriber holds an asyncio.Queue of pending messages. ``broadcast``
-puts a payload onto every subscriber's queue; the SSE endpoint drains
+delivers a payload to every subscriber's queue; the SSE endpoint drains
 its queue and writes ``data:`` frames to the client.
 
-Two channel kinds:
+Three channel kinds:
 - ``user:{user_id}`` — private per-user channel for notifications.
 - ``feed:{feed_item_id}`` — comment events for a specific post.
+- ``writing:{writing_id}`` — live-edit events for a draft (shared
+  between the author's devices).
 
-Single-process only. Swap the in-memory queues for Redis pub/sub if the
-API ever runs multiple workers — only ``broadcast``, ``send_to_user``,
-and ``broadcast_feed_item`` need to change.
+Two backends:
+- **In-memory** (default, ``REDIS_URL`` empty) — single-process only;
+  ``broadcast`` fans out directly to local queues.
+- **Redis pub/sub** (``REDIS_URL`` set) — every ``broadcast`` becomes a
+  ``PUBLISH`` on the matching Redis channel, and a background reader on
+  each worker ``PSUBSCRIBE``s to the channel namespaces and dispatches
+  incoming messages to local queues. Same-process subscribers receive
+  via the Redis round-trip too, which keeps the code path uniform and
+  avoids double-delivery.
 """
 
 from __future__ import annotations
@@ -21,9 +29,14 @@ from collections import defaultdict
 from typing import Any, AsyncIterator
 from uuid import UUID
 
+from app.config import settings
 from app.logger import get_logger
 
 log = get_logger("app.realtime")
+
+# Patterns the Redis reader subscribes to. Add new channel kinds here so
+# they get fanned out across workers.
+_REDIS_PATTERNS = ("user:*", "feed:*", "writing:*")
 
 
 class _Hub:
@@ -35,6 +48,53 @@ class _Hub:
     def __init__(self) -> None:
         self._channels: dict[str, set[asyncio.Queue]] = defaultdict(set)
         self._lock = asyncio.Lock()
+        self._redis: Any | None = None
+        self._reader_task: asyncio.Task | None = None
+
+    async def start(self) -> None:
+        """Connect to Redis (if configured) and start the pubsub reader.
+
+        No-op when ``REDIS_URL`` is empty — the hub stays in-memory.
+        Failures here are fatal: a misconfigured Redis URL on a
+        multi-worker deployment would silently break SSE fanout, so we
+        let the lifespan crash instead.
+        """
+        if not settings.redis_url:
+            return
+        # Imported lazily so single-worker deployments don't need the
+        # `redis` package installed at import time (it still is, via
+        # requirements.txt — but this keeps the dev path tolerant of
+        # local environments without Redis).
+        from redis import asyncio as redis_asyncio
+
+        self._redis = redis_asyncio.from_url(
+            settings.redis_url,
+            decode_responses=True,
+            health_check_interval=30,
+        )
+        # `ping` surfaces auth/host errors at startup rather than on the
+        # first publish. Lifespan startup is the right place for this to
+        # blow up.
+        await self._redis.ping()
+        self._reader_task = asyncio.create_task(
+            self._redis_reader_loop(), name="realtime-redis-reader"
+        )
+        log.info("realtime hub: Redis backend connected (%s)", settings.redis_url)
+
+    async def stop(self) -> None:
+        if self._reader_task is not None:
+            self._reader_task.cancel()
+            try:
+                await self._reader_task
+            except (asyncio.CancelledError, Exception):
+                pass
+            self._reader_task = None
+        if self._redis is not None:
+            try:
+                await self._redis.close()
+            except Exception:
+                pass
+            self._redis = None
 
     async def subscribe(self, channel: str) -> asyncio.Queue:
         queue: asyncio.Queue = asyncio.Queue(maxsize=self._MAX_QUEUE)
@@ -52,6 +112,23 @@ class _Hub:
                 self._channels.pop(channel, None)
 
     async def broadcast(self, channel: str, payload: dict[str, Any]) -> None:
+        if self._redis is not None:
+            # Cross-worker path: publish to Redis. The reader on each
+            # worker (including this one) will dispatch the message back
+            # into local queues via `_dispatch_local`.
+            try:
+                body = json.dumps(payload, default=_default_json)
+                await self._redis.publish(channel, body)
+            except Exception:
+                # Don't let a transient Redis blip break the request that
+                # triggered the broadcast. The mutation already
+                # committed; the worst case is a missed live update,
+                # which clients recover from on next REST refresh.
+                log.exception("redis publish failed on channel=%s", channel)
+            return
+        await self._dispatch_local(channel, payload)
+
+    async def _dispatch_local(self, channel: str, payload: dict[str, Any]) -> None:
         async with self._lock:
             members = list(self._channels.get(channel, ()))
         if not members:
@@ -69,6 +146,56 @@ class _Hub:
                     queue.put_nowait(payload)
                 except asyncio.QueueFull:
                     pass
+
+    async def _redis_reader_loop(self) -> None:
+        """Subscribe to the channel patterns and dispatch to local queues.
+
+        Runs forever (until cancelled on shutdown) with reconnect
+        backoff: a Redis disconnect should not require a worker restart.
+        """
+        backoff = 1.0
+        while True:
+            pubsub = None
+            try:
+                pubsub = self._redis.pubsub()
+                await pubsub.psubscribe(*_REDIS_PATTERNS)
+                backoff = 1.0  # reset after a successful subscribe
+                async for message in pubsub.listen():
+                    if message is None:
+                        continue
+                    if message.get("type") not in ("pmessage", "message"):
+                        continue
+                    channel = message.get("channel")
+                    data = message.get("data")
+                    if not isinstance(channel, str) or not isinstance(data, str):
+                        continue
+                    try:
+                        payload = json.loads(data)
+                    except json.JSONDecodeError:
+                        log.warning("realtime: dropping malformed payload on %s", channel)
+                        continue
+                    if not isinstance(payload, dict):
+                        continue
+                    await self._dispatch_local(channel, payload)
+            except asyncio.CancelledError:
+                if pubsub is not None:
+                    try:
+                        await pubsub.punsubscribe(*_REDIS_PATTERNS)
+                        await pubsub.close()
+                    except Exception:
+                        pass
+                raise
+            except Exception:
+                log.exception("realtime: redis reader crashed, reconnecting in %.1fs", backoff)
+                if pubsub is not None:
+                    try:
+                        await pubsub.close()
+                    except Exception:
+                        pass
+                await asyncio.sleep(backoff)
+                # Cap backoff at 30s — Redis outages longer than that
+                # are operator-visible anyway.
+                backoff = min(backoff * 2, 30.0)
 
     async def send_to_user(self, user_id: UUID, payload: dict[str, Any]) -> None:
         await self.broadcast(f"user:{user_id}", payload)

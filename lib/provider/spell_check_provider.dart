@@ -10,12 +10,15 @@ import 'package:inkspacex/services/storage_service.dart';
 /// the document changes (debounced ~600ms so we don't churn on every
 /// keystroke). Toggle persists across sessions via [StorageService].
 class SpellCheckProvider extends ChangeNotifier {
-  SpellCheckProvider(this._storage) {
+  SpellCheckProvider(this._storage, this._service) {
     _enabled = _storage.getSpellCheckEnabled();
   }
 
   final StorageService _storage;
-  static const Duration _debounce = Duration(milliseconds: 600);
+  final SpellCheckService _service;
+  // Slightly longer than the local debounce — checks are now a network
+  // round trip, so we let the user keep typing a bit longer before firing.
+  static const Duration _debounce = Duration(milliseconds: 800);
 
   bool _enabled = true;
   List<Misspelling> _issues = const [];
@@ -70,6 +73,11 @@ class SpellCheckProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Top suggestions for a misspelled word. Backend-served; returns empty
+  /// on offline or transient API failure.
+  Future<List<String>> suggest(String word, {int max = 5}) =>
+      _service.suggest(word, max: max);
+
   Future<void> ignoreWord(String word) async {
     final lower = word.toLowerCase();
     if (_ignored.contains(lower)) return;
@@ -90,13 +98,10 @@ class SpellCheckProvider extends ChangeNotifier {
     final text = controller.document.toPlainText();
     _scanning = true;
     notifyListeners();
-    final raw = await SpellCheckService.instance.checkAsync(text);
+    final raw = await _service.check(text, ignored: _ignored);
     if (_attached != controller) return;
-    _issues = _ignored.isEmpty
-        ? raw
-        : raw
-            .where((m) => !_ignored.contains(m.word.toLowerCase()))
-            .toList();
+    // Server already filters out the ignored personal-dictionary words.
+    _issues = raw;
     _scanning = false;
     notifyListeners();
   }

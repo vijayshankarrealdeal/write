@@ -136,6 +136,18 @@ class ApiRealtimeService {
   final StorageService _storage;
   final Map<String, _SseChannel> _channels = {};
 
+  /// Op ids of mutating requests this client recently sent. Each request
+  /// stamps an X-Op-Id header; the backend mirrors it in the broadcast
+  /// payload. The originating client uses [wasIssuedByMe] to ignore its
+  /// own echoes (otherwise the editor would re-apply its own writes and
+  /// could clobber a newer local keystroke).
+  ///
+  /// Entries auto-expire after [_opIdTtl] — long enough to outlive any
+  /// realistic round-trip, short enough that the set never grows
+  /// unboundedly during a long session.
+  final Map<String, DateTime> _issuedOpIds = {};
+  static const Duration _opIdTtl = Duration(seconds: 60);
+
   Uri _streamUri(String path) {
     final base = Uri.parse(ApiClient.baseUrl);
     return base.replace(path: path);
@@ -163,6 +175,47 @@ class ApiRealtimeService {
     );
   }
 
+  /// Live writing/section mutations for [writingId]. Payloads:
+  ///   {"type": "writing.updated", "op_id": "...", "writing": {...}}
+  ///   {"type": "writing.deleted", "op_id": "...", "writing_id": "..."}
+  ///   {"type": "section.created", "op_id": "...", "section": {...}, "section_ids": [...]}
+  ///   {"type": "section.updated", "op_id": "...", "section": {...}}
+  ///   {"type": "section.deleted", "op_id": "...", "section_id": "...", "section_ids": [...]}
+  Stream<Map<String, dynamic>> writingChannel(String writingId) {
+    return _channelFor(
+      'writing:$writingId',
+      _streamUri('/api/stream/writings/$writingId'),
+    );
+  }
+
+  /// Record an op id we are about to send. The data service calls this
+  /// just before the HTTP request so an echo that races back via SSE is
+  /// already known by the time it arrives.
+  void recordIssuedOp(String opId) {
+    if (opId.isEmpty) return;
+    _issuedOpIds[opId] = DateTime.now().add(_opIdTtl);
+    _gcIssuedOps();
+  }
+
+  /// True if [opId] was issued by this client within the TTL window —
+  /// used to filter out broadcast echoes of our own writes.
+  bool wasIssuedByMe(String? opId) {
+    if (opId == null || opId.isEmpty) return false;
+    final exp = _issuedOpIds[opId];
+    if (exp == null) return false;
+    if (exp.isBefore(DateTime.now())) {
+      _issuedOpIds.remove(opId);
+      return false;
+    }
+    return true;
+  }
+
+  void _gcIssuedOps() {
+    if (_issuedOpIds.length < 64) return;
+    final now = DateTime.now();
+    _issuedOpIds.removeWhere((_, exp) => exp.isBefore(now));
+  }
+
   Stream<Map<String, dynamic>> _channelFor(String key, Uri uri) {
     var ch = _channels[key];
     if (ch == null) {
@@ -180,6 +233,9 @@ class ApiRealtimeService {
 
   Future<void> closeCommentsChannel(String feedItemId) =>
       closeChannel('comments:$feedItemId');
+
+  Future<void> closeWritingChannel(String writingId) =>
+      closeChannel('writing:$writingId');
 
   Future<void> dispose() async {
     final all = _channels.values.toList();

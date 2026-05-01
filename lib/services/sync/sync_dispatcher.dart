@@ -8,8 +8,16 @@ import 'package:inkspacex/models/writing_model.dart';
 /// Extracted so tests can substitute a fake without standing up the full
 /// HTTP stack. `ApiDataService` declares `implements SyncDispatcher` so
 /// production code passes the concrete service unchanged.
+///
+/// Mutation methods accept an optional [opId] (sent as `X-Op-Id`) so the
+/// realtime hub can tag broadcasts and the originating client can ignore
+/// echoes of its own writes.
 abstract class SyncDispatcher {
-  Future<WritingModel> createWriting(String userId, WritingModel book);
+  Future<WritingModel> createWriting(
+    String userId,
+    WritingModel book, {
+    String? opId,
+  });
   Future<void> updateWritingMetadata(
     String userId,
     String writingId, {
@@ -17,28 +25,36 @@ abstract class SyncDispatcher {
     String? description,
     String? coverImagePath,
     ImageMeta? coverImageMeta,
+    String? opId,
   });
-  Future<void> deleteWriting(String userId, String writingId);
+  Future<void> deleteWriting(String userId, String writingId, {String? opId});
   Future<void> addSection(
-      String userId, String writingId, SectionModel section);
+    String userId,
+    String writingId,
+    SectionModel section, {
+    String? opId,
+  });
   Future<void> updateSectionContent(
     String userId,
     String writingId,
     String sectionId,
     String content, {
     String canvasData = '',
+    String? opId,
   });
   Future<void> renameSection(
     String userId,
     String writingId,
     String sectionId,
-    String newTitle,
-  );
+    String newTitle, {
+    String? opId,
+  });
   Future<void> deleteSection(
     String userId,
     String writingId,
-    String sectionId,
-  );
+    String sectionId, {
+    String? opId,
+  });
 
   /// Phase 3 (P2): bookmarks. Idempotent on the server (dedupe by
   /// `(user, feed_item, section_index, anchor)`), so the outbox can

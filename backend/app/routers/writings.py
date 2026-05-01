@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,6 +20,14 @@ from app.schemas.writing import (
 )
 
 router = APIRouter(prefix="/api/writings", tags=["writings"])
+
+
+# Origin tag for echo suppression. The originating client passes a uuid in
+# X-Op-Id and we mirror it in every broadcast payload from the same commit.
+# The client checks the field and ignores events tagged with one of its own
+# in-flight op ids so it doesn't redundantly re-apply its own write.
+def _op_id(x_op_id: str | None = Header(default=None, alias="X-Op-Id")) -> str | None:
+    return x_op_id
 
 
 # --- Writings ---
@@ -69,6 +77,7 @@ async def update_writing(
     data: WritingUpdate,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    op_id: str | None = Depends(_op_id),
 ):
     writing = await _get_user_writing(writing_id, user.id, db)
     for field, value in data.model_dump(exclude_unset=True).items():
@@ -79,6 +88,7 @@ async def update_writing(
         writing_id,
         {
             "type": "writing.updated",
+            "op_id": op_id,
             "writing": WritingResponse.model_validate(writing).model_dump(mode="json"),
         },
     )
@@ -90,13 +100,18 @@ async def delete_writing(
     writing_id: UUID,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    op_id: str | None = Depends(_op_id),
 ):
     writing = await _get_user_writing(writing_id, user.id, db)
     await db.delete(writing)
     await db.commit()
     await hub.broadcast_writing(
         writing_id,
-        {"type": "writing.deleted", "writing_id": str(writing_id)},
+        {
+            "type": "writing.deleted",
+            "op_id": op_id,
+            "writing_id": str(writing_id),
+        },
     )
 
 
@@ -122,6 +137,7 @@ async def create_section(
     data: SectionCreate,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    op_id: str | None = Depends(_op_id),
 ):
     writing = await _get_user_writing(writing_id, user.id, db)
     section = Section(writing_id=writing_id, **data.model_dump())
@@ -134,6 +150,7 @@ async def create_section(
         writing_id,
         {
             "type": "section.created",
+            "op_id": op_id,
             "section": SectionResponse.model_validate(section).model_dump(mode="json"),
             "section_ids": list(writing.section_ids or []),
         },
@@ -148,6 +165,7 @@ async def update_section(
     data: SectionUpdate,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    op_id: str | None = Depends(_op_id),
 ):
     await _get_user_writing(writing_id, user.id, db)
     result = await db.execute(
@@ -164,6 +182,7 @@ async def update_section(
         writing_id,
         {
             "type": "section.updated",
+            "op_id": op_id,
             "section": SectionResponse.model_validate(section).model_dump(mode="json"),
         },
     )
@@ -176,6 +195,7 @@ async def delete_section(
     section_id: UUID,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    op_id: str | None = Depends(_op_id),
 ):
     writing = await _get_user_writing(writing_id, user.id, db)
     result = await db.execute(
@@ -191,6 +211,7 @@ async def delete_section(
         writing_id,
         {
             "type": "section.deleted",
+            "op_id": op_id,
             "section_id": str(section_id),
             "section_ids": list(writing.section_ids or []),
         },

@@ -17,7 +17,8 @@ class _FakeDispatcher implements SyncDispatcher {
   bool failNext = false;
 
   @override
-  Future<WritingModel> createWriting(String userId, WritingModel book) async {
+  Future<WritingModel> createWriting(String userId, WritingModel book,
+      {String? opId}) async {
     calls.add('createWriting:${book.id}');
     if (failNext) {
       failNext = false;
@@ -31,25 +32,28 @@ class _FakeDispatcher implements SyncDispatcher {
       {String? title,
       String? description,
       String? coverImagePath,
-      ImageMeta? coverImageMeta}) async {
+      ImageMeta? coverImageMeta,
+      String? opId}) async {
     calls.add('updateWritingMetadata:$writingId');
   }
 
   @override
-  Future<void> deleteWriting(String userId, String writingId) async {
+  Future<void> deleteWriting(String userId, String writingId,
+      {String? opId}) async {
     calls.add('deleteWriting:$writingId');
   }
 
   @override
   Future<void> addSection(
-      String userId, String writingId, SectionModel section) async {
+      String userId, String writingId, SectionModel section,
+      {String? opId}) async {
     calls.add('addSection:$writingId/${section.id}');
   }
 
   @override
   Future<void> updateSectionContent(String userId, String writingId,
       String sectionId, String content,
-      {String canvasData = ''}) async {
+      {String canvasData = '', String? opId}) async {
     calls.add('updateSectionContent:$writingId/$sectionId');
     if (failNext) {
       failNext = false;
@@ -59,13 +63,15 @@ class _FakeDispatcher implements SyncDispatcher {
 
   @override
   Future<void> renameSection(String userId, String writingId, String sectionId,
-      String newTitle) async {
+      String newTitle,
+      {String? opId}) async {
     calls.add('renameSection:$writingId/$sectionId');
   }
 
   @override
   Future<void> deleteSection(
-      String userId, String writingId, String sectionId) async {
+      String userId, String writingId, String sectionId,
+      {String? opId}) async {
     calls.add('deleteSection:$writingId/$sectionId');
   }
 

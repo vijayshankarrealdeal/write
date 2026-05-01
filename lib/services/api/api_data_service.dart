@@ -901,28 +901,39 @@ class ApiDataService implements SyncDispatcher {
   }
 
   @override
-  Future<WritingModel> createWriting(String userId, WritingModel book) async {
-    final response = await _client.post('/api/writings/', data: {
-      'title': book.title,
-      'description': book.description,
-      'cover_image_path': book.coverImagePath,
-      if (book.coverImageMeta != null)
-        'cover_image_meta': book.coverImageMeta!.toJson(),
-      'status': book.status.index.toString(),
-      'writing_type': book.writingType.index.toString(),
-      'subtype': book.subtype,
-    });
+  Future<WritingModel> createWriting(
+    String userId,
+    WritingModel book, {
+    String? opId,
+  }) async {
+    final response = await _client.post(
+      '/api/writings/',
+      data: {
+        'title': book.title,
+        'description': book.description,
+        'cover_image_path': book.coverImagePath,
+        if (book.coverImageMeta != null)
+          'cover_image_meta': book.coverImageMeta!.toJson(),
+        'status': book.status.index.toString(),
+        'writing_type': book.writingType.index.toString(),
+        'subtype': book.subtype,
+      },
+      headers: _opHeaders(opId),
+    );
 
     book.id = response.data['id'] as String;
 
     for (final section in book.sections) {
-      final sectionResp =
-          await _client.post('/api/writings/${book.id}/sections', data: {
-        'title': section.title,
-        'content': _decodeJsonField(section.content),
-        'canvas_data': _decodeJsonField(section.canvasData),
-        'section_color': section.sectionColor.toARGB32(),
-      });
+      final sectionResp = await _client.post(
+        '/api/writings/${book.id}/sections',
+        data: {
+          'title': section.title,
+          'content': _decodeJsonField(section.content),
+          'canvas_data': _decodeJsonField(section.canvasData),
+          'section_color': section.sectionColor.toARGB32(),
+        },
+        headers: _opHeaders(opId),
+      );
       section.id = sectionResp.data['id'] as String;
       section.isSynced = true;
     }
@@ -937,28 +948,36 @@ class ApiDataService implements SyncDispatcher {
     String sectionId,
     String content, {
     String canvasData = '',
+    String? opId,
   }) async {
     final data = <String, dynamic>{'content': _decodeJsonField(content)};
     if (canvasData.isNotEmpty) {
       data['canvas_data'] = _decodeJsonField(canvasData);
     }
-    await _client.put('/api/writings/$writingId/sections/$sectionId',
-        data: data);
+    await _client.put(
+      '/api/writings/$writingId/sections/$sectionId',
+      data: data,
+      headers: _opHeaders(opId),
+    );
   }
 
   @override
   Future<void> addSection(
     String userId,
     String writingId,
-    SectionModel section,
-  ) async {
-    final response =
-        await _client.post('/api/writings/$writingId/sections', data: {
-      'title': section.title,
-      'content': _decodeJsonField(section.content),
-      'canvas_data': _decodeJsonField(section.canvasData),
-      'section_color': section.sectionColor.toARGB32(),
-    });
+    SectionModel section, {
+    String? opId,
+  }) async {
+    final response = await _client.post(
+      '/api/writings/$writingId/sections',
+      data: {
+        'title': section.title,
+        'content': _decodeJsonField(section.content),
+        'canvas_data': _decodeJsonField(section.canvasData),
+        'section_color': section.sectionColor.toARGB32(),
+      },
+      headers: _opHeaders(opId),
+    );
     section.id = response.data['id'] as String;
     section.isSynced = true;
   }
@@ -968,20 +987,27 @@ class ApiDataService implements SyncDispatcher {
     String userId,
     String writingId,
     String sectionId,
-    String newTitle,
-  ) async {
-    await _client.put('/api/writings/$writingId/sections/$sectionId', data: {
-      'title': newTitle,
-    });
+    String newTitle, {
+    String? opId,
+  }) async {
+    await _client.put(
+      '/api/writings/$writingId/sections/$sectionId',
+      data: {'title': newTitle},
+      headers: _opHeaders(opId),
+    );
   }
 
   @override
   Future<void> deleteSection(
     String userId,
     String writingId,
-    String sectionId,
-  ) async {
-    await _client.delete('/api/writings/$writingId/sections/$sectionId');
+    String sectionId, {
+    String? opId,
+  }) async {
+    await _client.delete(
+      '/api/writings/$writingId/sections/$sectionId',
+      headers: _opHeaders(opId),
+    );
   }
 
   @override
@@ -992,6 +1018,7 @@ class ApiDataService implements SyncDispatcher {
     String? description,
     String? coverImagePath,
     ImageMeta? coverImageMeta,
+    String? opId,
   }) async {
     final data = <String, dynamic>{};
     if (title != null) data['title'] = title;
@@ -1000,12 +1027,33 @@ class ApiDataService implements SyncDispatcher {
     if (coverImageMeta != null) {
       data['cover_image_meta'] = coverImageMeta.toJson();
     }
-    await _client.put('/api/writings/$writingId', data: data);
+    await _client.put(
+      '/api/writings/$writingId',
+      data: data,
+      headers: _opHeaders(opId),
+    );
   }
 
   @override
-  Future<void> deleteWriting(String userId, String writingId) async {
-    await _client.delete('/api/writings/$writingId');
+  Future<void> deleteWriting(
+    String userId,
+    String writingId, {
+    String? opId,
+  }) async {
+    await _client.delete(
+      '/api/writings/$writingId',
+      headers: _opHeaders(opId),
+    );
+  }
+
+  /// Stamp a request with an `X-Op-Id` header and prime the realtime
+  /// service so the originating client can ignore the SSE echo of its
+  /// own write. No-op when the caller didn't supply an op id (e.g.
+  /// internal/admin paths) or when realtime hasn't been wired up yet.
+  Map<String, String>? _opHeaders(String? opId) {
+    if (opId == null || opId.isEmpty) return null;
+    _realtime?.recordIssuedOp(opId);
+    return {'X-Op-Id': opId};
   }
 
   // =========================================================================

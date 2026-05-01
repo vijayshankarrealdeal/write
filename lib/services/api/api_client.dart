@@ -92,6 +92,7 @@ class ApiClient {
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParams,
+    Map<String, String>? extraHeaders,
     bool isRetry = false,
   }) async {
     // Iterable values pass through as repeated `?k=a&k=b` (Uri.replace
@@ -109,6 +110,7 @@ class ApiClient {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      if (extraHeaders != null) ...extraHeaders,
     };
 
     final started = DateTime.now().millisecondsSinceEpoch;
@@ -208,6 +210,7 @@ class ApiClient {
           path,
           data: data,
           queryParams: queryParams,
+          extraHeaders: extraHeaders,
           isRetry: true,
         );
       }
@@ -260,13 +263,25 @@ class ApiClient {
   Future<ApiResponse> get(String path, {Map<String, dynamic>? queryParams}) =>
       _request('GET', path, queryParams: queryParams);
 
-  Future<ApiResponse> post(String path, {dynamic data}) =>
-      _request('POST', path, data: data);
+  Future<ApiResponse> post(
+    String path, {
+    dynamic data,
+    Map<String, String>? headers,
+  }) =>
+      _request('POST', path, data: data, extraHeaders: headers);
 
-  Future<ApiResponse> put(String path, {dynamic data}) =>
-      _request('PUT', path, data: data);
+  Future<ApiResponse> put(
+    String path, {
+    dynamic data,
+    Map<String, String>? headers,
+  }) =>
+      _request('PUT', path, data: data, extraHeaders: headers);
 
-  Future<ApiResponse> delete(String path) => _request('DELETE', path);
+  Future<ApiResponse> delete(
+    String path, {
+    Map<String, String>? headers,
+  }) =>
+      _request('DELETE', path, extraHeaders: headers);
 
   Future<ApiResponse> uploadFile(
     String path,

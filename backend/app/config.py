@@ -45,6 +45,12 @@ class Settings(BaseSettings):
     # that case so a misconfigured deployment fails loudly, not quietly.
     inkx_license_signing_key: str = ""
 
+    # Redis pub/sub for SSE fanout across multiple Uvicorn workers. Empty
+    # falls back to the in-memory hub (single-worker dev). Required when
+    # running with --workers >1, otherwise SSE subscribers on workers
+    # other than the one handling a mutation go silent.
+    redis_url: str = ""
+
     # `extra="ignore"` matches prod's docker-compose `environment:` injection (which
     # passes vars not declared here, e.g. AZURE_OPENAI_MAP_DEPLOYMENT consumed by
     # app.ai.* via os.getenv). Without it, env_file loads (local dev) reject those.

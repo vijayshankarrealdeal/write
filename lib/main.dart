@@ -23,10 +23,10 @@ import 'package:inkspacex/provider/offline_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
 import 'package:inkspacex/provider/spell_check_provider.dart';
 import 'package:inkspacex/provider/version_history_provider.dart';
-import 'package:inkspacex/services/spell_check_service.dart';
 import 'package:inkspacex/router.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_client.dart';
+import 'package:inkspacex/services/spell_check_service.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/local_notification_service.dart';
@@ -112,12 +112,7 @@ void main() {
     final localNotifications = LocalNotificationService();
     await localNotifications.init();
 
-    // Warm the spell-check dictionary. Fire-and-forget — the editor will
-    // also call ensureLoaded on first use; this just gets it ready so the
-    // first scan doesn't block on asset I/O.
-    unawaited(SpellCheckService.instance.ensureLoaded());
-
-    // Analytics: spins up its own ApiClient (stateless aside from the
+// Analytics: spins up its own ApiClient (stateless aside from the
     // shared storage handle for auth tokens) so behaviour events flow
     // even before AuthProvider — pre-login screens are first-class
     // entries in the funnel. Disabled by default in debug builds; flip
@@ -276,7 +271,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => SettingsProvider(storage)),
         ChangeNotifierProvider(create: (_) => AnnotationProvider(storage)),
         ChangeNotifierProvider(create: (_) => VersionHistoryProvider(storage)),
-        ChangeNotifierProvider(create: (_) => SpellCheckProvider(storage)),
+        ChangeNotifierProvider(
+          create: (_) => SpellCheckProvider(
+            storage,
+            SpellCheckService(ApiClient(storage)),
+          ),
+        ),
         ChangeNotifierProxyProvider<AuthProvider, FeedProvider>(
           create: (_) => FeedProvider(),
           update: (context, auth, previous) {

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
+import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
@@ -82,6 +83,11 @@ class EditorProvider extends ChangeNotifier {
   StreamSubscription<bool>? _connectivitySub;
   StreamSubscription<IdRemapEvent>? _remapSub;
   StreamSubscription<PendingOp>? _ackSub;
+
+  /// Live mutations broadcast on the writing channel for [activeBook].
+  /// Subscribed when a book is opened, torn down on book change / dispose.
+  StreamSubscription<Map<String, dynamic>>? _writingChannelSub;
+  String? _writingChannelKey;
 
   /// Reactive count of unsynced operations (for UI badges and the logout
   /// guard). Forwarded straight from the underlying outbox.
@@ -459,7 +465,223 @@ class EditorProvider extends ChangeNotifier {
   void setActiveBook(WritingModel book) {
     activeBook = book;
     allBooksSection = book.sections;
+    _subscribeToWritingChannel(book.id);
     notifyListeners();
+  }
+
+  /// Open (or reopen) the SSE channel for [writingId] and route incoming
+  /// mutations through the merge layer so a remote edit doesn't yank text
+  /// from under the user's cursor. Cheap to call repeatedly — same target
+  /// reuses the existing subscription.
+  void _subscribeToWritingChannel(String writingId) {
+    if (_writingChannelKey == writingId) return;
+    _teardownWritingChannel();
+    _writingChannelKey = writingId;
+    final realtime = _auth.realtimeService;
+    _writingChannelSub =
+        realtime.writingChannel(writingId).listen(_onWritingChannelEvent);
+  }
+
+  void _teardownWritingChannel() {
+    final prev = _writingChannelKey;
+    _writingChannelSub?.cancel();
+    _writingChannelSub = null;
+    _writingChannelKey = null;
+    if (prev != null) {
+      unawaited(_auth.realtimeService.closeWritingChannel(prev));
+    }
+  }
+
+  void _onWritingChannelEvent(Map<String, dynamic> event) {
+    // Drop our own echoes — the local model already reflects the write.
+    if (_auth.realtimeService.wasIssuedByMe(event['op_id']?.toString())) {
+      return;
+    }
+    final type = event['type'];
+    if (type is! String) return;
+    switch (type) {
+      case 'writing.updated':
+        _onRemoteWritingUpdated(event['writing']);
+        break;
+      case 'writing.deleted':
+        _onRemoteWritingDeleted(event['writing_id']?.toString());
+        break;
+      case 'section.created':
+        _onRemoteSectionCreated(event);
+        break;
+      case 'section.updated':
+        _onRemoteSectionUpdated(event['section']);
+        break;
+      case 'section.deleted':
+        _onRemoteSectionDeleted(event);
+        break;
+    }
+  }
+
+  void _onRemoteWritingUpdated(dynamic raw) {
+    if (raw is! Map) return;
+    final json = Map<String, dynamic>.from(raw);
+    final id = json['id']?.toString();
+    if (id == null) return;
+    WritingModel? book;
+    for (final b in allBooks) {
+      if (b.id == id) {
+        book = b;
+        break;
+      }
+    }
+    if (book == null) return;
+    book.title = (json['title'] as String?) ?? book.title;
+    book.description = (json['description'] as String?) ?? book.description;
+    book.coverImagePath =
+        (json['cover_image_path'] as String?) ?? book.coverImagePath;
+    final coverMeta = ImageMeta.tryFromJson(json['cover_image_meta']);
+    if (coverMeta != null) book.coverImageMeta = coverMeta;
+    final subtype = json['subtype'] as String?;
+    if (subtype != null) book.subtype = subtype;
+    _storage.saveBooks(allBooks);
+    notifyListeners();
+  }
+
+  void _onRemoteWritingDeleted(String? id) {
+    if (id == null) return;
+    final before = allBooks.length;
+    allBooks.removeWhere((b) => b.id == id);
+    if (allBooks.length == before) return;
+    if (activeBook?.id == id) {
+      _teardownWritingChannel();
+      if (allBooks.isNotEmpty) {
+        setActiveBook(allBooks.first);
+      } else {
+        activeBook = null;
+        activeSection = null;
+        allBooksSection = [];
+      }
+    }
+    _storage.saveBooks(allBooks);
+    notifyListeners();
+  }
+
+  void _onRemoteSectionCreated(Map<String, dynamic> event) {
+    final raw = event['section'];
+    if (raw is! Map) return;
+    final book = activeBook;
+    if (book == null) return;
+    final sectionJson = Map<String, dynamic>.from(raw);
+    if (sectionJson['writing_id']?.toString() != book.id) return;
+    final id = sectionJson['id']?.toString();
+    if (id == null) return;
+    if (book.sections.any((s) => s.id == id)) return;
+    book.sections.add(_remoteSectionFromJson(sectionJson));
+    allBooksSection = book.sections;
+    _storage.saveBooks(allBooks);
+    notifyListeners();
+  }
+
+  void _onRemoteSectionUpdated(dynamic raw) {
+    if (raw is! Map) return;
+    final book = activeBook;
+    if (book == null) return;
+    final sectionJson = Map<String, dynamic>.from(raw);
+    if (sectionJson['writing_id']?.toString() != book.id) return;
+    final remote = _remoteSectionFromJson(sectionJson);
+    final idx = book.sections.indexWhere((s) => s.id == remote.id);
+    if (idx < 0) {
+      book.sections.add(remote);
+      allBooksSection = book.sections;
+      _storage.saveBooks(allBooks);
+      notifyListeners();
+      return;
+    }
+    final local = book.sections[idx];
+    final isActive = activeSection?.id == remote.id;
+    // Don't yank text from under the cursor: if the live editor has an
+    // unsaved buffer, treat it as the local content (with "now" updatedAt)
+    // so local always wins and the user sees a "your edit was merged" toast
+    // rather than losing keystrokes.
+    if (isActive) {
+      final live = dumpData();
+      if (live != _lastSavedContent) {
+        unawaited(_mergeLog.record(MergeLogEntry(
+          sectionId: remote.id,
+          localUpdatedAt: DateTime.now(),
+          remoteUpdatedAt: remote.updatedAt,
+          localLen: live.length,
+          remoteLen: remote.content.length,
+          winner: 'local',
+        )));
+        return;
+      }
+    }
+    final localWins =
+        local.updatedAt.isAfter(remote.updatedAt) && !local.isSynced;
+    _maybeRecordMerge(local, remote, localWins);
+    if (localWins) return;
+    // Preserve fields the remote doesn't carry (canvas data, color).
+    final merged = SectionModel(
+      id: remote.id,
+      title: remote.title,
+      content: remote.content,
+      canvasData: remote.canvasData.isEmpty ? local.canvasData : remote.canvasData,
+      sectionColor: remote.sectionColor,
+      isSynced: true,
+      createdAt: local.createdAt,
+      updatedAt: remote.updatedAt,
+    );
+    book.sections[idx] = merged;
+    allBooksSection = book.sections;
+    if (isActive) {
+      activeSection = merged;
+      initEditor();
+    }
+    _storage.saveBooks(allBooks);
+    notifyListeners();
+  }
+
+  void _onRemoteSectionDeleted(Map<String, dynamic> event) {
+    final book = activeBook;
+    if (book == null) return;
+    final id = event['section_id']?.toString();
+    if (id == null) return;
+    final before = book.sections.length;
+    book.sections.removeWhere((s) => s.id == id);
+    if (book.sections.length == before) return;
+    allBooksSection = book.sections;
+    if (activeSection?.id == id) {
+      if (book.sections.isNotEmpty) {
+        activeSection = book.sections.first;
+        initEditor();
+      } else {
+        activeSection = null;
+        controller = QuillController.basic();
+      }
+    }
+    _storage.saveBooks(allBooks);
+    notifyListeners();
+  }
+
+  /// Decode a section payload as broadcast by the writings router. Local
+  /// canvasData isn't included by the server — preserved by the merge
+  /// path above when applicable.
+  SectionModel _remoteSectionFromJson(Map<String, dynamic> json) {
+    return SectionModel(
+      id: json['id']?.toString() ?? '',
+      title: (json['title'] as String?) ?? '',
+      content: _encodeRemoteContent(json['content']),
+      canvasData: _encodeRemoteContent(json['canvas_data']),
+      sectionColor:
+          Color((json['section_color'] as num?)?.toInt() ?? 0xFF1982C4),
+      isSynced: true,
+      updatedAt:
+          DateTime.tryParse(json['updated_at']?.toString() ?? '') ??
+              DateTime.now(),
+    );
+  }
+
+  static String _encodeRemoteContent(dynamic value) {
+    if (value == null) return '';
+    if (value is String) return value;
+    return jsonEncode(value);
   }
 
   Future<void> addNewBook() async {
@@ -620,6 +842,9 @@ class EditorProvider extends ChangeNotifier {
         allBooksSection = b.sections;
         break;
       }
+    }
+    if (activeBook != null) {
+      _subscribeToWritingChannel(activeBook!.id);
     }
     await Future.delayed(const Duration(milliseconds: 300));
     sectionLoadingData = false;
@@ -937,6 +1162,7 @@ class EditorProvider extends ChangeNotifier {
     _autoSaveTimer?.cancel();
     _stopPeriodicSync();
     _docSubscription?.cancel();
+    _teardownWritingChannel();
     allBooks = [];
     activeBook = null;
     activeSection = null;
@@ -961,6 +1187,7 @@ class EditorProvider extends ChangeNotifier {
     _connectivitySub?.cancel();
     _remapSub?.cancel();
     _ackSub?.cancel();
+    _writingChannelSub?.cancel();
     _outbox.pendingCount.removeListener(_onSyncCounterChanged);
     _drainer.failedCount.removeListener(_onSyncCounterChanged);
     _syncStatusNotifier.dispose();
