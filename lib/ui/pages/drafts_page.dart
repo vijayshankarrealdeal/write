@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 class DraftsPage extends StatefulWidget {
   const DraftsPage({super.key});
@@ -141,7 +142,7 @@ class _DraftsPageState extends State<DraftsPage> {
         centerTitle: true,
       ),
       body: _loading
-          ? const Center(child: CupertinoActivityIndicator())
+          ? const Center(child: AppSpinner())
           : _drafts.isEmpty
               ? Center(
                   child: Column(

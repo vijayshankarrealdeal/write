@@ -10,6 +10,7 @@ import 'package:inkspacex/ui/pages/new_book_addition.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/widgets/type_chooser.dart';
 
 class WritingPageUI extends StatelessWidget {
@@ -67,7 +68,7 @@ class _MobileWritingPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CupertinoActivityIndicator(color: textColor),
+                        AppSpinner(color: textColor),
                         const SizedBox(height: 16),
                         Text(
                           "Loading spaces...",
@@ -384,14 +385,10 @@ class _DesktopWritingPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: (isDark ? Colors.white : Colors.black).withValues(
-                        alpha: 0.6,
-                      ),
+                  AppSpinner(
+                    size: 24,
+                    color: (isDark ? Colors.white : Colors.black).withValues(
+                      alpha: 0.6,
                     ),
                   ),
                   const SizedBox(height: 16),

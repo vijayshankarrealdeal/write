@@ -265,9 +265,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ),
         ),
         ChangeNotifierProxyProvider<AuthProvider, FeedProvider>(
-          create: (_) => FeedProvider(),
+          create: (_) => FeedProvider()..setStorage(storage),
           update: (context, auth, previous) {
-            final provider = previous ?? FeedProvider();
+            final provider = previous ?? (FeedProvider()..setStorage(storage));
             provider.setDataService(auth.dataService);
             return provider;
           },

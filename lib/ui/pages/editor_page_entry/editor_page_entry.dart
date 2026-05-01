@@ -25,6 +25,7 @@ import 'package:inkspacex/ui/editor/floating_format_bar.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
 import 'package:inkspacex/ui/editor/slash_menu.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/canvas_page/canvas_editor.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/ai_bottom_sheet.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/annotations_panel.dart';
@@ -2058,7 +2059,7 @@ class _EditiorPageState extends State<EditiorPage>
 
                     ],
                   )
-              : const Center(child: CupertinoActivityIndicator(radius: 14)),
+              : const Center(child: AppSpinner(size: 28)),
         ),
       ),
     );
@@ -2213,7 +2214,7 @@ class _EditiorPageState extends State<EditiorPage>
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const CupertinoActivityIndicator(radius: 6),
+                          const AppSpinner(size: 12),
                           const SizedBox(width: 6),
                           Text(
                             'Uploading',
@@ -2227,7 +2228,7 @@ class _EditiorPageState extends State<EditiorPage>
                     ),
                   if (status == SyncStatus.saving ||
                       status == SyncStatus.syncing)
-                    const CupertinoActivityIndicator(radius: 6)
+                    const AppSpinner(size: 12)
                   else
                     Icon(icon, size: 14, color: iconColor),
                   if (!isMobile && label.isNotEmpty) ...[

@@ -8,6 +8,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 /// Which kind of facet the page is drilling into. Drives the API call
 /// (`getFeedByTag` vs `getFeedByGenre`) and the page title.
@@ -205,7 +206,7 @@ class _TagFeedPageState extends State<TagFeedPage> {
 
   Widget _buildBody(Color textColor, Color subtleColor, bool isDark) {
     if (_isLoading) {
-      return const Center(child: CupertinoActivityIndicator());
+      return const Center(child: AppSpinner());
     }
     if (_error != null && _items.isEmpty) {
       return _EmptyState(
@@ -250,7 +251,7 @@ class _TagFeedPageState extends State<TagFeedPage> {
             if (idx >= _items.length) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
-                child: Center(child: CupertinoActivityIndicator()),
+                child: Center(child: AppSpinner()),
               );
             }
             return _DrillCard(

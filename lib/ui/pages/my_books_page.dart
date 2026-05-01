@@ -9,6 +9,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/bookshelf_provider.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 class MyBooksPage extends StatefulWidget {
   const MyBooksPage({super.key});
@@ -150,7 +151,7 @@ class _CurrentlyReadingSection extends StatelessWidget {
     if (loading) {
       return const SizedBox(
         height: 180,
-        child: Center(child: CupertinoActivityIndicator()),
+        child: Center(child: AppSpinner()),
       );
     }
     if (items.isEmpty) {
@@ -475,7 +476,7 @@ class _BookshelvesSection extends StatelessWidget {
         if (loading)
           const Padding(
             padding: EdgeInsets.all(24),
-            child: Center(child: CupertinoActivityIndicator()),
+            child: Center(child: AppSpinner()),
           )
         else if (shelves.isEmpty)
           _EmptyBookshelves(

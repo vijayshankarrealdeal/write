@@ -58,6 +58,9 @@ class OfflineProvider extends ChangeNotifier {
 
   /// Surfaces why the offline button is disabled when not [isAvailable].
   String? get unavailableReason {
+    if (kIsWeb) {
+      return 'Offline downloads are not available on web.';
+    }
     if (_licensePublicKeyB64.isEmpty) {
       return 'Offline downloads are not configured for this build.';
     }
@@ -68,6 +71,7 @@ class OfflineProvider extends ChangeNotifier {
   }
 
   Future<void> ensureReady() async {
+    if (kIsWeb) return;
     if (_status == OfflineStatus.ready) return;
     if (_status == OfflineStatus.initialising) return;
     _status = OfflineStatus.initialising;

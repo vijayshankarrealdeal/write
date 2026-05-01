@@ -10,6 +10,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/bookshelf_provider.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 class AddBooksToShelfPage extends StatefulWidget {
   final String bookshelfId;
@@ -167,7 +168,7 @@ class _AddBooksToShelfPageState extends State<AddBooksToShelfPage> {
             ),
             Expanded(
               child: _loading
-                  ? const Center(child: CupertinoActivityIndicator())
+                  ? const Center(child: AppSpinner())
                   : _results.isEmpty
                       ? Center(
                           child: Text(
@@ -220,7 +221,7 @@ class _AddBooksToShelfPageState extends State<AddBooksToShelfPage> {
                   borderRadius: BorderRadius.circular(28),
                   onPressed: _selected.isEmpty || _adding ? null : _addSelected,
                   child: _adding
-                      ? const CupertinoActivityIndicator(color: Colors.white)
+                      ? const AppSpinner(color: Colors.white)
                       : Text(
                           _selected.isEmpty
                               ? 'Add books'

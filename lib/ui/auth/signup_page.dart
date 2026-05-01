@@ -8,6 +8,7 @@ import 'package:iconify_flutter/icons/mdi.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/web_utils_stub.dart'
     if (dart.library.html) 'package:inkspacex/web_utils.dart' as web_utils;
 
@@ -215,14 +216,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                             ),
                           ),
                           child: _isGoogleLoading
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: subtleColor,
-                                  ),
-                                )
+                              ? AppSpinner(size: 20, color: subtleColor)
                               : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -358,13 +352,9 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                             ),
                           ),
                           child: _isLoading
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: isDark ? Colors.black : Colors.white,
-                                  ),
+                              ? AppSpinner(
+                                  size: 20,
+                                  color: isDark ? Colors.black : Colors.white,
                                 )
                               : Text(
                                   "Create account",

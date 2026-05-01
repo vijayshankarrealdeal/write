@@ -10,6 +10,7 @@ import 'package:inkspacex/models/canvas_element_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/services/gemini_service.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 // Decoded image bytes cache for `data:image/...;base64,...` URIs used as
 // canvas image elements and the canvas background. The build path
@@ -444,7 +445,7 @@ class CanvasEditorState extends State<CanvasEditor>
               ),
             if (_imageUploading || _aiGenerating) ...[
               const SizedBox(width: 8),
-              const CupertinoActivityIndicator(radius: 7),
+              const AppSpinner(size: 14),
               const SizedBox(width: 6),
               Text(_aiGenerating ? 'Generating...' : 'Uploading', style: GoogleFonts.inter(fontSize: 11, color: mutedColor)),
             ],
@@ -734,7 +735,7 @@ class CanvasEditorState extends State<CanvasEditor>
               Center(
                 child: Column(
                   children: [
-                    const CupertinoActivityIndicator(radius: 10),
+                    const AppSpinner(),
                     const SizedBox(height: 12),
                     Text(
                       'Creating your layout...',

@@ -11,8 +11,8 @@ import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/widgets/feed_filter_chip_row.dart';
-import 'package:inkspacex/ui/widgets/skeleton.dart';
 
 class Feed extends StatefulWidget {
   const Feed({super.key});
@@ -21,12 +21,33 @@ class Feed extends StatefulWidget {
   State<Feed> createState() => _FeedState();
 }
 
-class _FeedState extends State<Feed> {
+class _FeedState extends State<Feed> with WidgetsBindingObserver {
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadFeed());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Twitter / Instagram pattern: probe the server for new items every
+  /// time the app comes back to the foreground. The probe stays silent —
+  /// any new items surface via the "X new posts" pill, never via a
+  /// disorienting auto-prepend onto the user's scroll position.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    if (!mounted) return;
+    final feed = context.read<FeedProvider>();
+    if (feed.items.isEmpty) return;
+    feed.silentRefresh();
   }
 
   void _loadFeed() async {
@@ -103,7 +124,7 @@ class _FeedState extends State<Feed> {
         if (feed.isLoading && feed.items.isEmpty) {
           return Scaffold(
             backgroundColor: bgColor,
-            body: _buildShelfSkeleton(isMobile, width),
+            body: _buildLoadingSpinner(),
           );
         }
 
@@ -122,70 +143,65 @@ class _FeedState extends State<Feed> {
 
         return Scaffold(
           backgroundColor: bgColor,
-          body: NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              if (notification.metrics.pixels >=
-                  notification.metrics.maxScrollExtent - 800) {
-                // 800px lookahead gives loadMore + precache time to complete
-                // before the user actually scrolls into the new tiles.
-                final before = feed.items.length;
-                feed.loadMore(userId: auth.currentUser?.id).then((_) {
-                  if (!mounted || feed.items.length <= before) return;
-                  final width = MediaQuery.sizeOf(context).width;
-                  final perCardWidth = width >= 720 ? width / 2 : width;
-                  for (final item in feed.items.skip(before).take(6)) {
-                    AppNetworkImage.precache(
-                      context,
-                      url: item.imageUrl,
-                      meta: item.imageMeta,
-                      width: perCardWidth,
-                    );
+          body: Stack(
+            children: [
+              NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification.metrics.pixels >=
+                      notification.metrics.maxScrollExtent - 800) {
+                    // 800px lookahead gives loadMore + precache time to complete
+                    // before the user actually scrolls into the new tiles.
+                    final before = feed.items.length;
+                    feed.loadMore(userId: auth.currentUser?.id).then((_) {
+                      if (!mounted || feed.items.length <= before) return;
+                      final width = MediaQuery.sizeOf(context).width;
+                      final perCardWidth = width >= 720 ? width / 2 : width;
+                      for (final item in feed.items.skip(before).take(6)) {
+                        AppNetworkImage.precache(
+                          context,
+                          url: item.imageUrl,
+                          meta: item.imageMeta,
+                          width: perCardWidth,
+                        );
+                      }
+                    });
                   }
-                });
-              }
-              return false;
-            },
-            child: RefreshIndicator(
-              onRefresh: _onRefresh,
-              color: textColor,
-              child: _buildShelfHome(feed, auth, textColor, width, isMobile),
-            ),
+                  return false;
+                },
+                child: RefreshIndicator(
+                  onRefresh: _onRefresh,
+                  color: textColor,
+                  child: _buildShelfHome(feed, auth, textColor, width, isMobile),
+                ),
+              ),
+              _NewPostsPill(
+                count: feed.pendingNewItemsCount,
+                isDark: isDark,
+                onTap: () => _applyPendingAndScrollToTop(feed),
+              ),
+            ],
           ),
         );
       },
     );
   }
 
-  // ==========================================================================
-  // Loading skeleton — mirrors the shelf layout so the transition to real
-  // content doesn't shift the page.
-  // ==========================================================================
-  Widget _buildShelfSkeleton(bool isMobile, double width) {
-    final hPadding = isMobile ? 16.0 : (width > 1400 ? 48.0 : 32.0);
-    final cardWidth = isMobile ? 130.0 : 180.0;
-    return ListView(
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-              hPadding, isMobile ? 12 : 24, hPadding, 8),
-          child: SkeletonContainer(
-            width: double.infinity,
-            height: isMobile ? 240 : 380,
-            borderRadius: BorderRadius.circular(isMobile ? 16 : 24),
-          ),
-        ),
-        BookShelfSkeleton(
-          cardWidth: cardWidth,
-          padding: EdgeInsets.symmetric(horizontal: hPadding),
-        ),
-        BookShelfSkeleton(
-          cardWidth: cardWidth,
-          titleWidthFactor: 0.4,
-          padding: EdgeInsets.symmetric(horizontal: hPadding),
-        ),
-      ],
+  Future<void> _applyPendingAndScrollToTop(FeedProvider feed) async {
+    if (feed.pendingNewItemsCount == 0) return;
+    HapticFeedback.selectionClick();
+    feed.applyPendingNewItems();
+    final controller = PrimaryScrollController.maybeOf(context);
+    if (controller == null || !controller.hasClients) return;
+    await controller.animateTo(
+      0,
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
     );
+  }
+
+  Widget _buildLoadingSpinner() {
+    final color = isDark ? Colors.white : const Color(0xFF0F172A);
+    return Center(child: AppSpinner(size: 32, color: color));
   }
 
   // ==========================================================================
@@ -200,9 +216,7 @@ class _FeedState extends State<Feed> {
   ) {
     final all = feed.groupedItems;
     if (all.isEmpty) {
-      // Items exist but the grouping pass produced none — fall back to
-      // the skeleton so we never flash a blank scaffold.
-      return _buildShelfSkeleton(isMobile, width);
+      return _buildLoadingSpinner();
     }
 
     final continueReading = feed.getContinueReadingItems();
@@ -382,7 +396,7 @@ class _FeedState extends State<Feed> {
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.only(bottom: 32, top: 16),
-              child: Center(child: CupertinoActivityIndicator()),
+              child: Center(child: AppSpinner()),
             ),
           ),
 
@@ -432,7 +446,7 @@ class _FeedState extends State<Feed> {
           if (feed.isLoadingFiltered && filtered.isEmpty)
             const SliverFillRemaining(
               hasScrollBody: false,
-              child: Center(child: CupertinoActivityIndicator()),
+              child: Center(child: AppSpinner()),
             )
           else if (isEmpty)
             SliverFillRemaining(
@@ -458,7 +472,7 @@ class _FeedState extends State<Feed> {
             const SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.only(bottom: 32, top: 16),
-                child: Center(child: CupertinoActivityIndicator()),
+                child: Center(child: AppSpinner()),
               ),
             ),
           const SliverToBoxAdapter(child: SizedBox(height: 80)),
@@ -2266,6 +2280,88 @@ class _RankedBookCardState extends State<_RankedBookCard> {
           color: widget.isDark
               ? Colors.white.withValues(alpha: 0.2)
               : Colors.black.withValues(alpha: 0.15),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// "X new posts" pill — Twitter / Instagram style. Slides in from the top
+// when silent-refresh discovers items the user hasn't seen, sits above the
+// scroll view without blocking it, and on tap inserts the buffered items
+// + animates a scroll-to-top so the user lands on what they came for.
+// ============================================================================
+class _NewPostsPill extends StatelessWidget {
+  const _NewPostsPill({
+    required this.count,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  final int count;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final visible = count > 0;
+    final bg = isDark ? Colors.white : const Color(0xFF0F172A);
+    final fg = isDark ? const Color(0xFF0F172A) : Colors.white;
+    final label = count == 1 ? '1 new post' : '$count new posts';
+    final topPadding = MediaQuery.paddingOf(context).top;
+    return IgnorePointer(
+      ignoring: !visible,
+      child: AnimatedSlide(
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
+        offset: visible ? Offset.zero : const Offset(0, -1.4),
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 200),
+          opacity: visible ? 1 : 0,
+          child: Padding(
+            padding: EdgeInsets.only(top: topPadding + 12),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onTap,
+                  borderRadius: BorderRadius.circular(999),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: bg,
+                      borderRadius: BorderRadius.circular(999),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.18),
+                          blurRadius: 14,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.arrow_upward_rounded, size: 16, color: fg),
+                        const SizedBox(width: 6),
+                        Text(
+                          label,
+                          style: GoogleFonts.inter(
+                            color: fg,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

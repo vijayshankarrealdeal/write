@@ -9,6 +9,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/bookmark_provider.dart';
 import 'package:inkspacex/services/app_log.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 /// "My Bookmarks" — every paragraph the user has marked, grouped by
 /// writing. Reached from the profile hub. Tap a row to open the reader
@@ -84,7 +85,7 @@ class _BookmarksPageState extends State<BookmarksPage> {
             elevation: 0,
           ),
           body: provider.loading && provider.all.isEmpty
-              ? const Center(child: CupertinoActivityIndicator())
+              ? const Center(child: AppSpinner())
               : provider.all.isEmpty
                   ? _empty(textColor, subtleColor)
                   : RefreshIndicator(

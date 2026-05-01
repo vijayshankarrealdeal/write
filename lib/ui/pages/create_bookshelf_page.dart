@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import 'package:inkspacex/provider/bookshelf_provider.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 class CreateBookshelfPage extends StatefulWidget {
   const CreateBookshelfPage({super.key});
@@ -774,14 +775,7 @@ class _CreateButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
         ),
         child: loading
-            ? SizedBox(
-                width: 14,
-                height: 14,
-                child: CupertinoActivityIndicator(
-                  color: fg,
-                  radius: 7,
-                ),
-              )
+            ? AppSpinner(size: 14, color: fg)
             : Text(
                 'Create',
                 style: GoogleFonts.inter(

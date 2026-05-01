@@ -37,24 +37,29 @@ class _WordStyleToolbarState extends State<WordStyleToolbar> {
   // applying any format that runs after a popup.
   TextSelection? _lastValidSelection;
 
-  // The user's most recent font / size pick. flutter_quill clears its
-  // toggledStyle whenever the selection changes, so picking a font on
-  // an empty doc and *then* clicking into the writing area would silently
-  // revert the dropdown to the default — and the next typed character
-  // would be in the wrong font. We keep the pick here and re-apply it
-  // as toggledStyle when the user clicks into an unstyled position, so
-  // the chosen font survives the click and lands on the next typed char.
-  // Cleared once the user actually types (the inserted text now carries
-  // the attribute, so the fallback is no longer needed).
+  // The user's most recent inline-style pick. flutter_quill clears its
+  // toggledStyle whenever the selection changes, so without us caching
+  // the pick here, picking a font / colour / mark and then clicking into
+  // the writing area would silently revert the toolbar and the next
+  // typed character. We keep the picks here and re-arm toggledStyle on
+  // every selection change. Sticky behaviour: a pending value persists
+  // until the user picks a different value or hits "clear formatting"
+  // — typing or deleting alone does NOT clear it. This matches what the
+  // user expects: switch to font B → type → delete → keep typing → all
+  // still in font B until they explicitly switch again.
   String? _pendingFont;
   double? _pendingSize;
-  int _lastDocLength = 0;
+  String? _pendingColor;       // hex including leading '#'
+  String? _pendingBackground;  // hex including leading '#'
+  // Inline marks (bold / italic / underline / strikeThrough / inlineCode):
+  // attribute key -> desired on/off state. Absent key = no preference,
+  // toolbar reflects the doc.
+  final Map<String, bool> _pendingInline = {};
   bool _reapplyingPending = false;
 
   @override
   void initState() {
     super.initState();
-    _lastDocLength = widget.controller.document.length;
     widget.controller.addListener(_onSelectionChanged);
   }
 
@@ -64,35 +69,68 @@ class _WordStyleToolbarState extends State<WordStyleToolbar> {
     super.dispose();
   }
 
+  bool get _hasAnyPending =>
+      _pendingFont != null ||
+      _pendingSize != null ||
+      _pendingColor != null ||
+      _pendingBackground != null ||
+      _pendingInline.isNotEmpty;
+
   void _onSelectionChanged() {
     if (_reapplyingPending) return;
     final sel = widget.controller.selection;
     if (sel.isValid) _lastValidSelection = sel;
 
-    final newLen = widget.controller.document.length;
-    if (newLen != _lastDocLength) {
-      // Document changed — the user typed (or pasted, or deleted). The
-      // pending pick is now baked into the inserted text, or no longer
-      // relevant; either way, stop fighting the doc's own attributes.
-      _pendingFont = null;
-      _pendingSize = null;
-      _lastDocLength = newLen;
-    } else if (sel.isValid &&
-        sel.isCollapsed &&
-        (_pendingFont != null || _pendingSize != null)) {
+    if (sel.isValid && sel.isCollapsed && _hasAnyPending) {
       _reapplyPending();
     }
 
     if (mounted) setState(() {});
   }
 
+  // Map an inline-mark attribute key to its base Attribute instance.
+  Attribute? _inlineAttrByKey(String key) {
+    if (key == Attribute.bold.key) return Attribute.bold;
+    if (key == Attribute.italic.key) return Attribute.italic;
+    if (key == Attribute.underline.key) return Attribute.underline;
+    if (key == Attribute.strikeThrough.key) return Attribute.strikeThrough;
+    if (key == Attribute.inlineCode.key) return Attribute.inlineCode;
+    return null;
+  }
+
   void _reapplyPending() {
     final attrs = widget.controller.getSelectionStyle().attributes;
-    final needFont =
-        _pendingFont != null && !attrs.containsKey(Attribute.font.key);
-    final needSize =
-        _pendingSize != null && !attrs.containsKey(Attribute.size.key);
-    if (!needFont && !needSize) return;
+
+    // For value-bearing attrs, mismatch = pending differs from current.
+    // For mark attrs, mismatch = pending on/off differs from presence.
+    final fontVal = attrs[Attribute.font.key]?.value;
+    final sizeVal = attrs[Attribute.size.key]?.value?.toString();
+    final colorVal = attrs[Attribute.color.key]?.value;
+    final backgroundVal = attrs[Attribute.background.key]?.value;
+
+    final needFont = _pendingFont != null && fontVal != _pendingFont;
+    final needSize = _pendingSize != null &&
+        sizeVal != _pendingSize!.toStringAsFixed(0);
+    final needColor = _pendingColor != null && colorVal != _pendingColor;
+    final needBackground =
+        _pendingBackground != null && backgroundVal != _pendingBackground;
+
+    final inlineMismatches = <(String, bool)>[];
+    for (final entry in _pendingInline.entries) {
+      final has = attrs.containsKey(entry.key);
+      if (entry.value != has) {
+        inlineMismatches.add((entry.key, entry.value));
+      }
+    }
+
+    if (!needFont &&
+        !needSize &&
+        !needColor &&
+        !needBackground &&
+        inlineMismatches.isEmpty) {
+      return;
+    }
+
     _reapplyingPending = true;
     try {
       if (needFont) {
@@ -105,6 +143,19 @@ class _WordStyleToolbarState extends State<WordStyleToolbar> {
           Attribute.fromKeyValue(
               Attribute.size.key, _pendingSize!.toStringAsFixed(0))!,
         );
+      }
+      if (needColor) {
+        widget.controller.formatSelection(ColorAttribute(_pendingColor!));
+      }
+      if (needBackground) {
+        widget.controller
+            .formatSelection(BackgroundAttribute(_pendingBackground!));
+      }
+      for (final (key, on) in inlineMismatches) {
+        final attr = _inlineAttrByKey(key);
+        if (attr == null) continue;
+        widget.controller
+            .formatSelection(on ? attr : Attribute.clone(attr, null));
       }
     } finally {
       _reapplyingPending = false;
@@ -219,6 +270,10 @@ class _WordStyleToolbarState extends State<WordStyleToolbar> {
   }
 
   bool _isInlineActive(Attribute attr) {
+    // Pending overrides the run at the caret so the button reflects the
+    // user's armed pick, not what happens to be under the cursor.
+    final pending = _pendingInline[attr.key];
+    if (pending != null) return pending;
     return widget.controller
         .getSelectionStyle()
         .attributes
@@ -226,9 +281,11 @@ class _WordStyleToolbarState extends State<WordStyleToolbar> {
   }
 
   void _toggleInline(Attribute attr) {
-    final active = _isInlineActive(attr);
+    _ensureSelection();
+    final next = !_isInlineActive(attr);
+    _pendingInline[attr.key] = next;
     widget.controller
-        .formatSelection(active ? Attribute.clone(attr, null) : attr);
+        .formatSelection(next ? attr : Attribute.clone(attr, null));
     setState(() {});
   }
 
@@ -292,6 +349,12 @@ class _WordStyleToolbarState extends State<WordStyleToolbar> {
     for (final a in attrs) {
       widget.controller.formatSelection(Attribute.clone(a, null));
     }
+    // Drop every caret-armed pick so "clear formatting" is a true reset.
+    _pendingFont = null;
+    _pendingSize = null;
+    _pendingColor = null;
+    _pendingBackground = null;
+    _pendingInline.clear();
     setState(() {});
   }
 
@@ -325,19 +388,37 @@ class _WordStyleToolbarState extends State<WordStyleToolbar> {
     final raw =
         widget.controller.getSelectionStyle().attributes[attr.key]?.value;
     if (raw is String && raw.isNotEmpty) return _hexToColor(raw);
+    // Fall back to the caret-armed pick so the swatch reflects what the
+    // next typed character will inherit, mirroring Word's behaviour.
+    final pending = attr.key == Attribute.color.key
+        ? _pendingColor
+        : _pendingBackground;
+    if (pending != null) return _hexToColor(pending);
     return null;
   }
 
   void _applyColor(Attribute<String?> attr, Color? color) {
+    final isText = attr.key == Attribute.color.key;
     if (color == null) {
       _ensureSelection();
       widget.controller.formatSelection(Attribute.clone(attr, null));
+      if (isText) {
+        _pendingColor = null;
+      } else {
+        _pendingBackground = null;
+      }
     } else {
       final hex = '#${_colorToHex(color)}';
-      final next = attr.key == Attribute.color.key
-          ? ColorAttribute(hex)
-          : BackgroundAttribute(hex);
+      final next = isText ? ColorAttribute(hex) : BackgroundAttribute(hex);
       _applyInlineWithFallback(next);
+      // Remember the pick so a subsequent click into the editor doesn't
+      // wipe it (flutter_quill clears toggledStyle on every selection
+      // change). _onSelectionChanged re-applies via _reapplyPending.
+      if (isText) {
+        _pendingColor = hex;
+      } else {
+        _pendingBackground = hex;
+      }
     }
     setState(() {});
   }

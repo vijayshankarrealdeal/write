@@ -9,6 +9,7 @@ import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/utilities/writing_type_style.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/widgets/type_chooser.dart';
 
 class NewBookAddition extends StatefulWidget {
@@ -347,14 +348,7 @@ class _TopBar extends StatelessWidget {
                   ),
                 ),
                 child: isCreating
-                    ? SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CupertinoActivityIndicator(
-                          color: labelColor,
-                          radius: 7,
-                        ),
-                      )
+                    ? AppSpinner(size: 14, color: labelColor)
                     : Text(
                         "Create",
                         style: GoogleFonts.inter(

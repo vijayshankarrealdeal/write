@@ -792,6 +792,7 @@ class ApiDataService implements SyncDispatcher {
     required int start,
     required int length,
     required String colorHex,
+    String note = '',
   }) async {
     await _client.post('/api/highlights/', data: {
       'feed_item_id': feedItemId,
@@ -799,6 +800,17 @@ class ApiDataService implements SyncDispatcher {
       'start': start,
       'length': length,
       'color_hex': colorHex,
+      if (note.isNotEmpty) 'note': note,
+    });
+  }
+
+  Future<void> updateHighlightNote({
+    required String userId,
+    required String highlightId,
+    required String note,
+  }) async {
+    await _client.put('/api/highlights/$highlightId', data: {
+      'note': note,
     });
   }
 
@@ -824,6 +836,7 @@ class ApiDataService implements SyncDispatcher {
         'start': d['start'],
         'length': d['length'],
         'colorHex': d['color_hex'],
+        'note': d['note'] ?? '',
         'createdAt': d['created_at'],
       };
     }).toList();

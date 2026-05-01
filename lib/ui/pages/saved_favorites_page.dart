@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 enum CollectionType { saved, favorites }
 
 class SavedFavoritesPage extends StatefulWidget {
@@ -84,7 +85,7 @@ class _SavedFavoritesPageState extends State<SavedFavoritesPage> {
         iconTheme: IconThemeData(color: textColor),
       ),
       body: _loading
-          ? const Center(child: CupertinoActivityIndicator())
+          ? const Center(child: AppSpinner())
           : _items == null || _items!.isEmpty
               ? Center(
                   child: Column(

@@ -11,6 +11,7 @@ import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/provider/nav_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -454,7 +455,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ? Colors.white.withValues(alpha: 0.1)
                           : Colors.black.withValues(alpha: 0.05),
                       child: _isUploading
-                          ? const CupertinoActivityIndicator()
+                          ? const AppSpinner()
                           : ClipOval(
                               child: SizedBox(
                                 width: 110,
@@ -539,7 +540,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 child: _isSaving
-                    ? CupertinoActivityIndicator(
+                    ? AppSpinner(
                         color: isDark ? Colors.black : Colors.white,
                       )
                     : Text(

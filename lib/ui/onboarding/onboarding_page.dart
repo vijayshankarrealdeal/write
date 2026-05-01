@@ -7,6 +7,7 @@ import 'package:inkspacex/models/preference_options.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -386,10 +387,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                                     : _nextPage,
                                 child: Center(
                                   child: _isFinishing
-                                      ? CupertinoActivityIndicator(
-                                          color: bgColor,
-                                          radius: 10,
-                                        )
+                                      ? AppSpinner(color: bgColor)
                                       : Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,

@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/widgets/more_like_this_carousel.dart';
 
 import 'package:inkspacex/models/canvas_element_model.dart';
@@ -446,6 +447,7 @@ class _PostDetailPageState extends State<PostDetailPage>
         final length = (h['length'] as num?)?.toInt();
         final colorHex = (h['colorHex'] as String?) ?? '';
         final id = (h['id'] as String?) ?? '';
+        final note = (h['note'] as String?) ?? '';
         if (sectionIndex == null ||
             start == null ||
             length == null ||
@@ -459,6 +461,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                 start: start,
                 length: length,
                 colorHex: colorHex,
+                note: note,
               ),
             );
         final controller = _quillControllers[sectionIndex];
@@ -495,6 +498,160 @@ class _PostDetailPageState extends State<PostDetailPage>
         );
       }
     }
+  }
+
+  // --------------------------------------------------------------------------
+  // Find the first highlight overlapping the given range (used by note flow)
+  // --------------------------------------------------------------------------
+  _Highlight? _findOverlappingHighlight(
+      int sectionIndex, int start, int length) {
+    final list = _highlights[sectionIndex];
+    if (list == null || list.isEmpty) return null;
+    final end = start + length;
+    for (final h in list) {
+      if (h.start < end && (h.start + h.length) > start) return h;
+    }
+    return null;
+  }
+
+  // --------------------------------------------------------------------------
+  // Persist a note edit on an existing highlight
+  // --------------------------------------------------------------------------
+  void _setHighlightNote(int sectionIndex, _Highlight h, String note) {
+    final list = _highlights[sectionIndex];
+    if (list == null) return;
+    final idx = list.indexWhere((x) => x.id == h.id);
+    if (idx == -1) return;
+    list[idx] = list[idx].copyWith(note: note);
+    if (_userId != null) {
+      _dataService.updateHighlightNote(
+        userId: _userId!,
+        highlightId: h.id,
+        note: note,
+      );
+    }
+    if (mounted) setState(() {});
+  }
+
+  // --------------------------------------------------------------------------
+  // Remove a single highlight (clears Quill background + local + remote)
+  // --------------------------------------------------------------------------
+  void _removeSingleHighlight(int sectionIndex, _Highlight h) {
+    final controller = _quillControllers[sectionIndex];
+    if (controller != null) {
+      try {
+        controller.formatText(h.start, h.length, quill.BackgroundAttribute(null));
+      } catch (_) {}
+    }
+    _highlights[sectionIndex]?.removeWhere((x) => x.id == h.id);
+    if (_userId != null && h.id.isNotEmpty) {
+      _dataService.deleteHighlight(userId: _userId!, highlightId: h.id);
+    }
+    if (mounted) setState(() {});
+  }
+
+  // --------------------------------------------------------------------------
+  // Open the animated note sheet for a highlight. Handles save + delete.
+  // --------------------------------------------------------------------------
+  Future<void> _openNoteSheet({
+    required int sectionIndex,
+    required _Highlight highlight,
+  }) async {
+    final palette = _readerPalette();
+    final excerpt = _highlightExcerpt(sectionIndex, highlight);
+    final result = await showGeneralDialog<_NoteSheetResult>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Close note',
+      barrierColor: Colors.black.withValues(alpha: 0.55),
+      transitionDuration: const Duration(milliseconds: 320),
+      pageBuilder: (ctx, anim, secondary) => _NoteSheet(
+        excerpt: excerpt,
+        accentColor: _hexToColor(highlight.colorHex),
+        bg: palette.bg,
+        textColor: palette.text,
+        subtleColor: palette.subtle,
+        initial: highlight.note,
+      ),
+      transitionBuilder: (ctx, anim, _, child) {
+        final eased = CurvedAnimation(
+          parent: anim,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return FadeTransition(
+          opacity: eased,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.06),
+              end: Offset.zero,
+            ).animate(eased),
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.97, end: 1.0).animate(eased),
+              child: child,
+            ),
+          ),
+        );
+      },
+    );
+    if (result == null || !mounted) return;
+    if (result.delete) {
+      _removeSingleHighlight(sectionIndex, highlight);
+      return;
+    }
+    final newNote = result.note ?? '';
+    if (newNote == highlight.note) return;
+    _setHighlightNote(sectionIndex, highlight, newNote);
+  }
+
+  // --------------------------------------------------------------------------
+  // Note button entry from selection toolbar — creates a default highlight
+  // first if the selection isn't already inside one, then opens the sheet.
+  // --------------------------------------------------------------------------
+  void _openNoteFromSelection(int sectionIndex, dynamic state) {
+    final controller = _quillControllers[sectionIndex];
+    if (controller == null) return;
+    final sel = controller.selection;
+    if (sel.isCollapsed) return;
+    final start = sel.start;
+    final length = sel.end - sel.start;
+
+    try {
+      state.hideToolbar();
+    } catch (_) {}
+
+    final overlap = _findOverlappingHighlight(sectionIndex, start, length);
+    if (overlap != null) {
+      _openNoteSheet(sectionIndex: sectionIndex, highlight: overlap);
+      return;
+    }
+
+    const defaultHex = '#FFE066';
+    try {
+      controller.formatText(
+          start, length, quill.BackgroundAttribute(defaultHex));
+    } catch (_) {}
+    final id = const Uuid().v4();
+    final h = _Highlight(
+      id: id,
+      start: start,
+      length: length,
+      colorHex: defaultHex,
+    );
+    _highlights.putIfAbsent(sectionIndex, () => []).add(h);
+    if (_userId != null) {
+      _dataService.addHighlight(
+        userId: _userId!,
+        feedItemId: widget.item.id,
+        highlightId: id,
+        sectionIndex: sectionIndex,
+        start: start,
+        length: length,
+        colorHex: defaultHex,
+      );
+    }
+    if (mounted) setState(() {});
+    _openNoteSheet(sectionIndex: sectionIndex, highlight: h);
   }
 
   // --------------------------------------------------------------------------
@@ -917,7 +1074,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                         .getCommentsStream(item.id),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CupertinoActivityIndicator());
+                        return const Center(child: AppSpinner());
                       }
                       final comments = snapshot.data ?? [];
                       if (comments.isEmpty) {
@@ -1150,14 +1307,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                                 }
                               },
                         child: submitting
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
+                            ? const AppSpinner(size: 20, color: Colors.white)
                             : Text(
                                 'Submit',
                                 style: GoogleFonts.inter(
@@ -1470,14 +1620,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: accentColor,
-                      ),
-                    ),
+                    AppSpinner(size: 16, color: accentColor),
                     const SizedBox(width: 10),
                     Text(
                       'Loading more · $remaining remaining',
@@ -1846,14 +1989,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                         ? null
                         : () => _onTapOfflineDownload(offline, isDark),
                     child: busy
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CupertinoActivityIndicator(
-                              color: textColor,
-                              radius: 9,
-                            ),
-                          )
+                        ? AppSpinner(size: 18, color: textColor)
                         : Icon(icon, color: textColor, size: 22),
                   );
                 },
@@ -2126,22 +2262,74 @@ class _PostDetailPageState extends State<PostDetailPage>
                                             BorderRadius.circular(2),
                                       ),
                                     ),
-                                    title: Text(
-                                      'Chapter ${entry.key + 1}',
-                                      style: _readerTextStyle(
-                                        fontSize: 13,
-                                        color: drawerSubtle,
-                                      ),
+                                    title: Row(
+                                      children: [
+                                        Text(
+                                          'Chapter ${entry.key + 1}',
+                                          style: _readerTextStyle(
+                                            fontSize: 13,
+                                            color: drawerSubtle,
+                                          ),
+                                        ),
+                                        if (h.note.isNotEmpty) ...[
+                                          const SizedBox(width: 8),
+                                          Icon(
+                                            CupertinoIcons.text_bubble_fill,
+                                            size: 12,
+                                            color: drawerSubtle,
+                                          ),
+                                        ],
+                                      ],
                                     ),
-                                    subtitle: Text(
-                                      _highlightExcerpt(entry.key, h),
-                                      style: _readerTextStyle(
-                                        fontSize: 14,
-                                        color: drawerText,
-                                        height: 1.35,
-                                      ),
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _highlightExcerpt(entry.key, h),
+                                          style: _readerTextStyle(
+                                            fontSize: 14,
+                                            color: drawerText,
+                                            height: 1.35,
+                                          ),
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        if (h.note.isNotEmpty) ...[
+                                          const SizedBox(height: 6),
+                                          Container(
+                                            padding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 6),
+                                            decoration: BoxDecoration(
+                                              color: drawerText
+                                                  .withValues(alpha: 0.05),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              border: Border(
+                                                left: BorderSide(
+                                                  color: _hexToColor(
+                                                      h.colorHex),
+                                                  width: 2,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              h.note,
+                                              style: _readerTextStyle(
+                                                fontSize: 13,
+                                                color: drawerText
+                                                    .withValues(alpha: 0.85),
+                                                height: 1.4,
+                                              ),
+                                              maxLines: 4,
+                                              overflow:
+                                                  TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                     onTap: () {
                                       if (_selectedSectionIndex == null) {
@@ -2150,6 +2338,13 @@ class _PostDetailPageState extends State<PostDetailPage>
                                         _navigateToSection(entry.key);
                                       }
                                       Navigator.pop(context);
+                                    },
+                                    onLongPress: () {
+                                      Navigator.pop(context);
+                                      _openNoteSheet(
+                                        sectionIndex: entry.key,
+                                        highlight: h,
+                                      );
                                     },
                                   ),
                             ],
@@ -2916,12 +3111,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: subtleColor),
-                    ),
+                    AppSpinner(size: 22, color: subtleColor),
                     const SizedBox(height: 12),
                     Text(
                       'Loading section…',
@@ -3052,8 +3242,15 @@ class _PostDetailPageState extends State<PostDetailPage>
       anchor = const Offset(120, 200);
     }
 
+    final sel = controller.selection;
+    final overlap = !sel.isCollapsed
+        ? _findOverlappingHighlight(
+            sectionIndex, sel.start, sel.end - sel.start)
+        : null;
+    final hasNote = overlap != null && overlap.note.isNotEmpty;
+
     final mq = MediaQuery.of(context);
-    const barWidth = 260.0;
+    const barWidth = 304.0;
     final left = (anchor.dx - barWidth / 2).clamp(12.0, mq.size.width - barWidth - 12);
     final top = (anchor.dy - 56).clamp(mq.padding.top + 8, mq.size.height - 80);
 
@@ -3063,95 +3260,141 @@ class _PostDetailPageState extends State<PostDetailPage>
           left: left,
           top: top,
           child: Material(
-            elevation: 8,
-            borderRadius: BorderRadius.circular(28),
-            color: palette.bg,
-            shadowColor: Colors.black.withValues(alpha: 0.3),
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: palette.text.withValues(alpha: 0.1),
+              elevation: 8,
+              borderRadius: BorderRadius.circular(28),
+              color: palette.bg,
+              shadowColor: Colors.black.withValues(alpha: 0.3),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: palette.text.withValues(alpha: 0.1),
+                  ),
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (final s in swatches) ...[
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final s in swatches) ...[
+                      GestureDetector(
+                        onTap: () => applyHighlight(s.$2),
+                        child: Container(
+                          width: 26,
+                          height: 26,
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          decoration: BoxDecoration(
+                            color: s.$1,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: palette.text.withValues(alpha: 0.15),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(width: 4),
                     GestureDetector(
-                      onTap: () => applyHighlight(s.$2),
+                      onTap: () => applyHighlight(null),
                       child: Container(
                         width: 26,
                         height: 26,
                         margin: const EdgeInsets.symmetric(horizontal: 3),
                         decoration: BoxDecoration(
-                          color: s.$1,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: palette.text.withValues(alpha: 0.15),
+                            color: palette.text.withValues(alpha: 0.4),
                           ),
+                        ),
+                        child: Icon(
+                          CupertinoIcons.clear,
+                          size: 14,
+                          color: palette.text.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    // Note pencil — creates/edits a note on the selection.
+                    // Tiny accent dot indicates an existing note on the
+                    // overlapping highlight.
+                    GestureDetector(
+                      onTap: () => _openNoteFromSelection(sectionIndex, state),
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        margin: const EdgeInsets.symmetric(horizontal: 3),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: palette.text.withValues(alpha: 0.06),
+                          border: Border.all(
+                            color: palette.text.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Icon(
+                              CupertinoIcons.pencil,
+                              size: 14,
+                              color: palette.text.withValues(alpha: 0.75),
+                            ),
+                            if (hasNote)
+                              Positioned(
+                                right: 1,
+                                top: 1,
+                                child: Container(
+                                  width: 7,
+                                  height: 7,
+                                  decoration: BoxDecoration(
+                                    color: _paperAccent,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: palette.bg,
+                                      width: 1.2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    // Bookmark this paragraph. Lives on the highlight bar
+                    // because the user is already in "I want to mark this
+                    // bit" mode — adding a separate long-press path would
+                    // double the discovery surface for no extra value.
+                    GestureDetector(
+                      onTap: () {
+                        try {
+                          state.hideToolbar();
+                        } catch (_) {}
+                        _openBookmarkSheet(sectionIndex, controller);
+                      },
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        margin: const EdgeInsets.symmetric(horizontal: 3),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: palette.text.withValues(alpha: 0.06),
+                          border: Border.all(
+                            color: palette.text.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: Icon(
+                          CupertinoIcons.bookmark,
+                          size: 14,
+                          color: palette.text.withValues(alpha: 0.7),
                         ),
                       ),
                     ),
                   ],
-                  const SizedBox(width: 4),
-                  GestureDetector(
-                    onTap: () => applyHighlight(null),
-                    child: Container(
-                      width: 26,
-                      height: 26,
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: palette.text.withValues(alpha: 0.4),
-                        ),
-                      ),
-                      child: Icon(
-                        CupertinoIcons.clear,
-                        size: 14,
-                        color: palette.text.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  // Bookmark this paragraph. Lives on the highlight bar
-                  // because the user is already in "I want to mark this
-                  // bit" mode — adding a separate long-press path would
-                  // double the discovery surface for no extra value.
-                  GestureDetector(
-                    onTap: () {
-                      try {
-                        state.hideToolbar();
-                      } catch (_) {}
-                      _openBookmarkSheet(sectionIndex, controller);
-                    },
-                    child: Container(
-                      width: 26,
-                      height: 26,
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: palette.text.withValues(alpha: 0.06),
-                        border: Border.all(
-                          color: palette.text.withValues(alpha: 0.4),
-                        ),
-                      ),
-                      child: Icon(
-                        CupertinoIcons.bookmark,
-                        size: 14,
-                        color: palette.text.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
     );
   }
 
@@ -5099,12 +5342,293 @@ class _Highlight {
   final int start;
   final int length;
   final String colorHex; // '' -> removed
+  final String note; // empty when none
   const _Highlight({
     required this.id,
     required this.start,
     required this.length,
     required this.colorHex,
+    this.note = '',
   });
+
+  _Highlight copyWith({String? note}) => _Highlight(
+        id: id,
+        start: start,
+        length: length,
+        colorHex: colorHex,
+        note: note ?? this.note,
+      );
+}
+
+// ============================================================================
+// Result envelope from the note sheet
+// ============================================================================
+class _NoteSheetResult {
+  final String? note;
+  final bool delete;
+  const _NoteSheetResult({this.note, this.delete = false});
+}
+
+// ============================================================================
+// Animated note sheet — opened from the highlight selection toolbar.
+// Slide + fade + subtle scale composes into a flawless entrance.
+// ============================================================================
+class _NoteSheet extends StatefulWidget {
+  final String excerpt;
+  final Color accentColor;
+  final Color bg;
+  final Color textColor;
+  final Color subtleColor;
+  final String initial;
+
+  const _NoteSheet({
+    required this.excerpt,
+    required this.accentColor,
+    required this.bg,
+    required this.textColor,
+    required this.subtleColor,
+    required this.initial,
+  });
+
+  @override
+  State<_NoteSheet> createState() => _NoteSheetState();
+}
+
+class _NoteSheetState extends State<_NoteSheet> {
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initial);
+    _focusNode = FocusNode();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark =
+        ThemeData.estimateBrightnessForColor(widget.bg) == Brightness.dark;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final fillColor = isDark
+        ? Colors.white.withValues(alpha: 0.04)
+        : Colors.black.withValues(alpha: 0.03);
+    final outlineColor = widget.textColor.withValues(alpha: 0.08);
+
+    return Material(
+      type: MaterialType.transparency,
+      child: SafeArea(
+        child: AnimatedPadding(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.fromLTRB(16, 16, 16, keyboardHeight + 16),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Material(
+                color: widget.bg,
+                elevation: 18,
+                shadowColor: Colors.black.withValues(alpha: 0.45),
+                borderRadius: BorderRadius.circular(20),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 18, 12, 14),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 4,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              color: widget.accentColor,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              widget.initial.isEmpty ? 'Add note' : 'Edit note',
+                              style: GoogleFonts.lora(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: widget.textColor,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            icon: Icon(
+                              CupertinoIcons.xmark,
+                              size: 18,
+                              color: widget.subtleColor,
+                            ),
+                            visualDensity: VisualDensity.compact,
+                            splashRadius: 18,
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: widget.accentColor.withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: widget.accentColor.withValues(alpha: 0.35),
+                            ),
+                          ),
+                          child: Text(
+                            widget.excerpt,
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.lora(
+                              fontSize: 14,
+                              color: widget.textColor,
+                              height: 1.4,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                              minHeight: 110, maxHeight: 240),
+                          child: TextField(
+                            controller: _controller,
+                            focusNode: _focusNode,
+                            maxLines: null,
+                            minLines: 4,
+                            textAlignVertical: TextAlignVertical.top,
+                            cursorColor: widget.accentColor,
+                            style: GoogleFonts.lora(
+                              fontSize: 15,
+                              color: widget.textColor,
+                              height: 1.5,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'Write your note…',
+                              hintStyle: GoogleFonts.lora(
+                                fontSize: 15,
+                                color: widget.subtleColor,
+                              ),
+                              filled: true,
+                              fillColor: fillColor,
+                              contentPadding: const EdgeInsets.fromLTRB(
+                                  14, 12, 14, 12),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: outlineColor),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: outlineColor),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                    color: widget.accentColor, width: 1.5),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Row(
+                          children: [
+                            if (widget.initial.isNotEmpty)
+                              TextButton.icon(
+                                onPressed: () {
+                                  Navigator.of(context).pop(
+                                    const _NoteSheetResult(delete: true),
+                                  );
+                                },
+                                icon: Icon(
+                                  CupertinoIcons.trash,
+                                  size: 16,
+                                  color: Colors.redAccent.shade200,
+                                ),
+                                label: Text(
+                                  'Remove',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.redAccent.shade200,
+                                  ),
+                                ),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 8),
+                                ),
+                              ),
+                            const Spacer(),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text(
+                                'Cancel',
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: widget.subtleColor,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            FilledButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(
+                                  _NoteSheetResult(
+                                      note: _controller.text.trim()),
+                                );
+                              },
+                              style: FilledButton.styleFrom(
+                                backgroundColor: const Color(0xFF2F62E0),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 18, vertical: 10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text(
+                                'Save',
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 // ============================================================================

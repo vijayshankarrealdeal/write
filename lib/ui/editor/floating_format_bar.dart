@@ -4,6 +4,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:inkspacex/services/toolbar_usage.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/toolbar_widgets.dart';
 
 /// A compact format bar that appears at the top of the editor area
 /// whenever there is a non-collapsed text selection.
@@ -46,6 +47,7 @@ const _idBold = 'fmt.bold';
 const _idItalic = 'fmt.italic';
 const _idUnderline = 'fmt.underline';
 const _idStrike = 'fmt.strike';
+const _idColor = 'fmt.color';
 const _idH1 = 'fmt.h1';
 const _idH2 = 'fmt.h2';
 const _idH3 = 'fmt.h3';
@@ -109,6 +111,7 @@ class _FloatingFormatBarState extends State<FloatingFormatBar>
     const pinned = [_idBold, _idItalic, _idUnderline];
     final adaptive = <String>[
       _idStrike,
+      _idColor,
       _idH1,
       _idH2,
       _idH3,
@@ -132,6 +135,30 @@ class _FloatingFormatBarState extends State<FloatingFormatBar>
     final active = _isActive(attr);
     widget.controller
         .formatSelection(active ? Attribute.clone(attr, null) : attr);
+    setState(() {});
+  }
+
+  Color? _currentColor() {
+    final raw = widget.controller
+        .getSelectionStyle()
+        .attributes[Attribute.color.key]
+        ?.value;
+    if (raw is String && raw.isNotEmpty) {
+      return _hexToColor(raw);
+    }
+    return null;
+  }
+
+  void _applyColor(Color? color, String id) {
+    ToolbarUsage.instance.increment(id);
+    if (color == null) {
+      widget.controller
+          .formatSelection(Attribute.clone(Attribute.color, null));
+    } else {
+      widget.controller.formatSelection(
+        ColorAttribute('#${_colorToHex(color)}'),
+      );
+    }
     setState(() {});
   }
 
@@ -169,6 +196,7 @@ class _FloatingFormatBarState extends State<FloatingFormatBar>
       case _idItalic:
       case _idUnderline:
       case _idStrike:
+      case _idColor:
         return 'mark';
       case _idH1:
       case _idH2:
@@ -275,6 +303,20 @@ class _FloatingFormatBarState extends State<FloatingFormatBar>
             active: _isActive(Attribute.strikeThrough),
             fg: fg, accent: accent, activeBg: activeBg,
             onTap: () => _toggle(Attribute.strikeThrough, id));
+      case _idColor:
+        return SizedBox(
+          width: 30,
+          height: 28,
+          child: ColorSwatchButton(
+            controller: widget.controller,
+            icon: Icons.format_color_text,
+            tooltip: 'Text color',
+            currentColor: _currentColor(),
+            textColor: fg,
+            isDark: widget.isDark,
+            onSelected: (c) => _applyColor(c, id),
+          ),
+        );
       case _idH1:
         return _headerPill('H1', 1, header, fg, accent, activeBg, id);
       case _idH2:
@@ -351,6 +393,32 @@ class _FloatingFormatBarState extends State<FloatingFormatBar>
         ),
       ),
     );
+  }
+
+  Color? _hexToColor(String? hexString) {
+    if (hexString == null) return null;
+    final hex = hexString.replaceAll('#', '');
+    if (!RegExp(r'^([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$')
+        .hasMatch(hex)) {
+      return null;
+    }
+    final buf = StringBuffer();
+    if (hex.length == 6) buf.write('ff');
+    buf.write(hex);
+    return Color(int.tryParse(buf.toString(), radix: 16) ?? 0xFF000000);
+  }
+
+  String _colorToHex(Color color) {
+    int toInt(double x) => (x * 255.0).round() & 0xff;
+    final a = toInt(color.a);
+    final r = toInt(color.r);
+    final g = toInt(color.g);
+    final b = toInt(color.b);
+    return '${a.toRadixString(16).padLeft(2, '0')}'
+            '${r.toRadixString(16).padLeft(2, '0')}'
+            '${g.toRadixString(16).padLeft(2, '0')}'
+            '${b.toRadixString(16).padLeft(2, '0')}'
+        .toUpperCase();
   }
 
   Widget _headerPill(

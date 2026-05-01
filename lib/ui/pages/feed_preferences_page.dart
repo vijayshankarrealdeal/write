@@ -7,6 +7,7 @@ import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 class FeedPreferencesPage extends StatefulWidget {
   const FeedPreferencesPage({super.key});
@@ -142,13 +143,9 @@ class _FeedPreferencesPageState extends State<FeedPreferencesPage> {
                 borderRadius: BorderRadius.circular(20),
                 onPressed: _saving ? null : _save,
                 child: _saving
-                    ? SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: isDark ? Colors.black : Colors.white,
-                        ),
+                    ? AppSpinner(
+                        size: 16,
+                        color: isDark ? Colors.black : Colors.white,
                       )
                     : Text(
                         "Save",

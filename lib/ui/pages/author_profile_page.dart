@@ -9,6 +9,7 @@ import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 /// Public profile for any author. Reached from search results — shows
 /// the author's avatar + name + post count, then their published feed
@@ -87,7 +88,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
         ),
       ),
       body: _loadingUser
-          ? const Center(child: CupertinoActivityIndicator())
+          ? const Center(child: AppSpinner())
           : user == null
               ? Center(
                   child: Text(
@@ -108,7 +109,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
                       if (_loadingPosts)
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 24),
-                          child: Center(child: CupertinoActivityIndicator()),
+                          child: Center(child: AppSpinner()),
                         )
                       else if (_posts.isEmpty)
                         Padding(

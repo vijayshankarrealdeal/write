@@ -10,6 +10,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/reading_progress_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 class ReadingStatisticsPage extends StatefulWidget {
   const ReadingStatisticsPage({super.key});
@@ -72,7 +73,7 @@ class _ReadingStatisticsPageState extends State<ReadingStatisticsPage> {
         centerTitle: true,
       ),
       body: _loading && feed.readingProgress.isEmpty
-          ? const Center(child: CupertinoActivityIndicator())
+          ? const Center(child: AppSpinner())
           : Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 560),

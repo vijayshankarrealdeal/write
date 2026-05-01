@@ -313,4 +313,35 @@ class StorageService {
   Future<void> saveSpellCheckIgnored(List<String> words) async {
     await _box.put(_userKey('spell_check_ignored'), words);
   }
+
+  // --- Feed cache (per-user) ---
+  // Persists the personalized feed so an app restart can paint instantly
+  // from disk while a silent network refresh runs in the background. Mirrors
+  // the cache-first pattern Instagram / Twitter use on cold start.
+
+  List<Map<String, dynamic>> getCachedFeedItems() {
+    final key = _userKeyOrNull('feed_cache_v1');
+    if (key == null) return const [];
+    final raw = _box.get(key);
+    if (raw is! String || raw.isEmpty) return const [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is List) {
+        return decoded.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+      }
+    } catch (_) {}
+    return const [];
+  }
+
+  Future<void> saveCachedFeedItems(List<Map<String, dynamic>> items) async {
+    final key = _userKeyOrNull('feed_cache_v1');
+    if (key == null) return;
+    await _box.put(key, jsonEncode(items));
+  }
+
+  Future<void> clearCachedFeed() async {
+    final key = _userKeyOrNull('feed_cache_v1');
+    if (key == null) return;
+    await _box.delete(key);
+  }
 }

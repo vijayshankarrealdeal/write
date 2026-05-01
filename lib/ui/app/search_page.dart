@@ -14,6 +14,7 @@ import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 const double _kMaxContentWidth = 1080;
 
@@ -741,7 +742,7 @@ class _SearchPageState extends State<SearchPage> {
           if (_loadingPopular)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 40),
-              child: Center(child: CupertinoActivityIndicator()),
+              child: Center(child: AppSpinner()),
             )
           else if (_popular.isEmpty)
             Padding(
@@ -1081,7 +1082,7 @@ class _SearchPageState extends State<SearchPage> {
     double width,
   ) {
     if (_searching && _results.isEmpty && _users.isEmpty) {
-      return const Center(child: CupertinoActivityIndicator());
+      return const Center(child: AppSpinner());
     }
     final matchingFacets = _matchingFacetSuggestions();
     final hasAnything =

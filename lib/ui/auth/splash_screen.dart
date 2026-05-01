@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 /// Shown while auth state is being determined. No login form or home UI.
 class SplashScreen extends StatelessWidget {
@@ -34,13 +35,9 @@ class SplashScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: textColor.withValues(alpha: 0.6),
-              ),
+            AppSpinner(
+              size: 24,
+              color: textColor.withValues(alpha: 0.6),
             ),
           ],
         ),

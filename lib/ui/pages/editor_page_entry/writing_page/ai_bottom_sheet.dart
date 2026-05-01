@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:inkspacex/services/gemini_service.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 // ─── Word-level diff ───
 
@@ -341,7 +342,7 @@ class _AIBottomSheetState extends State<AIBottomSheet> {
                         const SizedBox(height: 20),
                         Row(
                           children: [
-                            const CupertinoActivityIndicator(radius: 8),
+                            const AppSpinner(size: 16),
                             const SizedBox(width: 10),
                             Text(
                               '$_activeAction...',

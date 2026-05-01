@@ -9,6 +9,7 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/bookshelf_provider.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 class ViewBookshelfPage extends StatefulWidget {
   final String bookshelfId;
@@ -138,7 +139,7 @@ class _ViewBookshelfPageState extends State<ViewBookshelfPage> {
             ),
             body: Center(
               child: shelves.loading
-                  ? const CupertinoActivityIndicator()
+                  ? const AppSpinner()
                   : Text(
                       'Bookshelf not found',
                       style: GoogleFonts.inter(color: textColor),
@@ -218,7 +219,7 @@ class _ViewBookshelfPageState extends State<ViewBookshelfPage> {
                       ),
                     Expanded(
                       child: _loading && visibleItems.isEmpty && !isEmpty
-                          ? const Center(child: CupertinoActivityIndicator())
+                          ? const Center(child: AppSpinner())
                           : isEmpty
                               ? _EmptyState(
                                   isDark: isDark,

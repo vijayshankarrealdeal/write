@@ -7,6 +7,7 @@ import 'package:inkspacex/main.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/analytics_observer.dart';
 import 'package:inkspacex/services/app_log.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/auth/login_page.dart';
 import 'package:inkspacex/ui/auth/signup_page.dart';
 import 'package:inkspacex/ui/auth/forgot_password_page.dart';
@@ -309,7 +310,7 @@ class _PostLoaderPageState extends State<_PostLoaderPage> {
   Widget build(BuildContext context) {
     if (_loading) {
       return const Scaffold(
-        body: Center(child: CupertinoActivityIndicator()),
+        body: Center(child: AppSpinner()),
       );
     }
     if (_item != null) {

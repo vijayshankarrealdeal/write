@@ -11,6 +11,7 @@ import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/ui/utilities/writing_type_style.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 class PublishPage extends StatefulWidget {
   final WritingModel book;
@@ -1056,8 +1057,7 @@ class _PublishPageState extends State<PublishPage> {
               ),
               child: Center(
                 child: _isPublishing
-                    ? CupertinoActivityIndicator(
-                        color: btnFg, radius: 10)
+                    ? AppSpinner(color: btnFg)
                     : Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

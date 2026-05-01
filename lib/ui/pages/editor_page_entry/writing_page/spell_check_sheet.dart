@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/provider/spell_check_provider.dart';
 import 'package:inkspacex/services/spell_check_service.dart' as spellsvc;
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 // ── Spell check sheet ──
 //
@@ -71,14 +72,7 @@ class SpellCheckSheet extends StatelessWidget {
                 ),
                 const Spacer(),
                 if (sp.scanning)
-                  SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: mutedFg,
-                    ),
-                  )
+                  AppSpinner(size: 14, color: mutedFg)
                 else
                   Text(
                     issues.isEmpty
@@ -228,14 +222,7 @@ class _IssueRowState extends State<_IssueRow> {
                 padding: const EdgeInsets.only(left: 22, top: 4),
                 child: Row(
                   children: [
-                    SizedBox(
-                      width: 12,
-                      height: 12,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 1.5,
-                        color: widget.mutedFg,
-                      ),
-                    ),
+                    AppSpinner(size: 12, color: widget.mutedFg),
                     const SizedBox(width: 8),
                     Text(
                       'Loading suggestions…',

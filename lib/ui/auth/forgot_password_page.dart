@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -322,13 +323,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
               ),
             ),
             child: _isLoading
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: isDark ? Colors.black : Colors.white,
-                    ),
+                ? AppSpinner(
+                    size: 20,
+                    color: isDark ? Colors.black : Colors.white,
                   )
                 : Text(
                     "Send reset link",

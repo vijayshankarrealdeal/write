@@ -7,16 +7,24 @@ import 'package:inkspacex/models/reading_progress_model.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
+import 'package:inkspacex/services/storage_service.dart';
 
 class FeedProvider extends ChangeNotifier {
   ApiDataService? _dataService;
+  StorageService? _storage;
 
   void setDataService(ApiDataService service) {
     _dataService = service;
   }
 
+  void setStorage(StorageService storage) {
+    _storage = storage;
+  }
+
   List<FeedItemModel> _items = [];
   bool _isLoading = true;
+  bool _isRefreshing = false;
+  bool _hydratedFromCache = false;
   String? _error;
   UserPreferences? _lastPreferences;
   String? _currentUserId;
@@ -24,6 +32,12 @@ class FeedProvider extends ChangeNotifier {
   String? _nextCursor;
   bool _hasMore = true;
   bool _isLoadingMore = false;
+
+  // Items the silent-refresh probe found ahead of `_items` but hasn't
+  // surfaced yet. Twitter/Instagram pattern: don't shove new posts into
+  // the user's reading position — buffer them and let the user opt in
+  // via a "X new posts" pill so the scroll position is never disturbed.
+  List<FeedItemModel> _pendingNewItems = const [];
 
   List<ReadingProgressModel> _readingProgress = [];
 
@@ -66,7 +80,10 @@ class FeedProvider extends ChangeNotifier {
 
   List<FeedItemModel> get items => _items;
   bool get isLoading => _isLoading;
+  bool get isRefreshing => _isRefreshing;
+  bool get hydratedFromCache => _hydratedFromCache;
   String? get error => _error;
+  int get pendingNewItemsCount => _pendingNewItems.length;
   bool get hasMore => _hasMore;
   bool get isLoadingMore => _isLoadingMore;
   List<ReadingProgressModel> get readingProgress => _readingProgress;
@@ -121,6 +138,13 @@ class FeedProvider extends ChangeNotifier {
   }
 
   /// Load feed only when empty.
+  ///
+  /// Cache-first: if disk has a previous render for this user, hydrate
+  /// `_items` from it synchronously and return without a network round-trip.
+  /// Callers can follow up with [silentRefresh] to merge any new items the
+  /// server has produced since. Mirrors the cold-start pattern Instagram and
+  /// Twitter use — paint the last-known feed instantly, reconcile in
+  /// background.
   Future<void> loadFeedIfNeeded(
     UserPreferences preferences, {
     String? userId,
@@ -129,7 +153,38 @@ class FeedProvider extends ChangeNotifier {
     if (_items.isNotEmpty) return;
     _nextCursor = null;
     _hasMore = true;
+    if (_hydrateFromCache(preferences)) return;
     await loadFeed(preferences, userId: userId);
+  }
+
+  /// Read the last persisted feed for the current user. Returns true when
+  /// items were loaded, in which case `_isLoading` flips off so the UI can
+  /// paint without a spinner.
+  bool _hydrateFromCache(UserPreferences preferences) {
+    if (_hydratedFromCache) return _items.isNotEmpty;
+    final storage = _storage;
+    if (storage == null) return false;
+    final raw = storage.getCachedFeedItems();
+    if (raw.isEmpty) return false;
+    try {
+      _items = raw.map(FeedItemModel.fromJson).toList();
+    } catch (_) {
+      _items = const [];
+      return false;
+    }
+    _hydratedFromCache = true;
+    _lastPreferences = preferences;
+    _isLoading = false;
+    _hasMore = true;
+    notifyListeners();
+    return true;
+  }
+
+  void _persistCache() {
+    final storage = _storage;
+    if (storage == null) return;
+    // Fire-and-forget; cache writes shouldn't block UI updates.
+    storage.saveCachedFeedItems(_items.map((e) => e.toJson()).toList());
   }
 
   /// Load the feed using the recommendation engine.
@@ -156,6 +211,8 @@ class FeedProvider extends ChangeNotifier {
       _nextCursor = result.nextCursor;
       _hasMore = result.items.isNotEmpty;
       _lastPreferences = preferences;
+      _hydratedFromCache = true;
+      _persistCache();
     } catch (e) {
       _error = e.toString();
       if (forceRefresh) _items = [];
@@ -184,27 +241,57 @@ class FeedProvider extends ChangeNotifier {
     return _items.where((item) => progressIds.contains(item.id)).toList();
   }
 
-  /// Silent background refresh: prepend new items without loading indicator.
+  /// Silent background refresh: probe the server for items newer than
+  /// what we have on screen. Found items are buffered into
+  /// `_pendingNewItems` and surfaced via a "X new posts" pill — they are
+  /// never prepended automatically, so the user's scroll position is
+  /// preserved. The cache only updates once the user accepts the new
+  /// items via [applyPendingNewItems], which matches Twitter/Instagram.
   Future<void> silentRefresh() async {
     if (_dataService == null) return;
     if (_items.isEmpty || _lastPreferences == null) return;
+    if (_isRefreshing) return;
+    _isRefreshing = true;
+    notifyListeners();
     try {
       final result = await _dataService!.getPersonalizedFeed(
         _lastPreferences!,
         currentUserId: _currentUserId,
       );
-      final existingIds = _items.map((e) => e.id).toSet();
+      final existingIds = {
+        ..._items.map((e) => e.id),
+        ..._pendingNewItems.map((e) => e.id),
+      };
       final newItems =
           result.items.where((e) => !existingIds.contains(e.id)).toList();
       if (newItems.isEmpty) return;
-      _items = [...newItems, ..._items];
+      _pendingNewItems = [...newItems, ..._pendingNewItems];
+    } catch (_) {
+    } finally {
+      _isRefreshing = false;
       notifyListeners();
-    } catch (_) {}
+    }
+  }
+
+  /// Flush buffered new items into the visible feed and clear the pill.
+  /// Returns the number of items applied so the caller can scroll to top.
+  int applyPendingNewItems() {
+    if (_pendingNewItems.isEmpty) return 0;
+    final count = _pendingNewItems.length;
+    _items = [..._pendingNewItems, ..._items];
+    _pendingNewItems = const [];
+    _persistCache();
+    notifyListeners();
+    return count;
   }
 
   /// Clear feed (e.g. on logout).
   void clearFeed() {
     _items = [];
+    _pendingNewItems = const [];
+    _hydratedFromCache = false;
+    _isRefreshing = false;
+    _storage?.clearCachedFeed();
     _lastPreferences = null;
     _currentUserId = null;
     _error = null;
@@ -351,6 +438,7 @@ class FeedProvider extends ChangeNotifier {
       _nextCursor = result.nextCursor;
       _hasMore = result.items.isNotEmpty;
       _items.addAll(result.items);
+      if (result.items.isNotEmpty) _persistCache();
     } catch (_) {
       // silently fail on loadMore
     } finally {
