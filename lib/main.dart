@@ -111,6 +111,13 @@ void main() {
     final localNotifications = LocalNotificationService();
     unawaited(localNotifications.init());
 
+// Remote log shipping: every `log.i/w/e/f(...)` call from now on is
+    // batched and POSTed to /api/logs so the admin "Application Logs"
+    // viewer can show frontend crashes / auth failures / production
+    // errors. Default-on in release; flip with
+    // --dart-define=REMOTE_LOGS_ENABLED=true|false.
+    RemoteLogger.init(api: ApiClient(storage));
+
 // Analytics: spins up its own ApiClient (stateless aside from the
     // shared storage handle for auth tokens) so behaviour events flow
     // even before AuthProvider — pre-login screens are first-class
@@ -176,6 +183,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
         AnalyticsService.instance.onAppBackgrounded();
+        unawaited(RemoteLogger.instance.flush());
         break;
       case AppLifecycleState.hidden:
         // Flutter web fires `hidden` on tab visibility loss (user
@@ -185,6 +193,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         // until the OS evicts us. On native this state is rare and
         // already covered by paused/detached above.
         unawaited(AnalyticsService.instance.flush());
+        unawaited(RemoteLogger.instance.flush());
         break;
       case AppLifecycleState.inactive:
         break;
