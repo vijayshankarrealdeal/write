@@ -61,7 +61,7 @@ jobs:
           flutter build web --release
           TS=$(date +%s)
           echo "{\"version\": \"$TS\"}" > build/web/version.json
-          cp privacy_policy.html terms_of_service.html build/web/
+          cp privacy_policy.html terms_of_service.html data_deletion.html landing.html build/web/
 
       - uses: actions/upload-artifact@v5
         with:
