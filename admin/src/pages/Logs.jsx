@@ -33,6 +33,7 @@ export default function Logs() {
   const [page, setPage] = useState(1);
   const [level, setLevel] = useState("");
   const [source, setSource] = useState("");
+  const [env, setEnv] = useState("");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -42,16 +43,20 @@ export default function Logs() {
       const filters = {};
       if (level) filters.level = level;
       if (source) filters.source = source;
+      if (env) filters.env = env;
       if (search) filters.search = search;
       api.logs(p, 50, filters).then(setData).finally(() => setLoading(false));
     },
-    [page, level, source, search]
+    [page, level, source, env, search]
   );
 
   useEffect(() => {
     load(1);
-    api.logStats(7).then(setStats);
-  }, [level, source]);
+    const statFilters = {};
+    if (source) statFilters.source = source;
+    if (env) statFilters.env = env;
+    api.logStats(7, statFilters).then(setStats);
+  }, [level, source, env]);
 
   // Group stats by day for stacked bar chart
   const chartData = {};
@@ -120,6 +125,15 @@ export default function Logs() {
           <option value="backend">Backend</option>
           <option value="frontend">Frontend</option>
         </select>
+        <select
+          value={env}
+          onChange={(e) => { setEnv(e.target.value); setPage(1); }}
+          className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200"
+        >
+          <option value="">All Envs</option>
+          <option value="dev">Dev</option>
+          <option value="prod">Prod</option>
+        </select>
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <input
@@ -161,6 +175,17 @@ export default function Logs() {
                       <span className={`text-xs font-medium uppercase ${style.text}`}>{log.level}</span>
                       <span className="text-xs text-gray-600">|</span>
                       <span className="text-xs text-gray-400">{log.source}</span>
+                      {log.env && (
+                        <span
+                          className={`text-[10px] px-1.5 py-0.5 rounded font-mono uppercase ${
+                            log.env === "prod"
+                              ? "bg-emerald-500/10 text-emerald-400"
+                              : "bg-gray-700/50 text-gray-400"
+                          }`}
+                        >
+                          {log.env}
+                        </span>
+                      )}
                       {log.logger && (
                         <>
                           <span className="text-xs text-gray-600">|</span>

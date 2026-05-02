@@ -114,8 +114,7 @@ void main() {
 // Remote log shipping: every `log.i/w/e/f(...)` call from now on is
     // batched and POSTed to /api/logs so the admin "Application Logs"
     // viewer can show frontend crashes / auth failures / production
-    // errors. Default-on in release; flip with
-    // --dart-define=REMOTE_LOGS_ENABLED=true|false.
+    // errors.
     RemoteLogger.init(api: ApiClient(storage));
 
 // Analytics: spins up its own ApiClient (stateless aside from the

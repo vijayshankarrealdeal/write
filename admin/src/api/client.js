@@ -111,8 +111,14 @@ export const api = {
     const params = new URLSearchParams({ page, per_page: perPage });
     if (filters.level) params.set("level", filters.level);
     if (filters.source) params.set("source", filters.source);
+    if (filters.env) params.set("env", filters.env);
     if (filters.search) params.set("search", filters.search);
     return request(`/logs?${params}`);
   },
-  logStats: (days = 7) => request(`/logs/stats?days=${days}`),
+  logStats: (days = 7, filters = {}) => {
+    const params = new URLSearchParams({ days });
+    if (filters.source) params.set("source", filters.source);
+    if (filters.env) params.set("env", filters.env);
+    return request(`/logs/stats?${params}`);
+  },
 };

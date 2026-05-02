@@ -78,6 +78,12 @@ async def lifespan(app: FastAPI):
             await conn.execute(text(
                 f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col} JSONB"
             ))
+        # AppLog gained an env column (dev|prod) so the admin viewer can
+        # split client traffic by build flavour. Idempotent for dev DBs
+        # that bypass Alembic.
+        await conn.execute(text(
+            "ALTER TABLE app_logs ADD COLUMN IF NOT EXISTS env VARCHAR(10)"
+        ))
         # Phase 3 (P2): paragraph-precise resume anchor columns on
         # reading_progress. Idempotent for dev DBs that bypass Alembic.
         await conn.execute(text(

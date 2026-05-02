@@ -691,6 +691,7 @@ async def list_logs(
     per_page: int = Query(50, ge=1, le=200),
     level: str | None = Query(None, description="Filter by level: info, warn, error"),
     source: str | None = Query(None, description="Filter by source: backend, frontend"),
+    env: str | None = Query(None, description="Filter by env: dev, prod"),
     search: str | None = Query(None, description="Search in message"),
     db: AsyncSession = Depends(get_db),
     _=Depends(_verify_admin),
@@ -705,6 +706,9 @@ async def list_logs(
     if source:
         q = q.where(AppLog.source == source)
         count_q = count_q.where(AppLog.source == source)
+    if env:
+        q = q.where(AppLog.env == env)
+        count_q = count_q.where(AppLog.env == env)
     if search:
         q = q.where(AppLog.message.ilike(f"%{search}%"))
         count_q = count_q.where(AppLog.message.ilike(f"%{search}%"))
@@ -719,6 +723,7 @@ async def list_logs(
                 "id": str(l.id),
                 "level": l.level,
                 "source": l.source,
+                "env": l.env,
                 "logger": l.logger,
                 "message": l.message,
                 "details": l.details,
@@ -739,24 +744,39 @@ async def list_logs(
 @router.get("/logs/stats")
 async def log_stats(
     days: int = Query(7, ge=1, le=90),
+    source: str | None = Query(None, description="Filter by source: backend, frontend"),
+    env: str | None = Query(None, description="Filter by env: dev, prod"),
     db: AsyncSession = Depends(get_db),
     _=Depends(_verify_admin),
 ):
-    """Log level counts over time."""
+    """Log level counts over time. Honours source+env filters so the chart
+    matches whatever the list view is showing."""
     since = datetime.now(timezone.utc) - timedelta(days=days)
-    result = await db.execute(
+    q = (
         select(
             AppLog.level,
             AppLog.source,
+            AppLog.env,
             func.date_trunc("day", AppLog.created_at).label("day"),
             func.count().label("count"),
         )
         .where(AppLog.created_at >= since)
-        .group_by(AppLog.level, AppLog.source, "day")
+        .group_by(AppLog.level, AppLog.source, AppLog.env, "day")
         .order_by(text("day"))
     )
+    if source:
+        q = q.where(AppLog.source == source)
+    if env:
+        q = q.where(AppLog.env == env)
+    result = await db.execute(q)
     return [
-        {"level": r[0], "source": r[1], "day": r[2].isoformat() if r[2] else None, "count": r[3]}
+        {
+            "level": r[0],
+            "source": r[1],
+            "env": r[2],
+            "day": r[3].isoformat() if r[3] else None,
+            "count": r[4],
+        }
         for r in result.fetchall()
     ]
 

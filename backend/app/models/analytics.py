@@ -136,6 +136,7 @@ class AppLog(Base, UUIDMixin):
 
     level: Mapped[str] = mapped_column(String(20), nullable=False)  # info, warn, error
     source: Mapped[str] = mapped_column(String(20), nullable=False)  # backend, frontend
+    env: Mapped[str | None] = mapped_column(String(10), nullable=True)  # dev, prod
     logger: Mapped[str | None] = mapped_column(String(200), nullable=True)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     details: Mapped[str | None] = mapped_column(Text, nullable=True)

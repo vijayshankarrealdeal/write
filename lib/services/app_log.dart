@@ -59,18 +59,7 @@ class RemoteLogger {
   bool _flushing = false;
   String? _userId;
 
-  /// Default-on in release; default-off in debug. Override with
-  /// `--dart-define=REMOTE_LOGS_ENABLED=true|false`. Disabled builds
-  /// short-circuit `_enqueue` so there's zero buffer growth or POST traffic.
-  static const String _envOverride = String.fromEnvironment(
-    'REMOTE_LOGS_ENABLED',
-    defaultValue: '',
-  );
-  bool _enabled = _envOverride == 'true'
-      ? true
-      : _envOverride == 'false'
-          ? false
-          : kReleaseMode;
+  bool _enabled = true;
 
   final List<Map<String, dynamic>> _buffer = <Map<String, dynamic>>[];
 
@@ -154,6 +143,7 @@ class RemoteLogger {
     _buffer.add({
       'level': level,
       'source': 'frontend',
+      'env': kReleaseMode ? 'prod' : 'dev',
       'logger': kIsWeb ? 'flutter-web' : 'flutter',
       'message': message,
       'details': ?details,

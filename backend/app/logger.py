@@ -19,6 +19,7 @@ import uuid
 from queue import Empty, SimpleQueue
 from typing import Any
 
+from app.config import settings
 from app.database import async_session
 from app.models.analytics import AppLog
 
@@ -69,6 +70,7 @@ class _DBLogHandler(logging.Handler):
             self._queue.put_nowait({
                 "level": _LEVEL_BUCKET.get(record.levelname, "info"),
                 "source": "backend",
+                "env": settings.environment[:10],
                 "logger": record.name[:200],
                 "message": message[:10000],
                 "details": details,
@@ -189,6 +191,7 @@ def log_event(
     message: str,
     details: str | None = None,
     user_id: Any = None,
+    env: str | None = None,
     request_path: str | None = None,
     request_method: str | None = None,
     status_code: int | None = None,
@@ -197,6 +200,9 @@ def log_event(
     """Enqueue a log entry directly (used by the HTTP middleware and /api/logs ingest).
 
     Bypasses the stdlib logger so we can attach HTTP-specific metadata columns.
+    `env` falls back to the backend's own setting — frontend ingest passes its
+    own value (dev for debug builds, prod for release) so the admin viewer can
+    split traffic by build flavour.
     """
 
     if _queue is None:
@@ -205,6 +211,7 @@ def log_event(
         _queue.put_nowait({
             "level": level,
             "source": source,
+            "env": (env or settings.environment)[:10],
             "logger": logger,
             "message": message[:10000] if message else "",
             "details": details,

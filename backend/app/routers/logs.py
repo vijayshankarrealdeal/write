@@ -12,6 +12,14 @@ from app.logger import log_event
 router = APIRouter(prefix="/api/logs", tags=["logs"])
 
 _ALLOWED_LEVELS = {"debug", "info", "warn", "error"}
+_ALLOWED_ENVS = {"dev", "prod"}
+
+
+def _coerce_env(value: object) -> str | None:
+    if not value:
+        return None
+    env = str(value).lower()[:10]
+    return env if env in _ALLOWED_ENVS else None
 
 
 def _coerce_level(value: object) -> str:
@@ -54,6 +62,7 @@ async def ingest_logs(payload: dict, request: Request):
         log_event(
             level=_coerce_level(entry.get("level")),
             source=str(entry.get("source") or "frontend")[:20],
+            env=_coerce_env(entry.get("env")),
             logger=(str(entry.get("logger"))[:200] if entry.get("logger") else None),
             message=str(message),
             details=details if details else (ua or None),
