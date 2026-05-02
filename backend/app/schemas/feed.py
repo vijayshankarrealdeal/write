@@ -14,6 +14,10 @@ class FeedItemCreate(BaseModel):
     tags: list[str] = []
     is_draft: bool = True
     sections: list[dict] | None = None
+    # Source writing this card was published from. Set when the user
+    # publishes a draft from the editor, so the DB-level CASCADE drops
+    # the card if the writing is later deleted.
+    writing_id: UUID | None = None
 
 
 class FeedItemUpdate(BaseModel):
@@ -33,6 +37,7 @@ class FeedItemResponse(BaseModel):
     title: str | None
     author: str | None
     author_id: UUID
+    writing_id: UUID | None = None
     description: str | None
     image_url: str | None
     image_meta: dict | None = None

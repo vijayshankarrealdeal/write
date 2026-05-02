@@ -349,6 +349,13 @@ class _PostDetailPageState extends State<PostDetailPage>
         );
       }
       await userFuture;
+    } on FeedItemMissing {
+      // Source writing was deleted (FK cascaded the feed_item). Drop it
+      // from the in-memory list + disk cache so the next cold start
+      // doesn't hand the user a tombstone, and pop this detail page.
+      if (!mounted) return;
+      feed.dropMissingItem(widget.item.id);
+      Navigator.of(context).maybePop();
     } catch (_) {
       // Stale counts will get corrected by the next SSE event anyway.
     }

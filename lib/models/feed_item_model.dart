@@ -162,7 +162,11 @@ class FeedItemModel {
       likesCount: json['likesCount'] ?? 0,
       commentsCount: json['commentsCount'] ?? 0,
       sections: sections,
-      bookId: json['bookId'] ?? '',
+      // Server returns the link to the source writing as `writing_id`;
+      // older cached payloads used the camelCase `bookId` key, so accept
+      // both for forward + backward compatibility.
+      bookId: (json['writing_id'] ?? json['writingId'] ?? json['bookId'] ?? '')
+          .toString(),
       isDraft: json['isDraft'] ?? false,
     );
   }

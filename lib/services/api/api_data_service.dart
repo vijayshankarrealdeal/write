@@ -18,6 +18,17 @@ import 'package:inkspacex/services/api/api_realtime_service.dart';
 import 'package:inkspacex/services/sync/sync_dispatcher.dart';
 import 'package:flutter/material.dart' show Color;
 
+/// Thrown by [ApiDataService.getFeedItem] when the server returns 404,
+/// signalling the card was hard-deleted (typically because its source
+/// writing was removed and the writings -> feed_items FK cascaded).
+/// Distinct from `null` (which means "transient error, try later") so
+/// callers can confidently evict the entry from local caches.
+class FeedItemMissing implements Exception {
+  const FeedItemMissing();
+  @override
+  String toString() => 'FeedItemMissing';
+}
+
 /// Cursor-based feed page (replaces Firestore DocumentSnapshot cursor).
 class ApiFeedPage {
   final List<FeedItemModel> items;
@@ -316,6 +327,13 @@ class ApiDataService implements SyncDispatcher {
         queryParams: {'sections_limit': sectionsLimit.toString()},
       );
       return _feedItemFromJson(response.data);
+    } on ApiException catch (e) {
+      // A 404 means the card was deleted on the server (e.g. its source
+      // writing was removed and the FK cascaded). Surface this as a
+      // sentinel so callers can prune their caches instead of treating
+      // it as a transient network error.
+      if (e.statusCode == 404) throw const FeedItemMissing();
+      return null;
     } catch (_) {
       return null;
     }
@@ -338,16 +356,31 @@ class ApiDataService implements SyncDispatcher {
     }
   }
 
-  Future<FeedItemModel?> getExistingSpace(String bookId) async {
-    return getFeedItem(bookId);
+  /// Resolve the feed card published from [writingId], if any. Hits
+  /// `/api/feed/by-writing/{writing_id}`, which keys on the source-writing
+  /// FK introduced in migration 20260502_04 — a stable lookup that lets
+  /// the publish path update an existing card instead of duplicating it.
+  Future<FeedItemModel?> getExistingSpace(String writingId) async {
+    try {
+      final response = await _client.get('/api/feed/by-writing/$writingId');
+      return _feedItemFromJson(response.data);
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<List<FeedItemModel>> getFeedItemsByIds(List<String> ids) async {
     if (ids.isEmpty) return [];
     final results = <FeedItemModel>[];
     for (final id in ids) {
-      final item = await getFeedItem(id);
-      if (item != null) results.add(item);
+      try {
+        final item = await getFeedItem(id);
+        if (item != null) results.add(item);
+      } on FeedItemMissing {
+        // Skip — the caller may want to retain a list of missing ids
+        // separately, but for the bulk fetch path "missing" is the same
+        // as "absent from result list".
+      }
     }
     return results;
   }
@@ -684,11 +717,12 @@ class ApiDataService implements SyncDispatcher {
             })
         .toList();
 
-    // Check if existing space exists
+    // Look up the existing card by writing_id (the FK link), not by
+    // matching feed-item id against book.id — which never matched and
+    // silently produced duplicate cards on every republish.
     final existing = await getExistingSpace(book.id);
     if (existing != null) {
-      // Update existing
-      await _client.put('/api/feed/${book.id}', data: {
+      await _client.put('/api/feed/${existing.id}', data: {
         'title': book.title,
         'description': descriptionOverride ?? book.description,
         'image_url': book.coverImagePath,
@@ -701,7 +735,6 @@ class ApiDataService implements SyncDispatcher {
         'sections': feedSections,
       });
     } else {
-      // Create new
       await _client.post('/api/feed/', data: {
         'title': book.title,
         'description': descriptionOverride ?? book.description,
@@ -713,6 +746,7 @@ class ApiDataService implements SyncDispatcher {
         'tags': tags,
         'is_draft': isDraft,
         'sections': feedSections,
+        'writing_id': book.id,
       });
     }
   }

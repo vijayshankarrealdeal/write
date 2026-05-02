@@ -1,10 +1,21 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:inkspacex/models/writing_model.dart';
+import 'package:inkspacex/services/app_log.dart';
 
 class StorageService {
   static const String _boxName = 'writer_app_box';
+  // Keychain (iOS/macOS) / EncryptedSharedPreferences (Android) / AES on web.
+  // Used only for email/password creds — JWTs stay in Hive since they're
+  // short-lived and getting them per request needs to be sync.
+  static const _secure = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+  );
+  static const String _secureKeyEmail = 'auth_email_v1';
+  static const String _secureKeyPassword = 'auth_password_v1';
   // Legacy un-namespaced keys, deleted once on first run after the
   // per-user-sandbox change. Listed here so the migration is in one place.
   static const String _legacyKeyBooks = 'user_books_json';
@@ -171,6 +182,43 @@ class StorageService {
     await _box.delete(_keyAuthToken);
     await _box.delete(_keyRefreshToken);
     await _box.delete('user_profile');
+  }
+
+  /// Stash the user's email/password so a session that lost both access and
+  /// refresh tokens (long offline / server-rotated keys / etc) can recover
+  /// without dumping the user back on the login screen. Only called on
+  /// successful email/password auth — Google sign-in users never hit this.
+  Future<void> saveCredentials(String email, String password) async {
+    try {
+      await _secure.write(key: _secureKeyEmail, value: email);
+      await _secure.write(key: _secureKeyPassword, value: password);
+    } catch (e, st) {
+      // A keystore failure (locked device, corrupt entry) shouldn't break
+      // the login that just succeeded — the refresh-token path still works.
+      log.w('[storage] saveCredentials failed: $e', stackTrace: st);
+    }
+  }
+
+  Future<({String email, String password})?> getCredentials() async {
+    try {
+      final email = await _secure.read(key: _secureKeyEmail);
+      final password = await _secure.read(key: _secureKeyPassword);
+      if (email == null || password == null) return null;
+      if (email.isEmpty || password.isEmpty) return null;
+      return (email: email, password: password);
+    } catch (e, st) {
+      log.w('[storage] getCredentials failed: $e', stackTrace: st);
+      return null;
+    }
+  }
+
+  Future<void> clearCredentials() async {
+    try {
+      await _secure.delete(key: _secureKeyEmail);
+      await _secure.delete(key: _secureKeyPassword);
+    } catch (e, st) {
+      log.w('[storage] clearCredentials failed: $e', stackTrace: st);
+    }
   }
 
   // --- Recent Searches ---
@@ -343,5 +391,32 @@ class StorageService {
     final key = _userKeyOrNull('feed_cache_v1');
     if (key == null) return;
     await _box.delete(key);
+  }
+
+  /// Drop any cached feed items whose `id` matches [feedItemId] or whose
+  /// source-writing link (`bookId` / `writing_id`) matches [writingId].
+  /// Called when the server confirms a feed card is gone (404 on fetch)
+  /// or when the user deletes the source writing locally — either way,
+  /// the next cold-start hydrate must not paint a stale card whose
+  /// reader will crash on open.
+  Future<void> removeCachedFeedItem({
+    String? feedItemId,
+    String? writingId,
+  }) async {
+    if (feedItemId == null && writingId == null) return;
+    final key = _userKeyOrNull('feed_cache_v1');
+    if (key == null) return;
+    final items = getCachedFeedItems();
+    if (items.isEmpty) return;
+    final filtered = items.where((m) {
+      if (feedItemId != null && m['id'] == feedItemId) return false;
+      if (writingId != null) {
+        final linked = m['bookId'] ?? m['writing_id'] ?? m['writingId'];
+        if (linked == writingId) return false;
+      }
+      return true;
+    }).toList();
+    if (filtered.length == items.length) return;
+    await _box.put(key, jsonEncode(filtered));
   }
 }

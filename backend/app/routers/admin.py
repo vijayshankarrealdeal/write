@@ -7,6 +7,7 @@ crash reports, and log viewing for the admin dashboard.
 import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
+from time import perf_counter
 from typing import Any
 
 from fastapi import APIRouter, Depends, Query
@@ -127,6 +128,64 @@ async def overview(
         "visits_today": visits_today,
         "visits_week": visits_week,
         "errors_today": errors_today,
+    }
+
+
+# ── Service health ──────────────────────────────────────────────────────────
+
+# Live health check of backing services. Re-runs on every request so the
+# admin dashboard sees real state after a page refresh — stale cached
+# "OK"s would defeat the point. Each check is wrapped so one dead
+# service doesn't poison the response for the others.
+
+async def _timed(coro_factory) -> dict[str, Any]:
+    t0 = perf_counter()
+    try:
+        await coro_factory()
+        return {"status": "ok", "latency_ms": round((perf_counter() - t0) * 1000, 1)}
+    except Exception as e:
+        return {
+            "status": "down",
+            "latency_ms": round((perf_counter() - t0) * 1000, 1),
+            "message": str(e)[:200],
+        }
+
+
+@router.get("/health")
+async def services_health(
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    services: list[dict[str, Any]] = []
+
+    services.append({"name": "Postgres", **await _timed(lambda: db.execute(text("SELECT 1")))})
+
+    services.append({
+        "name": "MinIO",
+        **await _timed(lambda: minio_client.bucket_exists(settings.minio_bucket)),
+    })
+
+    if settings.redis_url:
+        from redis import asyncio as redis_asyncio
+
+        r = redis_asyncio.from_url(settings.redis_url, decode_responses=True)
+        try:
+            services.append({"name": "Redis", **await _timed(lambda: r.ping())})
+        finally:
+            await r.aclose()
+    else:
+        services.append({"name": "Redis", "status": "unconfigured", "message": "REDIS_URL not set"})
+
+    # LLM: config-presence only — pinging Azure OpenAI on every dashboard
+    # refresh would burn quota for no real signal.
+    if settings.azure_openai_api_key and settings.azure_openai_endpoint:
+        services.append({"name": "Azure OpenAI", "status": "ok", "message": "configured (not pinged)"})
+    else:
+        services.append({"name": "Azure OpenAI", "status": "unconfigured"})
+
+    return {
+        "checked_at": datetime.now(timezone.utc).isoformat(),
+        "services": services,
     }
 
 

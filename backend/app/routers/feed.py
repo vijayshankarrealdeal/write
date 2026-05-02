@@ -11,6 +11,7 @@ from app.auth.deps import get_current_user
 from app.database import get_db
 from app.models.feed_item import FeedItem
 from app.models.user import User
+from app.models.writing import Writing
 from app.notifications import create_notification
 from app.realtime import hub
 from app.schemas.feed import (
@@ -307,16 +308,73 @@ async def list_feed_by_author(
     return result.scalars().all()
 
 
+@router.get("/by-writing/{writing_id}", response_model=FeedItemResponse)
+async def get_feed_item_by_writing(
+    writing_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Resolve the feed card published from a given writing, if any.
+
+    Used by the publish path so a second publish updates the existing card
+    instead of creating a duplicate. Only the writing's owner can resolve
+    it — drafts are private until published, and even published cards are
+    keyed by writing here, which is the author's private id."""
+    result = await db.execute(
+        select(FeedItem).where(
+            FeedItem.writing_id == writing_id,
+            FeedItem.author_id == user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Feed item not found")
+    return item
+
+
 @router.post("/", response_model=FeedItemResponse, status_code=201)
 async def create_feed_item(
     data: FeedItemCreate,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    payload = data.model_dump()
+    writing_id = payload.get("writing_id")
+    if writing_id is not None:
+        # Verify the writing exists and belongs to the caller before we
+        # take an FK on it — otherwise a malicious client could plant a
+        # feed card pointing at someone else's writing and ride the
+        # cascade if they ever delete it.
+        owner = await db.execute(
+            select(Writing.id).where(
+                Writing.id == writing_id, Writing.user_id == user.id
+            )
+        )
+        if owner.scalar_one_or_none() is None:
+            raise HTTPException(
+                status_code=400, detail="writing_id does not belong to user"
+            )
+        # Idempotency: if a card already exists for this writing, treat
+        # the POST as an update so retries on shaky connections don't
+        # explode the unique index.
+        existing = await db.execute(
+            select(FeedItem).where(FeedItem.writing_id == writing_id)
+        )
+        existing_item = existing.scalar_one_or_none()
+        if existing_item is not None:
+            for field, value in payload.items():
+                if field == "writing_id":
+                    continue
+                setattr(existing_item, field, value)
+            await db.commit()
+            await db.refresh(existing_item)
+            if not existing_item.is_draft:
+                schedule_embedding(existing_item.id)
+            return existing_item
     item = FeedItem(
         author=user.name,
         author_id=user.id,
-        **data.model_dump(),
+        **payload,
     )
     db.add(item)
     await db.commit()

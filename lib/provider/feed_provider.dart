@@ -639,6 +639,29 @@ class FeedProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Drop a feed item the server has confirmed is gone (404 on fetch),
+  /// so the on-screen list, the buffered "new posts" pill, and the
+  /// per-user disk cache all stop surfacing a card whose reader will
+  /// crash on open. Called from any read path that catches
+  /// [FeedItemMissing] — typically the post-detail loader or an SSE
+  /// `feed_item.deleted` event.
+  void dropMissingItem(String feedItemId) {
+    final beforeItems = _items.length;
+    final beforePending = _pendingNewItems.length;
+    _items = _items.where((i) => i.id != feedItemId).toList();
+    _pendingNewItems =
+        _pendingNewItems.where((i) => i.id != feedItemId).toList();
+    _filteredItems =
+        _filteredItems.where((i) => i.id != feedItemId).toList();
+    _recommended = _recommended.where((i) => i.id != feedItemId).toList();
+    _storage?.removeCachedFeedItem(feedItemId: feedItemId);
+    if (_items.length != beforeItems ||
+        _pendingNewItems.length != beforePending) {
+      _persistCache();
+    }
+    notifyListeners();
+  }
+
   /// Apply absolute counts received from a backend SSE broadcast so two
   /// clients viewing the same post converge in real time. Either count
   /// may be omitted; only fields that change trigger a notify.

@@ -142,6 +142,23 @@ async def _main() -> int:
     return 0
 
 
+import re as _re
+_LEADING_H2_RE = _re.compile(r"\A\s*##\s[^\n]*\n+", _re.MULTILINE)
+
+
+def _strip_leading_h2(md: str) -> str:
+    """Drop a leading `## Some Heading` from the markdown.
+
+    The Flutter app shows `Section.title` as an italic header at the top
+    of each section, so embedding the same heading inside the section's
+    Delta body shows the chapter title twice. The HTML loader emits
+    `## Letter 1` at the start of each chapter's markdown — useful for
+    the standalone preview .md files but redundant once the chapter is
+    a Section in the app.
+    """
+    return _LEADING_H2_RE.sub("", md, count=1)
+
+
 def _build_cleaned_markdown_map(slug: str, chunks: list[Chunk]) -> dict[str, str]:
     """Per-chunk clean markdown for the Delta builder, so flutter_quill
     renders headings/italics/blockquote properly instead of dumping raw
@@ -151,20 +168,26 @@ def _build_cleaned_markdown_map(slug: str, chunks: list[Chunk]) -> dict[str, str
     markdown — use it directly. PDF books have a parallel `cleaned/<id>.md`
     file written by the cleaner phase. Falls back to chunk.text if
     cleaned markdown isn't present (e.g. cleaner failed for one chunk).
+
+    The leading `## Heading` line is stripped from each chunk so the
+    Flutter app's Section.title rendering doesn't duplicate it in the
+    body.
     """
     book = persist.book_dir(slug)
     cleaned_dir = book / "cleaned"
     out: dict[str, str] = {}
     for c in chunks:
         cleaned_path = cleaned_dir / f"{c.id}.md"
+        md: str | None = None
         if cleaned_path.exists() and cleaned_path.stat().st_size > 0:
             try:
-                out[c.id] = cleaned_path.read_text(encoding="utf-8")
-                continue
+                md = cleaned_path.read_text(encoding="utf-8")
             except OSError:
-                pass
-        # HTML path or PDF cleaner-skipped path — chunk.text is markdown.
-        out[c.id] = c.text
+                md = None
+        if md is None:
+            # HTML path or PDF cleaner-skipped path — chunk.text is markdown.
+            md = c.text
+        out[c.id] = _strip_leading_h2(md)
     return out
 
 
@@ -219,6 +242,13 @@ def _load_artifacts(
         if meta.get("is_cover") or meta.get("chunk_id") is None:
             continue
         scene_id = meta["scene_id"]
+        # Drop scenes left over from a previous plan (planner uses random
+        # uuid scene_ids, so re-running the planner orphans the old PNGs).
+        # Only embed scenes that the *current* plan.json references —
+        # otherwise the app shows duplicate / stale illustrations from
+        # earlier runs clustered on the same chunks.
+        if plan_by_scene and scene_id not in plan_by_scene:
+            continue
         chunk_id = meta["chunk_id"]
         local_image = meta.get("image_path")
         if not local_image or not Path(local_image).exists():

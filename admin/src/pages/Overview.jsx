@@ -8,6 +8,9 @@ import {
   AlertTriangle,
   UserPlus,
   TrendingUp,
+  CheckCircle2,
+  XCircle,
+  MinusCircle,
 } from "lucide-react";
 import {
   AreaChart,
@@ -25,13 +28,17 @@ import PageHeader from "../components/PageHeader";
 export default function Overview() {
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState(null);
+  const [health, setHealth] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([api.overview(), api.userActivity(14)])
-      .then(([s, a]) => {
+    // Health is checked live on every mount — a stale "OK" here would
+    // defeat the point, so we don't memoise it.
+    Promise.all([api.overview(), api.userActivity(14), api.health().catch(() => null)])
+      .then(([s, a, h]) => {
         setStats(s);
         setActivity(a);
+        setHealth(h);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -102,6 +109,8 @@ export default function Overview() {
         />
       </div>
 
+      <ServiceHealth data={health} />
+
       {/* Activity chart */}
       {activity?.daily_active_users?.length > 0 && (
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
@@ -150,6 +159,63 @@ export default function Overview() {
           </ResponsiveContainer>
         </div>
       )}
+    </div>
+  );
+}
+
+function ServiceHealth({ data }) {
+  if (!data) {
+    return (
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8">
+        <h2 className="text-lg font-semibold mb-2">Service Health</h2>
+        <p className="text-sm text-gray-500">Health check unavailable.</p>
+      </div>
+    );
+  }
+  const checkedAt = new Date(data.checked_at).toLocaleTimeString();
+  return (
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">Service Health</h2>
+        <span className="text-xs text-gray-500">Checked {checkedAt}</span>
+      </div>
+      <div className="divide-y divide-gray-800">
+        {data.services.map((svc) => (
+          <ServiceRow key={svc.name} svc={svc} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ServiceRow({ svc }) {
+  const variants = {
+    ok: { Icon: CheckCircle2, color: "text-emerald-400", label: "OK" },
+    down: { Icon: XCircle, color: "text-red-400", label: "Down" },
+    unconfigured: { Icon: MinusCircle, color: "text-gray-500", label: "Unconfigured" },
+  };
+  const v = variants[svc.status] || { Icon: MinusCircle, color: "text-gray-500", label: svc.status };
+  const { Icon, color, label } = v;
+  return (
+    <div className="flex items-center justify-between py-3">
+      <div className="flex items-center gap-3 min-w-0">
+        <Icon className={`w-4 h-4 shrink-0 ${color}`} />
+        <span className="font-medium">{svc.name}</span>
+        {svc.message && (
+          <span
+            className="text-xs text-gray-500 truncate"
+            title={svc.message}
+          >
+            {svc.message}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-4 text-sm shrink-0">
+        {svc.latency_ms != null && (
+          <span className="text-gray-500 tabular-nums">{svc.latency_ms} ms</span>
+        )}
+        <span className={`${color} font-medium`}>{label}</span>
+      </div>
     </div>
   );
 }

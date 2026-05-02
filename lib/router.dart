@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 
 import 'package:inkspacex/main.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/provider/feed_provider.dart';
+import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/analytics_observer.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
@@ -40,7 +42,6 @@ import 'package:inkspacex/ui/pages/view_bookshelf_page.dart';
 import 'package:inkspacex/ui/pages/add_books_to_shelf_page.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
-import 'package:inkspacex/services/api/api_data_service.dart' show PublicUser;
 GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
     refreshListenable: authProvider,
@@ -361,6 +362,16 @@ class _PostLoaderPageState extends State<_PostLoaderPage> {
           });
         }
       }
+    } on FeedItemMissing {
+      // Card was hard-deleted server-side (the writings -> feed_items
+      // FK cascaded). Prune any cached copy so a back-navigation
+      // won't paint it again, then surface a clean not-found state.
+      if (!mounted) return;
+      context.read<FeedProvider>().dropMissingItem(widget.feedItemId);
+      setState(() {
+        _error = 'Post not found';
+        _loading = false;
+      });
     } catch (e) {
       if (mounted) setState(() {
         _error = 'Failed to load post';

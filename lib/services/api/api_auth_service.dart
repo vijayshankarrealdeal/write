@@ -29,6 +29,8 @@ class ApiAuthService {
         'password': password,
       });
       await _saveTokens(response.data);
+      // Stash creds for silent re-login if both tokens later expire.
+      await _storage.saveCredentials(email, password);
       return _fetchMe();
     } on ApiException catch (e) {
       throw _humanizeApiError(e, fallback: 'Login failed');
@@ -44,6 +46,7 @@ class ApiAuthService {
         'name': name,
       });
       await _saveTokens(response.data);
+      await _storage.saveCredentials(email, password);
       return _fetchMe();
     } on ApiException catch (e) {
       throw _humanizeApiError(e, fallback: 'Signup failed');
@@ -145,31 +148,46 @@ class ApiAuthService {
     throw Exception('Google sign-in timed out. Please try again.');
   }
 
-  /// Restore session from stored tokens.
+  /// Restore session silently. Order: stored access token → refresh token →
+  /// stashed email/password. The last one rescues users whose refresh token
+  /// also expired (long offline / server key rotation) so they don't get
+  /// dumped on the login screen unnecessarily.
   Future<app.User?> restoreSession() async {
     final token = _storage.getAuthToken();
-    if (token == null || token.isEmpty) return null;
-
-    try {
-      return await _fetchMe();
-    } catch (e) {
-      // Token expired — try refresh
-      final refreshToken = _storage.getRefreshToken();
-      if (refreshToken != null && refreshToken.isNotEmpty) {
-        try {
-          final response = await _client.post('/api/auth/refresh', data: {
-            'refresh_token': refreshToken,
-          });
-          await _saveTokens(response.data);
-          return await _fetchMe();
-        } catch (_) {
-          await _storage.clearAuth();
-          return null;
-        }
+    if (token != null && token.isNotEmpty) {
+      try {
+        return await _fetchMe();
+      } catch (_) {
+        // Fall through to refresh / cred fallback below.
       }
-      await _storage.clearAuth();
-      return null;
     }
+
+    final refreshToken = _storage.getRefreshToken();
+    if (refreshToken != null && refreshToken.isNotEmpty) {
+      try {
+        final response = await _client.post('/api/auth/refresh', data: {
+          'refresh_token': refreshToken,
+        });
+        await _saveTokens(response.data);
+        return await _fetchMe();
+      } catch (_) {
+        // Refresh failed — try saved credentials before giving up.
+      }
+    }
+
+    final creds = await _storage.getCredentials();
+    if (creds != null) {
+      try {
+        return await login(creds.email, creds.password);
+      } catch (_) {
+        // Creds no longer valid (password changed, account deleted) —
+        // wipe them so we don't keep retrying on every cold start.
+        await _storage.clearCredentials();
+      }
+    }
+
+    await _storage.clearAuth();
+    return null;
   }
 
   /// Request password reset email.
@@ -178,9 +196,11 @@ class ApiAuthService {
   }
 
   /// Sign out. The backend holds no Google session for us — auth is just our
-  /// own JWTs — so all we do is clear local state.
+  /// own JWTs — so all we do is clear local state. Stashed credentials get
+  /// wiped too: an explicit logout is the user opting out of silent re-login.
   Future<void> logout() async {
     await _storage.clearAuth();
+    await _storage.clearCredentials();
   }
 
   // -- Private helpers --

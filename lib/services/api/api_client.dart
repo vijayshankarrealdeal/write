@@ -99,6 +99,7 @@ class ApiClient {
     Map<String, dynamic>? queryParams,
     Map<String, String>? extraHeaders,
     bool isRetry = false,
+    bool silent = false,
   }) async {
     // Iterable values pass through as repeated `?k=a&k=b` (Uri.replace
     // recognises Iterable<String>). Everything else gets stringified.
@@ -200,7 +201,11 @@ class ApiClient {
     }
 
     final logMsg = '[http] ← $method $path → $status (${duration}ms)';
-    if (status >= 500) {
+    if (silent && status >= 400) {
+      // Best-effort caller — failures are expected and already handled.
+      // Keep the line at debug so it never ships to remote logs.
+      log.d(logMsg);
+    } else if (status >= 500) {
       log.e(logMsg);
     } else if (status >= 400) {
       log.w(logMsg);
@@ -218,6 +223,7 @@ class ApiClient {
           queryParams: queryParams,
           extraHeaders: extraHeaders,
           isRetry: true,
+          silent: silent,
         );
       }
     }
@@ -278,8 +284,15 @@ class ApiClient {
     String path, {
     dynamic data,
     Map<String, String>? headers,
+    bool silent = false,
   }) =>
-      _request('POST', path, data: data, extraHeaders: headers);
+      _request(
+        'POST',
+        path,
+        data: data,
+        extraHeaders: headers,
+        silent: silent,
+      );
 
   Future<ApiResponse> put(
     String path, {

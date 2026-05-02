@@ -75,6 +75,11 @@ dependencies:
   cryptography: ^2.7.0
   # Phase 4: resolve <appSupport> for the on-disk offline store.
   path_provider: ^2.1.5
+  # Email/password creds for silent re-login when both access and refresh
+  # tokens are gone (e.g. token TTL exceeded after a long offline stretch).
+  # Backed by Keychain (iOS/macOS) and EncryptedSharedPreferences (Android);
+  # Web falls back to an AES-encrypted localStorage entry.
+  flutter_secure_storage: ^9.2.2
 
 dev_dependencies:
   flutter_test:

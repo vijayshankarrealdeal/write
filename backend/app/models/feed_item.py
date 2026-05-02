@@ -18,6 +18,15 @@ class FeedItem(UUIDMixin, Base):
     author_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
+    # Source writing this feed item was published from. ON DELETE CASCADE
+    # means deleting the writing also drops the feed item, so the public
+    # feed never displays a card whose backing draft is gone.
+    writing_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("writings.id", ondelete="CASCADE"),
+        nullable=True,
+        unique=True,
+    )
     description: Mapped[str | None] = mapped_column(Text)
     image_url: Mapped[str | None] = mapped_column(Text)
     image_meta: Mapped[dict | None] = mapped_column(JSONB)
@@ -55,6 +64,10 @@ class FeedItem(UUIDMixin, Base):
         # By-author lookups (used by /api/feed/by-author and recommendation
         # candidate filters that exclude self-authored items).
         Index("ix_feed_items_author_published", "author_id", "is_draft"),
+        # Lookup by source writing — drives the publish dedupe path so a
+        # second publish updates the existing feed item instead of creating
+        # a sibling.
+        Index("ix_feed_items_writing_id", "writing_id"),
         # GIN indexes on the array columns so the recommendation engine can
         # filter candidates by genre/tag overlap without full-scanning.
         Index(

@@ -814,6 +814,11 @@ class EditorProvider extends ChangeNotifier {
     }
 
     await _storage.saveBooks(allBooks);
+    // The server cascades the matching feed_items row via the
+    // writings -> feed_items FK (migration 20260502_04). Mirror that
+    // cascade in the local feed cache so a hydrate-from-cache cold
+    // start doesn't paint a card whose reader will 404 on open.
+    await _storage.removeCachedFeedItem(writingId: book.id);
     if (_userId != null) {
       await _enqueue(PendingOp(
         kind: PendingOpKind.deleteWriting,

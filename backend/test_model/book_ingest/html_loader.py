@@ -156,6 +156,24 @@ def _read_metadata(soup: BeautifulSoup) -> tuple[str | None, str | None, list[st
 
     title = meta("dc.title")
     author = meta("dc.creator")
+
+    # Fallback for older Gutenberg files that don't carry `dc.title` /
+    # `dc.creator` meta. The `<title>` tag follows the pattern
+    # "The Project Gutenberg eBook of TITLE, by AUTHOR" and the first
+    # `<h1>` is the bare title.
+    if not title or not author:
+        head_title = soup.title.string.strip() if soup.title and soup.title.string else None
+        if head_title:
+            t, a = _parse_pg_head_title(head_title)
+            if not title and t:
+                title = t
+            if not author and a:
+                author = a
+    if not title:
+        h1 = soup.find("h1")
+        if h1 and h1.get_text(strip=True):
+            title = h1.get_text(" ", strip=True)
+
     if author:
         # Gutenberg stores authors as "Shelley, Mary Wollstonecraft, 1797-1851".
         # Strip the date range and flip "Last, First" → "First Last".
@@ -171,6 +189,25 @@ def _read_metadata(soup: BeautifulSoup) -> tuple[str | None, str | None, list[st
             subjects.append(c.strip())
 
     return title, author, subjects
+
+
+_PG_HEAD_RE = re.compile(
+    r"^\s*The\s+Project\s+Gutenberg\s+(?:e[Bb]ook|EBook|ebook)\s+of\s+(?P<title>.+?)"
+    r"(?:,\s*by\s+(?P<author>[^,]+?))?\s*$"
+)
+
+
+def _parse_pg_head_title(raw: str) -> tuple[str | None, str | None]:
+    """Old Gutenberg HTML <title> tag: 'The Project Gutenberg eBook of
+    TITLE, by AUTHOR'. Returns (title, author) — either may be None if
+    the pattern doesn't match."""
+    m = _PG_HEAD_RE.match(raw)
+    if not m:
+        return None, None
+    return (
+        (m.group("title") or "").strip() or None,
+        (m.group("author") or "").strip() or None,
+    )
 
 
 # -----------------------------------------------------------------------

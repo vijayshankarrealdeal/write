@@ -50,6 +50,7 @@ export const api = {
 
   // Overview
   overview: () => request("/overview"),
+  health: () => request("/health"),
 
   // Database
   tables: () => request("/database/tables"),

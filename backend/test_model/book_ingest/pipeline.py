@@ -38,6 +38,7 @@ from .retry import with_retries
 from .schemas import Chunk, ChunkBrief, ChunkDeep, GeneratedScene
 from .poster import generate_cover_image, generate_poster
 from .scout import scout_book
+from .title_cleaner import clean_title, split_title_subtitle
 
 
 @dataclass
@@ -102,12 +103,20 @@ async def ingest_pdf(
         loaded = load_pdf(pdf_path)
 
     # Loader-supplied metadata fills in defaults the caller didn't set.
-    title = title or loader_title or slug
+    raw_title = title or loader_title or slug
+    cleaned_title = clean_title(raw_title)
+    _, subtitle = split_title_subtitle(raw_title)
+    title = cleaned_title
     author = author or loader_author
+    if cleaned_title != raw_title:
+        print(f"[title] cleaned {raw_title!r} → {cleaned_title!r}"
+              + (f"  (subtitle: {subtitle!r})" if subtitle else ""))
 
     out_dir = persist.book_dir(slug)
     manifest = persist.read_manifest(slug) or {
         "title": title,
+        "title_raw": raw_title,
+        "subtitle": subtitle,
         "author": author,
         "description": description,
         "slug": slug,

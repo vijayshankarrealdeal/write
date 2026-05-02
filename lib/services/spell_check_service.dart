@@ -49,10 +49,17 @@ class SpellCheckService {
   }) async {
     if (text.isEmpty) return const [];
     try {
-      final res = await _api.post('/api/spellcheck/check', data: {
-        'text': text,
-        'ignored': ignored.toList(),
-      });
+      final res = await _api.post(
+        '/api/spellcheck/check',
+        data: {
+          'text': text,
+          'ignored': ignored.toList(),
+        },
+        // Spell-check is best-effort: a failure here means "0 issues" to
+        // the user, not a crash. Don't ship transient 5xx (e.g. backend
+        // restart windows) to the remote log viewer as red errors.
+        silent: true,
+      );
       final data = res.data;
       if (data is! Map) return const [];
       final list = data['issues'];
@@ -76,10 +83,14 @@ class SpellCheckService {
     final cached = _suggestCache[cacheKey];
     if (cached != null) return cached;
     try {
-      final res = await _api.post('/api/spellcheck/suggest', data: {
-        'word': word,
-        'max': max,
-      });
+      final res = await _api.post(
+        '/api/spellcheck/suggest',
+        data: {
+          'word': word,
+          'max': max,
+        },
+        silent: true,
+      );
       final data = res.data;
       if (data is! Map) return const [];
       final list = data['suggestions'];
