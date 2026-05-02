@@ -12,6 +12,7 @@ from app.database import get_db
 from app.models.feed_item import FeedItem
 from app.models.user import User
 from app.notifications import create_notification
+from app.realtime import hub
 from app.schemas.feed import (
     FacetEntry,
     FacetResponse,
@@ -482,6 +483,16 @@ async def like_feed_item(
         # set; a like changes that set, so drop the stale cache entry.
         from app.ai.recommendation import invalidate_user_profile_cache
         invalidate_user_profile_cache(user.id)
+        # Push the new count to anyone watching this post so other
+        # clients converge without a refetch.
+        await hub.broadcast_feed_item(
+            item_id,
+            {
+                "type": "like.added",
+                "likes_count": item.likes_count,
+                "actor_id": str(user.id),
+            },
+        )
 
     return {"likes_count": item.likes_count}
 
@@ -504,5 +515,13 @@ async def unlike_feed_item(
         await db.commit()
         from app.ai.recommendation import invalidate_user_profile_cache
         invalidate_user_profile_cache(user.id)
+        await hub.broadcast_feed_item(
+            item_id,
+            {
+                "type": "like.removed",
+                "likes_count": item.likes_count,
+                "actor_id": str(user.id),
+            },
+        )
 
     return {"likes_count": item.likes_count}

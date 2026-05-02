@@ -135,6 +135,11 @@ class ApiRealtimeService {
 
   final StorageService _storage;
   final Map<String, _SseChannel> _channels = {};
+  // Reference-counted channel acquisitions so multiple consumers can
+  // share one underlying SSE socket. Each [commentsChannel] /
+  // [writingChannel] call is one acquire; each matching `close…` is one
+  // release. The socket disposes only when the count returns to zero.
+  final Map<String, int> _refs = {};
 
   /// Op ids of mutating requests this client recently sent. Each request
   /// stamps an X-Op-Id header; the backend mirrors it in the broadcast
@@ -155,13 +160,21 @@ class ApiRealtimeService {
 
   Future<String?> _token() async => _storage.getAuthToken();
 
-  /// Stream of comment events for [feedItemId]. Payloads are raw decoded
-  /// JSON maps shaped like:
-  ///   {"type": "comment.created", "comment": { ... }}
-  ///   {"type": "comment.deleted", "comment_id": "..."}
+  /// Stream of per-feed-item events for [feedItemId]. The backend channel
+  /// is `feed:{id}` and carries every event broadcast for the post —
+  /// not only comments. Payloads include:
+  ///   {"type": "comment.created", "comment": {...}, "comments_count": N}
+  ///   {"type": "comment.deleted", "comment_id": "...", "comments_count": N}
+  ///   {"type": "like.added",      "likes_count": N, "actor_id": "..."}
+  ///   {"type": "like.removed",    "likes_count": N, "actor_id": "..."}
+  /// Each call increments the channel's refcount; pair with
+  /// [closeCommentsChannel] when done so the underlying socket survives
+  /// other subscribers but is torn down when the last one releases.
   Stream<Map<String, dynamic>> commentsChannel(String feedItemId) {
+    final key = 'comments:$feedItemId';
+    _refs[key] = (_refs[key] ?? 0) + 1;
     return _channelFor(
-      'comments:$feedItemId',
+      key,
       _streamUri('/api/stream/feed/$feedItemId/comments'),
     );
   }
@@ -182,8 +195,10 @@ class ApiRealtimeService {
   ///   {"type": "section.updated", "op_id": "...", "section": {...}}
   ///   {"type": "section.deleted", "op_id": "...", "section_id": "...", "section_ids": [...]}
   Stream<Map<String, dynamic>> writingChannel(String writingId) {
+    final key = 'writing:$writingId';
+    _refs[key] = (_refs[key] ?? 0) + 1;
     return _channelFor(
-      'writing:$writingId',
+      key,
       _streamUri('/api/stream/writings/$writingId'),
     );
   }
@@ -228,14 +243,24 @@ class ApiRealtimeService {
 
   Future<void> closeChannel(String key) async {
     final ch = _channels.remove(key);
+    _refs.remove(key);
     await ch?.dispose();
   }
 
+  Future<void> _release(String key) async {
+    final remaining = (_refs[key] ?? 1) - 1;
+    if (remaining > 0) {
+      _refs[key] = remaining;
+      return;
+    }
+    await closeChannel(key);
+  }
+
   Future<void> closeCommentsChannel(String feedItemId) =>
-      closeChannel('comments:$feedItemId');
+      _release('comments:$feedItemId');
 
   Future<void> closeWritingChannel(String writingId) =>
-      closeChannel('writing:$writingId');
+      _release('writing:$writingId');
 
   Future<void> dispose() async {
     final all = _channels.values.toList();

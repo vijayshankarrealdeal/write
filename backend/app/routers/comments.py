@@ -86,7 +86,12 @@ async def create_comment(
 
     # Push the new comment to anyone watching this post.
     await hub.broadcast_feed_item(
-        item_id, {"type": "comment.created", "comment": _serialize_comment(comment)}
+        item_id,
+        {
+            "type": "comment.created",
+            "comment": _serialize_comment(comment),
+            "comments_count": item.comments_count,
+        },
     )
 
     return comment
@@ -121,5 +126,9 @@ async def delete_comment(
 
     await hub.broadcast_feed_item(
         item_id,
-        {"type": "comment.deleted", "comment_id": str(comment_id)},
+        {
+            "type": "comment.deleted",
+            "comment_id": str(comment_id),
+            "comments_count": item.comments_count if item else 0,
+        },
     )

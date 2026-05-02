@@ -186,6 +186,19 @@ class ApiDataService implements SyncDispatcher {
     _realtime = realtime;
   }
 
+  /// Raw per-feed-item event channel. Same SSE connection as
+  /// [getCommentsStream] (backend channel `feed:{id}`), but exposes
+  /// every event type so consumers can react to like / comment count
+  /// updates broadcast by other clients. Returns null if realtime isn't
+  /// wired up.
+  Stream<Map<String, dynamic>>? feedItemEvents(String feedItemId) {
+    return _realtime?.commentsChannel(feedItemId);
+  }
+
+  Future<void> closeFeedItemEvents(String feedItemId) async {
+    await _realtime?.closeCommentsChannel(feedItemId);
+  }
+
   // =========================================================================
   // USER
   // =========================================================================

@@ -323,6 +323,48 @@ class _PostDetailPageState extends State<PostDetailPage>
       if (mounted) setState(() {}); // surface controllers as they land
       _loadProgress();
       _loadReaderPrefs();
+      _subscribeToFeedItemEvents();
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // Live counts: subscribe to the per-feed-item SSE channel and apply
+  // count deltas broadcast by the backend so two clients viewing the
+  // same post stay in sync. Comment list and tile-level updates are
+  // owned by the comments sheet's own subscription; this listener only
+  // touches `likesCount` / `commentsCount` on the FeedProvider's item.
+  // --------------------------------------------------------------------------
+  StreamSubscription<Map<String, dynamic>>? _feedItemEventsSub;
+
+  void _subscribeToFeedItemEvents() {
+    final feed = context.read<FeedProvider>();
+    final stream = _dataService.feedItemEvents(widget.item.id);
+    if (stream == null) return;
+    _feedItemEventsSub = stream.listen((event) {
+      if (!mounted) return;
+      final type = event['type'];
+      switch (type) {
+        case 'comment.created':
+        case 'comment.deleted':
+          final c = event['comments_count'];
+          if (c is num) {
+            feed.applyRemoteCounts(
+              widget.item.id,
+              commentsCount: c.toInt(),
+            );
+          }
+          break;
+        case 'like.added':
+        case 'like.removed':
+          final l = event['likes_count'];
+          if (l is num) {
+            feed.applyRemoteCounts(
+              widget.item.id,
+              likesCount: l.toInt(),
+            );
+          }
+          break;
+      }
     });
   }
 
@@ -777,6 +819,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     _pageController?.dispose();
     _pageController = PageController(initialPage: index);
     setState(() => _selectedSectionIndex = index);
+    _resetImmersiveScrollTracking();
     _saveProgress(index);
     // Pre-warm the body for the section we're opening + the next two so
     // forward swipes feel instant. Fire-and-forget; UI shows a spinner
@@ -787,10 +830,67 @@ class _PostDetailPageState extends State<PostDetailPage>
   }
 
   // --------------------------------------------------------------------------
+  // Scroll-direction immersive control.
+  //
+  // Attached to each section's ScrollController. Tracks cumulative scroll
+  // distance in the current direction; flips immersive mode once distance
+  // crosses a threshold. Direction reversal resets the accumulator.
+  //
+  //   • Down >80px      → hide chrome (enter immersive)
+  //   • Up >40px        → show chrome (leave immersive)
+  //   • Top-of-page     → always show chrome
+  //   • |delta| > 200   → ignored (page swap / jump-to / oversized fling)
+  //
+  // Asymmetric thresholds intentionally bias toward giving the reader
+  // controls back (lower up-threshold), so the app errs on the side of
+  // discoverability rather than ruthless minimalism.
+  // --------------------------------------------------------------------------
+  void _onSectionScrollForImmersive(ScrollController c) {
+    if (!c.hasClients) return;
+    if (_selectedSectionIndex == null) return;
+    // Only the active section's scroll should drive immersive — ignore
+    // background controllers that may still emit while paged offscreen.
+    if (_sectionScrollControllers[_selectedSectionIndex] != c) return;
+
+    final pos = c.position.pixels;
+    final delta = pos - _lastScrollPos;
+    _lastScrollPos = pos;
+
+    if (pos < 30) {
+      if (_immersiveReader) setState(() => _immersiveReader = false);
+      _scrollAccum = 0;
+      return;
+    }
+
+    if (delta == 0 || delta.abs() > 200) return;
+
+    if (_scrollAccum != 0 && delta.sign != _scrollAccum.sign) {
+      _scrollAccum = 0;
+    }
+    _scrollAccum += delta;
+
+    if (_scrollAccum > 80 && !_immersiveReader) {
+      setState(() => _immersiveReader = true);
+      _scrollAccum = 0;
+    } else if (_scrollAccum < -40 && _immersiveReader) {
+      setState(() => _immersiveReader = false);
+      _scrollAccum = 0;
+    }
+  }
+
+  void _resetImmersiveScrollTracking() {
+    _scrollAccum = 0;
+    final ctrl = _sectionScrollControllers[_selectedSectionIndex];
+    _lastScrollPos =
+        ctrl != null && ctrl.hasClients ? ctrl.position.pixels : 0;
+  }
+
+  // --------------------------------------------------------------------------
   // Navigate to a section within the carousel (from drawer or dots)
   // --------------------------------------------------------------------------
   void _navigateToSection(int index) {
     setState(() => _selectedSectionIndex = index);
+    _resetImmersiveScrollTracking();
     _saveProgress(index);
     _ensureSectionLoaded(index);
     _ensureSectionLoaded(index + 1);
@@ -1480,6 +1580,10 @@ class _PostDetailPageState extends State<PostDetailPage>
   @override
   void dispose() {
     _debounce?.cancel();
+    if (_feedItemEventsSub != null) {
+      _feedItemEventsSub!.cancel();
+      _dataService.closeFeedItemEvents(widget.item.id);
+    }
     if (_userId != null && _selectedSectionIndex != null) {
       _dataService.updateReadingProgress(
         _userId!,
@@ -1561,9 +1665,16 @@ class _PostDetailPageState extends State<PostDetailPage>
           Scaffold(
         key: _scaffoldKey,
         backgroundColor: bgColor,
-        appBar: (inReader && _immersiveReader)
-            ? null
-            : AppBar(
+        extendBodyBehindAppBar: true,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: AnimatedSlide(
+            duration: const Duration(milliseconds: 260),
+            curve: Curves.easeOutCubic,
+            offset: (inReader && _immersiveReader)
+                ? const Offset(0, -1)
+                : Offset.zero,
+            child: AppBar(
           backgroundColor: bgColor,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
@@ -1717,22 +1828,32 @@ class _PostDetailPageState extends State<PostDetailPage>
             ],
             const SizedBox(width: 4),
           ],
+            ),
+          ),
         ),
         // Sections drawer
         endDrawer: item.sections.length > 1
             ? _buildSectionsDrawer(isDark, textColor, subtleColor, bgColor, item)
             : null,
-        // Immersive reader hides the AppBar, which is also what was
-        // padding the body away from the status bar / dynamic island.
-        // Re-introduce the top inset (and the home-indicator inset)
-        // explicitly so reading text doesn't slide under system chrome.
-        body: SafeArea(
-          top: inReader && _immersiveReader,
-          bottom: inReader && _immersiveReader,
-          left: false,
-          right: false,
-          child: GestureDetector(
+        // The AppBar slides up off-screen in immersive mode (handled by
+        // AnimatedSlide above). Body sits behind the AppBar layout-wise
+        // (extendBodyBehindAppBar: true) and uses an animated top inset
+        // that shrinks from `statusBar + kToolbarHeight` to just
+        // `statusBar` in sync with the AppBar slide — no body snap on
+        // toggle, just one continuous motion.
+        body: GestureDetector(
           onDoubleTap: _onDoubleTapLike,
+          child: AnimatedPadding(
+          duration: const Duration(milliseconds: 260),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.only(
+            top: (inReader && _immersiveReader)
+                ? MediaQuery.of(context).padding.top
+                : MediaQuery.of(context).padding.top + kToolbarHeight,
+            bottom: (inReader && _immersiveReader)
+                ? MediaQuery.of(context).padding.bottom
+                : 0,
+          ),
           child: Stack(
             children: [
               // Decide: overview or section detail
@@ -2618,6 +2739,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                   itemCount: totalSections,
                   onPageChanged: (index) {
                     setState(() => _selectedSectionIndex = index);
+                    _resetImmersiveScrollTracking();
                     _saveProgress(index);
                     _ensureSectionLoaded(index);
                     _ensureSectionLoaded(index + 1);
@@ -2680,18 +2802,31 @@ class _PostDetailPageState extends State<PostDetailPage>
             ),
           ),
         ),
-        if (!_immersiveReader)
-          _buildReaderBottomBar(
-            isDark: isDark,
-            textColor: textColor,
-            subtleColor: subtleColor,
-            bgColor: bgColor,
-            dividerColor: dividerColor,
-            currentIndex: currentIndex,
-            totalSections: totalSections,
-            // FAB takes over Listen at xwide so the bar stays calm.
-            showListen: !isXWide,
+        // Bottom bar uses AnimatedSize so its height shrinks/grows
+        // smoothly when immersive toggles, instead of snapping in or out.
+        // alignment: topCenter pins the top edge so the bar appears to
+        // "lift off" the bottom of the viewport rather than collapsing
+        // toward its centre.
+        ClipRect(
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 260),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: _immersiveReader
+                ? const SizedBox(width: double.infinity, height: 0)
+                : _buildReaderBottomBar(
+                    isDark: isDark,
+                    textColor: textColor,
+                    subtleColor: subtleColor,
+                    bgColor: bgColor,
+                    dividerColor: dividerColor,
+                    currentIndex: currentIndex,
+                    totalSections: totalSections,
+                    // FAB takes over Listen at xwide so the bar stays calm.
+                    showListen: !isXWide,
+                  ),
           ),
+        ),
       ],
     );
 
@@ -2725,15 +2860,22 @@ class _PostDetailPageState extends State<PostDetailPage>
               Expanded(child: readerColumn),
             ],
           ),
-          if (!_immersiveReader)
-            Positioned(
-              right: 28,
-              bottom: 28 + MediaQuery.of(context).padding.bottom,
-              child: _ReaderListenFab(
-                accent: _paperAccent,
-                onTap: _onListenPressed,
+          Positioned(
+            right: 28,
+            bottom: 28 + MediaQuery.of(context).padding.bottom,
+            child: IgnorePointer(
+              ignoring: _immersiveReader,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 260),
+                curve: Curves.easeOutCubic,
+                opacity: _immersiveReader ? 0 : 1,
+                child: _ReaderListenFab(
+                  accent: _paperAccent,
+                  onTap: _onListenPressed,
+                ),
               ),
             ),
+          ),
         ],
       ),
     );
@@ -2897,7 +3039,11 @@ class _PostDetailPageState extends State<PostDetailPage>
 
     final scrollController = _sectionScrollControllers.putIfAbsent(
       sectionIndex,
-      ScrollController.new,
+      () {
+        final c = ScrollController();
+        c.addListener(() => _onSectionScrollForImmersive(c));
+        return c;
+      },
     );
     final body = SingleChildScrollView(
       controller: scrollController,
@@ -4553,6 +4699,22 @@ class _CommentsSheet extends StatefulWidget {
   State<_CommentsSheet> createState() => _CommentsSheetState();
 }
 
+// Quick-react emoji bar — rendered with the OS native font so each
+// emoji ships with the platform's color glyph (Apple Color Emoji on
+// iOS, Noto Color Emoji on Android).
+const List<String> _kQuickEmojis = [
+  '\u{2764}\u{FE0F}',  // ❤️
+  '\u{1F923}',         // 🤣
+  '\u{1F525}',         // 🔥
+  '\u{1F44F}',         // 👏
+  '\u{1F622}',         // 😢
+  '\u{1F60D}',         // 😍
+  '\u{1F62E}',         // 😮
+  '\u{1F602}',         // 😂
+  '\u{1F44D}',         // 👍
+  '\u{1F389}',         // 🎉
+];
+
 class _CommentsSheetState extends State<_CommentsSheet> {
   final _controller = TextEditingController();
   final _focus = FocusNode();
@@ -4563,6 +4725,26 @@ class _CommentsSheetState extends State<_CommentsSheet> {
   final List<CommentModel> _pending = [];
   bool _sending = false;
   bool _hasText = false;
+
+  void _insertEmoji(String emoji) {
+    final sel = _controller.selection;
+    final text = _controller.text;
+    if (sel.isValid) {
+      final start = sel.start;
+      final end = sel.end;
+      final next = text.replaceRange(start, end, emoji);
+      _controller.value = TextEditingValue(
+        text: next,
+        selection: TextSelection.collapsed(offset: start + emoji.length),
+      );
+    } else {
+      _controller.text = text + emoji;
+      _controller.selection = TextSelection.collapsed(
+        offset: _controller.text.length,
+      );
+    }
+    _focus.requestFocus();
+  }
 
   @override
   void initState() {
@@ -4786,11 +4968,36 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                 ),
               ),
               Divider(color: dividerColor, height: 1),
+              // Quick-emoji reactions row (taps insert into the input)
+              SizedBox(
+                height: 44,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  itemCount: _kQuickEmojis.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 4),
+                  itemBuilder: (_, i) {
+                    final e = _kQuickEmojis[i];
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _insertEmoji(e),
+                      child: Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                          e,
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
               // Inline composer
               Padding(
                 padding: EdgeInsets.fromLTRB(
                   16,
-                  10,
+                  6,
                   10,
                   10 + MediaQuery.of(context).padding.bottom,
                 ),
@@ -4896,7 +5103,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
 // ============================================================================
 // COMMENT TILE
 // ============================================================================
-class _CommentTile extends StatelessWidget {
+class _CommentTile extends StatefulWidget {
   final CommentModel comment;
   final bool isDark;
   final bool isOwn;
@@ -4912,138 +5119,210 @@ class _CommentTile extends StatelessWidget {
   });
 
   @override
+  State<_CommentTile> createState() => _CommentTileState();
+}
+
+class _CommentTileState extends State<_CommentTile> {
+  bool _liked = false;
+  int _likes = 0;
+
+  void _toggleLike() {
+    setState(() {
+      if (_liked) {
+        _liked = false;
+        _likes = (_likes - 1).clamp(0, 999999);
+      } else {
+        _liked = true;
+        _likes += 1;
+      }
+    });
+  }
+
+  void _showActions() {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          if (widget.isOwn)
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.pop(ctx);
+                widget.onDelete();
+              },
+              child: const Text('Delete'),
+            )
+          else
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.pop(ctx);
+                showReportSheet(
+                  context,
+                  targetType: ReportTarget.comment,
+                  targetId: widget.comment.id,
+                  targetLabel: widget.comment.text,
+                );
+              },
+              child: const Text('Report'),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text('Cancel'),
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final comment = widget.comment;
+    final isDark = widget.isDark;
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final subtleColor = isDark ? Colors.white38 : Colors.black38;
 
     return Opacity(
-      opacity: isPending ? 0.55 : 1.0,
-      child: Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: comment.authorId.isEmpty
-                ? null
-                : () => context.push('/u/${comment.authorId}'),
-            child: ClipOval(
-              child: SizedBox(
-                width: 34,
-                height: 34,
-                child: (comment.authorPhotoUrl != null &&
-                        comment.authorPhotoUrl!.isNotEmpty)
-                    ? AppNetworkImage(
-                        url: comment.authorPhotoUrl,
-                        meta: comment.authorPhotoMeta,
-                        width: 34,
-                        height: 34,
-                        fit: BoxFit.cover,
-                      )
-                    : Container(
-                        color: const Color(0xFF2563EB),
-                        alignment: Alignment.center,
-                        child: Text(
-                          comment.authorName.isNotEmpty
-                              ? comment.authorName[0].toUpperCase()
-                              : 'U',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
+      opacity: widget.isPending ? 0.55 : 1.0,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onLongPress: widget.isPending ? null : _showActions,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 18),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: comment.authorId.isEmpty
+                    ? null
+                    : () => context.push('/u/${comment.authorId}'),
+                child: ClipOval(
+                  child: SizedBox(
+                    width: 34,
+                    height: 34,
+                    child: (comment.authorPhotoUrl != null &&
+                            comment.authorPhotoUrl!.isNotEmpty)
+                        ? AppNetworkImage(
+                            url: comment.authorPhotoUrl,
+                            meta: comment.authorPhotoMeta,
+                            width: 34,
+                            height: 34,
+                            fit: BoxFit.cover,
+                          )
+                        : Container(
+                            color: const Color(0xFF2563EB),
+                            alignment: Alignment.center,
+                            child: Text(
+                              comment.authorName.isNotEmpty
+                                  ? comment.authorName[0].toUpperCase()
+                                  : 'U',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: AuthorLink(
+                            name: comment.authorName.isNotEmpty
+                                ? comment.authorName
+                                : 'User',
+                            authorId: comment.authorId,
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
                           ),
                         ),
-                      ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    AuthorLink(
-                      name: comment.authorName.isNotEmpty
-                          ? comment.authorName
-                          : 'User',
-                      authorId: comment.authorId,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                      ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _timeAgo(comment.createdAt),
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: subtleColor,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
+                    if (comment.rating > 0) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: List.generate(5, (i) {
+                          final filled = i < comment.rating;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 2),
+                            child: Icon(
+                              filled
+                                  ? CupertinoIcons.star_fill
+                                  : CupertinoIcons.star,
+                              size: 13,
+                              color: filled
+                                  ? const Color(0xFFFBBF24)
+                                  : subtleColor.withValues(alpha: 0.5),
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                    const SizedBox(height: 6),
                     Text(
-                      _timeAgo(comment.createdAt),
+                      comment.text,
                       style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: subtleColor,
+                        fontSize: 14,
+                        color: textColor.withValues(alpha: 0.85),
+                        height: 1.5,
                       ),
                     ),
-                    const Spacer(),
-                    if (isOwn)
-                      GestureDetector(
-                        onTap: onDelete,
-                        child: Icon(
-                          CupertinoIcons.trash,
-                          size: 14,
-                          color: subtleColor,
-                        ),
-                      )
-                    else
-                      GestureDetector(
-                        onTap: () => showReportSheet(
-                          context,
-                          targetType: ReportTarget.comment,
-                          targetId: comment.id,
-                          targetLabel: comment.text,
-                        ),
-                        child: Icon(
-                          CupertinoIcons.flag,
-                          size: 14,
-                          color: subtleColor,
-                        ),
-                      ),
                   ],
                 ),
-                if (comment.rating > 0) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    children: List.generate(5, (i) {
-                      final filled = i < comment.rating;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 2),
-                        child: Icon(
-                          filled
-                              ? CupertinoIcons.star_fill
-                              : CupertinoIcons.star,
-                          size: 13,
-                          color: filled
-                              ? const Color(0xFFFBBF24)
-                              : subtleColor.withValues(alpha: 0.5),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: widget.isPending ? null : _toggleLike,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 4),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _liked
+                            ? CupertinoIcons.heart_fill
+                            : CupertinoIcons.heart,
+                        size: 18,
+                        color: _liked
+                            ? const Color(0xFFEF4444)
+                            : subtleColor,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        _likes > 0 ? '$_likes' : '',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: subtleColor,
+                          fontWeight: FontWeight.w500,
                         ),
-                      );
-                    }),
-                  ),
-                ],
-                const SizedBox(height: 6),
-                Text(
-                  comment.text,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: textColor.withValues(alpha: 0.85),
-                    height: 1.5,
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
       ),
     );
   }

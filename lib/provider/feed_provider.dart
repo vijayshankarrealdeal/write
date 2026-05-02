@@ -638,4 +638,30 @@ class FeedProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  /// Apply absolute counts received from a backend SSE broadcast so two
+  /// clients viewing the same post converge in real time. Either count
+  /// may be omitted; only fields that change trigger a notify.
+  void applyRemoteCounts(
+    String feedItemId, {
+    int? likesCount,
+    int? commentsCount,
+  }) {
+    bool changed = false;
+    for (int idx = 0; idx < _items.length; idx++) {
+      final item = _items[idx];
+      if (item.id != feedItemId) continue;
+      final nextLikes = likesCount ?? item.likesCount;
+      final nextComments = commentsCount ?? item.commentsCount;
+      if (nextLikes == item.likesCount && nextComments == item.commentsCount) {
+        continue;
+      }
+      _items[idx] = item.copyWith(
+        likesCount: nextLikes,
+        commentsCount: nextComments,
+      );
+      changed = true;
+    }
+    if (changed) notifyListeners();
+  }
 }
