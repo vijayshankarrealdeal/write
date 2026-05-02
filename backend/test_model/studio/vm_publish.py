@@ -213,20 +213,63 @@ def _do_publish_blocking(
             f"fi; "
             f"echo \"[vm-publish] backend root: $BE\"; "
             f"cd \"$BE\"; "
-            f"mkdir -p {storage}; "
-            # Extract the tarball — overwrites any previous contents
-            # for this slug so re-publishes work.
-            f"tar -xzf {archive_q} -C {storage}; "
-            # Drop the uploaded archive once extracted; /tmp would
-            # otherwise accumulate one tarball per publish.
-            f"rm -f {archive_q}; "
-            # Pick the right python: prefer .venv if the project has
-            # one, fall back to system python3.
-            f"if [ -x .venv/bin/python ]; then PY=.venv/bin/python; "
-            f"elif [ -x venv/bin/python ]; then PY=venv/bin/python; "
-            f"else PY=python3; fi; "
-            f"echo \"[vm-publish] python: $PY\"; "
-            f"$PY test_model/sync_to_db.py {slug_q}{force_flag}"
+            # Pick a docker invocation that works in this SSH session:
+            # direct (user is in docker group) → sudo -n (passwordless
+            # sudo). The deploy already wires one of these up.
+            f"DRUN=''; "
+            f"if command -v docker >/dev/null 2>&1; then "
+            f"  if docker ps >/dev/null 2>&1; then DRUN=docker; "
+            f"  elif sudo -n docker ps >/dev/null 2>&1; then DRUN='sudo -n docker'; "
+            f"  fi; "
+            f"fi; "
+            # Locate the fastapi container by compose-service label first
+            # (works regardless of project prefix), then fall back to a
+            # name match for ad-hoc setups.
+            f"CONTAINER=''; "
+            f"if [ -n \"$DRUN\" ]; then "
+            f"  CONTAINER=$($DRUN ps --filter label=com.docker.compose.service=fastapi "
+            f"                       --format '{{{{.Names}}}}' 2>/dev/null | head -1); "
+            f"  if [ -z \"$CONTAINER\" ]; then "
+            f"    CONTAINER=$($DRUN ps --filter name=fastapi --format '{{{{.Names}}}}' 2>/dev/null | head -1); "
+            f"  fi; "
+            f"fi; "
+            f"if [ -n \"$CONTAINER\" ]; then "
+            # Preferred path: run sync_to_db.py inside the fastapi container.
+            # All deps + DATABASE_URL/MINIO_* env are already configured there,
+            # and Postgres/MinIO are reachable on the docker network as
+            # `postgres:5432` / `minio:9000` — no host port mapping needed.
+            f"  echo \"[vm-publish] sync via docker container: $CONTAINER\"; "
+            f"  EXTRACT_DIR=$(mktemp -d -t inkx-XXXXXXXX); "
+            f"  tar -xzf {archive_q} -C \"$EXTRACT_DIR\"; "
+            f"  rm -f {archive_q}; "
+            f"  $DRUN exec \"$CONTAINER\" mkdir -p /app/test_model/storage/books; "
+            f"  $DRUN exec \"$CONTAINER\" rm -rf /app/test_model/storage/books/{slug_q}; "
+            f"  $DRUN cp \"$EXTRACT_DIR/{slug}\" \"$CONTAINER:/app/test_model/storage/books/{slug}\"; "
+            f"  rm -rf \"$EXTRACT_DIR\"; "
+            f"  $DRUN exec \"$CONTAINER\" python /app/test_model/sync_to_db.py {slug_q}{force_flag}; "
+            f"else "
+            # Host fallback: extract on host, find a python that has
+            # pydantic; if none exists, bootstrap a venv from
+            # test_model/requirements.txt.
+            f"  echo \"[vm-publish] no fastapi container found; using host python\"; "
+            f"  mkdir -p {storage}; "
+            f"  tar -xzf {archive_q} -C {storage}; "
+            f"  rm -f {archive_q}; "
+            f"  PY=''; "
+            f"  for c in .venv/bin/python venv/bin/python "
+            f"           \"$HOME/.venv/bin/python\" \"$HOME/inkspacex/.venv/bin/python\"; do "
+            f"    if [ -x \"$c\" ] && \"$c\" -c 'import pydantic' >/dev/null 2>&1; then PY=\"$c\"; break; fi; "
+            f"  done; "
+            f"  if [ -z \"$PY\" ] && python3 -c 'import pydantic' >/dev/null 2>&1; then PY=python3; fi; "
+            f"  if [ -z \"$PY\" ]; then "
+            f"    echo \"[vm-publish] bootstrapping .venv (deps missing on host)\"; "
+            f"    python3 -m venv \"$BE/.venv\" || {{ echo 'ERROR: python3 -m venv failed — install python3-venv' >&2; exit 3; }}; "
+            f"    \"$BE/.venv/bin/pip\" install -q -r test_model/requirements.txt; "
+            f"    PY=\"$BE/.venv/bin/python\"; "
+            f"  fi; "
+            f"  echo \"[vm-publish] python: $PY\"; "
+            f"  $PY test_model/sync_to_db.py {slug_q}{force_flag}; "
+            f"fi"
         )
 
         emit("extracting", {
