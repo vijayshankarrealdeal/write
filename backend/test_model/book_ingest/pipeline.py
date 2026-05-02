@@ -24,13 +24,15 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import embeddings, persist
+from .bundler import write_bundle
 from .chunker import chunk_pdf
 from .cleaner import clean_chunks
 from .config import config
+from .html_loader import load_html
 from .image_gen import generate_image
 from .image_planner import PlannedScene, plan_scenes
 from .map_agent import map_chunks
-from .pdf_loader import load_pdf
+from .pdf_loader import LoadedPdf, load_pdf
 from .reduce_agent import pick_top_chunks, reduce_chunks
 from .retry import with_retries
 from .schemas import Chunk, ChunkBrief, ChunkDeep, GeneratedScene
@@ -65,7 +67,7 @@ def _mark_done(slug: str, manifest: dict, name: str) -> None:
 async def ingest_pdf(
     pdf_path: str,
     *,
-    title: str,
+    title: str | None = None,
     slug: str,
     author: str | None = None,
     description: str | None = None,
@@ -75,7 +77,34 @@ async def ingest_pdf(
 ) -> IngestResult:
     """Defaults: when style/reader_preference/image_budget are None, the
     scout phase fills them in based on the actual book content. Pass
-    explicit values to override."""
+    explicit values to override.
+
+    Accepts both PDF (`.pdf`) and Project Gutenberg HTML (`.html`/`.htm`).
+    For HTML the loader emits clean markdown directly, so the LLM cleaner
+    phase is skipped — saves ~$0.10–0.30/book on a 300-page text.
+    """
+    # ---- 0: load ----------------------------------------------------------
+    ext = Path(pdf_path).suffix.lower()
+    is_clean_input = ext in (".html", ".htm")
+
+    print(f"[load] reading {pdf_path}")
+    loader_title: str | None = None
+    loader_author: str | None = None
+    loader_subjects: list[str] = []
+    if is_clean_input:
+        loaded_html = load_html(pdf_path)
+        # Shape-compat: chunker imports LoadedPdf, so wrap.
+        loaded = LoadedPdf(pages=loaded_html.pages, toc=list(loaded_html.toc))
+        loader_title = loaded_html.title
+        loader_author = loaded_html.author
+        loader_subjects = loaded_html.subjects or []
+    else:
+        loaded = load_pdf(pdf_path)
+
+    # Loader-supplied metadata fills in defaults the caller didn't set.
+    title = title or loader_title or slug
+    author = author or loader_author
+
     out_dir = persist.book_dir(slug)
     manifest = persist.read_manifest(slug) or {
         "title": title,
@@ -85,6 +114,8 @@ async def ingest_pdf(
         "image_budget": image_budget,
         "style": style,
         "reader_preference": reader_preference,
+        "subjects": loader_subjects,
+        "source_format": "html" if is_clean_input else "pdf",
         "phases_done": [],
     }
     # Track explicit user overrides so the scout doesn't clobber them.
@@ -93,13 +124,11 @@ async def ingest_pdf(
     user_set_budget = image_budget is not None
     persist.write_manifest(slug, manifest)
 
-    # ---- 0: load ----------------------------------------------------------
-    print(f"[load] reading {pdf_path}")
-    loaded = load_pdf(pdf_path)
     if not _phase_done(manifest, "load"):
         persist.write_pages(slug, loaded.pages)
         _mark_done(slug, manifest, "load")
-    print(f"[load] {len(loaded.pages)} pages, {len(loaded.toc)} TOC entries")
+    print(f"[load] {len(loaded.pages)} pages, {len(loaded.toc)} TOC entries"
+          f"{' (HTML)' if is_clean_input else ''}")
 
     # ---- 1: chunk ---------------------------------------------------------
     chunks = chunk_pdf(loaded)
@@ -116,12 +145,18 @@ async def ingest_pdf(
     # ---- 1.25: cleaner (rewrite raw PDF text → clean markdown) ----------
     # Runs before scout/map so every downstream phase + the final reader
     # sees readable prose (no mid-sentence line breaks, no OCR cruft).
-    n_cleaned = await clean_chunks(slug, chunks)
-    print(f"[clean] +{n_cleaned} new "
-          f"({len(chunks) - n_cleaned} cached / {len(chunks)} total)")
-    if all((persist.book_dir(slug) / 'cleaned' / f'{c.id}.md').exists()
-           for c in chunks):
+    # HTML inputs already arrive as clean markdown from html_loader, so
+    # this LLM phase is skipped entirely (saves ~$0.10–0.30/book).
+    if is_clean_input:
+        print(f"[clean] skipped — input is already clean markdown ({ext})")
         _mark_done(slug, manifest, "clean")
+    else:
+        n_cleaned = await clean_chunks(slug, chunks)
+        print(f"[clean] +{n_cleaned} new "
+              f"({len(chunks) - n_cleaned} cached / {len(chunks)} total)")
+        if all((persist.book_dir(slug) / 'cleaned' / f'{c.id}.md').exists()
+               for c in chunks):
+            _mark_done(slug, manifest, "clean")
 
     # ---- 1.5: scout (auto-direct the book's visual voice) ---------------
     # One LLM call that reads samples of the book and proposes:
@@ -250,6 +285,25 @@ async def ingest_pdf(
         except Exception as exc:  # noqa: BLE001
             print(f"[poster] failed: {type(exc).__name__}: {exc} — DB publish "
                   f"will fall back to scene-based cover and empty metadata")
+
+    # ---- 7: bundle (reproducible replay archive) -------------------------
+    # Pack everything that survives DB/MinIO loss into a single zip:
+    # manifest + chunks (with cleaned md + briefs + deeps embedded) + plan
+    # + highlights + every PNG + per-scene meta + cover + embeddings. A
+    # later operator can run `restore_bundle.py <zip>` against a fresh
+    # MinIO/Postgres and recreate the exact same Writing without paying
+    # for a second LLM/image-gen run.
+    try:
+        bundle_path, bundle_info = write_bundle(slug)
+        manifest["bundle"] = bundle_info
+        persist.write_manifest(slug, manifest)
+        print(f"[bundle] wrote {bundle_path} "
+              f"({bundle_info['size_bytes'] / 1_048_576:.1f} MB, "
+              f"{bundle_info['file_count']} files)")
+        _mark_done(slug, manifest, "bundle")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[bundle] failed: {type(exc).__name__}: {exc} — "
+              f"sync_to_db.py still works from the on-disk artifacts")
 
     return IngestResult(
         slug=slug,

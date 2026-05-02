@@ -272,6 +272,25 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Re-fetch the signed-in user from `/api/users/me` so per-user lists
+  /// (likes, saved, reading list) reflect actions taken on other devices.
+  /// Cheap to call on screen entry; safe under concurrent calls — the
+  /// last response wins and a single notify fires.
+  Future<void> refreshCurrentUser() async {
+    final me = _currentUser;
+    if (me == null) return;
+    try {
+      final fresh = await _dataService.getUser(me.id);
+      if (fresh == null) return;
+      // Preserve client-only fields the server doesn't echo back.
+      _currentUser = fresh.copyWith(preferences: me.preferences);
+      await _storage.saveUser(_currentUser!.toJson());
+      notifyListeners();
+    } catch (_) {
+      // Network blips are silent — UI keeps the last-known list.
+    }
+  }
+
   Future<void> completeOnboarding(UserPreferences preferences) async {
     if (_currentUser == null) return;
     AnalyticsService.instance.track(

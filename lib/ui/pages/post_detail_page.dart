@@ -324,7 +324,34 @@ class _PostDetailPageState extends State<PostDetailPage>
       _loadProgress();
       _loadReaderPrefs();
       _subscribeToFeedItemEvents();
+      _refreshCountsFromServer();
     });
+  }
+
+  // The feed list cache may be older than the post itself — another
+  // user might have liked or commented since this client last fetched
+  // the list. Pull the authoritative counts on open so the action row
+  // matches the DB before the SSE stream even has a chance to fire.
+  // Also refresh the signed-in user so the heart's filled state matches
+  // likes the user gave on a different device.
+  Future<void> _refreshCountsFromServer() async {
+    final auth = context.read<AuthProvider>();
+    final feed = context.read<FeedProvider>();
+    final freshFuture = _dataService.getFeedItem(widget.item.id);
+    final userFuture = auth.refreshCurrentUser();
+    try {
+      final fresh = await freshFuture;
+      if (mounted && fresh != null) {
+        feed.applyRemoteCounts(
+          widget.item.id,
+          likesCount: fresh.likesCount,
+          commentsCount: fresh.commentsCount,
+        );
+      }
+      await userFuture;
+    } catch (_) {
+      // Stale counts will get corrected by the next SSE event anyway.
+    }
   }
 
   // --------------------------------------------------------------------------
