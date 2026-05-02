@@ -44,11 +44,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
         ),
         title: Text(
           'Notifications',
-          style: GoogleFonts.playfairDisplay(
-            fontSize: 22,
+          style: GoogleFonts.inter(
+            fontSize: 17,
             fontWeight: FontWeight.w700,
             color: textColor,
-            letterSpacing: -0.3,
           ),
         ),
         actions: [

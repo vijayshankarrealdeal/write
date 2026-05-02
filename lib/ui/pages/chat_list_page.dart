@@ -36,6 +36,7 @@ class _ChatListPageState extends State<ChatListPage> {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: bgColor,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -46,17 +47,16 @@ class _ChatListPageState extends State<ChatListPage> {
         ),
         title: Text(
           'Messages',
-          style: GoogleFonts.playfairDisplay(
-            fontSize: 22,
+          style: GoogleFonts.inter(
+            fontSize: 17,
             fontWeight: FontWeight.w700,
             color: textColor,
-            letterSpacing: -0.3,
           ),
         ),
         actions: [
           IconButton(
             icon: Icon(
-              CupertinoIcons.square_pencil,
+              CupertinoIcons.add,
               color: textColor.withValues(alpha: 0.8),
             ),
             tooltip: 'New chat',
@@ -299,10 +299,30 @@ class _EmptyState extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            FilledButton.icon(
+            CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+              color: CupertinoColors.activeBlue,
+              borderRadius: BorderRadius.circular(28),
               onPressed: () => context.push('/chat/new'),
-              icon: const Icon(CupertinoIcons.add, size: 18),
-              label: const Text('Start a chat'),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    CupertinoIcons.square_pencil,
+                    size: 18,
+                    color: CupertinoColors.white,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Start a chat',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: CupertinoColors.white,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

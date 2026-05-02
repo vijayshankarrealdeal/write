@@ -162,6 +162,7 @@ class ApiClient {
     } on ApiException {
       rethrow;
     } catch (e) {
+      log.w('[http] connection error on $method $path: $e (${e.runtimeType})');
       throw ApiException(
         message: 'Cannot reach the server. Check your internet connection.',
         type: ApiErrorType.connection,

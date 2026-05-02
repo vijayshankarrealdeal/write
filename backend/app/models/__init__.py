@@ -11,6 +11,7 @@ from app.models.bookmark import Bookmark
 from app.models.bookshelf import Bookshelf
 from app.models.chat import ChatMessage, Conversation
 from app.models.comment import Comment
+from app.models.early_tester import EarlyTester
 from app.models.feed_item import FeedItem
 from app.models.follow import Follow
 from app.models.highlight import Highlight
@@ -33,6 +34,7 @@ __all__ = [
     "Comment",
     "Conversation",
     "CrashReport",
+    "EarlyTester",
     "FeedItem",
     "Follow",
     "Highlight",

@@ -554,6 +554,11 @@ class _MobileFeedWrapper extends StatelessWidget {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: navBg,
         border: null,
+        padding: const EdgeInsetsDirectional.symmetric(horizontal: 8),
+        leading: NotificationBellButton(
+          onTap: () => context.push('/notifications'),
+          size: 22,
+        ),
         middle: Text(
           "Discover",
           style: GoogleFonts.inter(
@@ -564,16 +569,16 @@ class _MobileFeedWrapper extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            NotificationBellButton(
-              onTap: () => context.push('/notifications'),
-              size: 20,
+            ChatBadgeButton(
+              onTap: () => context.push('/chats'),
+              color: CupertinoColors.label.resolveFrom(context),
+              size: 22,
             ),
-            const SizedBox(width: 4),
             GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => context.push('/search'),
               child: Padding(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(6),
                 child: Icon(
                   CupertinoIcons.search,
                   color: CupertinoColors.label.resolveFrom(context),
@@ -635,17 +640,6 @@ class _MobileSettingsWrapper extends StatelessWidget {
         : CupertinoColors.systemBackground.resolveFrom(context);
     return CupertinoPageScaffold(
       backgroundColor: navBg,
-      navigationBar: CupertinoNavigationBar(
-        backgroundColor: navBg,
-        border: null,
-        middle: Text(
-          "Profile",
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w700,
-            color: CupertinoColors.label.resolveFrom(context),
-          ),
-        ),
-      ),
       child: const SafeArea(child: ProfileHubPage()),
     );
   }

@@ -86,14 +86,30 @@ class ApiAuthService {
       '${ApiClient.baseUrl}/api/auth/google/start?session_id=$sessionId',
     );
 
-    final launched = await launchUrl(startUrl, mode: LaunchMode.externalApplication);
+    // Mobile: Chrome Custom Tabs / SFSafariViewController keeps the user in
+    // our app's task. Desktop: in-app web view isn't supported, fall back to
+    // the system browser. Web is handled above.
+    final isMobile = defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    final mode =
+        isMobile ? LaunchMode.inAppBrowserView : LaunchMode.externalApplication;
+
+    final launched = await launchUrl(startUrl, mode: mode);
     if (!launched) {
       throw Exception('Could not open browser for Google sign-in');
     }
 
-    final tokens = await _pollForGoogleTokens(sessionId);
-    await _saveTokens(tokens);
-    return _fetchMe();
+    try {
+      final tokens = await _pollForGoogleTokens(sessionId);
+      await _saveTokens(tokens);
+      return await _fetchMe();
+    } finally {
+      // Auto-dismiss the OAuth tab once we're done — success or failure —
+      // so the user lands back on the app instead of staring at a stale page.
+      if (isMobile) {
+        await closeInAppWebView();
+      }
+    }
   }
 
   /// Polls the backend's session endpoint. The endpoint returns 404 until the
@@ -109,9 +125,20 @@ class ApiAuthService {
           return response.data as Map<String, dynamic>;
         }
       } on ApiException catch (e) {
-        // 404 = "user hasn't finished yet" — keep polling. Anything else
-        // (network error, 5xx) we let bubble up.
-        if (e.statusCode == 404) continue;
+        // 404 = "user hasn't finished yet". Connection / timeout errors are
+        // transient (e.g. socket closed by proxy between polls, app briefly
+        // backgrounded behind the OAuth browser). 5xx is also worth retrying.
+        // Only bail on real client-side failures (4xx other than 404).
+        if (e.statusCode == 404) {
+          continue;
+        }
+        if (e.type == ApiErrorType.connection ||
+            e.type == ApiErrorType.timeout) {
+          continue;
+        }
+        if (e.statusCode != null && e.statusCode! >= 500) {
+          continue;
+        }
         rethrow;
       }
     }

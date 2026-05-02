@@ -45,6 +45,15 @@ api.{$DOMAIN} {
 		reverse_proxy minio:9000
 	}
 
+	# Public marketing landing page. Pretty URL `/land` → static HTML file.
+	# Must precede the SPA catch-all so the Flutter shell never owns this path.
+	handle /land {
+		root * /srv/web
+		rewrite * /landing.html
+		header Cache-Control "no-cache, no-store, must-revalidate"
+		file_server
+	}
+
 	handle {
 		root * /srv/web
 		# skwasm renderer needs SharedArrayBuffer, which requires a
