@@ -318,7 +318,7 @@ class _PostDetailPageState extends State<PostDetailPage>
   @override
   void initState() {
     super.initState();
-    _item = _item;
+    _item = widget.item;
     AnalyticsService.instance.track(
       'post_viewed',
       screen: '/post/:id',
@@ -1086,7 +1086,11 @@ class _PostDetailPageState extends State<PostDetailPage>
   void _onDoubleTapLike() {
     final auth = context.read<AuthProvider>();
     final feed = context.read<FeedProvider>();
-    auth.toggleLike(_item.id, feedProvider: feed);
+    final alreadyLiked =
+        auth.currentUser?.likes.contains(_item.id) ?? false;
+    if (!alreadyLiked) {
+      auth.toggleLike(_item.id, feedProvider: feed);
+    }
     _likeAnimController.forward(from: 0.0);
   }
 

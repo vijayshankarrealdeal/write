@@ -1,3 +1,4 @@
+import uuid
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException
@@ -140,9 +141,13 @@ async def create_section(
     op_id: str | None = Depends(_op_id),
 ):
     writing = await _get_user_writing(writing_id, user.id, db)
-    section = Section(writing_id=writing_id, **data.model_dump())
+    # Assign the UUID up front. SQLAlchemy's `default=uuid.uuid4` only
+    # fires at flush time, so reading `section.id` before commit returns
+    # None and `str(None)` would push the literal string "None" into
+    # Writing.section_ids — leaving the chapter list permanently empty
+    # for readers (uuid.UUID("None") raises ValueError downstream).
+    section = Section(id=uuid.uuid4(), writing_id=writing_id, **data.model_dump())
     db.add(section)
-    # Add section ID to the writing's section_ids list
     writing.section_ids = [*(writing.section_ids or []), str(section.id)]
     await db.commit()
     await db.refresh(section)

@@ -167,7 +167,14 @@ class FeedProvider extends ChangeNotifier {
     if (_items.isNotEmpty) return;
     _nextCursor = null;
     _hasMore = true;
-    if (_hydrateFromCache(preferences)) return;
+    if (_hydrateFromCache(preferences)) {
+      // Paint the cache instantly, then reconcile counts / cover / tags
+      // with the server in the background. Without this the cold-start
+      // path would freeze last session's like and comment counts on
+      // screen until the user pulled to refresh.
+      unawaited(silentRefresh());
+      return;
+    }
     await loadFeed(preferences, userId: userId);
   }
 
@@ -277,12 +284,21 @@ class FeedProvider extends ChangeNotifier {
     return _groupByWork(matching);
   }
 
-  /// Silent background refresh: probe the server for items newer than
-  /// what we have on screen. Found items are buffered into
-  /// `_pendingNewItems` and surfaced via a "X new posts" pill — they are
-  /// never prepended automatically, so the user's scroll position is
-  /// preserved. The cache only updates once the user accepts the new
-  /// items via [applyPendingNewItems], which matches Twitter/Instagram.
+  /// Silent background refresh: reconcile the cached feed with the
+  /// server. Two jobs in one round-trip:
+  ///
+  ///  1. Items already on screen get their mutable fields updated in
+  ///     place — like / comment counts, cover, title, tags. Order is
+  ///     preserved so the user's scroll position never moves. Without
+  ///     this, the cache on cold start would paint last week's
+  ///     like-count forever until the user pulled to refresh.
+  ///  2. Items the server returned that the client doesn't have yet
+  ///     get buffered into `_pendingNewItems` and surfaced via the
+  ///     "X new posts" pill — Twitter/Instagram pattern, no
+  ///     auto-prepend onto the user's reading position.
+  ///
+  /// Cache is rewritten if any in-place update changed a field; the
+  /// buffered-new-items slice still waits for [applyPendingNewItems].
   Future<void> silentRefresh() async {
     if (_dataService == null) return;
     if (_items.isEmpty || _lastPreferences == null) return;
@@ -294,19 +310,74 @@ class FeedProvider extends ChangeNotifier {
         _lastPreferences!,
         currentUserId: _currentUserId,
       );
+      final freshById = {for (final item in result.items) item.id: item};
+      final mergedItems = <FeedItemModel>[];
+      bool changed = false;
+      for (final cached in _items) {
+        final fresh = freshById[cached.id];
+        if (fresh == null) {
+          mergedItems.add(cached);
+          continue;
+        }
+        // Listings strip `sections`, so don't clobber any chapter list
+        // the detail page already loaded into the cached copy. Adopt
+        // every other server-authoritative field so stale counts /
+        // covers / tags refresh on the next cold start.
+        final merged = cached.copyWith(
+          title: fresh.title,
+          author: fresh.author,
+          description: fresh.description,
+          imageUrl: fresh.imageUrl,
+          imageMeta: fresh.imageMeta,
+          genres: fresh.genres,
+          writingTypes: fresh.writingTypes,
+          tags: fresh.tags,
+          likesCount: fresh.likesCount,
+          commentsCount: fresh.commentsCount,
+          updatedAt: fresh.updatedAt,
+          isDraft: fresh.isDraft,
+          sections: cached.sections.isNotEmpty ? cached.sections : fresh.sections,
+        );
+        if (!changed && _itemDiffers(cached, merged)) {
+          changed = true;
+        }
+        mergedItems.add(merged);
+      }
+      if (changed) {
+        _items = mergedItems;
+        _persistCache();
+      }
+
       final existingIds = {
         ..._items.map((e) => e.id),
         ..._pendingNewItems.map((e) => e.id),
       };
       final newItems =
           result.items.where((e) => !existingIds.contains(e.id)).toList();
-      if (newItems.isEmpty) return;
-      _pendingNewItems = [...newItems, ..._pendingNewItems];
+      if (newItems.isNotEmpty) {
+        _pendingNewItems = [...newItems, ..._pendingNewItems];
+      }
     } catch (_) {
     } finally {
       _isRefreshing = false;
       notifyListeners();
     }
+  }
+
+  /// Cheap field-by-field diff between a cached item and its freshly
+  /// merged counterpart. Drives the "did anything actually change?" gate
+  /// in [silentRefresh] so we don't rewrite the cache on every cold
+  /// start when nothing on the server moved.
+  static bool _itemDiffers(FeedItemModel a, FeedItemModel b) {
+    return a.title != b.title ||
+        a.description != b.description ||
+        a.imageUrl != b.imageUrl ||
+        a.likesCount != b.likesCount ||
+        a.commentsCount != b.commentsCount ||
+        a.updatedAt != b.updatedAt ||
+        !listEquals(a.tags, b.tags) ||
+        !listEquals(a.genres, b.genres) ||
+        !listEquals(a.writingTypes, b.writingTypes);
   }
 
   /// Flush buffered new items into the visible feed and clear the pill.

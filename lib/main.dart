@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:hive_flutter/hive_flutter.dart';
+
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -125,6 +127,17 @@ void main() {
     await AnalyticsService.init(api: ApiClient(storage));
     AnalyticsService.instance.track('app_started', action: 'lifecycle');
 
+    // DEBUG: dump every open Hive box to the console so we can see what's
+    // currently cached. Runs once now (writer_app_box, sync_merge_log,
+    // analytics_queue) and again after 3s so the per-user sync_outbox box,
+    // which only opens after auth resolves, is included.
+    if (kDebugMode) {
+      _debugDumpHiveBoxes(label: 'boot');
+      Future.delayed(const Duration(seconds: 3), () {
+        _debugDumpHiveBoxes(label: 'post-auth');
+      });
+    }
+
     runApp(MyApp(
       storage: storage,
       connectivity: connectivity,
@@ -136,6 +149,64 @@ void main() {
     // Top-level zone fallback — anything uncaught (including bare `print` errors).
     log.e('[zone] uncaught: $error', error: error, stackTrace: stack);
   });
+}
+
+/// DEBUG helper: walk every Hive box that's currently open and print
+/// every key/value pair. Reflection-free — Hive's `BoxBase.name`
+/// + `Hive.box(name)` give us a handle to each open box.
+///
+/// Note Hive doesn't expose a list of currently-open boxes directly,
+/// so we probe the well-known names this app uses. The per-user
+/// `sync_outbox_<uid>` box is discovered by scanning `Hive.boxExists`.
+void _debugDumpHiveBoxes({required String label}) async {
+  // Names this app opens at boot. The outbox box is per-user
+  // (`sync_outbox_<uid>`), opened after auth — handled below.
+  const knownBoxes = ['writer_app_box', 'sync_merge_log', 'analytics_queue'];
+  // Collect candidate box names: known fixed boxes + any sync_outbox_*
+  // box currently registered with Hive.
+  final names = <String>{...knownBoxes};
+  // Hive lacks a public "list open boxes" API, so we just probe the
+  // common ones plus the per-user outbox by scanning the active uid
+  // out of writer_app_box if present.
+  try {
+    if (Hive.isBoxOpen('writer_app_box')) {
+      final wb = Hive.box('writer_app_box');
+      // The outbox box name is `sync_outbox_<uid>`; we don't have the
+      // uid handy here, but every key in writer_app_box that ends
+      // `__<uid>` carries it, so peel one off.
+      for (final k in wb.keys) {
+        final s = k.toString();
+        final i = s.lastIndexOf('__');
+        if (i > 0 && s.length - i > 10) {
+          names.add('sync_outbox_${s.substring(i + 2)}');
+          break;
+        }
+      }
+    }
+  } catch (_) {}
+
+  // ignore: avoid_print
+  print('═══ Hive boxes dump ($label) ═══');
+  for (final name in names) {
+    if (!Hive.isBoxOpen(name)) {
+      // ignore: avoid_print
+      print('  [$name] not open');
+      continue;
+    }
+    final box = Hive.box(name);
+    // ignore: avoid_print
+    print('  [$name] ${box.length} entries');
+    for (final key in box.keys) {
+      final value = box.get(key);
+      final preview = value.toString();
+      final trimmed =
+          preview.length > 500 ? '${preview.substring(0, 500)}…' : preview;
+      // ignore: avoid_print
+      print('    • $key → $trimmed');
+    }
+  }
+  // ignore: avoid_print
+  print('═══ end Hive dump ($label) ═══');
 }
 
 class MyApp extends StatefulWidget {
