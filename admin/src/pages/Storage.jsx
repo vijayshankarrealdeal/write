@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   Image,
   File,
+  Trash2,
 } from "lucide-react";
 import {
   PieChart,
@@ -19,6 +20,7 @@ import {
 import { api } from "../api/client";
 import PageHeader from "../components/PageHeader";
 import StatCard from "../components/StatCard";
+import { ConfirmModal } from "./TableDetail";
 
 const COLORS = ["#818cf8", "#34d399", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
 
@@ -36,6 +38,8 @@ export default function Storage() {
   const [prefix, setPrefix] = useState("");
   const [bucket, setBucket] = useState("inkspacex");
   const [loading, setLoading] = useState(true);
+  const [confirm, setConfirm] = useState(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     Promise.all([api.storageStats(), api.browse(bucket, "")])
@@ -57,6 +61,43 @@ export default function Storage() {
     navigate(parts.length ? parts.join("/") + "/" : "");
   };
 
+  const reload = () =>
+    Promise.all([api.storageStats(), api.browse(bucket, prefix)]).then(
+      ([s, o]) => {
+        setStats(s);
+        setObjects(o);
+      }
+    );
+
+  const handleDeleteObject = (obj) => {
+    setConfirm({
+      title: "Delete object?",
+      message: `Permanently delete ${obj.name} from "${bucket}".`,
+      onConfirm: async () => {
+        await api.deleteObject(bucket, obj.name);
+        await reload();
+      },
+    });
+  };
+
+  const handleClearBucket = () => {
+    const scope = prefix ? `prefix "${prefix}"` : `entire bucket "${bucket}"`;
+    setConfirm({
+      title: prefix ? "Clear this folder?" : "Clear entire bucket?",
+      message: `Permanently delete every object under ${scope}. This action is irreversible.`,
+      requireText: prefix || bucket,
+      onConfirm: async () => {
+        setBusy(true);
+        try {
+          await api.clearBucket(bucket, prefix);
+          await reload();
+        } finally {
+          setBusy(false);
+        }
+      },
+    });
+  };
+
   if (loading) {
     return <div className="p-8 animate-pulse text-gray-500">Loading storage...</div>;
   }
@@ -71,7 +112,17 @@ export default function Storage() {
 
   return (
     <div className="p-8">
-      <PageHeader title="Storage Explorer" description="MinIO object storage browser" />
+      <PageHeader title="Storage Explorer" description="MinIO object storage browser">
+        <button
+          onClick={handleClearBucket}
+          disabled={busy || !objects?.objects?.length}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-500/10 text-red-300 hover:bg-red-500/20 border border-red-500/30 disabled:opacity-40 disabled:cursor-not-allowed"
+          title={prefix ? "Clear current folder" : "Clear entire bucket"}
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          {prefix ? "Clear folder" : "Clear bucket"}
+        </button>
+      </PageHeader>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <StatCard
@@ -121,7 +172,7 @@ export default function Storage() {
               <div
                 key={obj.name}
                 onClick={() => obj.is_dir && navigate(obj.name)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 group ${
                   obj.is_dir ? "cursor-pointer" : ""
                 }`}
               >
@@ -137,6 +188,18 @@ export default function Storage() {
                 </span>
                 {!obj.is_dir && (
                   <span className="text-xs text-gray-500">{formatBytes(obj.size)}</span>
+                )}
+                {!obj.is_dir && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteObject(obj);
+                    }}
+                    className="p-1.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Delete object"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 )}
                 {obj.is_dir && <ChevronRight className="w-4 h-4 text-gray-600" />}
               </div>
@@ -174,6 +237,10 @@ export default function Storage() {
           </div>
         )}
       </div>
+
+      {confirm && (
+        <ConfirmModal {...confirm} onClose={() => setConfirm(null)} />
+      )}
     </div>
   );
 }

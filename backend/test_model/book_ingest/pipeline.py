@@ -153,19 +153,29 @@ async def ingest_pdf(
 
     # ---- 1.25: cleaner (rewrite raw PDF text → clean markdown) ----------
     # Runs before scout/map so every downstream phase + the final reader
-    # sees readable prose (no mid-sentence line breaks, no OCR cruft).
-    # HTML inputs already arrive as clean markdown from html_loader, so
-    # this LLM phase is skipped entirely (saves ~$0.10–0.30/book).
-    if is_clean_input:
-        print(f"[clean] skipped — input is already clean markdown ({ext})")
+    # sees polished prose (no mid-sentence line breaks, no OCR cruft, no
+    # stray markdown markers like a literal `## Chapter 3` line that
+    # leaked through the HTML→markdown conversion).
+    #
+    # We used to skip this for HTML inputs assuming Gutenberg HTML
+    # arrives "already clean" — that was wrong. Even a well-formed
+    # Gutenberg file can have:
+    #   • literal "## Heading" text where the converter hit an unexpected
+    #     element shape
+    #   • duplicated chapter titles ("Chapter 3" rendered twice — once
+    #     as the heading the studio shows, once as the first paragraph
+    #     the converter emitted)
+    #   • running headers / page numbers from the HTML body
+    # The cleaner agent catches all of these. clean_chunks() is per-item
+    # cached, so re-running this phase against an already-cleaned book
+    # is a no-op (no LLM cost) — only NEW or changed chunks pay.
+    n_cleaned = await clean_chunks(slug, chunks)
+    print(f"[clean] +{n_cleaned} new "
+          f"({len(chunks) - n_cleaned} cached / {len(chunks)} total)"
+          f"{' (HTML input)' if is_clean_input else ''}")
+    if all((persist.book_dir(slug) / 'cleaned' / f'{c.id}.md').exists()
+           for c in chunks):
         _mark_done(slug, manifest, "clean")
-    else:
-        n_cleaned = await clean_chunks(slug, chunks)
-        print(f"[clean] +{n_cleaned} new "
-              f"({len(chunks) - n_cleaned} cached / {len(chunks)} total)")
-        if all((persist.book_dir(slug) / 'cleaned' / f'{c.id}.md').exists()
-               for c in chunks):
-            _mark_done(slug, manifest, "clean")
 
     # ---- 1.5: scout (auto-direct the book's visual voice) ---------------
     # One LLM call that reads samples of the book and proposes:

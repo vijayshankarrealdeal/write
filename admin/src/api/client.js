@@ -57,12 +57,34 @@ export const api = {
   tableSchema: (name) => request(`/database/tables/${name}/schema`),
   tableData: (name, page = 1, perPage = 50) =>
     request(`/database/tables/${name}/data?page=${page}&per_page=${perPage}`),
+  updateRow: (name, pk, updates) =>
+    request(`/database/tables/${name}/rows/${encodeURIComponent(pk)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ updates }),
+    }),
+  deleteRow: (name, pk) =>
+    request(`/database/tables/${name}/rows/${encodeURIComponent(pk)}`, {
+      method: "DELETE",
+    }),
+  clearTable: (name, { cascade = false, restartIdentity = true } = {}) =>
+    request(
+      `/database/tables/${name}/clear?cascade=${cascade}&restart_identity=${restartIdentity}`,
+      { method: "POST" }
+    ),
 
   // Storage
   buckets: () => request("/storage/buckets"),
   browse: (bucket, prefix = "") =>
     request(`/storage/browse/${bucket}?prefix=${encodeURIComponent(prefix)}`),
   storageStats: () => request("/storage/stats"),
+  deleteObject: (bucket, key) =>
+    request(`/storage/objects/${bucket}?key=${encodeURIComponent(key)}`, {
+      method: "DELETE",
+    }),
+  clearBucket: (bucket, prefix = "") =>
+    request(`/storage/clear/${bucket}?prefix=${encodeURIComponent(prefix)}`, {
+      method: "POST",
+    }),
 
   // Analytics
   pageVisits: (days = 7) => request(`/analytics/page-visits?days=${days}`),

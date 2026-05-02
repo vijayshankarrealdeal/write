@@ -30,6 +30,17 @@ from typing import Iterable, NamedTuple
 
 from bs4 import BeautifulSoup, Comment, NavigableString, Tag
 
+# Pick the fastest available parser. `lxml` is fastest but is a C
+# extension that requires the system libxml2; on a fresh dev box it
+# isn't always installed. `html.parser` ships with the stdlib and
+# handles Project Gutenberg HTML just fine — it's slower (a few
+# hundred ms on a 5 MB file vs lxml's ~50 ms) but never missing.
+try:
+    import lxml  # noqa: F401
+    _BS4_PARSER = "lxml"
+except ImportError:
+    _BS4_PARSER = "html.parser"
+
 from .schemas import Page
 
 
@@ -87,7 +98,7 @@ class LoadedHtml:
 def load_html(path: str) -> LoadedHtml:
     with open(path, "r", encoding="utf-8", errors="replace") as fh:
         raw = fh.read()
-    soup = BeautifulSoup(raw, "lxml")
+    soup = BeautifulSoup(raw, _BS4_PARSER)
 
     title, author, subjects = _read_metadata(soup)
 
@@ -276,7 +287,7 @@ def _split_into_chapters(body: Tag, first_chapter: Tag) -> list[tuple[str, Tag]]
 
     # Strategy: re-walk body in document order; collect everything
     # between two chapter headings into a fresh container.
-    soup = BeautifulSoup("<div></div>", "lxml")
+    soup = BeautifulSoup("<div></div>", _BS4_PARSER)
     current_title: str | None = None
     current_container: Tag | None = None
     started = False

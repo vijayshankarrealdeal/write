@@ -16,3 +16,4 @@ PyMuPDF==1.24.13
 # explicitly so a fresh venv doesn't break.
 requests==2.32.3
 beautifulsoup4
+lxml

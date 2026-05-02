@@ -179,9 +179,12 @@ def _do_publish_blocking(
         emit("uploaded", {"bytes": archive_size, "remote_path": remote_archive})
 
         # ---- PHASE 3: EXTRACT + SYNC on the VM ----
-        # Quote everything — defense in depth even though the slug is
-        # validated upstream and the rest is from server config.
-        backend = shlex.quote(remote_backend_root)
+        # Auto-discover the backend root if the configured one doesn't
+        # exist. We search common locations + the user's home for a
+        # directory containing test_model/sync_to_db.py — that's the
+        # unique fingerprint of this codebase. Saves the user from
+        # having to figure out the exact path.
+        backend_q = shlex.quote(remote_backend_root)
         storage = shlex.quote(remote_storage_subdir)
         archive_q = shlex.quote(remote_archive)
         slug_q = shlex.quote(slug)
@@ -189,7 +192,27 @@ def _do_publish_blocking(
 
         cmd = (
             f"set -e; "
-            f"cd {backend}; "
+            # Resolve the backend root: prefer the configured value,
+            # then probe a list of candidates, finally `find` under $HOME.
+            f"BE={backend_q}; "
+            f"if [ ! -d \"$BE\" ]; then "
+            f"  for c in \"$HOME/write/backend\" \"$HOME/inkspacex/backend\" "
+            f"           \"$HOME/inkx/backend\" \"$HOME/backend\" "
+            f"           \"/srv/inkspacex/backend\" \"/opt/inkspacex/backend\"; do "
+            f"    if [ -f \"$c/test_model/sync_to_db.py\" ]; then BE=\"$c\"; break; fi; "
+            f"  done; "
+            f"fi; "
+            f"if [ ! -f \"$BE/test_model/sync_to_db.py\" ]; then "
+            f"  found=$(find \"$HOME\" -maxdepth 5 -type f -name sync_to_db.py "
+            f"                  -path '*/test_model/sync_to_db.py' 2>/dev/null | head -1); "
+            f"  if [ -n \"$found\" ]; then BE=$(dirname \"$(dirname \"$found\")\"); fi; "
+            f"fi; "
+            f"if [ ! -f \"$BE/test_model/sync_to_db.py\" ]; then "
+            f"  echo \"ERROR: could not locate test_model/sync_to_db.py — checked $BE and \\$HOME tree\" >&2; "
+            f"  exit 2; "
+            f"fi; "
+            f"echo \"[vm-publish] backend root: $BE\"; "
+            f"cd \"$BE\"; "
             f"mkdir -p {storage}; "
             # Extract the tarball — overwrites any previous contents
             # for this slug so re-publishes work.
@@ -202,12 +225,13 @@ def _do_publish_blocking(
             f"if [ -x .venv/bin/python ]; then PY=.venv/bin/python; "
             f"elif [ -x venv/bin/python ]; then PY=venv/bin/python; "
             f"else PY=python3; fi; "
+            f"echo \"[vm-publish] python: $PY\"; "
             f"$PY test_model/sync_to_db.py {slug_q}{force_flag}"
         )
 
         emit("extracting", {
             "remote_archive": remote_archive,
-            "extract_to": f"{remote_backend_root}/{remote_storage_subdir}",
+            "extract_to": f"<auto-resolved>/{remote_storage_subdir}",
         })
         emit("executing", {"cmd": cmd[:200] + ("…" if len(cmd) > 200 else "")})
 

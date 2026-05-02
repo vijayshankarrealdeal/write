@@ -200,6 +200,28 @@ async def create_section(
     return r.json()
 
 
+async def create_feed_item(
+    client: httpx.AsyncClient,
+    api_url: str,
+    token: str,
+    *,
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    """Publishes the writing as a feed card AND flips every listed
+    section's `is_published` bit to true in one transaction. Without
+    this step, sections stay `is_published=false` and don't show up
+    in the reader feed even though the writing exists."""
+    url = api_url.rstrip("/") + "/api/feed/"
+    r = await client.post(url, json=payload, headers=_auth_headers(token))
+    if r.status_code not in (200, 201):
+        raise RemotePublishError(
+            f"create_feed_item failed ({r.status_code})",
+            status=r.status_code,
+            body=r.text[:500],
+        )
+    return r.json()
+
+
 # ---------------------------------------------------------------------------
 # Orchestration — the one entry point the studio calls
 # ---------------------------------------------------------------------------
@@ -362,10 +384,50 @@ async def publish_book(
             *(_make_section(i, p) for i, p in enumerate(chunks_payload))
         )
 
+        # ---- create feed item + publish all sections ----
+        # Sections default to is_published=False on creation. Posting a
+        # FeedItem with `published_section_ids = [...all section ids...]`
+        # is the API surface that flips them — same path the Flutter
+        # editor uses when the author taps "Publish".
+        published_ids = [str(s["id"]) for s in sections]
+        feed_payload: dict[str, Any] = {
+            "title": writing_payload["title"],
+            "description": writing_payload.get("description") or "",
+            "image_url": cover_url,
+            "genres": poster.get("genres") or [],
+            "writing_types": poster.get("writing_types") or ["book"],
+            "tags": poster.get("tags") or [],
+            "is_draft": False,
+            "visibility": "public",
+            "writing_id": writing_id,
+            "published_section_ids": published_ids,
+        }
+        await _emit("publishing_feed", {"published_count": len(published_ids)})
+        try:
+            feed_item = await create_feed_item(
+                client, api_url, token, payload=feed_payload,
+            )
+            feed_item_id = feed_item.get("id")
+            await _emit("feed_published", {
+                "feed_item_id": feed_item_id,
+                "published_sections": len(published_ids),
+            })
+        except RemotePublishError as exc:
+            # Sections + writing exist; only the publish step failed.
+            # Surface but don't unwind — the user can hit "Publish again"
+            # safely (idempotent on writing, re-creates the feed card).
+            feed_item_id = None
+            await _emit("feed_publish_failed", {
+                "message": str(exc),
+                "status": exc.status,
+                "body": exc.body,
+            })
+
     # ---- mark synced in manifest ----
     manifest["synced_remote"] = {
         "api_url": api_url,
         "writing_id": writing_id,
+        "feed_item_id": feed_item_id,
         "n_sections": len(sections),
         "n_images": len(url_for_local),
     }
@@ -373,11 +435,13 @@ async def publish_book(
 
     await _emit("done", {
         "writing_id": writing_id,
+        "feed_item_id": feed_item_id,
         "n_sections": len(sections),
         "n_images": len(url_for_local),
     })
     return {
         "writing_id": writing_id,
+        "feed_item_id": feed_item_id,
         "n_sections": len(sections),
         "n_images": len(url_for_local),
         "cover_url": cover_url,

@@ -253,18 +253,7 @@ async def table_data(
     """Paginated table rows (read-only)."""
     offset = (page - 1) * per_page
     async with engine.connect() as conn:
-        # Validate table exists
-        check = await conn.execute(
-            text(
-                "SELECT 1 FROM information_schema.tables "
-                "WHERE table_schema='public' AND table_name=:t"
-            ),
-            {"t": table_name},
-        )
-        if check.fetchone() is None:
-            from fastapi import HTTPException
-
-            raise HTTPException(status_code=404, detail="Table not found")
+        await _assert_table_exists(conn, table_name)
 
         count_result = await conn.execute(text(f'SELECT count(*) FROM "{table_name}"'))  # noqa: S608
         total = count_result.scalar()
@@ -287,6 +276,102 @@ async def table_data(
         "per_page": per_page,
         "total_pages": (total + per_page - 1) // per_page if total else 0,
     }
+
+
+# ── Database mutations (destructive — admin-only) ──────────────────────────
+
+@router.patch("/database/tables/{table_name}/rows/{pk}")
+async def update_row(
+    table_name: str,
+    pk: str,
+    payload: dict,
+    _=Depends(_verify_admin),
+):
+    """Update one row identified by its primary key.
+
+    Body shape: {"updates": {"col1": value, "col2": value, ...}}
+    Values may be strings, numbers, booleans, null, or JSON-serialisable
+    objects (latter is sent to Postgres as a JSON string for jsonb columns).
+    """
+    from fastapi import HTTPException
+
+    updates = payload.get("updates") or {}
+    if not isinstance(updates, dict) or not updates:
+        raise HTTPException(status_code=400, detail="updates object required")
+
+    async with engine.begin() as conn:
+        await _assert_table_exists(conn, table_name)
+        pk_col = await _primary_key_column(conn, table_name)
+        if pk_col is None:
+            raise HTTPException(status_code=400, detail="Table has no single-column primary key")
+        if pk_col in updates:
+            raise HTTPException(status_code=400, detail="Cannot update primary key column")
+
+        valid_cols = await _column_names(conn, table_name)
+        bad = [c for c in updates if c not in valid_cols]
+        if bad:
+            raise HTTPException(status_code=400, detail=f"Unknown columns: {bad}")
+
+        params: dict[str, Any] = {"_pk": pk}
+        set_fragments: list[str] = []
+        for col, val in updates.items():
+            key = f"v_{col}"
+            set_fragments.append(f'"{col}" = :{key}')
+            params[key] = _coerce_inbound(val)
+
+        sql = (
+            f'UPDATE "{table_name}" SET {", ".join(set_fragments)} '
+            f'WHERE "{pk_col}"::text = :_pk'
+        )
+        result = await conn.execute(text(sql), params)  # noqa: S608
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Row not found")
+
+    return {"status": "ok", "updated": len(updates)}
+
+
+@router.delete("/database/tables/{table_name}/rows/{pk}")
+async def delete_row(
+    table_name: str,
+    pk: str,
+    _=Depends(_verify_admin),
+):
+    """Delete a single row by primary key."""
+    from fastapi import HTTPException
+
+    async with engine.begin() as conn:
+        await _assert_table_exists(conn, table_name)
+        pk_col = await _primary_key_column(conn, table_name)
+        if pk_col is None:
+            raise HTTPException(status_code=400, detail="Table has no single-column primary key")
+
+        result = await conn.execute(
+            text(f'DELETE FROM "{table_name}" WHERE "{pk_col}"::text = :_pk'),  # noqa: S608
+            {"_pk": pk},
+        )
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Row not found")
+
+    return {"status": "deleted"}
+
+
+@router.post("/database/tables/{table_name}/clear")
+async def clear_table(
+    table_name: str,
+    cascade: bool = Query(False, description="TRUNCATE ... CASCADE — also wipes FK-dependent rows"),
+    restart_identity: bool = Query(True, description="Reset auto-increment sequences"),
+    _=Depends(_verify_admin),
+):
+    """Truncate every row from a table. Irreversible."""
+    async with engine.begin() as conn:
+        await _assert_table_exists(conn, table_name)
+        parts = [f'TRUNCATE TABLE "{table_name}"']
+        if restart_identity:
+            parts.append("RESTART IDENTITY")
+        if cascade:
+            parts.append("CASCADE")
+        await conn.execute(text(" ".join(parts)))
+    return {"status": "cleared", "table": table_name, "cascade": cascade}
 
 
 # ── Storage (MinIO) ────────────────────────────────────────────────────────
@@ -317,6 +402,33 @@ async def browse_bucket(
             }
         )
     return {"bucket": bucket, "prefix": prefix, "objects": objects}
+
+
+@router.delete("/storage/objects/{bucket}")
+async def delete_storage_object(
+    bucket: str,
+    key: str = Query(..., description="Object key to delete"),
+    _=Depends(_verify_admin),
+):
+    """Remove a single object from a bucket."""
+    await minio_client.remove_object(bucket, key)
+    return {"status": "deleted", "bucket": bucket, "key": key}
+
+
+@router.post("/storage/clear/{bucket}")
+async def clear_storage_bucket(
+    bucket: str,
+    prefix: str = Query("", description="Optional prefix — only objects under this prefix are removed"),
+    _=Depends(_verify_admin),
+):
+    """Delete every object in a bucket (or under a prefix). Irreversible."""
+    count = 0
+    async for obj in minio_client.list_objects(bucket, prefix=prefix or None, recursive=True):
+        if obj.is_dir:
+            continue
+        await minio_client.remove_object(bucket, obj.object_name)
+        count += 1
+    return {"status": "cleared", "bucket": bucket, "prefix": prefix, "removed": count}
 
 
 @router.get("/storage/stats")
@@ -851,3 +963,61 @@ def _serialize(val: Any) -> Any:
     if isinstance(val, (int, float, bool, str)):
         return val
     return str(val)
+
+
+def _coerce_inbound(val: Any) -> Any:
+    """Convert a JSON value into something psycopg can bind.
+
+    Lists/dicts are JSON-encoded so they can be inserted into jsonb columns;
+    primitive types are passed through unchanged.
+    """
+    import json
+
+    if isinstance(val, (list, dict)):
+        return json.dumps(val)
+    return val
+
+
+async def _assert_table_exists(conn, table_name: str) -> None:
+    from fastapi import HTTPException
+
+    check = await conn.execute(
+        text(
+            "SELECT 1 FROM information_schema.tables "
+            "WHERE table_schema='public' AND table_name=:t"
+        ),
+        {"t": table_name},
+    )
+    if check.fetchone() is None:
+        raise HTTPException(status_code=404, detail="Table not found")
+
+
+async def _column_names(conn, table_name: str) -> set[str]:
+    result = await conn.execute(
+        text(
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_schema='public' AND table_name=:t"
+        ),
+        {"t": table_name},
+    )
+    return {row[0] for row in result.fetchall()}
+
+
+async def _primary_key_column(conn, table_name: str) -> str | None:
+    """Return the name of the single-column PK, or None for composite/no PK."""
+    result = await conn.execute(
+        text(
+            """
+            SELECT a.attname
+            FROM pg_index i
+            JOIN pg_attribute a
+              ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
+            WHERE i.indrelid = (quote_ident(:t))::regclass AND i.indisprimary
+            """
+        ),
+        {"t": table_name},
+    )
+    cols = [row[0] for row in result.fetchall()]
+    if len(cols) != 1:
+        return None
+    return cols[0]
