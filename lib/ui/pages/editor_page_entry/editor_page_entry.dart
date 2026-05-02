@@ -2074,8 +2074,7 @@ class _EditiorPageState extends State<EditiorPage>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor =
-        isDark ? const Color(0xFF0A0A0A) : const Color(0xFFFAFAFA);
+    final bgColor = _getPaperColor(isDark);
     final surfaceColor =
         isDark ? const Color(0xFF111111) : const Color(0xFFF2F2F5);
     final textColor = isDark ? Colors.white : const Color(0xFF111111);
