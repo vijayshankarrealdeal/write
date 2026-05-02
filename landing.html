@@ -3,262 +3,435 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>InkSpaceX — Join the early testers</title>
+<title>InkSpaceX — Write, read, share your stories.</title>
 <meta name="description" content="InkSpaceX is a calm place to write, read, and share your stories. Join the early testers and get the app link in your inbox.">
-<meta name="theme-color" content="#4A6CF7">
+<meta name="theme-color" content="#FBF4DA">
 <meta property="og:title" content="InkSpaceX — Join the early testers">
 <meta property="og:description" content="A calm place to write, read, and share your stories. Be among the first to try it.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://inkspacex.com/land">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/icons/Icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --cream: #FBF4DA;
+    --cream-dark: #F2E9C2;
+    --ink: #111111;
+    --ink-soft: #2a2a2a;
+    --muted: #5b5b54;
+    --accent: #FF5A3C;
+    --accent-2: #6B5BFF;
+    --paper-line: #d8cfa8;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { height: 100%; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #fafafa;
-    color: #1a1a1a;
-    line-height: 1.6;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
   }
+
+  /* Dotted paper texture, fading from top */
+  .dot-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(17,17,17,0.18) 1.1px, transparent 1.4px);
+    background-size: 22px 22px;
+    background-position: 0 0;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 35%, transparent 75%);
+            mask-image: linear-gradient(180deg, #000 0%, #000 35%, transparent 75%);
+    z-index: 0;
+  }
+
   .page {
+    position: relative;
+    z-index: 1;
     min-height: 100%;
     display: flex;
     flex-direction: column;
   }
+
+  /* Nav */
   .nav {
-    padding: 20px 24px;
+    padding: 22px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1100px;
+    max-width: 1200px;
     width: 100%;
     margin: 0 auto;
   }
   .brand {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-weight: 800;
-    font-size: 18px;
-    letter-spacing: -0.3px;
-    color: inherit;
+    gap: 12px;
+    color: var(--ink);
     text-decoration: none;
   }
   .brand-mark {
-    width: 28px; height: 28px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #4A6CF7, #7C5CFC);
-    display: inline-block;
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: var(--ink);
+    color: var(--cream);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bagel Fat One', cursive;
+    font-size: 22px;
+    line-height: 1;
+    transform: rotate(-4deg);
+    box-shadow: 4px 4px 0 0 var(--accent);
+  }
+  .brand-text {
+    font-family: 'Bagel Fat One', cursive;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 22px;
   }
   .nav-links a {
-    color: #555;
+    color: var(--ink-soft);
     text-decoration: none;
-    font-size: 14px;
-    margin-left: 18px;
+    font-size: 15px;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 2px;
+    transition: border-color 0.15s;
   }
-  .nav-links a:hover { color: #4A6CF7; }
+  .nav-links a:hover { border-bottom-color: var(--ink); }
 
+  /* Hero */
   .hero {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 24px 80px;
+    padding: 50px 28px 60px;
+    position: relative;
   }
   .hero-inner {
-    max-width: 720px;
+    max-width: 760px;
     width: 100%;
     text-align: center;
-  }
-  .badge {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: #f0f0ff;
-    color: #4A6CF7;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    margin-bottom: 22px;
-  }
-  h1 {
-    font-size: clamp(34px, 5.4vw, 52px);
-    font-weight: 800;
-    letter-spacing: -1.2px;
-    line-height: 1.1;
-    margin-bottom: 18px;
-  }
-  .lede {
-    font-size: clamp(16px, 2vw, 19px);
-    color: #444;
-    max-width: 560px;
-    margin: 0 auto 36px;
+    position: relative;
+    z-index: 2;
   }
 
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--cream);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    transform: rotate(-2deg);
+  }
+  .badge::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 0 rgba(255,90,60,0.6);
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(255,90,60,0.6); }
+    70%  { box-shadow: 0 0 0 8px rgba(255,90,60,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,90,60,0); }
+  }
+
+  h1 {
+    font-family: 'Bagel Fat One', cursive;
+    font-weight: 400;
+    font-size: clamp(40px, 5.6vw, 72px);
+    line-height: 0.98;
+    letter-spacing: -1.5px;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+  h1 .accent {
+    color: var(--accent);
+    display: inline-block;
+    transform: rotate(-2deg);
+  }
+  h1 .underline {
+    position: relative;
+    display: inline-block;
+  }
+  h1 .underline::after {
+    content: '';
+    position: absolute;
+    left: -4%;
+    right: -4%;
+    bottom: -2px;
+    height: 14px;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 12' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Cpath d='M2 8 C 40 1, 80 11, 120 5 S 195 8, 198 4' stroke='%23FF5A3C' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center/100% 100% no-repeat;
+    z-index: -1;
+  }
+  h1 .scribble-around {
+    position: relative;
+    display: inline-block;
+  }
+
+  .lede {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(18px, 1.7vw, 22px);
+    color: var(--ink-soft);
+    max-width: 560px;
+    margin: 0 auto 36px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* Signup form */
   form.signup {
     display: flex;
-    gap: 10px;
-    max-width: 480px;
+    align-items: stretch;
+    gap: 0;
+    max-width: 520px;
     margin: 0 auto;
+    background: #fff;
+    border: 3px solid var(--ink);
+    border-radius: 16px;
+    padding: 6px;
+    box-shadow: 6px 6px 0 0 var(--ink);
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  form.signup:focus-within {
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0 0 var(--ink);
   }
   input[type=email] {
     flex: 1;
     padding: 14px 16px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-    font-size: 15px;
-    background: #fff;
-    color: #1a1a1a;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font-size: 16px;
     outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
     font-family: inherit;
+    font-weight: 500;
   }
-  input[type=email]:focus {
-    border-color: #4A6CF7;
-    box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
-  }
+  input[type=email]::placeholder { color: #9d9786; }
+
   button {
     padding: 14px 22px;
-    border-radius: 12px;
     border: 0;
-    background: linear-gradient(135deg, #4A6CF7, #7C5CFC);
-    color: #fff;
+    border-radius: 11px;
+    background: var(--ink);
+    color: var(--cream);
     font-size: 15px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
     font-family: inherit;
-    transition: transform 0.05s, box-shadow 0.15s, opacity 0.15s;
+    transition: background 0.15s, transform 0.05s;
     white-space: nowrap;
+    letter-spacing: 0.3px;
   }
-  button:hover { box-shadow: 0 6px 20px rgba(74, 108, 247, 0.3); }
+  button:hover { background: var(--accent); }
   button:active { transform: translateY(1px); }
   button[disabled] { opacity: 0.6; cursor: progress; }
 
   .form-note {
-    font-size: 12px;
-    color: #777;
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    color: var(--muted);
     margin-top: 14px;
   }
 
-  .features {
-    margin-top: 56px;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-    text-align: left;
-  }
-  .feature {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 14px;
-    padding: 22px;
-  }
-  .feature h3 {
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-  .feature p {
-    font-size: 14px;
-    color: #555;
-    line-height: 1.5;
-  }
-  .feature .ico {
-    font-size: 22px;
-    margin-bottom: 10px;
-    display: inline-block;
-  }
-
-  .result {
-    display: none;
-    margin: 0 auto;
-    max-width: 480px;
-    background: #fff;
-    border: 1px solid #e8e8f5;
-    border-radius: 14px;
-    padding: 22px;
-    box-shadow: 0 6px 30px rgba(74, 108, 247, 0.08);
-  }
-  .result.show { display: block; }
-  .result h2 {
-    font-size: 20px;
-    font-weight: 800;
-    margin-bottom: 6px;
-  }
-  .result p {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 14px;
-  }
-  .result .cta {
-    display: inline-block;
-    padding: 12px 18px;
-    background: linear-gradient(135deg, #4A6CF7, #7C5CFC);
-    color: #fff;
-    text-decoration: none;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 14px;
-  }
   .error {
     color: #c0353a;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
     margin-top: 10px;
     min-height: 18px;
   }
 
-  footer {
-    padding: 28px 24px 36px;
+  /* Result panel */
+  .result {
+    display: none;
+    margin: 0 auto;
+    max-width: 520px;
+    background: #fff;
+    border: 3px solid var(--ink);
+    border-radius: 16px;
+    padding: 26px;
+    box-shadow: 6px 6px 0 0 var(--ink);
     text-align: center;
-    font-size: 13px;
-    color: #888;
-    border-top: 1px solid #eee;
   }
-  footer a { color: #888; text-decoration: none; margin: 0 8px; }
-  footer a:hover { color: #4A6CF7; }
+  .result.show { display: block; }
+  .result h2 {
+    font-family: 'Bagel Fat One', cursive;
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .result p {
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+  }
+  .result .cta {
+    display: inline-block;
+    padding: 12px 22px;
+    background: var(--ink);
+    color: var(--cream);
+    text-decoration: none;
+    border-radius: 11px;
+    font-weight: 800;
+    font-size: 15px;
+  }
+  .result .cta:hover { background: var(--accent); }
 
+  /* Features */
+  .features {
+    margin: 56px auto 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+    text-align: left;
+    max-width: 1000px;
+  }
+  .feature {
+    background: #fff;
+    border: 3px solid var(--ink);
+    border-radius: 18px;
+    padding: 26px 24px;
+    box-shadow: 5px 5px 0 0 var(--ink);
+    position: relative;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .feature:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 0 var(--ink);
+  }
+  .feature:nth-child(1) { transform: rotate(-1deg); }
+  .feature:nth-child(2) { transform: rotate(0.6deg); }
+  .feature:nth-child(3) { transform: rotate(-0.5deg); }
+  .feature:nth-child(1):hover { transform: translate(-2px, -2px) rotate(-1deg); }
+  .feature:nth-child(2):hover { transform: translate(-2px, -2px) rotate(0.6deg); }
+  .feature:nth-child(3):hover { transform: translate(-2px, -2px) rotate(-0.5deg); }
+
+  .feature h3 {
+    font-family: 'Bagel Fat One', cursive;
+    font-weight: 400;
+    font-size: 22px;
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+  .feature p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .feature .ico {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: var(--cream-dark);
+    border: 2px solid var(--ink);
+    margin-bottom: 14px;
+    font-size: 22px;
+  }
+  .feature:nth-child(1) .ico { background: #FFD7CB; }
+  .feature:nth-child(2) .ico { background: #DCD4FF; }
+  .feature:nth-child(3) .ico { background: #C7EFD7; }
+
+  /* Decorative scribbles, absolutely positioned */
+  .scribble {
+    position: absolute;
+    color: var(--ink);
+    pointer-events: none;
+    opacity: 0.85;
+  }
+  .scribble svg { width: 100%; height: 100%; display: block; }
+  .scribble svg path { fill: currentColor; }
+
+  .scribble.s-tl  { top: -20px;  left: 4%;    width: 110px; height: 110px; transform: rotate(-12deg); color: var(--accent-2); }
+  .scribble.s-tr  { top: 70px;   right: 6%;   width: 130px; height: 130px; transform: rotate(18deg);  color: var(--accent); }
+  .scribble.s-ml  { top: 38%;    left: 1%;    width: 120px; height: 120px; transform: rotate(8deg);   opacity: 0.7; }
+  .scribble.s-mr  { top: 34%;    right: 1%;   width: 100px; height: 100px; transform: rotate(-15deg); color: var(--accent-2); opacity: 0.8; }
+  .scribble.s-bl  { bottom: -30px; left: 8%;  width: 90px;  height: 90px;  transform: rotate(-22deg); color: var(--accent); opacity: 0.75; }
+  .scribble.s-br  { bottom: 10px;  right: 12%; width: 100px; height: 100px; transform: rotate(14deg); opacity: 0.7; }
+  /* Extra scribbles */
+  .scribble.s-tc  { top: 28px;   left: 50%;   width: 60px;  height: 60px;  transform: translateX(-50%) rotate(12deg); color: var(--accent); opacity: 0.55; }
+  .scribble.s-fl  { top: 64%;    left: 14%;   width: 70px;  height: 70px;  transform: rotate(-18deg); color: var(--accent-2); opacity: 0.65; }
+  .scribble.s-fr  { top: 60%;    right: 14%;  width: 80px;  height: 80px;  transform: rotate(22deg);  color: var(--accent); opacity: 0.6; }
+  .scribble.s-mlb { top: 52%;    left: 6%;    width: 70px;  height: 70px;  transform: rotate(-30deg); opacity: 0.55; }
+  .scribble.s-mrb { top: 56%;    right: 5%;   width: 64px;  height: 64px;  transform: rotate(20deg);  color: var(--accent-2); opacity: 0.55; }
+
+  @media (max-width: 1100px) {
+    .scribble.s-fl, .scribble.s-fr { display: none; }
+  }
+  @media (max-width: 900px) {
+    .scribble.s-ml, .scribble.s-mr, .scribble.s-mlb, .scribble.s-mrb { display: none; }
+  }
   @media (max-width: 640px) {
-    form.signup { flex-direction: column; }
-    .features { grid-template-columns: 1fr; }
-    .nav-links a:first-child { display: none; }
+    .nav { padding: 18px 20px; }
+    .hero { padding: 30px 20px 40px; }
+    form.signup { flex-direction: column; padding: 8px; }
+    button { width: 100%; padding: 14px; }
+    .features { grid-template-columns: 1fr; gap: 18px; margin-top: 56px; }
+    .scribble.s-tl { width: 70px; height: 70px; top: -10px; left: 2%; }
+    .scribble.s-tr { width: 80px; height: 80px; top: 50px; right: 2%; }
+    .scribble.s-bl, .scribble.s-br { width: 60px; height: 60px; }
+    .scribble.s-tc { display: none; }
   }
 
-  @media (prefers-color-scheme: dark) {
-    body { background: #0a0a0f; color: #e6e6ea; }
-    .nav-links a { color: #aaa; }
-    .lede { color: #b3b3ba; }
-    input[type=email] {
-      background: #15151c;
-      border-color: #2a2a36;
-      color: #e6e6ea;
-    }
-    .feature {
-      background: #14141b;
-      border-color: #23232e;
-    }
-    .feature p { color: #aaa; }
-    .result {
-      background: #14141b;
-      border-color: #2a2a3a;
-    }
-    .result p { color: #b3b3ba; }
-    .badge { background: #1a1a2e; color: #9d9aff; }
-    footer { color: #777; border-top-color: #1c1c25; }
-    .form-note { color: #888; }
+  /* Footer */
+  footer {
+    padding: 36px 24px 36px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 40px;
+    border-top: 2px dashed var(--paper-line);
+  }
+  footer a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: 600;
+  }
+  footer a:hover { color: var(--accent); }
+  footer .copy {
+    margin-top: 10px;
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
   }
 </style>
 </head>
 <body>
+
+<div class="dot-bg" aria-hidden="true"></div>
+
 <div class="page">
 
   <nav class="nav">
     <a href="/" class="brand">
-      <span class="brand-mark"></span>
-      <span>InkSpaceX</span>
+      <span class="brand-mark">i</span>
+      <span class="brand-text">InkSpaceX</span>
     </a>
     <div class="nav-links">
       <a href="/privacy_policy.html">Privacy</a>
@@ -267,13 +440,59 @@
   </nav>
 
   <section class="hero">
+
+    <!-- Decorative scribbles -->
+    <span class="scribble s-tl" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M133.19 62.6005C138.683 46.6517 144.163 30.6904 149.582 14.7169C150.136 13.0543 149.262 11.0345 147.624 10.3325C146.011 9.54428 143.917 10.197 142.92 11.872C129.434 34.7052 116.318 57.822 103.891 81.3203C85.3808 116.322 69.1483 152.517 53.5443 188.812C53.1502 189.735 54.6901 190.487 55.1704 189.612C74.2966 155.054 93.9771 120.743 112.438 85.8401C124.84 62.4033 137.033 38.8681 149.287 15.4067C147.058 14.4584 144.841 13.51 142.624 12.5617C138.055 28.7938 133.572 45.0629 129.077 61.332C128.448 63.6227 132.426 64.8543 133.19 62.6005Z"/><path d="M31.1815 110.706C56.2193 96.9244 77.1806 92.3062 99.1764 91.7643C121.135 91.2347 144.19 95.0033 172.381 98.2424C174.635 98.5133 176.654 96.8631 176.925 94.6216C177.196 92.3802 175.62 90.2988 173.366 90.0279C145.434 86.5549 122.17 82.4536 99.0038 82.7615C75.8626 83.0447 52.8941 87.9341 26.5385 102.159C24.1739 103.44 23.3117 106.408 24.5925 108.76C25.8733 111.125 28.8292 111.999 31.1815 110.706Z"/></svg>
+    </span>
+
+    <span class="scribble s-tr" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M93.7789 11.1303C67.0053 67.0067 36.0539 124.185 17.2046 184.015C16.5746 185.996 17.4449 188.275 19.1939 189.312C20.9014 190.414 23.3219 190.182 24.8719 188.69C43.9616 170.33 64.0459 153.014 84.5116 136.071C96.7545 125.934 109.138 115.937 121.531 105.941C141.383 89.9261 161.475 74.1768 181.709 58.6017C183.118 57.5075 183.732 55.6757 183.301 54.0593C182.911 52.4263 181.493 51.1085 179.802 50.8349C136.426 43.8804 92.9334 37.0916 49.2004 32.1016C47.5674 31.9192 46.1003 33.1045 45.9013 34.7209C45.6941 36.3372 46.8213 37.8459 48.4542 38.0697C91.8971 44.0212 135.108 51.7549 178.352 59.4223C177.722 56.8278 177.084 54.2417 176.454 51.6555C155.914 66.9323 135.556 82.4658 115.496 98.3974C103.013 108.311 90.5462 118.291 78.2369 128.487C57.6469 145.529 37.4878 163.185 18.3981 182.059C20.9512 183.617 23.5125 185.175 26.0655 186.734C43.7295 127.815 72.9898 69.9826 98.346 13.244C99.4733 10.7076 94.9808 8.62698 93.7789 11.1303Z"/></svg>
+    </span>
+
+    <span class="scribble s-ml" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M20.891 16.8915C33.4615 11.3216 48.3988 11.8896 63.7568 13.4359C79.1149 14.9665 94.8937 17.4595 109.252 15.382C109.989 15.2768 110.462 14.593 110.357 13.8619C110.252 13.1308 109.568 12.626 108.832 12.7364C95.1041 14.8087 79.483 12.4629 64.0198 10.9849C48.5566 9.52278 33.1986 8.91795 19.9444 14.8297C19.4185 15.0612 19.3658 15.7659 19.5761 16.2393C19.7865 16.7179 20.3651 17.1176 20.891 16.8915Z"/><path d="M16.2099 38.377C30.5686 32.7334 48.3457 31.9339 66.6492 32.0075C84.9526 32.0759 103.677 33.0121 119.982 30.6295C120.928 30.4875 121.612 29.5881 121.454 28.6309C121.297 27.6736 120.403 27.0109 119.456 27.1582C103.677 29.667 85.0052 28.978 66.6492 29.1095C48.2932 29.2567 30.2003 30.2193 15.3156 36.2363C14.7897 36.4572 14.6317 37.1672 14.8421 37.6774C15.0525 38.1823 15.6313 38.5979 16.2099 38.377Z"/><path d="M20.4153 56.8801C40.5596 52.683 60.0202 52.2569 79.6911 51.0209C99.362 49.7797 119.191 47.7232 139.808 40.0705C141.176 39.5603 141.859 38.0245 141.333 36.6517C140.807 35.279 139.282 34.5794 137.915 35.1054C118.138 42.6739 98.8884 44.9145 79.3752 46.3399C59.8621 47.7757 40.1385 48.3912 19.5734 52.8986C18.5215 53.1301 17.8905 54.2451 18.1009 55.297C18.3112 56.3489 19.3634 57.1063 20.4153 56.8801Z"/><path d="M18.892 77.8822C71.0673 64.0021 113.144 61.9666 166.582 69.9875C167.949 70.1926 169.212 69.2406 169.422 67.8731C169.632 66.5056 168.686 65.2275 167.318 65.0329C113.302 57.3486 70.331 59.7785 17.9454 74.2162C16.946 74.4844 16.4728 75.5679 16.7358 76.5094C16.9461 77.4509 17.9453 78.1451 18.892 77.8822Z"/><path d="M18.9441 122.42C22.2051 117.802 29.3052 114.326 39.0354 111.791C43.9794 110.497 49.6073 109.361 55.7085 108.461C61.8622 107.567 68.4366 106.894 75.3267 106.405C89.0542 105.421 103.886 105.179 118.298 105.348C147.068 105.684 174.05 107.688 186.778 108.803C188.408 108.945 189.828 107.73 189.986 106.1C190.144 104.464 188.934 103.028 187.304 102.891C174.47 101.818 147.331 99.8776 118.351 99.7409C103.834 99.6778 88.844 100.067 74.906 101.245C67.9107 101.839 61.2314 102.623 54.9724 103.654C48.7135 104.68 42.9278 105.931 37.7734 107.567C32.7768 109.156 28.4112 111.044 24.7821 113.253C21.2056 115.467 18.4178 118.013 16.6821 120.948C15.8932 122.231 18.05 123.641 18.9441 122.42Z"/><path d="M14.4733 156.681C30.3573 149.533 46.9249 146.572 64.0712 144.247C71.6976 143.227 79.3766 141.607 87.1082 139.835C87.4238 139.75 87.6867 139.435 87.6341 139.088C87.5815 138.741 87.2658 138.499 86.8976 138.509C79.0082 138.777 71.1714 138.919 63.4924 139.977C46.2409 142.322 29.2002 145.652 12.8954 153.341C12.0538 153.73 11.9483 154.888 12.3165 155.64C12.6847 156.397 13.6317 157.06 14.4733 156.681Z"/></svg>
+    </span>
+
+    <span class="scribble s-mr" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M93.7789 11.1303C67.0053 67.0067 36.0539 124.185 17.2046 184.015C16.5746 185.996 17.4449 188.275 19.1939 189.312C20.9014 190.414 23.3219 190.182 24.8719 188.69C43.9616 170.33 64.0459 153.014 84.5116 136.071C96.7545 125.934 109.138 115.937 121.531 105.941C141.383 89.9261 161.475 74.1768 181.709 58.6017C183.118 57.5075 183.732 55.6757 183.301 54.0593C182.911 52.4263 181.493 51.1085 179.802 50.8349C136.426 43.8804 92.9334 37.0916 49.2004 32.1016C47.5674 31.9192 46.1003 33.1045 45.9013 34.7209C45.6941 36.3372 46.8213 37.8459 48.4542 38.0697C91.8971 44.0212 135.108 51.7549 178.352 59.4223C177.722 56.8278 177.084 54.2417 176.454 51.6555C155.914 66.9323 135.556 82.4658 115.496 98.3974C103.013 108.311 90.5462 118.291 78.2369 128.487C57.6469 145.529 37.4878 163.185 18.3981 182.059C20.9512 183.617 23.5125 185.175 26.0655 186.734C43.7295 127.815 72.9898 69.9826 98.346 13.244C99.4733 10.7076 94.9808 8.62698 93.7789 11.1303Z"/></svg>
+    </span>
+
+    <!-- Tiny accent scribble above the badge -->
+    <span class="scribble s-tc" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M117.033 79.678C115.045 80.2086 112.367 81.5411 109.564 83.3583C106.773 85.1797 103.908 87.4774 101.719 89.9797C100.624 91.2329 99.6965 92.5362 99.0448 93.8939C98.3973 95.2516 98.0172 96.6804 98.1258 98.1467C98.2261 99.6046 98.8735 101.054 100.035 102.232C101.196 103.419 102.821 104.379 104.969 105.152C109.088 106.64 112.939 106.577 116.064 105.399C119.189 104.221 121.578 101.94 122.777 99.1325C123.984 96.3294 123.959 92.9791 122.376 89.9129C120.797 86.8382 117.743 84.0936 113.123 82.172C112.154 81.7668 111.038 82.243 110.646 83.2164C110.249 84.1855 110.712 85.3051 111.69 85.6894C115.721 87.2894 118.044 89.4492 119.193 91.5797C120.329 93.7186 120.371 95.8741 119.602 97.8041C118.825 99.7299 117.196 101.405 114.878 102.328C112.563 103.252 109.547 103.431 105.992 102.232C104.133 101.601 102.905 100.854 102.165 100.123C101.43 99.3832 101.134 98.6981 101.046 97.9043C100.966 97.1106 101.159 96.1624 101.639 95.1096C102.115 94.0569 102.876 92.9207 103.828 91.7886C105.733 89.5202 108.402 87.2811 111.001 85.5182C113.591 83.7511 116.152 82.456 117.676 82.0341C118.299 81.8586 118.612 81.161 118.449 80.5553C118.282 79.9537 117.664 79.5068 117.033 79.678Z"/><path d="M112.241 62.442C103.602 60.019 94.9299 62.1537 87.4898 66.8868C80.0414 71.6199 73.7584 78.9263 69.6686 87.0055C65.5956 95.0848 63.6697 103.958 65.2154 111.937C65.9882 115.922 67.6593 119.678 70.3789 122.865C73.0942 126.052 76.8413 128.647 81.6287 130.389C87.0051 132.344 92.9749 132.177 98.8818 130.614C104.793 129.052 110.691 126.09 116.076 122.28C121.457 118.466 126.328 113.8 130.142 108.758C133.952 103.707 136.734 98.2847 137.812 92.8665C138.326 90.2598 138.426 87.6448 138.012 85.1174C137.599 82.59 136.659 80.1503 135.155 77.9613C132.13 73.5541 126.963 70.2497 119.564 68.3573C114.727 67.1249 110.073 65.763 105.394 64.0544C104.705 63.8038 103.974 64.326 103.723 64.9485C103.473 65.5709 103.632 66.4523 104.304 66.7531C108.97 68.8209 113.645 70.5379 118.491 72.0919C125.187 74.2558 129.114 77.2929 131.19 80.5848C132.235 82.2432 132.849 83.9894 133.112 85.8692C133.375 87.7491 133.283 89.7585 132.853 91.8807C131.98 96.2838 129.586 101.125 126.127 105.733C122.677 110.345 118.182 114.732 113.236 118.312C108.289 121.892 102.888 124.67 97.6618 126.132C92.4275 127.598 87.4145 127.753 83.0908 126.266C78.8883 124.82 75.7719 122.715 73.491 120.158C71.2184 117.597 69.7606 114.556 69.0128 111.156C67.5089 104.367 68.9668 96.125 72.6096 88.4426C76.244 80.7602 82.0255 73.6544 88.8891 69.0215C95.7653 64.3929 103.665 62.2122 111.769 64.2216C112.245 64.3386 112.709 64.0043 112.83 63.549C112.951 63.0936 112.713 62.5715 112.241 62.442Z"/></svg>
+    </span>
+
+    <!-- Spiral near the form, left -->
+    <span class="scribble s-fl" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M117.033 79.678C115.045 80.2086 112.367 81.5411 109.564 83.3583C106.773 85.1797 103.908 87.4774 101.719 89.9797C100.624 91.2329 99.6965 92.5362 99.0448 93.8939C98.3973 95.2516 98.0172 96.6804 98.1258 98.1467C98.2261 99.6046 98.8735 101.054 100.035 102.232C101.196 103.419 102.821 104.379 104.969 105.152C109.088 106.64 112.939 106.577 116.064 105.399C119.189 104.221 121.578 101.94 122.777 99.1325C123.984 96.3294 123.959 92.9791 122.376 89.9129C120.797 86.8382 117.743 84.0936 113.123 82.172C112.154 81.7668 111.038 82.243 110.646 83.2164C110.249 84.1855 110.712 85.3051 111.69 85.6894C115.721 87.2894 118.044 89.4492 119.193 91.5797C120.329 93.7186 120.371 95.8741 119.602 97.8041C118.825 99.7299 117.196 101.405 114.878 102.328C112.563 103.252 109.547 103.431 105.992 102.232C104.133 101.601 102.905 100.854 102.165 100.123C101.43 99.3832 101.134 98.6981 101.046 97.9043C100.966 97.1106 101.159 96.1624 101.639 95.1096C102.115 94.0569 102.876 92.9207 103.828 91.7886C105.733 89.5202 108.402 87.2811 111.001 85.5182C113.591 83.7511 116.152 82.456 117.676 82.0341C118.299 81.8586 118.612 81.161 118.449 80.5553C118.282 79.9537 117.664 79.5068 117.033 79.678Z"/><path d="M112.241 62.442C103.602 60.019 94.9299 62.1537 87.4898 66.8868C80.0414 71.6199 73.7584 78.9263 69.6686 87.0055C65.5956 95.0848 63.6697 103.958 65.2154 111.937C65.9882 115.922 67.6593 119.678 70.3789 122.865C73.0942 126.052 76.8413 128.647 81.6287 130.389C87.0051 132.344 92.9749 132.177 98.8818 130.614C104.793 129.052 110.691 126.09 116.076 122.28C121.457 118.466 126.328 113.8 130.142 108.758C133.952 103.707 136.734 98.2847 137.812 92.8665C138.326 90.2598 138.426 87.6448 138.012 85.1174C137.599 82.59 136.659 80.1503 135.155 77.9613C132.13 73.5541 126.963 70.2497 119.564 68.3573C114.727 67.1249 110.073 65.763 105.394 64.0544C104.705 63.8038 103.974 64.326 103.723 64.9485C103.473 65.5709 103.632 66.4523 104.304 66.7531C108.97 68.8209 113.645 70.5379 118.491 72.0919C125.187 74.2558 129.114 77.2929 131.19 80.5848C132.235 82.2432 132.849 83.9894 133.112 85.8692C133.375 87.7491 133.283 89.7585 132.853 91.8807C131.98 96.2838 129.586 101.125 126.127 105.733C122.677 110.345 118.182 114.732 113.236 118.312C108.289 121.892 102.888 124.67 97.6618 126.132C92.4275 127.598 87.4145 127.753 83.0908 126.266C78.8883 124.82 75.7719 122.715 73.491 120.158C71.2184 117.597 69.7606 114.556 69.0128 111.156C67.5089 104.367 68.9668 96.125 72.6096 88.4426C76.244 80.7602 82.0255 73.6544 88.8891 69.0215C95.7653 64.3929 103.665 62.2122 111.769 64.2216C112.245 64.3386 112.709 64.0043 112.83 63.549C112.951 63.0936 112.713 62.5715 112.241 62.442Z"/></svg>
+    </span>
+
+    <!-- Lightning zigzag near the form, right -->
+    <span class="scribble s-fr" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M133.19 62.6005C138.683 46.6517 144.163 30.6904 149.582 14.7169C150.136 13.0543 149.262 11.0345 147.624 10.3325C146.011 9.54428 143.917 10.197 142.92 11.872C129.434 34.7052 116.318 57.822 103.891 81.3203C85.3808 116.322 69.1483 152.517 53.5443 188.812C53.1502 189.735 54.6901 190.487 55.1704 189.612C74.2966 155.054 93.9771 120.743 112.438 85.8401C124.84 62.4033 137.033 38.8681 149.287 15.4067C147.058 14.4584 144.841 13.51 142.624 12.5617C138.055 28.7938 133.572 45.0629 129.077 61.332C128.448 63.6227 132.426 64.8543 133.19 62.6005Z"/></svg>
+    </span>
+
+    <!-- Mini wavy lines, mid-left lower -->
+    <span class="scribble s-mlb" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M20.891 16.8915C33.4615 11.3216 48.3988 11.8896 63.7568 13.4359C79.1149 14.9665 94.8937 17.4595 109.252 15.382C109.989 15.2768 110.462 14.593 110.357 13.8619C110.252 13.1308 109.568 12.626 108.832 12.7364C95.1041 14.8087 79.483 12.4629 64.0198 10.9849C48.5566 9.52278 33.1986 8.91795 19.9444 14.8297C19.4185 15.0612 19.3658 15.7659 19.5761 16.2393C19.7865 16.7179 20.3651 17.1176 20.891 16.8915Z"/><path d="M16.2099 38.377C30.5686 32.7334 48.3457 31.9339 66.6492 32.0075C84.9526 32.0759 103.677 33.0121 119.982 30.6295C120.928 30.4875 121.612 29.5881 121.454 28.6309C121.297 27.6736 120.403 27.0109 119.456 27.1582C103.677 29.667 85.0052 28.978 66.6492 29.1095C48.2932 29.2567 30.2003 30.2193 15.3156 36.2363C14.7897 36.4572 14.6317 37.1672 14.8421 37.6774C15.0525 38.1823 15.6313 38.5979 16.2099 38.377Z"/><path d="M20.4153 56.8801C40.5596 52.683 60.0202 52.2569 79.6911 51.0209C99.362 49.7797 119.191 47.7232 139.808 40.0705C141.176 39.5603 141.859 38.0245 141.333 36.6517C140.807 35.279 139.282 34.5794 137.915 35.1054C118.138 42.6739 98.8884 44.9145 79.3752 46.3399C59.8621 47.7757 40.1385 48.3912 19.5734 52.8986C18.5215 53.1301 17.8905 54.2451 18.1009 55.297C18.3112 56.3489 19.3634 57.1063 20.4153 56.8801Z"/></svg>
+    </span>
+
+    <!-- Tiny diagonal lightning, mid-right lower -->
+    <span class="scribble s-mrb" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M133.19 62.6005C138.683 46.6517 144.163 30.6904 149.582 14.7169C150.136 13.0543 149.262 11.0345 147.624 10.3325C146.011 9.54428 143.917 10.197 142.92 11.872C129.434 34.7052 116.318 57.822 103.891 81.3203C85.3808 116.322 69.1483 152.517 53.5443 188.812C53.1502 189.735 54.6901 190.487 55.1704 189.612C74.2966 155.054 93.9771 120.743 112.438 85.8401C124.84 62.4033 137.033 38.8681 149.287 15.4067C147.058 14.4584 144.841 13.51 142.624 12.5617C138.055 28.7938 133.572 45.0629 129.077 61.332C128.448 63.6227 132.426 64.8543 133.19 62.6005Z"/></svg>
+    </span>
+
     <div class="hero-inner">
       <span class="badge">Early access</span>
-      <h1>Write, read, and share your stories.</h1>
+      <h1>
+        Write, read, &amp; <span class="underline">share</span><br>
+        your <span class="accent">stories</span>.
+      </h1>
       <p class="lede">
         InkSpaceX is a calm space for writers and readers — clean tools,
-        beautiful typography, and your work, wherever you go. Join the
-        early testers and we'll send you the app link.
+        beautiful typography, and your work, wherever you go.
+        Join the early testers and we'll send you the app link.
       </p>
 
       <form class="signup" id="signup-form" novalidate>
@@ -286,15 +505,15 @@
           required
           aria-label="Your email address"
         >
-        <button type="submit" id="submit-btn">Get the app</button>
+        <button type="submit" id="submit-btn">Get the app →</button>
       </form>
       <div class="form-note">No spam. We'll only email you about the beta.</div>
       <div class="error" id="error" role="alert"></div>
 
       <div class="result" id="result" aria-live="polite">
-        <h2 id="result-title">You're in! 🎉</h2>
+        <h2 id="result-title">You're in!</h2>
         <p id="result-msg">Tap the button below to download InkSpaceX. We've also saved your spot for upcoming beta updates.</p>
-        <a class="cta" id="app-link" href="#" target="_blank" rel="noopener">Open the app link</a>
+        <a class="cta" id="app-link" href="#" target="_blank" rel="noopener">Open the app link →</a>
       </div>
 
       <div class="features">
@@ -325,7 +544,7 @@
     <a href="/terms_of_service.html">Terms</a>
     ·
     <a href="mailto:support@inkspacex.com">support@inkspacex.com</a>
-    <div style="margin-top:8px">© InkSpaceX</div>
+    <div class="copy">made with ink &amp; coffee · © InkSpaceX</div>
   </footer>
 
 </div>
@@ -376,7 +595,7 @@
         form.style.display = 'none';
         document.querySelector('.form-note').style.display = 'none';
         if (data.already_signed_up) {
-          resultTitle.textContent = "Welcome back 👋";
+          resultTitle.textContent = "Welcome back";
           resultMsg.textContent = "You're already on the list. Here's the app link again:";
         }
         if (data.app_url) {
