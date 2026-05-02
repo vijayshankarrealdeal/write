@@ -1088,6 +1088,117 @@ async def _run_remote_sync(
 
 
 # -----------------------------------------------------------------------
+# VM publish — SSH + SCP path. Bundles the local storage/{slug}/ dir,
+# uploads via SFTP, runs sync_to_db.py on the VM. Best for bulk loads
+# or when api.inkspacex.com is rate-limiting us. See vm_publish.py for
+# the full design rationale.
+# -----------------------------------------------------------------------
+
+class SyncVmBody(BaseModel):
+    vm_ip: str = "20.219.16.30"
+    username: str = "azureuser"
+    password: str
+    remote_backend_root: str = "/home/azureuser/write/backend"
+    remote_storage_subdir: str = "test_model/storage/books"
+    force: bool = True  # default True since the VM-path is usually the "fix it for real" sync
+
+
+_VM_SYNC_STATE: dict[str, dict[str, Any]] = {}
+
+
+@app.post("/api/books/{slug}/sync-vm")
+async def sync_vm(
+    slug: str,
+    body: SyncVmBody,
+    background: BackgroundTasks,
+) -> dict[str, Any]:
+    if not body.password:
+        raise HTTPException(400, "password required")
+    manifest = persist.read_manifest(slug)
+    if not manifest:
+        raise HTTPException(404, f"unknown slug {slug}")
+
+    state = _VM_SYNC_STATE.get(slug) or {}
+    if state.get("phase") in ("running", "queued"):
+        return {"ok": False, "queued": False, "reason": "already running"}
+
+    _VM_SYNC_STATE[slug] = {
+        "phase": "queued",
+        "vm_ip": body.vm_ip,
+        "username": body.username,
+        "events": [],
+        "error": None,
+        "result": None,
+    }
+    background.add_task(
+        _run_vm_sync,
+        slug=slug,
+        vm_ip=body.vm_ip,
+        username=body.username,
+        password=body.password,
+        remote_backend_root=body.remote_backend_root,
+        remote_storage_subdir=body.remote_storage_subdir,
+        force=body.force,
+    )
+    return {"ok": True, "queued": True}
+
+
+@app.get("/api/books/{slug}/sync-vm/status")
+async def sync_vm_status(slug: str) -> dict[str, Any]:
+    state = _VM_SYNC_STATE.get(slug) or {"phase": "idle", "events": []}
+    # Strip nothing here — username + vm_ip are non-sensitive operational
+    # context the user wants to see in the UI.
+    return {**state}
+
+
+async def _run_vm_sync(
+    slug: str, *,
+    vm_ip: str,
+    username: str,
+    password: str,
+    remote_backend_root: str,
+    remote_storage_subdir: str,
+    force: bool,
+) -> None:
+    from . import vm_publish
+
+    state = _VM_SYNC_STATE.setdefault(slug, {})
+    state["phase"] = "running"
+    state["events"] = []
+
+    def _record(name: str, payload: dict[str, Any]) -> None:
+        evs = state.setdefault("events", [])
+        evs.append({"name": name, "payload": payload})
+        if len(evs) > 400:
+            del evs[: len(evs) - 400]
+
+    try:
+        result = await vm_publish.publish_to_vm(
+            slug,
+            vm_ip=vm_ip,
+            username=username,
+            password=password,
+            remote_backend_root=remote_backend_root,
+            remote_storage_subdir=remote_storage_subdir,
+            force=force,
+            on_event=_record,
+        )
+        state["result"] = result
+        state["phase"] = "done" if result.get("ok") else "failed"
+        if not result.get("ok"):
+            state["error"] = {
+                "message": f"sync_to_db.py exited {result.get('exit_code')}",
+                "body": (result.get("stderr") or "")[:2000],
+            }
+    except vm_publish.VmPublishError as exc:
+        state["error"] = {"message": str(exc), "stage": exc.stage, "body": exc.body}
+        state["phase"] = "failed"
+    except Exception as exc:  # noqa: BLE001
+        state["error"] = {"message": repr(exc)}
+        state["phase"] = "failed"
+
+
+# -----------------------------------------------------------------------
 # Helpers
 # -----------------------------------------------------------------------
 

@@ -708,7 +708,8 @@ function ProgressStrip({ progress }) {
 
 function SyncPanel({ slug, synced, onSynced, onCleaned }) {
   const toast = useToast();
-  const [showRemote, setShowRemote] = useState(false);
+  const [showPanel, setShowPanel] = useState(false);
+  const [mode, setMode] = useState("api");  // "api" | "vm"
   const [cleaning, setCleaning] = useState(false);
   const [cleaned, setCleaned] = useState(null);
 
@@ -730,17 +731,46 @@ function SyncPanel({ slug, synced, onSynced, onCleaned }) {
   };
 
   return (
-    <div style={{ textAlign: "right", minWidth: 320 }}>
+    <div style={{ textAlign: "right", minWidth: 360 }}>
       <div className="row" style={{ justifyContent: "flex-end", gap: 8 }}>
         <button disabled={cleaning} onClick={cleanOrphans} title="Delete stale brief/deep/chunk/embedding files left behind by older random-UUID chunker runs.">
           {cleaning ? "Cleaning…" : "Clean orphans"}
         </button>
-        <button className="primary" onClick={() => setShowRemote(s => !s)}>
-          {showRemote ? "Hide publish" : (synced ? "Publish again…" : "Publish to inkspacex…")}
+        <button className="primary" onClick={() => setShowPanel(s => !s)}>
+          {showPanel ? "Hide publish" : (synced ? "Publish again…" : "Publish…")}
         </button>
       </div>
-      {showRemote && (
-        <RemotePublishPanel slug={slug} onDone={() => { onSynced?.(); }} />
+      {showPanel && (
+        <div style={{ marginTop: 10, textAlign: "left" }}>
+          {/* Two paths to publish — same outcome, different transport.
+              api: hits api.inkspacex.com via REST. No infra on this box.
+              vm:  SSH + SCP the storage dir, run sync_to_db.py on the VM.
+                   One round-trip; bypasses load balancer; needs SSH creds. */}
+          <div style={{ display: "flex", gap: 0, borderBottom: "1px solid var(--border)" }}>
+            {[
+              ["api", "REST API",  "Public API — login + uploads + writes via HTTP. Default."],
+              ["vm",  "SSH to VM", "Bundle + scp + run sync_to_db.py on the VM. Best for bulk."],
+            ].map(([k, label, hint]) => (
+              <button
+                key={k}
+                onClick={() => setMode(k)}
+                title={hint}
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  borderBottom: mode === k ? "2px solid var(--accent)" : "2px solid transparent",
+                  borderRadius: 0,
+                  color: mode === k ? "var(--fg)" : "var(--muted)",
+                  padding: "6px 14px",
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {mode === "api" && <RemotePublishPanel slug={slug} onDone={() => { onSynced?.(); }} />}
+          {mode === "vm"  && <VmPublishPanel     slug={slug} onDone={() => { onSynced?.(); }} />}
+        </div>
       )}
       {cleaned && !cleaned.error && (
         <div className="muted" style={{ marginTop: 6, fontSize: 12 }}>
@@ -884,6 +914,261 @@ function RemotePublishPanel({ slug, onDone }) {
         <details style={{ marginTop: 8 }}>
           <summary style={{ fontSize: 12 }}>{events.length} event{events.length === 1 ? "" : "s"}</summary>
           <pre style={{ fontSize: 11, maxHeight: 200, overflow: "auto" }}>
+            {events.map(ev => `${ev.name} ${JSON.stringify(ev.payload)}`).join("\n")}
+          </pre>
+        </details>
+      )}
+    </form>
+  );
+}
+
+// SSH + SCP path: bundles the local storage/{slug}/ dir into a tarball,
+// uploads it to /tmp on the VM, extracts under
+// {remote_backend_root}/{remote_storage_subdir}, and runs
+// sync_to_db.py there directly. One round-trip for the whole book vs
+// ~80 for the API path. Useful when api.inkspacex.com is rate-limiting
+// or for bulk loads. Needs SSH creds — paramiko on the studio side.
+function VmPublishPanel({ slug, onDone }) {
+  const toast = useToast();
+  const [vmIp, setVmIp]       = useState(localStorage.getItem("inkx_vm_ip") || "20.219.16.30");
+  const [username, setUser]   = useState(localStorage.getItem("inkx_vm_user") || "azureuser");
+  const [password, setPass]   = useState("Google@990cc");
+  const [backend, setBackend] = useState(localStorage.getItem("inkx_vm_backend") || "/home/azureuser/write/backend");
+  const [storage, setStorage] = useState(localStorage.getItem("inkx_vm_storage") || "test_model/storage/books");
+  const [force, setForce]     = useState(true);
+  const [status, setStatus]   = useState(null);
+  const [busy, setBusy]       = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // Poll status while a publish runs.
+  useEffect(() => {
+    let alive = true;
+    let timer = null;
+    const tick = async () => {
+      if (!alive) return;
+      try { setStatus(await api(`/api/books/${slug}/sync-vm/status`)); }
+      catch { /* swallow */ }
+      timer = setTimeout(tick, 1500);
+    };
+    tick();
+    return () => { alive = false; if (timer) clearTimeout(timer); };
+  }, [slug]);
+
+  const wasRunning = useRef(false);
+  useEffect(() => {
+    if (!status) return;
+    if (status.phase === "running" || status.phase === "queued") {
+      wasRunning.current = true;
+    } else if (wasRunning.current && status.phase === "done") {
+      wasRunning.current = false;
+      toast("VM publish complete", "ok");
+      onDone?.();
+    } else if (wasRunning.current && status.phase === "failed") {
+      wasRunning.current = false;
+      toast("VM publish failed: " + (status.error?.message || "unknown"), "err");
+    }
+  }, [status, toast, onDone]);
+
+  const submit = async (e) => {
+    e?.preventDefault();
+    if (!password) return;
+    setBusy(true);
+    try {
+      // Persist non-secret bits — vm_ip, username, paths — so re-runs
+      // don't retype them. NEVER persist the SSH password.
+      localStorage.setItem("inkx_vm_ip", vmIp);
+      localStorage.setItem("inkx_vm_user", username);
+      localStorage.setItem("inkx_vm_backend", backend);
+      localStorage.setItem("inkx_vm_storage", storage);
+      const r = await fetch(`/api/books/${slug}/sync-vm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vm_ip: vmIp,
+          username,
+          password,
+          remote_backend_root: backend,
+          remote_storage_subdir: storage,
+          force,
+        }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || "request failed");
+      if (!j.queued) toast(j.reason || "already running", "info");
+      else toast("VM publish queued — bundling…", "ok");
+    } catch (e) {
+      toast("VM publish failed to start: " + String(e), "err");
+    } finally { setBusy(false); }
+  };
+
+  const running = status?.phase === "running" || status?.phase === "queued";
+  const events  = status?.events || [];
+  const lastEvent = events[events.length - 1];
+  const result    = status?.result;
+  const errorState = status?.error;
+
+  // Three named phases the user can read at a glance. Each starts
+  // when the named begin-event fires; the matching end-event flips it
+  // to "done". Anything not yet started is "pending".
+  const phaseStatus = (begin, end) => {
+    let started = false, finished = false;
+    for (const ev of events) {
+      if (begin.includes(ev.name)) started = true;
+      if (end.includes(ev.name)) finished = true;
+    }
+    if (finished) return "done";
+    if (started) return "running";
+    return "pending";
+  };
+  const phases = [
+    {
+      key: "compress",
+      label: "1. Compress",
+      hint: `→ storage/${slug}/_publish/${slug}.tgz`,
+      status: phaseStatus(["compressing"], ["compressed"]),
+    },
+    {
+      key: "upload",
+      label: "2. Upload",
+      hint: "SFTP put → /tmp on VM",
+      status: phaseStatus(["uploading"], ["uploaded"]),
+    },
+    {
+      key: "extract",
+      label: "3. Extract + sync",
+      hint: "tar -xzf + sync_to_db.py",
+      status: phaseStatus(["extracting", "executing"], ["finished"]),
+    },
+  ];
+
+  const uploadProgress = events
+    .slice().reverse()
+    .find(e => e.name === "upload_progress");
+  const compressedEvent = events
+    .slice().reverse()
+    .find(e => e.name === "compressed");
+
+  return (
+    <form onSubmit={submit} style={{
+      marginTop: 10, padding: 12, background: "var(--panel-2)",
+      border: "1px solid var(--border)", borderRadius: 8,
+    }}>
+      <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 8 }}>
+        Bundles <code>storage/{slug}</code>, SCPs to the VM, runs
+        <code> sync_to_db.py</code> there. No HTTP per-image — one round-trip.
+      </div>
+
+      <label>VM IP</label>
+      <input value={vmIp} onChange={e => setVmIp(e.target.value)}
+        placeholder="20.219.16.30" disabled={running || busy} />
+
+      <label>SSH username</label>
+      <input value={username} onChange={e => setUser(e.target.value)}
+        placeholder="azureuser" disabled={running || busy} />
+
+      <label>SSH password</label>
+      <input type="password" value={password} onChange={e => setPass(e.target.value)}
+        placeholder="••••••••" disabled={running || busy}
+        autoComplete="current-password" required />
+
+      <details open={showAdvanced} onToggle={e => setShowAdvanced(e.target.open)}
+        style={{ marginTop: 8 }}>
+        <summary style={{ fontSize: 12 }}>Advanced (paths + flags)</summary>
+        <label>Remote backend root</label>
+        <input value={backend} onChange={e => setBackend(e.target.value)}
+          disabled={running || busy} />
+        <label>Remote storage subdir <span className="muted" style={{ fontWeight: 400 }}>(under backend root)</span></label>
+        <input value={storage} onChange={e => setStorage(e.target.value)}
+          disabled={running || busy} />
+        <label className="toggle" style={{ display: "block", marginTop: 8, fontSize: 13 }}>
+          <input type="checkbox" checked={force} onChange={e => setForce(e.target.checked)}
+            style={{ width: "auto", marginRight: 6 }} />
+          pass <code>--force</code> (re-publish even if already synced)
+        </label>
+      </details>
+
+      <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center" }}>
+        <button className="primary" type="submit" disabled={running || busy || !password}>
+          {running ? "Publishing…" : (busy ? "Submitting…" : "Compress → Upload → Extract")}
+        </button>
+        {running && lastEvent && (
+          <span className="muted" style={{ fontSize: 12 }}>
+            {lastEvent.name}
+            {uploadProgress?.payload?.pct != null && lastEvent.name === "upload_progress"
+              ? ` ${uploadProgress.payload.pct}%`
+              : ""}
+          </span>
+        )}
+      </div>
+
+      {(running || result || errorState) && (
+        <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+          {phases.map(p => (
+            <div key={p.key} style={{
+              padding: "8px 10px",
+              border: "1px solid var(--border)",
+              borderRadius: 6,
+              background: p.status === "done" ? "#142a1c"
+                       : p.status === "running" ? "#2a2417"
+                       : "var(--panel)",
+              opacity: p.status === "pending" ? 0.55 : 1,
+            }}>
+              <div style={{
+                fontSize: 12,
+                color: p.status === "done" ? "var(--ok)"
+                     : p.status === "running" ? "var(--highlight)"
+                     : "var(--muted)",
+                fontWeight: 600,
+              }}>
+                {p.status === "done" ? "✓ " : p.status === "running" ? "→ " : "· "}
+                {p.label}
+              </div>
+              <div className="muted" style={{ fontSize: 11, marginTop: 2 }}>
+                {p.hint}
+              </div>
+              {p.key === "compress" && compressedEvent && (
+                <div style={{ fontSize: 11, marginTop: 4 }}>
+                  {compressedEvent.payload.human}
+                </div>
+              )}
+              {p.key === "upload" && uploadProgress && p.status === "running" && (
+                <div style={{ fontSize: 11, marginTop: 4 }}>
+                  {uploadProgress.payload.pct}% ·{" "}
+                  {Math.round((uploadProgress.payload.bytes || 0) / 1048576)} /{" "}
+                  {Math.round((uploadProgress.payload.total || 0) / 1048576)} MB
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {result && result.ok && (
+        <div style={{ marginTop: 10, fontSize: 12 }}>
+          <strong style={{ color: "var(--ok)" }}>Synced via VM.</strong>{" "}
+          exit {result.exit_code}.
+          <details style={{ marginTop: 6 }}>
+            <summary>stdout ({(result.stdout || "").length} chars)</summary>
+            <pre style={{ fontSize: 11, maxHeight: 200, overflow: "auto" }}>{result.stdout}</pre>
+          </details>
+        </div>
+      )}
+      {errorState && (
+        <div className="err" style={{ marginTop: 10, fontSize: 12 }}>
+          {errorState.message}
+          {errorState.stage ? ` (stage: ${errorState.stage})` : ""}
+          {errorState.body && (
+            <details style={{ marginTop: 4 }}>
+              <summary>response / stderr</summary>
+              <pre style={{ fontSize: 11, maxHeight: 200, overflow: "auto" }}>{errorState.body}</pre>
+            </details>
+          )}
+        </div>
+      )}
+      {events.length > 0 && (
+        <details style={{ marginTop: 8 }}>
+          <summary style={{ fontSize: 12 }}>{events.length} event{events.length === 1 ? "" : "s"}</summary>
+          <pre style={{ fontSize: 11, maxHeight: 240, overflow: "auto" }}>
             {events.map(ev => `${ev.name} ${JSON.stringify(ev.payload)}`).join("\n")}
           </pre>
         </details>
