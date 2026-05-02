@@ -66,6 +66,7 @@ services:
       dockerfile: backend/Dockerfile
     restart: unless-stopped
     environment:
+      ENV: ${ENV:-dev}
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-inkspacex}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}@postgres:5432/${POSTGRES_DB:-inkspacex}
       MINIO_ENDPOINT: minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:?MINIO_ROOT_USER must be set in .env}

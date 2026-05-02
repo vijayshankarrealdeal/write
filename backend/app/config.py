@@ -1,4 +1,4 @@
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -13,8 +13,9 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://inkspacex:changeme@localhost:5432/inkspacex"
 
     # Tags every AppLog row so the admin viewer can filter dev vs prod
-    # noise. Defaults to "dev"; production deploys override via .env.
-    environment: str = "dev"
+    # noise. Read from ENV — local .env keeps it "dev"; the GitHub Actions
+    # deploy overlays ENV=prod from a repo secret.
+    environment: str = Field(default="dev", validation_alias="ENV")
 
     jwt_secret: str
     jwt_algorithm: str = "HS256"
@@ -58,7 +59,9 @@ class Settings(BaseSettings):
     # `extra="ignore"` matches prod's docker-compose `environment:` injection (which
     # passes vars not declared here, e.g. AZURE_OPENAI_MAP_DEPLOYMENT consumed by
     # app.ai.* via os.getenv). Without it, env_file loads (local dev) reject those.
-    model_config = {"env_file": ".env", "extra": "ignore"}
+    # `populate_by_name=True` so the `ENV` validation_alias on `environment`
+    # doesn't block reading the field by its python name in tests.
+    model_config = {"env_file": ".env", "extra": "ignore", "populate_by_name": True}
 
     @field_validator("jwt_secret")
     @classmethod

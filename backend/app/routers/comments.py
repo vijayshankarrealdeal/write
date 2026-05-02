@@ -1,11 +1,12 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import get_current_user
 from app.database import get_db
+from app.feed_visibility import public_feed_clause
 from app.models.comment import Comment
 from app.models.feed_item import FeedItem
 from app.models.user import User
@@ -36,6 +37,20 @@ async def list_comments(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
+    # Comments inherit the visibility of their feed item: if the viewer
+    # can't read the item, they can't read its comments either. 404 (not
+    # 403) so we don't leak the existence of private items.
+    item_check = await db.execute(
+        select(FeedItem.id).where(
+            FeedItem.id == item_id,
+            or_(
+                FeedItem.author_id == user.id,
+                public_feed_clause(user.id),
+            ),
+        )
+    )
+    if item_check.scalar_one_or_none() is None:
+        raise HTTPException(status_code=404, detail="Feed item not found")
     result = await db.execute(
         select(Comment)
         .where(Comment.feed_item_id == item_id)
@@ -51,8 +66,17 @@ async def create_comment(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    # Verify feed item exists
-    result = await db.execute(select(FeedItem).where(FeedItem.id == item_id))
+    # Verify feed item exists AND the viewer can see it — comments on
+    # private writings are gated behind the same approved-follow rule.
+    result = await db.execute(
+        select(FeedItem).where(
+            FeedItem.id == item_id,
+            or_(
+                FeedItem.author_id == user.id,
+                public_feed_clause(user.id),
+            ),
+        )
+    )
     item = result.scalar_one_or_none()
     if not item:
         raise HTTPException(status_code=404, detail="Feed item not found")

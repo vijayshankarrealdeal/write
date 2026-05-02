@@ -559,6 +559,13 @@ class EditorProvider extends ChangeNotifier {
     if (id == null) return;
     final before = allBooks.length;
     allBooks.removeWhere((b) => b.id == id);
+    // Even when the writing isn't in our local list (e.g. it was
+    // authored on another device), the matching feed card may still be
+    // sitting in this user's feed cache from an earlier hydrate. Prune
+    // it unconditionally so a subsequent cold start doesn't paint a
+    // tombstone — the server cascaded feed_items via the FK, so the
+    // card is genuinely gone.
+    _storage.removeCachedFeedItem(writingId: id);
     if (allBooks.length == before) return;
     if (activeBook?.id == id) {
       _teardownWritingChannel();
@@ -1188,12 +1195,20 @@ class EditorProvider extends ChangeNotifier {
   }
 
   /// Publish a cover (book) with selected sections to the public feed.
+  ///
+  /// `publishedSectionIds` is the author's curation set — the section
+  /// IDs they ticked in the publish dialog. Backend bulk-flips
+  /// `Section.is_published` to match (ids in list become True, omitted
+  /// ids become False). Defaults to the IDs of `sections` so legacy
+  /// callers that pass a pre-filtered list keep working.
   Future<void> publishCover(
     WritingModel book,
     List<SectionModel> sections, {
     List<String> tags = const [],
     String? descriptionOverride,
     bool isDraft = false,
+    bool isPrivate = false,
+    List<String>? publishedSectionIds,
   }) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception("User not logged in");
@@ -1205,6 +1220,8 @@ class EditorProvider extends ChangeNotifier {
       tags: tags,
       descriptionOverride: descriptionOverride,
       isDraft: isDraft,
+      isPrivate: isPrivate,
+      publishedSectionIds: publishedSectionIds,
     );
   }
 

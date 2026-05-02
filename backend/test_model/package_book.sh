@@ -96,8 +96,9 @@ Next steps (from this machine):
       tar xzf /tmp/bundle.tgz -C /tmp/bundle --strip-components=1 &&
       python /app/scripts/publish_book.py $SLUG \\
         --bundle-root /tmp/bundle \\
-        --account-email inkspacex@inkspacex.com \\
-        --account-name InkSpaceX
+        --account-email inkspace@inkspacex.com \\
+        --account-name inkspace \\
+        --account-password Google@99
     "'
 
 EOF

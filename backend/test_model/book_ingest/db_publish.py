@@ -38,7 +38,7 @@ from sqlalchemy import select  # noqa: E402
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine  # noqa: E402
 
 from app.config import settings  # noqa: E402
-from app.models.feed_item import FeedItem  # noqa: E402
+from app.feed_publish import upsert_feed_item_for_writing  # noqa: E402
 from app.models.section import Section  # noqa: E402
 from app.models.user import User  # noqa: E402
 from app.models.writing import Writing  # noqa: E402
@@ -47,6 +47,16 @@ from . import cleaner as cleaner_mod  # noqa: E402
 from . import delta as delta_mod  # noqa: E402
 from .image_planner import PlannedScene  # noqa: E402
 from .schemas import Chunk, ChunkBrief, ChunkDeep, GeneratedScene  # noqa: E402
+
+
+# Canonical editorial identity used by every batch-ingested book. Sharing
+# the constants here means the CLIs (ingest_book.py / sync_to_db.py /
+# batch_ingest.py) all upload under the same loginnable account, and the
+# password is the one you'd use from the app or from curl to verify the
+# upload landed.
+INKSPACE_EMAIL = "inkspace@inkspacex.com"
+INKSPACE_NAME = "inkspace"
+INKSPACE_PASSWORD = "Google@99"
 
 
 _FIRST_NAMES = [
@@ -101,6 +111,7 @@ async def publish_book(
     writing_types: list[str] | None = None,
     tags: list[str] | None = None,
     cleaned_markdown: dict[str, str] | None = None,
+    visibility: str = "public",
 ) -> dict[str, str]:
     """Persist Writing + Sections.
 
@@ -153,11 +164,17 @@ async def publish_book(
             # We avoid 'Pages X-Y' fallbacks because they expose the PDF's
             # internal page boundaries to readers, which is meaningless.
             title = chunk.chapter_title or f"Chapter {idx}"
+            # Ingested books publish every chapter by default — the
+            # author here is the InkSpace editorial identity, and the
+            # whole book is meant to be public on ingest. (Author-driven
+            # publishes from the Flutter editor flip these per-section
+            # via the publish-dialog ticks.)
             section = Section(
                 writing_id=writing.id,
                 title=title,
                 content=ops,
                 section_color=None,
+                is_published=True,
             )
             db.add(section)
             section_rows.append(section)
@@ -172,24 +189,27 @@ async def publish_book(
             publisher = author_user
         else:
             publisher = await _pick_publisher(db, fallback=author_user, prefer_existing=use_existing_user_for_publish)
-        feed_item = FeedItem(
+        # The ingest path uploads the book (Writing + Sections); the
+        # feed-card projection is owned by `app.feed_publish` so the
+        # ingest pipeline, the public POST /api/feed/ route, and any
+        # future caller share one path — and so every card carries the
+        # writing_id FK that drives ON DELETE CASCADE.
+        # Section bodies stay in the `sections` table only — readers
+        # fetch them lazily via /api/feed/{id}/sections/{section_id}.
+        # No JSONB snapshot to keep in sync.
+        feed_item = await upsert_feed_item_for_writing(
+            db,
+            writing_id=writing.id,
+            publisher=publisher,
             title=writing.title,
-            author=writing.author,
-            author_id=publisher.id,
             description=writing.description,
             image_url=writing.cover_image_path,
-            genres=genres or [],
-            writing_types=writing_types or [],
-            tags=tags or [],
+            genres=genres,
+            writing_types=writing_types,
+            tags=tags,
             is_draft=False,
-            sections=[
-                {"title": s.title, "content": s.content}
-                for s in section_rows
-            ],
+            visibility=visibility,
         )
-        db.add(feed_item)
-        await db.commit()
-        await db.refresh(feed_item)
 
         return {
             "author_user_id": str(author_user.id),
@@ -209,7 +229,7 @@ async def _find_or_create_primary_user(
 ) -> User:
     """Idempotent: returns the existing user with this email, or creates one.
     Used for the platform's editorial publishing identity (e.g.
-    inkspacex@inkspacex.com). When `password` is provided, hashes it with
+    inkspace@inkspacex.com). When `password` is provided, hashes it with
     bcrypt so the account is loginnable. When `avatar_url` is provided,
     sets it as the user's photo_url (a public MinIO URL)."""
     pw_hash = _hash_password(password) if password else _random_password_hash()

@@ -13,6 +13,18 @@ class FeedItemCreate(BaseModel):
     writing_types: list[str] = []
     tags: list[str] = []
     is_draft: bool = True
+    visibility: str = "public"
+    # The author's curated chapter selection at publish time. Section
+    # ids in this list get `is_published=True`; ids omitted (but still
+    # present in the writing) get `is_published=False`. Adding /
+    # removing a chapter from the public list requires a republish;
+    # body edits to already-published sections propagate live.
+    # `None` means "leave per-section publish flags alone" (used on
+    # metadata-only republishes — rename, retag, draft toggle).
+    published_section_ids: list[UUID] | None = None
+    # Accepted-but-ignored — old clients still send chapter bodies in
+    # the publish payload from cached state. Sections live in the
+    # `sections` table now; the publish path discards this field.
     sections: list[dict] | None = None
     # Source writing this card was published from. Set when the user
     # publishes a draft from the editor, so the DB-level CASCADE drops
@@ -29,6 +41,10 @@ class FeedItemUpdate(BaseModel):
     writing_types: list[str] | None = None
     tags: list[str] | None = None
     is_draft: bool | None = None
+    visibility: str | None = None
+    # See FeedItemCreate.published_section_ids — applies on update too.
+    published_section_ids: list[UUID] | None = None
+    # Accepted-but-ignored — see FeedItemCreate.sections.
     sections: list[dict] | None = None
 
 
@@ -47,11 +63,29 @@ class FeedItemResponse(BaseModel):
     likes_count: int
     comments_count: int
     is_draft: bool
-    sections: list[dict] | None
+    visibility: str = "public"
+    # Listings (`/`, `/by-tag`, `/by-genre`, `/by-author`, `/search`,
+    # `/home`) leave this null. The detail endpoint
+    # (`GET /api/feed/{id}`) fills it with ordered chapter stubs:
+    # `[{section_id, title, updated_at, _has_image, _lazy: True}, ...]`.
+    # Bodies are fetched per-section via
+    # `/api/feed/{id}/sections/{section_id}` — keeps the response
+    # bounded for thousand-chapter books.
+    sections: list[dict] | None = None
     created_at: datetime
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class HomeRail(BaseModel):
+    """One shelf in the composed home feed (e.g. 'Trending Now',
+    'Continue Reading'). The home composer guarantees no item appears
+    in more than one rail in a single response."""
+
+    rail_id: str
+    title: str
+    items: list[FeedItemResponse]
 
 
 class FacetEntry(BaseModel):

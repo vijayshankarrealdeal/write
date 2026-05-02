@@ -38,7 +38,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.deps import get_current_user
 from app.config import settings
 from app.database import get_db
+from app.feed_sections import list_section_stubs
 from app.models.feed_item import FeedItem
+from app.models.section import Section
 from app.models.user import User
 from app.offline import license as inkx_license
 from app.offline import packager as inkx_packager
@@ -273,14 +275,42 @@ async def download_offline_package(
 
     device_key = _decode_device_key(body.device_key_b64)
 
+    # Section bodies live in the `sections` table (FeedItem.sections
+    # JSONB was dropped — readers source live content from the canonical
+    # rows so author edits propagate without a republish). For the
+    # offline package we materialise the ordered chapter list AND each
+    # body in a single round-trip via `list_section_stubs` (for order +
+    # ids) plus a bulk Section query (for content).
     sections_input: list[inkx_packager.SectionInput] = []
-    for idx, section in enumerate(item.sections or []):
-        sections_input.append(inkx_packager.SectionInput(
-            id=str(section.get("id") or f"section-{idx}"),
-            title=section.get("title") or "",
-            section_index=idx,
-            content=section,
-        ))
+    section_payloads_for_images: list[dict] = []
+    if item.writing_id is not None:
+        stubs = await list_section_stubs(db, item.writing_id)
+        if stubs:
+            section_uuids = [UUID(s["section_id"]) for s in stubs]
+            content_rows = (
+                await db.execute(
+                    select(Section.id, Section.content, Section.title)
+                    .where(Section.id.in_(section_uuids))
+                )
+            ).all()
+            content_by_id = {str(r.id): r for r in content_rows}
+            for idx, stub in enumerate(stubs):
+                sid = stub["section_id"]
+                row = content_by_id.get(sid)
+                if row is None:
+                    continue
+                content_payload = {
+                    "id": sid,
+                    "title": row.title or stub.get("title") or "",
+                    "content": row.content,
+                }
+                section_payloads_for_images.append(content_payload)
+                sections_input.append(inkx_packager.SectionInput(
+                    id=sid,
+                    title=row.title or stub.get("title") or "",
+                    section_index=idx,
+                    content=content_payload,
+                ))
 
     # Cover + inline section images get fetched, downsized to 1280px JPEG
     # q80, and bundled into the encrypted package alongside the section
@@ -289,7 +319,7 @@ async def download_offline_package(
     images_input = await collect_offline_images(
         cover_url=item.image_url,
         cover_meta=item.image_meta,
-        sections=item.sections,
+        sections=section_payloads_for_images,
     )
 
     blob = inkx_packager.pack_book(

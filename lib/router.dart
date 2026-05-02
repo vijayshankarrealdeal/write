@@ -30,6 +30,7 @@ import 'package:inkspacex/ui/pages/feed_preferences_page.dart';
 import 'package:inkspacex/ui/pages/drafts_page.dart';
 import 'package:inkspacex/ui/pages/legal_page.dart';
 import 'package:inkspacex/ui/pages/merge_log_page.dart';
+import 'package:inkspacex/ui/pages/follow_requests_page.dart';
 import 'package:inkspacex/ui/pages/notifications_page.dart';
 import 'package:inkspacex/ui/pages/bookmarks_page.dart';
 import 'package:inkspacex/ui/pages/manage_downloads_page.dart';
@@ -224,6 +225,12 @@ GoRouter createRouter(AuthProvider authProvider) {
         path: '/notifications',
         pageBuilder: (_, __) => const CupertinoPage(
           child: NotificationsPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/follow-requests',
+        pageBuilder: (_, __) => const CupertinoPage(
+          child: FollowRequestsPage(),
         ),
       ),
       GoRoute(

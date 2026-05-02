@@ -15,3 +15,4 @@ PyMuPDF==1.24.13
 # It's transitively present via openai/httpx in some envs but pin it
 # explicitly so a fresh venv doesn't break.
 requests==2.32.3
+beautifulsoup4

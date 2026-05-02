@@ -33,24 +33,38 @@ class PublicUser(BaseModel):
     followers_count: int = 0
     following_count: int = 0
     is_following: bool = False
+    # Viewer has sent a follow request that the target hasn't yet
+    # approved. Mutually exclusive with `is_following`. The Flutter
+    # UI uses this to render the 'Requested' state.
+    follow_request_pending: bool = False
+    # True if the target has any private writings — i.e. following
+    # them requires approval. Lets the client show the right CTA
+    # ('Request to follow' vs 'Follow') ahead of the round-trip.
+    requires_follow_approval: bool = False
     is_blocked: bool = False
 
     model_config = {"from_attributes": True}
 
 
 def _follower_count_subquery(target_col):
+    """Count of approved followers only — pending requests don't count
+    toward the public follower number on the profile card."""
     return (
         select(func.count(Follow.id))
         .where(Follow.followee_id == target_col)
+        .where(Follow.status == "approved")
         .correlate(User)
         .scalar_subquery()
     )
 
 
 def _following_count_subquery(target_col):
+    """Count of approved 'following' rows only — sent-but-pending requests
+    don't surface as 'following' until the target approves."""
     return (
         select(func.count(Follow.id))
         .where(Follow.follower_id == target_col)
+        .where(Follow.status == "approved")
         .correlate(User)
         .scalar_subquery()
     )
@@ -102,6 +116,20 @@ async def search_users(
     rows = (await db.execute(stmt)).all()
     target_ids = [u.id for u, *_ in rows]
     following_set = await _following_set(db, user.id, target_ids)
+    pending_set = await _pending_request_set(db, user.id, target_ids)
+    # Compute requires_follow_approval per-row in a single pass: a user is
+    # gated if they have any published private writing.
+    if target_ids:
+        gated_rows = await db.execute(
+            select(FeedItem.author_id)
+            .where(FeedItem.author_id.in_(target_ids))
+            .where(FeedItem.is_draft == False)  # noqa: E712
+            .where(FeedItem.visibility == "private")
+            .distinct()
+        )
+        gated_set: set[UUID] = {r for (r,) in gated_rows.all()}
+    else:
+        gated_set = set()
     return [
         PublicUser(
             id=u.id,
@@ -112,6 +140,8 @@ async def search_users(
             followers_count=int(fc or 0),
             following_count=int(gc or 0),
             is_following=u.id in following_set,
+            follow_request_pending=u.id in pending_set,
+            requires_follow_approval=u.id in gated_set,
         )
         for u, p, fc, gc in rows
     ]
@@ -120,7 +150,9 @@ async def search_users(
 async def _following_set(
     db: AsyncSession, viewer_id: UUID, target_ids: list[UUID]
 ) -> set[UUID]:
-    """Return the subset of `target_ids` that `viewer_id` follows.
+    """Return the subset of `target_ids` that `viewer_id` follows
+    (approved only — pending requests are reported separately via
+    `_pending_request_set`).
 
     One round-trip instead of N — keeps search results O(1) DB hits.
     """
@@ -130,9 +162,42 @@ async def _following_set(
         select(Follow.followee_id).where(
             Follow.follower_id == viewer_id,
             Follow.followee_id.in_(target_ids),
+            Follow.status == "approved",
         )
     )
     return {r for (r,) in rows.all()}
+
+
+async def _pending_request_set(
+    db: AsyncSession, viewer_id: UUID, target_ids: list[UUID]
+) -> set[UUID]:
+    """Return the subset of `target_ids` for which `viewer_id` has a
+    pending follow request awaiting approval. Used to render the
+    'Requested' state in the profile / search UI."""
+    if not target_ids:
+        return set()
+    rows = await db.execute(
+        select(Follow.followee_id).where(
+            Follow.follower_id == viewer_id,
+            Follow.followee_id.in_(target_ids),
+            Follow.status == "pending",
+        )
+    )
+    return {r for (r,) in rows.all()}
+
+
+async def _has_private_writings(db: AsyncSession, target_id: UUID) -> bool:
+    """True if `target_id` has any published `visibility='private'` items.
+    Drives the decision at follow-request time: target with no private
+    content auto-approves, target with private content requires approval."""
+    row = await db.execute(
+        select(FeedItem.id)
+        .where(FeedItem.author_id == target_id)
+        .where(FeedItem.is_draft == False)  # noqa: E712
+        .where(FeedItem.visibility == "private")
+        .limit(1)
+    )
+    return row.scalar_one_or_none() is not None
 
 
 async def _blocked_by_viewer_set(
@@ -186,11 +251,13 @@ async def get_public_user(
     followers_count = (
         select(func.count(Follow.id))
         .where(Follow.followee_id == user_id)
+        .where(Follow.status == "approved")
         .scalar_subquery()
     )
     following_count = (
         select(func.count(Follow.id))
         .where(Follow.follower_id == user_id)
+        .where(Follow.status == "approved")
         .scalar_subquery()
     )
     stmt = (
@@ -207,7 +274,9 @@ async def get_public_user(
         raise HTTPException(status_code=404, detail="User not found")
     u, p, fc, gc = row
     is_following = False
+    follow_request_pending = False
     is_blocked = False
+    requires_follow_approval = False
     if user.id != user_id:
         # If the *target* has blocked the viewer, hide the profile entirely
         # so block is not detectable. Viewer-blocked-target still resolves
@@ -222,14 +291,20 @@ async def get_public_user(
         ).first() is not None
         if target_blocks_viewer:
             raise HTTPException(status_code=404, detail="User not found")
-        is_following = (
+        # Resolve viewer's relationship to target in one round-trip:
+        # is_following / requested / blocked / approval-required.
+        follow_row = (
             await db.execute(
-                select(Follow.id).where(
+                select(Follow.status).where(
                     Follow.follower_id == user.id,
                     Follow.followee_id == user_id,
                 )
             )
-        ).first() is not None
+        ).scalar_one_or_none()
+        if follow_row == "approved":
+            is_following = True
+        elif follow_row == "pending":
+            follow_request_pending = True
         is_blocked = (
             await db.execute(
                 select(Block.id).where(
@@ -238,6 +313,7 @@ async def get_public_user(
                 )
             )
         ).first() is not None
+        requires_follow_approval = await _has_private_writings(db, user_id)
     return PublicUser(
         id=u.id,
         name=u.name,
@@ -247,6 +323,8 @@ async def get_public_user(
         followers_count=int(fc or 0),
         following_count=int(gc or 0),
         is_following=is_following,
+        follow_request_pending=follow_request_pending,
+        requires_follow_approval=requires_follow_approval,
         is_blocked=is_blocked,
     )
 
@@ -258,6 +336,12 @@ async def follow_user(
     user: User = Depends(get_current_user),
 ):
     """Follow another user. Idempotent — re-follow is a no-op.
+
+    If the target has any published private writings, the follow is
+    created with `status='pending'` and the target gets a follow-request
+    notification they can approve from their inbox. Otherwise the row
+    is created `status='approved'` immediately, matching the open-follow
+    semantics for fully-public authors.
 
     Self-follow is rejected at the DB layer (CHECK constraint) and here
     so we can return a clean 400 instead of a 500.
@@ -285,36 +369,63 @@ async def follow_user(
 
     existing = (
         await db.execute(
-            select(Follow.id).where(
+            select(Follow).where(
                 Follow.follower_id == user.id,
                 Follow.followee_id == user_id,
             )
         )
-    ).first()
+    ).scalar_one_or_none()
+    requires_approval = await _has_private_writings(db, user_id)
+    new_status = "pending" if requires_approval else "approved"
+
     if existing is None:
-        db.add(Follow(follower_id=user.id, followee_id=user_id))
+        db.add(
+            Follow(
+                follower_id=user.id,
+                followee_id=user_id,
+                status=new_status,
+            )
+        )
         try:
             await db.flush()
         except IntegrityError:
             # Race with a concurrent follow — treat as already-followed.
             await db.rollback()
+            existing = (
+                await db.execute(
+                    select(Follow).where(
+                        Follow.follower_id == user.id,
+                        Follow.followee_id == user_id,
+                    )
+                )
+            ).scalar_one_or_none()
         else:
+            # Notification kind differentiates the inbox UX: 'follow' is a
+            # confirmed new follower, 'follow_request' is an actionable
+            # approve/reject card.
             await create_notification(
                 db,
                 recipient_id=user_id,
-                kind="follow",
+                kind="follow_request" if new_status == "pending" else "follow",
                 actor=user,
             )
             await db.commit()
 
+    # Existing row: don't downgrade an approved follow to pending if the
+    # target later turned on private writings — they keep their access.
+    final_status = existing.status if existing is not None else new_status
+
     followers_count = (
         await db.execute(
-            select(func.count(Follow.id)).where(Follow.followee_id == user_id)
+            select(func.count(Follow.id))
+            .where(Follow.followee_id == user_id)
+            .where(Follow.status == "approved")
         )
     ).scalar_one()
     return {
         "ok": True,
-        "is_following": True,
+        "is_following": final_status == "approved",
+        "follow_request_pending": final_status == "pending",
         "followers_count": int(followers_count or 0),
     }
 
@@ -325,7 +436,9 @@ async def unfollow_user(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    """Unfollow. Idempotent — no error if not currently following."""
+    """Unfollow. Idempotent — no error if not currently following.
+    Also cancels a pending follow request, since the same row is dropped
+    regardless of status."""
     follow = (
         await db.execute(
             select(Follow).where(
@@ -334,18 +447,28 @@ async def unfollow_user(
             )
         )
     ).scalar_one_or_none()
+    was_approved = follow is not None and follow.status == "approved"
     if follow is not None:
         await db.delete(follow)
         await db.commit()
+        if was_approved:
+            # Losing access to a previously-followed author's content
+            # means the recommender's cached profile is now stale (it
+            # may have been showing the author's private items).
+            from app.ai.recommendation import invalidate_user_profile_cache
+            invalidate_user_profile_cache(user.id)
 
     followers_count = (
         await db.execute(
-            select(func.count(Follow.id)).where(Follow.followee_id == user_id)
+            select(func.count(Follow.id))
+            .where(Follow.followee_id == user_id)
+            .where(Follow.status == "approved")
         )
     ).scalar_one()
     return {
         "ok": True,
         "is_following": False,
+        "follow_request_pending": False,
         "followers_count": int(followers_count or 0),
     }
 
@@ -398,10 +521,146 @@ async def remove_follower(
         await db.commit()
     followers_count = (
         await db.execute(
-            select(func.count(Follow.id)).where(Follow.followee_id == user.id)
+            select(func.count(Follow.id))
+            .where(Follow.followee_id == user.id)
+            .where(Follow.status == "approved")
         )
     ).scalar_one()
     return {"ok": True, "followers_count": int(followers_count or 0)}
+
+
+# ===== Follow request inbox (Instagram-style approval) ======================
+#
+# When a user has any published `visibility='private'` writings, follow
+# requests against them land here as `Follow` rows with status='pending'.
+# The author approves to grant the follower access, or rejects to delete
+# the row (the requester sees this as no follow / can re-request later).
+
+
+class FollowRequestEntry(BaseModel):
+    """One pending follow request, enriched with the requester's public
+    profile so the inbox card can render without an extra round-trip."""
+
+    follow_id: UUID
+    requester: PublicUser
+    created_at: str | None
+
+
+@router.get("/me/follow-requests", response_model=list[FollowRequestEntry])
+async def list_follow_requests(
+    limit: int = Query(50, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Pending follow requests directed at the current user, newest first.
+
+    Walks the partial index `ix_follows_pending_inbox` so the query
+    stays cheap even when the user has tens of thousands of approved
+    followers — we only scan the pending slice.
+    """
+    posts_count = (
+        select(func.count(FeedItem.id))
+        .where(FeedItem.author_id == User.id)
+        .where(FeedItem.is_draft == False)  # noqa: E712
+        .correlate(User)
+        .scalar_subquery()
+    )
+    followers_count = _follower_count_subquery(User.id)
+    following_count = _following_count_subquery(User.id)
+    invisible = await _viewer_invisible_to(db, user.id)
+    stmt = (
+        select(
+            Follow.id,
+            Follow.created_at,
+            User,
+            posts_count.label("posts_count"),
+            followers_count.label("followers_count"),
+            following_count.label("following_count"),
+        )
+        .join(User, User.id == Follow.follower_id)
+        .where(Follow.followee_id == user.id)
+        .where(Follow.status == "pending")
+        .order_by(Follow.created_at.desc())
+        .limit(limit)
+    )
+    if invisible:
+        stmt = stmt.where(User.id.notin_(invisible))
+    rows = (await db.execute(stmt)).all()
+    return [
+        FollowRequestEntry(
+            follow_id=fid,
+            created_at=created_at.isoformat() if created_at else None,
+            requester=PublicUser(
+                id=u.id,
+                name=u.name,
+                photo_url=u.photo_url,
+                photo_meta=u.photo_meta,
+                posts_count=int(p or 0),
+                followers_count=int(fc or 0),
+                following_count=int(gc or 0),
+            ),
+        )
+        for fid, created_at, u, p, fc, gc in rows
+    ]
+
+
+@router.post("/me/follow-requests/{follow_id}/approve")
+async def approve_follow_request(
+    follow_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Approve a pending follow request. Flips status to 'approved' and
+    notifies the requester so they know they now have access."""
+    follow = (
+        await db.execute(
+            select(Follow).where(
+                Follow.id == follow_id,
+                Follow.followee_id == user.id,
+                Follow.status == "pending",
+            )
+        )
+    ).scalar_one_or_none()
+    if follow is None:
+        raise HTTPException(status_code=404, detail="Follow request not found")
+    follow.status = "approved"
+    await create_notification(
+        db,
+        recipient_id=follow.follower_id,
+        kind="follow_request_approved",
+        actor=user,
+    )
+    await db.commit()
+    # The requester's recommendation profile is now eligible to surface
+    # the approver's private content; drop their cached profile so the
+    # next /recommendations call re-queries the visibility-gated pool.
+    from app.ai.recommendation import invalidate_user_profile_cache
+    invalidate_user_profile_cache(follow.follower_id)
+    return {"ok": True, "follow_id": str(follow_id), "status": "approved"}
+
+
+@router.post("/me/follow-requests/{follow_id}/reject", status_code=204)
+async def reject_follow_request(
+    follow_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Reject a pending follow request. Drops the row entirely so the
+    requester is not shown a 'rejected' state — same UX as 'never sent'.
+    They can request again, and we don't notify (matches Instagram)."""
+    follow = (
+        await db.execute(
+            select(Follow).where(
+                Follow.id == follow_id,
+                Follow.followee_id == user.id,
+                Follow.status == "pending",
+            )
+        )
+    ).scalar_one_or_none()
+    if follow is None:
+        raise HTTPException(status_code=404, detail="Follow request not found")
+    await db.delete(follow)
+    await db.commit()
 
 
 @router.post("/{user_id}/block")
@@ -559,6 +818,9 @@ async def _list_relations(
         )
         .join(Follow, join_cond)
         .where(target_filter)
+        # Pending requests don't appear in the public follower/following
+        # lists — only the target's own inbox sees them.
+        .where(Follow.status == "approved")
         .order_by(Follow.created_at.desc())
         .limit(limit)
     )
@@ -567,6 +829,7 @@ async def _list_relations(
     rows = (await db.execute(stmt)).all()
     target_ids = [u.id for u, *_ in rows]
     following_set = await _following_set(db, viewer_id, target_ids)
+    pending_set = await _pending_request_set(db, viewer_id, target_ids)
     blocked_set = await _blocked_by_viewer_set(db, viewer_id, target_ids)
     return [
         PublicUser(
@@ -578,6 +841,7 @@ async def _list_relations(
             followers_count=int(fc or 0),
             following_count=int(gc or 0),
             is_following=u.id in following_set,
+            follow_request_pending=u.id in pending_set,
             is_blocked=u.id in blocked_set,
         )
         for u, p, fc, gc, _ in rows

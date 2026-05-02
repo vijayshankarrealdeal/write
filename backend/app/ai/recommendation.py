@@ -49,6 +49,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.client import ai_configured, model
+from app.feed_visibility import public_feed_clause
 from app.models.feed_item import FeedItem
 from app.models.highlight import Highlight
 from app.models.reading_progress import ReadingProgress
@@ -382,9 +383,12 @@ async def _semantic_boost(
     for seed_id, emb in seeds_with_emb:
         try:
             distance = FeedItem.embedding.cosine_distance(emb)
+            # Gate the KNN at the source so we don't burn embedding-distance
+            # work on items the viewer can't read. Without this we'd score
+            # boost ids that get filtered out at hydration time anyway.
             stmt = (
                 select(FeedItem.id, distance.label("dist"))
-                .where(FeedItem.is_draft.is_(False))
+                .where(public_feed_clause(user.id))
                 .where(FeedItem.author_id != user.id)
                 .where(FeedItem.id != seed_id)
                 .where(FeedItem.embedding.is_not(None))
@@ -513,8 +517,13 @@ async def _fetch_candidates(
     genres/tags) so the union covers the catalogue well without
     full-scanning. Items are deduped by id.
     """
+    # `public_feed_clause` already gates `is_draft = False` AND visibility
+    # (public OR own OR approved-follow). For the recommender we additionally
+    # exclude self-authored items so the user's own work doesn't show up in
+    # their feed — the visibility helper would otherwise admit them since
+    # author_id == viewer.id.
     base = select(FeedItem).where(
-        FeedItem.is_draft.is_(False),
+        public_feed_clause(user.id),
         FeedItem.author_id != user.id,
     )
 
@@ -784,7 +793,9 @@ def _to_scored_item(
         tags=item.tags or [],
         likes_count=item.likes_count or 0,
         comments_count=item.comments_count or 0,
-        sections=item.sections,
+        # Section bodies live in the `sections` table — fetched lazily
+        # via /api/feed/{id}/sections/{section_id}, never inlined here.
+        sections=None,
         is_draft=item.is_draft,
         created_at=item.created_at,
         updated_at=item.updated_at,

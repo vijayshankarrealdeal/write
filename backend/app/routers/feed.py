@@ -9,6 +9,15 @@ from sqlalchemy.types import String
 from app.ai.embeddings import schedule_embedding
 from app.auth.deps import get_current_user
 from app.database import get_db
+from app.feed_home import compose_home
+from app.feed_publish import upsert_feed_item_for_writing
+from app.feed_sections import (
+    get_section_content,
+    list_section_stubs,
+    section_id_at_index,
+    set_published_section_ids,
+)
+from app.feed_visibility import public_feed_clause, visibility_clause
 from app.models.feed_item import FeedItem
 from app.models.user import User
 from app.models.writing import Writing
@@ -20,6 +29,7 @@ from app.schemas.feed import (
     FeedItemCreate,
     FeedItemResponse,
     FeedItemUpdate,
+    HomeRail,
 )
 
 router = APIRouter(prefix="/api/feed", tags=["feed"])
@@ -57,6 +67,37 @@ async def _resolve_cursor(cursor: str | None, db: AsyncSession) -> FeedItem | No
     return result.scalar_one_or_none()
 
 
+@router.get("/home", response_model=list[HomeRail])
+async def get_home_feed(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Single-call home feed composed of multiple rails.
+
+    Rails (in display order, also dedup priority):
+
+      * Featured              — top engagement of the last 30 days
+      * Continue Reading      — user's unfinished `ReadingProgress` rows
+      * New Releases          — last 7 days, newest first
+      * For You               — personalised via `recommend_for_user`
+      * Trending Now          — last 14 days, weighted likes + comments
+      * Top 10 This Week      — last 7 days, pure likes
+      * Discover Hidden Gems  — recent, low likes (1–30) + has comments
+      * Editor's Picks        — high engagement (5+ comments AND 20+ likes)
+
+    A book that qualifies for two rails appears only in the higher one
+    (so the user never scrolls past the same item twice). Empty rails
+    are dropped from the response. Each rail strips the heavy
+    `sections` JSONB; clients read full chapters via
+    `GET /api/feed/{id}/sections/{i}` on tap-through.
+
+    Privacy is enforced both at the per-generator level and in a final
+    materialization gate, so a private writing only surfaces to its
+    author or an approved follower.
+    """
+    return await compose_home(user, db)
+
+
 @router.get("/", response_model=list[FeedItemResponse])
 async def list_feed(
     sort: str = Query("recent", pattern="^(recent|trending|top)$"),
@@ -69,7 +110,10 @@ async def list_feed(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    query = select(FeedItem).where(FeedItem.is_draft == False)  # noqa: E712
+    # `public_feed_clause` combines `is_draft = False` with the per-writing
+    # visibility gate (public OR own OR approved follower) so private
+    # writings only surface to viewers the author has approved.
+    query = select(FeedItem).where(public_feed_clause(user.id))
 
     # Single-value `genre` is kept as a back-compat alias for the
     # multi-value `genres` filter the new chip row sends. Both apply
@@ -108,7 +152,7 @@ async def list_feed_by_tag(
     """All published items carrying `tag`. Same sort/cursor contract as `/`."""
     query = (
         select(FeedItem)
-        .where(FeedItem.is_draft == False)  # noqa: E712
+        .where(public_feed_clause(user.id))
         .where(FeedItem.tags.op("&&")(pg_array([tag], type_=String)))
     )
     query = _apply_sort(query, sort)
@@ -132,7 +176,7 @@ async def list_feed_by_genre(
     """All published items in `genre`. Same sort/cursor contract as `/`."""
     query = (
         select(FeedItem)
-        .where(FeedItem.is_draft == False)  # noqa: E712
+        .where(public_feed_clause(user.id))
         .where(FeedItem.genres.op("&&")(pg_array([genre], type_=String)))
     )
     query = _apply_sort(query, sort)
@@ -186,10 +230,16 @@ async def _facet_counts(
         ]
 
     # 2. Live query fallback: unnest the array column, group + count.
+    # Facets are a global discovery surface, so they only count *public*
+    # items — private writings stay out of the chip suggestions even for
+    # viewers who could read them. Per-viewer facet aggregation would
+    # break caching and bloat the response. The nightly cache builder
+    # should apply the same `visibility = 'public'` filter.
     val = func.unnest(column).label("value")
     stmt = (
         select(val, func.count().label("count"))
         .where(FeedItem.is_draft == False)  # noqa: E712
+        .where(FeedItem.visibility == "public")
         .group_by(val)
         .order_by(func.count().desc())
         .limit(_FACET_LIMIT)
@@ -260,7 +310,7 @@ async def search_feed_items(
 
     stmt = (
         select(FeedItem, score)
-        .where(FeedItem.is_draft == False)  # noqa: E712
+        .where(public_feed_clause(user.id))
         .where(
             or_(
                 FeedItem.title.ilike(pattern),
@@ -301,8 +351,16 @@ async def list_feed_by_author(
     user: User = Depends(get_current_user),
 ):
     query = select(FeedItem).where(FeedItem.author_id == author_id)
-    if not include_drafts or author_id != user.id:
+    if author_id == user.id:
+        # Author viewing their own profile sees everything they own,
+        # including drafts (when requested) and private items.
+        if not include_drafts:
+            query = query.where(FeedItem.is_draft == False)  # noqa: E712
+    else:
+        # Other viewers: drafts are never shown, and private writings
+        # are gated by approved-follow.
         query = query.where(FeedItem.is_draft == False)  # noqa: E712
+        query = query.where(visibility_clause(user.id))
     query = query.order_by(FeedItem.created_at.desc())
     result = await db.execute(query)
     return result.scalars().all()
@@ -339,49 +397,50 @@ async def create_feed_item(
     db: AsyncSession = Depends(get_db),
 ):
     payload = data.model_dump()
-    writing_id = payload.get("writing_id")
-    if writing_id is not None:
-        # Verify the writing exists and belongs to the caller before we
-        # take an FK on it — otherwise a malicious client could plant a
-        # feed card pointing at someone else's writing and ride the
-        # cascade if they ever delete it.
-        owner = await db.execute(
-            select(Writing.id).where(
-                Writing.id == writing_id, Writing.user_id == user.id
-            )
+    writing_id = payload.pop("writing_id", None)
+    # The author's curated chapter set — handled separately from the
+    # FeedItem fields because it touches the `sections` table directly.
+    published_section_ids = payload.pop("published_section_ids", None)
+    # Section bodies are owned by the `sections` table, not the feed
+    # card. Discard any incoming `sections` field — old clients still
+    # send it from cached state.
+    payload.pop("sections", None)
+    if writing_id is None:
+        # The frontend sends writing_id on every publish; rejecting the
+        # request here is what guarantees every feed card has the
+        # source-writing FK and so participates in the ON DELETE CASCADE.
+        raise HTTPException(
+            status_code=400, detail="writing_id is required"
         )
-        if owner.scalar_one_or_none() is None:
-            raise HTTPException(
-                status_code=400, detail="writing_id does not belong to user"
-            )
-        # Idempotency: if a card already exists for this writing, treat
-        # the POST as an update so retries on shaky connections don't
-        # explode the unique index.
-        existing = await db.execute(
-            select(FeedItem).where(FeedItem.writing_id == writing_id)
+    # Verify the writing exists and belongs to the caller before we
+    # take an FK on it — otherwise a malicious client could plant a
+    # feed card pointing at someone else's writing and ride the
+    # cascade if they ever delete it.
+    owner = await db.execute(
+        select(Writing.id).where(
+            Writing.id == writing_id, Writing.user_id == user.id
         )
-        existing_item = existing.scalar_one_or_none()
-        if existing_item is not None:
-            for field, value in payload.items():
-                if field == "writing_id":
-                    continue
-                setattr(existing_item, field, value)
-            await db.commit()
-            await db.refresh(existing_item)
-            if not existing_item.is_draft:
-                schedule_embedding(existing_item.id)
-            return existing_item
-    item = FeedItem(
-        author=user.name,
-        author_id=user.id,
+    )
+    if owner.scalar_one_or_none() is None:
+        raise HTTPException(
+            status_code=400, detail="writing_id does not belong to user"
+        )
+    # Author's curation step: flip per-section is_published bits before
+    # we upsert the feed card so a reader hitting the listing endpoints
+    # immediately after publish sees a consistent (chapter list, card)
+    # pair. Done in the same transaction as the upsert below.
+    if published_section_ids is not None:
+        await set_published_section_ids(
+            db,
+            writing_id=writing_id,
+            published_ids=published_section_ids,
+        )
+    return await upsert_feed_item_for_writing(
+        db,
+        writing_id=writing_id,
+        publisher=user,
         **payload,
     )
-    db.add(item)
-    await db.commit()
-    await db.refresh(item)
-    if not item.is_draft:
-        schedule_embedding(item.id)
-    return item
 
 
 @router.get("/{item_id}", response_model=FeedItemResponse)
@@ -389,60 +448,93 @@ async def get_feed_item(
     item_id: UUID,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
-    sections_limit: int = Query(
-        10,
-        ge=0,
-        le=2000,
-        description=(
-            "Number of section bodies to inline. The rest are returned as "
-            "title-only stubs (with empty `content`) so the response stays "
-            "small for big books — fetch missing bodies via "
-            "`GET /api/feed/{id}/sections/{index}`. Pass 0 for titles-only, "
-            "or a high number to force full payload."
-        ),
-    ),
 ):
-    """Return a single feed item.
+    """Return a single feed item with its chapter list.
 
-    For long books (Mahābhārata: 1422 sections), inlining every section's
-    Quill content blows up the JSON to ~30 MB and stalls the client. By
-    default we now inline only the first `sections_limit` sections; the
-    rest are returned with empty content so titles + indices are still
-    available, and clients fetch each body lazily as the reader scrolls.
+    `sections` is an ordered list of stubs — `{section_id, title,
+    updated_at, _has_image, _lazy: True}` — sourced live from the
+    `sections` table via `Writing.section_ids[]`. No chapter bodies are
+    inlined; clients fetch each body lazily via
+    `GET /api/feed/{id}/sections/{section_id}` (or the legacy
+    `/sections/{index}` endpoint). Section bodies live in one place
+    now — the `sections` table — so author edits propagate to readers
+    without a republish, and the response stays bounded for thousand-
+    chapter books.
+
+    `updated_at` on each stub lets the client diff against its cache to
+    flag chapters that changed since last open ("Updated 2h ago").
     """
-    result = await db.execute(select(FeedItem).where(FeedItem.id == item_id))
+    # Author can always read their own items (drafts + private). Everyone
+    # else must clear the public/visibility gate. We return 404 (not 403)
+    # for hidden items so we don't reveal that the row exists.
+    result = await db.execute(
+        select(FeedItem).where(
+            FeedItem.id == item_id,
+            or_(
+                FeedItem.author_id == user.id,
+                public_feed_clause(user.id),
+            ),
+        )
+    )
     item = result.scalar_one_or_none()
     if not item:
         raise HTTPException(status_code=404, detail="Feed item not found")
-    if item.sections:
-        # For every section, include a cheap `_has_image` boolean so the
-        # frontend can paint an image-dot marker in the chapter list
-        # without parsing Quill content. Image embeds in our pipeline are
-        # `{"insert": {"image": "..."}}` ops.
-        slimmed = list(item.sections)
-        for i, raw in enumerate(slimmed):
-            s = dict(raw or {})
-            ops = s.get("content") or []
-            has_img = any(
-                isinstance(op, dict)
-                and isinstance(op.get("insert"), dict)
-                and "image" in op["insert"]
-                for op in ops
-            )
-            s["_has_image"] = has_img
-            if sections_limit and i >= sections_limit:
-                # Stub out everything beyond `sections_limit` so the payload
-                # stays small. Title + has_image are kept; body fetched
-                # on demand from /sections/{i}.
-                s["content"] = []
-                s.pop("canvasData", None)
-                s["_lazy"] = True
-            slimmed[i] = s
-        # SQLAlchemy: mutating `sections` on a queried object would mark it
-        # dirty and risk a write-back. Setting via __dict__ keeps it
-        # transient on the response only.
-        item.__dict__["sections"] = slimmed
+    if item.writing_id is not None:
+        stubs = await list_section_stubs(db, item.writing_id)
+    else:
+        stubs = []
+    # Transient response field — bypass the ORM so SQLAlchemy doesn't try
+    # to write the stubs list back to (the now-removed) `sections` JSONB.
+    item.__dict__["sections"] = stubs
     return item
+
+
+async def _load_visible_feed_item(
+    db: AsyncSession, user: User, item_id: UUID
+) -> FeedItem:
+    """Helper: load a FeedItem the viewer is authorized to read.
+
+    404 (not 403) for hidden rows so we don't leak existence of
+    private writings. Used by the per-section endpoints to avoid
+    duplicating the visibility predicate across handlers.
+    """
+    result = await db.execute(
+        select(FeedItem).where(
+            FeedItem.id == item_id,
+            or_(
+                FeedItem.author_id == user.id,
+                public_feed_clause(user.id),
+            ),
+        )
+    )
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Feed item not found")
+    return item
+
+
+@router.get("/{item_id}/sections/by-id/{section_id}")
+async def get_feed_item_section_by_id(
+    item_id: UUID,
+    section_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Return one section by stable UUID. Use this endpoint for
+    pagination — section UUIDs survive author edits (insert / delete /
+    reorder) so a reader on chapter X stays on chapter X even after
+    the author shuffles the chapter list. Body is read live from the
+    `sections` table; author errata reach the reader on the next fetch.
+    """
+    item = await _load_visible_feed_item(db, user, item_id)
+    if item.writing_id is None:
+        raise HTTPException(status_code=404, detail="Section not found")
+    section = await get_section_content(
+        db, writing_id=item.writing_id, section_id=section_id
+    )
+    if section is None:
+        raise HTTPException(status_code=404, detail="Section not found")
+    return section
 
 
 @router.get("/{item_id}/sections/{index}")
@@ -452,17 +544,24 @@ async def get_feed_item_section(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    """Return one section of a feed item by index. Used by the reader to
-    lazy-fetch section bodies for large books, instead of pulling all
-    1000+ sections in the initial feed-item response."""
-    result = await db.execute(select(FeedItem).where(FeedItem.id == item_id))
-    item = result.scalar_one_or_none()
-    if not item:
-        raise HTTPException(status_code=404, detail="Feed item not found")
-    sections = item.sections or []
-    if index < 0 or index >= len(sections):
+    """Return one section by integer index — legacy URL shape kept
+    alive so the existing Flutter client doesn't break during the
+    UUID-pagination migration. New clients should call
+    `GET /api/feed/{id}/sections/by-id/{section_id}` instead, which is
+    stable across author edits.
+    """
+    item = await _load_visible_feed_item(db, user, item_id)
+    if item.writing_id is None:
         raise HTTPException(status_code=404, detail="Section index out of range")
-    return {"index": index, **(sections[index] or {})}
+    sid = await section_id_at_index(db, item.writing_id, index)
+    if sid is None:
+        raise HTTPException(status_code=404, detail="Section index out of range")
+    section = await get_section_content(
+        db, writing_id=item.writing_id, section_id=sid
+    )
+    if section is None:
+        raise HTTPException(status_code=404, detail="Section not found")
+    return {"index": index, **section}
 
 
 @router.put("/{item_id}", response_model=FeedItemResponse)
@@ -481,8 +580,21 @@ async def update_feed_item(
     was_draft = item.is_draft
     text_changed = False
     payload = data.model_dump(exclude_unset=True)
+    # Author re-curating chapters — bulk-flip is_published before
+    # mutating other fields so the per-section state is consistent
+    # with the resulting FeedItem.
+    published_section_ids = payload.pop("published_section_ids", None)
+    if published_section_ids is not None and item.writing_id is not None:
+        await set_published_section_ids(
+            db,
+            writing_id=item.writing_id,
+            published_ids=published_section_ids,
+        )
+    # Section bodies live in the `sections` table — old clients still
+    # send `sections` from cached publish state, but we ignore it here.
+    payload.pop("sections", None)
     for field, value in payload.items():
-        if field in {"title", "description", "sections"} and getattr(item, field) != value:
+        if field in {"title", "description"} and getattr(item, field) != value:
             text_changed = True
         setattr(item, field, value)
     await db.commit()
@@ -517,7 +629,15 @@ async def like_feed_item(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(FeedItem).where(FeedItem.id == item_id))
+    result = await db.execute(
+        select(FeedItem).where(
+            FeedItem.id == item_id,
+            or_(
+                FeedItem.author_id == user.id,
+                public_feed_clause(user.id),
+            ),
+        )
+    )
     item = result.scalar_one_or_none()
     if not item:
         raise HTTPException(status_code=404, detail="Feed item not found")
@@ -561,7 +681,15 @@ async def unlike_feed_item(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(FeedItem).where(FeedItem.id == item_id))
+    result = await db.execute(
+        select(FeedItem).where(
+            FeedItem.id == item_id,
+            or_(
+                FeedItem.author_id == user.id,
+                public_feed_clause(user.id),
+            ),
+        )
+    )
     item = result.scalar_one_or_none()
     if not item:
         raise HTTPException(status_code=404, detail="Feed item not found")

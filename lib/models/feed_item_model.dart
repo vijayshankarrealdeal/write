@@ -4,6 +4,11 @@ import 'package:inkspacex/models/image_meta.dart';
 
 /// A single page/section within a published cover.
 class FeedItemSection {
+  /// Stable section UUID. Used by the new `/sections/by-id/{section_id}`
+  /// pagination so a reader on chapter X stays on X even after the
+  /// author inserts/deletes/reorders chapters above it. Backend sends
+  /// it as `section_id` (snake) on the chapter-list stubs and `id`
+  /// (camel) on legacy section bodies — accept both.
   final String id;
   final String title;
   final String content; // Quill delta JSON
@@ -12,6 +17,11 @@ class FeedItemSection {
   /// least one image embed. Set even when the body is lazy (content empty)
   /// so the chapter list can paint an image-dot marker without parsing.
   final bool hasImage;
+  /// Server-side last-modified timestamp on the underlying `Section`
+  /// row. Lets the reader diff against its cache and surface an
+  /// "Updated" badge on chapters the author edited since the user
+  /// last opened the book. Null on legacy responses.
+  final DateTime? updatedAt;
 
   const FeedItemSection({
     required this.id,
@@ -19,6 +29,7 @@ class FeedItemSection {
     this.content = '',
     this.canvasData = '',
     this.hasImage = false,
+    this.updatedAt,
   });
 
   factory FeedItemSection.fromJson(Map<String, dynamic> json) {
@@ -50,12 +61,21 @@ class FeedItemSection {
       canvasJson = jsonEncode(rawCanvas);
     }
 
+    final rawUpdated = json['updated_at'] ?? json['updatedAt'];
+    final DateTime? updated = rawUpdated is String
+        ? DateTime.tryParse(rawUpdated)
+        : null;
+
     return FeedItemSection(
-      id: json['id'] ?? '',
+      // Chapter-list stubs send `section_id`; legacy bodies + author-side
+      // models send `id`. The backend's new `/sections/by-id/...`
+      // endpoint also returns `section_id`, so prefer it when present.
+      id: (json['section_id'] ?? json['id'] ?? '').toString(),
       title: json['title'] ?? '',
       content: contentJson,
       canvasData: canvasJson,
       hasImage: json['_has_image'] == true,
+      updatedAt: updated,
     );
   }
 
@@ -65,6 +85,7 @@ class FeedItemSection {
         'content': content,
         if (canvasData.isNotEmpty) 'canvasData': canvasData,
         if (hasImage) '_has_image': true,
+        if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
       };
 }
 

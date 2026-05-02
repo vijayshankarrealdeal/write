@@ -24,8 +24,9 @@ Usage from the host:
         mkdir -p /tmp/bundle && tar xzf /tmp/bundle.tgz -C /tmp/bundle &&
         cd /tmp/bundle && python /app/scripts/publish_book.py <slug> \\
             --bundle-root /tmp/bundle \\
-            --account-email inkspacex@inkspacex.com \\
-            --account-name InkSpaceX
+            --account-email inkspace@inkspacex.com \\
+            --account-name inkspace \\
+            --account-password Google@99
     "
 
 Idempotent: re-running with the same `--account-email` reuses the user
@@ -60,16 +61,27 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("slug", help="Book slug (folder name under storage/books/).")
     p.add_argument("--bundle-root", default="/tmp/bundle",
                    help="Path that contains storage/ and book_ingest/.")
-    p.add_argument("--account-email", default="inkspacex@inkspacex.com",
+    # Defaults match the canonical `inkspace` editorial identity that
+    # ingest_book.py / sync_to_db.py / batch_ingest.py use locally —
+    # so production publishes land under the same account the dev
+    # smoke test (and Flutter login) target.
+    p.add_argument("--account-email", default="inkspace@inkspacex.com",
                    help="Email for the editorial publishing account (find-or-create).")
-    p.add_argument("--account-name", default="InkSpaceX",
+    p.add_argument("--account-name", default="inkspace",
                    help="Display name for the editorial account.")
-    p.add_argument("--account-password", default=None,
-                   help="If set, bcrypt-hash this and store on the user so the "
-                        "account can log in. Updates password on re-runs.")
+    p.add_argument("--account-password", default="Google@99",
+                   help="bcrypt-hashed and stored so the account can log in. "
+                        "Updates password on re-runs. Pass empty string to "
+                        "skip (account becomes unloginnable).")
     p.add_argument("--account-avatar", default=None,
                    help="Path to a local image (PNG/JPG). Uploaded to MinIO and "
                         "set as the user's photo_url.")
+    p.add_argument("--visibility", default="public", choices=["public", "private"],
+                   help="Audience gate on the resulting feed item — 'public' "
+                        "(any authenticated reader) or 'private' (author + "
+                        "approved followers). Default 'public' matches the "
+                        "ingest-pipeline assumption that editorial books "
+                        "are meant to be discoverable.")
     p.add_argument("--force", action="store_true",
                    help="Re-publish even if a Writing with this title already exists.")
     p.add_argument("--no-images", action="store_true",
@@ -228,12 +240,16 @@ async def _main() -> int:
         image_url_for=url_for,
         primary_account_email=args.account_email,
         primary_account_name=args.account_name,
-        primary_account_password=args.account_password,
+        # Empty-string `--account-password ""` opts out of setting a
+        # password (account stays unloginnable) — passlib chokes on the
+        # empty string, so collapse it to None before passing through.
+        primary_account_password=(args.account_password or None),
         primary_account_avatar_url=avatar_url,
         genres=genres,
         writing_types=writing_types,
         tags=tags,
         cleaned_markdown=cleaned_md,
+        visibility=args.visibility,
     )
 
     manifest.setdefault("synced_history", []).append(db_ids)

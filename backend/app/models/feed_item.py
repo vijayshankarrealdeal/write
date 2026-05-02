@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text, func
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Index, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -36,7 +36,17 @@ class FeedItem(UUIDMixin, Base):
     likes_count: Mapped[int] = mapped_column(Integer, default=0)
     comments_count: Mapped[int] = mapped_column(Integer, default=0)
     is_draft: Mapped[bool] = mapped_column(Boolean, default=True)
-    sections: Mapped[list[dict] | None] = mapped_column(JSONB)
+    # Audience gate among published items. 'public' = any authenticated user;
+    # 'private' = author + approved followers (Instagram-style). The author
+    # can flip this at any time. Independent of `is_draft`: both checks must
+    # pass for a non-author to read the item.
+    visibility: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="public", server_default="public"
+    )
+    # Note: the previous `sections: JSONB` snapshot was dropped in
+    # migration 20260502_06. Section bodies live in the `sections`
+    # table only, joined via Writing.section_ids[]. See
+    # app.feed_sections for the read-through helpers.
 
     # Semantic embedding of `title + description + first ~2000 chars`. Populated
     # asynchronously when an item is published; null until the background task
@@ -57,6 +67,10 @@ class FeedItem(UUIDMixin, Base):
     comments: Mapped[list["Comment"]] = relationship(back_populates="feed_item", cascade="all, delete-orphan")  # noqa: F821
 
     __table_args__ = (
+        CheckConstraint(
+            "visibility IN ('public', 'private')",
+            name="ck_feed_items_visibility",
+        ),
         # Recency feed: published items ordered by created_at.
         Index("ix_feed_items_published_recent", "is_draft", "created_at"),
         # Trending feed and recommendation popularity scoring.

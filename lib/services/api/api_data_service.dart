@@ -54,6 +54,16 @@ class PublicUser {
   final int followersCount;
   final int followingCount;
   final bool isFollowing;
+  /// Viewer has sent a follow request the target hasn't yet approved.
+  /// Mutually exclusive with [isFollowing]. Use it to render the
+  /// 'Requested' state on the Follow button — same role as Instagram's
+  /// 'Requested' label after tapping Follow on a private profile.
+  final bool followRequestPending;
+  /// True if the target user has any published `visibility='private'`
+  /// writings, which means a follow on them creates a `pending` row
+  /// instead of an immediately-approved one. Lets the UI label the
+  /// CTA 'Request to follow' before the round-trip.
+  final bool requiresFollowApproval;
   final bool isBlocked;
   const PublicUser({
     required this.id,
@@ -64,6 +74,8 @@ class PublicUser {
     this.followersCount = 0,
     this.followingCount = 0,
     this.isFollowing = false,
+    this.followRequestPending = false,
+    this.requiresFollowApproval = false,
     this.isBlocked = false,
   });
 
@@ -76,6 +88,9 @@ class PublicUser {
         followersCount: (j['followers_count'] as num?)?.toInt() ?? 0,
         followingCount: (j['following_count'] as num?)?.toInt() ?? 0,
         isFollowing: j['is_following'] as bool? ?? false,
+        followRequestPending: j['follow_request_pending'] as bool? ?? false,
+        requiresFollowApproval:
+            j['requires_follow_approval'] as bool? ?? false,
         isBlocked: j['is_blocked'] as bool? ?? false,
       );
 
@@ -83,6 +98,8 @@ class PublicUser {
     int? followersCount,
     int? followingCount,
     bool? isFollowing,
+    bool? followRequestPending,
+    bool? requiresFollowApproval,
     bool? isBlocked,
   }) =>
       PublicUser(
@@ -94,8 +111,62 @@ class PublicUser {
         followersCount: followersCount ?? this.followersCount,
         followingCount: followingCount ?? this.followingCount,
         isFollowing: isFollowing ?? this.isFollowing,
+        followRequestPending:
+            followRequestPending ?? this.followRequestPending,
+        requiresFollowApproval:
+            requiresFollowApproval ?? this.requiresFollowApproval,
         isBlocked: isBlocked ?? this.isBlocked,
       );
+}
+
+/// One shelf in the composed home feed (`/api/feed/home`). The backend
+/// guarantees no item appears in more than one rail per response —
+/// dedup is global across the eight shelves the composer runs.
+class HomeRail {
+  /// Stable rail identifier — analytics events key on this so renames
+  /// of [title] don't break funnels. Examples: `featured`, `trending_now`,
+  /// `top_10_week`, `hidden_gems`, `editor_picks`, `continue_reading`,
+  /// `new_release`, `recommendation`.
+  final String railId;
+  /// Human-readable shelf label rendered above the carousel.
+  final String title;
+  final List<FeedItemModel> items;
+  const HomeRail({
+    required this.railId,
+    required this.title,
+    required this.items,
+  });
+
+  factory HomeRail.fromJson(Map<String, dynamic> json) => HomeRail(
+        railId: (json['rail_id'] ?? '').toString(),
+        title: (json['title'] ?? '').toString(),
+        items: ((json['items'] as List?) ?? const [])
+            .map((d) => FeedItemModel.fromJson(d as Map<String, dynamic>))
+            .toList(),
+      );
+}
+
+/// One pending follow request directed at the current user. Renders
+/// as an Approve/Reject card in the inbox.
+class FollowRequestEntry {
+  final String followId;
+  final PublicUser requester;
+  final DateTime? createdAt;
+  const FollowRequestEntry({
+    required this.followId,
+    required this.requester,
+    this.createdAt,
+  });
+
+  factory FollowRequestEntry.fromJson(Map<String, dynamic> json) {
+    final raw = json['created_at'];
+    return FollowRequestEntry(
+      followId: (json['follow_id'] ?? '').toString(),
+      requester:
+          PublicUser.fromJson(json['requester'] as Map<String, dynamic>),
+      createdAt: raw is String ? DateTime.tryParse(raw) : null,
+    );
+  }
 }
 
 /// Top-N genres / tags / writing_types served by `/api/feed/facets`.
@@ -340,8 +411,12 @@ class ApiDataService implements SyncDispatcher {
   }
 
   /// Lazy-fetch a single section's full content by index. Returns the
-  /// raw map ({title, content, canvasData}) so the caller can fold it
-  /// back into the FeedItem's sections list.
+  /// raw map ({title, content, canvasData, updated_at}) so the caller
+  /// can fold it back into the FeedItem's sections list.
+  ///
+  /// Prefer [getFeedItemSectionById] when you already have the stable
+  /// section UUID — it survives author edits (insert / delete /
+  /// reorder), which the integer-index endpoint cannot.
   Future<Map<String, dynamic>?> getFeedItemSection(
     String feedItemId,
     int index,
@@ -353,6 +428,41 @@ class ApiDataService implements SyncDispatcher {
       return Map<String, dynamic>.from(response.data as Map);
     } catch (_) {
       return null;
+    }
+  }
+
+  /// Lazy-fetch a section by stable UUID. Use this for pagination —
+  /// section UUIDs survive author edits, so a reader on chapter X
+  /// stays on X even after the author shuffles the chapter list.
+  Future<Map<String, dynamic>?> getFeedItemSectionById(
+    String feedItemId,
+    String sectionId,
+  ) async {
+    try {
+      final response = await _client.get(
+        '/api/feed/$feedItemId/sections/by-id/$sectionId',
+      );
+      return Map<String, dynamic>.from(response.data as Map);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Single-call composed home feed. Returns the eight shelves
+  /// (Featured / Continue Reading / New Releases / For You / Trending
+  /// Now / Top 10 This Week / Hidden Gems / Editor's Picks) deduped
+  /// across the response — an item appears in at most one rail.
+  /// Backend may omit empty rails (e.g. continue_reading on a fresh
+  /// account).
+  Future<List<HomeRail>> getHomeFeed() async {
+    try {
+      final response = await _client.get('/api/feed/home');
+      final raw = (response.data as List?) ?? const [];
+      return raw
+          .map((d) => HomeRail.fromJson(d as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return const [];
     }
   }
 
@@ -598,22 +708,65 @@ class ApiDataService implements SyncDispatcher {
   /// Follow another user. Idempotent server-side; returns the canonical
   /// followers count + relationship state from the server so the caller
   /// can reconcile any drift after an optimistic UI update.
-  Future<({bool isFollowing, int followersCount})> followUser(String userId) async {
+  ///
+  /// `followRequestPending` is true when the target has private
+  /// writings and the follow landed in pending state — the UI should
+  /// show 'Requested' until the target approves from their inbox.
+  Future<({bool isFollowing, bool followRequestPending, int followersCount})>
+      followUser(String userId) async {
     final response = await _client.post('/api/users/$userId/follow');
     final data = (response.data as Map<String, dynamic>?) ?? const {};
     return (
-      isFollowing: data['is_following'] as bool? ?? true,
+      isFollowing: data['is_following'] as bool? ?? false,
+      followRequestPending:
+          data['follow_request_pending'] as bool? ?? false,
       followersCount: (data['followers_count'] as num?)?.toInt() ?? 0,
     );
   }
 
-  Future<({bool isFollowing, int followersCount})> unfollowUser(String userId) async {
+  Future<({bool isFollowing, bool followRequestPending, int followersCount})>
+      unfollowUser(String userId) async {
     final response = await _client.delete('/api/users/$userId/follow');
     final data = (response.data as Map<String, dynamic>?) ?? const {};
     return (
       isFollowing: data['is_following'] as bool? ?? false,
+      followRequestPending:
+          data['follow_request_pending'] as bool? ?? false,
       followersCount: (data['followers_count'] as num?)?.toInt() ?? 0,
     );
+  }
+
+  /// Pending follow requests directed at the current user — the inbox
+  /// the author approves from. Newest first, matching the partial
+  /// index the server uses.
+  Future<List<FollowRequestEntry>> getFollowRequests({int limit = 50}) async {
+    try {
+      final response = await _client.get(
+        '/api/users/me/follow-requests',
+        queryParams: {'limit': limit},
+      );
+      final raw = (response.data as List?) ?? const [];
+      return raw
+          .map((d) => FollowRequestEntry.fromJson(d as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  /// Approve a pending follow request — the requester gains access to
+  /// the current user's `visibility='private'` content and gets a
+  /// `follow_request_approved` notification.
+  Future<void> approveFollowRequest(String followId) async {
+    await _client.post('/api/users/me/follow-requests/$followId/approve');
+  }
+
+  /// Reject a pending follow request. Backend deletes the row silently
+  /// (matches Instagram — the requester sees no rejection notification;
+  /// the state is indistinguishable from 'never sent'). They can
+  /// re-request later.
+  Future<void> rejectFollowRequest(String followId) async {
+    await _client.post('/api/users/me/follow-requests/$followId/reject');
   }
 
   Future<List<PublicUser>> getFollowers(String userId, {int limit = 50}) async {
@@ -707,45 +860,39 @@ class ApiDataService implements SyncDispatcher {
     List<String> tags = const [],
     String? descriptionOverride,
     bool isDraft = false,
+    bool isPrivate = false,
+    List<String>? publishedSectionIds,
   }) async {
-    final feedSections = sections
-        .map((s) => {
-              'id': s.id,
-              'title': s.title,
-              'content': s.content,
-              'canvasData': s.canvasData,
-            })
-        .toList();
+    // The author's curated chapter selection at publish time. Backend
+    // bulk-flips `Section.is_published` based on this list — ids
+    // present become True, omitted ids become False. When `null`
+    // (e.g. metadata-only republishes for rename / retag), backend
+    // leaves the per-section flags alone.
+    final selectedIds = publishedSectionIds ??
+        sections.map((s) => s.id).toList(growable: false);
 
     // Look up the existing card by writing_id (the FK link), not by
     // matching feed-item id against book.id — which never matched and
     // silently produced duplicate cards on every republish.
     final existing = await getExistingSpace(book.id);
+    final basePayload = <String, dynamic>{
+      'title': book.title,
+      'description': descriptionOverride ?? book.description,
+      'image_url': book.coverImagePath,
+      if (book.coverImageMeta != null)
+        'image_meta': book.coverImageMeta!.toJson(),
+      'genres': book.subtype.isNotEmpty ? [book.subtype] : [],
+      'writing_types': [book.writingType.displayName],
+      'tags': tags,
+      'is_draft': isDraft,
+      'visibility': isPrivate ? 'private' : 'public',
+      'published_section_ids': selectedIds,
+    };
     if (existing != null) {
-      await _client.put('/api/feed/${existing.id}', data: {
-        'title': book.title,
-        'description': descriptionOverride ?? book.description,
-        'image_url': book.coverImagePath,
-        if (book.coverImageMeta != null)
-          'image_meta': book.coverImageMeta!.toJson(),
-        'genres': book.subtype.isNotEmpty ? [book.subtype] : [],
-        'writing_types': [book.writingType.displayName],
-        'tags': tags,
-        'is_draft': isDraft,
-        'sections': feedSections,
-      });
+      await _client.put('/api/feed/${existing.id}', data: basePayload);
     } else {
       await _client.post('/api/feed/', data: {
-        'title': book.title,
-        'description': descriptionOverride ?? book.description,
-        'image_url': book.coverImagePath,
-        if (book.coverImageMeta != null)
-          'image_meta': book.coverImageMeta!.toJson(),
-        'genres': book.subtype.isNotEmpty ? [book.subtype] : [],
-        'writing_types': [book.writingType.displayName],
-        'tags': tags,
-        'is_draft': isDraft,
-        'sections': feedSections,
+        ...basePayload,
         'writing_id': book.id,
       });
     }

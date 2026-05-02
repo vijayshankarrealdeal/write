@@ -69,30 +69,61 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
   Future<void> _toggleFollow() async {
     final user = _user;
     if (user == null || _followInFlight) return;
-    final wasFollowing = user.isFollowing;
-    // Optimistic update so the button feels instant; reconcile on response.
+    // Three input states map to two server calls:
+    //   - approved follow ('Following' label) → unfollowUser
+    //   - pending request ('Requested' label) → unfollowUser (cancels)
+    //   - no relationship ('Follow' or 'Request to follow') → followUser
+    final hadRelationship = user.isFollowing || user.followRequestPending;
     setState(() {
       _followInFlight = true;
-      _user = user.copyWith(
-        isFollowing: !wasFollowing,
-        followersCount: (user.followersCount + (wasFollowing ? -1 : 1))
-            .clamp(0, 1 << 30),
-      );
+      // Optimistic projection — if we're starting a follow, guess at
+      // whether it'll land 'pending' from `requires_follow_approval`.
+      // Server reconciles after the round-trip.
+      if (hadRelationship) {
+        _user = user.copyWith(
+          isFollowing: false,
+          followRequestPending: false,
+          followersCount: user.isFollowing
+              ? (user.followersCount - 1).clamp(0, 1 << 30)
+              : user.followersCount,
+        );
+      } else {
+        final goesPending = user.requiresFollowApproval;
+        _user = user.copyWith(
+          isFollowing: !goesPending,
+          followRequestPending: goesPending,
+          // Pending requests don't bump the public follower count —
+          // matches the server's filter of `status = 'approved'` on
+          // every count subquery.
+          followersCount: goesPending
+              ? user.followersCount
+              : user.followersCount + 1,
+        );
+      }
     });
     final api = context.read<AuthProvider>().dataService;
     try {
-      final result = wasFollowing
+      final result = hadRelationship
           ? await api.unfollowUser(user.id)
           : await api.followUser(user.id);
       if (!mounted) return;
       setState(() {
         _user = _user?.copyWith(
           isFollowing: result.isFollowing,
+          followRequestPending: result.followRequestPending,
           followersCount: result.followersCount,
         );
       });
+      String event;
+      if (hadRelationship) {
+        event = user.isFollowing ? 'user_unfollowed' : 'follow_request_cancelled';
+      } else {
+        event = result.followRequestPending
+            ? 'follow_requested'
+            : 'user_followed';
+      }
       AnalyticsService.instance.track(
-        wasFollowing ? 'user_unfollowed' : 'user_followed',
+        event,
         screen: '/u/:id',
         action: 'click',
         entityType: 'user',
@@ -105,7 +136,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            wasFollowing ? 'Could not unfollow' : 'Could not follow',
+            hadRelationship ? 'Could not unfollow' : 'Could not follow',
             style: GoogleFonts.inter(fontSize: 13),
           ),
           duration: const Duration(seconds: 2),
@@ -250,6 +281,8 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
                 const SizedBox(height: 10),
                 _FollowButton(
                   isFollowing: user.isFollowing,
+                  followRequestPending: user.followRequestPending,
+                  requiresApproval: user.requiresFollowApproval,
                   loading: _followInFlight,
                   isDark: isDark,
                   onPressed: _toggleFollow,
@@ -393,11 +426,21 @@ class _BrandMark extends StatelessWidget {
 
 class _FollowButton extends StatelessWidget {
   final bool isFollowing;
+  /// Viewer has sent a follow request the target hasn't yet approved.
+  /// Renders as 'Requested' — same outline-only treatment as
+  /// 'Following' so the user reads it as "tap again to undo".
+  final bool followRequestPending;
+  /// True if the target has private writings and a follow needs approval.
+  /// Lets the CTA read 'Request to follow' before the round-trip,
+  /// matching Instagram's pattern of telegraphing the gate up-front.
+  final bool requiresApproval;
   final bool loading;
   final bool isDark;
   final VoidCallback onPressed;
   const _FollowButton({
     required this.isFollowing,
+    required this.followRequestPending,
+    required this.requiresApproval,
     required this.loading,
     required this.isDark,
     required this.onPressed,
@@ -405,17 +448,32 @@ class _FollowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = isFollowing
+    // 'Following' and 'Requested' share the outline-only treatment —
+    // both signal "you have a relationship, tap to undo". Plain
+    // 'Follow' / 'Request to follow' are the filled CTA that draws
+    // the eye when no relationship exists.
+    final hasRelationship = isFollowing || followRequestPending;
+    final fg = hasRelationship
         ? (isDark ? Colors.white : const Color(0xFF0F172A))
         : (isDark ? Colors.black : Colors.white);
-    final bg = isFollowing
+    final bg = hasRelationship
         ? Colors.transparent
         : (isDark ? Colors.white : const Color(0xFF0F172A));
-    final border = isFollowing
+    final border = hasRelationship
         ? (isDark
             ? Colors.white.withValues(alpha: 0.25)
             : Colors.black.withValues(alpha: 0.15))
         : Colors.transparent;
+    final String label;
+    if (isFollowing) {
+      label = 'Following';
+    } else if (followRequestPending) {
+      label = 'Requested';
+    } else if (requiresApproval) {
+      label = 'Request to follow';
+    } else {
+      label = 'Follow';
+    }
     return SizedBox(
       height: 34,
       child: TextButton(
@@ -441,7 +499,7 @@ class _FollowButton extends StatelessWidget {
                 ),
               )
             : Text(
-                isFollowing ? 'Following' : 'Follow',
+                label,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,

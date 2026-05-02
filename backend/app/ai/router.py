@@ -3,11 +3,12 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.client import ensure_ai_configured
 from app.ai.recommendation import recommend_for_user
+from app.feed_visibility import public_feed_clause
 from app.ai.schemas import (
     CanvasGenerateRequest,
     CanvasGenerateResponse,
@@ -370,7 +371,10 @@ async def get_recommendations(
             tags=i.tags,
             likes_count=i.likes_count,
             comments_count=i.comments_count,
-            sections=i.sections,
+            # `sections` is intentionally None — chapter bodies live in
+            # the `sections` table; the reader fetches them via
+            # `/api/feed/{id}/sections/{section_id}` on tap-through.
+            sections=None,
             is_draft=i.is_draft,
             created_at=i.created_at,
             updated_at=i.updated_at,
@@ -434,9 +438,18 @@ async def get_similar_items(
     to a 200 with an empty list when the source item has no embedding
     yet (rather than 404'ing — the carousel just hides itself).
     """
+    # Seed lookup must respect the visibility gate — if the viewer can't
+    # read the source item, "similar to it" is meaningless and would also
+    # leak that the item exists.
     seed_q = await db.execute(
         select(FeedItem.id, FeedItem.embedding, FeedItem.is_draft)
         .where(FeedItem.id == feed_item_id)
+        .where(
+            or_(
+                FeedItem.author_id == user.id,
+                public_feed_clause(user.id),
+            )
+        )
     )
     seed = seed_q.first()
     if seed is None:
@@ -449,7 +462,7 @@ async def get_similar_items(
         rows = (
             await db.execute(
                 select(FeedItem, distance.label("dist"))
-                .where(FeedItem.is_draft.is_(False))
+                .where(public_feed_clause(user.id))
                 .where(FeedItem.id != feed_item_id)
                 .where(FeedItem.embedding.is_not(None))
                 .order_by(distance)
@@ -477,7 +490,9 @@ async def get_similar_items(
                 tags=item.tags or [],
                 likes_count=item.likes_count or 0,
                 comments_count=item.comments_count or 0,
-                sections=item.sections,
+                # Bodies live in the `sections` table — see
+                # /api/feed/{id}/sections/{section_id} for lazy load.
+                sections=None,
                 is_draft=item.is_draft,
                 created_at=item.created_at,
                 updated_at=item.updated_at,

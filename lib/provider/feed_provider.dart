@@ -63,6 +63,15 @@ class FeedProvider extends ChangeNotifier {
   bool _isLoadingMoreFiltered = false;
   String? _filteredError;
 
+  // ── Composed home feed (rails) ───────────────────────────────────
+  // Single-call home shape from `GET /api/feed/home`: 8 deduped rails
+  // (Featured, Continue Reading, New Releases, For You, Trending Now,
+  // Top 10 This Week, Hidden Gems, Editor's Picks). Replaces the
+  // multi-call shelf assembly the home tab used to do client-side.
+  // The flat `_items` list still backs filter / search drill-downs.
+  List<HomeRail> _rails = const [];
+  bool _isLoadingRails = false;
+
   // ── Recommendation engine state ───────────────────────────────────
   // Items returned by /api/ai/recommendations. Each carries a
   // [RecommendationMeta] with the engine score, optional LLM-generated
@@ -90,6 +99,9 @@ class FeedProvider extends ChangeNotifier {
   List<FeedItemModel> get recommendedItems => _recommended;
   bool get isLoadingRecommendations => _isLoadingRecommendations;
   String? get recommendationSessionId => _recommendationSessionId;
+
+  List<HomeRail> get rails => _rails;
+  bool get isLoadingRails => _isLoadingRails;
 
   Set<String> get filterGenres => Set.unmodifiable(_filterGenres);
   Set<String> get filterTags => Set.unmodifiable(_filterTags);
@@ -223,6 +235,26 @@ class FeedProvider extends ChangeNotifier {
     if (_currentUserId != null) {
       await loadReadingProgress(_currentUserId!);
     }
+    notifyListeners();
+  }
+
+  /// Single-call composed home — fills the eight rails the home page
+  /// renders. Idempotent: safe to call on every home-tab focus; the
+  /// in-flight guard keeps repeated taps from doubling up requests.
+  /// Failure clears the rail set so the UI falls back to the flat
+  /// `items` listing — better empty-state than a half-loaded home.
+  Future<void> loadHomeRails({bool forceRefresh = false}) async {
+    if (_dataService == null) return;
+    if (_isLoadingRails) return;
+    if (!forceRefresh && _rails.isNotEmpty) return;
+    _isLoadingRails = true;
+    notifyListeners();
+    try {
+      _rails = await _dataService!.getHomeFeed();
+    } catch (_) {
+      _rails = const [];
+    }
+    _isLoadingRails = false;
     notifyListeners();
   }
 

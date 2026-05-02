@@ -1,28 +1,24 @@
 """CLI entrypoint for the book-ingest pipeline.
 
-Usage (single-arg form — recommended):
+Single-file end-to-end usage (default):
 
     python ingest_book.py /data/bible.pdf
     python ingest_book.py "data/gutenberg-selected/00084_Frankenstein_ or_ the modern prometheus.html"
 
-Accepts PDF (`.pdf`) and Project Gutenberg HTML (`.html`/`.htm`). For
-HTML, title/author are auto-filled from `<meta>` tags inside the file;
-override with `--title`/`--author` if you want different ones. The
-Gutenberg digit prefix (`00084_`) is stripped from the slug.
+Accepts PDF (`.pdf`) and Project Gutenberg HTML (`.html`/`.htm`) the same
+way — one command runs the LLM/image pipeline AND uploads the result to
+Postgres + MinIO under the canonical `inkspace@inkspacex.com` account
+(public, published, immediately live in the app). Re-runs are idempotent:
+the writing's `synced` marker on the manifest short-circuits a second
+DB write.
 
-The output folder is named after the source filename (`bible.pdf` →
-`storage/books/bible/`) and contains every JSON + image the pipeline
-produces, plus a replay-ready `<slug>.zip` written at the end. Database
-+ MinIO sync is a *separate, manual* step:
+Pass `--no-sync` to do filesystem-only output (the old behavior). After
+that, `python sync_to_db.py <slug>` performs the DB upload separately —
+useful when you want to eyeball the local artifacts before pushing.
 
-    python sync_to_db.py bible
-
-Or, on a fresh Postgres/MinIO without re-running LLM/image gen:
-
-    python restore_bundle.py storage/books/bible/bible.zip --sync
-
-Optional flags exist for tuning (image budget, style, reader preference,
-explicit title/author override) but the bare path is enough.
+For HTML, title/author are auto-filled from `<meta>` tags inside the
+file; override with `--title`/`--author`. The Gutenberg digit prefix
+(`00084_`) is stripped from the slug.
 """
 
 from __future__ import annotations
@@ -72,6 +68,11 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--style", default="editorial illustration, muted palette")
     p.add_argument("--reader-preference", default=None,
                    help="What the reader cares about — steers highlight + image picks.")
+    p.add_argument("--no-sync", action="store_true",
+                   help="Skip the Postgres+MinIO upload; produce filesystem "
+                        "artifacts only (the old behavior).")
+    p.add_argument("--force", action="store_true",
+                   help="Re-publish even if the manifest already records a sync.")
     return p.parse_args()
 
 
@@ -105,6 +106,14 @@ async def _main() -> int:
         reader_preference=args.reader_preference,
     )
 
+    sync_payload: dict | None = None
+    if not args.no_sync:
+        # End-to-end mode: push to Postgres + MinIO as the inkspace user
+        # immediately. Same code path as `python sync_to_db.py <slug>`,
+        # invoked here so a single command takes a fresh PDF/HTML all the
+        # way to "live in the app" without a manual second step.
+        sync_payload = await _sync_now(result.slug, force=args.force)
+
     print()
     print(json.dumps({
         "slug": result.slug,
@@ -115,12 +124,92 @@ async def _main() -> int:
         "images": result.n_images,
         "chunk_embeddings": result.n_chunk_embeddings,
         "scene_embeddings": result.n_scene_embeddings,
-        "next_steps": [
-            f"python sync_to_db.py {result.slug}",
-            f"python regenerate_image.py {result.slug} --query \"...\" --instruction \"...\"",
-        ],
-    }, indent=2))
+        "synced": sync_payload,
+        "next_steps": (
+            ["live in the app — log in as inkspace@inkspacex.com / Google@99 to verify"]
+            if sync_payload
+            else [f"python sync_to_db.py {result.slug}"]
+        ),
+    }, indent=2, default=str))
     return 0
+
+
+async def _sync_now(slug: str, *, force: bool) -> dict | None:
+    """Run the same DB+MinIO upload `sync_to_db.py` does, in-process.
+
+    Returns the manifest's `synced` block (or None if the book was already
+    synced and `force` wasn't passed). Raises on hard failures so the
+    caller can surface them — partial-success isn't a useful state for a
+    single-file CLI.
+    """
+    # Lazy imports: keep the module import-clean for `--no-sync` callers
+    # who haven't configured Postgres/MinIO locally.
+    from book_ingest import db_publish, persist
+    from sync_to_db import (
+        _build_cleaned_markdown_map,
+        _load_artifacts,
+        _pick_cover,
+        _upload_images,
+    )
+
+    manifest = persist.read_manifest(slug)
+    if manifest is None:
+        raise RuntimeError(f"manifest missing for slug={slug} after ingest")
+    if manifest.get("synced") and not force:
+        print(f"[sync] {slug}: already synced — pass --force to republish.")
+        return manifest["synced"]
+
+    chunks, briefs, deeps, scenes_by_chunk_local = _load_artifacts(slug)
+    if not chunks:
+        raise RuntimeError("no chunks on disk after ingest — pipeline bug?")
+
+    image_url_for_path = await _upload_images(slug, scenes_by_chunk_local)
+
+    def url_for(local_path: str) -> str:
+        return image_url_for_path.get(local_path, Path(local_path).resolve().as_uri())
+
+    cover_local = manifest.get("cover_image_local") or _pick_cover(scenes_by_chunk_local)
+    cover_url: str | None = None
+    if cover_local and Path(cover_local).exists():
+        from app.storage import upload_file  # type: ignore[import-not-found]
+        with open(cover_local, "rb") as fh:
+            cover_data = fh.read()
+        cover_url = await upload_file(
+            f"books/{slug}/cover.png",
+            cover_data,
+            content_type="image/png",
+        )
+
+    cleaned_md_map = _build_cleaned_markdown_map(slug, chunks)
+    poster = manifest.get("poster") or {}
+    description = (
+        manifest.get("description")
+        or poster.get("back_cover_copy")
+        or manifest.get("subtitle")
+    )
+
+    db_ids = await db_publish.publish_book(
+        title=manifest["title"],
+        author=manifest.get("author"),
+        description=description,
+        cover_image_path=cover_url,
+        chunks=chunks,
+        briefs=briefs,
+        deeps=deeps,
+        scenes_by_chunk=scenes_by_chunk_local,
+        image_url_for=url_for,
+        cleaned_markdown=cleaned_md_map,
+        primary_account_email=db_publish.INKSPACE_EMAIL,
+        primary_account_name=db_publish.INKSPACE_NAME,
+        primary_account_password=db_publish.INKSPACE_PASSWORD,
+        genres=poster.get("genres") or [],
+        writing_types=poster.get("writing_types") or ["book"],
+        tags=poster.get("tags") or [],
+        visibility="public",
+    )
+    manifest["synced"] = db_ids
+    persist.write_manifest(slug, manifest)
+    return db_ids
 
 
 if __name__ == "__main__":

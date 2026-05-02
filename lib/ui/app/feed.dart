@@ -68,6 +68,13 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
       if (userId != null) {
         feed.loadReadingProgress(userId);
       }
+      // Backend-composed home rails (Featured / Continue Reading /
+      // New Releases / For You / Trending Now / Top 10 / Hidden Gems
+      // / Editor's Picks) — single round-trip, deduped server-side,
+      // privacy-gated. Drives the shelf rows when available; the
+      // client-side fallback (`_buildShelfHome` below) still runs
+      // when the rails endpoint is empty or unreachable.
+      feed.loadHomeRails();
       // Personalised recommendations are an additive layer over the
       // generic feed — kicked off in parallel so the initial render
       // never waits on the AI engine.
@@ -111,6 +118,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
         forceRefresh: true,
         userId: auth.currentUser?.id,
       ),
+      feed.loadHomeRails(forceRefresh: true),
       feed.loadRecommendations(),
     ]);
     _precacheTop(feed);
@@ -223,18 +231,39 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
       return _buildLoadingSpinner();
     }
 
-    final continueReading = feed.getContinueReadingItems();
+    // Backend-composed rails are the source of truth when available —
+    // they apply privacy gating + dedup + cold-start fallbacks
+    // server-side (`app/feed_home.py`). Each shelf below picks its
+    // matching rail by id, falling back to the legacy client-side
+    // computation when the rail is empty (e.g. /home unreachable, or
+    // a brand-new user where a specific rail returned no candidates).
+    final railsById = <String, List<FeedItemModel>>{
+      for (final r in feed.rails) r.railId: r.items,
+    };
+    List<FeedItemModel> railOr(String railId, List<FeedItemModel> fallback) {
+      final fromRail = railsById[railId];
+      return (fromRail != null && fromRail.isNotEmpty) ? fromRail : fallback;
+    }
+
     final userGenres = auth.currentUser?.preferences.preferredGenres
             .map((g) => g.toLowerCase())
             .toSet() ??
         <String>{};
 
-    // Recommendations come from the AI engine when available. While
-    // they're loading (or if the call failed) we fall back to the
-    // genre-overlap heuristic so the shelf is never empty.
+    final continueReading = railOr(
+      'continue_reading',
+      feed.getContinueReadingItems(),
+    );
+
+    // Recommendations rail = backend's `/api/ai/recommendations`
+    // wrapped into the home composer. Fall back to engine items, then
+    // to the genre-overlap heuristic so the shelf is never empty.
     final engineRecommended = feed.recommendedItems;
     final List<FeedItemModel> recommended;
-    if (engineRecommended.isNotEmpty) {
+    final railRecommend = railsById['recommendation'];
+    if (railRecommend != null && railRecommend.isNotEmpty) {
+      recommended = railRecommend.take(12).toList();
+    } else if (engineRecommended.isNotEmpty) {
       recommended = engineRecommended.take(12).toList();
     } else if (userGenres.isEmpty) {
       recommended = all.take(12).toList();
@@ -245,24 +274,31 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
           .take(12)
           .toList();
     }
-    final hasEngineRecs = engineRecommended.isNotEmpty;
+    final hasEngineRecs =
+        engineRecommended.isNotEmpty || railRecommend?.isNotEmpty == true;
 
-    final trending = [...all]
+    final clientTrending = [...all]
       ..sort((a, b) => b.likesCount.compareTo(a.likesCount));
-    final topTen = trending.take(10).toList();
+    final trending = railOr('trending_now', clientTrending);
+    final topTen = railOr('top_10_week', clientTrending.take(10).toList());
 
     final now = DateTime.now();
-    final hiddenGems = all
+    final clientHiddenGems = all
         .where((i) =>
             i.likesCount < 50 && now.difference(i.createdAt).inDays < 60)
         .take(14)
         .toList();
+    final hiddenGems = railOr('hidden_gems', clientHiddenGems);
 
-    final editorsPicks = all.where((i) => i.sections.length > 1).toList()
+    final clientEditorsPicks = all
+        .where((i) => i.sections.length > 1)
+        .toList()
       ..sort((a, b) => b.sections.length.compareTo(a.sections.length));
+    final editorsPicks = railOr('editor_picks', clientEditorsPicks);
 
-    final newest = [...all]
+    final clientNewest = [...all]
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final newest = railOr('new_release', clientNewest);
 
     final hPadding = isMobile ? 10.0 : (width > 1400 ? 48.0 : 32.0);
     final cardWidth = isMobile ? 130.0 : 180.0;

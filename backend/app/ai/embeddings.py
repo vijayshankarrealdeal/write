@@ -17,8 +17,10 @@ Design notes
 - We never re-embed an item that already has a non-null vector unless
   the caller explicitly forces it (used by the backfill script when
   re-running with a new model).
-- We coalesce text from the JSONB `sections` column (Quill Delta-ish
-  shape) — cheap heuristic, not perfect, but good enough for KNN.
+- Body text is sourced live from the `sections` table via
+  `feed_sections.flatten_writing_text` — when an author edits a
+  chapter, the next embedding pass picks up the changes without
+  needing a republish.
 """
 
 from __future__ import annotations
@@ -34,6 +36,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.ai.client import ai_configured
 from app.ai.writer_agent import get_embedding
 from app.database import async_session
+from app.feed_sections import flatten_writing_text
 from app.models.feed_item import FeedItem
 
 log = logging.getLogger("app.ai.embeddings")
@@ -43,49 +46,25 @@ log = logging.getLogger("app.ai.embeddings")
 _BODY_CHAR_LIMIT = 2000
 
 
-def _flatten_section_text(sections: list[dict] | None) -> str:
-    """Best-effort plain-text extraction from a JSONB sections array.
+async def build_embedding_text(item: FeedItem, db: AsyncSession) -> str:
+    """Compose the input string we feed the embedding model.
 
-    The schema isn't fully normalised — sections can carry plain `text`,
-    or a Quill `ops` delta, or a list of `paragraphs`. We try each in
-    turn and concatenate whatever we find. Worst case we get the empty
-    string and fall back to title + description only.
+    `title + description + first ~2000 chars of body`. Body comes from
+    the `sections` table joined via `item.writing_id`. When the writing
+    has no FK or no sections, we fall back to title+description only —
+    not great for KNN but better than failing the embedding outright.
     """
-    if not sections:
-        return ""
-    chunks: list[str] = []
-    for sec in sections:
-        if not isinstance(sec, dict):
-            continue
-        if isinstance(sec.get("text"), str):
-            chunks.append(sec["text"])
-            continue
-        ops = sec.get("ops")
-        if isinstance(ops, list):
-            for op in ops:
-                if isinstance(op, dict) and isinstance(op.get("insert"), str):
-                    chunks.append(op["insert"])
-            continue
-        paragraphs = sec.get("paragraphs")
-        if isinstance(paragraphs, list):
-            for p in paragraphs:
-                if isinstance(p, str):
-                    chunks.append(p)
-                elif isinstance(p, dict) and isinstance(p.get("text"), str):
-                    chunks.append(p["text"])
-    return "\n".join(chunks)
-
-
-def build_embedding_text(item: FeedItem) -> str:
-    """Compose the input string we feed the embedding model."""
     parts: list[str] = []
     if item.title:
         parts.append(item.title.strip())
     if item.description:
         parts.append(item.description.strip())
-    body = _flatten_section_text(item.sections)
-    if body:
-        parts.append(body[:_BODY_CHAR_LIMIT])
+    if item.writing_id is not None:
+        body = await flatten_writing_text(
+            db, item.writing_id, char_limit=_BODY_CHAR_LIMIT
+        )
+        if body:
+            parts.append(body)
     return "\n\n".join(p for p in parts if p)
 
 
@@ -118,7 +97,7 @@ async def embed_feed_item(
         if item.embedding is not None and not force:
             return False
 
-        text = build_embedding_text(item)
+        text = await build_embedding_text(item, session)
         if not text:
             return False
 

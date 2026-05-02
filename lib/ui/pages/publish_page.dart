@@ -163,12 +163,21 @@ class _PublishPageState extends State<PublishPage> {
         );
       }).toList();
 
+      // Backend bulk-flips Section.is_published for the writing based
+      // on this list — ids included get is_published=True, omitted ids
+      // get False. Sending the actual ticked set (not just the
+      // processed-section ids) so unticking a previously-published
+      // chapter at republish time correctly removes it from the
+      // public chapter list.
+      final publishedSectionIds = _selectedSectionIds.toList();
+
       await provider.publishCover(
         widget.book,
         processedSections,
         tags: _tags,
         descriptionOverride: desc.isNotEmpty ? desc : null,
         isDraft: _isDraft,
+        publishedSectionIds: publishedSectionIds,
       );
 
       AnalyticsService.instance.track(

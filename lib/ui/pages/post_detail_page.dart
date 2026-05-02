@@ -109,12 +109,24 @@ class _PostDetailPageState extends State<PostDetailPage>
   final Map<int, ScrollController> _sectionScrollControllers = {};
 
   // -- Lazy-loaded section bodies for big books. The server returns the
-  // first N sections with full `content`; the rest come down with empty
-  // content and we fetch them on demand from /api/feed/{id}/sections/{i}.
-  // Keyed by section index; value is the raw Quill-Delta JSON string.
+  // chapter list as title-only stubs; we fetch each body on demand from
+  // /api/feed/{id}/sections/by-id/{section_id} (UUID-stable so reordering
+  // / inserting / deleting sections doesn't move bodies under the
+  // reader's cursor). Keyed by section index for the local UI;
+  // value is the raw Quill-Delta JSON string.
   final Map<int, String> _lazyContent = {};
   // Sections whose lazy fetch is currently in flight, to dedupe.
   final Set<int> _lazyLoading = {};
+
+  // -- "Updated" badge cache.
+  // Maps section_id → the `updated_at` we showed the user the last time
+  // they entered that chapter. Persisted across launches via
+  // SharedPreferences (one key per (feedItemId, sectionId) pair).
+  // Render rule: if `widget.item.sections[i].updatedAt > _lastSeenAt[id]`,
+  // paint an "Updated" pill on the chapter row. Cache miss = brand new
+  // chapter, no badge (the chapter list itself is the new-chapter
+  // signal). Marked seen when the reader enters a section.
+  final Map<String, DateTime> _lastSeenAt = {};
 
   // -- Reading progress persistence --
   late final ApiDataService _dataService;
@@ -323,9 +335,83 @@ class _PostDetailPageState extends State<PostDetailPage>
       if (mounted) setState(() {}); // surface controllers as they land
       _loadProgress();
       _loadReaderPrefs();
+      _hydrateSectionSeenCache();
       _subscribeToFeedItemEvents();
       _refreshCountsFromServer();
     });
+  }
+
+  // --------------------------------------------------------------------------
+  // "Updated" badge persistence
+  // --------------------------------------------------------------------------
+  //
+  // Per-(feedItem, section) "last seen this chapter's `updated_at`"
+  // timestamp, used to decide whether to render the "Updated" pill on
+  // the chapter row.
+  //
+  // Storage shape: one SharedPreferences key per chapter, namespaced to
+  // the feed item so changing books doesn't pollute the cache:
+  //
+  //     section_seen_at:<feed_item_id>:<section_id> = ISO-8601 timestamp
+  //
+  // Hydrated once when the reader opens; mutated lazily as the reader
+  // enters chapters. The full cache for a given book is at most
+  // `n_sections` keys — fine even for the Mahābhārata (1422 keys = a few
+  // hundred KB on disk, all string-typed, no JSON parse cost).
+  static const _kSeenAtPrefix = 'section_seen_at:';
+
+  String _seenAtKey(String sectionId) =>
+      '$_kSeenAtPrefix${widget.item.id}:$sectionId';
+
+  Future<void> _hydrateSectionSeenCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final prefix = '$_kSeenAtPrefix${widget.item.id}:';
+      bool changed = false;
+      for (final key in prefs.getKeys()) {
+        if (!key.startsWith(prefix)) continue;
+        final iso = prefs.getString(key);
+        if (iso == null || iso.isEmpty) continue;
+        final ts = DateTime.tryParse(iso);
+        if (ts == null) continue;
+        _lastSeenAt[key.substring(prefix.length)] = ts;
+        changed = true;
+      }
+      if (changed && mounted) setState(() {});
+    } catch (_) {
+      // SharedPreferences failure shouldn't break the reader. Worst
+      // case: every chapter shows "Updated" (cache miss → no badge),
+      // or no chapter does — graceful degradation either way.
+    }
+  }
+
+  /// True when the chapter has been edited since the user last opened it.
+  /// Cache miss (brand new chapter) returns false on purpose — the new
+  /// chapter is its own signal, "Updated" would be misleading.
+  bool _isSectionUpdated(FeedItemSection section) {
+    final updatedAt = section.updatedAt;
+    if (updatedAt == null) return false;
+    if (section.id.isEmpty) return false;
+    final seen = _lastSeenAt[section.id];
+    if (seen == null) return false;
+    return updatedAt.isAfter(seen);
+  }
+
+  /// Persist the chapter's current `updated_at` so the "Updated" pill
+  /// stops rendering on subsequent visits — until the author edits it
+  /// again. No-op when the section has no id or no timestamp (older
+  /// payloads without the new sectioning shape).
+  Future<void> _markSectionSeen(FeedItemSection section) async {
+    final updatedAt = section.updatedAt;
+    if (updatedAt == null) return;
+    if (section.id.isEmpty) return;
+    _lastSeenAt[section.id] = updatedAt;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_seenAtKey(section.id), updatedAt.toIso8601String());
+    } catch (_) {
+      // Lost a write → user sees the badge again next launch. Acceptable.
+    }
   }
 
   // The feed list cache may be older than the post itself — another
@@ -489,7 +575,22 @@ class _PostDetailPageState extends State<PostDetailPage>
 
     _lazyLoading.add(index);
     try {
-      final body = await _dataService.getFeedItemSection(widget.item.id, index);
+      final section = widget.item.sections[index];
+      // Prefer the UUID-keyed endpoint — stable across author edits
+      // (insert / delete / reorder), so a reader on chapter X stays on
+      // X even if the author shuffles the chapter list mid-session.
+      // Fall back to the legacy index endpoint for older payloads
+      // whose sections came down without ids (server now translates
+      // index → published section UUID server-side).
+      final Map<String, dynamic>? body;
+      if (section.id.isNotEmpty) {
+        body = await _dataService.getFeedItemSectionById(
+          widget.item.id,
+          section.id,
+        );
+      } else {
+        body = await _dataService.getFeedItemSection(widget.item.id, index);
+      }
       if (body == null) return;
       final raw = body['content'];
       // Server returns content as a Quill-Delta list; encode back to a JSON
@@ -861,6 +962,12 @@ class _PostDetailPageState extends State<PostDetailPage>
     _ensureSectionLoaded(index);
     _ensureSectionLoaded(index + 1);
     _ensureSectionLoaded(index + 2);
+    // Entering a chapter clears its "Updated" pill — author edits
+    // reach the reader live (no republish), so once they've actually
+    // opened the chapter, the badge has done its job.
+    if (index >= 0 && index < widget.item.sections.length) {
+      _markSectionSeen(widget.item.sections[index]);
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -928,6 +1035,11 @@ class _PostDetailPageState extends State<PostDetailPage>
     _saveProgress(index);
     _ensureSectionLoaded(index);
     _ensureSectionLoaded(index + 1);
+    // Same "seen" semantics as _enterSectionDetail — clear the badge
+    // when the reader actually arrives on this chapter.
+    if (index >= 0 && index < widget.item.sections.length) {
+      _markSectionSeen(widget.item.sections[index]);
+    }
     if (_pageController?.hasClients == true) {
       _pageController!.animateToPage(
         index,
@@ -1564,6 +1676,29 @@ class _PostDetailPageState extends State<PostDetailPage>
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        // "Updated" pill — author edited this chapter
+                        // since the user last opened it. Clears when
+                        // the user enters the chapter (`_markSectionSeen`).
+                        if (_isSectionUpdated(section)) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: accentColor.withValues(alpha: 0.14),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              'Updated',
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: accentColor,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ),
+                        ],
                         if (section.hasImage) ...[
                           const SizedBox(width: 8),
                           Container(
@@ -2058,6 +2193,8 @@ class _PostDetailPageState extends State<PostDetailPage>
                       itemCount: item.sections.length,
                       itemBuilder: (context, i) {
                         final isActive = i == _selectedSectionIndex;
+                        final section = item.sections[i];
+                        final updated = _isSectionUpdated(section);
                         return InkWell(
                           onTap: () {
                             if (_selectedSectionIndex == null) {
@@ -2070,18 +2207,44 @@ class _PostDetailPageState extends State<PostDetailPage>
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 14),
-                            child: Text(
-                              '${i + 1}. ${item.sections[i].title}',
-                              style: _readerTextStyle(
-                                fontSize: 15,
-                                fontWeight: isActive
-                                    ? FontWeight.w600
-                                    : FontWeight.w500,
-                                color: isActive ? _paperAccent : drawerText,
-                                height: 1.4,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '${i + 1}. ${section.title}',
+                                    style: _readerTextStyle(
+                                      fontSize: 15,
+                                      fontWeight: isActive
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
+                                      color: isActive ? _paperAccent : drawerText,
+                                      height: 1.4,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (updated) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: _paperAccent.withValues(alpha: 0.14),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: Text(
+                                      'Updated',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: _paperAccent,
+                                        letterSpacing: 0.3,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         );

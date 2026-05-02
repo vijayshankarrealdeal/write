@@ -103,6 +103,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 isDark: isDark,
                 onTap: () {
                   notif.markRead(notif.items[i]);
+                  // Follow requests deep-link to the inbox where the
+                  // user can approve/decline. Other notification kinds
+                  // route to the post they reference.
+                  final kind = notif.items[i].kind;
+                  if (kind == 'follow_request') {
+                    context.push('/follow-requests');
+                    return;
+                  }
                   final feedItemId = notif.items[i].feedItemId;
                   if (feedItemId != null && feedItemId.isNotEmpty) {
                     context.push('/post/$feedItemId');

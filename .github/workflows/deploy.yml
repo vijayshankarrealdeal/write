@@ -117,6 +117,7 @@ jobs:
       - name: Write .env from DOTENV secret
         env:
           DOTENV: ${{ secrets.DOTENV }}
+          ENV: ${{ secrets.ENV }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
@@ -124,6 +125,11 @@ jobs:
           printf '%s\n' "$DOTENV" > .env
           # Overlay individual secrets so they can be rotated without touching DOTENV.
           # Each: drop any existing line, then append the current value.
+          # ENV defaults to "prod" when deploying via Actions — local .env keeps "dev".
+          ENV_VALUE="${ENV:-prod}"
+          grep -v '^ENV=' .env > .env.tmp || true
+          mv .env.tmp .env
+          printf 'ENV=%s\n' "$ENV_VALUE" >> .env
           if [[ -n "$AZURE_OPENAI_API_KEY" ]]; then
             grep -v '^AZURE_OPENAI_API_KEY=' .env > .env.tmp || true
             mv .env.tmp .env

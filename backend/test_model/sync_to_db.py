@@ -128,11 +128,16 @@ async def _main() -> int:
         scenes_by_chunk=scenes_by_chunk_local,
         image_url_for=url_for,
         cleaned_markdown=cleaned_md_map,
-        primary_account_email="inkspacex@inkspacex.com",
-        primary_account_name="inkspace",
+        # Canonical inkspace identity — same email/password every run so
+        # the smoke-test curl commands and the Flutter app can both log in
+        # to confirm uploads landed.
+        primary_account_email=db_publish.INKSPACE_EMAIL,
+        primary_account_name=db_publish.INKSPACE_NAME,
+        primary_account_password=db_publish.INKSPACE_PASSWORD,
         genres=poster.get("genres") or [],
         writing_types=poster.get("writing_types") or ["book"],
         tags=poster.get("tags") or [],
+        visibility="public",
     )
 
     manifest["synced"] = db_ids
