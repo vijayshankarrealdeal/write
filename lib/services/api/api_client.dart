@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart' show MediaType;
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/services/storage_service.dart';
 
@@ -74,6 +75,10 @@ class ApiException implements Exception {
 class ApiClient {
   final StorageService _storage;
   final http.Client _http = http.Client();
+  // Single-flight refresh: a burst of parallel 401s should trigger one
+  // refresh, not N. Without this, racing refreshes overwrite each other's
+  // rotated refresh tokens and the loser silently logs the user out.
+  Future<bool>? _refreshInFlight;
 
   // Main domain proxies /api/* to FastAPI via Caddy, so web hits same-origin
   // and native builds reach the same backend. Override via
@@ -233,7 +238,12 @@ class ApiClient {
     );
   }
 
-  Future<bool> _refreshToken() async {
+  Future<bool> _refreshToken() {
+    return _refreshInFlight ??= _doRefresh()
+      ..whenComplete(() => _refreshInFlight = null);
+  }
+
+  Future<bool> _doRefresh() async {
     final refreshToken = _storage.getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) return false;
 
@@ -288,6 +298,7 @@ class ApiClient {
     Uint8List bytes, {
     String filename = 'file.jpg',
     String fieldName = 'file',
+    bool isRetry = false,
   }) async {
     final uri = Uri.parse('$baseUrl$path');
     final token = _storage.getAuthToken();
@@ -297,7 +308,12 @@ class ApiClient {
       request.headers['Authorization'] = 'Bearer $token';
     }
     request.files.add(
-      http.MultipartFile.fromBytes(fieldName, bytes, filename: filename),
+      http.MultipartFile.fromBytes(
+        fieldName,
+        bytes,
+        filename: filename,
+        contentType: _sniffImageMediaType(bytes),
+      ),
     );
 
     http.Response resp;
@@ -331,6 +347,19 @@ class ApiClient {
       );
     }
 
+    if (resp.statusCode == 401 && !isRetry) {
+      final refreshed = await _refreshToken();
+      if (refreshed) {
+        return uploadFile(
+          path,
+          bytes,
+          filename: filename,
+          fieldName: fieldName,
+          isRetry: true,
+        );
+      }
+    }
+
     dynamic parsed;
     if (body.isNotEmpty) {
       try {
@@ -357,4 +386,42 @@ class ApiClient {
       headers: resp.headers,
     );
   }
+}
+
+/// Sniffs the MIME type of an image from its leading magic bytes. Used so the
+/// backend's `image/*` content-type check accepts the upload regardless of
+/// what extension the caller hardcoded into the filename.
+MediaType _sniffImageMediaType(Uint8List bytes) {
+  if (bytes.length >= 4 &&
+      bytes[0] == 0x89 &&
+      bytes[1] == 0x50 &&
+      bytes[2] == 0x4E &&
+      bytes[3] == 0x47) {
+    return MediaType('image', 'png');
+  }
+  if (bytes.length >= 3 &&
+      bytes[0] == 0xFF &&
+      bytes[1] == 0xD8 &&
+      bytes[2] == 0xFF) {
+    return MediaType('image', 'jpeg');
+  }
+  if (bytes.length >= 12 &&
+      bytes[0] == 0x52 &&
+      bytes[1] == 0x49 &&
+      bytes[2] == 0x46 &&
+      bytes[3] == 0x46 &&
+      bytes[8] == 0x57 &&
+      bytes[9] == 0x45 &&
+      bytes[10] == 0x42 &&
+      bytes[11] == 0x50) {
+    return MediaType('image', 'webp');
+  }
+  if (bytes.length >= 6 &&
+      bytes[0] == 0x47 &&
+      bytes[1] == 0x49 &&
+      bytes[2] == 0x46 &&
+      bytes[3] == 0x38) {
+    return MediaType('image', 'gif');
+  }
+  return MediaType('image', 'jpeg');
 }
