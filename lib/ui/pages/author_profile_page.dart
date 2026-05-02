@@ -304,8 +304,7 @@ class _Avatar extends StatelessWidget {
     final url = user.photoUrl;
     final hasImage = url != null && url.isNotEmpty;
     if (hasImage) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(size * 0.22),
+      return ClipOval(
         child: SizedBox(
           width: size,
           height: size,
@@ -364,7 +363,7 @@ class _BrandMark extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(size * 0.22),
+        shape: BoxShape.circle,
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
