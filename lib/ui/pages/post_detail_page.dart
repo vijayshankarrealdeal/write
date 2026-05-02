@@ -122,7 +122,7 @@ class _PostDetailPageState extends State<PostDetailPage>
   // Maps section_id → the `updated_at` we showed the user the last time
   // they entered that chapter. Persisted across launches via
   // SharedPreferences (one key per (feedItemId, sectionId) pair).
-  // Render rule: if `widget.item.sections[i].updatedAt > _lastSeenAt[id]`,
+  // Render rule: if `_item.sections[i].updatedAt > _lastSeenAt[id]`,
   // paint an "Updated" pill on the chapter row. Cache miss = brand new
   // chapter, no badge (the chapter list itself is the new-chapter
   // signal). Marked seen when the reader enters a section.
@@ -132,6 +132,13 @@ class _PostDetailPageState extends State<PostDetailPage>
   late final ApiDataService _dataService;
   Timer? _debounce;
   String? _userId;
+
+  // Local mirror of the displayed feed item. Seeded from `widget.item` (the
+  // listing-shape model passed via GoRouter extra — sections empty because
+  // list endpoints strip them) and replaced with the detail-shape response
+  // from `_refreshCountsFromServer`. Reads go through this field, never
+  // `widget.item`, so the chapter list paints once the detail fetch lands.
+  late FeedItemModel _item;
 
   // -- Two-level navigation: null = overview, int = section detail --
   int? _selectedSectionIndex;
@@ -311,12 +318,13 @@ class _PostDetailPageState extends State<PostDetailPage>
   @override
   void initState() {
     super.initState();
+    _item = _item;
     AnalyticsService.instance.track(
       'post_viewed',
       screen: '/post/:id',
       action: 'view',
       entityType: 'post',
-      entityId: widget.item.id,
+      entityId: _item.id,
     );
     _likeAnimController = AnimationController(
       vsync: this,
@@ -361,12 +369,12 @@ class _PostDetailPageState extends State<PostDetailPage>
   static const _kSeenAtPrefix = 'section_seen_at:';
 
   String _seenAtKey(String sectionId) =>
-      '$_kSeenAtPrefix${widget.item.id}:$sectionId';
+      '$_kSeenAtPrefix${_item.id}:$sectionId';
 
   Future<void> _hydrateSectionSeenCache() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final prefix = '$_kSeenAtPrefix${widget.item.id}:';
+      final prefix = '$_kSeenAtPrefix${_item.id}:';
       bool changed = false;
       for (final key in prefs.getKeys()) {
         if (!key.startsWith(prefix)) continue;
@@ -423,16 +431,24 @@ class _PostDetailPageState extends State<PostDetailPage>
   Future<void> _refreshCountsFromServer() async {
     final auth = context.read<AuthProvider>();
     final feed = context.read<FeedProvider>();
-    final freshFuture = _dataService.getFeedItem(widget.item.id);
+    final freshFuture = _dataService.getFeedItem(_item.id);
     final userFuture = auth.refreshCurrentUser();
     try {
       final fresh = await freshFuture;
       if (mounted && fresh != null) {
         feed.applyRemoteCounts(
-          widget.item.id,
+          _item.id,
           likesCount: fresh.likesCount,
           commentsCount: fresh.commentsCount,
         );
+        // Listing endpoints don't ship `sections` — only the detail
+        // endpoint does, via `list_section_stubs`. Swap in the fresh
+        // payload so the chapter list and reader paint, then build
+        // controllers for any bodies that arrived inline.
+        if (fresh.sections.isNotEmpty && _item.sections.isEmpty) {
+          setState(() => _item = fresh);
+          _initQuillControllers();
+        }
       }
       await userFuture;
     } on FeedItemMissing {
@@ -440,7 +456,7 @@ class _PostDetailPageState extends State<PostDetailPage>
       // from the in-memory list + disk cache so the next cold start
       // doesn't hand the user a tombstone, and pop this detail page.
       if (!mounted) return;
-      feed.dropMissingItem(widget.item.id);
+      feed.dropMissingItem(_item.id);
       Navigator.of(context).maybePop();
     } catch (_) {
       // Stale counts will get corrected by the next SSE event anyway.
@@ -458,7 +474,7 @@ class _PostDetailPageState extends State<PostDetailPage>
 
   void _subscribeToFeedItemEvents() {
     final feed = context.read<FeedProvider>();
-    final stream = _dataService.feedItemEvents(widget.item.id);
+    final stream = _dataService.feedItemEvents(_item.id);
     if (stream == null) return;
     _feedItemEventsSub = stream.listen((event) {
       if (!mounted) return;
@@ -469,7 +485,7 @@ class _PostDetailPageState extends State<PostDetailPage>
           final c = event['comments_count'];
           if (c is num) {
             feed.applyRemoteCounts(
-              widget.item.id,
+              _item.id,
               commentsCount: c.toInt(),
             );
           }
@@ -479,7 +495,7 @@ class _PostDetailPageState extends State<PostDetailPage>
           final l = event['likes_count'];
           if (l is num) {
             feed.applyRemoteCounts(
-              widget.item.id,
+              _item.id,
               likesCount: l.toInt(),
             );
           }
@@ -539,8 +555,8 @@ class _PostDetailPageState extends State<PostDetailPage>
   // on demand via `_ensureSectionLoaded` when the reader navigates to one.
   // --------------------------------------------------------------------------
   void _initQuillControllers() {
-    for (int i = 0; i < widget.item.sections.length; i++) {
-      final section = widget.item.sections[i];
+    for (int i = 0; i < _item.sections.length; i++) {
+      final section = _item.sections[i];
       if (section.content.isEmpty) continue;
       _buildController(i, section.content);
     }
@@ -564,7 +580,7 @@ class _PostDetailPageState extends State<PostDetailPage>
   Future<void> _ensureSectionLoaded(int index) async {
     if (_quillControllers.containsKey(index)) return;
     if (_lazyLoading.contains(index)) return;
-    if (index < 0 || index >= widget.item.sections.length) return;
+    if (index < 0 || index >= _item.sections.length) return;
 
     final cached = _lazyContent[index];
     if (cached != null && cached.isNotEmpty) {
@@ -575,7 +591,7 @@ class _PostDetailPageState extends State<PostDetailPage>
 
     _lazyLoading.add(index);
     try {
-      final section = widget.item.sections[index];
+      final section = _item.sections[index];
       // Prefer the UUID-keyed endpoint — stable across author edits
       // (insert / delete / reorder), so a reader on chapter X stays on
       // X even if the author shuffles the chapter list mid-session.
@@ -585,11 +601,11 @@ class _PostDetailPageState extends State<PostDetailPage>
       final Map<String, dynamic>? body;
       if (section.id.isNotEmpty) {
         body = await _dataService.getFeedItemSectionById(
-          widget.item.id,
+          _item.id,
           section.id,
         );
       } else {
-        body = await _dataService.getFeedItemSection(widget.item.id, index);
+        body = await _dataService.getFeedItemSection(_item.id, index);
       }
       if (body == null) return;
       final raw = body['content'];
@@ -615,11 +631,11 @@ class _PostDetailPageState extends State<PostDetailPage>
     try {
       final progress = await _dataService.getReadingProgress(
         _userId!,
-        widget.item.id,
+        _item.id,
       );
       if (progress != null && mounted) {
         final saved = progress.scrollPosition.round();
-        if (saved >= 0 && saved < widget.item.sections.length) {
+        if (saved >= 0 && saved < _item.sections.length) {
           setState(() => _lastReadSection = saved);
         }
       }
@@ -635,7 +651,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     try {
       final rows = await _dataService.getHighlightsForFeedItem(
         userId: _userId!,
-        feedItemId: widget.item.id,
+        feedItemId: _item.id,
       );
       if (!mounted) return;
       for (final h in rows) {
@@ -935,7 +951,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     if (_userId != null) {
       _dataService.addHighlight(
         userId: _userId!,
-        feedItemId: widget.item.id,
+        feedItemId: _item.id,
         highlightId: id,
         sectionIndex: sectionIndex,
         start: start,
@@ -965,8 +981,8 @@ class _PostDetailPageState extends State<PostDetailPage>
     // Entering a chapter clears its "Updated" pill — author edits
     // reach the reader live (no republish), so once they've actually
     // opened the chapter, the badge has done its job.
-    if (index >= 0 && index < widget.item.sections.length) {
-      _markSectionSeen(widget.item.sections[index]);
+    if (index >= 0 && index < _item.sections.length) {
+      _markSectionSeen(_item.sections[index]);
     }
   }
 
@@ -1037,8 +1053,8 @@ class _PostDetailPageState extends State<PostDetailPage>
     _ensureSectionLoaded(index + 1);
     // Same "seen" semantics as _enterSectionDetail — clear the badge
     // when the reader actually arrives on this chapter.
-    if (index >= 0 && index < widget.item.sections.length) {
-      _markSectionSeen(widget.item.sections[index]);
+    if (index >= 0 && index < _item.sections.length) {
+      _markSectionSeen(_item.sections[index]);
     }
     if (_pageController?.hasClients == true) {
       _pageController!.animateToPage(
@@ -1058,7 +1074,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     _debounce = Timer(const Duration(milliseconds: 300), () {
       _dataService.updateReadingProgress(
         _userId!,
-        widget.item.id,
+        _item.id,
         sectionIndex.toDouble(),
       );
     });
@@ -1070,7 +1086,7 @@ class _PostDetailPageState extends State<PostDetailPage>
   void _onDoubleTapLike() {
     final auth = context.read<AuthProvider>();
     final feed = context.read<FeedProvider>();
-    auth.toggleLike(widget.item.id, feedProvider: feed);
+    auth.toggleLike(_item.id, feedProvider: feed);
     _likeAnimController.forward(from: 0.0);
   }
 
@@ -1367,7 +1383,7 @@ class _PostDetailPageState extends State<PostDetailPage>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (sheetContext) => _CommentsSheet(item: widget.item),
+      builder: (sheetContext) => _CommentsSheet(item: _item),
     );
   }
 
@@ -1590,7 +1606,7 @@ class _PostDetailPageState extends State<PostDetailPage>
   /// new batch can settle before the next one is requested.
   void _bumpChaptersShown() {
     if (_chaptersBatchInFlight) return;
-    final total = widget.item.sections.length;
+    final total = _item.sections.length;
     if (_chaptersShown >= total) return;
     _chaptersBatchInFlight = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1612,7 +1628,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     if (n is ScrollUpdateNotification || n is ScrollEndNotification) {
       final m = n.metrics;
       if (m.pixels >= m.maxScrollExtent - _kChaptersScrollTrigger) {
-        if (_chaptersShown < widget.item.sections.length) {
+        if (_chaptersShown < _item.sections.length) {
           _bumpChaptersShown();
         }
       }
@@ -1751,12 +1767,12 @@ class _PostDetailPageState extends State<PostDetailPage>
     _debounce?.cancel();
     if (_feedItemEventsSub != null) {
       _feedItemEventsSub!.cancel();
-      _dataService.closeFeedItemEvents(widget.item.id);
+      _dataService.closeFeedItemEvents(_item.id);
     }
     if (_userId != null && _selectedSectionIndex != null) {
       _dataService.updateReadingProgress(
         _userId!,
-        widget.item.id,
+        _item.id,
         (_selectedSectionIndex ?? 0).toDouble(),
       );
     }
@@ -1789,7 +1805,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     final subtleColor = inReader
         ? palette.subtle
         : (isDark ? Colors.white54 : Colors.black45);
-    final item = widget.item;
+    final item = _item;
 
     // Heart animation curves
     final heartScale = TweenSequence<double>([
@@ -2554,7 +2570,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     Color subtleColor,
     Color bgColor,
   ) {
-    final item = widget.item;
+    final item = _item;
     final readingMinutes = _estimateReadingMinutes(item.sections);
     const contentPadding = 20.0;
     const maxContentWidth = 760.0;
@@ -2881,7 +2897,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     Color subtleColor,
     Color bgColor,
   ) {
-    final item = widget.item;
+    final item = _item;
     final totalSections = item.sections.length;
     final dividerColor =
         isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06);
@@ -3217,7 +3233,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     Color textColor,
     Color subtleColor,
   ) {
-    final section = widget.item.sections[sectionIndex];
+    final section = _item.sections[sectionIndex];
     final isWide = MediaQuery.of(context).size.width >= 900;
     final contentPadding = isWide ? 32.0 : 24.0;
     const maxContentWidth = 720.0;
@@ -3389,7 +3405,7 @@ class _PostDetailPageState extends State<PostDetailPage>
       if (_userId != null) {
         _dataService.addHighlight(
           userId: _userId!,
-          feedItemId: widget.item.id,
+          feedItemId: _item.id,
           highlightId: id,
           sectionIndex: sectionIndex,
           start: start,
@@ -3403,7 +3419,7 @@ class _PostDetailPageState extends State<PostDetailPage>
 
   Future<void> _onTapOfflineDownload(
       OfflineProvider offline, bool isDark) async {
-    final item = widget.item;
+    final item = _item;
     if (offline.hasOffline(item.id)) {
       final remove = await showCupertinoDialog<bool>(
         context: context,
@@ -3589,7 +3605,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     final label = raw.isEmpty ? null : raw;
     labelCtl.dispose();
 
-    final feedItemId = widget.item.id;
+    final feedItemId = _item.id;
     try {
       await context.read<BookmarkProvider>().addBookmark(
             feedItemId: feedItemId,
