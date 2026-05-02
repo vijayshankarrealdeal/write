@@ -16,6 +16,7 @@ import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/widgets/author_link.dart';
 import 'package:inkspacex/ui/widgets/feed_filter_chip_row.dart';
+import 'package:inkspacex/ui/widgets/report_dialog.dart';
 
 class Feed extends StatefulWidget {
   const Feed({super.key});
@@ -1543,7 +1544,15 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
               icon: CupertinoIcons.flag,
               label: 'Report',
               textColor: Colors.redAccent.withValues(alpha: 0.8),
-              onTap: () => Navigator.pop(sheetCtx),
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                showReportSheet(
+                  ctx,
+                  targetType: ReportTarget.story,
+                  targetId: item.id,
+                  targetLabel: item.title,
+                );
+              },
             ),
           ],
         ),

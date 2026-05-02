@@ -1,4 +1,4 @@
-package com.example.writer
+package com.inkspacex.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -18,6 +18,7 @@ import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/widgets/author_link.dart';
 import 'package:inkspacex/ui/widgets/more_like_this_carousel.dart';
+import 'package:inkspacex/ui/widgets/report_dialog.dart';
 
 import 'package:inkspacex/models/canvas_element_model.dart';
 import 'package:inkspacex/models/comment_model.dart';
@@ -5031,6 +5032,20 @@ class _CommentTile extends StatelessWidget {
                         onTap: onDelete,
                         child: Icon(
                           CupertinoIcons.trash,
+                          size: 14,
+                          color: subtleColor,
+                        ),
+                      )
+                    else
+                      GestureDetector(
+                        onTap: () => showReportSheet(
+                          context,
+                          targetType: ReportTarget.comment,
+                          targetId: comment.id,
+                          targetLabel: comment.text,
+                        ),
+                        child: Icon(
+                          CupertinoIcons.flag,
                           size: 14,
                           color: subtleColor,
                         ),

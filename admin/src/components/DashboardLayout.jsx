@@ -7,6 +7,7 @@ import {
   Users,
   BarChart3,
   Bug,
+  Flag,
   ScrollText,
   PenTool,
   LogOut,
@@ -25,6 +26,7 @@ const links = [
   { to: "/activity", icon: Users, label: "User Activity" },
   { to: "/analytics", icon: BarChart3, label: "Analytics" },
   { to: "/crashes", icon: Bug, label: "Crash Reports" },
+  { to: "/reports", icon: Flag, label: "Reports" },
   { to: "/logs", icon: ScrollText, label: "Logs" },
 ];
 

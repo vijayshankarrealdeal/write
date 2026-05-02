@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InkSpaceX — Account & Data Deletion</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fafafa; color: #1a1a1a; line-height: 1.7; }
+  .container { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+  h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .updated { color: #666; font-size: 14px; margin-bottom: 28px; }
+  h2 { font-size: 20px; font-weight: 700; margin-top: 36px; margin-bottom: 12px; }
+  h3 { font-size: 16px; font-weight: 700; margin-top: 22px; margin-bottom: 8px; }
+  p, li { font-size: 15px; margin-bottom: 12px; }
+  ul, ol { padding-left: 22px; }
+  li { margin-bottom: 8px; }
+  a { color: #4A6CF7; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 18px; font-size: 14px; }
+  th, td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; vertical-align: top; }
+  th { background: #f3f3f8; font-weight: 700; }
+  .highlight { background: #f0f0ff; border-left: 3px solid #4A6CF7; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  code { background: #eee; padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #000; color: #e0e0e0; }
+    .highlight { background: #1a1a2e; }
+    a { color: #7C5CFC; }
+    .updated { color: #888; }
+    th { background: #1a1a1a; }
+    th, td { border-color: #2a2a2a; }
+    code { background: #1a1a1a; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>InkSpaceX — Account &amp; Data Deletion</h1>
+<p class="updated">App: <strong>InkSpaceX</strong> (com.inkspacex.app) &nbsp;·&nbsp; Last updated: May 2, 2026</p>
+
+<div class="highlight">
+This page explains how to delete your <strong>InkSpaceX</strong> account and the data we hold about you. You can delete a single piece of content (one story, one comment, one chat message, your profile picture) at any time without deleting your account, or you can delete your entire account in one step.
+</div>
+
+<h2>1. Delete a single item without deleting your account</h2>
+<p>Open the InkSpaceX app and sign in. You can remove any of the following from inside the app, and the change is permanent:</p>
+<ul>
+  <li><strong>A story or chapter</strong> — open the story → tap the &#8230; menu → <em>Delete</em>.</li>
+  <li><strong>A comment</strong> — long-press your comment → <em>Delete</em>.</li>
+  <li><strong>A direct chat message</strong> — long-press the message → <em>Delete</em>.</li>
+  <li><strong>A bookmark, highlight, or reading list entry</strong> — open the item → <em>Remove</em>.</li>
+  <li><strong>A follow / block / like</strong> — tap the same button again to undo.</li>
+  <li><strong>Your profile photo or display name</strong> — Profile → Edit profile.</li>
+</ul>
+<p>Once you delete an item from the app, it is removed from our production database immediately and is purged from encrypted backups within 90 days on the normal backup-rotation cycle.</p>
+
+<h2>2. Delete your entire account from inside the app</h2>
+<ol>
+  <li>Open the <strong>InkSpaceX</strong> app and sign in.</li>
+  <li>Go to <strong>Profile &rarr; Settings &rarr; Account</strong>.</li>
+  <li>Tap <strong>Delete account</strong>.</li>
+  <li>Re-enter your password (or re-confirm with Google Sign-In) to verify it's you.</li>
+  <li>Tap <strong>Confirm</strong>. Your account is queued for deletion immediately.</li>
+</ol>
+
+<h2>3. Delete your entire account by email</h2>
+<p>If you can't sign in for any reason, send an email <strong>from the email address on your account</strong> to <a href="mailto:privacy@inkspacex.com">privacy@inkspacex.com</a> with the subject line:</p>
+<p><code>Delete my account</code></p>
+<p>Include your account email and your display name in the body. We will verify and process the request within <strong>30 days</strong> and reply when it's done.</p>
+
+<h2>4. What is deleted and what is kept</h2>
+<table>
+  <thead>
+    <tr><th>Data</th><th>What happens when you delete your account</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Account email, password hash, display name, profile photo</td><td><strong>Deleted</strong> from production within 30 days; purged from backups within 90 days.</td></tr>
+    <tr><td>Your stories, chapters, drafts, and uploaded images</td><td><strong>Deleted</strong> from production within 30 days; purged from backups within 90 days.</td></tr>
+    <tr><td>Your comments, likes, follows, blocks, bookmarks, highlights, reading lists</td><td><strong>Deleted</strong> from production within 30 days; purged from backups within 90 days.</td></tr>
+    <tr><td>Direct chat messages you sent</td><td><strong>Deleted</strong> from production within 30 days; the recipient's copy is also removed. Purged from backups within 90 days.</td></tr>
+    <tr><td>Push-notification tokens, session refresh tokens</td><td><strong>Deleted</strong> immediately on account deletion.</td></tr>
+    <tr><td>Crash logs and diagnostic events tied to your user ID</td><td><strong>Anonymised</strong> on account deletion (your user ID is stripped); aggregate, non-identifying signals are retained.</td></tr>
+    <tr><td>Audit logs of moderation actions (reports you filed, content removed for policy violations)</td><td><strong>Retained</strong> for up to 2 years for safety, abuse-prevention, and legal-defence purposes, with your user ID replaced by a one-way hash.</td></tr>
+    <tr><td>Records required by law (e.g., for tax, fraud, or law-enforcement requests)</td><td><strong>Retained</strong> only for as long as the applicable law requires.</td></tr>
+  </tbody>
+</table>
+
+<h2>5. How long does it take?</h2>
+<ul>
+  <li><strong>Single items</strong> (a story, a comment, a chat message, a profile photo): deleted from production immediately. Backups roll off within 90 days.</li>
+  <li><strong>Whole-account deletion via the app:</strong> account is deactivated immediately and erased from production within 30 days. Backups roll off within 90 days.</li>
+  <li><strong>Whole-account deletion by email:</strong> we verify and erase within 30 days of receiving the request. Backups roll off within 90 days.</li>
+</ul>
+
+<h2>6. Questions or problems</h2>
+<p>If a deletion didn't work, you didn't get a confirmation, or you have any other privacy question, contact <a href="mailto:privacy@inkspacex.com">privacy@inkspacex.com</a>. We respond to verified requests within 30 days.</p>
+
+<p style="margin-top: 32px; font-size: 13px; color: #888;">For full details on what we collect and why, see our <a href="https://inkspacex.com/privacy_policy.html">Privacy Policy</a>.</p>
+
+</div>
+</body>
+</html>

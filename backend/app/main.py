@@ -36,6 +36,7 @@ from app.routers import (
     notifications,
     reading,
     realtime,
+    reports,
     spellcheck,
     upload,
     users,
@@ -156,6 +157,7 @@ app.include_router(notifications.router)
 app.include_router(realtime.router)
 app.include_router(analytics.router)
 app.include_router(spellcheck.router)
+app.include_router(reports.router)
 
 # Request logging middleware
 app.add_middleware(RequestLoggingMiddleware)

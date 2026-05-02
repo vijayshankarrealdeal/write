@@ -1433,6 +1433,28 @@ class ApiDataService implements SyncDispatcher {
   }
 
   // =========================================================================
+  // REPORTS (UGC moderation)
+  // =========================================================================
+
+  /// Submit a report against a story / comment / user / chat message.
+  /// `targetType` must match one of the backend constants in
+  /// `app.models.report.TARGET_TYPES` ('story', 'comment', 'user',
+  /// 'chat_message'); `reason` is one of `REPORT_REASONS`.
+  Future<void> submitReport({
+    required String targetType,
+    required String targetId,
+    required String reason,
+    String? note,
+  }) async {
+    await _client.post('/api/reports', data: {
+      'target_type': targetType,
+      'target_id': targetId,
+      'reason': reason,
+      if (note != null && note.isNotEmpty) 'note': note,
+    });
+  }
+
+  // =========================================================================
   // JSON HELPERS
   // =========================================================================
 

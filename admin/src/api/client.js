@@ -91,6 +91,21 @@ export const api = {
   },
   resolveCrash: (id) => request(`/crashes/${id}/resolve`, { method: "PATCH" }),
 
+  // Reports (UGC moderation queue)
+  reports: (page = 1, perPage = 25, filters = {}) => {
+    const params = new URLSearchParams({ page, per_page: perPage });
+    if (filters.status) params.set("status", filters.status);
+    if (filters.target_type) params.set("target_type", filters.target_type);
+    if (filters.source) params.set("source", filters.source);
+    return request(`/reports?${params}`);
+  },
+  reportStats: () => request("/reports/stats"),
+  updateReport: (id, status) =>
+    request(`/reports/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }),
+
   // Logs
   logs: (page = 1, perPage = 50, filters = {}) => {
     const params = new URLSearchParams({ page, per_page: perPage });

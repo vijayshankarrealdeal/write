@@ -15,6 +15,7 @@ import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
+import 'package:inkspacex/ui/widgets/report_dialog.dart';
 
 /// One-on-one chat thread.
 ///
@@ -205,6 +206,35 @@ class _ChatConversationPageState extends State<ChatConversationPage> {
     );
   }
 
+  void _onMessageLongPress(ChatMessageModel msg) {
+    showModalBottomSheet(
+      context: context,
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(CupertinoIcons.flag,
+                  color: Colors.redAccent),
+              title: const Text('Report this message'),
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                showReportSheet(
+                  context,
+                  targetType: ReportTarget.chatMessage,
+                  targetId: msg.id,
+                  targetLabel: (msg.body ?? '').isEmpty
+                      ? msg.attachmentTitle
+                      : msg.body,
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _composerCtrl.dispose();
@@ -293,10 +323,16 @@ class _ChatConversationPageState extends State<ChatConversationPage> {
                         itemBuilder: (_, i) {
                           final msg = messages[i];
                           final mine = msg.senderId == myId;
-                          return _MessageBubble(
-                            message: msg,
-                            mine: mine,
-                            isDark: isDark,
+                          return GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onLongPress: mine || msg.pending
+                                ? null
+                                : () => _onMessageLongPress(msg),
+                            child: _MessageBubble(
+                              message: msg,
+                              mine: mine,
+                              isDark: isDark,
+                            ),
                           );
                         },
                       );

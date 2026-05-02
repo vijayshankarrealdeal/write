@@ -17,6 +17,7 @@ from app.models.highlight import Highlight
 from app.models.notification import Notification
 from app.models.push_subscription import PushSubscription
 from app.models.reading_progress import ReadingProgress
+from app.models.report import Report
 from app.models.section import Section
 from app.models.user import User
 from app.models.writing import Writing
@@ -40,6 +41,7 @@ __all__ = [
     "PushSubscription",
     "ReadingProgress",
     "RecommendationEvent",
+    "Report",
     "Section",
     "User",
     "Writing",

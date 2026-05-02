@@ -45,7 +45,7 @@ if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
   echo "→ Stamping version + copying policy files..."
   TS=$(date +%s)
   echo "{\"version\": \"$TS\"}" > build/web/version.json
-  cp privacy_policy.html terms_of_service.html build/web/
+  cp privacy_policy.html terms_of_service.html data_deletion.html build/web/
 fi
 
 # ── Local mode: just bring up the stack here ──────────────────────────

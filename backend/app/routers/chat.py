@@ -13,9 +13,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.ai.moderation import moderate_text, primary_reason
 from app.auth.deps import get_current_user
 from app.database import get_db
 from app.models.chat import ChatMessage, Conversation
+from app.models.report import Report
 from app.models.user import User
 from app.realtime import hub
 from app.schemas.chat import (
@@ -243,6 +245,22 @@ async def send_message(
             detail="attachment or body is required for non-text messages",
         )
 
+    # AI moderation runs before the write so a high-severity verdict
+    # blocks delivery. Lower-severity flags (e.g. spam) still send but
+    # auto-create a Report row for the admin queue. Only text is fed
+    # to the moderator; attachment metadata isn't user-authored.
+    verdict: dict | None = None
+    if data.kind == "text" and body:
+        verdict = await moderate_text(body)
+        if verdict.get("flagged") and verdict.get("severity", 0.0) >= 0.85:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "This message looks like it violates our community "
+                    "guidelines and wasn't sent."
+                ),
+            )
+
     msg = ChatMessage(
         conversation_id=conversation_id,
         sender_id=user.id,
@@ -258,6 +276,25 @@ async def send_message(
 
     await db.flush()
     await db.refresh(msg)
+
+    # Auto-file an AI-sourced report for medium-severity flags so the
+    # admin queue catches borderline content without blocking the user.
+    if verdict and verdict.get("flagged"):
+        db.add(
+            Report(
+                reporter_id=None,
+                target_type="chat_message",
+                target_id=str(msg.id),
+                target_author_id=user.id,
+                reason=primary_reason(verdict),
+                note=verdict.get("reason") or None,
+                snapshot=(body or "")[:1000] or None,
+                ai_meta=verdict,
+                source="ai",
+                status="pending",
+            )
+        )
+
     await db.commit()
 
     # Push to both participants — the sender sees the message echoed on

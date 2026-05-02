@@ -10,6 +10,7 @@ import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
+import 'package:inkspacex/ui/widgets/report_dialog.dart';
 
 /// Public profile for any author. Reached from search results — shows
 /// the author's avatar + name + post count + follower stats, then their
@@ -139,6 +140,19 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
             color: textColor,
           ),
         ),
+        actions: [
+          if (!isSelf && user != null)
+            IconButton(
+              tooltip: 'Report user',
+              icon: Icon(CupertinoIcons.flag, color: textColor, size: 20),
+              onPressed: () => showReportSheet(
+                context,
+                targetType: ReportTarget.user,
+                targetId: user.id,
+                targetLabel: user.name,
+              ),
+            ),
+        ],
       ),
       body: _loadingUser
           ? const Center(child: AppSpinner())
