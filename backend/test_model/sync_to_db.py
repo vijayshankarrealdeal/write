@@ -95,7 +95,18 @@ async def _main() -> int:
     # Prefer the dedicated poster cover (manifest.cover_image_local)
     # — that's a purpose-built jacket image. Fall back to the
     # highest-scoring chunk scene if the poster phase didn't run.
-    cover_local = manifest.get("cover_image_local") or _pick_cover(scenes_by_chunk_local)
+    #
+    # The manifest stores `cover_image_local` as the absolute path on the
+    # machine that ran the pipeline. When sync_to_db runs on a different
+    # host (e.g. inside the Docker container after vm-publish), that path
+    # doesn't exist. Resolve relative to the *current* book_dir first;
+    # only fall back to the manifest path if the conventional location
+    # is empty.
+    conventional_cover = book_dir / "images" / "cover.png"
+    if conventional_cover.exists():
+        cover_local: str | None = str(conventional_cover)
+    else:
+        cover_local = manifest.get("cover_image_local") or _pick_cover(scenes_by_chunk_local)
     cover_url: str | None = None
     if cover_local and Path(cover_local).exists():
         if args.no_images:
@@ -278,10 +289,19 @@ def _load_artifacts(
         if plan_by_scene and scene_id not in plan_by_scene:
             continue
         chunk_id = meta["chunk_id"]
-        local_image = meta.get("image_path")
-        if not local_image or not Path(local_image).exists():
-            # PNG missing — skip silently; the agent may have failed on this scene.
-            continue
+        # Resolve relative to the *current* book_dir first — the meta's
+        # `image_path` is the absolute path of the machine that ran the
+        # pipeline and won't exist if sync runs on a different host
+        # (e.g. inside the Docker container after vm-publish). Convention
+        # is `images/{scene_id}.png`, written by the image-gen phase.
+        conventional = book / "images" / f"{scene_id}.png"
+        if conventional.exists():
+            local_image = str(conventional)
+        else:
+            local_image = meta.get("image_path")
+            if not local_image or not Path(local_image).exists():
+                # PNG missing — skip silently; the agent may have failed on this scene.
+                continue
         gs = GeneratedScene(
             scene_id=scene_id,
             chunk_id=chunk_id,

@@ -80,6 +80,12 @@ class _PublishPageState extends State<PublishPage> {
           _alreadyPublishedIds = existing != null
               ? existing.sections.map((s) => s.id).toSet()
               : {};
+          // Pre-tick sections that are already live so the dialog
+          // reflects the current published state ("28 of 28" instead of
+          // "0 of 28" for a freshly-ingested book). Tapping a tick
+          // becomes an explicit unpublish; without this seeding the
+          // republish flow would silently unpublish everything.
+          _selectedSectionIds.addAll(_alreadyPublishedIds);
           _loadingSpace = false;
         });
       }
