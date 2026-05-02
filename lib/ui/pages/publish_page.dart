@@ -80,12 +80,23 @@ class _PublishPageState extends State<PublishPage> {
           _alreadyPublishedIds = existing != null
               ? existing.sections.map((s) => s.id).toSet()
               : {};
-          // Pre-tick sections that are already live so the dialog
-          // reflects the current published state ("28 of 28" instead of
-          // "0 of 28" for a freshly-ingested book). Tapping a tick
-          // becomes an explicit unpublish; without this seeding the
-          // republish flow would silently unpublish everything.
-          _selectedSectionIds.addAll(_alreadyPublishedIds);
+          // Initial selection rules:
+          //  • If sections are currently live, mirror that state so the
+          //    user sees "X of N" and an unticked box becomes an explicit
+          //    unpublish.
+          //  • If nothing is live (brand-new book OR a previously fully-
+          //    unpublished one — the common case for ingest output and
+          //    for accidental empty publishes), pre-tick every section
+          //    so the default action is "publish everything".
+          //
+          // Without the second rule, the dialog would land at "0 of N"
+          // and a single Publish click would no-op (or, with the prior
+          // bug, would unpublish everything that was already live).
+          if (_alreadyPublishedIds.isNotEmpty) {
+            _selectedSectionIds.addAll(_alreadyPublishedIds);
+          } else if (widget.preselectedSection == null) {
+            _selectedSectionIds.addAll(widget.book.sections.map((s) => s.id));
+          }
           _loadingSpace = false;
         });
       }
