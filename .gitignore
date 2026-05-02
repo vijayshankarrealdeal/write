@@ -80,3 +80,4 @@ Desktop.ini
 backend/test_model/data/Ramayana.pdf
 backend/test_model/mahabharata-unabridged-in-english-bundle.tgz
 backend/test_model/data/gutenberg-selected
+backend/test_model/storage

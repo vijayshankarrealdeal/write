@@ -3,8 +3,8 @@
   "chunk_id": null,
   "chapter_title": "(book cover)",
   "score": 1.0,
-  "prompt": "In a South Indian temple\u2011mural style, Shiva and Parvati enthroned upon Mount Kailasa at the center of a cosmic mandala\u2014surrounded by Ganesha, Skanda, sages, gods, and swirling celestial beings\u2014rendered in terracotta reds, indigo, malachite green, and gold like an ancient fresco come to life.",
-  "scene_text": "In a South Indian temple\u2011mural style, Shiva and Parvati enthroned upon Mount Kailasa at the center of a cosmic mandala\u2014surrounded by Ganesha, Skanda, sages, gods, and swirling celestial beings\u2014rendered in terracotta reds, indigo, malachite green, and gold like an ancient fresco come to life.",
-  "image_path": "/home/verti/write/backend/test_model/storage/books/siva-puranam/images/cover.png",
+  "prompt": "In ornate Indian miniature style, Lord Shiva and Parvati sit together upon Mount Kailasa surrounded by gods, sages, and devoted mortals while celestial rivers, temple spires, and swirling halos suggest the vast mythic world shaped by Shiva\u2019s power and grace.",
+  "scene_text": "In ornate Indian miniature style, Lord Shiva and Parvati sit together upon Mount Kailasa surrounded by gods, sages, and devoted mortals while celestial rivers, temple spires, and swirling halos suggest the vast mythic world shaped by Shiva\u2019s power and grace.",
+  "image_path": "/Users/vijayshankar/Desktop/write/backend/test_model/storage/books/siva-puranam/images/cover.png",
   "is_cover": true
 }

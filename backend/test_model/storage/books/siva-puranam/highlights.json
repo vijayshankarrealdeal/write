@@ -1,121 +1,212 @@
 [
   {
-    "chunk_id": "ea2a2e336286",
+    "chunk_id": "297a9ec4ae00",
     "start": 0,
-    "length": 210,
-    "color_hex": "#A5D6A7",
-    "why": "Opening transition from praise of Shiva to the ominous mood surrounding Sati, setting the emotional and theological context for the tragedy."
+    "length": 180,
+    "color_hex": "#F48FB1",
+    "why": "Sati\u2019s first ecstatic encounter with Siva establishes the emotional core of their union and her intense devotion."
   },
   {
-    "chunk_id": "ea2a2e336286",
-    "start": 2200,
+    "chunk_id": "297a9ec4ae00",
+    "start": 620,
+    "length": 200,
+    "color_hex": "#FFEB3B",
+    "why": "Siva\u2019s ironic description of his ascetic life\u2014snakes, ashes, cremation grounds\u2014forms the famous test of Sati\u2019s resolve."
+  },
+  {
+    "chunk_id": "297a9ec4ae00",
+    "start": 2100,
+    "length": 180,
+    "color_hex": "#A5D6A7",
+    "why": "The divine wedding scene gathers the Trinity, sages, and celestial beings, highlighting the cosmic significance of the union."
+  },
+  {
+    "chunk_id": "297a9ec4ae00",
+    "start": 2550,
+    "length": 160,
+    "color_hex": "#A5D6A7",
+    "why": "Heaven showering flowers and the serpents bowing to Sati symbolize universal recognition of the sacred marriage."
+  },
+  {
+    "chunk_id": "297a9ec4ae00",
+    "start": 3600,
+    "length": 200,
+    "color_hex": "#FFEB3B",
+    "why": "Siva\u2019s teaching on self\u2011knowledge and the unity of the individual self with the universal Self delivers the chapter\u2019s central spiritual doctrine."
+  },
+  {
+    "chunk_id": "297a9ec4ae00",
+    "start": 4700,
+    "length": 200,
+    "color_hex": "#F48FB1",
+    "why": "Daksha\u2019s furious public insult of Siva shifts the narrative from harmony to conflict and foreshadows the coming catastrophe."
+  },
+  {
+    "chunk_id": "016fe108020c",
+    "start": 0,
+    "length": 56,
+    "color_hex": "#A5D6A7",
+    "why": "Opening moment of Shiva\u2019s magnanimity after the curse, establishing his divine forbearance and moral stature."
+  },
+  {
+    "chunk_id": "016fe108020c",
+    "start": 1500,
+    "length": 63,
+    "color_hex": "#FFEB3B",
+    "why": "The pivotal moment when Rama reveals the Vishvarupa to Sati, affirming the unity and cosmic scope of the divine."
+  },
+  {
+    "chunk_id": "016fe108020c",
+    "start": 2500,
+    "length": 57,
+    "color_hex": "#F48FB1",
+    "why": "The charged description of the rising sacrificial flames leading into Sati\u2019s self\u2011immolation, the emotional climax of the chapter."
+  },
+  {
+    "chunk_id": "016fe108020c",
+    "start": 3300,
+    "length": 95,
+    "color_hex": "#FFEB3B",
+    "why": "The dramatic creation of Virabhadra from Shiva\u2019s hair, marking the shift from grief to divine vengeance."
+  },
+  {
+    "chunk_id": "f89ac503b63d",
+    "start": 0,
+    "length": 220,
+    "color_hex": "#A5D6A7",
+    "why": "Opening confrontation where Taraka boldly challenges Vishnu, establishing the cosmic threat and the demon\u2019s arrogance."
+  },
+  {
+    "chunk_id": "f89ac503b63d",
+    "start": 1200,
     "length": 240,
     "color_hex": "#FFEB3B",
-    "why": "Rama\u2019s divine recognition of Sati in disguise and his address to her as \u2018Mother,\u2019 revealing his omniscience and divine identity."
+    "why": "Brahma reveals the crucial prophecy that only the future child of Shiva and Parvati can destroy Taraka, setting the central quest of the narrative."
   },
   {
-    "chunk_id": "ea2a2e336286",
+    "chunk_id": "f89ac503b63d",
     "start": 3600,
     "length": 260,
     "color_hex": "#FFEB3B",
-    "why": "The Vishvarupa (universal form) revelation, where Sati perceives the cosmos within Rama\u2014a pivotal mythic theophany."
+    "why": "Shiva opens his third eye and burns Manmatha\u2014one of the most iconic mythic moments showing the terrifying power of divine asceticism."
   },
   {
-    "chunk_id": "ea2a2e336286",
+    "chunk_id": "f89ac503b63d",
     "start": 5200,
-    "length": 240,
+    "length": 260,
     "color_hex": "#F48FB1",
-    "why": "Sati\u2019s anguished declaration that she will end her life rather than bear the dishonor brought upon Shiva."
+    "why": "Parvati\u2019s extreme penance and total devotion highlight the emotional and spiritual intensity driving the eventual union with Shiva."
   },
   {
-    "chunk_id": "ea2a2e336286",
-    "start": 7000,
-    "length": 230,
-    "color_hex": "#FFEB3B",
-    "why": "Shiva creates the terrible warrior Virabhadra and Bhadra Kali from his hair\u2014an iconic mythic act of divine wrath."
-  },
-  {
-    "chunk_id": "1e966229d3bb",
+    "chunk_id": "f9f4b1432e7b",
     "start": 0,
-    "length": 12,
+    "length": 150,
     "color_hex": "#A5D6A7",
-    "why": "Opening invocation situating the narrative within the Siva Puranam tradition."
+    "why": "Parvati\u2019s compassionate acceptance of Skanda and her request to bring him to Kailasa establishes the maternal and theological foundation of the chapter."
   },
   {
-    "chunk_id": "1e966229d3bb",
-    "start": 900,
-    "length": 30,
-    "color_hex": "#F48FB1",
-    "why": "Parvati\u2019s willingness to enter the fire shows the extreme depth of her devotion and despair."
-  },
-  {
-    "chunk_id": "1e966229d3bb",
-    "start": 1500,
-    "length": 43,
-    "color_hex": "#F48FB1",
-    "why": "Parvati fiercely rebukes the monk\u2019s insult to Shiva, revealing the emotional intensity of her bhakti."
-  },
-  {
-    "chunk_id": "1e966229d3bb",
-    "start": 2000,
-    "length": 78,
+    "chunk_id": "f9f4b1432e7b",
+    "start": 360,
+    "length": 220,
     "color_hex": "#FFEB3B",
-    "why": "The pivotal moment when Shiva reveals himself, acknowledging that Parvati\u2019s devotion has conquered him."
+    "why": "The Krittikas recount Skanda\u2019s mythic feats\u2014shattering mountains, frightening the cosmos, and deflecting Indra\u2019s weapon\u2014establishing his divine warrior identity."
   },
   {
-    "chunk_id": "1e966229d3bb",
-    "start": 3600,
-    "length": 69,
+    "chunk_id": "f9f4b1432e7b",
+    "start": 1240,
+    "length": 200,
+    "color_hex": "#F48FB1",
+    "why": "Parvati\u2019s embrace of Skanda causes milk to flow spontaneously, a powerful devotional miracle symbolizing divine motherhood and recognition."
+  },
+  {
+    "chunk_id": "f9f4b1432e7b",
+    "start": 3560,
+    "length": 200,
     "color_hex": "#FFEB3B",
-    "why": "Shiva\u2019s rapid transformations into divine forms (including Nataraja) display his cosmic nature and the unity of deities."
+    "why": "The opening of the great war with Taraka, where Skanda\u2019s conch terrifies the demons and signals the beginning of the cosmic battle."
   },
   {
-    "chunk_id": "12351cde5123",
+    "chunk_id": "f9f4b1432e7b",
+    "start": 6350,
+    "length": 220,
+    "color_hex": "#A5D6A7",
+    "why": "Narada\u2019s revelation that Taraka\u2019s Siva pendant protects him introduces the theological twist that devotion itself shields the demon."
+  },
+  {
+    "chunk_id": "f9f4b1432e7b",
+    "start": 7200,
+    "length": 200,
+    "color_hex": "#FFEB3B",
+    "why": "Skanda shatters the Siva pendant and its fragments become sacred temples, blending martial victory with the creation of holy sites."
+  },
+  {
+    "chunk_id": "47de7e9094a3",
     "start": 0,
-    "length": 4,
-    "color_hex": "#A5D6A7",
-    "why": "Opening invocation naming the sacred text and situating the narrative within the Shiva Purana tradition."
-  },
-  {
-    "chunk_id": "12351cde5123",
-    "start": 5,
-    "length": 7,
-    "color_hex": "#A5D6A7",
-    "why": "Completes the title phrase, emphasizing the mythic and devotional framing of the chapter."
-  },
-  {
-    "chunk_id": "1d3bfe9d84f6",
-    "start": 26,
     "length": 120,
     "color_hex": "#A5D6A7",
-    "why": "Introduces the sacred context of fixing the auspicious muhurta and Parvati offering her heart to Shiva before the wedding."
+    "why": "Introduces Nandanar and the social tension around his devotion, setting up the theme that sincere faith transcends caste barriers."
   },
   {
-    "chunk_id": "1d3bfe9d84f6",
-    "start": 950,
-    "length": 210,
+    "chunk_id": "47de7e9094a3",
+    "start": 500,
+    "length": 140,
     "color_hex": "#FFEB3B",
-    "why": "Shiva humbly descends to salute Rama and Sita at their shrine, a striking moment of divine devotion within divinity."
+    "why": "Describes the miraculous overnight harvest granted by Nataraja, the first clear sign of divine intervention on behalf of the devotee."
   },
   {
-    "chunk_id": "1d3bfe9d84f6",
-    "start": 1300,
-    "length": 210,
-    "color_hex": "#F48FB1",
-    "why": "The silent exchange of glances between Shiva and Parvati captures the emotional core of their union and divine love."
-  },
-  {
-    "chunk_id": "1d3bfe9d84f6",
-    "start": 2600,
-    "length": 260,
+    "chunk_id": "47de7e9094a3",
+    "start": 1200,
+    "length": 150,
     "color_hex": "#FFEB3B",
-    "why": "Narada\u2019s explanation during the Pravara episode reveals Shiva as the source of all creation, a key theological declaration."
+    "why": "The dream appearance of Nataraja to the priests, where the deity directly commands them to admit Nandanar, asserting divine authority over social exclusion."
   },
   {
-    "chunk_id": "1d3bfe9d84f6",
-    "start": 4100,
-    "length": 220,
+    "chunk_id": "47de7e9094a3",
+    "start": 2000,
+    "length": 150,
     "color_hex": "#F48FB1",
-    "why": "Playful interaction during the wedding feast\u2014Shiva calling Parvati\u2019s heart the only sweetness\u2014humanizes the divine couple."
+    "why": "Nandanar\u2019s ecstatic entry into the temple and final union with Shiva in the sacred flame\u2014an emotional climax of mystical devotion."
+  },
+  {
+    "chunk_id": "47de7e9094a3",
+    "start": 3100,
+    "length": 160,
+    "color_hex": "#FFEB3B",
+    "why": "The divine blessing of the child Jnana Sambandhi by Parvati, who grants him sacred regalia and a mission to spread Shiva\u2019s knowledge."
+  },
+  {
+    "chunk_id": "47de7e9094a3",
+    "start": 4700,
+    "length": 160,
+    "color_hex": "#F48FB1",
+    "why": "Siriyala\u2019s shocking act of devotion\u2014agreeing to sacrifice his own son to feed a disguised Shiva\u2014revealing the extremity of bhakti tested by the god."
+  },
+  {
+    "chunk_id": "ca8d3201870d",
+    "start": 0,
+    "length": 120,
+    "color_hex": "#A5D6A7",
+    "why": "The festive public welcome of Siva and Parvati establishes the sacred marriage as a cosmic event celebrated by an entire city."
+  },
+  {
+    "chunk_id": "ca8d3201870d",
+    "start": 200,
+    "length": 120,
+    "color_hex": "#FFEB3B",
+    "why": "The mystical moment where Siva and Parvati appear as Rama and Sita reveals divine unity across incarnations and the concept of lila (divine play)."
+  },
+  {
+    "chunk_id": "ca8d3201870d",
+    "start": 2500,
+    "length": 120,
+    "color_hex": "#F48FB1",
+    "why": "Parvati\u2019s emotional grief and curse on the gods highlights the deeply human dimension of divine figures and her longing for motherhood."
+  },
+  {
+    "chunk_id": "ca8d3201870d",
+    "start": 4300,
+    "length": 120,
+    "color_hex": "#FFEB3B",
+    "why": "The miraculous birth of the radiant six\u2011headed Skanda marks the culmination of the cosmic plan to produce Taraka\u2019s future destroyer."
   }
 ]

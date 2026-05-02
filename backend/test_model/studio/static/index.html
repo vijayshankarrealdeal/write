@@ -11,17 +11,24 @@
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <style>
   :root {
-    --bg: #ffffff;
-    --panel: #f7f7f5;
-    --panel-2: #efefec;
-    --border: #d8d8d3;
-    --fg: #1a1a1a;
-    --muted: #6b6b6b;
-    --accent: #2563eb;
-    --warn: #c2410c;
-    --ok: #15803d;
-    --highlight: #fff3a0;
-    color-scheme: light;
+    /* Dark palette tuned for long reading sessions: not pure black
+       (causes contrast halo on text), and a warm sepia-dark for the
+       reader pane (the Kindle dark trick — much less strain than slate
+       grey behind serif type). */
+    --bg: #0f1115;
+    --panel: #171a20;
+    --panel-2: #21252e;
+    --border: #2c3140;
+    --fg: #e6e3dc;
+    --muted: #8b909a;
+    --accent: #6ea8fe;
+    --warn: #f59e6b;
+    --ok: #6ee7a7;
+    --highlight: #c9a96e;
+    --reader-bg: #1c1916;
+    --reader-fg: #d6cfc1;
+    --reader-shadow: 0 4px 16px rgba(0,0,0,.45);
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   body {
@@ -53,10 +60,10 @@
     cursor: pointer;
     font: inherit;
   }
-  button:hover { background: #e4e4e0; }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #ffffff; font-weight: 600; }
+  button:hover { background: #2c313c; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #0a0d12; font-weight: 600; }
   button.primary:hover { filter: brightness(1.1); }
-  button.danger { background: #fee; border-color: #f3b3b3; color: var(--warn); }
+  button.danger { background: #3a1e16; border-color: #6a3624; color: var(--warn); }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
   input, select, textarea {
     background: var(--panel-2);
@@ -120,6 +127,21 @@
   .image-card small { color: var(--muted); display: block; }
 
   /* --- Reading view (Preview tab) ----------------------------- */
+  .preview-wrap.fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+  }
+  .preview-wrap.fullscreen .reader {
+    flex: 1;
+    height: auto;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
   .reader {
     display: grid;
     grid-template-columns: 240px 1fr;
@@ -154,7 +176,7 @@
   .reader-body {
     overflow-y: auto;
     padding: 48px 64px;
-    background: #fbfaf6;
+    background: var(--reader-bg);
   }
   .reader-page {
     max-width: 720px;
@@ -214,16 +236,58 @@
   .reader-controls .toggle { cursor: pointer; user-select: none; }
   .reader-controls input[type="checkbox"] { width: auto; }
 
+  /* Final-cleanup panel: collapsible row above the reader. The
+     instruction is what the user types to direct the AI's final pass
+     (e.g. "drop the running header", "merge mid-sentence breaks"). */
+  .cleanup-panel {
+    border-bottom: 1px solid var(--border);
+    background: #2a2417;
+    padding: 12px 14px;
+  }
+  .cleanup-panel .cleanup-head {
+    display: flex; gap: 10px; align-items: center;
+    font-size: 12px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .12em;
+  }
+  .cleanup-panel .cleanup-head strong { color: var(--fg); letter-spacing: 0; text-transform: none; font-size: 13px; }
+  .cleanup-panel textarea { margin-top: 8px; min-height: 56px; background: #14110a; color: var(--fg); border-color: #4a3e22; }
+  .cleanup-panel .cleanup-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+  .cleanup-panel .cleanup-progress {
+    font-size: 12px; color: var(--muted);
+  }
+  .cleanup-panel .last-instr {
+    margin-top: 6px; font-size: 12px; color: var(--muted); font-style: italic;
+  }
+  .cleanup-panel .cleanup-plan {
+    margin-top: 8px; font-size: 12px;
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  }
+  .cleanup-panel .plan-pill {
+    padding: 2px 8px; border-radius: 999px; font-size: 11px;
+    text-transform: uppercase; letter-spacing: .1em;
+    border: 1px solid var(--border);
+  }
+  .cleanup-panel .plan-pill.regex { color: var(--ok); border-color: var(--ok); }
+  .cleanup-panel .plan-pill.llm   { color: var(--accent); border-color: var(--accent); }
+  .cleanup-panel .plan-rationale { color: var(--muted); }
+
   /* Quill viewer overrides — make Quill output read like a real book.
      We mount Quill in read-only mode without the toolbar; .ql-container
-     is what we restyle. */
+     is what we restyle. Quill 1.3.7's Snow stylesheet hardcodes light
+     borders and white backgrounds, so we null those for dark mode. */
+  .ql-viewer .ql-toolbar { display: none !important; }
   .ql-viewer .ql-container {
     border: none;
+    background: transparent;
     font-family: "Iowan Old Style", ui-serif, Georgia, "Times New Roman", serif;
+  }
+  .ql-viewer .ql-editor::selection,
+  .ql-viewer .ql-editor *::selection {
+    background: rgba(110, 168, 254, 0.35);
   }
   .ql-viewer .ql-editor {
     padding: 0;
-    color: #232323;
+    color: var(--reader-fg);
     font-family: "Iowan Old Style", ui-serif, Georgia, "Times New Roman", serif;
     line-height: 1.75;
   }
@@ -235,9 +299,19 @@
   .ql-viewer .ql-editor p img {
     max-width: 100%;
     border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    box-shadow: var(--reader-shadow);
     display: block;
     margin: 24px auto 0;
+  }
+  /* Highlight backgrounds drawn by Quill for {attributes:{background}}
+     ops can be eye-searing in dark mode (the pipeline picks colors
+     against a white page). Soften them so they read as "highlighted"
+     without shouting. */
+  .ql-viewer .ql-editor [style*="background-color"] {
+    background-color: rgba(201, 169, 110, 0.22) !important;
+    color: var(--reader-fg) !important;
+    padding: 0 2px;
+    border-radius: 2px;
   }
   /* If a paragraph contains only an image, drop its bottom margin so the
      italic-small caption sits flush underneath. */
@@ -255,7 +329,7 @@
     font-size: 3.4em;
     line-height: 0.9;
     padding: 4px 8px 0 0;
-    color: var(--accent);
+    color: var(--highlight);
     font-weight: 600;
   }
 
@@ -298,13 +372,14 @@
     display: flex; flex-direction: column; gap: 8px; pointer-events: none;
   }
   .toast {
-    background: #2a2a2a; color: #fff; padding: 10px 14px;
+    background: var(--panel-2); color: var(--fg); padding: 10px 14px;
     border-radius: 6px; font-size: 13px; max-width: 320px;
-    box-shadow: 0 8px 24px rgba(0,0,0,.2);
+    box-shadow: 0 8px 24px rgba(0,0,0,.6);
+    border: 1px solid var(--border);
     pointer-events: auto;
   }
-  .toast.err { background: var(--warn); }
-  .toast.ok { background: var(--ok); }
+  .toast.err { background: #3a1e16; border-color: #6a3624; color: var(--warn); }
+  .toast.ok  { background: #142a1c; border-color: #2c5640; color: var(--ok); }
 </style>
 </head>
 <body>
@@ -457,8 +532,8 @@ function UploadForm({ onUploaded }) {
 
   return (
     <form onSubmit={submit} className="card" style={{ marginBottom: 16 }}>
-      <label>PDF</label>
-      <input type="file" accept=".pdf" ref={fileRef} required />
+      <label>PDF or HTML <span className="muted" style={{ fontWeight: 400 }}>(.pdf, .html, .htm — Project Gutenberg)</span></label>
+      <input type="file" accept=".pdf,.html,.htm" ref={fileRef} required />
       <label>Image budget <span className="muted" style={{ fontWeight: 400 }}>(blank → auto)</span></label>
       <input type="number" value={params.image_budget}
         placeholder="auto-decide (10–120)"
@@ -633,37 +708,9 @@ function ProgressStrip({ progress }) {
 
 function SyncPanel({ slug, synced, onSynced, onCleaned }) {
   const toast = useToast();
-  const [busy, setBusy] = useState(false);
-  const [out, setOut] = useState(null);
+  const [showRemote, setShowRemote] = useState(false);
   const [cleaning, setCleaning] = useState(false);
   const [cleaned, setCleaned] = useState(null);
-  const [confirmSync, setConfirmSync] = useState(false);
-
-  const click = async () => {
-    if (synced && !confirmSync) {
-      setConfirmSync(true);
-      return;
-    }
-    setConfirmSync(false);
-    setBusy(true); setOut(null);
-    try {
-      const r = await fetch(`/api/books/${slug}/sync`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force: synced, no_images: false }),
-      });
-      const j = await r.json();
-      setOut(j);
-      if (j.ok) {
-        toast(synced ? "Re-sync complete" : "Synced to DB + MinIO", "ok");
-        onSynced?.();
-      } else {
-        toast("Sync failed (exit " + j.exit + ")", "err");
-      }
-    } catch (e) {
-      toast("Sync error: " + String(e), "err");
-    } finally { setBusy(false); }
-  };
 
   const cleanOrphans = async () => {
     setCleaning(true); setCleaned(null);
@@ -683,24 +730,18 @@ function SyncPanel({ slug, synced, onSynced, onCleaned }) {
   };
 
   return (
-    <div style={{ textAlign: "right" }}>
+    <div style={{ textAlign: "right", minWidth: 320 }}>
       <div className="row" style={{ justifyContent: "flex-end", gap: 8 }}>
         <button disabled={cleaning} onClick={cleanOrphans} title="Delete stale brief/deep/chunk/embedding files left behind by older random-UUID chunker runs.">
           {cleaning ? "Cleaning…" : "Clean orphans"}
         </button>
-        {confirmSync ? (
-          <>
-            <button onClick={() => setConfirmSync(false)}>Cancel</button>
-            <button className="danger" onClick={click}>
-              Confirm re-sync
-            </button>
-          </>
-        ) : (
-          <button className="primary" disabled={busy} onClick={click}>
-            {busy ? "Syncing…" : (synced ? "Re-sync (force)" : "Sync to DB + MinIO")}
-          </button>
-        )}
+        <button className="primary" onClick={() => setShowRemote(s => !s)}>
+          {showRemote ? "Hide publish" : (synced ? "Publish again…" : "Publish to inkspacex…")}
+        </button>
       </div>
+      {showRemote && (
+        <RemotePublishPanel slug={slug} onDone={() => { onSynced?.(); }} />
+      )}
       {cleaned && !cleaned.error && (
         <div className="muted" style={{ marginTop: 6, fontSize: 12 }}>
           Removed {cleaned.total_removed} orphans
@@ -712,13 +753,142 @@ function SyncPanel({ slug, synced, onSynced, onCleaned }) {
         </div>
       )}
       {cleaned?.error && <div className="err" style={{ marginTop: 6, fontSize: 12 }}>{cleaned.error}</div>}
-      {out && (
-        <details style={{ marginTop: 6, textAlign: "left" }}>
-          <summary>Sync output (exit {out.exit})</summary>
-          <pre style={{ fontSize: 11, maxHeight: 240, overflow: "auto" }}>{out.output}</pre>
+    </div>
+  );
+}
+
+// Publishes the locally-ingested book to a remote inkspacex deployment
+// via its public REST API. No MinIO / Postgres on the studio side —
+// this just authenticates as a user and dumps everything through the
+// same /api/upload/editor + /api/writings + /api/sections endpoints a
+// Flutter or web client would. Image uploads + section creates run in
+// parallel under a bounded semaphore on the backend.
+function RemotePublishPanel({ slug, onDone }) {
+  const toast = useToast();
+  const [apiUrl, setApiUrl] = useState(localStorage.getItem("inkx_api_url") || "https://api.inkspacex.com");
+  // Pre-fill with the dev test account so the user doesn't retype every
+  // publish. localStorage value (if present from a prior session) wins.
+  // Password is intentionally NOT persisted to localStorage even though
+  // it's pre-filled here — keystroke convenience, not at-rest storage.
+  const [email, setEmail] = useState(localStorage.getItem("inkx_email") || "inkspace@inkspacex.com");
+  const [password, setPassword] = useState("Google@99");
+  const [status, setStatus] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  // Poll the status endpoint while a publish is running.
+  useEffect(() => {
+    let alive = true;
+    let timer = null;
+    const tick = async () => {
+      if (!alive) return;
+      try { setStatus(await api(`/api/books/${slug}/sync-remote/status`)); }
+      catch { /* swallow */ }
+      timer = setTimeout(tick, 1500);
+    };
+    tick();
+    return () => { alive = false; if (timer) clearTimeout(timer); };
+  }, [slug]);
+
+  const wasRunning = useRef(false);
+  useEffect(() => {
+    if (!status) return;
+    if (status.phase === "running" || status.phase === "queued") {
+      wasRunning.current = true;
+    } else if (wasRunning.current && status.phase === "done") {
+      wasRunning.current = false;
+      toast(`Published — ${status.result?.n_sections} sections, ${status.result?.n_images} images`, "ok");
+      onDone?.();
+    } else if (wasRunning.current && status.phase === "failed") {
+      wasRunning.current = false;
+      toast("Publish failed: " + (status.error?.message || "unknown"), "err");
+    }
+  }, [status, toast, onDone]);
+
+  const submit = async (e) => {
+    e?.preventDefault();
+    if (!email.trim() || !password) return;
+    setBusy(true);
+    try {
+      // Remember the api_url + email so the user doesn't retype on the
+      // next publish. NEVER store the password.
+      localStorage.setItem("inkx_api_url", apiUrl);
+      localStorage.setItem("inkx_email", email);
+      const r = await fetch(`/api/books/${slug}/sync-remote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ api_url: apiUrl, email, password }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || "request failed");
+      if (!j.queued) toast(j.reason || "already running", "info");
+      else toast("Publish queued — uploading…", "ok");
+      setPassword("");
+    } catch (e) {
+      toast("Publish failed to start: " + String(e), "err");
+    } finally { setBusy(false); }
+  };
+
+  const running = status?.phase === "running" || status?.phase === "queued";
+  const events = status?.events || [];
+  const lastEvent = events[events.length - 1];
+  const result = status?.result;
+  const errorState = status?.error;
+
+  return (
+    <form onSubmit={submit} style={{
+      marginTop: 10, padding: 12, background: "var(--panel-2)",
+      border: "1px solid var(--border)", borderRadius: 8, textAlign: "left",
+    }}>
+      <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 8 }}>
+        Publishes via the public REST API — no MinIO/DB needed on this machine.
+        Login → upload images in parallel → create writing → create sections.
+      </div>
+      <label>API URL</label>
+      <input value={apiUrl} onChange={e => setApiUrl(e.target.value)}
+        placeholder="https://api.inkspacex.com" disabled={running || busy} />
+      <label>Email</label>
+      <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+        placeholder="you@example.com" required disabled={running || busy} />
+      <label>Password</label>
+      <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+        placeholder="••••••••" required disabled={running || busy} autoComplete="current-password" />
+      <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center" }}>
+        <button className="primary" type="submit" disabled={running || busy || !email.trim() || !password}>
+          {running ? "Publishing…" : (busy ? "Submitting…" : "Publish")}
+        </button>
+        {running && lastEvent && (
+          <span className="muted" style={{ fontSize: 12 }}>
+            {lastEvent.name}{lastEvent.payload?.total != null ? ` (${lastEvent.payload.done ?? 0}/${lastEvent.payload.total})` : ""}
+          </span>
+        )}
+      </div>
+      {result && (
+        <div style={{ marginTop: 10, fontSize: 12 }}>
+          <strong style={{ color: "var(--ok)" }}>Published.</strong>{" "}
+          writing_id: <code>{result.writing_id}</code> — {result.n_sections} sections, {result.n_images} images.
+        </div>
+      )}
+      {errorState && (
+        <div className="err" style={{ marginTop: 10, fontSize: 12 }}>
+          {errorState.message}
+          {errorState.status ? ` (HTTP ${errorState.status})` : ""}
+          {errorState.body && (
+            <details style={{ marginTop: 4 }}>
+              <summary>response body</summary>
+              <pre style={{ fontSize: 11, maxHeight: 160, overflow: "auto" }}>{errorState.body}</pre>
+            </details>
+          )}
+        </div>
+      )}
+      {events.length > 0 && (
+        <details style={{ marginTop: 8 }}>
+          <summary style={{ fontSize: 12 }}>{events.length} event{events.length === 1 ? "" : "s"}</summary>
+          <pre style={{ fontSize: 11, maxHeight: 200, overflow: "auto" }}>
+            {events.map(ev => `${ev.name} ${JSON.stringify(ev.payload)}`).join("\n")}
+          </pre>
         </details>
       )}
-    </div>
+    </form>
   );
 }
 
@@ -792,7 +962,7 @@ function ChunkDetail({ slug, detail }) {
           letterSpacing: ".1em", marginBottom: 6 }}>
           Quill preview
         </div>
-        <div style={{ background: "#fbfaf6", border: "1px solid var(--border)",
+        <div style={{ background: "var(--reader-bg)", border: "1px solid var(--border)",
           borderRadius: 8, padding: "16px 20px" }}>
           <QuillViewer ops={detail.delta} compact />
         </div>
@@ -885,7 +1055,9 @@ function ImageCard({ slug, scene }) {
       <img src={url} alt={scene.scene_text || ""} loading="lazy" onClick={() => setZoom(true)} />
       {zoom && <Lightbox src={url} onClose={() => setZoom(false)} />}
       <div style={{ display: "flex", justifyContent: "space-between", gap: 6, marginTop: 6 }}>
-        {pageLabel && <span className="pill" style={{ margin: 0 }}>{pageLabel}</span>}
+        {pageLabel
+          ? <span className="pill" style={{ margin: 0 }}>{pageLabel}</span>
+          : <span className="pill warn" style={{ margin: 0 }} title="No matching chunk on disk — this image is orphaned.">orphan</span>}
         {scene.chapter_title && <small className="muted" style={{ textAlign: "right" }}>{scene.chapter_title}</small>}
       </div>
       <small><em>{scene.scene_text}</em></small>
@@ -969,20 +1141,34 @@ function PagesTab({ slug }) {
 
 // ----- Images tab ------------------------------------------------------
 function ImagesTab({ slug }) {
+  const toast = useToast();
   const [images, setImages] = useState([]);
+  const [orphans, setOrphans] = useState(0);
   const [sortBy, setSortBy] = useState("page");  // "page" | "score"
   const [refreshKey, setRefreshKey] = useState(0);
+  const [hideOrphans, setHideOrphans] = useState(true);
+  const [purging, setPurging] = useState(false);
 
   useEffect(() => {
-    api(`/api/books/${slug}/images`).then(j => setImages(j.images || []));
+    api(`/api/books/${slug}/images`).then(j => {
+      setImages(j.images || []);
+      setOrphans(j.orphans || 0);
+    });
   }, [slug, refreshKey]);
 
+  const visible = useMemo(
+    () => hideOrphans ? images.filter(i => !i.orphan) : images,
+    [images, hideOrphans],
+  );
+
+  // Page-range groups exclude orphans by definition (they have no page).
   const groups = useMemo(() => {
     const m = new Map();
     for (const img of images) {
-      const key = img.page_start == null
-        ? "?"
-        : (img.page_start === img.page_end ? `${img.page_start}` : `${img.page_start}–${img.page_end}`);
+      if (img.orphan || img.page_start == null) continue;
+      const key = img.page_start === img.page_end
+        ? `${img.page_start}`
+        : `${img.page_start}–${img.page_end}`;
       if (!m.has(key)) {
         m.set(key, {
           range: key,
@@ -997,22 +1183,65 @@ function ImagesTab({ slug }) {
   }, [images]);
 
   const sorted = useMemo(() => {
-    const copy = [...images];
+    const copy = [...visible];
     if (sortBy === "page") {
       copy.sort((a, b) => (a.page_start ?? 9e9) - (b.page_start ?? 9e9));
     } else {
       copy.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
     }
     return copy;
-  }, [images, sortBy]);
+  }, [visible, sortBy]);
+
+  const purgeOrphans = async () => {
+    if (!confirm(
+      `Delete ${orphans} orphan image${orphans === 1 ? "" : "s"}?\n\n` +
+      "These are images whose chunk_id no longer matches any chunk. " +
+      "This cannot be undone — image regen costs real money."
+    )) return;
+    setPurging(true);
+    try {
+      const r = await fetch(`/api/books/${slug}/cleanup-orphans?include_images=true`, {
+        method: "POST",
+      });
+      if (!r.ok) throw new Error(await r.text());
+      const j = await r.json();
+      toast(`Removed ${j.removed.images || 0} orphan images`, "ok");
+      setRefreshKey(k => k + 1);
+    } catch (e) {
+      toast("Orphan purge failed: " + String(e), "err");
+    } finally { setPurging(false); }
+  };
 
   return (
     <div>
+      {orphans > 0 && (
+        <div className="card" style={{ padding: 12, background: "#2a2417", borderColor: "#4a3e22" }}>
+          <div className="row" style={{ alignItems: "center", gap: 12 }}>
+            <strong style={{ color: "var(--highlight)" }}>
+              {orphans} orphan image{orphans === 1 ? "" : "s"}
+            </strong>
+            <span className="muted" style={{ fontSize: 12 }}>
+              chunk_id no longer matches any chunk on disk — typically left over
+              when the chunker re-ran with different IDs. They have no page mapping.
+            </span>
+            <span className="gap" style={{ flex: 1 }} />
+            <label className="toggle" style={{ fontSize: 12 }}>
+              <input type="checkbox" checked={hideOrphans} style={{ width: "auto" }}
+                onChange={e => setHideOrphans(e.target.checked)} />
+              {' hide them'}
+            </label>
+            <button className="danger" disabled={purging} onClick={purgeOrphans}>
+              {purging ? "Deleting…" : "Delete orphans"}
+            </button>
+          </div>
+        </div>
+      )}
       {groups.length > 0 && (
         <div className="card" style={{ padding: 12 }}>
           <div className="muted" style={{ fontSize: 11, textTransform: "uppercase",
             letterSpacing: ".1em", marginBottom: 8 }}>
-            {images.length} images across {groups.length} page ranges
+            {images.length - orphans} images across {groups.length} page ranges
+            {orphans > 0 && ` · ${orphans} orphan${orphans === 1 ? "" : "s"}`}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {groups.map(g => (
@@ -1034,7 +1263,9 @@ function ImagesTab({ slug }) {
         {sorted.map(img => (
           <ImageCard key={img.scene_id} slug={slug} scene={img} />
         ))}
-        {images.length === 0 && <div className="muted">No images yet.</div>}
+        {sorted.length === 0 && <div className="muted">
+          {images.length === 0 ? "No images yet." : "All images are orphans (toggle 'hide them' to see)."}
+        </div>}
       </div>
     </div>
   );
@@ -1048,6 +1279,8 @@ function PreviewTab({ slug }) {
   const [fontSize, setFontSize] = useState(17);
   const [showHighlights, setShowHighlights] = useState(true);
   const [maxWidth, setMaxWidth] = useState(720);
+  const [fullscreen, setFullscreen] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
   const bodyRef = useRef(null);
 
   useEffect(() => {
@@ -1058,7 +1291,7 @@ function PreviewTab({ slug }) {
         if (b.chapters?.[0]) setActive(b.chapters[0].id);
       })
       .catch((e) => setErr("Failed to load preview: " + String(e)));
-  }, [slug]);
+  }, [slug, reloadKey]);
 
   useEffect(() => {
     if (!book || !bodyRef.current) return;
@@ -1076,6 +1309,14 @@ function PreviewTab({ slug }) {
     return () => obs.disconnect();
   }, [book]);
 
+  // ESC exits fullscreen.
+  useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e) => { if (e.key === "Escape") setFullscreen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [fullscreen]);
+
   const jumpTo = (id) => {
     const el = bodyRef.current?.querySelector(`[data-chapter-id="${id}"]`);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1086,7 +1327,11 @@ function PreviewTab({ slug }) {
   if (!book.chapters?.length) return <div className="muted">No chapters rendered yet — wait for ingest to finish.</div>;
 
   return (
-    <div>
+    <div className={"preview-wrap" + (fullscreen ? " fullscreen" : "")}>
+      <CleanupPanel
+        slug={slug}
+        onCleaned={() => setReloadKey(k => k + 1)}
+      />
       <div className="reader-controls">
         <span>{book.chapters.length} chapter{book.chapters.length === 1 ? "" : "s"}</span>
         <span className="gap" />
@@ -1105,6 +1350,10 @@ function PreviewTab({ slug }) {
         <input type="range" min="560" max="960" step="20" value={maxWidth}
           onChange={e => setMaxWidth(+e.target.value)} />
         <span>{maxWidth}px</span>
+        <span>·</span>
+        <button onClick={() => setFullscreen(f => !f)}>
+          {fullscreen ? "Exit fullscreen (Esc)" : "Fullscreen"}
+        </button>
       </div>
       <div className="reader">
         <nav className="reader-toc">
@@ -1138,6 +1387,124 @@ function PreviewTab({ slug }) {
           </article>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Free-form instruction the user types to direct the AI's final cleanup
+// pass over the whole book. On submit we POST to /final-cleanup which
+// re-runs the cleaner agent for every chunk with the instruction
+// prefixed; we poll /final-cleanup/status until phase=="done", then ask
+// the parent to re-fetch the rendered Delta so the Quill viewers
+// reflect the new cleaned markdown.
+function CleanupPanel({ slug, onCleaned }) {
+  const toast = useToast();
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState("");
+  const [status, setStatus] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  const fetchStatus = useCallback(() => {
+    api(`/api/books/${slug}/final-cleanup/status`).then(setStatus).catch(() => {});
+  }, [slug]);
+
+  useEffect(() => { fetchStatus(); }, [fetchStatus]);
+
+  // While a cleanup is running, poll every 2s. When it ends, ask the
+  // parent to reload the preview.
+  const wasRunning = useRef(false);
+  useEffect(() => {
+    let t = null;
+    if (status?.phase === "running" || status?.phase === "queued") {
+      wasRunning.current = true;
+      t = setTimeout(fetchStatus, 2000);
+    } else if (wasRunning.current && status?.phase === "done") {
+      wasRunning.current = false;
+      toast("Final cleanup complete", "ok");
+      onCleaned?.();
+    }
+    return () => { if (t) clearTimeout(t); };
+  }, [status, fetchStatus, toast, onCleaned]);
+
+  const submit = async () => {
+    const instruction = text.trim();
+    if (!instruction) return;
+    setBusy(true);
+    try {
+      const r = await fetch(`/api/books/${slug}/final-cleanup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ instruction }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || "request failed");
+      if (!j.queued) {
+        toast(j.reason || "already running", "info");
+      } else {
+        toast("Cleanup queued — applying to every chunk…", "ok");
+        setText("");
+      }
+      fetchStatus();
+    } catch (e) {
+      toast("Cleanup failed to start: " + String(e), "err");
+    } finally { setBusy(false); }
+  };
+
+  const running = status?.phase === "running" || status?.phase === "queued";
+  const lastInstr = status?.last_instruction;
+
+  return (
+    <div className="cleanup-panel">
+      <div className="cleanup-head">
+        <strong>Final cleanup</strong>
+        <span>— your instruction is sent to the AI to do a final pass over every chapter</span>
+        <span className="gap" style={{ flex: 1 }} />
+        {running && (
+          <span className="cleanup-progress">
+            running · {status.completed || 0}/{status.total || "?"} chunks
+          </span>
+        )}
+        <button onClick={() => setOpen(o => !o)}>{open ? "Hide" : "Edit instruction"}</button>
+      </div>
+      {open && (
+        <>
+          <textarea
+            placeholder='e.g. "drop the running header SHRI SHIVA PURANA from every page", "merge any mid-sentence line breaks aggressively", "convert all single quotes to typographic quotes"'
+            value={text}
+            onChange={e => setText(e.target.value)}
+            disabled={busy || running}
+          />
+          <div className="cleanup-row">
+            <button className="primary" disabled={busy || running || !text.trim()} onClick={submit}>
+              {running ? "Running…" : (busy ? "Submitting…" : "Run final cleanup")}
+            </button>
+            {running && (
+              <span className="cleanup-progress">
+                {status.completed || 0}/{status.total || "?"} chunks done
+              </span>
+            )}
+          </div>
+        </>
+      )}
+      {lastInstr && !open && (
+        <div className="last-instr">last instruction: “{lastInstr}”</div>
+      )}
+      {status?.plan && (
+        <div className="cleanup-plan">
+          <span className={"plan-pill " + status.plan.method}>{status.plan.method}</span>
+          <span className="plan-rationale">{status.plan.rationale}</span>
+          {status.plan.method === "regex" && status.plan.regex_pattern && (
+            <details style={{ marginTop: 6 }}>
+              <summary>regex applied</summary>
+              <pre style={{ fontSize: 11, margin: "4px 0", whiteSpace: "pre-wrap" }}>
+{`pattern:     ${status.plan.regex_pattern}
+replacement: ${status.plan.regex_replacement || "(empty)"}
+flags:       ${(status.plan.regex_flags || []).join(", ") || "(none)"}`}
+              </pre>
+            </details>
+          )}
+        </div>
+      )}
     </div>
   );
 }

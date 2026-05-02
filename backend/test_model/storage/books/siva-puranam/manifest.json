@@ -1,53 +1,67 @@
 {
   "source_hash": "791b8a60aa9c98f519ea223e0b502d46735660c952410b6d5da6d4c2028c1414",
   "source_filename": "siva_puranam.pdf",
+  "source_format": "pdf",
   "phases_done": [
     "load",
+    "clean",
     "scout",
     "map",
     "reduce",
     "chunk_embeddings",
-    "images",
     "persist",
-    "poster"
+    "poster",
+    "bundle"
   ],
   "scout": {
-    "detected_genre": "Hindu devotional Purana retelling",
-    "cultural_context": "South Indian Shaivite devotional tradition (temples like Kailasa, Srisailam; TTD publication context)",
-    "suggested_style": "South Indian temple mural painting style (Lepakshi / Chola mural inspired), mineral pigments, terracotta reds, indigo, malachite green and gold accents, flat yet expressive figures with ornate jewelry, rhythmic linework, sacred iconography, subtle fresco texture",
-    "suggested_reader_preference": "favor divine appearances, mythic feats, temple rituals, and emotional bhakti encounters between devotees and Shiva over ordinary narration",
-    "suggested_image_budget": 45,
-    "rationale": "The text is a devotional retelling of Shiva Purana stories centered on divine episodes, temple culture, and saints, strongly tied to South Indian Shaivite tradition. Temple mural aesthetics match the sacred narrative tone and iconography, and the episodic mythic structure supports frequent illustrations."
+    "detected_genre": "Hindu Puranic mythology retelling in English",
+    "cultural_context": "Shaivite Hindu sacred literature drawing on pan\u2011Indian mythic tradition (Kailasa, sages, Vedic ritual, South Indian devotional legends)",
+    "suggested_style": "Indian miniature painting inspired by Pahari and Chola temple mural aesthetics, mineral pigments and gold accents, vermilion, indigo, and leaf\u2011green palette, intricate jewelry and textiles, stylized Himalayan landscapes, luminous divine halos, fine linework and flat yet ornate composition",
+    "suggested_reader_preference": "favor divine appearances, mythic battles, celestial assemblies, and intense devotional miracles over quiet dialogue scenes",
+    "suggested_image_budget": 36,
+    "rationale": "The text is a devotional mythic narrative with many divine figures, miracles, and mythological settings; an Indian miniature tradition visually matches sacred storytelling and handles gods, sages, and symbolic landscapes well. A moderate\u2011high illustration count suits episodic puranic storytelling across 28 sections."
   },
-  "style": "South Indian temple mural painting style (Lepakshi / Chola mural inspired), mineral pigments, terracotta reds, indigo, malachite green and gold accents, flat yet expressive figures with ornate jewelry, rhythmic linework, sacred iconography, subtle fresco texture",
-  "reader_preference": "favor divine appearances, mythic feats, temple rituals, and emotional bhakti encounters between devotees and Shiva over ordinary narration",
-  "image_budget": 45,
+  "style": "Indian miniature painting inspired by Pahari and Chola temple mural aesthetics, mineral pigments and gold accents, vermilion, indigo, and leaf\u2011green palette, intricate jewelry and textiles, stylized Himalayan landscapes, luminous divine halos, fine linework and flat yet ornate composition",
+  "reader_preference": "favor divine appearances, mythic battles, celestial assemblies, and intense devotional miracles over quiet dialogue scenes",
+  "image_budget": 36,
   "poster": {
-    "description": "In the sacred storytelling tradition of South Indian Shaivism, the Siva Puranam unfolds as a vast tapestry of devotion, cosmic drama, and divine mystery. From the silent peaks of Kailasa to the ritual fires of ancient kingdoms, these stories reveal Shiva not only as the fierce destroyer of illusion, but as the compassionate heart of the universe.\n\nThe narrative moves through some of the most beloved episodes of the Shaivite tradition. Sati\u2019s tragic defiance and self\u2011sacrifice ignites a chain of events that shakes heaven and earth, leading to the terrible wrath of Shiva and the fall of Daksha\u2019s pride. In time, Sati returns as Parvati, the mountain princess whose unwavering penance and fearless devotion win the love of the ascetic god. Their divine wedding becomes a cosmic celebration, binding heaven, earth, and the elements in sacred union.\n\nLife on Mount Kailasa reveals Shiva and Parvati not only as cosmic powers but as a divine household whose love shapes the destiny of the worlds. From their union emerges Skanda, the radiant warrior destined to defeat the demon Taraka, while Parvati\u2019s clay guardian becomes the beloved elephant\u2011headed Ganapati, lord of beginnings and remover of obstacles. Around them swirl sages, gods, demons, and celestial beings, each drawn into Shiva\u2019s mysterious play.\n\nBlending philosophy, devotion, myth, and wonder, the Siva Puranam presents a vision of the universe where love, penance, and humility carry the power to reshape destiny itself. Rich with sacred symbolism and timeless storytelling, these episodes invite readers into the living devotional imagination of the Hindu world\u2014where every act, every trial, and every triumph ultimately leads back to the infinite presence of Shiva.",
+    "description": "Across the mountains of Kailasa and the temples of the human world unfolds a vast tapestry of devotion, cosmic love, and divine fury: the sacred legends of Lord Shiva. In this retelling of the Siva Puranam, ancient myth and fervent bhakti meet in stories where gods, demons, sages, and humble devotees all move within the orbit of the great ascetic god.\n\nThe book journeys from the celestial marriage of Shiva and the devoted Sati to the tragedy of her self\u2011immolation at her father Daksha\u2019s sacrificial rite\u2014an insult that unleashes Shiva\u2019s terrifying wrath upon the universe. It follows Sati\u2019s rebirth as Parvati, whose fierce austerities win Shiva\u2019s heart and restore the divine union upon which cosmic balance depends. From their union arises Skanda, the radiant warrior child destined to defeat the tyrant demon Taraka and restore order to heaven and earth.\n\nAlongside these sweeping cosmic dramas are luminous tales of human devotion. Saints and outcasts alike seek the grace of Shiva: the longing of Nandanar to behold Nataraja in Chidambaram, the miraculous power of the child saint Jnana Sambandhar, and the shocking hospitality of Siriyala, whose willingness to sacrifice everything reveals the depth of true faith. Again and again, Shiva appears in disguise, testing hearts and overturning worldly hierarchy.\n\nFilled with miracles, fierce asceticism, divine romance, and spiritual teaching, the Siva Puranam presents Shiva as both terrifying and compassionate\u2014the destroyer who is also the source of liberation. These stories invite readers into a universe where devotion can move mountains, gods walk among mortals, and the path to the divine may begin anywhere, with anyone who calls upon the Lord of Kailasa.",
     "genres": [
       "mythology",
-      "religious",
-      "hindu-devotional"
+      "religion",
+      "hinduism"
     ],
     "writing_types": [
-      "purana",
-      "retelling"
+      "sacred-text",
+      "mythic-retelling"
     ],
     "tags": [
       "shiva",
+      "puranas",
+      "shaivism",
       "parvati",
-      "ganesha",
       "skanda",
       "daksha-yajna",
-      "tripura",
-      "shaivism",
-      "kailasa",
       "hindu-mythology",
-      "bhakti"
+      "kailasa",
+      "bhakti",
+      "indian-myth"
     ],
-    "cover_scene": "In a South Indian temple\u2011mural style, Shiva and Parvati enthroned upon Mount Kailasa at the center of a cosmic mandala\u2014surrounded by Ganesha, Skanda, sages, gods, and swirling celestial beings\u2014rendered in terracotta reds, indigo, malachite green, and gold like an ancient fresco come to life."
+    "cover_scene": "In ornate Indian miniature style, Lord Shiva and Parvati sit together upon Mount Kailasa surrounded by gods, sages, and devoted mortals while celestial rivers, temple spires, and swirling halos suggest the vast mythic world shaped by Shiva\u2019s power and grace."
   },
-  "cover_image_local": "/home/verti/write/backend/test_model/storage/books/siva-puranam/images/cover.png",
-  "title": "Siva Puranam",
-  "slug": "siva-puranam"
+  "cover_image_local": "/Users/vijayshankar/Desktop/write/backend/test_model/storage/books/siva-puranam/images/cover.png",
+  "bundle": {
+    "path": "/Users/vijayshankar/Desktop/write/backend/test_model/storage/books/siva-puranam/siva-puranam.zip",
+    "size_bytes": 90390465,
+    "sha256": "a3a978fc45eb321a48ce7ba31c210ee6c7f1c482b3df256484c27e0985707da6",
+    "file_count": 169,
+    "format_version": 1,
+    "created_utc": "2026-05-02T18:33:28.242521+00:00"
+  },
+  "synced_remote": {
+    "api_url": "https://api.inkspacex.com",
+    "writing_id": "acc2fc2d-e639-4450-8659-db1ee0c275ac",
+    "n_sections": 28,
+    "n_images": 36
+  }
 }
