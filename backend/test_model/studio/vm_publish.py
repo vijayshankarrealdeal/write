@@ -46,7 +46,7 @@ from book_ingest import persist
 
 # Where the inkspacex codebase lives on the VM. The studio sends the
 # book's storage dir under {remote_backend_root}/{remote_storage_subdir}.
-_DEFAULT_REMOTE_BACKEND = "/home/azureuser/write/backend"
+_DEFAULT_REMOTE_BACKEND = "/home/azureuser/inkspacex/backend"
 _DEFAULT_REMOTE_STORAGE = "test_model/storage/books"
 _SSH_TIMEOUT = 30
 

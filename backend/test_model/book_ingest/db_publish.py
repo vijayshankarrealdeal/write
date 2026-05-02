@@ -45,8 +45,23 @@ from app.models.writing import Writing  # noqa: E402
 
 from . import cleaner as cleaner_mod  # noqa: E402
 from . import delta as delta_mod  # noqa: E402
+from .app_taxonomy import (  # noqa: E402
+    coerce_writing_type,
+    coerce_writing_type_format,
+)
 from .image_planner import PlannedScene  # noqa: E402
 from .schemas import Chunk, ChunkBrief, ChunkDeep, GeneratedScene  # noqa: E402
+
+
+def _normalize_writing_types(raw: list[str] | None) -> list[str]:
+    """Snap whatever the poster (or a hand-edited manifest) emitted onto
+    the app's WritingType + format taxonomy. Defends against legacy
+    manifests where writing_types[0] was 'sacred-text' or 'epic'."""
+    wt_raw = raw[0] if raw else None
+    fmt_raw = raw[1] if raw and len(raw) > 1 else None
+    wt = coerce_writing_type(wt_raw)
+    fmt = coerce_writing_type_format(wt, fmt_raw)
+    return [wt, fmt]
 
 
 # Canonical editorial identity used by every batch-ingested book. Sharing
@@ -140,6 +155,7 @@ async def publish_book(
             )
         else:
             author_user = await _create_random_user(db, display_name=author)
+        normalized_types = _normalize_writing_types(writing_types)
         writing = await _insert_writing(
             db,
             user_id=author_user.id,
@@ -147,8 +163,8 @@ async def publish_book(
             author=author or author_user.name,
             description=description,
             cover_image_path=cover_image_path,
-            writing_type=(writing_types[0] if writing_types else "book"),
-            subtype=(writing_types[1] if writing_types and len(writing_types) > 1 else None),
+            writing_type=normalized_types[0],
+            subtype=normalized_types[1] or None,
         )
         section_rows: list[Section] = []
         for idx, chunk in enumerate(chunks, start=1):
@@ -205,7 +221,7 @@ async def publish_book(
             description=writing.description,
             image_url=writing.cover_image_path,
             genres=genres,
-            writing_types=writing_types,
+            writing_types=normalized_types,
             tags=tags,
             is_draft=False,
             visibility=visibility,

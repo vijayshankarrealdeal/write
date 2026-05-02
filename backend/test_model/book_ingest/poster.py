@@ -28,18 +28,36 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_ai import Agent
 
 from . import persist
 from .agents import reduce_model
+from .app_taxonomy import (
+    WRITING_TYPE_FORMATS,
+    WRITING_TYPES,
+    coerce_writing_type,
+    coerce_writing_type_format,
+)
 from .image_gen import generate_image
 from .retry import with_retries
 from .schemas import ChunkBrief, ChunkDeep
 
 
 class BookPoster(BaseModel):
-    """The flat metadata that drives the book detail page in the app."""
+    """The flat metadata that drives the book detail page in the app.
+
+    `writing_types` MUST align with the Flutter app's WritingType enum so
+    user preference filters (onboarding + Feed Preferences page) actually
+    match published content:
+      - writing_types[0] is the WritingType (one of creative,
+        digitalContent, personal, journalistic, marketing).
+      - writing_types[1] (optional) is a "format" / subtype label
+        belonging to that writing type — e.g. "Short Story" for
+        creative, "Blog Post" for digitalContent.
+    The validator below snaps any LLM-emitted synonyms back onto this
+    taxonomy so a wonky output doesn't silently break filtering.
+    """
     description: str = Field(
         ...,
         description=(
@@ -52,18 +70,41 @@ class BookPoster(BaseModel):
     genres: list[str] = Field(
         default_factory=list,
         max_length=4,
-        description="Top-level genre buckets, lowercase. E.g. ['mythology', 'epic', 'religious'].",
+        description=(
+            "Top-level genre buckets, lowercase. Free-form (the app surfaces "
+            "whatever values appear in published content as filter chips). "
+            "E.g. ['mythology', 'religion', 'hinduism']."
+        ),
     )
     writing_types: list[str] = Field(
         default_factory=list,
-        max_length=3,
-        description="Form labels, lowercase. E.g. ['epic', 'translation'].",
+        min_length=1,
+        max_length=2,
+        description=(
+            "EXACTLY two entries from the app's WritingType taxonomy:\n"
+            "  [0] = writing type (one of: creative, digitalContent, "
+            "personal, journalistic, marketing)\n"
+            "  [1] = format/subtype belonging to that writing type "
+            "(see allowed_formats below)\n\n"
+            "Allowed formats per writing type:\n"
+            "  - creative:        Short Story, Poetry, Script, Flash Fiction\n"
+            "  - digitalContent:  Blog Post, Newsletter, Social Media Post, "
+            "Caption, Thread, Reels Script\n"
+            "  - personal:        Storytime, Rant, Open Letter, Life Update, "
+            "Affirmation, Deep Talk, Relationship Tea, Mental Health Log\n"
+            "  - journalistic:    News Article, Editorial, Opinion Piece, Interview\n"
+            "  - marketing:       Ad Copy, Product Description, Email Campaign, Slogan\n\n"
+            "Use displayName casing for [1] (e.g. 'Short Story', not 'short-story'). "
+            "Most ingested books are 'creative' / 'Short Story' (long-form fiction "
+            "or mythic retellings) — pick journalistic/personal only when the "
+            "source genuinely fits."
+        ),
     )
     tags: list[str] = Field(
         default_factory=list,
         max_length=10,
         description=(
-            "Granular discoverability tags, lowercase, hyphenated. "
+            "Granular discoverability tags, lowercase, hyphenated. Free-form. "
             "E.g. ['mahabharata', 'sanskrit', 'ancient-india', 'kurukshetra', "
             "'pandavas', 'kauravas', 'dharma', 'bhagavad-gita']."
         ),
@@ -77,6 +118,41 @@ class BookPoster(BaseModel):
         ),
     )
 
+    @field_validator("genres", "tags", mode="before")
+    @classmethod
+    def _normalize_free_form(cls, v: list[str] | None) -> list[str]:
+        """Lowercase + hyphenate so casing differences don't fragment the
+        feed_facets chip list ('Mythology' and 'mythology' must merge)."""
+        if not v:
+            return []
+        out: list[str] = []
+        seen: set[str] = set()
+        for item in v:
+            if not isinstance(item, str):
+                continue
+            cleaned = "-".join(item.strip().lower().split())
+            if cleaned and cleaned not in seen:
+                seen.add(cleaned)
+                out.append(cleaned)
+        return out
+
+    @model_validator(mode="after")
+    def _snap_writing_types(self) -> "BookPoster":
+        """Coerce writing_types onto the app's WritingType+format taxonomy.
+
+        The LLM occasionally emits synonyms ('epic', 'sacred-text',
+        'translation') — those would render as filter chips users can
+        never select. Map them back to the canonical pair so filtering
+        works end-to-end.
+        """
+        wt_raw = self.writing_types[0] if self.writing_types else None
+        fmt_raw = self.writing_types[1] if len(self.writing_types) > 1 else None
+
+        wt = coerce_writing_type(wt_raw)
+        fmt = coerce_writing_type_format(wt, fmt_raw)
+        self.writing_types = [wt, fmt]
+        return self
+
 
 _POSTER_SYSTEM = (
     "You write book-jacket copy. Given a book's title, scout-detected "
@@ -86,7 +162,14 @@ _POSTER_SYSTEM = (
     "and a brief for the cover illustration.\n\n"
     "Be specific and confident. The description should make a reader "
     "want to open the book. The cover_scene should evoke the whole work "
-    "(not one moment) and should be distinct from chapter illustrations."
+    "(not one moment) and should be distinct from chapter illustrations.\n\n"
+    "writing_types is a CLOSED taxonomy that must match the reader app's "
+    "WritingType enum exactly — do NOT invent values like 'sacred-text' or "
+    "'epic'. Pick:\n"
+    "  writing_types[0] ∈ {" + ", ".join(WRITING_TYPES) + "}\n"
+    "  writing_types[1] ∈ formats for that type (see schema description).\n"
+    "For most ingested long-form books, the right answer is "
+    "['creative', 'Short Story']."
 )
 
 
