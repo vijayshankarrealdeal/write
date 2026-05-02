@@ -116,10 +116,6 @@ class _PostDetailPageState extends State<PostDetailPage>
   // Sections whose lazy fetch is currently in flight, to dedupe.
   final Set<int> _lazyLoading = {};
 
-  // -- Review input --
-  final _commentController = TextEditingController();
-  final _commentFocus = FocusNode();
-
   // -- Reading progress persistence --
   late final ApiDataService _dataService;
   Timer? _debounce;
@@ -170,8 +166,19 @@ class _PostDetailPageState extends State<PostDetailPage>
 
   // -- Immersive (full) reading mode: hides app bar + bottom bar so the
   // reading column owns the whole viewport. Toggled by single-tap on the
-  // section body. Resets when leaving the reader.
+  // section body OR auto-driven by scroll direction (see _scrollAccum
+  // below). Resets when leaving the reader.
   bool _immersiveReader = false;
+
+  // -- Scroll-direction immersive tracking --
+  // Cumulative pixels scrolled in the current direction. Resets when
+  // direction flips. Once it crosses ±threshold we toggle immersive and
+  // reset to 0. Asymmetric thresholds (down 80 / up 40) bias toward giving
+  // the reader controls back: harder to lose chrome, easier to recall it.
+  // Top-of-page (pixels < 30) always forces chrome visible so the back
+  // button is reachable when a reader reaches the start of a chapter.
+  double _scrollAccum = 0;
+  double _lastScrollPos = 0;
 
   // -- Per-section text highlights: section index -> list of (start, length, colorHex) --
   final Map<int, List<_Highlight>> _highlights = {};
@@ -1107,431 +1114,14 @@ class _PostDetailPageState extends State<PostDetailPage>
   }
 
   // --------------------------------------------------------------------------
-  // Open comments bottom sheet
+  // Open comments bottom sheet — inline composer with optimistic UI.
   // --------------------------------------------------------------------------
   void _openCommentsSheet() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final subtleColor = isDark ? Colors.white54 : Colors.black45;
-    final cardColor = isDark ? const Color(0xFF141414) : Colors.white;
-    final item = widget.item;
-    final dividerColor = isDark
-        ? Colors.white10
-        : Colors.black.withValues(alpha: 0.06);
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.65,
-          minChildSize: 0.35,
-          maxChildSize: 0.9,
-          builder: (_, scrollController) => Container(
-            decoration: BoxDecoration(
-              color: cardColor,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Column(
-              children: [
-                // Drag handle
-                Padding(
-                  padding: const EdgeInsets.only(top: 12, bottom: 8),
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.white24 : Colors.black12,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                // Header
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Reviews',
-                        style: GoogleFonts.inter(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: textColor,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(sheetContext),
-                        child: Icon(
-                          CupertinoIcons.xmark_circle_fill,
-                          color: subtleColor,
-                          size: 24,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Divider(color: dividerColor, height: 1),
-                // Reviews list
-                Expanded(
-                  child: StreamBuilder<List<CommentModel>>(
-                    stream: context
-                        .read<FeedProvider>()
-                        .getCommentsStream(item.id),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: AppSpinner());
-                      }
-                      final comments = snapshot.data ?? [];
-                      if (comments.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                CupertinoIcons.chat_bubble_2,
-                                size: 32,
-                                color: subtleColor.withValues(alpha: 0.5),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                'No reviews yet',
-                                style: GoogleFonts.inter(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: subtleColor,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Be the first to share your thoughts.',
-                                style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  color: subtleColor.withValues(alpha: 0.7),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                      return ListView.builder(
-                        controller: scrollController,
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-                        itemCount: comments.length,
-                        itemBuilder: (context, index) {
-                          final c = comments[index];
-                          return _CommentTile(
-                            comment: c,
-                            isDark: isDark,
-                            isOwn: c.authorId ==
-                                context.read<AuthProvider>().currentUser?.id,
-                            onDelete: () {
-                              context
-                                  .read<FeedProvider>()
-                                  .deleteComment(item.id, c.id);
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-                // "Write a review" CTA
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    20,
-                    12,
-                    20,
-                    12 + MediaQuery.of(sheetContext).padding.bottom,
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      borderRadius: BorderRadius.circular(14),
-                      color: const Color(0xFF2563EB),
-                      onPressed: () => _openWriteReviewDialog(sheetContext),
-                      child: Text(
-                        'Write a review',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          letterSpacing: -0.2,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  // --------------------------------------------------------------------------
-  // Write review dialog (centered modal: stars + text + submit)
-  // --------------------------------------------------------------------------
-  Future<void> _openWriteReviewDialog(BuildContext anchor) async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final subtleColor = isDark ? Colors.white54 : Colors.black45;
-    final cardColor = isDark ? const Color(0xFF141414) : Colors.white;
-
-    _commentController.clear();
-    int rating = 0;
-    bool submitting = false;
-
-    final submitted = await showDialog<bool>(
-      context: context,
-      barrierDismissible: true,
-      barrierColor: Colors.black.withValues(alpha: 0.55),
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (stf, setLocal) => Dialog(
-            backgroundColor: Colors.transparent,
-            insetPadding: const EdgeInsets.symmetric(horizontal: 28),
-            child: Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(dialogContext).viewInsets.bottom,
-              ),
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
-                decoration: BoxDecoration(
-                  color: cardColor,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(
-                          alpha: isDark ? 0.6 : 0.25),
-                      blurRadius: 30,
-                      offset: const Offset(0, 12),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Did you enjoy this book?',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: textColor,
-                        letterSpacing: -0.2,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(5, (i) {
-                        final filled = i < rating;
-                        return GestureDetector(
-                          onTap: () => setLocal(() => rating = i + 1),
-                          behavior: HitTestBehavior.opaque,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(
-                              filled
-                                  ? CupertinoIcons.star_fill
-                                  : CupertinoIcons.star,
-                              size: 32,
-                              color: filled
-                                  ? const Color(0xFFFBBF24)
-                                  : subtleColor.withValues(alpha: 0.5),
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                    const SizedBox(height: 18),
-                    CupertinoTextField(
-                      controller: _commentController,
-                      placeholder: 'Share your thoughts...',
-                      placeholderStyle: GoogleFonts.inter(
-                        color: subtleColor,
-                        fontSize: 15,
-                      ),
-                      style: GoogleFonts.inter(
-                        color: textColor,
-                        fontSize: 15,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.05)
-                            : Colors.black.withValues(alpha: 0.04),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      maxLines: 4,
-                      minLines: 3,
-                    ),
-                    const SizedBox(height: 18),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        borderRadius: BorderRadius.circular(12),
-                        color: const Color(0xFF2563EB),
-                        disabledColor:
-                            const Color(0xFF2563EB).withValues(alpha: 0.4),
-                        onPressed: (rating == 0 || submitting)
-                            ? null
-                            : () async {
-                                final text = _commentController.text.trim();
-                                final auth = context.read<AuthProvider>();
-                                final feed = context.read<FeedProvider>();
-                                final user = auth.currentUser;
-                                if (user == null) return;
-
-                                setLocal(() => submitting = true);
-                                try {
-                                  final comment = CommentModel(
-                                    id: const Uuid().v4(),
-                                    feedItemId: widget.item.id,
-                                    authorId: user.id,
-                                    authorName: user.name,
-                                    authorPhotoUrl: user.photoUrl,
-                                    text: text,
-                                    createdAt: DateTime.now(),
-                                    rating: rating,
-                                  );
-                                  await feed.addComment(comment);
-                                  _commentController.clear();
-                                  if (dialogContext.mounted) {
-                                    Navigator.pop(dialogContext, true);
-                                  }
-                                } catch (_) {
-                                  setLocal(() => submitting = false);
-                                }
-                              },
-                        child: submitting
-                            ? const AppSpinner(size: 20, color: Colors.white)
-                            : Text(
-                                'Submit',
-                                style: GoogleFonts.inter(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  letterSpacing: -0.2,
-                                ),
-                              ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-
-    if (submitted == true && mounted) {
-      _showThankYouSheet();
-    }
-  }
-
-  // --------------------------------------------------------------------------
-  // Thank-you confirmation bottom sheet
-  // --------------------------------------------------------------------------
-  void _showThankYouSheet() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final cardColor = isDark ? const Color(0xFF141414) : Colors.white;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) => Container(
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius:
-              const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        padding: EdgeInsets.fromLTRB(
-          24,
-          16,
-          24,
-          16 + MediaQuery.of(sheetContext).padding.bottom,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white24 : Colors.black12,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Text(
-              'Thank you for your review!',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: textColor,
-                letterSpacing: -0.3,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    const Color(0xFF2563EB).withValues(alpha: 0.15),
-                    const Color(0xFFFBBF24).withValues(alpha: 0.15),
-                  ],
-                ),
-              ),
-              child: const Icon(
-                CupertinoIcons.star_fill,
-                size: 56,
-                color: Color(0xFFFBBF24),
-              ),
-            ),
-            const SizedBox(height: 28),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: CupertinoButton(
-                padding: EdgeInsets.zero,
-                borderRadius: BorderRadius.circular(14),
-                color: const Color(0xFF2563EB),
-                onPressed: () => Navigator.pop(sheetContext),
-                child: Text(
-                  'Done',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: -0.2,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      builder: (sheetContext) => _CommentsSheet(item: widget.item),
     );
   }
 
@@ -1906,8 +1496,6 @@ class _PostDetailPageState extends State<PostDetailPage>
     for (final s in _sectionScrollControllers.values) {
       s.dispose();
     }
-    _commentController.dispose();
-    _commentFocus.dispose();
     super.dispose();
   }
 
@@ -2154,11 +1742,26 @@ class _PostDetailPageState extends State<PostDetailPage>
                 switchOutCurve: Curves.easeIn,
                 child: _selectedSectionIndex == null
                     ? _buildOverview(isDark, textColor, subtleColor, bgColor)
-                    : _buildSectionsCarousel(
-                        isDark,
-                        textColor,
-                        subtleColor,
-                        bgColor,
+                    : _PullDownToExit(
+                        // Wide layouts pin a chapter rail beside the
+                        // reader; pulling down to exit there feels jarring
+                        // because the rail stays put. Phones and narrow
+                        // tablets get the gesture.
+                        enabled: MediaQuery.of(context).size.width < 1280,
+                        onExit: () {
+                          _pageController?.dispose();
+                          _pageController = null;
+                          setState(() {
+                            _selectedSectionIndex = null;
+                            _immersiveReader = false;
+                          });
+                        },
+                        child: _buildSectionsCarousel(
+                          isDark,
+                          textColor,
+                          subtleColor,
+                          bgColor,
+                        ),
                       ),
               ),
               // Heart animation overlay
@@ -4940,12 +4543,364 @@ class _ActionRow extends StatelessWidget {
 }
 
 // ============================================================================
+// COMMENTS SHEET — inline composer with optimistic UI
+// ============================================================================
+class _CommentsSheet extends StatefulWidget {
+  final FeedItemModel item;
+  const _CommentsSheet({required this.item});
+
+  @override
+  State<_CommentsSheet> createState() => _CommentsSheetState();
+}
+
+class _CommentsSheetState extends State<_CommentsSheet> {
+  final _controller = TextEditingController();
+  final _focus = FocusNode();
+  final _scrollController = ScrollController();
+
+  // Comments the user just submitted that haven't yet appeared in the
+  // server stream. Cleared per-entry when the matching server comment arrives.
+  final List<CommentModel> _pending = [];
+  bool _sending = false;
+  bool _hasText = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() {
+      final has = _controller.text.trim().isNotEmpty;
+      if (has != _hasText) setState(() => _hasText = has);
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focus.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // Merge pending (still-in-flight or unconfirmed) entries with the server
+  // list. A pending entry is dropped once a server comment from the same
+  // author with identical text shows up.
+  List<CommentModel> _merge(List<CommentModel> server) {
+    if (_pending.isEmpty) return server;
+    final unconfirmed = _pending.where((p) {
+      return !server.any((s) =>
+          s.authorId == p.authorId && s.text.trim() == p.text.trim());
+    }).toList();
+    return [...unconfirmed, ...server];
+  }
+
+  Future<void> _submit() async {
+    final text = _controller.text.trim();
+    if (text.isEmpty || _sending) return;
+    final auth = context.read<AuthProvider>();
+    final feed = context.read<FeedProvider>();
+    final user = auth.currentUser;
+    if (user == null) return;
+
+    final optimistic = CommentModel(
+      id: const Uuid().v4(),
+      feedItemId: widget.item.id,
+      authorId: user.id,
+      authorName: user.name,
+      authorPhotoUrl: user.photoUrl,
+      authorPhotoMeta: user.photoMeta,
+      text: text,
+      createdAt: DateTime.now(),
+      rating: 0,
+    );
+
+    setState(() {
+      _pending.insert(0, optimistic);
+      _sending = true;
+    });
+    _controller.clear();
+    _focus.unfocus();
+
+    // Fire and forget — UI already reflects the new comment.
+    feed.addComment(optimistic).then((_) {
+      if (!mounted) return;
+      setState(() => _sending = false);
+    }).catchError((Object _) {
+      if (!mounted) return;
+      setState(() {
+        _pending.removeWhere((c) => c.id == optimistic.id);
+        _sending = false;
+      });
+      _controller.text = text;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Couldn't post your review. Tap send to retry.",
+            style: GoogleFonts.inter(fontSize: 14),
+          ),
+          backgroundColor: const Color(0xFFDC2626),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtleColor = isDark ? Colors.white54 : Colors.black45;
+    final cardColor = isDark ? const Color(0xFF141414) : Colors.white;
+    final dividerColor =
+        isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06);
+    final fieldBg = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.04);
+    final currentUser = context.watch<AuthProvider>().currentUser;
+    final viewInsets = MediaQuery.of(context).viewInsets.bottom;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: viewInsets),
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (_, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              // Drag handle
+              Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 8),
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : Colors.black12,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+                child: Row(
+                  children: [
+                    Text(
+                      'Reviews',
+                      style: GoogleFonts.inter(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: textColor,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Icon(
+                        CupertinoIcons.xmark_circle_fill,
+                        color: subtleColor,
+                        size: 24,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(color: dividerColor, height: 1),
+              // List
+              Expanded(
+                child: StreamBuilder<List<CommentModel>>(
+                  stream: context
+                      .read<FeedProvider>()
+                      .getCommentsStream(widget.item.id),
+                  builder: (context, snapshot) {
+                    final server = snapshot.data ?? const <CommentModel>[];
+                    final all = _merge(server);
+                    final isInitialLoad =
+                        snapshot.connectionState == ConnectionState.waiting &&
+                            !snapshot.hasData &&
+                            _pending.isEmpty;
+                    if (isInitialLoad) {
+                      return const Center(child: AppSpinner());
+                    }
+                    if (all.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              CupertinoIcons.chat_bubble_2,
+                              size: 32,
+                              color: subtleColor.withValues(alpha: 0.5),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'No reviews yet',
+                              style: GoogleFonts.inter(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: subtleColor,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Be the first to share your thoughts.',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                color: subtleColor.withValues(alpha: 0.7),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                      itemCount: all.length,
+                      itemBuilder: (context, index) {
+                        final c = all[index];
+                        final pending =
+                            _pending.any((p) => p.id == c.id);
+                        return _CommentTile(
+                          comment: c,
+                          isDark: isDark,
+                          isOwn: c.authorId == currentUser?.id,
+                          isPending: pending,
+                          onDelete: pending
+                              ? () {}
+                              : () {
+                                  context
+                                      .read<FeedProvider>()
+                                      .deleteComment(widget.item.id, c.id);
+                                },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              Divider(color: dividerColor, height: 1),
+              // Inline composer
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  10,
+                  10,
+                  10 + MediaQuery.of(context).padding.bottom,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ClipOval(
+                      child: SizedBox(
+                        width: 32,
+                        height: 32,
+                        child: (currentUser?.photoUrl != null &&
+                                currentUser!.photoUrl!.isNotEmpty)
+                            ? AppNetworkImage(
+                                url: currentUser.photoUrl,
+                                meta: currentUser.photoMeta,
+                                width: 32,
+                                height: 32,
+                                fit: BoxFit.cover,
+                              )
+                            : Container(
+                                color: const Color(0xFF2563EB),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  (currentUser?.name.isNotEmpty ?? false)
+                                      ? currentUser!.name[0].toUpperCase()
+                                      : 'U',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: fieldBg,
+                          borderRadius: BorderRadius.circular(22),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: CupertinoTextField(
+                                controller: _controller,
+                                focusNode: _focus,
+                                placeholder: 'Share your thoughts...',
+                                placeholderStyle: GoogleFonts.inter(
+                                  color: subtleColor,
+                                  fontSize: 15,
+                                ),
+                                style: GoogleFonts.inter(
+                                  color: textColor,
+                                  fontSize: 15,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 10),
+                                decoration: const BoxDecoration(),
+                                maxLines: 4,
+                                minLines: 1,
+                                textInputAction: TextInputAction.send,
+                                onSubmitted: (_) => _submit(),
+                              ),
+                            ),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 150),
+                              child: _hasText
+                                  ? GestureDetector(
+                                      key: const ValueKey('send'),
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: _submit,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 8),
+                                        child: Icon(
+                                          CupertinoIcons
+                                              .arrow_up_circle_fill,
+                                          size: 30,
+                                          color: const Color(0xFF2563EB),
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox(
+                                      key: ValueKey('empty'), width: 8),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
 // COMMENT TILE
 // ============================================================================
 class _CommentTile extends StatelessWidget {
   final CommentModel comment;
   final bool isDark;
   final bool isOwn;
+  final bool isPending;
   final VoidCallback onDelete;
 
   const _CommentTile({
@@ -4953,6 +4908,7 @@ class _CommentTile extends StatelessWidget {
     required this.isDark,
     required this.isOwn,
     required this.onDelete,
+    this.isPending = false,
   });
 
   @override
@@ -4960,7 +4916,9 @@ class _CommentTile extends StatelessWidget {
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final subtleColor = isDark ? Colors.white38 : Colors.black38;
 
-    return Padding(
+    return Opacity(
+      opacity: isPending ? 0.55 : 1.0,
+      child: Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -5085,6 +5043,7 @@ class _CommentTile extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -6394,6 +6353,121 @@ class _ReaderListenFabState extends State<_ReaderListenFab> {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Pull-down-to-exit gesture ───
+//
+// Wraps the section reader so that when the user is scrolled to the very
+// top and continues pulling down, the whole page follows the finger
+// (translate + scale + fade). Releasing past a threshold dismisses back
+// to the section overview; releasing below it springs back. Works in both
+// immersive (no chrome) and chrome-on modes, giving readers a discoverable
+// exit that matches the iOS Photos/Messages pattern.
+//
+// Implementation rides on the existing BouncingScrollPhysics on each
+// section's SingleChildScrollView: pulling past the top makes
+// metrics.pixels go negative, which we read as the drag amount. We only
+// react while dragDetails != null so momentum bounces don't trigger
+// dismissal on their own.
+class _PullDownToExit extends StatefulWidget {
+  const _PullDownToExit({
+    required this.child,
+    required this.onExit,
+    this.enabled = true,
+  });
+
+  final Widget child;
+  final VoidCallback onExit;
+  final bool enabled;
+
+  @override
+  State<_PullDownToExit> createState() => _PullDownToExitState();
+}
+
+class _PullDownToExitState extends State<_PullDownToExit>
+    with SingleTickerProviderStateMixin {
+  static const double _threshold = 110;
+  static const double _maxDrag = 320;
+
+  double _drag = 0;
+  bool _dragging = false;
+  late final AnimationController _spring;
+  Animation<double>? _springTween;
+
+  @override
+  void initState() {
+    super.initState();
+    _spring = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 240),
+    )..addListener(() {
+        if (_springTween != null && mounted) {
+          setState(() => _drag = _springTween!.value);
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    _spring.dispose();
+    super.dispose();
+  }
+
+  bool _onNotif(ScrollNotification n) {
+    if (!widget.enabled) return false;
+    if (n.metrics.axis != Axis.vertical) return false;
+
+    if (n is ScrollUpdateNotification && n.dragDetails != null) {
+      // Negative pixels = pulled past top with bouncing physics.
+      final overscroll = n.metrics.minScrollExtent - n.metrics.pixels;
+      if (_spring.isAnimating) _spring.stop();
+      if (overscroll > 0) {
+        setState(() {
+          _dragging = true;
+          _drag = overscroll.clamp(0.0, _maxDrag);
+        });
+      } else if (_drag != 0) {
+        // User dragged back into normal scroll range — drop the offset
+        // immediately so the page snaps back to rest without lag.
+        setState(() => _drag = 0);
+      }
+    } else if (n is ScrollEndNotification && _dragging) {
+      _dragging = false;
+      if (_drag >= _threshold) {
+        _drag = 0;
+        widget.onExit();
+      } else if (_drag > 0) {
+        _springTween = Tween<double>(begin: _drag, end: 0).animate(
+          CurvedAnimation(parent: _spring, curve: Curves.easeOutCubic),
+        );
+        _spring.forward(from: 0);
+      }
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = (_drag / 200).clamp(0.0, 1.0);
+    final translateY = _drag * 0.6;
+    final scale = 1 - progress * 0.05;
+    final opacity = (1 - progress * 0.4).clamp(0.0, 1.0);
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: _onNotif,
+      child: Transform.translate(
+        offset: Offset(0, translateY),
+        child: Transform.scale(
+          scale: scale,
+          alignment: Alignment.topCenter,
+          child: Opacity(
+            opacity: opacity,
+            child: widget.child,
           ),
         ),
       ),

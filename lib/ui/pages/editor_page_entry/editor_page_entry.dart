@@ -2338,6 +2338,31 @@ class _EditiorPageState extends State<EditiorPage>
                                   ),
                           ),
 
+                          // ── Mobile inline spell check bar ──
+                          // Sits above the formatting toolbar (and the
+                          // keyboard) when the caret is inside a misspelled
+                          // word. Self-hides otherwise — Center with
+                          // heightFactor: 1.0 collapses to 0 when the inner
+                          // bar returns SizedBox.shrink(), so the toolbar
+                          // doesn't get pushed up by an empty row.
+                          if (isMobile && !_isCanvasMode && !_focusMode)
+                            Center(
+                              heightFactor: 1.0,
+                              child: InlineSpellCheckBar(
+                                controller: context
+                                    .read<EditorProvider>()
+                                    .controller,
+                                isDark: isDark,
+                                onReplace: _replaceMisspelling,
+                                onAddToDictionary: (m) => context
+                                    .read<SpellCheckProvider>()
+                                    .addToDictionary(m.word),
+                                onIgnore: (m) => context
+                                    .read<SpellCheckProvider>()
+                                    .dismissIssue(m),
+                              ),
+                            ),
+
                           // ── Mobile formatting toolbar (BOTTOM) ──
                           // Anchored above the keyboard via Scaffold's
                           // resizeToAvoidBottomInset (default true).
