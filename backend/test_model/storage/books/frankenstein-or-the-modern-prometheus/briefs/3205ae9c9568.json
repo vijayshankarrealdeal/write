@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The creature recounts his first sensory experiences, survival in the wild, discovery of fire, rejection by humans, and secret observation of a kind cottager family.",
+  "importance": 0.7,
+  "themes": [
+    "awakening of consciousness",
+    "isolation and rejection",
+    "learning through observation",
+    "human kindness",
+    "survival"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The newly awakened creature crouches by a forest brook under moonlight, staring in wonder at the bright orb rising through the trees.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "The creature thrusts his hand into glowing embers, recoiling in pain as sparks flare from the small fire in the dark forest.",
+      "visual_strength": 0.72
+    },
+    {
+      "scene_text": "Through a narrow chink in a wooden wall, the creature secretly watches an old blind man play music while a young woman kneels beside him in tears.",
+      "visual_strength": 0.88
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The creature demands a female companion; after threats and moral debate, Victor reluctantly agrees to create one if the monster leaves humanity forever.",
+  "importance": 0.83,
+  "themes": [
+    "isolation and companionship",
+    "creator's responsibility",
+    "revenge and misery",
+    "moral dilemma",
+    "promise and exile"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "The creature stands on the icy glacier pleading with Victor, his distorted face twisted with rage and despair beneath the cold mountain sky.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Victor watches the monster leap down the mountainside and vanish across the vast sea of ice like a dark figure fleeing into the wilderness.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Alone at night beside a mountain fountain, Victor raises his hands to the stars and weeps beneath towering dark pines.",
+      "visual_strength": 0.72
+    }
+  ]
+}

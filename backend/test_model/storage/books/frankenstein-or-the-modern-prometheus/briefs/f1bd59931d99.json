@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Safie arrives at the cottage; the creature secretly learns language and history with her lessons, awakening painful awareness of human society and his own isolation.",
+  "importance": 0.78,
+  "themes": [
+    "education and knowledge",
+    "self-awareness",
+    "social inequality",
+    "isolation",
+    "human society"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A veiled woman on horseback lifts her black veil before the cottage, revealing her radiant face as Felix rushes toward her in joy.",
+      "visual_strength": 0.88
+    },
+    {
+      "scene_text": "Hidden in the shadows of the hovel, the creature listens while Safie sits at the old man's feet learning words from Felix.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "Alone in the woods at night, the creature reflects in anguish, realizing he is hideous and belongs to no human family.",
+      "visual_strength": 0.79
+    }
+  ]
+}

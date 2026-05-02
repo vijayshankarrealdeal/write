@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Victor obsessively studies anatomy and decay, discovers the secret of animating life, and begins constructing a gigantic human being from corpse parts.",
+  "importance": 0.9,
+  "themes": [
+    "dangerous pursuit of knowledge",
+    "creation and hubris",
+    "life and death",
+    "scientific obsession",
+    "isolation from family"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "In a dim attic laboratory, Victor assembles bones and body parts on a table under moonlight streaming through a high window.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Victor studies a decaying corpse in a charnel-house while worms crawl through the hollow eye sockets.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Pale and feverish, Victor works through the night as the moon watches his frantic experiments among dissecting tools and jars.",
+      "visual_strength": 0.78
+    }
+  ]
+}

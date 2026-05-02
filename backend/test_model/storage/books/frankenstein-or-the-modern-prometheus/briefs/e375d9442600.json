@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Victor learns his brother William was murdered, returns to Geneva, sees the Creature during a storm, and realizes it likely committed the crime while Justine is accused.",
+  "importance": 0.82,
+  "themes": [
+    "guilt and responsibility",
+    "wrongful accusation",
+    "family grief",
+    "creator and creation",
+    "foreboding"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "During a violent lightning storm near Geneva, a flash reveals the gigantic, grotesque figure of the Creature climbing the rocks of Mont Salève.",
+      "visual_strength": 0.95
+    },
+    {
+      "scene_text": "Victor stands alone on a hill above the lake as lightning turns the water into a sheet of fire while thunder crashes over the Alps.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Elizabeth collapses beside William’s body at dawn, crying out that the missing miniature around his neck has caused his death.",
+      "visual_strength": 0.62
+    }
+  ]
+}

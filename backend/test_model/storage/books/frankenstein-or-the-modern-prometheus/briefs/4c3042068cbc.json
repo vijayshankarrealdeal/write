@@ -1,0 +1,20 @@
+{
+  "summary_1line": "Walton reports safe progress into high northern latitudes, expresses confidence in his crew, and reveals ambitious determination to conquer the Arctic passage.",
+  "importance": 0.45,
+  "themes": [
+    "exploration ambition",
+    "human determination",
+    "risk and caution",
+    "nature’s danger"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A lone exploration ship pushes through floating Arctic ice sheets under the pale midnight sun.",
+      "visual_strength": 0.8
+    },
+    {
+      "scene_text": "Walton stands on the deck gazing northward while scattered ice drifts past in cold summer light.",
+      "visual_strength": 0.65
+    }
+  ]
+}

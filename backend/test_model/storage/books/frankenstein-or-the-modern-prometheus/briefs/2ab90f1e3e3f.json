@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Walton rescues the exhausted Victor Frankenstein pursuing a mysterious giant across the Arctic ice; Victor agrees to tell the tragic story of his downfall.",
+  "importance": 0.9,
+  "themes": [
+    "obsessive pursuit",
+    "dangerous ambition",
+    "frame narrative",
+    "isolation",
+    "warning through experience"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Through a clearing fog on the endless Arctic ice, sailors watch a gigantic figure driving a dog sledge across the frozen plain.",
+      "visual_strength": 0.92
+    },
+    {
+      "scene_text": "A half-dead man lies in a shattered sledge on a drifting ice floe as sailors haul him toward the ship while the Arctic sea churns around them.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Inside the ship’s cabin, the gaunt stranger weeps with his hands over his eyes as Walton speaks passionately about sacrificing everything for knowledge.",
+      "visual_strength": 0.72
+    }
+  ]
+}

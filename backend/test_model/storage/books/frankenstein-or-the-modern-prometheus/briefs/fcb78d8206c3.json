@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Victor destroys the unfinished female creature; the monster vows revenge on his wedding night, and Victor later drifts to Ireland where he is accused of murder.",
+  "importance": 0.9,
+  "themes": [
+    "moral responsibility",
+    "revenge",
+    "creator vs creation",
+    "isolation",
+    "fear of consequences"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "By moonlight in the laboratory, Victor tears the half‑finished female creature to pieces while the monster watches through the window with a ghastly grin.",
+      "visual_strength": 0.98
+    },
+    {
+      "scene_text": "The monster stands inside the dark room confronting Victor and hisses, 'I will be with you on your wedding-night.'",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Alone in a small skiff at sea, Victor casts a weighted basket containing the creature’s remains into the black water under a clouded moon.",
+      "visual_strength": 0.87
+    }
+  ]
+}

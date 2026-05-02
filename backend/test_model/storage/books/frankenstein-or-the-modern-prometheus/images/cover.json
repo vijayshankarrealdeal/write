@@ -1,0 +1,10 @@
+{
+  "scene_id": "cover",
+  "chunk_id": null,
+  "chapter_title": "(book cover)",
+  "score": 1.0,
+  "prompt": "A moonlit Alpine landscape where a lone figure stands on a crag while a towering shadowed creature emerges from storm clouds above distant laboratories and icy seas, evoking ambition, creation, and pursuit across Europe and the Arctic.",
+  "scene_text": "A moonlit Alpine landscape where a lone figure stands on a crag while a towering shadowed creature emerges from storm clouds above distant laboratories and icy seas, evoking ambition, creation, and pursuit across Europe and the Arctic.",
+  "image_path": "/Users/vijayshankar/Desktop/write/backend/test_model/storage/books/frankenstein-or-the-modern-prometheus/images/cover.png",
+  "is_cover": true
+}

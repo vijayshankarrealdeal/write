@@ -1,0 +1,19 @@
+{
+  "scene_id": "76b1039bfb78",
+  "chunk_id": "5822b4893090",
+  "chapter_title": "Chapter 5",
+  "score": 0.9025,
+  "prompt": "By the dying candlelight, the creature is suggested only by a broad shadow at the edge of the frame, its single yellow eye catching the last wick\u2019s glow as it opens in the dark. Victor stands rigid over the table, his face half-lost in smoke and shadow, surrounded by overturned glassware, scattered papers, and the stark hush of the lab after the pulse of creation.",
+  "scene_text": "By the dying candlelight, the creature is suggested only by a broad shadow at the edge of the frame, its single yellow eye catching the last wick\u2019s glow as it opens in the dark. Victor stands rigid over the table, his face half-lost in smoke and shadow, surrounded by overturned glassware, scattered papers, and the stark hush of the lab after the pulse of creation.",
+  "image_path": "/Users/vijayshankar/Desktop/write/backend/test_model/storage/books/frankenstein-or-the-modern-prometheus/images/76b1039bfb78.png",
+  "model": "gpt-image-2",
+  "original_scene_text": "By the dying candlelight, the creature\u2019s dull yellow eye opens as Victor stands over the lifeless body he has just animated.",
+  "softened": true,
+  "softening_log": [
+    {
+      "attempt": 0,
+      "rejected_scene": "By the dying candlelight, the creature\u2019s dull yellow eye opens as Victor stands over the lifeless body he has just animated.",
+      "reason": "Azure content policy rejected prompt: {\"error\": {\"message\": \"Your request was rejected by the safety system. If you believe this is an error, contact us at Azure support ticket and include the request ID 26bb6792-8abc-4278-b7d5-7c55c0d10c"
+    }
+  ]
+}

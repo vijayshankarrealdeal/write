@@ -1,0 +1,49 @@
+{
+  "rich_summary": "Victor works alone in his island laboratory finishing the female companion he promised the Creature. As the moon rises, he imagines the consequences: the new being might reject the Creature, become even more violent, or reproduce a race of monsters that could threaten humanity. Horrified by the moral weight of his promise, Victor suddenly sees the Creature watching through the window. In a surge of resolve he tears the unfinished body apart. The Creature responds with despair and fury, vowing revenge and delivering the ominous threat: he will be with Victor on his wedding night. Victor disposes of the remains at sea but is blown off course in a storm and lands in an unfamiliar town, where hostile locals accuse him of involvement in a recent murder—setting up the next catastrophe.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 330,
+      "color_hex": "#A5D6A7",
+      "why": "Victor’s opening reflections reveal the ethical horror of repeating his creation and introduce the central dilemma: whether he has the right to risk unleashing another monster."
+    },
+    {
+      "start": 1150,
+      "length": 260,
+      "color_hex": "#FFEB3B",
+      "why": "The pivotal moment when Victor sees the Creature watching him and destroys the unfinished female, permanently breaking his promise."
+    },
+    {
+      "start": 2500,
+      "length": 420,
+      "color_hex": "#F48FB1",
+      "why": "The Creature’s anguished speech about loneliness and revenge shows both his suffering and the terrifying depth of his hatred."
+    },
+    {
+      "start": 2950,
+      "length": 120,
+      "color_hex": "#FFEB3B",
+      "why": "The iconic threat: the Creature promises to be with Victor on his wedding night, a line that drives the dread of the remaining chapters."
+    },
+    {
+      "start": 5200,
+      "length": 260,
+      "color_hex": "#A5D6A7",
+      "why": "Victor casting the remains of the destroyed creature into the dark sea emphasizes guilt, secrecy, and the eerie atmosphere of the novel’s creation imagery."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "In the moonlit laboratory, Victor tears apart the half‑finished female creature while the original monster grins through the window and watches in silent fury.",
+      "visual_strength": 0.97
+    },
+    {
+      "scene_text": "The Creature confronts Victor in the dim room and delivers the chilling promise: 'I shall be with you on your wedding-night.'",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Alone at night in a small skiff, Victor dumps a basket of dismembered body parts weighted with stones into the black sea as clouds swallow the moon.",
+      "visual_strength": 0.93
+    }
+  ]
+}

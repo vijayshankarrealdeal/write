@@ -1,0 +1,55 @@
+{
+  "rich_summary": "The Creature recounts the moment his hope for human companionship collapses and transforms into vengeance. After the De Lacey family flees in terror, he wanders the forest in a frenzy of rage and despair, ultimately burning their cottage and severing his last emotional tie to humanity. Resolving to confront Victor, he begins a lonely, brutal journey toward Geneva, traveling by night through cold landscapes. A brief return of kindness—saving a drowning girl—ends when he is shot by her guardian, convincing him that humanity will always answer benevolence with violence. Near Geneva he encounters a child, William Frankenstein; realizing the boy belongs to his creator’s family, he kills him and frames Justine by planting a portrait on her. The Creature ends by demanding Victor create a companion like himself.",
+  "highlight_spans": [
+    {
+      "start": 0,
+      "length": 160,
+      "color_hex": "#F48FB1",
+      "why": "The Creature’s furious opening curse against Victor captures the emotional core of the chapter: rage at a creator who gave life without compassion."
+    },
+    {
+      "start": 0,
+      "length": 420,
+      "color_hex": "#A5D6A7",
+      "why": "The early forest wandering—howling under cold stars and raging through the woods—establishes the lonely, almost cosmic isolation that defines the Creature’s transformation."
+    },
+    {
+      "start": 0,
+      "length": 900,
+      "color_hex": "#FFEB3B",
+      "why": "The section culminating in his vow of 'everlasting war against the species' marks the pivotal psychological turn from wounded outsider to deliberate enemy of humanity."
+    },
+    {
+      "start": 0,
+      "length": 2200,
+      "color_hex": "#FFEB3B",
+      "why": "The burning of the De Lacey cottage is a symbolic act: the destruction of the Creature’s last connection to kindness and the birth of his revenge-driven identity."
+    },
+    {
+      "start": 0,
+      "length": 4200,
+      "color_hex": "#FFEB3B",
+      "why": "The encounter with the drowning girl and the gunshot that follows is a cruel moral test; even his genuine act of rescue is punished, cementing his hatred of humanity."
+    },
+    {
+      "start": 0,
+      "length": 6200,
+      "color_hex": "#F48FB1",
+      "why": "William’s murder and the framing of Justine represent the Creature’s first deliberate act of revenge against Victor, escalating the tragedy and binding their fates."
+    }
+  ],
+  "top_scenes": [
+    {
+      "scene_text": "The Creature dancing in manic fury around the De Lacey cottage as wind howls and flames climb the wooden walls into the night sky.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "In a bright spring forest beside a rushing river, the Creature drags a rescued girl from the water just as a man bursts from the trees and fires a gun into his shoulder.",
+      "visual_strength": 0.87
+    },
+    {
+      "scene_text": "At dusk near Geneva, the towering Creature grips young William in a shadowed field as the boy struggles and the mountains loom in the distance.",
+      "visual_strength": 0.9
+    }
+  ]
+}

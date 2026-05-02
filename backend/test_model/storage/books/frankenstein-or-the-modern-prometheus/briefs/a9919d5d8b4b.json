@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Victor recounts his obsessive pursuit of the creature across continents to the Arctic, ending with Walton rescuing him and recording his tragic reflections.",
+  "importance": 0.8,
+  "themes": [
+    "revenge obsession",
+    "pursuit across wilderness",
+    "man vs nature",
+    "hubris and downfall",
+    "frame narrative"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Victor kneels in the dark cemetery beside the graves of his family, swearing vengeance while the wind stirs the trees.",
+      "visual_strength": 0.83
+    },
+    {
+      "scene_text": "Under a rising moon, the monstrous figure flees across the landscape as Victor glimpses his distorted shape and gives chase.",
+      "visual_strength": 0.78
+    },
+    {
+      "scene_text": "On the shattered Arctic ice, Victor drifts on a shrinking floe with dead dogs and jagged ice mountains as a distant ship appears.",
+      "visual_strength": 0.9
+    }
+  ]
+}

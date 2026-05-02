@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The creature secretly observes the De Lacey family, learns their words and kindness, helps them anonymously, and becomes painfully aware of his own deformity.",
+  "importance": 0.55,
+  "themes": [
+    "loneliness",
+    "learning language",
+    "poverty and compassion",
+    "self-awareness",
+    "hope for acceptance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Hidden beside the cottage, the creature watches the blind old father smiling while Felix and Agatha gently serve him food.",
+      "visual_strength": 0.71
+    },
+    {
+      "scene_text": "At night the creature secretly piles freshly cut firewood outside the cottage door while the family sleeps.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "The creature recoils in horror at his reflection in a clear forest pool, realizing his own monstrous appearance.",
+      "visual_strength": 0.92
+    }
+  ]
+}

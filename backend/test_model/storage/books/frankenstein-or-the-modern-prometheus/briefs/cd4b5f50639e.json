@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Victor seeks solace in the Alps but encounters his creature on a glacier, leading to a fierce confrontation and the creature demanding to tell his story.",
+  "importance": 0.88,
+  "themes": [
+    "creator responsibility",
+    "isolation",
+    "nature's sublimity",
+    "justice and revenge",
+    "plea for compassion"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "On the vast glacier beneath Mont Blanc, the gigantic figure of the creature bounds across the ice toward Victor with superhuman speed.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Victor stands on a rocky recess overlooking the glittering sea of ice as sunlight breaks through the clouds around Mont Blanc.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Inside a cold mountain hut, Victor sits by a small fire while the towering, grotesque creature begins to tell his story.",
+      "visual_strength": 0.72
+    }
+  ]
+}

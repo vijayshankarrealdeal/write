@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Victor returns to Geneva, agrees to marry Elizabeth despite the monster’s threat, and sails with her to Evian on their wedding night under ominous foreboding.",
+  "importance": 0.75,
+  "themes": [
+    "guilt and confession",
+    "doom and foreboding",
+    "marriage and fate",
+    "secrecy",
+    "misjudgment"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Victor sits pale and tormented while confessing to his bewildered father that he is the murderer of William, Justine, and Henry.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Victor and Elizabeth sail across Lake Geneva beneath the setting sun, Mont Blanc glowing in the distance as an uneasy silence hangs between them.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "At sunset Victor steps onto the shore at Evian beside Elizabeth, his face darkened by dread as he remembers the monster’s promise to come on his wedding night.",
+      "visual_strength": 0.78
+    }
+  ]
+}

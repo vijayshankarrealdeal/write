@@ -1,0 +1,25 @@
+{
+  "summary_1line": "The creature recounts the De Lacey family’s downfall after Felix rescues Safie’s father, whose betrayal leads to their exile until Safie courageously journeys to reunite with Felix.",
+  "importance": 0.6,
+  "themes": [
+    "injustice and exile",
+    "betrayal and gratitude",
+    "cross-cultural love",
+    "female independence",
+    "sacrifice for family"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "At night Felix whispers through the grated prison window to the chained Turkish merchant in a dark dungeon.",
+      "visual_strength": 0.75
+    },
+    {
+      "scene_text": "Safie secretly leaves Italy with jewels and money, setting out on a solitary journey toward Germany.",
+      "visual_strength": 0.7
+    },
+    {
+      "scene_text": "The blind De Lacey and Agatha sit in a dim prison cell after being arrested for Felix’s rescue plot.",
+      "visual_strength": 0.68
+    }
+  ]
+}

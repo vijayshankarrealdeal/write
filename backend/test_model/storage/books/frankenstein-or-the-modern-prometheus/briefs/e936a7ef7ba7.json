@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Justine’s trial condemns her despite weak evidence; coerced confession and Victor’s silent guilt lead to her execution and deepen his crushing remorse.",
+  "importance": 0.82,
+  "themes": [
+    "miscarriage of justice",
+    "guilt and responsibility",
+    "public prejudice",
+    "coerced confession",
+    "remorse"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Justine stands in mourning before the crowded court while the locket is displayed and the spectators murmur in horror.",
+      "visual_strength": 0.79
+    },
+    {
+      "scene_text": "In a dim prison cell, the shackled Justine kneels on straw at Elizabeth’s feet while Victor watches in torment from the shadows.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "At dawn the condemned Justine is led to the scaffold as Victor watches, consumed by silent guilt.",
+      "visual_strength": 0.72
+    }
+  ]
+}

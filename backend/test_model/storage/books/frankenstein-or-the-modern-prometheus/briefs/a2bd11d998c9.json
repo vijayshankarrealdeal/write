@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Victor delays creating the female creature, agrees to travel to England with Clerval, and journeys down the Rhine toward London while burdened by dread.",
+  "importance": 0.55,
+  "themes": [
+    "guilt and obligation",
+    "foreboding journey",
+    "friendship contrast",
+    "nature vs inner turmoil",
+    "deferred consequences"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Victor lies in the bottom of a small boat on the Rhine, staring up at a cloudless blue sky while ruined castles and vineyards pass along the riverbanks.",
+      "visual_strength": 0.76
+    },
+    {
+      "scene_text": "Clerval stands in the boat pointing excitedly at castles and vineyards along the Rhine while the dark river winds between steep hills.",
+      "visual_strength": 0.74
+    },
+    {
+      "scene_text": "On a clear winter morning, Victor first sees the white cliffs of Britain rising above the sea as the ship approaches the Thames.",
+      "visual_strength": 0.72
+    }
+  ]
+}

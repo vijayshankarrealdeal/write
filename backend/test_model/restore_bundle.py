@@ -124,7 +124,12 @@ async def _main() -> int:
     # Delegate to sync_to_db's main flow programmatically. Re-import here
     # so a `--info` run never imports the heavy app.* stack.
     print(f"[sync] uploading images + creating DB rows for {target_slug}…")
-    from sync_to_db import _load_artifacts, _pick_cover, _upload_images  # noqa: E402
+    from sync_to_db import (
+        _build_cleaned_markdown_map,
+        _load_artifacts,
+        _pick_cover,
+        _upload_images,
+    )  # noqa: E402
 
     chunks, briefs, deeps, scenes_by_chunk = _load_artifacts(target_slug)
     if not chunks:
@@ -144,19 +149,37 @@ async def _main() -> int:
               f"{manifest['synced']}.\nPass --force-sync to publish a fresh copy.")
         return 0
 
-    cover_local = _pick_cover(scenes_by_chunk)
-    cover_url = url_for(cover_local) if cover_local else None
+    cover_local = manifest.get("cover_image_local") or _pick_cover(scenes_by_chunk)
+    cover_url: str | None = None
+    if cover_local and Path(cover_local).exists():
+        from app.storage import upload_file  # type: ignore[import-not-found]
+        with open(cover_local, "rb") as fh:
+            cover_data = fh.read()
+        cover_url = await upload_file(
+            f"books/{target_slug}/cover.png",
+            cover_data,
+            content_type="image/png",
+        )
+
+    cleaned_md_map = _build_cleaned_markdown_map(target_slug, chunks)
+    poster = manifest.get("poster") or {}
 
     db_ids = await db_publish.publish_book(
         title=manifest["title"],
         author=manifest.get("author"),
-        description=manifest.get("description"),
+        description=manifest.get("description") or poster.get("back_cover_copy"),
         cover_image_path=cover_url,
         chunks=chunks,
         briefs=briefs,
         deeps=deeps,
         scenes_by_chunk=scenes_by_chunk,
         image_url_for=url_for,
+        cleaned_markdown=cleaned_md_map,
+        primary_account_email="inkspacex@inkspacex.com",
+        primary_account_name="inkspace",
+        genres=poster.get("genres") or [],
+        writing_types=poster.get("writing_types") or ["book"],
+        tags=poster.get("tags") or [],
     )
     manifest["synced"] = db_ids
     persist.write_manifest(target_slug, manifest)

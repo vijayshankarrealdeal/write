@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Victor recounts his idyllic childhood, friendships with Elizabeth and Clerval, and the beginnings of his obsession with forbidden natural philosophy.",
+  "importance": 0.6,
+  "themes": [
+    "childhood innocence",
+    "thirst for knowledge",
+    "friendship contrasts",
+    "dangerous curiosity",
+    "fate and destiny"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "A bolt of lightning strikes a tall oak near the house, leaving it blasted into thin ribbons of wood as Victor watches the storm.",
+      "visual_strength": 0.9
+    },
+    {
+      "scene_text": "Young Victor excitedly shows his father a dusty volume of Cornelius Agrippa in an inn during a stormy journey.",
+      "visual_strength": 0.6
+    },
+    {
+      "scene_text": "Elizabeth stands peacefully among the Alpine scenery of Switzerland, gazing at mountains while Victor studies nature’s mysteries.",
+      "visual_strength": 0.55
+    }
+  ]
+}

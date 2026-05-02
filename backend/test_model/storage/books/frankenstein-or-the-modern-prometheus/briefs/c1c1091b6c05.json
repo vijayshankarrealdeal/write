@@ -1,0 +1,25 @@
+{
+  "summary_1line": "On his wedding night the monster murders Elizabeth, Victor’s father soon dies of grief, and Victor vows revenge and begins a futile appeal to authorities.",
+  "importance": 0.95,
+  "themes": [
+    "revenge",
+    "loss and grief",
+    "consequences of creation",
+    "isolation",
+    "madness vs justice"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Elizabeth lies lifeless across the bridal bed, her pale face half veiled by hair while stormlight flickers through the dark room.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "The monster grins at the open window, moonlight behind him, pointing mockingly at Elizabeth’s corpse before Victor fires his pistol.",
+      "visual_strength": 0.96
+    },
+    {
+      "scene_text": "Victor collapses beside Elizabeth’s body, clutching her cold limbs while horrified inn guests crowd the doorway.",
+      "visual_strength": 0.84
+    }
+  ]
+}

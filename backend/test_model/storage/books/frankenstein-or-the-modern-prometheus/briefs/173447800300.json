@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Explorer Robert Walton writes to his sister from St. Petersburg, describing his ambitious plan to reach the North Pole and his lifelong dream of discovery.",
+  "importance": 0.72,
+  "themes": [
+    "ambition",
+    "exploration",
+    "scientific discovery",
+    "isolation",
+    "aspiration for glory"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Robert Walton walks through the snowy streets of St. Petersburg as a cold northern wind blows against his face while he dreams of the polar seas.",
+      "visual_strength": 0.66
+    },
+    {
+      "scene_text": "A lone explorer stands on a ship’s deck in icy northern waters, gazing toward a glowing horizon of endless polar light.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Walton studies maps and navigation instruments by lamplight, preparing for a dangerous voyage to the North Pole.",
+      "visual_strength": 0.63
+    }
+  ]
+}

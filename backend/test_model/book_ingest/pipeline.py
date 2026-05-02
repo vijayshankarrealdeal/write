@@ -29,7 +29,7 @@ from .chunker import chunk_pdf
 from .cleaner import clean_chunks
 from .config import config
 from .html_loader import load_html
-from .image_gen import generate_image
+from .image_gen import generate_image, generate_image_with_softening
 from .image_planner import PlannedScene, plan_scenes
 from .map_agent import map_chunks
 from .pdf_loader import LoadedPdf, load_pdf
@@ -368,25 +368,37 @@ async def _generate_all_images(
 
         async with sem:
             try:
-                await with_retries(
-                    lambda: generate_image(
-                        p.scene_text,
-                        str(out_path),
-                        style=style,
-                        reader_preference=reader_preference,
-                    ),
-                    label=f"image[{p.scene_id}]",
+                soft_result = await generate_image_with_softening(
+                    p.scene_text,
+                    str(out_path),
+                    style=style,
+                    reader_preference=reader_preference,
+                    label=p.scene_id[:12],
                 )
             except Exception as exc:  # noqa: BLE001
                 print(f"[images] {p.scene_id} failed: {exc}")
                 return None
+        # Use the *final* (possibly softened) scene text in the recorded
+        # prompt so regenerate_image.py picks up the version that
+        # actually rendered, not the rejected original.
+        final_scene = soft_result["final_scene_text"]
         scene = GeneratedScene(
             scene_id=p.scene_id,
             chunk_id=p.chunk_id,
-            prompt=p.scene_text,
+            prompt=final_scene,
             image_path=str(out_path),
         )
-        persist.write_scene_meta(slug, scene, p)
+        extra: dict[str, object] | None = None
+        if soft_result["softened"]:
+            extra = {
+                "original_scene_text": p.scene_text,
+                "softened": True,
+                "softening_log": soft_result["softening_log"],
+                "scene_text": final_scene,  # overrides planned.scene_text in meta
+            }
+            print(f"[images] {p.scene_id} succeeded after "
+                  f"{len(soft_result['softening_log'])} softening pass(es)")
+        persist.write_scene_meta(slug, scene, p, extra=extra)
         async with lock:
             completed += 1
             if completed % 5 == 0:

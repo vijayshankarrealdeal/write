@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Victor and Clerval tour England and Scotland as Victor secretly prepares to create the monster’s companion in a remote Orkney island.",
+  "importance": 0.66,
+  "themes": [
+    "guilt and isolation",
+    "nature vs inner torment",
+    "scientific responsibility",
+    "friendship contrast",
+    "foreboding"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "On a bleak Orkney shore, Victor stands before a ruined hut as waves crash against black rocks under a grey sky.",
+      "visual_strength": 0.86
+    },
+    {
+      "scene_text": "Inside a dim, squalid hut, Victor works at a cluttered laboratory table, recoiling in disgust at the materials for the new creature.",
+      "visual_strength": 0.82
+    },
+    {
+      "scene_text": "Victor walks the stony beach at dusk, staring into the roaring ocean while imagining the monster watching him from the darkness.",
+      "visual_strength": 0.74
+    }
+  ]
+}

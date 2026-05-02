@@ -92,19 +92,47 @@ async def _main() -> int:
     # ---- DB publish ----
     from book_ingest import db_publish  # lazy: avoids importing app.* on dry runs
 
-    cover_local = _pick_cover(scenes_by_chunk_local)
-    cover_url = url_for(cover_local) if cover_local else None
+    # Prefer the dedicated poster cover (manifest.cover_image_local)
+    # — that's a purpose-built jacket image. Fall back to the
+    # highest-scoring chunk scene if the poster phase didn't run.
+    cover_local = manifest.get("cover_image_local") or _pick_cover(scenes_by_chunk_local)
+    cover_url: str | None = None
+    if cover_local and Path(cover_local).exists():
+        if args.no_images:
+            cover_url = Path(cover_local).resolve().as_uri()
+        else:
+            from app.storage import upload_file  # type: ignore[import-not-found]
+            with open(cover_local, "rb") as fh:
+                data = fh.read()
+            cover_url = await upload_file(
+                f"books/{slug}/cover.png",
+                data,
+                content_type="image/png",
+            )
 
+    # Pipeline-published works are owned by the canonical "inkspace"
+    # account so they show up in the editorial profile alongside
+    # Mahabharata, Ramayana, etc. The book's *real* author (e.g. Mary
+    # Wollstonecraft Shelley) stays in `writings.author` and is what the
+    # reader sees on the detail page.
+    cleaned_md_map = _build_cleaned_markdown_map(slug, chunks)
+    poster = manifest.get("poster") or {}
     db_ids = await db_publish.publish_book(
         title=manifest["title"],
         author=manifest.get("author"),
-        description=manifest.get("description"),
+        description=manifest.get("description") or poster.get("back_cover_copy"),
         cover_image_path=cover_url,
         chunks=chunks,
         briefs=briefs,
         deeps=deeps,
         scenes_by_chunk=scenes_by_chunk_local,
         image_url_for=url_for,
+        cleaned_markdown=cleaned_md_map,
+        primary_account_email="inkspacex@inkspacex.com",
+        primary_account_name="inkspace",
+        genres=poster.get("genres") or [],
+        writing_types=poster.get("writing_types") or ["book"],
+        tags=poster.get("tags") or [],
     )
 
     manifest["synced"] = db_ids
@@ -112,6 +140,32 @@ async def _main() -> int:
 
     print(json.dumps({"slug": slug, "synced": db_ids}, indent=2))
     return 0
+
+
+def _build_cleaned_markdown_map(slug: str, chunks: list[Chunk]) -> dict[str, str]:
+    """Per-chunk clean markdown for the Delta builder, so flutter_quill
+    renders headings/italics/blockquote properly instead of dumping raw
+    `## Letter 1` and `*italic*` text.
+
+    HTML books skipped the cleaner phase, so `chunk.text` IS the clean
+    markdown — use it directly. PDF books have a parallel `cleaned/<id>.md`
+    file written by the cleaner phase. Falls back to chunk.text if
+    cleaned markdown isn't present (e.g. cleaner failed for one chunk).
+    """
+    book = persist.book_dir(slug)
+    cleaned_dir = book / "cleaned"
+    out: dict[str, str] = {}
+    for c in chunks:
+        cleaned_path = cleaned_dir / f"{c.id}.md"
+        if cleaned_path.exists() and cleaned_path.stat().st_size > 0:
+            try:
+                out[c.id] = cleaned_path.read_text(encoding="utf-8")
+                continue
+            except OSError:
+                pass
+        # HTML path or PDF cleaner-skipped path — chunk.text is markdown.
+        out[c.id] = c.text
+    return out
 
 
 # -----------------------------------------------------------------------
@@ -159,6 +213,11 @@ def _load_artifacts(
     scenes_by_chunk: dict[str, list[tuple[PlannedScene, GeneratedScene]]] = {}
     for meta_path in sorted((book / "images").glob("*.json")):
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        # Skip the book-cover meta — it has chunk_id=null because no chunk
+        # owns it. The cover is referenced via manifest.cover_image_local
+        # and uploaded separately by the caller, not via scenes_by_chunk.
+        if meta.get("is_cover") or meta.get("chunk_id") is None:
+            continue
         scene_id = meta["scene_id"]
         chunk_id = meta["chunk_id"]
         local_image = meta.get("image_path")

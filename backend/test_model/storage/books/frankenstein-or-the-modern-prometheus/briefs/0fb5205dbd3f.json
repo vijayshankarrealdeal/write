@@ -1,0 +1,25 @@
+{
+  "summary_1line": "Victor is accused of Clerval’s murder, collapses in illness and imprisonment, then is exonerated and resolved to return to Geneva to confront the monster.",
+  "importance": 0.84,
+  "themes": [
+    "false accusation",
+    "guilt and responsibility",
+    "grief and illness",
+    "justice and evidence",
+    "resolve for vengeance"
+  ],
+  "image_candidates": [
+    {
+      "scene_text": "Victor is led to a coffin and collapses in horror upon seeing the lifeless body of Henry Clerval.",
+      "visual_strength": 0.93
+    },
+    {
+      "scene_text": "In a dim prison room, the pale and skeletal Victor awakens on a rough bed behind barred windows with a nurse dozing beside him.",
+      "visual_strength": 0.68
+    },
+    {
+      "scene_text": "At midnight on the ship’s deck, Victor lies staring at the stars as dark waves crash around him while he flees the Irish shore.",
+      "visual_strength": 0.74
+    }
+  ]
+}
