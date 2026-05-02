@@ -117,10 +117,24 @@ async def _main() -> int:
     # reader sees on the detail page.
     cleaned_md_map = _build_cleaned_markdown_map(slug, chunks)
     poster = manifest.get("poster") or {}
+    # Older manifests (created by the studio's upload stub before the
+    # pipeline backfill landed) may be missing top-level metadata. Fall
+    # back to the poster fields, then to a prettified slug, so a stale
+    # manifest doesn't block the publish.
+    title_value = (
+        manifest.get("title")
+        or manifest.get("title_raw")
+        or poster.get("title")
+        or _title_from_slug(slug)
+    )
+    description_value = (
+        manifest.get("description")
+        or poster.get("description")
+    )
     db_ids = await db_publish.publish_book(
-        title=manifest["title"],
+        title=title_value,
         author=manifest.get("author"),
-        description=manifest.get("description") or poster.get("back_cover_copy"),
+        description=description_value,
         cover_image_path=cover_url,
         chunks=chunks,
         briefs=briefs,
@@ -149,6 +163,15 @@ async def _main() -> int:
 
 import re as _re
 _LEADING_H2_RE = _re.compile(r"\A\s*##\s[^\n]*\n+", _re.MULTILINE)
+_LEADING_NUM_RE = _re.compile(r"^\d+[-_]")
+
+
+def _title_from_slug(slug: str) -> str:
+    """Last-resort title fallback: turn '00084-frankenstein-or-the-modern-prometheus'
+    into 'Frankenstein Or The Modern Prometheus'. Strips a leading numeric
+    prefix from Project Gutenberg-style filenames."""
+    base = _LEADING_NUM_RE.sub("", slug)
+    return base.replace("-", " ").replace("_", " ").strip().title() or slug
 
 
 def _strip_leading_h2(md: str) -> str:

@@ -113,7 +113,14 @@ async def ingest_pdf(
               + (f"  (subtitle: {subtitle!r})" if subtitle else ""))
 
     out_dir = persist.book_dir(slug)
-    manifest = persist.read_manifest(slug) or {
+    # Seed top-level metadata into the manifest. Studio uploads create a
+    # stub manifest (source_hash/source_filename/source_format only) at
+    # upload time, so a plain `read_manifest(...) or {…}` would skip the
+    # title/author/description seeding for those books and sync_to_db
+    # would later crash on KeyError("title"). setdefault() heals both
+    # fresh and pre-existing stub manifests in one path.
+    manifest = persist.read_manifest(slug) or {}
+    seed: dict = {
         "title": title,
         "title_raw": raw_title,
         "subtitle": subtitle,
@@ -127,6 +134,8 @@ async def ingest_pdf(
         "source_format": "html" if is_clean_input else "pdf",
         "phases_done": [],
     }
+    for k, v in seed.items():
+        manifest.setdefault(k, v)
     # Track explicit user overrides so the scout doesn't clobber them.
     user_set_style = style is not None
     user_set_pref = reader_preference is not None
