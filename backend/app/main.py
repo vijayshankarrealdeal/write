@@ -27,6 +27,7 @@ from app.routers import (
     auth,
     bookmarks,
     bookshelves,
+    chat,
     comments,
     crashes,
     feed,
@@ -140,6 +141,7 @@ app.include_router(users.router)
 app.include_router(writings.router)
 app.include_router(feed.router)
 app.include_router(comments.router)
+app.include_router(chat.router)
 app.include_router(highlights.router)
 app.include_router(bookshelves.router)
 app.include_router(reading.router)

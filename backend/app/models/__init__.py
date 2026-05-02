@@ -9,6 +9,7 @@ from app.models.base import Base
 from app.models.block import Block
 from app.models.bookmark import Bookmark
 from app.models.bookshelf import Bookshelf
+from app.models.chat import ChatMessage, Conversation
 from app.models.comment import Comment
 from app.models.feed_item import FeedItem
 from app.models.follow import Follow
@@ -27,7 +28,9 @@ __all__ = [
     "Block",
     "Bookmark",
     "Bookshelf",
+    "ChatMessage",
     "Comment",
+    "Conversation",
     "CrashReport",
     "FeedItem",
     "Follow",

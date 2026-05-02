@@ -17,6 +17,9 @@ import 'package:inkspacex/ui/app/search_page.dart';
 import 'package:inkspacex/ui/app/settings.dart';
 import 'package:inkspacex/ui/pages/author_profile_page.dart';
 import 'package:inkspacex/ui/pages/blocked_users_page.dart';
+import 'package:inkspacex/ui/pages/chat_conversation_page.dart';
+import 'package:inkspacex/ui/pages/chat_list_page.dart';
+import 'package:inkspacex/ui/pages/new_chat_page.dart';
 import 'package:inkspacex/ui/pages/follow_list_page.dart';
 import 'package:inkspacex/ui/pages/post_detail_page.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/editor_page_entry.dart';
@@ -221,6 +224,28 @@ GoRouter createRouter(AuthProvider authProvider) {
         pageBuilder: (_, __) => const CupertinoPage(
           child: NotificationsPage(),
         ),
+      ),
+      GoRoute(
+        path: '/chats',
+        pageBuilder: (_, __) => const CupertinoPage(
+          child: ChatListPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/chat/new',
+        pageBuilder: (_, __) => const CupertinoPage(
+          fullscreenDialog: true,
+          child: NewChatPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/chat/:userId',
+        pageBuilder: (_, state) {
+          final userId = state.pathParameters['userId'] ?? '';
+          return CupertinoPage(
+            child: ChatConversationPage(otherUserId: userId),
+          );
+        },
       ),
       GoRoute(
         path: '/blocked',

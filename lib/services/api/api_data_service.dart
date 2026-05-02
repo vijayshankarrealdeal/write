@@ -3,7 +3,9 @@ import 'dart:convert';
 
 import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/bookshelf_model.dart';
+import 'package:inkspacex/models/chat_message_model.dart';
 import 'package:inkspacex/models/comment_model.dart';
+import 'package:inkspacex/models/conversation_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/reading_progress_model.dart';
@@ -1352,6 +1354,82 @@ class ApiDataService implements SyncDispatcher {
     await _client.put('/api/bookshelves/$bookshelfId', data: {
       'item_ids': updatedIds,
     });
+  }
+
+  // =========================================================================
+  // CHAT (one-on-one)
+  // =========================================================================
+
+  Future<List<ConversationModel>> listConversations() async {
+    final response = await _client.get('/api/chats/');
+    final data = response.data;
+    if (data is! List) return const [];
+    return data
+        .whereType<Map>()
+        .map((e) => ConversationModel.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+  }
+
+  Future<ConversationModel> startConversation(String otherUserId) async {
+    final response = await _client.post(
+      '/api/chats/start',
+      data: {'other_user_id': otherUserId},
+    );
+    return ConversationModel.fromJson(
+      Map<String, dynamic>.from(response.data as Map),
+    );
+  }
+
+  Future<List<ChatMessageModel>> listMessages(
+    String conversationId, {
+    int limit = 50,
+    String? before,
+  }) async {
+    final response = await _client.get(
+      '/api/chats/$conversationId/messages',
+      queryParams: {
+        'limit': limit.toString(),
+        'before': ?before,
+      },
+    );
+    final data = response.data;
+    if (data is! List) return const [];
+    return data
+        .whereType<Map>()
+        .map((e) => ChatMessageModel.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+  }
+
+  Future<ChatMessageModel> sendMessage(
+    String conversationId, {
+    required ChatMessageKind kind,
+    String? body,
+    Map<String, dynamic>? attachment,
+  }) async {
+    final response = await _client.post(
+      '/api/chats/$conversationId/messages',
+      data: {
+        'kind': kind.wire,
+        'body': ?body,
+        'attachment': ?attachment,
+      },
+    );
+    return ChatMessageModel.fromJson(
+      Map<String, dynamic>.from(response.data as Map),
+    );
+  }
+
+  Future<void> markConversationRead(String conversationId) async {
+    await _client.post('/api/chats/$conversationId/read');
+  }
+
+  Future<int> chatUnreadCount() async {
+    try {
+      final response = await _client.get('/api/chats/unread-count');
+      final data = response.data;
+      if (data is Map) return (data['unread'] as num?)?.toInt() ?? 0;
+    } catch (_) {}
+    return 0;
   }
 
   // =========================================================================

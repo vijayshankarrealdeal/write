@@ -17,6 +17,7 @@ import 'package:inkspacex/provider/annotation_provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/bookmark_provider.dart';
 import 'package:inkspacex/provider/bookshelf_provider.dart';
+import 'package:inkspacex/provider/chat_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/provider/nav_provider.dart';
@@ -36,6 +37,7 @@ import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/services/sync/merge_log.dart';
 import 'package:inkspacex/services/sync/outbox.dart';
 import 'package:inkspacex/services/sync/outbox_drainer.dart';
+import 'package:inkspacex/ui/widgets/chat_badge.dart';
 import 'package:inkspacex/ui/widgets/notification_badge.dart';
 import 'package:inkspacex/ui/widgets/offline_banner.dart';
 import 'package:inkspacex/ui/widgets/sync_conflict_banner.dart';
@@ -326,6 +328,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               return previous;
             }
             return previous ?? buildNotificationProvider(auth);
+          },
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, ChatProvider>(
+          create: (context) => buildChatProvider(context.read<AuthProvider>()),
+          update: (context, auth, previous) {
+            if (auth.isAuthenticated && previous != null) {
+              previous.ensureStarted();
+              return previous;
+            }
+            return previous ?? buildChatProvider(auth);
           },
         ),
       ],
@@ -694,14 +706,9 @@ class _DesktopHomePage extends StatelessWidget {
                             tooltip: "Search",
                             onPressed: () => context.push('/search'),
                           ),
-                          IconButton(
-                            icon: Icon(
-                              CupertinoIcons.slider_horizontal_3,
-                              color: textColor.withValues(alpha: 0.7),
-                            ),
-                            tooltip: "Feed preferences",
-                            onPressed: () =>
-                                context.push('/feed-preferences'),
+                          ChatBadgeButton(
+                            onTap: () => context.push('/chats'),
+                            color: textColor.withValues(alpha: 0.7),
                           ),
                         ],
                         NotificationBellButton(
