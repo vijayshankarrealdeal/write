@@ -8,7 +8,7 @@ from app.auth.deps import get_current_user
 from app.image_pipeline import process_image
 from app.logger import get_logger
 from app.models.user import User
-from app.storage import delete_prefix, upload_variants
+from app.storage import upload_variants
 
 router = APIRouter(prefix="/api/upload", tags=["upload"])
 log = get_logger("app.upload")
@@ -92,8 +92,13 @@ async def upload_profile_photo(
 ):
     data = await _read_image(file)
     variants, meta = await _safe_process(data, scope="avatar", include_original=False)
-    base_path = f"users/{user.id}/profile/avatar"
+    # Version the path so each upload yields a new URL — otherwise CDNs and
+    # the on-device image cache keep serving the previous avatar.
+    version = int(time.time())
+    avatar_root = f"users/{user.id}/profile/avatar"
+    base_path = f"{avatar_root}/{version}"
     base_url = await upload_variants(base_path, variants)
+    asyncio.create_task(_reap_old_versions(avatar_root, keep=base_path))
     return _response(base_url, meta, scope="avatar")
 
 
@@ -132,31 +137,31 @@ async def upload_editor_image(
 
 
 async def _reap_old_versions(cover_root: str, *, keep: str) -> None:
-    """Delete all version-dir contents under `cover_root` except `keep`.
+    """Delete every object under `cover_root/` that isn't under `keep/`.
 
-    Cover paths look like `users/<uid>/covers/<book_id>/<version>/...`.
-    We list the root, find sibling version dirs, and drop them.
+    Covers a few shapes:
+      * Older version dirs: `cover_root/<old_version>/<variant>.webp`
+      * Legacy un-versioned files from before path-versioning landed
+        (e.g. avatars previously written directly to `cover_root/medium.webp`)
+      * Stray objects at any other depth
+
+    Anything that doesn't live under the current `keep/` prefix is orphaned
+    by definition once the new URL is in flight, so it's safe to delete.
     """
     try:
         from app.storage import minio_client
         from app.config import settings
 
-        # Discover sibling version dirs by listing one level below cover_root.
-        sibling_versions: set[str] = set()
+        keep_prefix = f"{keep}/"
+        removed = 0
         async for obj in minio_client.list_objects(
             settings.minio_bucket, prefix=f"{cover_root}/", recursive=True
         ):
-            # object_name like users/<uid>/covers/<book_id>/<version>/medium.webp
-            parts = obj.object_name.split("/")
-            if len(parts) < 6:
+            if obj.object_name.startswith(keep_prefix):
                 continue
-            version_dir = "/".join(parts[:5])
-            sibling_versions.add(version_dir)
-
-        for v in sibling_versions:
-            if v == keep:
-                continue
-            removed = await delete_prefix(f"{v}/")
-            log.info("Reaped %d objects under %s", removed, v)
+            await minio_client.remove_object(settings.minio_bucket, obj.object_name)
+            removed += 1
+        if removed:
+            log.info("Reaped %d objects under %s", removed, cover_root)
     except Exception as e:  # never let cleanup break a successful upload
-        log.warning("Cover-version reap failed for %s: %s", cover_root, e)
+        log.warning("Reap failed for %s: %s", cover_root, e)

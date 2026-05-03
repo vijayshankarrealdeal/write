@@ -7,7 +7,7 @@
 /// smallest variant that fits the rendered area instead of always pulling
 /// the largest file.
 class ImageMeta {
-  final String baseUrl; // e.g. https://cdn.../users/<id>/profile/avatar
+  final String baseUrl; // e.g. https://cdn.../users/<id>/profile/avatar/<version>
   final int width;
   final int height;
   final String blurhash;
