@@ -1,0 +1,11 @@
+# https://inkspacex.com/robots.txt
+User-agent: *
+Allow: /
+Allow: /landing.html
+Allow: /privacy-policy
+Allow: /terms-of-service
+Disallow: /api/
+Disallow: /admin
+Disallow: /storage/
+
+Sitemap: https://inkspacex.com/sitemap.xml

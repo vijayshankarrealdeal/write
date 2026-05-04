@@ -15,3 +15,7 @@ void Function() installFindShortcutSuppressor() => () {};
 void redirectToGoogleSignIn(String apiBaseUrl) {
   throw UnsupportedError('redirectToGoogleSignIn is web-only');
 }
+
+void redirectToLandingPage() {
+  // No-op on non-web platforms — the landing page is web-only.
+}

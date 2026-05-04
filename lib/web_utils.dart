@@ -95,3 +95,10 @@ void redirectToGoogleSignIn(String apiBaseUrl) {
     '$apiBaseUrl/api/auth/google/start?callback_uri=$callbackUri',
   );
 }
+
+/// Hard-navigates the browser to the static marketing landing page.
+/// Used by the router so unauthenticated web visitors at `/` see the
+/// landing page instead of the login form.
+void redirectToLandingPage() {
+  web.window.location.replace('/landing.html');
+}

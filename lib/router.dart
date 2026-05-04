@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:inkspacex/main.dart';
+import 'package:inkspacex/web_utils_stub.dart'
+    if (dart.library.html) 'package:inkspacex/web_utils.dart' as web_utils;
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
@@ -70,6 +73,12 @@ GoRouter createRouter(AuthProvider authProvider) {
       // Not authenticated → login (unless already on an auth route)
       if (!auth.isAuthenticated) {
         if (!isAuthRoute) {
+          // Web visitors landing on the root URL see the static marketing
+          // page instead of the login form — native apps go straight to login.
+          if (kIsWeb && location == '/') {
+            web_utils.redirectToLandingPage();
+            return null;
+          }
           // Save the intended destination so we can redirect after login
           if (location != '/' && location != '/splash') {
             auth.setPendingDeepLink(state.uri.toString());

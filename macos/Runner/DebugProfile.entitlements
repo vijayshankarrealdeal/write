@@ -10,9 +10,5 @@
 	<true/>
 	<key>com.apple.security.network.client</key>
 	<true/>
-	<key>com.apple.security.application-groups</key>
-	<array>
-		<string>group.com.inkspacex.app.widget</string>
-	</array>
 </dict>
 </plist>

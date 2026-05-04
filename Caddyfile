@@ -58,6 +58,23 @@ api.{$DOMAIN} {
 		file_server
 	}
 
+	# SEO discovery files — must precede the SPA catch-all so Googlebot gets
+	# the actual text files, not the Flutter shell. Short cache so we can
+	# update the sitemap without waiting on a stale CDN copy.
+	handle /robots.txt {
+		root * /srv/web
+		header Content-Type "text/plain; charset=utf-8"
+		header Cache-Control "public, max-age=3600"
+		file_server
+	}
+
+	handle /sitemap.xml {
+		root * /srv/web
+		header Content-Type "application/xml; charset=utf-8"
+		header Cache-Control "public, max-age=3600"
+		file_server
+	}
+
 	handle {
 		root * /srv/web
 		# skwasm renderer needs SharedArrayBuffer, which requires a
