@@ -185,7 +185,7 @@ class EditorProvider extends ChangeNotifier {
 
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-  WritingType type = WritingType.personal;
+  WritingType type = WritingType.freestyle;
   String subtype = "";
 
   final List<Color> sectionColors = [

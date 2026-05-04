@@ -148,6 +148,7 @@ class _ProfileHubPageState extends State<ProfileHubPage> {
 
               const SizedBox(height: 32),
 
+              _buildSectionHeader(context, 'Account'),
               _buildCardGroup(
                 cardColor: cardColor,
                 children: [
@@ -162,13 +163,15 @@ class _ProfileHubPageState extends State<ProfileHubPage> {
                     label: "Subscription",
                     onTap: () => context.push('/subscription'),
                   ),
-                  _buildDivider(context),
-                  _HubTile(
-                    icon: CupertinoIcons.chart_bar_alt_fill,
-                    label: "Reading Statistics",
-                    onTap: () => context.push('/reading-statistics'),
-                  ),
-                  _buildDivider(context),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              _buildSectionHeader(context, 'Library'),
+              _buildCardGroup(
+                cardColor: cardColor,
+                children: [
                   _HubTile(
                     icon: CupertinoIcons.bookmark,
                     label: "Bookmarks",
@@ -180,20 +183,21 @@ class _ProfileHubPageState extends State<ProfileHubPage> {
                     label: "Manage downloads",
                     onTap: () => context.push('/manage-downloads'),
                   ),
+                  _buildDivider(context),
+                  _HubTile(
+                    icon: CupertinoIcons.chart_bar_alt_fill,
+                    label: "Reading Statistics",
+                    onTap: () => context.push('/reading-statistics'),
+                  ),
                 ],
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
+              _buildSectionHeader(context, 'Preferences'),
               _buildCardGroup(
                 cardColor: cardColor,
                 children: [
-                  _HubTile(
-                    icon: CupertinoIcons.person_crop_circle_badge_xmark,
-                    label: "Blocked accounts",
-                    onTap: () => context.push('/blocked'),
-                  ),
-                  _buildDivider(context),
                   _HubTile(
                     icon: CupertinoIcons.settings,
                     label: "Settings",
@@ -201,7 +205,21 @@ class _ProfileHubPageState extends State<ProfileHubPage> {
                   ),
                   _buildDivider(context),
                   _HubTile(
-                    icon: CupertinoIcons.wrench,
+                    icon: CupertinoIcons.person_crop_circle_badge_xmark,
+                    label: "Blocked accounts",
+                    onTap: () => context.push('/blocked'),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              _buildSectionHeader(context, 'Help'),
+              _buildCardGroup(
+                cardColor: cardColor,
+                children: [
+                  _HubTile(
+                    icon: CupertinoIcons.question_circle,
                     label: "Support",
                     onTap: () => _showSupportSheet(context),
                   ),
@@ -231,6 +249,23 @@ class _ProfileHubPageState extends State<ProfileHubPage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String label) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(6, 0, 6, 10),
+      child: Text(
+        label.toUpperCase(),
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.1,
+          color: textColor.withValues(alpha: 0.5),
         ),
       ),
     );

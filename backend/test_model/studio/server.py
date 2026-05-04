@@ -247,6 +247,8 @@ async def list_books() -> dict[str, Any]:
             "title": manifest.get("title"),
             "phases_done": manifest.get("phases_done", []),
             "synced": bool(manifest.get("synced")),
+            "vm_upload_done": bool(manifest.get("vm_upload_done")),
+            "vm_upload_done_utc": manifest.get("vm_upload_done_utc"),
         })
     return {"books": out}
 
@@ -1190,6 +1192,15 @@ async def _run_vm_sync(
                 "message": f"sync_to_db.py exited {result.get('exit_code')}",
                 "body": (result.get("stderr") or "")[:2000],
             }
+        else:
+            # Book successfully pushed to VM — persist the flag locally so
+            # the studio sidebar can show a green tick on next open without
+            # any DB query.
+            from datetime import datetime, timezone
+            _manifest = persist.read_manifest(slug) or {}
+            _manifest["vm_upload_done"] = True
+            _manifest["vm_upload_done_utc"] = datetime.now(timezone.utc).isoformat()
+            persist.write_manifest(slug, _manifest)
     except vm_publish.VmPublishError as exc:
         state["error"] = {"message": str(exc), "stage": exc.stage, "body": exc.body}
         state["phase"] = "failed"

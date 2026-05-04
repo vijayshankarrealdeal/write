@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'package:inkspacex/ui/auth/widgets/auth_scaffold.dart' show precacheAuthAssets;
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -437,6 +438,13 @@ class _AppWithRouterState extends State<_AppWithRouter> {
   void initState() {
     super.initState();
     _router = createRouter(context.read<AuthProvider>());
+    // Warm auth-screen assets (doodles + scribbles) on app boot so when
+    // the user lands on /login or /signup later, the scene paints
+    // instantly instead of streaming in image-by-image.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      precacheAuthAssets(context);
+    });
   }
 
   @override

@@ -46,7 +46,7 @@ class _MobileWritingPage extends StatelessWidget {
             largeTitle: Text(
               'My Spaces',
               style: GoogleFonts.playfairDisplay(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.normal,
                 color: textColor,
               ),
             ),
@@ -261,9 +261,7 @@ class _MobileProjectCard extends StatelessWidget {
               controller: controller,
               placeholder: "Section Title",
               autofocus: true,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ],
         ),
@@ -480,12 +478,8 @@ class _DesktopWritingPage extends StatelessWidget {
                       onTap: () {
                         provider.setActiveBook(book);
                       },
-                      onPublish: () => _showPublishSheet(
-                        context,
-                        provider,
-                        book,
-                        isDark,
-                      ),
+                      onPublish: () =>
+                          _showPublishSheet(context, provider, book, isDark),
                       onRename: () => _showRenameProjectDialog(
                         context,
                         provider,
@@ -561,17 +555,21 @@ class _DesktopWritingPage extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Builder(builder: (context) {
-                      final count = context.select<EditorProvider, int>((p) => p.allBooksSection.length);
-                      return Text(
-                        "$count ${count == 1 ? 'section' : 'sections'}",
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white54 : Colors.black45,
-                        ),
-                      );
-                    }),
+                    Builder(
+                      builder: (context) {
+                        final count = context.select<EditorProvider, int>(
+                          (p) => p.allBooksSection.length,
+                        );
+                        return Text(
+                          "$count ${count == 1 ? 'section' : 'sections'}",
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white54 : Colors.black45,
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -838,48 +836,57 @@ class _StartWritingHero extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 960),
               child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(height: compact ? 4 : 32),
-                Text(
-                  "What will you\nwrite today?",
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: compact ? 28 : 56,
-                    fontWeight: FontWeight.w700,
-                    color: textColor,
-                    height: 1.05,
-                    letterSpacing: -0.8,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: compact ? 4 : 32),
+                  Text(
+                    "What will you write today?",
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: compact ? 28 : 56,
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                      height: 1.05,
+                      letterSpacing: -0.8,
+                    ),
                   ),
-                ),
-                SizedBox(height: compact ? 6 : 16),
-                Text(
-                  compact
-                      ? "Pick a form — you can change everything later."
-                      : "Every space begins with a single word.\nPick a form — you can change everything else later.",
-                  style: GoogleFonts.inter(
-                    fontSize: compact ? 13 : 16,
-                    color: mutedColor,
-                    height: 1.4,
+
+                  SizedBox(height: compact ? 26 : 20),
+                  Text(
+                    "Every space begins with a single word.",
+                    style: GoogleFonts.robotoMono(
+                      fontSize: compact ? 13 : 13,
+                      color: mutedColor,
+                      height: 1.4,
+                    ),
                   ),
-                ),
-                SizedBox(height: compact ? 16 : 44),
-                TypeChooser(
-                  selected: null,
-                  onSelect: (t) => _open(context, type: t),
-                  isDark: isDark,
-                ),
-                SizedBox(height: compact ? 14 : 32),
-                _BlankSpaceLink(
-                  isDark: isDark,
-                  onTap: () => _open(context),
-                ),
-                SizedBox(height: compact ? 4 : 32),
-              ],
+                  SizedBox(height: compact ? 46 : 58),
+                  _BlankSpaceLink(
+                    isDark: isDark,
+                    onTap: () => _open(context, type: WritingType.freestyle),
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    "Or Pick a form — you can change everything later.",
+                    style: GoogleFonts.robotoMono(
+                      fontSize: compact ? 12 : 13,
+                      color: mutedColor,
+                      height: 1.4,
+                    ),
+                  ),
+                  SizedBox(height: 28),
+                  TypeChooser(
+                    selected: null,
+                    onSelect: (t) => _open(context, type: t),
+                    isDark: isDark,
+                  ),
+
+                  SizedBox(height: compact ? 4 : 32),
+                ],
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -913,7 +920,7 @@ class _BlankSpaceLinkState extends State<_BlankSpaceLink> {
         onTap: widget.onTap,
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 180),
-          style: GoogleFonts.inter(
+          style: GoogleFonts.robotoMono(
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: _hovering ? hoverColor : baseColor,
@@ -922,11 +929,14 @@ class _BlankSpaceLinkState extends State<_BlankSpaceLink> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text("Or start from a blank space"),
+              Text(
+                "Start from a blank space",
+                style: GoogleFonts.robotoMono(fontSize: 15, height: 1.5),
+              ),
               const SizedBox(width: 6),
               Icon(
                 CupertinoIcons.arrow_right,
-                size: 13,
+                size: 17,
                 color: _hovering ? hoverColor : baseColor,
               ),
             ],

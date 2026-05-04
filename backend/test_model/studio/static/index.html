@@ -472,9 +472,16 @@ function App() {
                 onClick={() => setSelectedSlug(b.slug)}
               >
                 {b.title || b.slug}
+                {b.vm_upload_done && (
+                  <span
+                    title={"Uploaded to VM" + (b.vm_upload_done_utc ? " · " + new Date(b.vm_upload_done_utc).toLocaleString() : "")}
+                    style={{ color: "var(--ok)", marginLeft: 6, fontSize: 15, lineHeight: 1, verticalAlign: "middle" }}
+                  >✓</span>
+                )}
                 <small>
                   {b.slug}
                   {b.synced && <span className="pill ok">synced</span>}
+                  {b.vm_upload_done && <span className="pill ok">VM ✓</span>}
                 </small>
               </div>
             ))}
@@ -615,6 +622,23 @@ function BookView({ slug, onSynced }) {
               {" · budget "}{m.image_budget || "?"}
               {" · "}{m.style || "(no style yet)"}
             </small>
+            {m.vm_upload_done && (
+              <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 5,
+                  background: "#142a1c", border: "1px solid #2c5640",
+                  borderRadius: 6, padding: "3px 10px", fontSize: 12,
+                  color: "var(--ok)", fontWeight: 600,
+                }}>
+                  ✓ Uploaded to VM
+                </span>
+                {m.vm_upload_done_utc && (
+                  <span className="muted" style={{ fontSize: 11 }}>
+                    {new Date(m.vm_upload_done_utc).toLocaleString()}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           <SyncPanel slug={slug} synced={!!m.synced}
             onSynced={async () => { await loadBook(); onSynced?.(); }}

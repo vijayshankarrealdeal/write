@@ -208,6 +208,13 @@ class _PostDetailPageState extends State<PostDetailPage>
   // -- Accent color (used across reader UI) --
   static const Color _paperAccent = Color(0xFF2F62E0);
 
+  // -- Chapter-row indicator dots. Blue = the section embeds an image.
+  // Purple = the reader has personal marks here (highlights/notes or a
+  // section bookmark). Fixed values so the dots render the same color
+  // regardless of theme or which accent the surrounding card uses.
+  static const Color _kChapterImageDot = Color(0xFF2563EB);
+  static const Color _kChapterMarkDot = Color(0xFF8B5CF6);
+
   // --------------------------------------------------------------------------
   // Resolve reader palette (bg/text/subtle) from current theme
   // --------------------------------------------------------------------------
@@ -1553,6 +1560,12 @@ class _PostDetailPageState extends State<PostDetailPage>
         ? Colors.white.withValues(alpha: 0.06)
         : Colors.black.withValues(alpha: 0.05);
 
+    // Watch for bookmark toggles so the purple "you've marked this" dot
+    // updates immediately when the user bookmarks a section from the reader.
+    final sectionBookmarks =
+        context.watch<AuthProvider>().currentUser?.sectionBookmarks ??
+            const <String>[];
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: contentPadding),
       child: Column(
@@ -1566,6 +1579,8 @@ class _PostDetailPageState extends State<PostDetailPage>
               textColor: textColor,
               subtleColor: subtleColor,
               borderColor: borderColor,
+              hasReaderMark: (_highlights[index]?.isNotEmpty ?? false) ||
+                  sectionBookmarks.contains('${item.id}_$index'),
             ),
             const SizedBox(height: 10),
           ],
@@ -1648,6 +1663,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     required Color textColor,
     required Color subtleColor,
     required Color borderColor,
+    required bool hasReaderMark,
   }) {
     final snippet = _sectionSnippet(section);
     return GestureDetector(
@@ -1719,17 +1735,6 @@ class _PostDetailPageState extends State<PostDetailPage>
                             ),
                           ),
                         ],
-                        if (section.hasImage) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            width: 7,
-                            height: 7,
-                            decoration: BoxDecoration(
-                              color: accentColor,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                     if (snippet.isNotEmpty) ...[
@@ -1749,6 +1754,30 @@ class _PostDetailPageState extends State<PostDetailPage>
                 ),
               ),
             ),
+            // Section indicator dots paired with the forward chevron, both
+            // 7×7 circles so they read as a set: blue = the section embeds an
+            // image, purple = the reader has personal marks (highlights/notes
+            // or a section bookmark) here.
+            if (section.hasImage)
+              Container(
+                width: 7,
+                height: 7,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: const BoxDecoration(
+                  color: _kChapterImageDot,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            if (hasReaderMark)
+              Container(
+                width: 7,
+                height: 7,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: const BoxDecoration(
+                  color: _kChapterMarkDot,
+                  shape: BoxShape.circle,
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.only(right: 14),
               child: Icon(

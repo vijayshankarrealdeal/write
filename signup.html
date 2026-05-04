@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InkSpaceX — Sign up & start writing.</title>
+<meta name="description" content="Create your InkSpaceX account. Write, read, and share your stories — it's free.">
+<meta name="theme-color" content="#FBF4DA">
+<meta property="og:title" content="InkSpaceX — Sign up">
+<meta property="og:description" content="Create your InkSpaceX account. It's free.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://inkspacex.com/signup">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/icons/Icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FBF4DA;
+    --cream-dark: #F2E9C2;
+    --ink: #111111;
+    --ink-soft: #2a2a2a;
+    --muted: #5b5b54;
+    --accent: #FF5A3C;
+    --accent-2: #6B5BFF;
+    --accent-2-soft: #DCD4FF;
+    --paper-line: #d8cfa8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  /* Dotted paper texture, fading from top */
+  .dot-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(17,17,17,0.18) 1.1px, transparent 1.4px);
+    background-size: 22px 22px;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 35%, transparent 80%);
+            mask-image: linear-gradient(180deg, #000 0%, #000 35%, transparent 80%);
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Nav */
+  .nav {
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1280px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .brand-mark {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: var(--ink);
+    color: var(--cream);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bagel Fat One', cursive;
+    font-size: 22px;
+    line-height: 1;
+    transform: rotate(-4deg);
+    box-shadow: 4px 4px 0 0 var(--accent);
+  }
+  .brand-text {
+    font-family: 'Bagel Fat One', cursive;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+  }
+  .nav-links a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 2px;
+    transition: border-color 0.15s;
+  }
+  .nav-links a:hover { border-bottom-color: var(--ink); }
+
+  /* Main two-column */
+  .main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    max-width: 1280px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 30px 28px 60px;
+    align-items: center;
+  }
+
+  /* ── Left: form column ─────────────────────────────── */
+  .form-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+  }
+  .form-card {
+    width: 100%;
+    max-width: 460px;
+    background: #fff;
+    border: 3px solid var(--ink);
+    border-radius: 20px;
+    padding: 36px 32px;
+    box-shadow: 6px 6px 0 0 var(--ink);
+    position: relative;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--cream);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    transform: rotate(-2deg);
+    margin-bottom: 14px;
+  }
+  .badge::before {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  h1.title {
+    font-family: 'Bagel Fat One', cursive;
+    font-weight: 400;
+    font-size: clamp(30px, 3.6vw, 40px);
+    line-height: 1;
+    letter-spacing: -0.8px;
+    margin-bottom: 8px;
+  }
+  h1.title .accent { color: var(--accent); display: inline-block; transform: rotate(-2deg); }
+
+  .subtitle {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--muted);
+    margin-bottom: 22px;
+    line-height: 1.3;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+
+  .input-wrap {
+    border: 2.5px solid var(--ink);
+    border-radius: 12px;
+    background: #fff;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .input-wrap:focus-within {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 0 var(--ink);
+  }
+  input[type=email] {
+    width: 100%;
+    padding: 13px 14px;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font-size: 16px;
+    outline: none;
+    font-family: inherit;
+    font-weight: 500;
+    border-radius: 12px;
+  }
+  input[type=email]::placeholder { color: #9d9786; }
+
+  .gmail-hint {
+    margin-top: 10px;
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .gmail-hint .arrow { color: var(--accent); font-weight: 700; }
+
+  .btn {
+    width: 100%;
+    padding: 13px 16px;
+    border: 2.5px solid var(--ink);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
+    text-decoration: none;
+  }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 0 var(--ink); }
+  .btn:active { transform: translate(0, 0); box-shadow: 0 0 0 0 var(--ink); }
+  .btn[disabled] { opacity: 0.6; cursor: progress; transform: none; box-shadow: none; }
+
+  .btn-google {
+    background: #fff;
+    color: var(--ink);
+    margin-top: 6px;
+  }
+  .btn-google svg { width: 20px; height: 20px; flex: none; }
+
+  .btn-primary {
+    background: var(--accent-2);
+    color: var(--ink);
+    box-shadow: 4px 4px 0 0 var(--ink);
+    margin-top: 14px;
+  }
+  .btn-primary:hover { background: #8576ff; box-shadow: 6px 6px 0 0 var(--ink); }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0 12px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 0;
+    border-top: 2px dashed var(--paper-line);
+  }
+
+  .legal {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .legal a { color: var(--ink-soft); font-weight: 700; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
+  .legal a:hover { color: var(--accent); }
+
+  .login-row {
+    margin-top: 22px;
+    text-align: center;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  .login-row a {
+    color: var(--accent-2);
+    font-weight: 800;
+    text-decoration: none;
+    border-bottom: 2px solid var(--accent-2);
+    padding-bottom: 1px;
+  }
+  .login-row a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .error {
+    color: #c0353a;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 10px;
+    min-height: 18px;
+  }
+
+  /* Result panel */
+  .result {
+    display: none;
+    width: 100%;
+    max-width: 460px;
+    background: #fff;
+    border: 3px solid var(--ink);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 6px 6px 0 0 var(--ink);
+    text-align: center;
+  }
+  .result.show { display: block; }
+  .result h2 {
+    font-family: 'Bagel Fat One', cursive;
+    font-weight: 400;
+    font-size: 30px;
+    margin-bottom: 8px;
+  }
+  .result p {
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+  }
+
+  /* ── Right: hero illustration column ───────────────── */
+  .hero-col {
+    position: relative;
+    min-height: 560px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-card {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    aspect-ratio: 4 / 5;
+    background: var(--accent-2);
+    border: 3px solid var(--ink);
+    border-radius: 24px;
+    box-shadow: 10px 10px 0 0 var(--ink);
+    overflow: hidden;
+    transform: rotate(1.2deg);
+  }
+  .hero-card .stars {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 12% 18%, #fff 0.8px, transparent 1.5px),
+      radial-gradient(circle at 78% 22%, #fff 1px, transparent 1.6px),
+      radial-gradient(circle at 35% 8%, #fff 0.7px, transparent 1.3px),
+      radial-gradient(circle at 88% 60%, #fff 0.9px, transparent 1.5px),
+      radial-gradient(circle at 22% 72%, #fff 0.6px, transparent 1.2px),
+      radial-gradient(circle at 60% 88%, #fff 0.9px, transparent 1.5px),
+      radial-gradient(circle at 92% 8%, #fff 0.7px, transparent 1.3px),
+      radial-gradient(circle at 6% 50%, #fff 0.8px, transparent 1.4px),
+      radial-gradient(circle at 50% 32%, #fff 0.6px, transparent 1.2px);
+    opacity: 0.85;
+  }
+  .hero-card .swirl {
+    position: absolute;
+    top: 6%;
+    right: -8%;
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.08) 35%, transparent 65%);
+    border-radius: 50%;
+    filter: blur(8px);
+  }
+
+  .hero-illo {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 0 22%;
+  }
+  .hero-illo svg { width: 86%; height: auto; }
+
+  .hero-caption {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 26px;
+    text-align: center;
+    color: #fff;
+    font-family: 'Bagel Fat One', cursive;
+    font-size: clamp(22px, 2.2vw, 30px);
+    letter-spacing: -0.5px;
+    z-index: 2;
+    text-shadow: 3px 3px 0 var(--ink);
+  }
+  .hero-caption .star {
+    color: #FFD25E;
+  }
+
+  /* Floating tag stickers around the hero */
+  .sticker {
+    position: absolute;
+    background: #fff;
+    border: 2.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    box-shadow: 3px 3px 0 0 var(--ink);
+    z-index: 3;
+    white-space: nowrap;
+  }
+  .sticker.s1 { top: 8%; left: -14px; transform: rotate(-7deg); background: #FFD7CB; }
+  .sticker.s2 { top: 38%; right: -22px; transform: rotate(6deg); background: #C7EFD7; }
+  .sticker.s3 { bottom: 6%; left: -8px; transform: rotate(-4deg); background: #FFE9A8; }
+
+  /* Decorative scribbles */
+  .scribble {
+    position: absolute;
+    color: var(--ink);
+    pointer-events: none;
+    opacity: 0.85;
+  }
+  .scribble svg { width: 100%; height: 100%; display: block; }
+  .scribble svg path { fill: currentColor; }
+
+  .scribble.s-form-tl { top: -34px; left: -28px; width: 90px; height: 90px; transform: rotate(-18deg); color: var(--accent); opacity: 0.8; }
+  .scribble.s-form-br { bottom: -38px; right: -22px; width: 100px; height: 100px; transform: rotate(20deg); color: var(--accent-2); opacity: 0.7; }
+  .scribble.s-page-tr { top: 8%; right: 4%; width: 110px; height: 110px; transform: rotate(15deg); color: var(--accent); opacity: 0.55; }
+  .scribble.s-page-bl { bottom: 4%; left: 3%; width: 100px; height: 100px; transform: rotate(-22deg); color: var(--accent-2); opacity: 0.55; }
+
+  /* ── Responsive ─────────────────────────────────── */
+  @media (max-width: 980px) {
+    .main { grid-template-columns: 1fr; gap: 32px; padding-top: 10px; }
+    .hero-col { order: -1; min-height: 360px; }
+    .hero-card { max-width: 380px; aspect-ratio: 5 / 4; transform: rotate(-1deg); }
+    .hero-illo { padding-bottom: 18%; }
+    .scribble.s-page-tr, .scribble.s-page-bl { display: none; }
+  }
+  @media (max-width: 560px) {
+    .nav { padding: 16px 18px; }
+    .main { padding: 10px 18px 40px; }
+    .form-card { padding: 28px 22px; border-radius: 18px; }
+    .hero-card { max-width: 320px; }
+    .sticker.s2 { right: -12px; }
+    .sticker.s1 { left: -6px; }
+    .scribble.s-form-tl, .scribble.s-form-br { display: none; }
+  }
+
+  /* Footer */
+  footer {
+    padding: 28px 24px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+    border-top: 2px dashed var(--paper-line);
+  }
+  footer a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: 600;
+  }
+  footer a:hover { color: var(--accent); }
+  footer .copy {
+    margin-top: 8px;
+    font-family: 'Caveat', cursive;
+    font-size: 17px;
+  }
+</style>
+</head>
+<body>
+
+<div class="dot-bg" aria-hidden="true"></div>
+
+<div class="page">
+
+  <nav class="nav">
+    <a href="/" class="brand">
+      <span class="brand-mark">i</span>
+      <span class="brand-text">InkSpaceX</span>
+    </a>
+    <div class="nav-links">
+      <a href="/login.html">Log in</a>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- Page-level decorative scribbles -->
+    <span class="scribble s-page-tr" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M133.19 62.6005C138.683 46.6517 144.163 30.6904 149.582 14.7169C150.136 13.0543 149.262 11.0345 147.624 10.3325C146.011 9.54428 143.917 10.197 142.92 11.872C129.434 34.7052 116.318 57.822 103.891 81.3203C85.3808 116.322 69.1483 152.517 53.5443 188.812C53.1502 189.735 54.6901 190.487 55.1704 189.612C74.2966 155.054 93.9771 120.743 112.438 85.8401C124.84 62.4033 137.033 38.8681 149.287 15.4067C147.058 14.4584 144.841 13.51 142.624 12.5617C138.055 28.7938 133.572 45.0629 129.077 61.332C128.448 63.6227 132.426 64.8543 133.19 62.6005Z"/></svg>
+    </span>
+    <span class="scribble s-page-bl" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M20.891 16.8915C33.4615 11.3216 48.3988 11.8896 63.7568 13.4359C79.1149 14.9665 94.8937 17.4595 109.252 15.382C109.989 15.2768 110.462 14.593 110.357 13.8619C110.252 13.1308 109.568 12.626 108.832 12.7364C95.1041 14.8087 79.483 12.4629 64.0198 10.9849C48.5566 9.52278 33.1986 8.91795 19.9444 14.8297C19.4185 15.0612 19.3658 15.7659 19.5761 16.2393C19.7865 16.7179 20.3651 17.1176 20.891 16.8915Z"/><path d="M16.2099 38.377C30.5686 32.7334 48.3457 31.9339 66.6492 32.0075C84.9526 32.0759 103.677 33.0121 119.982 30.6295C120.928 30.4875 121.612 29.5881 121.454 28.6309C121.297 27.6736 120.403 27.0109 119.456 27.1582C103.677 29.667 85.0052 28.978 66.6492 29.1095C48.2932 29.2567 30.2003 30.2193 15.3156 36.2363C14.7897 36.4572 14.6317 37.1672 14.8421 37.6774C15.0525 38.1823 15.6313 38.5979 16.2099 38.377Z"/><path d="M20.4153 56.8801C40.5596 52.683 60.0202 52.2569 79.6911 51.0209C99.362 49.7797 119.191 47.7232 139.808 40.0705C141.176 39.5603 141.859 38.0245 141.333 36.6517C140.807 35.279 139.282 34.5794 137.915 35.1054C118.138 42.6739 98.8884 44.9145 79.3752 46.3399C59.8621 47.7757 40.1385 48.3912 19.5734 52.8986C18.5215 53.1301 17.8905 54.2451 18.1009 55.297C18.3112 56.3489 19.3634 57.1063 20.4153 56.8801Z"/></svg>
+    </span>
+
+    <!-- ── LEFT: signup form ───────────────────────── -->
+    <section class="form-col">
+      <div class="form-card" id="form-card">
+
+        <span class="scribble s-form-tl" aria-hidden="true">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M133.19 62.6005C138.683 46.6517 144.163 30.6904 149.582 14.7169C150.136 13.0543 149.262 11.0345 147.624 10.3325C146.011 9.54428 143.917 10.197 142.92 11.872C129.434 34.7052 116.318 57.822 103.891 81.3203C85.3808 116.322 69.1483 152.517 53.5443 188.812C53.1502 189.735 54.6901 190.487 55.1704 189.612C74.2966 155.054 93.9771 120.743 112.438 85.8401C124.84 62.4033 137.033 38.8681 149.287 15.4067C147.058 14.4584 144.841 13.51 142.624 12.5617C138.055 28.7938 133.572 45.0629 129.077 61.332C128.448 63.6227 132.426 64.8543 133.19 62.6005Z"/></svg>
+        </span>
+        <span class="scribble s-form-br" aria-hidden="true">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M117.033 79.678C115.045 80.2086 112.367 81.5411 109.564 83.3583C106.773 85.1797 103.908 87.4774 101.719 89.9797C100.624 91.2329 99.6965 92.5362 99.0448 93.8939C98.3973 95.2516 98.0172 96.6804 98.1258 98.1467C98.2261 99.6046 98.8735 101.054 100.035 102.232C101.196 103.419 102.821 104.379 104.969 105.152C109.088 106.64 112.939 106.577 116.064 105.399C119.189 104.221 121.578 101.94 122.777 99.1325C123.984 96.3294 123.959 92.9791 122.376 89.9129C120.797 86.8382 117.743 84.0936 113.123 82.172C112.154 81.7668 111.038 82.243 110.646 83.2164C110.249 84.1855 110.712 85.3051 111.69 85.6894C115.721 87.2894 118.044 89.4492 119.193 91.5797C120.329 93.7186 120.371 95.8741 119.602 97.8041C118.825 99.7299 117.196 101.405 114.878 102.328C112.563 103.252 109.547 103.431 105.992 102.232C104.133 101.601 102.905 100.854 102.165 100.123C101.43 99.3832 101.134 98.6981 101.046 97.9043C100.966 97.1106 101.159 96.1624 101.639 95.1096C102.115 94.0569 102.876 92.9207 103.828 91.7886C105.733 89.5202 108.402 87.2811 111.001 85.5182C113.591 83.7511 116.152 82.456 117.676 82.0341C118.299 81.8586 118.612 81.161 118.449 80.5553C118.282 79.9537 117.664 79.5068 117.033 79.678Z"/><path d="M112.241 62.442C103.602 60.019 94.9299 62.1537 87.4898 66.8868C80.0414 71.6199 73.7584 78.9263 69.6686 87.0055C65.5956 95.0848 63.6697 103.958 65.2154 111.937C65.9882 115.922 67.6593 119.678 70.3789 122.865C73.0942 126.052 76.8413 128.647 81.6287 130.389C87.0051 132.344 92.9749 132.177 98.8818 130.614C104.793 129.052 110.691 126.09 116.076 122.28C121.457 118.466 126.328 113.8 130.142 108.758C133.952 103.707 136.734 98.2847 137.812 92.8665C138.326 90.2598 138.426 87.6448 138.012 85.1174C137.599 82.59 136.659 80.1503 135.155 77.9613C132.13 73.5541 126.963 70.2497 119.564 68.3573C114.727 67.1249 110.073 65.763 105.394 64.0544C104.705 63.8038 103.974 64.326 103.723 64.9485C103.473 65.5709 103.632 66.4523 104.304 66.7531C108.97 68.8209 113.645 70.5379 118.491 72.0919C125.187 74.2558 129.114 77.2929 131.19 80.5848C132.235 82.2432 132.849 83.9894 133.112 85.8692C133.375 87.7491 133.283 89.7585 132.853 91.8807C131.98 96.2838 129.586 101.125 126.127 105.733C122.677 110.345 118.182 114.732 113.236 118.312C108.289 121.892 102.888 124.67 97.6618 126.132C92.4275 127.598 87.4145 127.753 83.0908 126.266C78.8883 124.82 75.7719 122.715 73.491 120.158C71.2184 117.597 69.7606 114.556 69.0128 111.156C67.5089 104.367 68.9668 96.125 72.6096 88.4426C76.244 80.7602 82.0255 73.6544 88.8891 69.0215C95.7653 64.3929 103.665 62.2122 111.769 64.2216C112.245 64.3386 112.709 64.0043 112.83 63.549C112.951 63.0936 112.713 62.5715 112.241 62.442Z"/></svg>
+        </span>
+
+        <span class="badge">Free · No card</span>
+        <h1 class="title">Welcome to <span class="accent">InkSpaceX</span>.</h1>
+        <p class="subtitle">Get started — your first story is on the house.</p>
+
+        <form id="signup-form" novalidate>
+          <label class="field-label" for="email">Email</label>
+          <div class="input-wrap">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+              aria-label="Your email address"
+            >
+          </div>
+
+          <p class="gmail-hint" id="gmail-hint" hidden>
+            <span>Gmail user?</span>
+            <span class="arrow">↓</span>
+            <span>Google sign up is simpler.</span>
+          </p>
+
+          <button type="button" class="btn btn-google" id="google-btn">
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+              <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+              <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+              <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571.001-.001.002-.001.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+            </svg>
+            <span>Sign up with Google</span>
+          </button>
+
+          <div class="divider"><span>or</span></div>
+
+          <button type="submit" class="btn btn-primary" id="submit-btn">
+            Continue with Email →
+          </button>
+
+          <p class="legal">
+            By continuing, you agree to InkSpaceX's
+            <a href="/privacy_policy.html">Privacy Policy</a> and
+            <a href="/terms_of_service.html">Terms of Service</a>.
+          </p>
+
+          <div class="error" id="error" role="alert"></div>
+        </form>
+
+        <p class="login-row">
+          Already have an account? <a href="/login.html">Log in.</a>
+        </p>
+      </div>
+
+      <div class="result" id="result" aria-live="polite">
+        <h2 id="result-title">You're in!</h2>
+        <p id="result-msg">We sent a magic link to your inbox. Tap it and start writing.</p>
+        <a class="btn btn-primary" id="app-link" href="#" target="_blank" rel="noopener" style="margin-top:0;">Open the app →</a>
+      </div>
+    </section>
+
+    <!-- ── RIGHT: hero illustration card ───────────── -->
+    <aside class="hero-col" aria-hidden="true">
+      <div class="hero-card">
+        <div class="stars"></div>
+        <div class="swirl"></div>
+
+        <!-- Cozy desk / writer scene -->
+        <div class="hero-illo">
+          <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
+            <!-- Desk -->
+            <rect x="30" y="240" width="340" height="14" rx="3" fill="#FBF4DA" stroke="#111" stroke-width="3"/>
+            <rect x="50" y="254" width="6" height="46" fill="#111"/>
+            <rect x="344" y="254" width="6" height="46" fill="#111"/>
+
+            <!-- Stack of paper -->
+            <rect x="60" y="218" width="74" height="22" rx="2" fill="#fff" stroke="#111" stroke-width="2.5" transform="rotate(-3 97 229)"/>
+            <rect x="58" y="222" width="74" height="22" rx="2" fill="#fff" stroke="#111" stroke-width="2.5" transform="rotate(2 95 233)"/>
+            <line x1="68" y1="232" x2="118" y2="232" stroke="#5b5b54" stroke-width="1.5" stroke-linecap="round" transform="rotate(2 95 233)"/>
+            <line x1="68" y1="238" x2="108" y2="238" stroke="#5b5b54" stroke-width="1.5" stroke-linecap="round" transform="rotate(2 95 233)"/>
+
+            <!-- Coffee mug -->
+            <rect x="148" y="208" width="34" height="34" rx="4" fill="#FF5A3C" stroke="#111" stroke-width="2.5"/>
+            <path d="M182 216 q12 0 12 10 t-12 10" fill="none" stroke="#111" stroke-width="2.5"/>
+            <path d="M158 200 q2 -8 6 -8 m6 8 q2 -8 6 -8" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+
+            <!-- Laptop -->
+            <rect x="200" y="160" width="160" height="80" rx="6" fill="#111" stroke="#111" stroke-width="3"/>
+            <rect x="208" y="168" width="144" height="64" rx="3" fill="#FBF4DA"/>
+            <!-- Lines on laptop screen -->
+            <line x1="218" y1="184" x2="320" y2="184" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="218" y1="194" x2="338" y2="194" stroke="#5b5b54" stroke-width="2" stroke-linecap="round"/>
+            <line x1="218" y1="204" x2="298" y2="204" stroke="#5b5b54" stroke-width="2" stroke-linecap="round"/>
+            <line x1="218" y1="214" x2="324" y2="214" stroke="#5b5b54" stroke-width="2" stroke-linecap="round"/>
+            <!-- Cursor -->
+            <line x1="328" y1="218" x2="328" y2="226" stroke="#FF5A3C" stroke-width="2.5" stroke-linecap="round"/>
+
+            <!-- Plant pot -->
+            <rect x="36" y="206" width="22" height="34" rx="2" fill="#C7EFD7" stroke="#111" stroke-width="2.5"/>
+            <path d="M47 206 q-8 -12 -12 -22 M47 206 q0 -16 4 -28 M47 206 q8 -12 14 -20" stroke="#111" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <circle cx="35" cy="184" r="4" fill="#FF5A3C" stroke="#111" stroke-width="2"/>
+            <circle cx="51" cy="178" r="3.5" fill="#FFD25E" stroke="#111" stroke-width="2"/>
+
+            <!-- Writer figure -->
+            <!-- chair back -->
+            <rect x="262" y="86" width="46" height="74" rx="6" fill="#6B5BFF" stroke="#111" stroke-width="3"/>
+            <!-- head -->
+            <circle cx="285" cy="80" r="22" fill="#FBE4D2" stroke="#111" stroke-width="3"/>
+            <!-- hair -->
+            <path d="M268 70 q4 -22 18 -22 t18 22 q-2 -8 -10 -10 q-10 6 -26 10 z" fill="#111"/>
+            <!-- arms reaching to laptop -->
+            <path d="M276 110 q-14 22 -36 50" stroke="#111" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M298 110 q14 22 36 50" stroke="#111" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <!-- floating ideas -->
+            <circle cx="338" cy="58" r="6" fill="#FFD25E" stroke="#111" stroke-width="2"/>
+            <circle cx="356" cy="40" r="4" fill="#FF5A3C" stroke="#111" stroke-width="2"/>
+            <text x="344" y="62" font-family="'Bagel Fat One', cursive" font-size="14" fill="#111">!</text>
+          </svg>
+        </div>
+
+        <p class="hero-caption">
+          <span class="star">✦</span> Craft captivating stories <span class="star">✦</span>
+        </p>
+      </div>
+
+      <!-- Stickers -->
+      <div class="sticker s1">writers welcome ✍️</div>
+      <div class="sticker s2">no ads, ever 🔒</div>
+      <div class="sticker s3">read anywhere 📚</div>
+    </aside>
+  </main>
+
+  <footer>
+    <a href="/">Home</a>
+    ·
+    <a href="/privacy_policy.html">Privacy</a>
+    ·
+    <a href="/terms_of_service.html">Terms</a>
+    ·
+    <a href="mailto:support@inkspacex.com">support@inkspacex.com</a>
+    <div class="copy">made with ink &amp; coffee · © InkSpaceX</div>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var form = document.getElementById('signup-form');
+    var emailInput = document.getElementById('email');
+    var submitBtn = document.getElementById('submit-btn');
+    var googleBtn = document.getElementById('google-btn');
+    var errorEl = document.getElementById('error');
+    var resultEl = document.getElementById('result');
+    var resultTitle = document.getElementById('result-title');
+    var resultMsg = document.getElementById('result-msg');
+    var appLink = document.getElementById('app-link');
+    var formCard = document.getElementById('form-card');
+    var gmailHint = document.getElementById('gmail-hint');
+
+    function showError(msg) { errorEl.textContent = msg || ''; }
+
+    // Show the "Gmail user?" nudge when an @gmail.com address is being typed
+    emailInput.addEventListener('input', function () {
+      var v = (emailInput.value || '').toLowerCase();
+      var isGmail = /@(gmail|googlemail)\.com$/.test(v);
+      gmailHint.hidden = !isGmail;
+    });
+
+    googleBtn.addEventListener('click', function () {
+      // Backend should own the OAuth redirect; frontend just navigates.
+      window.location.href = '/api/auth/google/start?source=signup';
+    });
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      showError('');
+
+      var email = (emailInput.value || '').trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError('Please enter a valid email address.');
+        emailInput.focus();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      var originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Sending…';
+
+      try {
+        var resp = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, source: 'signup' }),
+        });
+        var data = await resp.json().catch(function () { return {}; });
+
+        if (!resp.ok) {
+          showError(data.detail || 'Something went wrong. Please try again.');
+          return;
+        }
+
+        formCard.style.display = 'none';
+        if (data.already_signed_up) {
+          resultTitle.textContent = "Welcome back";
+          resultMsg.textContent = "You're already on the list — we just sent you a fresh sign-in link.";
+        }
+        if (data.app_url) {
+          appLink.href = data.app_url;
+        } else {
+          appLink.style.display = 'none';
+        }
+        resultEl.classList.add('show');
+        resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (err) {
+        showError('Network error. Please try again.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+  })();
+</script>
+</body>
+</html>

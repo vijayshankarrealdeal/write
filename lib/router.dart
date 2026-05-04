@@ -96,12 +96,25 @@ GoRouter createRouter(AuthProvider authProvider) {
     },
     routes: [
       // --- Auth ---
-      GoRoute(path: '/splash', builder: (_, __) => const SplashScreen()),
-      GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
-      GoRoute(path: '/signup', builder: (_, __) => const SignupPage()),
+      GoRoute(
+        path: '/splash',
+        pageBuilder: (_, state) =>
+            const NoTransitionPage(child: SplashScreen()),
+      ),
+      GoRoute(
+        path: '/login',
+        pageBuilder: (_, state) =>
+            const NoTransitionPage(child: LoginPage()),
+      ),
+      GoRoute(
+        path: '/signup',
+        pageBuilder: (_, state) =>
+            const NoTransitionPage(child: SignupPage()),
+      ),
       GoRoute(
         path: '/forgot-password',
-        builder: (_, __) => const ForgotPasswordPage(),
+        pageBuilder: (_, state) =>
+            const NoTransitionPage(child: ForgotPasswordPage()),
       ),
       GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingPage()),
 

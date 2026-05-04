@@ -14,8 +14,13 @@ import 'package:inkspacex/ui/widgets/type_chooser.dart';
 
 class NewBookAddition extends StatefulWidget {
   final WritingType? initialType;
+ 
 
-  const NewBookAddition({super.key, this.initialType});
+  const NewBookAddition({
+    super.key,
+    this.initialType,
+    
+  });
 
   @override
   State<NewBookAddition> createState() => _NewBookAdditionState();
@@ -36,15 +41,23 @@ class _NewBookAdditionState extends State<NewBookAddition>
       vsync: this,
       duration: const Duration(milliseconds: 450),
     );
-    _fadeIn = CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic);
+    _fadeIn = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOutCubic,
+    );
     _animController.forward();
 
     if (widget.initialType != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         final ep = context.read<EditorProvider>();
+       
         if (ep.type != widget.initialType) {
           ep.selectWritingType(widget.initialType!);
+        }
+        if (widget.initialType == WritingType.freestyle &&
+            ep.subtype.isEmpty) {
+          ep.selectSubtype('freestyle');
         }
       });
     }
@@ -66,8 +79,9 @@ class _NewBookAdditionState extends State<NewBookAddition>
 
   bool get _canCreate {
     final ep = context.read<EditorProvider>();
+    final isFreestyle = ep.type == WritingType.freestyle;
     return ep.titleController.text.trim().isNotEmpty &&
-        ep.subtype.isNotEmpty &&
+        (isFreestyle || ep.subtype.isNotEmpty) &&
         !_isCreating;
   }
 
@@ -153,8 +167,10 @@ class _NewBookAdditionState extends State<NewBookAddition>
                     constraints: const BoxConstraints(maxWidth: 720),
                     child: Consumer<EditorProvider>(
                       builder: (context, ep, _) {
+                       
                         final style = styleFor(ep.type);
-                        final hasSubtype = ep.subtype.isNotEmpty;
+                        final hasSubtype =
+                            ep.subtype.isNotEmpty;
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,55 +189,66 @@ class _NewBookAdditionState extends State<NewBookAddition>
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Text(
-                              "Choose a form. You can change everything else later.",
-                              style: GoogleFonts.inter(
-                                fontSize: 15,
-                                color: mutedColor,
-                                height: 1.5,
-                              ),
-                            ),
-
-                            const SizedBox(height: 28),
+                            ep.type == WritingType.freestyle
+                                ? const SizedBox.shrink()
+                                : Text(
+                                    "Choose a form. You can change everything else later.",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 15,
+                                      color: mutedColor,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                            ep.type == WritingType.freestyle
+                                ? const SizedBox.shrink()
+                                : const SizedBox(height: 28),
 
                             // ── Type cards ──
-                            TypeChooser(
-                              selected: ep.type,
-                              onSelect: ep.selectWritingType,
-                              isDark: isDark,
-                            ),
+                             ep.type == WritingType.freestyle
+                                ? const SizedBox.shrink()
+                                : TypeChooser(
+                                    selected: ep.type,
+                                    onSelect: ep.selectWritingType,
+                                    isDark: isDark,
+                                  ),
 
-                            const SizedBox(height: 28),
+                            ep.type == WritingType.freestyle
+                                ? const SizedBox.shrink()
+                                : const SizedBox(height: 28),
 
                             // ── Format (subtype) ──
-                            Text(
-                              "Format",
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1.4,
-                                color: mutedColor,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            _SubtypeWrap(
-                              type: ep.type,
-                              selected: ep.subtype,
-                              accent: style.accent,
-                              onSelect: ep.selectSubtype,
-                              isDark: isDark,
-                              textColor: textColor,
-                              borderColor: borderColor,
-                            ),
-
-                            const SizedBox(height: 28),
+                            ep.type == WritingType.freestyle
+                                ? const SizedBox.shrink()
+                                : Text(
+                                    "Format",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 1.4,
+                                      color: mutedColor,
+                                    ),
+                                  ),
+                             ep.type == WritingType.freestyle
+                                ?const SizedBox.shrink()
+                                : const SizedBox(height: 12),
+                             ep.type == WritingType.freestyle
+                                ? const SizedBox.shrink()
+                                : _SubtypeWrap(
+                                    type: ep.type,
+                                    selected: ep.subtype,
+                                    accent: style.accent,
+                                    onSelect: ep.selectSubtype,
+                                    isDark: isDark,
+                                    textColor: textColor,
+                                    borderColor: borderColor,
+                                  ),
 
                             // ── Divider that appears once a format is chosen ──
                             AnimatedSize(
                               duration: const Duration(milliseconds: 260),
                               curve: Curves.easeOutCubic,
                               alignment: Alignment.topCenter,
-                              child: hasSubtype
+                              child: hasSubtype || ep.type == WritingType.freestyle
                                   ? _NameSection(
                                       titleController: ep.titleController,
                                       mutedColor: mutedColor,
@@ -304,11 +331,9 @@ class _TopBar extends StatelessWidget {
     final fillColor = canCreate
         ? textColor
         : (isDark
-            ? Colors.white.withValues(alpha: 0.06)
-            : Colors.black.withValues(alpha: 0.04));
-    final labelColor = canCreate
-        ? bgColor
-        : mutedColor;
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.black.withValues(alpha: 0.04));
+    final labelColor = canCreate ? bgColor : mutedColor;
 
     return SafeArea(
       bottom: false,
@@ -337,7 +362,10 @@ class _TopBar extends StatelessWidget {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 9,
+                ),
                 decoration: BoxDecoration(
                   color: fillColor,
                   borderRadius: BorderRadius.circular(10),
@@ -416,8 +444,8 @@ class _SubtypeWrap extends StatelessWidget {
                 color: isSelected
                     ? accent.withValues(alpha: isDark ? 0.18 : 0.12)
                     : (isDark
-                        ? Colors.white.withValues(alpha: 0.04)
-                        : Colors.black.withValues(alpha: 0.03)),
+                          ? Colors.white.withValues(alpha: 0.04)
+                          : Colors.black.withValues(alpha: 0.03)),
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(
                   color: isSelected
@@ -466,18 +494,11 @@ class _NameSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          children: [
-            Expanded(
-              child: Container(
-                height: 1,
-                color: borderColor,
-              ),
-            ),
-          ],
+          children: [Expanded(child: Container(height: 1, color: borderColor))],
         ),
         const SizedBox(height: 20),
         Text(
-          "Name",
+          "Space Name",
           style: GoogleFonts.inter(
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -618,7 +639,8 @@ class _OptionalSection extends StatelessWidget {
                         maxLines: null,
                         minLines: 2,
                         decoration: InputDecoration(
-                          hintText: "A short description — what is this space about?",
+                          hintText:
+                              "A short description — what is this space about?",
                           hintStyle: GoogleFonts.inter(
                             fontSize: 15,
                             color: textColor.withValues(alpha: 0.22),
@@ -683,11 +705,7 @@ class _CoverPicker extends StatelessWidget {
                       : Colors.black.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(9),
                 ),
-                child: Icon(
-                  CupertinoIcons.photo,
-                  size: 18,
-                  color: mutedColor,
-                ),
+                child: Icon(CupertinoIcons.photo, size: 18, color: mutedColor),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -706,19 +724,12 @@ class _CoverPicker extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       "1200 × 630px recommended",
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: mutedColor,
-                      ),
+                      style: GoogleFonts.inter(fontSize: 12, color: mutedColor),
                     ),
                   ],
                 ),
               ),
-              Icon(
-                CupertinoIcons.arrow_up_doc,
-                size: 16,
-                color: mutedColor,
-              ),
+              Icon(CupertinoIcons.arrow_up_doc, size: 16, color: mutedColor),
             ],
           ),
         ),
@@ -743,15 +754,9 @@ class _CoverPicker extends StatelessWidget {
           right: 10,
           child: Row(
             children: [
-              _ImageChip(
-                icon: CupertinoIcons.pencil,
-                onTap: onPick,
-              ),
+              _ImageChip(icon: CupertinoIcons.pencil, onTap: onPick),
               const SizedBox(width: 6),
-              _ImageChip(
-                icon: CupertinoIcons.xmark,
-                onTap: onRemove,
-              ),
+              _ImageChip(icon: CupertinoIcons.xmark, onTap: onRemove),
             ],
           ),
         ),

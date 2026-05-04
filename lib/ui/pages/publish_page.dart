@@ -12,6 +12,8 @@ import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/ui/utilities/writing_type_style.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
+import 'package:inkspacex/ui/widgets/image_crop_page.dart';
+import 'package:inkspacex/ui/widgets/type_chooser.dart';
 
 class PublishPage extends StatefulWidget {
   final WritingModel book;
@@ -39,20 +41,28 @@ class _PublishPageState extends State<PublishPage> {
   bool _includeWriting = true;
   bool _includeCanvas = true;
 
+  // Freestyle spaces skip type/subtype at creation; collect them at publish time.
+  WritingType? _publishType;
+  String _publishSubtype = '';
+
   bool _loadingSpace = true;
   FeedItemModel? _existingSpace;
   Set<String> _alreadyPublishedIds = {};
 
   List<String> get _suggestedTags {
-    final subtypes = getDisplaySubtypesForWritingType(widget.book.writingType);
+    final typeForSuggestions = _publishType ?? widget.book.writingType;
+    final subtypes = typeForSuggestions == WritingType.freestyle
+        ? <String>[]
+        : getDisplaySubtypesForWritingType(typeForSuggestions);
     final seen = <String>{};
     final all = <String>[];
     for (final t in [
-      widget.book.writingType.displayName,
-      if (widget.book.subtype.isNotEmpty) widget.book.subtype,
+      typeForSuggestions.displayName,
+      if (_publishSubtype.isNotEmpty) _publishSubtype,
       ...subtypes,
     ]) {
-      if (seen.add(t) && !_tags.contains(t)) all.add(t);
+      // Case-insensitive dedup so 'Freestyle' and 'freestyle' don't both appear.
+      if (seen.add(t.toLowerCase()) && !_tags.contains(t)) all.add(t);
     }
     return all;
   }
@@ -64,6 +74,11 @@ class _PublishPageState extends State<PublishPage> {
     _descriptionController =
         TextEditingController(text: widget.book.description);
     _tagInputController = TextEditingController();
+    // Pre-populate publish-type for non-freestyle spaces.
+    if (widget.book.writingType != WritingType.freestyle) {
+      _publishType = widget.book.writingType;
+      _publishSubtype = widget.book.subtype;
+    }
     if (widget.preselectedSection != null) {
       _selectedSectionIds.add(widget.preselectedSection!.id);
     }
@@ -113,14 +128,17 @@ class _PublishPageState extends State<PublishPage> {
     super.dispose();
   }
 
+  bool get _isFreestyle => widget.book.writingType == WritingType.freestyle;
   bool get _hasCover =>
       _coverBytes != null || widget.book.coverImagePath.isNotEmpty;
-  bool get _hasAnyWriting =>
-      widget.book.sections.any((s) => s.content.trim().isNotEmpty);
   bool get _hasAnyCanvas =>
       widget.book.sections.any((s) => s.canvasData.trim().isNotEmpty);
   bool get _isUpdate => _existingSpace != null;
-  bool get _canPublish => _selectedSectionIds.isNotEmpty && _hasCover;
+  bool get _canPublish =>
+      _selectedSectionIds.isNotEmpty &&
+      _hasCover &&
+      (!_isFreestyle ||
+          (_publishType != null && _publishSubtype.isNotEmpty));
 
   void _addCustomTag(String value) {
     final tag = value.trim();
@@ -135,8 +153,21 @@ class _PublishPageState extends State<PublishPage> {
   Future<void> _pickCoverImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked == null) return;
-    final bytes = await picked.readAsBytes();
-    setState(() => _coverBytes = bytes);
+    final raw = await picked.readAsBytes();
+    if (!mounted) return;
+    final cropped = await Navigator.of(context).push<Uint8List>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => ImageCropPage(
+          imageBytes: raw,
+          aspectRatio: 21 / 9,
+          title: 'Adjust cover',
+          confirmLabel: 'Use this cover',
+        ),
+      ),
+    );
+    if (cropped == null) return;
+    setState(() => _coverBytes = cropped);
   }
 
   Future<void> _publish() async {
@@ -155,6 +186,12 @@ class _PublishPageState extends State<PublishPage> {
     final provider = context.read<EditorProvider>();
 
     try {
+      // Apply publish-time type/subtype override for freestyle spaces.
+      if (_isFreestyle && _publishType != null) {
+        widget.book.writingType = _publishType!;
+        widget.book.subtype = _publishSubtype;
+      }
+
       if (_coverBytes != null) {
         await provider.updateBookCoverImage(widget.book, _coverBytes!);
       }
@@ -344,6 +381,21 @@ class _PublishPageState extends State<PublishPage> {
 
                       _buildDivider(dividerColor),
 
+                      // ── Freestyle format picker ──
+                      if (_isFreestyle)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: _buildFreestyleFormatSection(
+                            isDark: isDark,
+                            textColor: textColor,
+                            mutedColor: mutedColor,
+                            dividerColor: dividerColor,
+                            accent: accent,
+                          ),
+                        ),
+
+                      if (_isFreestyle) _buildDivider(dividerColor),
+
                       // ── Sections ──
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -409,27 +461,37 @@ class _PublishPageState extends State<PublishPage> {
     required Color bgColor,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: SizedBox(
         height: 56,
         child: Row(
           children: [
-            CupertinoButton(
-              padding: const EdgeInsets.all(8),
-              onPressed: () => Navigator.pop(context),
-              child: Icon(
-                CupertinoIcons.back,
-                size: 22,
-                color: textColor,
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : Colors.black.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  CupertinoIcons.xmark,
+                  size: 16,
+                  color: mutedColor,
+                ),
               ),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 14),
             Text(
-              _isUpdate ? "Update" : "Publish",
-              style: GoogleFonts.inter(
-                fontSize: 17,
+              _isUpdate ? "Update Space" : "Publish Space",
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: textColor,
+                letterSpacing: -0.3,
               ),
             ),
             const Spacer(),
@@ -492,7 +554,7 @@ class _PublishPageState extends State<PublishPage> {
       child: AspectRatio(
         aspectRatio: 21 / 9,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -509,7 +571,7 @@ class _PublishPageState extends State<PublishPage> {
                   ),
                 )
               else
-                Container(
+                DecoratedBox(
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: isDark
@@ -521,21 +583,38 @@ class _PublishPageState extends State<PublishPage> {
                         : Colors.black.withValues(alpha: 0.02),
                   ),
                   child: Center(
-                    child: Row(
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          CupertinoIcons.camera,
-                          size: 18,
-                          color: mutedColor.withValues(alpha: 0.6),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.06)
+                                : Colors.black.withValues(alpha: 0.04),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            CupertinoIcons.camera,
+                            size: 18,
+                            color: mutedColor,
+                          ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(height: 10),
                         Text(
-                          "Add cover",
+                          "Add a cover",
                           style: GoogleFonts.inter(
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                             color: mutedColor,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          "Required to publish",
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            color: mutedColor.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
@@ -667,7 +746,7 @@ class _PublishPageState extends State<PublishPage> {
           final isLive = _alreadyPublishedIds.contains(section.id);
 
           return Padding(
-            padding: const EdgeInsets.only(bottom: 6),
+            padding: const EdgeInsets.only(bottom: 8),
             child: GestureDetector(
               onTap: () {
                 setState(() {
@@ -681,15 +760,17 @@ class _PublishPageState extends State<PublishPage> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 11),
+                    horizontal: 14, vertical: 13),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? accent.withValues(alpha: isDark ? 0.1 : 0.05)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
+                      : (isDark
+                          ? Colors.white.withValues(alpha: 0.025)
+                          : Colors.black.withValues(alpha: 0.02)),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
-                        ? accent.withValues(alpha: 0.3)
+                        ? accent.withValues(alpha: 0.35)
                         : (isDark
                             ? Colors.white.withValues(alpha: 0.06)
                             : Colors.black.withValues(alpha: 0.05)),
@@ -789,22 +870,20 @@ class _PublishPageState extends State<PublishPage> {
 
         // ── Include toggles ──
         if (_selectedSectionIds.isNotEmpty) ...[
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
           Row(
             children: [
               _buildIncludeChip(
                 icon: CupertinoIcons.doc_text_fill,
                 label: "Writing",
-                active: _includeWriting && _hasAnyWriting,
-                enabled: _hasAnyWriting,
+                active: _includeWriting,
+                enabled: true,
                 accent: accent,
                 isDark: isDark,
                 textColor: textColor,
                 mutedColor: mutedColor,
-                onTap: _hasAnyWriting
-                    ? () =>
-                        setState(() => _includeWriting = !_includeWriting)
-                    : null,
+                onTap: () =>
+                    setState(() => _includeWriting = !_includeWriting),
               ),
               const SizedBox(width: 8),
               _buildIncludeChip(
@@ -1113,6 +1192,148 @@ class _PublishPageState extends State<PublishPage> {
     );
   }
 
+  // ── FREESTYLE FORMAT PICKER ──
+  Widget _buildFreestyleFormatSection({
+    required bool isDark,
+    required Color textColor,
+    required Color mutedColor,
+    required Color dividerColor,
+    required Color accent,
+  }) {
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.08);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _buildSectionLabel("Format"),
+            const SizedBox(width: 8),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: CupertinoColors.activeOrange.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                "Required",
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: CupertinoColors.activeOrange,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          "Choose a type so readers can find your work.",
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            color: mutedColor,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // Type cards (compact, excludes freestyle itself)
+        TypeChooser(
+          selected: _publishType,
+          onSelect: (t) => setState(() {
+            _publishType = t;
+            _publishSubtype = '';
+          }),
+          isDark: isDark,
+          compact: true,
+        ),
+
+        // Subtype pills — only shown after a type is chosen
+        AnimatedSize(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          child: _publishType != null
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Subtype",
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
+                          color: mutedColor,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: getDisplaySubtypesForWritingType(
+                                _publishType!)
+                            .map((s) {
+                          final isSelected = _publishSubtype == s;
+                          final subAccent = styleFor(_publishType!).accent;
+                          return GestureDetector(
+                            onTap: () =>
+                                setState(() => _publishSubtype = s),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 9),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? subAccent.withValues(
+                                        alpha: isDark ? 0.18 : 0.12)
+                                    : (isDark
+                                        ? Colors.white
+                                            .withValues(alpha: 0.04)
+                                        : Colors.black
+                                            .withValues(alpha: 0.03)),
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? subAccent.withValues(alpha: 0.6)
+                                      : borderColor,
+                                  width: isSelected ? 1.2 : 1,
+                                ),
+                              ),
+                              child: Text(
+                                s,
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
+                                  color: isSelected
+                                      ? (isDark
+                                          ? Colors.white
+                                          : Colors.black87)
+                                      : textColor.withValues(alpha: 0.75),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
   // ─── Shared helpers ───
 
   Widget _buildSectionLabel(String text) {
@@ -1131,7 +1352,7 @@ class _PublishPageState extends State<PublishPage> {
 
   Widget _buildDivider(Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       child: Container(height: 1, color: color),
     );
   }
@@ -1173,30 +1394,39 @@ class _PublishPageState extends State<PublishPage> {
     required Color mutedColor,
     VoidCallback? onTap,
   }) {
+    // Some writing types (freestyle) use black as accent — that disappears on a
+    // dark publish surface. Fall back to textColor so the active pill always
+    // contrasts.
+    final activeBg = isDark ? Colors.white : Colors.black;
+    final activeFg = isDark ? Colors.black : Colors.white;
     return Opacity(
       opacity: enabled ? 1.0 : 0.4,
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           decoration: BoxDecoration(
             color: active
-                ? accent.withValues(alpha: isDark ? 0.12 : 0.06)
+                ? activeBg
                 : (isDark
-                    ? Colors.white.withValues(alpha: 0.04)
-                    : Colors.black.withValues(alpha: 0.03)),
-            borderRadius: BorderRadius.circular(8),
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : Colors.black.withValues(alpha: 0.04)),
+            borderRadius: BorderRadius.circular(999),
             border: Border.all(
               color: active
-                  ? accent.withValues(alpha: 0.3)
-                  : Colors.transparent,
+                  ? activeBg
+                  : (isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.06)),
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 14, color: active ? accent : mutedColor),
+              Icon(icon,
+                  size: 14,
+                  color: active ? activeFg : mutedColor),
               const SizedBox(width: 6),
               Text(
                 label,
@@ -1204,12 +1434,12 @@ class _PublishPageState extends State<PublishPage> {
                   fontSize: 13,
                   fontWeight: active ? FontWeight.w600 : FontWeight.w500,
                   color:
-                      active ? accent : textColor.withValues(alpha: 0.5),
+                      active ? activeFg : textColor.withValues(alpha: 0.55),
                 ),
               ),
               if (active) ...[
                 const SizedBox(width: 4),
-                Icon(CupertinoIcons.checkmark, size: 12, color: accent),
+                Icon(CupertinoIcons.checkmark_alt, size: 12, color: activeFg),
               ],
             ],
           ),

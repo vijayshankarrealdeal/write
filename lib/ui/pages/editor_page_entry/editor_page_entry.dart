@@ -2778,72 +2778,76 @@ class _EditiorPageState extends State<EditiorPage>
         color: bgColor,
         border: Border(bottom: BorderSide(color: borderColor)),
       ),
-      child: Row(
-        children: [
-          ToolbarIconButton(
-            iconWidget: Iconify(
-              Ph.google_photos_logo_bold,
-              size: 19,
+      // Horizontally scrollable so the row can't overflow on narrow phones.
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: [
+            ToolbarIconButton(
+              iconWidget: Iconify(
+                Ph.google_photos_logo_bold,
+                size: 19,
+                color: textColor,
+              ),
+              tooltip: 'Insert Image',
               color: textColor,
+              onPressed: _insertImage,
             ),
-            tooltip: 'Insert Image',
-            color: textColor,
-            onPressed: _insertImage,
-          ),
-          ToolbarIconButton(
-            icon: CupertinoIcons.sidebar_right,
-            tooltip: 'Sections',
-            color: textColor,
-            onPressed: () => _showSectionsSheet(
-              isDark: isDark,
-              textColor: textColor,
-              borderColor: borderColor,
-            ),
-          ),
-          Container(
-            width: 1,
-            height: 20,
-            margin: const EdgeInsets.symmetric(horizontal: 6),
-            color: borderColor,
-          ),
-          const Spacer(),
-          ToolbarIconButton(
-            icon: CupertinoIcons.wand_stars,
-            tooltip: 'AI assist',
-            color: accentColor,
-            onPressed: _showAIPanel,
-          ),
-          ToolbarIconButton(
-            icon: CupertinoIcons.lightbulb,
-            tooltip: 'Writing prompt',
-            color: Colors.amber.withValues(alpha: 0.85),
-            onPressed: _showRandomPrompt,
-          ),
-          ToolbarIconButton(
-            icon: CupertinoIcons.list_bullet_indent,
-            tooltip: _showOutline ? 'Hide outline' : 'Show outline',
-            color: _showOutline ? accentColor : textColor,
-            onPressed: () =>
-                setState(() => _showOutline = !_showOutline),
-          ),
-          ToolbarIconButton(
-            icon: CupertinoIcons.eye_slash,
-            tooltip: 'Focus mode',
-            color: textColor,
-            onPressed: _toggleFocusMode,
-          ),
-          _buildSyncStatusChip(mutedColor: mutedColor),
-          ToolbarIconButton(
-            iconWidget: Iconify(
-              Carbon.pending,
-              size: 19,
+            ToolbarIconButton(
+              icon: CupertinoIcons.sidebar_right,
+              tooltip: 'Sections',
               color: textColor,
+              onPressed: () => _showSectionsSheet(
+                isDark: isDark,
+                textColor: textColor,
+                borderColor: borderColor,
+              ),
             ),
-            tooltip: 'Writer settings',
-            color: textColor,
-            onPressed: _showWriterSettings,
-          ),
-        ],
+            Container(
+              width: 1,
+              height: 20,
+              margin: const EdgeInsets.symmetric(horizontal: 6),
+              color: borderColor,
+            ),
+            ToolbarIconButton(
+              icon: CupertinoIcons.wand_stars,
+              tooltip: 'AI assist',
+              color: accentColor,
+              onPressed: _showAIPanel,
+            ),
+            ToolbarIconButton(
+              icon: CupertinoIcons.lightbulb,
+              tooltip: 'Writing prompt',
+              color: Colors.amber.withValues(alpha: 0.85),
+              onPressed: _showRandomPrompt,
+            ),
+            ToolbarIconButton(
+              icon: CupertinoIcons.list_bullet_indent,
+              tooltip: _showOutline ? 'Hide outline' : 'Show outline',
+              color: _showOutline ? accentColor : textColor,
+              onPressed: () =>
+                  setState(() => _showOutline = !_showOutline),
+            ),
+            ToolbarIconButton(
+              icon: CupertinoIcons.eye_slash,
+              tooltip: 'Focus mode',
+              color: textColor,
+              onPressed: _toggleFocusMode,
+            ),
+            _buildSyncStatusChip(mutedColor: mutedColor),
+            ToolbarIconButton(
+              iconWidget: Iconify(
+                Carbon.pending,
+                size: 19,
+                color: textColor,
+              ),
+              tooltip: 'Writer settings',
+              color: textColor,
+              onPressed: _showWriterSettings,
+            ),
+          ],
+        ),
       ),
     );
   }

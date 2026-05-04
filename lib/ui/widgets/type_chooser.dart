@@ -34,7 +34,8 @@ class TypeChooser extends StatelessWidget {
     final surfaceColor = isDark ? const Color(0xFF141414) : Colors.white;
     final useCompact = compact || isMobile;
 
-    final cards = WritingType.values.map((t) {
+    final cards = WritingType.values.where((e) => e != WritingType.freestyle).map((t) {
+      
       final style = styleFor(t);
       return TypeCard(
         type: t,

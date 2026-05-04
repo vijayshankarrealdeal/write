@@ -12,6 +12,7 @@ import 'package:inkspacex/provider/nav_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
+import 'package:inkspacex/ui/widgets/image_crop_page.dart';
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -376,11 +377,24 @@ class _ProfilePageState extends State<ProfilePage> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
-    final Uint8List bytes = await picked.readAsBytes();
+    final Uint8List raw = await picked.readAsBytes();
     if (!mounted) return;
+    final cropped = await Navigator.of(context).push<Uint8List>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => ImageCropPage(
+          imageBytes: raw,
+          aspectRatio: 1,
+          circleOverlay: true,
+          title: 'Adjust photo',
+          confirmLabel: 'Use this photo',
+        ),
+      ),
+    );
+    if (cropped == null || !mounted) return;
     setState(() => _isUploading = true);
     try {
-      await context.read<AuthProvider>().updateProfilePhoto(bytes);
+      await context.read<AuthProvider>().updateProfilePhoto(cropped);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -423,6 +437,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
     final textColor = isDark ? Colors.white : Colors.black;
+    final cardColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
     final user = context.watch<AuthProvider>().currentUser;
 
     return Scaffold(
@@ -442,54 +457,64 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 500),
+          constraints: const BoxConstraints(maxWidth: 520),
           child: ListView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
             children: [
+              const SizedBox(height: 8),
               Center(
                 child: Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 58,
-                      backgroundColor: isDark
-                          ? Colors.white.withValues(alpha: 0.1)
-                          : Colors.black.withValues(alpha: 0.05),
-                      child: _isUploading
-                          ? const AppSpinner()
-                          : ClipOval(
-                              child: SizedBox(
-                                width: 110,
-                                height: 110,
-                                child: user?.photoUrl != null
-                                    ? AppNetworkImage(
-                                        url: user!.photoUrl,
-                                        meta: user.photoMeta,
-                                        width: 110,
-                                        height: 110,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Container(
-                                        color: isDark
-                                            ? Colors.white
-                                                .withValues(alpha: 0.2)
-                                            : Colors.black
-                                                .withValues(alpha: 0.08),
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          (user?.name.isNotEmpty == true)
-                                              ? user!.name[0].toUpperCase()
-                                              : 'U',
-                                          style: GoogleFonts.inter(
-                                            fontSize: 40,
-                                            fontWeight: FontWeight.bold,
-                                            color: isDark
-                                                ? Colors.white70
-                                                : Colors.black87,
-                                          ),
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: textColor.withValues(alpha: 0.08),
+                          width: 1,
+                        ),
+                      ),
+                      child: ClipOval(
+                        child: SizedBox(
+                          width: 108,
+                          height: 108,
+                          child: _isUploading
+                              ? Container(
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.08)
+                                      : Colors.black.withValues(alpha: 0.05),
+                                  alignment: Alignment.center,
+                                  child: const AppSpinner(),
+                                )
+                              : (user?.photoUrl != null
+                                  ? AppNetworkImage(
+                                      url: user!.photoUrl,
+                                      meta: user.photoMeta,
+                                      width: 108,
+                                      height: 108,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Container(
+                                      color: isDark
+                                          ? Colors.white
+                                              .withValues(alpha: 0.08)
+                                          : Colors.black
+                                              .withValues(alpha: 0.05),
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        (user?.name.isNotEmpty == true)
+                                            ? user!.name[0].toUpperCase()
+                                            : 'U',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.w600,
+                                          color:
+                                              textColor.withValues(alpha: 0.7),
                                         ),
                                       ),
-                              ),
-                            ),
+                                    )),
+                        ),
+                      ),
                     ),
                     Positioned(
                       bottom: 0,
@@ -514,42 +539,88 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
-              _buildTextField(
-                "Full Name",
-                _nameController,
-                isDark,
-                textColor,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                "Email Address",
-                _emailController,
-                isDark,
-                textColor,
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _isSaving ? null : _saveChanges,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isDark ? Colors.white : Colors.black87,
-                  foregroundColor: isDark ? Colors.black : Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 12),
+              Center(
+                child: Text(
+                  user?.name.isNotEmpty == true ? user!.name : 'Reader',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
                   ),
                 ),
-                child: _isSaving
-                    ? AppSpinner(
-                        color: isDark ? Colors.black : Colors.white,
-                      )
-                    : Text(
-                        "Save Changes",
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
+              ),
+              const SizedBox(height: 4),
+              Center(
+                child: Text(
+                  user?.email ?? '',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: textColor.withValues(alpha: 0.55),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 36),
+              _buildSectionHeader(context, 'Personal Information', textColor),
+              _buildFieldCard(
+                cardColor: cardColor,
+                isDark: isDark,
+                children: [
+                  _buildLabeledField(
+                    label: 'Full Name',
+                    controller: _nameController,
+                    isDark: isDark,
+                    textColor: textColor,
+                    hint: 'Your display name',
+                  ),
+                  _buildFieldDivider(isDark),
+                  _buildLabeledField(
+                    label: 'Email Address',
+                    controller: _emailController,
+                    isDark: isDark,
+                    textColor: textColor,
+                    hint: 'name@example.com',
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: Text(
+                  'Used for sign-in and account notifications.',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: textColor.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isSaving ? null : _saveChanges,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark ? Colors.white : Colors.black87,
+                    foregroundColor: isDark ? Colors.black : Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: _isSaving
+                      ? AppSpinner(
+                          color: isDark ? Colors.black : Colors.white,
+                        )
+                      : Text(
+                          "Save Changes",
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
                         ),
-                      ),
+                ),
               ),
             ],
           ),
@@ -558,43 +629,104 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildTextField(
+  Widget _buildSectionHeader(
+    BuildContext context,
     String label,
-    TextEditingController controller,
-    bool isDark,
     Color textColor,
   ) {
-    return TextField(
-      controller: controller,
-      style: GoogleFonts.inter(color: textColor),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: GoogleFonts.inter(color: textColor.withValues(alpha: 0.5)),
-        filled: true,
-        fillColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.1),
-          ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(6, 0, 6, 10),
+      child: Text(
+        label.toUpperCase(),
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.1,
+          color: textColor.withValues(alpha: 0.5),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.1),
-          ),
+      ),
+    );
+  }
+
+  Widget _buildFieldCard({
+    required Color cardColor,
+    required bool isDark,
+    required List<Widget> children,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.black.withValues(alpha: 0.06),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: isDark ? Colors.white70 : Colors.black87,
-            width: 2,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
+      ),
+    );
+  }
+
+  Widget _buildFieldDivider(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Divider(
+        height: 1,
+        thickness: 1,
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.06)
+            : Colors.black.withValues(alpha: 0.06),
+      ),
+    );
+  }
+
+  Widget _buildLabeledField({
+    required String label,
+    required TextEditingController controller,
+    required bool isDark,
+    required Color textColor,
+    String? hint,
+    TextInputType? keyboardType,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: textColor.withValues(alpha: 0.55),
+            ),
           ),
-        ),
+          const SizedBox(height: 4),
+          TextField(
+            controller: controller,
+            keyboardType: keyboardType,
+            style: GoogleFonts.inter(
+              color: textColor,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: GoogleFonts.inter(
+                color: textColor.withValues(alpha: 0.3),
+                fontSize: 15,
+              ),
+              isDense: true,
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+            ),
+          ),
+        ],
       ),
     );
   }

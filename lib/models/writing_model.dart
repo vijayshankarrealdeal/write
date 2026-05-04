@@ -4,13 +4,20 @@ import 'package:inkspacex/models/section_model.dart';
 enum WritingStatus { ongoing, completed, paused }
 
 // 🔥 Social Writing Categories
-enum WritingType { creative, digitalContent, personal, journalistic, marketing }
+enum WritingType {
+  freestyle,
+  creative,
+  digitalContent,
+  personal,
+  journalistic,
+  marketing,
+}
 
 // =======================
 // Social-Relevant Subtypes
 // =======================
 
-enum CreativeWriting { shortStory, poetry, script, flashFiction }
+enum CreativeWriting {freestyle, shortStory, poetry, script, flashFiction }
 
 enum DigitalContentWriting {
   blogPost,
@@ -40,6 +47,8 @@ enum MarketingWriting { adCopy, productDescription, emailCampaign, slogan }
 extension WritingTypeDisplay on WritingType {
   String get displayName {
     switch (this) {
+      case WritingType.freestyle:
+        return 'Freestyle';
       case WritingType.creative:
         return 'Creative';
       case WritingType.digitalContent:
@@ -59,6 +68,8 @@ extension WritingTypeDisplay on WritingType {
 extension CreativeWritingDisplay on CreativeWriting {
   String get displayName {
     switch (this) {
+      case CreativeWriting.freestyle:
+        return 'Freestyle';
       case CreativeWriting.shortStory:
         return 'Short Story';
       case CreativeWriting.poetry:
@@ -145,6 +156,8 @@ extension MarketingWritingDisplay on MarketingWriting {
 
 List<String> getDisplaySubtypesForWritingType(WritingType type) {
   switch (type) {
+    case WritingType.freestyle:
+      return [];
     case WritingType.creative:
       return CreativeWriting.values.map((e) => e.displayName).toList();
     case WritingType.digitalContent:
@@ -193,7 +206,8 @@ class WritingModel {
       description: json['description'],
       coverImagePath: json['coverImagePath'],
       coverImageMeta: ImageMeta.tryFromJson(
-          json['coverImageMeta'] ?? json['cover_image_meta']),
+        json['coverImageMeta'] ?? json['cover_image_meta'],
+      ),
       writingType: WritingType.values[json['writingType']], // 🔥
       subtype: json['subtype'], // 🔥
       sections: (json['sections'] as List)

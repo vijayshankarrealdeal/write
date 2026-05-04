@@ -40,6 +40,7 @@ import argparse
 import asyncio
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -254,6 +255,14 @@ async def _main() -> int:
 
     manifest.setdefault("synced_history", []).append(db_ids)
     manifest["synced"] = db_ids
+
+    # Mark this book as successfully uploaded to the production VM.
+    # `vm_upload_done` acts as a quick boolean sentinel for tooling / batch
+    # scripts that need to skip already-published books without re-querying
+    # the database.  The UTC timestamp lets you audit *when* it landed.
+    manifest["vm_upload_done"] = True
+    manifest["vm_upload_done_utc"] = datetime.now(timezone.utc).isoformat()
+
     persist.write_manifest(args.slug, manifest)
 
     print(json.dumps({"slug": args.slug, "synced": db_ids}, indent=2))

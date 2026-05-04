@@ -19,6 +19,14 @@ class WritingTypeStyle {
 
 WritingTypeStyle styleFor(WritingType type) {
   switch (type) {
+    case WritingType.freestyle:
+      return const WritingTypeStyle(
+        accent: Color.fromARGB(255, 0, 0, 0),
+        icon: CupertinoIcons.pencil_ellipsis_rectangle,
+        tagline: 'Unleash your creativity',
+        prompt: 'Write without limits.',
+      );
+
     case WritingType.creative:
       return const WritingTypeStyle(
         accent: Color(0xFFF59E0B),
