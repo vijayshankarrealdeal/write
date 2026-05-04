@@ -81,13 +81,18 @@ class ChatProvider extends ChangeNotifier {
   }
 
   Future<ConversationModel> openConversationWith(String otherUserId) async {
-    final convo = await _api.startConversation(otherUserId);
-    // Insert/update in the local list — keeps the list in sync if this is
-    // the first time the user has opened a chat with this person.
-    final without = _conversations.where((c) => c.id != convo.id).toList();
-    _conversations = [convo, ...without];
+    final fresh = await _api.startConversation(otherUserId);
+    // /start hardcodes unread_count=0 — it's a get-or-create, not a
+    // counter. If we already have the convo locally, keep our count so
+    // markRead can decrement totalUnread and hit the backend.
+    final existingIdx = _conversations.indexWhere((c) => c.id == fresh.id);
+    final merged = existingIdx == -1
+        ? fresh
+        : fresh.copyWith(unreadCount: _conversations[existingIdx].unreadCount);
+    final without = _conversations.where((c) => c.id != merged.id).toList();
+    _conversations = [merged, ...without];
     notifyListeners();
-    return convo;
+    return merged;
   }
 
   Future<void> loadMessages(String conversationId, {bool force = false}) async {
@@ -182,12 +187,16 @@ class ChatProvider extends ChangeNotifier {
         createdAt: DateTime.now(),
       ),
     );
-    if (convo.unreadCount == 0) return;
-    _totalUnread = (_totalUnread - convo.unreadCount).clamp(0, 1 << 30);
-    _conversations = _conversations
-        .map((c) => c.id == conversationId ? c.copyWith(unreadCount: 0) : c)
-        .toList();
-    notifyListeners();
+    if (convo.unreadCount > 0) {
+      _totalUnread = (_totalUnread - convo.unreadCount).clamp(0, 1 << 30);
+      _conversations = _conversations
+          .map((c) => c.id == conversationId ? c.copyWith(unreadCount: 0) : c)
+          .toList();
+      notifyListeners();
+    }
+    // Always hit the backend — the local count can be stale (e.g. a
+    // stray refresh hardcoded it to 0), and the backend mark-read is
+    // a cheap idempotent UPDATE.
     try {
       await _api.markConversationRead(conversationId);
     } catch (e) {

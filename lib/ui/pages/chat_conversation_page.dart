@@ -13,6 +13,7 @@ import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/chat_provider.dart';
 import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/app_log.dart';
+import 'package:inkspacex/services/local_notification_service.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/widgets/report_dialog.dart';
@@ -52,6 +53,11 @@ class _ChatConversationPageState extends State<ChatConversationPage> {
       final convo = await chat.openConversationWith(widget.otherUserId);
       if (!mounted) return;
       setState(() => _conversation = convo);
+      // Suppress chat tray notifications for this thread while it's
+      // being read in the foreground.
+      context
+          .read<LocalNotificationService>()
+          .setActiveConversation(convo.id);
       await chat.loadMessages(convo.id);
       await chat.markRead(convo.id);
       _scrollToBottom();
@@ -237,6 +243,12 @@ class _ChatConversationPageState extends State<ChatConversationPage> {
 
   @override
   void dispose() {
+    // Re-enable chat tray notifications for this thread.
+    try {
+      context.read<LocalNotificationService>().setActiveConversation(null);
+    } catch (_) {
+      // context may be torn down already; ignore.
+    }
     _composerCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();

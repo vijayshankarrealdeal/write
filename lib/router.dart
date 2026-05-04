@@ -37,6 +37,7 @@ import 'package:inkspacex/ui/pages/manage_downloads_page.dart';
 import 'package:inkspacex/ui/pages/saved_favorites_page.dart';
 import 'package:inkspacex/ui/pages/reading_statistics_page.dart';
 import 'package:inkspacex/ui/pages/tag_feed_page.dart';
+import 'package:inkspacex/ui/pages/shelf_all_page.dart';
 import 'package:inkspacex/ui/pages/subscription_page.dart';
 import 'package:inkspacex/ui/pages/create_bookshelf_page.dart';
 import 'package:inkspacex/ui/pages/view_bookshelf_page.dart';
@@ -231,6 +232,17 @@ GoRouter createRouter(AuthProvider authProvider) {
           };
           return CupertinoPage(
             child: TagFeedPage(kind: kind, value: value),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/shelf/:railId',
+        pageBuilder: (_, state) {
+          final railId = state.pathParameters['railId'] ?? '';
+          final title =
+              Uri.decodeComponent(state.uri.queryParameters['title'] ?? '');
+          return CupertinoPage(
+            child: ShelfAllPage(railId: railId, title: title),
           );
         },
       ),

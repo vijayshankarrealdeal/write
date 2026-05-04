@@ -18,6 +18,7 @@ import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/provider/annotation_provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/provider/settings_provider.dart';
 import 'package:inkspacex/provider/spell_check_provider.dart';
 import 'package:inkspacex/provider/version_history_provider.dart';
 import 'package:inkspacex/services/spell_check_decoration.dart';
@@ -1615,6 +1616,44 @@ class _EditiorPageState extends State<EditiorPage>
                           ],
                         ),
                         const SizedBox(height: 20),
+
+                        // ── Appearance ──
+                        Text(
+                          'APPEARANCE',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: mutedColor,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Consumer<SettingsProvider>(
+                          builder: (_, settings, _) {
+                            final darkActive =
+                                settings.themeMode == ThemeMode.dark ||
+                                    (settings.themeMode == ThemeMode.system &&
+                                        Theme.of(ctx).brightness ==
+                                            Brightness.dark);
+                            return _settingsToggle(
+                              icon: CupertinoIcons.moon,
+                              label: 'Dark Mode',
+                              subtitle:
+                                  'Switch the app between light and dark theme',
+                              value: darkActive,
+                              textColor: textColor,
+                              mutedColor: mutedColor,
+                              surfaceColor: surfaceColor,
+                              isDark: isDark,
+                              onChanged: (v) {
+                                settings.toggleTheme(v);
+                                Navigator.pop(ctx);
+                              },
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 24),
 
                         // ── Writing Modes ──
                         Text(

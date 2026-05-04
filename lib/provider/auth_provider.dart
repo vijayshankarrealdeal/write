@@ -10,6 +10,8 @@ import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/api/api_push_token_service.dart';
 import 'package:inkspacex/services/api/api_realtime_service.dart';
 import 'package:inkspacex/services/api/api_storage_service.dart';
+import 'package:inkspacex/services/desktop_tray_service.dart';
+import 'package:inkspacex/services/home_widget_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/services/sync/outbox.dart';
 import 'package:inkspacex/services/sync/outbox_drainer.dart';
@@ -255,6 +257,15 @@ class AuthProvider extends ChangeNotifier {
     _isAuthenticated = false;
     _currentUser = null;
     AnalyticsService.instance.setUserId(null);
+    // Wipe the home-screen widget / tray menu so the previous user's
+    // draft titles don't linger on the OS surface after sign-out.
+    unawaited(HomeWidgetService.instance.clear());
+    unawaited(DesktopTrayService.instance.update(
+      authorName: null,
+      recentTitle: 'Sign in to InkSpaceX',
+      recentId: '',
+      bookCount: 0,
+    ));
     notifyListeners();
   }
 

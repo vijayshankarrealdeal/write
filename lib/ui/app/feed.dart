@@ -342,6 +342,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
               cardWidth: cardWidth,
               shelfHeight: shelfHeight,
               isMobile: isMobile,
+              railId: 'continue_reading',
             ),
           ),
 
@@ -364,6 +365,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
               isMobile: isMobile,
               feed: feed,
               logImpressions: hasEngineRecs,
+              railId: hasEngineRecs ? 'recommendation' : 'featured',
             ),
           ),
 
@@ -377,6 +379,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
               cardWidth: cardWidth,
               shelfHeight: shelfHeight,
               isMobile: isMobile,
+              railId: 'trending_now',
             ),
           ),
 
@@ -404,6 +407,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
               cardWidth: cardWidth,
               shelfHeight: shelfHeight,
               isMobile: isMobile,
+              railId: 'hidden_gems',
             ),
           ),
 
@@ -417,6 +421,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
               cardWidth: cardWidth,
               shelfHeight: shelfHeight,
               isMobile: isMobile,
+              railId: 'editor_picks',
             ),
           ),
 
@@ -429,6 +434,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
             cardWidth: cardWidth,
             shelfHeight: shelfHeight,
             isMobile: isMobile,
+            railId: 'new_release',
           ),
         ),
 
@@ -867,6 +873,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
     required double cardWidth,
     required double shelfHeight,
     required bool isMobile,
+    required String railId,
     FeedProvider? feed,
     bool logImpressions = false,
   }) {
@@ -909,7 +916,10 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
                 MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      final encoded = Uri.encodeComponent(title);
+                      context.push('/shelf/$railId?title=$encoded');
+                    },
                     child: Row(
                       children: [
                         Text(

@@ -15,6 +15,8 @@ import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
+import 'package:inkspacex/services/desktop_tray_service.dart';
+import 'package:inkspacex/services/home_widget_service.dart';
 import 'package:inkspacex/services/spell_check_decoration.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/services/sync/merge_log.dart';
@@ -255,6 +257,26 @@ class EditorProvider extends ChangeNotifier {
     }
     bookLoadingData = false;
     notifyListeners();
+    _pushWidgetSnapshot();
+  }
+
+  void _pushWidgetSnapshot() {
+    final author = _auth.currentUser?.name;
+    unawaited(HomeWidgetService.instance.updateWritingWidget(
+      authorName: author,
+      books: allBooks,
+    ));
+    final sorted = [...allBooks]
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final mostRecent = sorted.isEmpty ? null : sorted.first;
+    unawaited(DesktopTrayService.instance.update(
+      authorName: author,
+      recentTitle: mostRecent?.title.isNotEmpty == true
+          ? mostRecent!.title
+          : 'Start a new story',
+      recentId: mostRecent?.id ?? '',
+      bookCount: allBooks.length,
+    ));
   }
 
   /// Merge local and remote books. For each section present in both,

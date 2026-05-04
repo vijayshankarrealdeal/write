@@ -37,6 +37,8 @@ import 'package:inkspacex/services/dictionary_service.dart';
 import 'package:inkspacex/services/spell_check_service.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
+import 'package:inkspacex/services/desktop_tray_service.dart';
+import 'package:inkspacex/services/home_widget_service.dart';
 import 'package:inkspacex/services/local_notification_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/services/sync/merge_log.dart';
@@ -115,6 +117,14 @@ void main() {
     // block the first frame on cold start.
     final localNotifications = LocalNotificationService();
     unawaited(localNotifications.init());
+
+    // Home-screen widget bridge — best-effort init. On platforms that
+    // don't ship a widget surface (web) this is a no-op.
+    unawaited(HomeWidgetService.instance.init());
+    // Windows / Linux don't have a real home-screen widget API, so we
+    // surface the same quick actions through a system-tray icon
+    // instead. Best-effort — failures are logged but never fatal.
+    unawaited(DesktopTrayService.instance.init());
 
 // Remote log shipping: every `log.i/w/e/f(...)` call from now on is
     // batched and POSTed to /api/logs so the admin "Application Logs"
@@ -252,19 +262,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         AnalyticsService.instance.onAppForegrounded();
+        widget.localNotifications.setAppForegrounded(true);
         break;
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
         AnalyticsService.instance.onAppBackgrounded();
+        widget.localNotifications.setAppForegrounded(false);
         unawaited(RemoteLogger.instance.flush());
         break;
       case AppLifecycleState.hidden:
-        // Flutter web fires `hidden` on tab visibility loss (user
-        // switched tabs / minimised the window) — the user's still
-        // around, so don't roll the session, just flush so events
-        // written right before the tab was hidden don't sit in memory
-        // until the OS evicts us. On native this state is rare and
-        // already covered by paused/detached above.
+        widget.localNotifications.setAppForegrounded(false);
         unawaited(AnalyticsService.instance.flush());
         unawaited(RemoteLogger.instance.flush());
         break;
@@ -437,9 +444,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             // history + opens the SSE channel. Safe to call repeatedly.
             if (auth.isAuthenticated && previous != null) {
               previous.ensureStarted();
-              // Mirror SSE notifications to the OS tray as well.
+              // Mirror SSE notifications + chat events to the OS tray.
+              // setCurrentUser lets the service drop the user's own
+              // outgoing chat echoes (the SSE feed fans out to all of
+              // the user's devices).
+              localNotifications.setCurrentUser(auth.currentUser?.id);
               localNotifications.attachToSse(auth.realtimeService);
               return previous;
+            }
+            if (!auth.isAuthenticated) {
+              localNotifications.setCurrentUser(null);
             }
             return previous ?? buildNotificationProvider(auth);
           },
@@ -467,22 +481,55 @@ class _AppWithRouter extends StatefulWidget {
 
 class _AppWithRouterState extends State<_AppWithRouter> {
   late final GoRouter _router;
+  StreamSubscription<Uri?>? _widgetTapSub;
+  StreamSubscription<Uri>? _traySub;
 
   @override
   void initState() {
     super.initState();
     _router = createRouter(context.read<AuthProvider>());
+    // Late-bind notification tap handlers now that the router exists.
+    final localNotifs = context.read<LocalNotificationService>();
+    localNotifs.setTapHandlers(
+      onTap: (_) => _router.go('/notifications'),
+      onChatTap: (_) => _router.go('/chats'),
+    );
     // Warm auth-screen assets (doodles + scribbles) on app boot so when
     // the user lands on /login or /signup later, the scene paints
     // instantly instead of streaming in image-by-image.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       precacheAuthAssets(context);
+      _wireWidgetDeepLinks();
     });
+  }
+
+  Future<void> _wireWidgetDeepLinks() async {
+    // 1) cold-start tap from a home-screen widget
+    final initial = await HomeWidgetService.instance.initialLaunchUri();
+    if (initial != null) _routeWidgetUri(initial);
+    // 2) warm taps while the app is running
+    _widgetTapSub = HomeWidgetService.instance.launchStream.listen((uri) {
+      if (uri != null) _routeWidgetUri(uri);
+    });
+    // 3) Windows / Linux tray menu taps
+    _traySub = DesktopTrayService.instance.launchStream.listen(_routeWidgetUri);
+  }
+
+  void _routeWidgetUri(Uri uri) {
+    if (!mounted) return;
+    // Schemes: inkspacex://home, inkspacex://editor?new=1, inkspacex://editor?id=<id>
+    if (uri.host == 'editor') {
+      _router.go('/editor');
+      return;
+    }
+    _router.go('/');
   }
 
   @override
   void dispose() {
+    _widgetTapSub?.cancel();
+    _traySub?.cancel();
     _router.dispose();
     super.dispose();
   }

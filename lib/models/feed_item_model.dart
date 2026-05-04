@@ -167,28 +167,32 @@ class FeedItemModel {
       id: json['id'] ?? '',
       title: json['title'] ?? json['bookTitle'] ?? '',
       author: json['author'] ?? '',
-      authorId: json['authorId'] ?? '',
+      authorId: json['authorId'] ?? json['author_id'] ?? '',
       description: json['description'] ?? '',
-      imageUrl: json['imageUrl'] ?? '',
+      imageUrl: json['imageUrl'] ?? json['image_url'] ?? '',
       imageMeta: ImageMeta.tryFromJson(json['imageMeta'] ?? json['image_meta']),
       genres: List<String>.from(json['genres'] ?? []),
-      writingTypes: List<String>.from(json['writingTypes'] ?? []),
+      writingTypes:
+          List<String>.from(json['writingTypes'] ?? json['writing_types'] ?? []),
       tags: List<String>.from(json['tags'] ?? []),
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
+      createdAt: (json['createdAt'] ?? json['created_at']) != null
+          ? DateTime.tryParse(
+                  (json['createdAt'] ?? json['created_at']).toString()) ??
+              DateTime.now()
           : DateTime.now(),
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.tryParse(json['updatedAt'].toString())
+      updatedAt: (json['updatedAt'] ?? json['updated_at']) != null
+          ? DateTime.tryParse(
+              (json['updatedAt'] ?? json['updated_at']).toString())
           : null,
-      likesCount: json['likesCount'] ?? 0,
-      commentsCount: json['commentsCount'] ?? 0,
+      likesCount: json['likesCount'] ?? json['likes_count'] ?? 0,
+      commentsCount: json['commentsCount'] ?? json['comments_count'] ?? 0,
       sections: sections,
       // Server returns the link to the source writing as `writing_id`;
       // older cached payloads used the camelCase `bookId` key, so accept
       // both for forward + backward compatibility.
       bookId: (json['writing_id'] ?? json['writingId'] ?? json['bookId'] ?? '')
           .toString(),
-      isDraft: json['isDraft'] ?? false,
+      isDraft: json['isDraft'] ?? json['is_draft'] ?? false,
     );
   }
 

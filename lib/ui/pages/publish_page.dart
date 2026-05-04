@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
+import 'package:inkspacex/services/local_notification_service.dart';
 import 'package:inkspacex/ui/utilities/writing_type_style.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
@@ -184,108 +186,155 @@ class _PublishPageState extends State<PublishPage> {
 
     setState(() => _isPublishing = true);
     final provider = context.read<EditorProvider>();
+    final localNotifs = context.read<LocalNotificationService>();
 
+    // Snapshot everything off the form before we tear the page down.
+    final desc = _descriptionController.text.trim();
+    final newTitle = _titleController.text.trim();
+    final coverBytes = _coverBytes;
+    final processedSections = widget.book.sections
+        .where((s) => _selectedSectionIds.contains(s.id))
+        .map((s) => SectionModel(
+              id: s.id,
+              title: s.title,
+              content: _includeWriting ? s.content : '',
+              canvasData: _includeCanvas ? s.canvasData : '',
+              sectionColor: s.sectionColor,
+              createdAt: s.createdAt,
+              updatedAt: s.updatedAt,
+            ))
+        .toList();
+    final publishedSectionIds = _selectedSectionIds.toList();
+    final tagsCopy = List<String>.from(_tags);
+    final freestyleType = _isFreestyle ? _publishType : null;
+    final freestyleSubtype = _isFreestyle ? _publishSubtype : null;
+    final isDraft = _isDraft;
+    final isUpdate = _isUpdate;
+    final includeCanvas = _includeCanvas;
+
+    // Per-publish notification tag — different books / republishes
+    // get their own progress slot in the tray.
+    final notifTag = 'publish:${widget.book.id}:'
+        '${DateTime.now().microsecondsSinceEpoch}';
+
+    // Kick the user back to the previous screen and show the progress
+    // notification — the rest happens in the background.
+    final book = widget.book;
+    Navigator.pop(context);
+    unawaited(localNotifs.showUploadProgress(
+      tag: notifTag,
+      title: isDraft ? 'Saving draft…' : 'Publishing "${book.title}"',
+      body: 'Working in the background',
+    ));
+
+    unawaited(_runPublishInBackground(
+      provider: provider,
+      localNotifs: localNotifs,
+      notifTag: notifTag,
+      book: book,
+      coverBytes: coverBytes,
+      newTitle: newTitle,
+      processedSections: processedSections,
+      publishedSectionIds: publishedSectionIds,
+      tags: tagsCopy,
+      desc: desc,
+      freestyleType: freestyleType,
+      freestyleSubtype: freestyleSubtype,
+      isDraft: isDraft,
+      isUpdate: isUpdate,
+      includeCanvas: includeCanvas,
+    ));
+  }
+
+  Future<void> _runPublishInBackground({
+    required EditorProvider provider,
+    required LocalNotificationService localNotifs,
+    required String notifTag,
+    required WritingModel book,
+    required Uint8List? coverBytes,
+    required String newTitle,
+    required List<SectionModel> processedSections,
+    required List<String> publishedSectionIds,
+    required List<String> tags,
+    required String desc,
+    required WritingType? freestyleType,
+    required String? freestyleSubtype,
+    required bool isDraft,
+    required bool isUpdate,
+    required bool includeCanvas,
+  }) async {
     try {
-      // Apply publish-time type/subtype override for freestyle spaces.
-      if (_isFreestyle && _publishType != null) {
-        widget.book.writingType = _publishType!;
-        widget.book.subtype = _publishSubtype;
+      if (freestyleType != null) {
+        book.writingType = freestyleType;
+        book.subtype = freestyleSubtype ?? '';
       }
 
-      if (_coverBytes != null) {
-        await provider.updateBookCoverImage(widget.book, _coverBytes!);
-      }
-      if (_titleController.text.trim() != widget.book.title) {
-        await provider.renameBookById(
-            widget.book, _titleController.text.trim());
-      }
-
-      final desc = _descriptionController.text.trim();
-      final selectedSections = widget.book.sections
-          .where((s) => _selectedSectionIds.contains(s.id))
-          .toList();
-
-      final processedSections = selectedSections.map((s) {
-        return SectionModel(
-          id: s.id,
-          title: s.title,
-          content: _includeWriting ? s.content : '',
-          canvasData: _includeCanvas ? s.canvasData : '',
-          sectionColor: s.sectionColor,
-          createdAt: s.createdAt,
-          updatedAt: s.updatedAt,
+      if (coverBytes != null) {
+        await localNotifs.showUploadProgress(
+          tag: notifTag,
+          title: isDraft ? 'Saving draft…' : 'Publishing "${book.title}"',
+          body: 'Uploading cover image',
         );
-      }).toList();
+        await provider.updateBookCoverImage(book, coverBytes);
+      }
+      if (newTitle != book.title) {
+        await provider.renameBookById(book, newTitle);
+      }
 
-      // Backend bulk-flips Section.is_published for the writing based
-      // on this list — ids included get is_published=True, omitted ids
-      // get False. Sending the actual ticked set (not just the
-      // processed-section ids) so unticking a previously-published
-      // chapter at republish time correctly removes it from the
-      // public chapter list.
-      final publishedSectionIds = _selectedSectionIds.toList();
+      await localNotifs.showUploadProgress(
+        tag: notifTag,
+        title: isDraft ? 'Saving draft…' : 'Publishing "${book.title}"',
+        body: 'Sending ${processedSections.length} '
+            'section${processedSections.length == 1 ? '' : 's'}',
+      );
 
       await provider.publishCover(
-        widget.book,
+        book,
         processedSections,
-        tags: _tags,
+        tags: tags,
         descriptionOverride: desc.isNotEmpty ? desc : null,
-        isDraft: _isDraft,
+        isDraft: isDraft,
         publishedSectionIds: publishedSectionIds,
       );
 
       AnalyticsService.instance.track(
-        _isDraft ? 'editor_draft_saved' : 'post_published',
+        isDraft ? 'editor_draft_saved' : 'post_published',
         screen: '/publish',
         action: 'success',
         entityType: 'writing',
-        entityId: widget.book.id,
+        entityId: book.id,
         properties: {
           'section_count': processedSections.length,
-          'tag_count': _tags.length,
-          'is_update': _isUpdate,
-          'has_canvas': _includeCanvas,
+          'tag_count': tags.length,
+          'is_update': isUpdate,
+          'has_canvas': includeCanvas,
         },
       );
 
-      if (mounted) {
-        Navigator.pop(context);
-        showCupertinoDialog(
-          context: context,
-          builder: (ctx) => CupertinoAlertDialog(
-            title: Text(_isDraft ? "Saved as Draft" : "Space Published"),
-            content: Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                _isDraft
-                    ? "Your draft has been saved. You can publish it later."
-                    : _isUpdate
-                        ? "Your Space has been updated with the new content."
-                        : "Your Space is now live on the feed!",
-                style: GoogleFonts.inter(),
-              ),
-            ),
-            actions: [
-              CupertinoDialogAction(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text("OK"),
-              ),
-            ],
-          ),
-        );
-      }
+      await localNotifs.showUploadResult(
+        tag: notifTag,
+        title: isDraft ? 'Draft saved' : 'Space published',
+        body: isDraft
+            ? '"${book.title}" saved as a draft.'
+            : isUpdate
+                ? '"${book.title}" updated on the feed.'
+                : '"${book.title}" is live on the feed.',
+        success: true,
+      );
     } catch (e) {
       AnalyticsService.instance.track(
         'post_publish_failed',
         screen: '/publish',
         action: 'fail',
         entityType: 'writing',
-        entityId: widget.book.id,
+        entityId: book.id,
       );
-      if (mounted) {
-        setState(() => _isPublishing = false);
-        _showAlert("Error", e.toString().replaceFirst('Exception: ', ''));
-      }
+      await localNotifs.showUploadResult(
+        tag: notifTag,
+        title: isDraft ? 'Draft save failed' : 'Publish failed',
+        body: e.toString().replaceFirst('Exception: ', ''),
+        success: false,
+      );
     }
   }
 

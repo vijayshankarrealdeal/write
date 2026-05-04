@@ -12,6 +12,7 @@ import flutter_secure_storage_macos
 import quill_native_bridge_macos
 import shared_preferences_foundation
 import sqflite_darwin
+import tray_manager
 import url_launcher_macos
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
@@ -22,5 +23,6 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   QuillNativeBridgePlugin.register(with: registry.registrar(forPlugin: "QuillNativeBridgePlugin"))
   SharedPreferencesPlugin.register(with: registry.registrar(forPlugin: "SharedPreferencesPlugin"))
   SqflitePlugin.register(with: registry.registrar(forPlugin: "SqflitePlugin"))
+  TrayManagerPlugin.register(with: registry.registrar(forPlugin: "TrayManagerPlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))
 }

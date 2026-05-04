@@ -34,5 +34,18 @@
 	<string>InkSpaceX needs access to your photo library to add images to your Spaces.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>InkSpaceX needs permission to save images to your photo library.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.inkspacex.app.widget</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>inkspacex</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
