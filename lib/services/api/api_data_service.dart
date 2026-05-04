@@ -43,6 +43,57 @@ class FacetEntry {
   const FacetEntry({required this.value, required this.count});
 }
 
+/// Reader/Writer tier badge — surfaced on author chips and profile
+/// headers to give both readers and writers a visible progression.
+/// Two parallel tracks (writer + reader) so non-writers still see
+/// motion. Backend-computed in `app/badges.py`; the Flutter side just
+/// renders the precomputed slug/label/color.
+class UserBadge {
+  /// 'reader' | 'writer'
+  final String track;
+  /// 0..4 — useful for sorting and for picking icon weight.
+  final int tier;
+  /// Stable identifier (e.g. 'storyteller'); analytics keys on this so
+  /// the human label can be renamed without breaking funnels.
+  final String slug;
+  /// Display name (e.g. 'Storyteller').
+  final String label;
+  /// Accent colour the chip uses for icon + outline.
+  final String colorHex;
+  /// Backend's icon key — the widget maps this to a concrete glyph so
+  /// new tiers can ship without a client release.
+  final String icon;
+  /// Next-tier name, or null at max.
+  final String? nextLabel;
+  /// 0..1 progress toward the next tier (slowest dimension wins), or
+  /// null at max.
+  final double? nextProgress;
+  const UserBadge({
+    required this.track,
+    required this.tier,
+    required this.slug,
+    required this.label,
+    required this.colorHex,
+    required this.icon,
+    this.nextLabel,
+    this.nextProgress,
+  });
+
+  static UserBadge? tryFromJson(dynamic raw) {
+    if (raw is! Map<String, dynamic>) return null;
+    return UserBadge(
+      track: (raw['track'] ?? '').toString(),
+      tier: (raw['tier'] as num?)?.toInt() ?? 0,
+      slug: (raw['slug'] ?? '').toString(),
+      label: (raw['label'] ?? '').toString(),
+      colorHex: (raw['color'] ?? '#94A3B8').toString(),
+      icon: (raw['icon'] ?? '').toString(),
+      nextLabel: raw['next_label'] as String?,
+      nextProgress: (raw['next_progress'] as num?)?.toDouble(),
+    );
+  }
+}
+
 /// Slim author record returned by `/api/users/search` and the public
 /// profile endpoint. Excludes private fields (email, lists, onboarding).
 class PublicUser {
@@ -65,6 +116,13 @@ class PublicUser {
   /// CTA 'Request to follow' before the round-trip.
   final bool requiresFollowApproval;
   final bool isBlocked;
+  /// Writer-tier badge (Novice → Master). Always populated when the
+  /// server can compute it; null if the response predates the badge
+  /// rollout or the field was stripped.
+  final UserBadge? writerBadge;
+  /// Reader-tier badge (Curious → Sage). Only populated for the
+  /// viewer's own profile fetch — reader stats are private to the user.
+  final UserBadge? readerBadge;
   const PublicUser({
     required this.id,
     required this.name,
@@ -77,6 +135,8 @@ class PublicUser {
     this.followRequestPending = false,
     this.requiresFollowApproval = false,
     this.isBlocked = false,
+    this.writerBadge,
+    this.readerBadge,
   });
 
   factory PublicUser.fromJson(Map<String, dynamic> j) => PublicUser(
@@ -92,6 +152,8 @@ class PublicUser {
         requiresFollowApproval:
             j['requires_follow_approval'] as bool? ?? false,
         isBlocked: j['is_blocked'] as bool? ?? false,
+        writerBadge: UserBadge.tryFromJson(j['writer_badge']),
+        readerBadge: UserBadge.tryFromJson(j['reader_badge']),
       );
 
   PublicUser copyWith({
@@ -116,6 +178,8 @@ class PublicUser {
         requiresFollowApproval:
             requiresFollowApproval ?? this.requiresFollowApproval,
         isBlocked: isBlocked ?? this.isBlocked,
+        writerBadge: writerBadge,
+        readerBadge: readerBadge,
       );
 }
 

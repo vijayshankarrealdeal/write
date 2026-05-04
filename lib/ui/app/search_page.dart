@@ -16,6 +16,7 @@ import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/widgets/author_link.dart';
+import 'package:inkspacex/ui/widgets/user_badge_chip.dart';
 
 const double _kMaxContentWidth = 1080;
 
@@ -1213,15 +1214,25 @@ class _SearchPageState extends State<SearchPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    user.name ?? 'Unnamed',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: textColor,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          user.name ?? 'Unnamed',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (user.writerBadge != null && user.writerBadge!.tier > 0) ...[
+                        const SizedBox(width: 6),
+                        UserBadgeChip(badge: user.writerBadge!),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 2),
                   Text(

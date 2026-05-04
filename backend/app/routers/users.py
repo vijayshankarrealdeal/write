@@ -7,10 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
 from app.auth.deps import get_current_user
+from app.badges import Badge, compute_reader_tier, compute_writer_tier
 from app.database import get_db
 from app.models.block import Block
+from app.models.comment import Comment
 from app.models.feed_item import FeedItem
 from app.models.follow import Follow
+from app.models.highlight import Highlight
+from app.models.reading_progress import ReadingProgress
 from app.models.user import User
 from app.notifications import create_notification
 from app.schemas.user import ListUpdateRequest, UserResponse, UserUpdate
@@ -42,8 +46,49 @@ class PublicUser(BaseModel):
     # ('Request to follow' vs 'Follow') ahead of the round-trip.
     requires_follow_approval: bool = False
     is_blocked: bool = False
+    # Tier badges. `writer_badge` is computed cheaply from counts that
+    # are already in the response (posts_count, followers_count, plus a
+    # likes_received subquery added below). `reader_badge` is only
+    # populated on the single-user fetch (`/users/{id}`) — it requires
+    # joining reading_progress and highlights, which we don't pay for
+    # on every search/list row.
+    writer_badge: Badge | None = None
+    reader_badge: Badge | None = None
 
     model_config = {"from_attributes": True}
+
+
+def _likes_received_subquery(target_col):
+    """Sum of likes_count across the user's published feed items.
+
+    Drives the writer-tier badge — gating on *received* engagement
+    rather than raw publish count is what stops the badge system from
+    rewarding spam.
+    """
+    return (
+        select(func.coalesce(func.sum(FeedItem.likes_count), 0))
+        .where(FeedItem.author_id == target_col)
+        .where(FeedItem.is_draft == False)  # noqa: E712
+        .correlate(User)
+        .scalar_subquery()
+    )
+
+
+def _comments_received_subquery(target_col):
+    """Sum of comments_count across the user's published feed items.
+
+    Comments are higher-friction than likes (they require typing a
+    sentence, not a tap), so they're a better signal of resonance and
+    much harder to farm. Used as a co-requirement at every non-trivial
+    writer tier.
+    """
+    return (
+        select(func.coalesce(func.sum(FeedItem.comments_count), 0))
+        .where(FeedItem.author_id == target_col)
+        .where(FeedItem.is_draft == False)  # noqa: E712
+        .correlate(User)
+        .scalar_subquery()
+    )
 
 
 def _follower_count_subquery(target_col):
@@ -98,6 +143,8 @@ async def search_users(
     )
     followers_count = _follower_count_subquery(User.id)
     following_count = _following_count_subquery(User.id)
+    likes_received = _likes_received_subquery(User.id)
+    comments_received = _comments_received_subquery(User.id)
     invisible = await _viewer_invisible_to(db, user.id)
     stmt = (
         select(
@@ -105,6 +152,8 @@ async def search_users(
             posts_count.label("posts_count"),
             followers_count.label("followers_count"),
             following_count.label("following_count"),
+            likes_received.label("likes_received"),
+            comments_received.label("comments_received"),
         )
         .where(User.name.is_not(None))
         .where(User.name.ilike(pattern))
@@ -142,8 +191,15 @@ async def search_users(
             is_following=u.id in following_set,
             follow_request_pending=u.id in pending_set,
             requires_follow_approval=u.id in gated_set,
+            writer_badge=compute_writer_tier(
+                published=int(p or 0),
+                likes_received=int(lr or 0),
+                followers=int(fc or 0),
+                comments_received=int(cr or 0),
+                email=u.email,
+            ),
         )
-        for u, p, fc, gc in rows
+        for u, p, fc, gc, lr, cr in rows
     ]
 
 
@@ -260,19 +316,66 @@ async def get_public_user(
         .where(Follow.status == "approved")
         .scalar_subquery()
     )
+    likes_received = (
+        select(func.coalesce(func.sum(FeedItem.likes_count), 0))
+        .where(FeedItem.author_id == user_id)
+        .where(FeedItem.is_draft == False)  # noqa: E712
+        .scalar_subquery()
+    )
+    comments_received = (
+        select(func.coalesce(func.sum(FeedItem.comments_count), 0))
+        .where(FeedItem.author_id == user_id)
+        .where(FeedItem.is_draft == False)  # noqa: E712
+        .scalar_subquery()
+    )
+    # Reader-tier inputs. Self-only: completed reads + highlights are
+    # personal data — we don't expose them on other users' profiles, so
+    # the reader badge is computed but never attached for non-self.
+    reads_completed = (
+        select(func.count(ReadingProgress.id))
+        .where(ReadingProgress.user_id == user_id)
+        .where(ReadingProgress.completed == True)  # noqa: E712
+        .scalar_subquery()
+    )
+    highlights_count = (
+        select(func.count(Highlight.id))
+        .where(Highlight.user_id == user_id)
+        .scalar_subquery()
+    )
+    comments_authored = (
+        select(func.count(Comment.id))
+        .where(Comment.author_id == user_id)
+        .scalar_subquery()
+    )
+    # Distinct calendar days the user touched a `reading_progress` row.
+    # Cheap proxy for "consistency over time" without needing a separate
+    # streak table — Postgres treats `DATE(timestamp)` distinctly so the
+    # count goes up only once per day no matter how many rows update.
+    active_reading_days = (
+        select(func.count(func.distinct(func.date(ReadingProgress.last_read_at))))
+        .where(ReadingProgress.user_id == user_id)
+        .where(ReadingProgress.last_read_at.is_not(None))
+        .scalar_subquery()
+    )
     stmt = (
         select(
             User,
             posts_count.label("posts_count"),
             followers_count.label("followers_count"),
             following_count.label("following_count"),
+            likes_received.label("likes_received"),
+            comments_received.label("comments_received"),
+            reads_completed.label("reads_completed"),
+            highlights_count.label("highlights_count"),
+            comments_authored.label("comments_authored"),
+            active_reading_days.label("active_reading_days"),
         )
         .where(User.id == user_id)
     )
     row = (await db.execute(stmt)).first()
     if not row:
         raise HTTPException(status_code=404, detail="User not found")
-    u, p, fc, gc = row
+    u, p, fc, gc, lr, cr, rc, hc, ca, ard = row
     is_following = False
     follow_request_pending = False
     is_blocked = False
@@ -314,6 +417,27 @@ async def get_public_user(
             )
         ).first() is not None
         requires_follow_approval = await _has_private_writings(db, user_id)
+    writer_badge = compute_writer_tier(
+        published=int(p or 0),
+        likes_received=int(lr or 0),
+        followers=int(fc or 0),
+        comments_received=int(cr or 0),
+        email=u.email,
+    )
+    # Only attach the reader badge on the user's own profile fetch — it's
+    # derived from private signal (reads, highlights) so we don't surface
+    # it on other authors' public cards.
+    reader_badge = (
+        compute_reader_tier(
+            reads_completed=int(rc or 0),
+            highlights=int(hc or 0),
+            comments_authored=int(ca or 0),
+            active_reading_days=int(ard or 0),
+            email=u.email,
+        )
+        if user.id == user_id
+        else None
+    )
     return PublicUser(
         id=u.id,
         name=u.name,
@@ -326,6 +450,8 @@ async def get_public_user(
         follow_request_pending=follow_request_pending,
         requires_follow_approval=requires_follow_approval,
         is_blocked=is_blocked,
+        writer_badge=writer_badge,
+        reader_badge=reader_badge,
     )
 
 
@@ -567,6 +693,8 @@ async def list_follow_requests(
     )
     followers_count = _follower_count_subquery(User.id)
     following_count = _following_count_subquery(User.id)
+    likes_received = _likes_received_subquery(User.id)
+    comments_received = _comments_received_subquery(User.id)
     invisible = await _viewer_invisible_to(db, user.id)
     stmt = (
         select(
@@ -576,6 +704,8 @@ async def list_follow_requests(
             posts_count.label("posts_count"),
             followers_count.label("followers_count"),
             following_count.label("following_count"),
+            likes_received.label("likes_received"),
+            comments_received.label("comments_received"),
         )
         .join(User, User.id == Follow.follower_id)
         .where(Follow.followee_id == user.id)
@@ -598,9 +728,16 @@ async def list_follow_requests(
                 posts_count=int(p or 0),
                 followers_count=int(fc or 0),
                 following_count=int(gc or 0),
+                writer_badge=compute_writer_tier(
+                    published=int(p or 0),
+                    likes_received=int(lr or 0),
+                    followers=int(fc or 0),
+                    comments_received=int(cr or 0),
+                    email=u.email,
+                ),
             ),
         )
-        for fid, created_at, u, p, fc, gc in rows
+        for fid, created_at, u, p, fc, gc, lr, cr in rows
     ]
 
 
@@ -746,12 +883,16 @@ async def list_blocked(
     )
     followers_count = _follower_count_subquery(User.id)
     following_count = _following_count_subquery(User.id)
+    likes_received = _likes_received_subquery(User.id)
+    comments_received = _comments_received_subquery(User.id)
     stmt = (
         select(
             User,
             posts_count.label("posts_count"),
             followers_count.label("followers_count"),
             following_count.label("following_count"),
+            likes_received.label("likes_received"),
+            comments_received.label("comments_received"),
             Block.created_at,
         )
         .join(Block, Block.blockee_id == User.id)
@@ -771,8 +912,15 @@ async def list_blocked(
             following_count=int(gc or 0),
             is_following=False,
             is_blocked=True,
+            writer_badge=compute_writer_tier(
+                published=int(p or 0),
+                likes_received=int(lr or 0),
+                followers=int(fc or 0),
+                comments_received=int(cr or 0),
+                email=u.email,
+            ),
         )
-        for u, p, fc, gc, _ in rows
+        for u, p, fc, gc, lr, cr, _ in rows
     ]
 
 
@@ -807,6 +955,8 @@ async def _list_relations(
     )
     followers_count = _follower_count_subquery(User.id)
     following_count = _following_count_subquery(User.id)
+    likes_received = _likes_received_subquery(User.id)
+    comments_received = _comments_received_subquery(User.id)
     invisible = await _viewer_invisible_to(db, viewer_id)
     stmt = (
         select(
@@ -814,6 +964,8 @@ async def _list_relations(
             posts_count.label("posts_count"),
             followers_count.label("followers_count"),
             following_count.label("following_count"),
+            likes_received.label("likes_received"),
+            comments_received.label("comments_received"),
             Follow.created_at,
         )
         .join(Follow, join_cond)
@@ -843,8 +995,15 @@ async def _list_relations(
             is_following=u.id in following_set,
             follow_request_pending=u.id in pending_set,
             is_blocked=u.id in blocked_set,
+            writer_badge=compute_writer_tier(
+                published=int(p or 0),
+                likes_received=int(lr or 0),
+                followers=int(fc or 0),
+                comments_received=int(cr or 0),
+                email=u.email,
+            ),
         )
-        for u, p, fc, gc, _ in rows
+        for u, p, fc, gc, lr, cr, _ in rows
     ]
 
 

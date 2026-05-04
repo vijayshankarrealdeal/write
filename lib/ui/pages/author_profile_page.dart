@@ -11,6 +11,7 @@ import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/widgets/report_dialog.dart';
+import 'package:inkspacex/ui/widgets/user_badge_chip.dart';
 
 /// Public profile for any author. Reached from search results — shows
 /// the author's avatar + name + post count + follower stats, then their
@@ -277,6 +278,35 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
                     : '${user.postsCount} published stories',
                 style: GoogleFonts.inter(fontSize: 13, color: subtle),
               ),
+              if (user.writerBadge != null || user.readerBadge != null) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    if (user.writerBadge != null)
+                      UserBadgeChip(
+                        badge: user.writerBadge!,
+                        compact: false,
+                        onTap: () => showBadgeDetailSheet(
+                          context,
+                          badge: user.writerBadge!,
+                          isSelf: isSelf,
+                        ),
+                      ),
+                    if (user.readerBadge != null)
+                      UserBadgeChip(
+                        badge: user.readerBadge!,
+                        compact: false,
+                        onTap: () => showBadgeDetailSheet(
+                          context,
+                          badge: user.readerBadge!,
+                          isSelf: isSelf,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
               if (!isSelf) ...[
                 const SizedBox(height: 10),
                 _FollowButton(

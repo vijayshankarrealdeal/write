@@ -9,6 +9,7 @@ import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
+import 'package:inkspacex/ui/widgets/user_badge_chip.dart';
 
 enum FollowListMode { followers, following }
 
@@ -394,15 +395,25 @@ class _UserRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  user.name ?? 'Unnamed',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                  ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        user.name ?? 'Unnamed',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: textColor,
+                        ),
+                      ),
+                    ),
+                    if (user.writerBadge != null && user.writerBadge!.tier > 0) ...[
+                      const SizedBox(width: 6),
+                      UserBadgeChip(badge: user.writerBadge!),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 2),
                 Text(
