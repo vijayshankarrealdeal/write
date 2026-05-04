@@ -335,7 +335,12 @@
     font-size: 24px;
     letter-spacing: -1px;
   }
-  .brand-text .x { color: var(--accent); }
+  .brand-text .x {
+    color: var(--accent);
+    font-weight: 700;
+    margin-left: -1px;
+    font-style: italic;
+  }
 
   .nav-links {
     display: flex;
@@ -405,15 +410,23 @@
     border-radius: 14px;
     text-decoration: underline;
     text-decoration-thickness: 2px;
-    text-underline-offset: 5px;
+    text-underline-offset: 8px;
     text-decoration-color: var(--accent);
+    transition: text-underline-offset 0.18s ease, color 0.18s ease;
   }
   .btn.ghost-lg:hover {
     transform: none;
     box-shadow: none;
     color: var(--accent);
-    text-decoration-color: var(--ink);
+    text-underline-offset: 6px;
   }
+  /* Primary CTA arrow micro-translate on hover */
+  .btn .arrow {
+    display: inline-block;
+    transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1);
+    will-change: transform;
+  }
+  .btn:hover .arrow { transform: translateX(3px); }
 
   .menu-toggle {
     display: none;
@@ -494,10 +507,34 @@
     font-weight: 800;
     font-variation-settings: "SOFT" 50, "opsz" 144;
     font-size: clamp(44px, 6.4vw, 88px);
-    line-height: 1;
+    line-height: 1.02;
     letter-spacing: -2.4px;
     margin: 18px 0 22px;
     color: var(--ink);
+  }
+  h1.hero-title .line { display: block; overflow: hidden; }
+  h1.hero-title .w {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.55em);
+    animation: heroWordIn 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  }
+  /* Stagger each word: ~70ms apart, totalling ~1s before lede */
+  h1.hero-title .line:nth-child(1) .w:nth-child(1) { animation-delay: 0.10s; }
+  h1.hero-title .line:nth-child(1) .w:nth-child(2) { animation-delay: 0.17s; }
+  h1.hero-title .line:nth-child(1) .w:nth-child(3) { animation-delay: 0.24s; }
+  h1.hero-title .line:nth-child(1) .w:nth-child(4) { animation-delay: 0.31s; }
+  h1.hero-title .line:nth-child(1) .w:nth-child(5) { animation-delay: 0.38s; }
+  h1.hero-title .line:nth-child(2) .w:nth-child(1) { animation-delay: 0.48s; }
+  h1.hero-title .line:nth-child(2) .w:nth-child(2) { animation-delay: 0.55s; }
+  h1.hero-title .line:nth-child(2) .w:nth-child(3) { animation-delay: 0.62s; }
+  h1.hero-title .line:nth-child(3) .w:nth-child(1) { animation-delay: 0.72s; }
+  h1.hero-title .line:nth-child(3) .w:nth-child(2) { animation-delay: 0.79s; }
+  @keyframes heroWordIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    h1.hero-title .w { opacity: 1; transform: none; animation: none; }
   }
   h1.hero-title .ink { color: var(--accent); display: inline-block; transform: rotate(-2deg); }
   h1.hero-title .underline {
@@ -511,8 +548,20 @@
     right: -4%;
     bottom: -6px;
     height: 16px;
-    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 12' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Cpath d='M2 8 C 40 1, 80 11, 120 5 S 195 8, 198 4' stroke='%236B5BFF' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center/100% 100% no-repeat;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 12' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Cpath d='M2 8 C 40 1, 80 11, 120 5 S 195 8, 198 4' stroke='%231E6EF4' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center/100% 100% no-repeat;
     z-index: -1;
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: heroDraw 0.55s cubic-bezier(0.5, 0, 0.2, 1) 0.85s forwards;
+  }
+  @keyframes heroDraw {
+    to { transform: scaleX(1); }
+  }
+  [data-theme="dark"] h1.hero-title .underline::after {
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 12' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Cpath d='M2 8 C 40 1, 80 11, 120 5 S 195 8, 198 4' stroke='%235CB8FF' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center/100% 100% no-repeat;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    h1.hero-title .underline::after { transform: none; animation: none; }
   }
   .lede {
     font-size: clamp(17px, 1.4vw, 19px);
@@ -679,6 +728,19 @@
   }
   @keyframes blink { 50% { opacity: 0; } }
   .ec-body em { color: var(--accent-2); font-style: italic; font-weight: 500; }
+  /* Subtle highlight pulse on active slash row — feels like the product is responding */
+  @keyframes slashGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(30, 110, 244, 0); }
+    50%      { box-shadow: 0 0 0 4px rgba(30, 110, 244, 0.18); }
+  }
+  [data-theme="dark"] @keyframes slashGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(92, 184, 255, 0); }
+    50%      { box-shadow: 0 0 0 4px rgba(92, 184, 255, 0.18); }
+  }
+  .ec-slash li.active { animation: slashGlow 2.4s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .ec-slash li.active { animation: none; }
+  }
 
   .ec-slash {
     margin-top: 14px;
@@ -1966,33 +2028,25 @@
   <!-- ─── HERO ─── -->
   <section class="hero">
     <div class="container">
+      <!-- Two intentional accents: feather near the headline, single star near pill. Less is more. -->
       <span class="doodle feather" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/200.png" alt=""></span>
-      <!-- Extra hand-drawn accents to fill the cream space -->
       <span class="doodle h-star-tl" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/280.png" alt=""></span>
-      <span class="doodle h-star-tr" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/280.png" alt=""></span>
-      <span class="doodle h-poppy-tr" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/220.png" alt=""></span>
-      <span class="doodle h-flower-bl" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/350.png" alt=""></span>
-      <span class="doodle h-bow-tl" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/800.png" alt=""></span>
-      <span class="doodle h-squiggle" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/333.png" alt=""></span>
-      <span class="doodle h-lightning2" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/850.png" alt=""></span>
-      <span class="doodle h-arrow-bl" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/600.png" alt=""></span>
-      <span class="doodle h-star-mid" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/280.png" alt=""></span>
 
       <div class="hero-grid">
         <div class="hero-left">
           <span class="pill"><span class="dot"></span> Always free · no ads · no algorithms</span>
           <h1 class="hero-title">
-            A calm place to <span class="underline">write</span>,<br>
-            <span class="ink">read</span> &amp; share<br>
-            your stories.
+            <span class="line"><span class="w">A</span> <span class="w">calm</span> <span class="w">place</span> <span class="w">to</span> <span class="w"><span class="underline">write</span>,</span></span>
+            <span class="line"><span class="w"><span class="ink">read</span></span> <span class="w">&amp;</span> <span class="w">share</span></span>
+            <span class="line"><span class="w">your</span> <span class="w">stories.</span></span>
           </h1>
           <p class="lede">
-            InkSpaceX is the writing app that feels like the inside of a notebook. A
-            <em>distraction-free editor</em>, a beautiful reader, and a quiet
-            community of writers — on web, Android, macOS and Windows.
+            The writing app that feels like the inside of a notebook —
+            <em>distraction-free editor</em>, beautiful reader, quiet community.
+            Built for the way writers actually write, on every device you own.
           </p>
           <div class="hero-cta">
-            <a href="#cta" class="btn accent lg">Start writing — it's free →</a>
+            <a href="#cta" class="btn accent lg">Start writing — it's free <span class="arrow">→</span></a>
             <a href="#showcase" class="btn ghost-lg">Take the tour</a>
           </div>
           <div class="micro-trust">
@@ -2011,10 +2065,8 @@
 
         <div class="preview-stage">
 
-          <!-- Decorative doodles -->
+          <!-- One decorative flower behind the editor card; the rest read as noise. -->
           <span class="doodle flower" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/350.png" alt=""></span>
-          <span class="doodle lightning" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/850.png" alt=""></span>
-          <span class="doodle arrow-down" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/600.png" alt=""></span>
 
           <!-- Floating sticker chips — kept to two so the editor can breathe -->
           <div class="chip ch2 c-yellow">/slash to insert</div>
@@ -2038,7 +2090,7 @@
               <span class="tb">link</span>
             </div>
             <div class="ec-title">A Letter to the Sea</div>
-            <div class="ec-subtitle">Chapter 4 · 1,284 words</div>
+            <div class="ec-subtitle">Chapter 4 · <span id="liveWordCount">1,284</span> words</div>
             <div class="ec-body">
               <p>The harbour was always loudest just before the rain, when even
               the gulls fell quiet and the boats began to hum against their
@@ -2835,6 +2887,19 @@
       var t = document.getElementById('features');
       if (t) t.scrollIntoView({ behavior: 'smooth' });
     });
+  })();
+
+  // Live word count in the hero editor — ticks up so it feels like the writer is typing now
+  (function () {
+    var el = document.getElementById('liveWordCount');
+    if (!el) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var n = 1284;
+    setInterval(function () {
+      n += 1 + Math.floor(Math.random() * 3);
+      if (n > 1340) n = 1284;
+      el.textContent = n.toLocaleString();
+    }, 1800);
   })();
 
   // Reveal-on-scroll
