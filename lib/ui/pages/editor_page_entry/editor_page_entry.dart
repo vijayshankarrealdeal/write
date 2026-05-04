@@ -2654,10 +2654,7 @@ class _EditiorPageState extends State<EditiorPage>
             break;
         }
 
-        final inner =
-            (status == SyncStatus.saving || status == SyncStatus.syncing)
-                ? const AppSpinner(size: 19)
-                : Icon(icon, size: 19, color: iconColor);
+        final inner = Icon(icon, size: 19, color: iconColor);
 
         final chip = Tooltip(
           message: tooltip,

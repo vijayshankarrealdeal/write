@@ -20,6 +20,7 @@ from app.models.dictionary import (
 )
 from app.models.early_tester import EarlyTester
 from app.models.feed_item import FeedItem
+from app.models.feedback import Feedback
 from app.models.follow import Follow
 from app.models.highlight import Highlight
 from app.models.notification import Notification
@@ -47,6 +48,7 @@ __all__ = [
     "DictionarySubmission",
     "DictionaryWord",
     "EarlyTester",
+    "Feedback",
     "FeedItem",
     "Follow",
     "Highlight",

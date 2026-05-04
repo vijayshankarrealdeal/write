@@ -517,30 +517,6 @@ class _EditableImageEmbedState extends State<_EditableImageEmbed> {
       ),
     );
 
-    Widget imageWidget;
-    if (src.startsWith('data:image')) {
-      final bytes = _bytesFor(src);
-      imageWidget = bytes == null
-          ? errorBox
-          : Image.memory(
-              bytes,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              gaplessPlayback: true,
-              errorBuilder: (_, e, s) => errorBox,
-            );
-    } else {
-      imageWidget = LayoutBuilder(
-        builder: (ctx, c) => AppNetworkImage(
-          url: src,
-          meta: _t.imageMeta,
-          width: c.maxWidth,
-          fit: BoxFit.cover,
-          errorWidget: errorBox,
-        ),
-      );
-    }
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: LayoutBuilder(
@@ -549,6 +525,29 @@ class _EditableImageEmbedState extends State<_EditableImageEmbed> {
           final targetW = maxW * _t.widthFactor;
           final freeSpace = math.max(0.0, maxW - targetW);
           final canDrag = !widget.readOnly && freeSpace > 0.5;
+
+          Widget imageWidget;
+          if (src.startsWith('data:image')) {
+            final bytes = _bytesFor(src);
+            imageWidget = bytes == null
+                ? errorBox
+                : Image.memory(
+                    bytes,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    gaplessPlayback: true,
+                    errorBuilder: (_, e, s) => errorBox,
+                  );
+          } else {
+            imageWidget = AppNetworkImage(
+              url: src,
+              meta: _t.imageMeta,
+              width: targetW,
+              fit: BoxFit.cover,
+              errorWidget: errorBox,
+            );
+          }
+
           return Align(
             alignment: Alignment(_t.xOffset, 0),
             child: GestureDetector(

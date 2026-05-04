@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show MissingPluginException;
 import 'package:home_widget/home_widget.dart';
 
 import 'package:inkspacex/models/writing_model.dart';
@@ -25,7 +26,7 @@ class HomeWidgetService {
 
   bool get _isSupported {
     if (kIsWeb) return false;
-    return Platform.isIOS || Platform.isAndroid || Platform.isMacOS;
+    return Platform.isIOS || Platform.isAndroid;
   }
 
   Future<void> init() async {
@@ -145,9 +146,25 @@ class HomeWidgetService {
   }
 
   /// Stream of widget tap events while the app is running.
+  ///
+  /// Tolerates a missing native implementation (e.g. the plugin's pod/aar
+  /// hasn't been synced into the host project yet) by quietly degrading
+  /// to an empty stream instead of letting the exception escape into the
+  /// app's zone error handler.
   Stream<Uri?> get launchStream {
     if (!_isSupported) return const Stream<Uri?>.empty();
-    return HomeWidget.widgetClicked;
+    try {
+      return HomeWidget.widgetClicked.handleError((Object error) {
+        if (error is MissingPluginException) {
+          log.w('[home_widget] launchStream unavailable: $error');
+          return;
+        }
+        log.w('[home_widget] launchStream error: $error');
+      });
+    } on MissingPluginException catch (e) {
+      log.w('[home_widget] launchStream unavailable: $e');
+      return const Stream<Uri?>.empty();
+    }
   }
 }
 

@@ -164,6 +164,23 @@ class SettingsPage extends StatelessWidget {
 
               const SizedBox(height: 32),
 
+              // --- SUPPORT SECTION ---
+              _buildSectionHeader("SUPPORT", textColor),
+              _buildSettingsCard(
+                cardColor: cardColor,
+                borderColor: subtleBorder,
+                children: [
+                  SettingsTile(
+                    icon: CupertinoIcons.chat_bubble_text,
+                    title: "Send Feedback",
+                    subtitle: "Report bugs, suggest features, share praise",
+                    onTap: () => context.push('/feedback'),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 32),
+
               // --- LEGAL SECTION ---
               _buildSectionHeader("LEGAL", textColor),
               _buildSettingsCard(

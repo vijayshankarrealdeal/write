@@ -129,6 +129,20 @@ export const api = {
       body: JSON.stringify({ status }),
     }),
 
+  // Feedback (user-submitted product feedback)
+  feedback: (page = 1, perPage = 25, filters = {}) => {
+    const params = new URLSearchParams({ page, per_page: perPage });
+    if (filters.status) params.set("status", filters.status);
+    if (filters.category) params.set("category", filters.category);
+    return request(`/feedback?${params}`);
+  },
+  feedbackStats: () => request("/feedback/stats"),
+  updateFeedback: (id, status) =>
+    request(`/feedback/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }),
+
   // Logs
   logs: (page = 1, perPage = 50, filters = {}) => {
     const params = new URLSearchParams({ page, per_page: perPage });

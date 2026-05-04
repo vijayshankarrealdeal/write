@@ -6032,8 +6032,8 @@ class _NoteSheetState extends State<_NoteSheet> {
               constraints: const BoxConstraints(maxWidth: 480),
               child: Material(
                 color: widget.bg,
-                elevation: 18,
-                shadowColor: Colors.black.withValues(alpha: 0.45),
+                elevation: 4,
+                shadowColor: Colors.black.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(20),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 18, 12, 14),
@@ -6398,10 +6398,10 @@ class _ReaderSelectionBarState extends State<_ReaderSelectionBar> {
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
           child: Material(
-            elevation: 10,
+            elevation: 3,
             borderRadius: BorderRadius.circular(28),
             color: palette.bg,
-            shadowColor: Colors.black.withValues(alpha: 0.35),
+            shadowColor: Colors.black.withValues(alpha: 0.18),
             child: Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

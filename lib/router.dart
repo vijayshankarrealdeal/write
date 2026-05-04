@@ -30,6 +30,7 @@ import 'package:inkspacex/ui/pages/post_detail_page.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/editor_page_entry.dart';
 import 'package:inkspacex/ui/pages/publish_page.dart';
 import 'package:inkspacex/ui/pages/feed_preferences_page.dart';
+import 'package:inkspacex/ui/pages/feedback_page.dart';
 import 'package:inkspacex/ui/pages/drafts_page.dart';
 import 'package:inkspacex/ui/pages/legal_page.dart';
 import 'package:inkspacex/ui/pages/merge_log_page.dart';
@@ -181,6 +182,10 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/feed-preferences',
         builder: (_, __) => const FeedPreferencesPage(),
+      ),
+      GoRoute(
+        path: '/feedback',
+        builder: (_, __) => const FeedbackPage(),
       ),
       // Explore was merged into the unified search surface — keep the
       // path for any deep links / shortcuts and redirect through.

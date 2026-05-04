@@ -984,6 +984,16 @@ class _AppSidebar extends StatelessWidget {
                 ),
               ),
               const Spacer(),
+              _SidebarItem(
+                icon: CupertinoIcons.chat_bubble,
+                activeIcon: CupertinoIcons.chat_bubble_fill,
+                label: 'Feedback',
+                expanded: expanded,
+                isDark: isDark,
+                isSelected: false,
+                onTap: () => context.push('/feedback'),
+              ),
+              const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Divider(color: borderColor, height: 1),

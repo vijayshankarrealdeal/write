@@ -1649,6 +1649,27 @@ class ApiDataService implements SyncDispatcher {
   }
 
   // =========================================================================
+  // FEEDBACK (product feedback about the app — distinct from `reports`)
+  // =========================================================================
+
+  /// Submit user feedback about the app. `category` must be one of the
+  /// backend constants in `app.models.feedback.FEEDBACK_CATEGORIES`
+  /// ('bug', 'feature', 'praise', 'other').
+  Future<void> submitFeedback({
+    required String message,
+    required String category,
+    String? platform,
+    String? appVersion,
+  }) async {
+    await _client.post('/api/feedback', data: {
+      'message': message,
+      'category': category,
+      'platform': ?platform,
+      'app_version': ?appVersion,
+    });
+  }
+
+  // =========================================================================
   // JSON HELPERS
   // =========================================================================
 

@@ -1119,20 +1119,23 @@ class EditorProvider extends ChangeNotifier {
     }
     _saving = true;
     _recomputeSyncStatus();
-    activeSection!.content = currentContent;
-    activeSection!.updatedAt = DateTime.now();
-    activeSection!.isSynced = false;
-    await _storage.saveBooks(allBooks);
-    _lastSavedContent = currentContent;
-    _needsFirestoreSync = true;
-    _saving = false;
-    _typing = false;
-    saveStatus = "Saved";
-    _recomputeSyncStatus();
-    // Section list previews and similar consumers should refresh after a
-    // save tick (every ~3s while typing) — much less noisy than fanning
-    // out on every keystroke.
-    notifyListeners();
+    try {
+      activeSection!.content = currentContent;
+      activeSection!.updatedAt = DateTime.now();
+      activeSection!.isSynced = false;
+      await _storage.saveBooks(allBooks);
+      _lastSavedContent = currentContent;
+      _needsFirestoreSync = true;
+    } finally {
+      _saving = false;
+      _typing = false;
+      saveStatus = "Saved";
+      _recomputeSyncStatus();
+      // Section list previews and similar consumers should refresh after a
+      // save tick (every ~3s while typing) — much less noisy than fanning
+      // out on every keystroke.
+      notifyListeners();
+    }
   }
 
   /// Enqueue the active section's pending content as an outbox upsert.
