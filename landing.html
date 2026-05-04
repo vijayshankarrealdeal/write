@@ -71,7 +71,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fraunces:opsz,wght,SOFT@9..144,500;9..144,600;9..144,700;9..144,800;9..144,900&family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
 <style>
   /*
    * Palette — WCAG audited.
@@ -233,10 +233,11 @@
 
   /* ─── Global typography ─────────────────────────────────────── */
   .display {
-    font-family: 'Bagel Fat One', cursive;
-    font-weight: 400;
-    line-height: 0.98;
-    letter-spacing: -1.6px;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 800;
+    font-variation-settings: "SOFT" 50;
+    line-height: 1;
+    letter-spacing: -2px;
   }
   .handwritten {
     font-family: 'Caveat', cursive;
@@ -320,7 +321,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Bagel Fat One', cursive;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 900;
     font-size: 22px;
     line-height: 1;
     transform: rotate(-4deg);
@@ -328,9 +330,10 @@
     flex: none;
   }
   .brand-text {
-    font-family: 'Bagel Fat One', cursive;
-    font-size: 22px;
-    letter-spacing: -0.5px;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 800;
+    font-size: 24px;
+    letter-spacing: -1px;
   }
   .brand-text .x { color: var(--accent); }
 
@@ -391,6 +394,26 @@
   .btn.purple:hover { background: var(--ink); }
   .btn.lg { padding: 14px 24px; font-size: 16px; border-radius: 14px; box-shadow: 5px 5px 0 0 var(--ink); }
   .btn.lg:hover { box-shadow: 7px 7px 0 0 var(--ink); }
+  /* Secondary "ghost" CTA — looks like a quiet text link beside the loud primary */
+  .btn.ghost-lg {
+    border: 2.5px solid transparent;
+    background: transparent;
+    color: var(--ink);
+    box-shadow: none;
+    padding: 14px 18px;
+    font-size: 16px;
+    border-radius: 14px;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+    text-decoration-color: var(--accent);
+  }
+  .btn.ghost-lg:hover {
+    transform: none;
+    box-shadow: none;
+    color: var(--accent);
+    text-decoration-color: var(--ink);
+  }
 
   .menu-toggle {
     display: none;
@@ -467,11 +490,12 @@
   }
 
   h1.hero-title {
-    font-family: 'Bagel Fat One', cursive;
-    font-weight: 400;
-    font-size: clamp(44px, 6.4vw, 86px);
-    line-height: 0.95;
-    letter-spacing: -2px;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 800;
+    font-variation-settings: "SOFT" 50, "opsz" 144;
+    font-size: clamp(44px, 6.4vw, 88px);
+    line-height: 1;
+    letter-spacing: -2.4px;
     margin: 18px 0 22px;
     color: var(--ink);
   }
@@ -533,7 +557,8 @@
     margin-left: -8px;
     background-size: cover;
     background-position: center;
-    font-family: 'Bagel Fat One', cursive;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 700;
     color: #fff;
     display: inline-flex;
     align-items: center;
@@ -685,7 +710,7 @@
     align-items: center;
   }
   .ec-slash li.active { background: var(--accent-soft); color: var(--ink); }
-  .ec-slash li .ki { font-family: 'Bagel Fat One', cursive; font-size: 14px; width: 22px; text-align: center; color: var(--accent); }
+  .ec-slash li .ki { font-family: 'Fraunces', 'Playfair Display', Georgia, serif; font-size: 14px; width: 22px; text-align: center; color: var(--accent); }
   .ec-slash li .desc { color: var(--muted); font-weight: 500; font-size: 12px; margin-left: auto; }
 
   /* Floating sticker chips */
@@ -869,10 +894,12 @@
   }
   .stat:first-child { border-left: 0; padding-left: 0; }
   .stat .num {
-    font-family: 'Bagel Fat One', cursive;
-    font-size: 34px;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 800;
+    font-variation-settings: "SOFT" 50, "opsz" 144;
+    font-size: 36px;
     line-height: 1;
-    letter-spacing: -1px;
+    letter-spacing: -1.4px;
   }
   .stat .num .accent { color: var(--accent); }
   .stat .num .accent-3 { color: var(--accent-3); }
@@ -912,11 +939,12 @@
   .eyebrow.gold { color: #b58a16; background: var(--accent-3-soft); transform: rotate(1.2deg); }
 
   h2.section-title {
-    font-family: 'Bagel Fat One', cursive;
-    font-weight: 400;
-    font-size: clamp(34px, 4.6vw, 56px);
-    line-height: 1.02;
-    letter-spacing: -1.4px;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 800;
+    font-variation-settings: "SOFT" 50, "opsz" 144;
+    font-size: clamp(34px, 4.6vw, 58px);
+    line-height: 1.04;
+    letter-spacing: -1.8px;
     margin-bottom: 16px;
     max-width: 820px;
   }
@@ -987,11 +1015,12 @@
   .feature.hl-6 .ico { background: #d6f0ff; }
 
   .feature h3 {
-    font-family: 'Bagel Fat One', cursive;
-    font-weight: 400;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-variation-settings: "SOFT" 50, "opsz" 144;
     font-size: 22px;
-    line-height: 1.1;
-    letter-spacing: -0.4px;
+    line-height: 1.15;
+    letter-spacing: -0.6px;
     margin-bottom: 10px;
   }
   .feature p { color: var(--muted); font-size: 14.8px; line-height: 1.55; }
@@ -1029,11 +1058,12 @@
   .text.purple .micro-eyebrow { color: var(--accent-2); }
   .text.mint .micro-eyebrow { color: var(--accent-4); }
   .text h3.row-title {
-    font-family: 'Bagel Fat One', cursive;
-    font-weight: 400;
-    font-size: clamp(28px, 3.2vw, 44px);
-    line-height: 1.04;
-    letter-spacing: -1px;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 800;
+    font-variation-settings: "SOFT" 50, "opsz" 144;
+    font-size: clamp(28px, 3.2vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -1.4px;
     margin-bottom: 16px;
   }
   .text h3.row-title .accent { color: var(--accent); }
@@ -1179,16 +1209,18 @@
     background: linear-gradient(135deg, #6B5BFF, #B7AEFF);
     border: 2.5px solid var(--ink);
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Bagel Fat One', cursive;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 800;
     color: #fff;
     font-size: 28px;
     box-shadow: 3px 3px 0 0 var(--ink);
   }
   .profile-card h5 {
-    font-family: 'Bagel Fat One', cursive;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 700;
     font-size: 18px;
     line-height: 1;
-    letter-spacing: -0.4px;
+    letter-spacing: -0.6px;
   }
   .profile-card .uname {
     color: var(--muted);
@@ -1211,7 +1243,7 @@
     border-bottom: 1.5px dashed var(--paper-line);
   }
   .profile-card .stats-row div { font-size: 13px; color: var(--muted); font-weight: 600; }
-  .profile-card .stats-row div b { color: var(--ink); font-family: 'Bagel Fat One', cursive; font-weight: 400; font-size: 16px; display: block; line-height: 1.1; }
+  .profile-card .stats-row div b { color: var(--ink); font-family: 'Fraunces', 'Playfair Display', Georgia, serif; font-weight: 400; font-size: 16px; display: block; line-height: 1.1; }
   .profile-card .actions {
     display: flex; gap: 8px;
   }
@@ -1374,9 +1406,12 @@
     margin-top: 48px;
   }
   .mega-stat .num {
-    font-family: 'Bagel Fat One', cursive;
-    font-size: clamp(38px, 5vw, 64px);
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 800;
+    font-variation-settings: "SOFT" 50, "opsz" 144;
+    font-size: clamp(38px, 5vw, 66px);
     line-height: 1;
+    letter-spacing: -2px;
     color: #fff;
   }
   .mega-stat .num .y { color: var(--accent-3); }
@@ -1409,7 +1444,7 @@
   .quote::before {
     content: '"';
     position: absolute;
-    font-family: 'Bagel Fat One', cursive;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
     font-size: 90px;
     color: var(--accent-soft);
     top: -34px;
@@ -1436,7 +1471,8 @@
     border-radius: 50%;
     border: 2.5px solid var(--ink);
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Bagel Fat One', cursive;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 700;
     color: #fff;
     font-size: 15px;
   }
@@ -1447,9 +1483,10 @@
   .quote .who .av.q5 { background: linear-gradient(135deg, #28b0c5, #0a5563); }
   .quote .who .av.q6 { background: linear-gradient(135deg, #FFD25E, #FFE9A8); color: var(--ink); }
   .quote .who h6 {
-    font-family: 'Bagel Fat One', cursive;
-    font-size: 14px;
-    font-weight: 400;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-size: 14.5px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
     line-height: 1.1;
   }
   .quote .who .role {
@@ -1497,11 +1534,12 @@
     color: var(--ink);
   }
   .plan h3 {
-    font-family: 'Bagel Fat One', cursive;
-    font-weight: 400;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 800;
+    font-variation-settings: "SOFT" 50, "opsz" 144;
     font-size: 28px;
     line-height: 1;
-    letter-spacing: -0.6px;
+    letter-spacing: -1px;
     margin-bottom: 6px;
   }
   .plan .blurb {
@@ -1518,10 +1556,12 @@
     margin-bottom: 20px;
   }
   .plan .price .num {
-    font-family: 'Bagel Fat One', cursive;
-    font-size: 56px;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 800;
+    font-variation-settings: "SOFT" 50, "opsz" 144;
+    font-size: 60px;
     line-height: 1;
-    letter-spacing: -1.4px;
+    letter-spacing: -2.4px;
   }
   .plan.pro .price .num { color: var(--accent-3); }
   .plan .price .per {
@@ -1601,7 +1641,7 @@
     background: var(--accent-soft);
     border: 2px solid var(--ink);
     display: inline-flex; align-items: center; justify-content: center;
-    font-family: 'Bagel Fat One', cursive;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
     line-height: 1;
     font-size: 18px;
     color: var(--ink);
@@ -1644,11 +1684,12 @@
     border-color: #fff;
   }
   .big-cta h2 {
-    font-family: 'Bagel Fat One', cursive;
-    font-weight: 400;
-    font-size: clamp(40px, 6vw, 84px);
-    line-height: 0.95;
-    letter-spacing: -2px;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 800;
+    font-variation-settings: "SOFT" 50, "opsz" 144;
+    font-size: clamp(40px, 6vw, 86px);
+    line-height: 1;
+    letter-spacing: -2.4px;
     margin: 14px auto 22px;
     max-width: 880px;
   }
@@ -1755,9 +1796,11 @@
   }
   .cta-success.show { display: block; }
   .cta-success h3 {
-    font-family: 'Bagel Fat One', cursive;
-    font-weight: 400;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 800;
+    font-variation-settings: "SOFT" 50, "opsz" 144;
     font-size: 28px;
+    letter-spacing: -0.8px;
     margin-bottom: 6px;
   }
   .cta-success p { color: var(--ink-soft); margin-bottom: 16px; }
@@ -1799,9 +1842,11 @@
   .ft-social svg { width: 18px; height: 18px; }
 
   footer h6 {
-    font-family: 'Bagel Fat One', cursive;
-    font-weight: 400;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-variation-settings: "SOFT" 50;
     font-size: 16px;
+    letter-spacing: -0.3px;
     color: var(--accent-3);
     margin-bottom: 14px;
     letter-spacing: 0.4px;
@@ -1947,8 +1992,8 @@
             community of writers — on web, Android, macOS and Windows.
           </p>
           <div class="hero-cta">
-            <a href="#cta" class="btn dark lg">Start writing — it's free →</a>
-            <a href="#showcase" class="btn lg">Take the tour</a>
+            <a href="#cta" class="btn accent lg">Start writing — it's free →</a>
+            <a href="#showcase" class="btn ghost-lg">Take the tour</a>
           </div>
           <div class="micro-trust">
             <div class="avatars" aria-hidden="true">
@@ -1971,10 +2016,8 @@
           <span class="doodle lightning" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/850.png" alt=""></span>
           <span class="doodle arrow-down" aria-hidden="true"><img src="Hand%20Drawn%20Doodle%20Elements/600.png" alt=""></span>
 
-          <!-- Floating sticker chips -->
-          <div class="chip ch1 c-coral"><span class="em">✍️</span> drafts auto-save</div>
+          <!-- Floating sticker chips — kept to two so the editor can breathe -->
           <div class="chip ch2 c-yellow">/slash to insert</div>
-          <div class="chip ch3 c-mint"><span class="em">📚</span> read offline</div>
           <div class="chip ch4 c-lilac"><span class="em">🔒</span> your work, your data</div>
 
           <!-- Editor preview card -->
@@ -2221,7 +2264,7 @@
           </div>
 
           <div style="margin-top:14px;background:var(--paper);border:2px solid var(--ink);border-radius:12px;padding:8px 10px;box-shadow:3px 3px 0 0 var(--ink);font-size:13px;display:flex;gap:8px;align-items:center;">
-            <span style="font-family:'Bagel Fat One',cursive;color:var(--accent);font-size:14px;width:22px;text-align:center;">/</span>
+            <span style="font-family:'Fraunces','Playfair Display',Georgia,serif;color:var(--accent);font-size:14px;width:22px;text-align:center;">/</span>
             <span style="font-weight:700;color:var(--ink);">callout</span>
             <span style="color:var(--muted);margin-left:auto;font-size:12px;">⏎ insert</span>
           </div>
