@@ -13,6 +13,7 @@ from starlette.routing import Match
 
 from app.config import settings
 from app.database import async_session, engine
+from app.dictionary_retention import run_forever as run_dictionary_retention
 from app.logger import get_logger, setup_logging, start_drain, stop_drain
 from app.models import Base
 from app.models.analytics import CrashReport
@@ -30,6 +31,7 @@ from app.routers import (
     chat,
     comments,
     crashes,
+    dictionary,
     early_testers,
     feed,
     highlights,
@@ -112,14 +114,31 @@ async def lifespan(app: FastAPI):
             "CREATE INDEX IF NOT EXISTS ix_feed_facets_kind_count "
             "ON feed_facets (kind, count DESC)"
         ))
+        # Seed the singleton dictionary_meta row so the snapshot
+        # endpoint always finds version=0 on a fresh dev DB. Idempotent
+        # for DBs that ran the Alembic migration.
+        await conn.execute(text(
+            "INSERT INTO dictionary_meta (id, version) VALUES (1, 0) "
+            "ON CONFLICT (id) DO NOTHING"
+        ))
     await start_drain()
     await realtime_hub.start()
     # Warm the spell-check dictionary so the first /api/spellcheck/check
-    # doesn't pay ~200ms of file I/O. Off the event loop — file is ~2MB.
-    asyncio.get_running_loop().run_in_executor(None, spellcheck_engine.warm)
+    # doesn't pay ~200ms of file I/O. Folds in the admin-merged global
+    # dictionary too so previously-accepted words don't get re-flagged
+    # after a redeploy.
+    asyncio.create_task(spellcheck_engine.warm_with_global_dict())
+    # Daily retention sweep: NULLs user_id on dictionary_submissions
+    # older than DICTIONARY_SUBMISSION_RETENTION_DAYS so the privacy
+    # policy's 12-month commitment is enforced automatically. The
+    # background loop survives transient DB blips; the same logic is
+    # also exposed as a one-shot CLI in
+    # backend/scripts/dictionary_retention.py.
+    retention_task = asyncio.create_task(run_dictionary_retention())
     log.info("InkSpaceX API started")
     yield
     log.info("InkSpaceX API shutting down")
+    retention_task.cancel()
     await realtime_hub.stop()
     await stop_drain()
     await engine.dispose()
@@ -164,6 +183,7 @@ app.include_router(notifications.router)
 app.include_router(realtime.router)
 app.include_router(analytics.router)
 app.include_router(spellcheck.router)
+app.include_router(dictionary.router)
 app.include_router(reports.router)
 app.include_router(early_testers.router)
 

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/flutter_quill.dart' show QuillController;
 
+import 'package:inkspacex/services/dictionary_service.dart';
 import 'package:inkspacex/services/spell_check_decoration.dart';
 import 'package:inkspacex/services/spell_check_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
@@ -11,12 +12,13 @@ import 'package:inkspacex/services/storage_service.dart';
 /// the document changes (debounced so we don't churn on every keystroke).
 /// Toggle persists across sessions via [StorageService].
 class SpellCheckProvider extends ChangeNotifier {
-  SpellCheckProvider(this._storage, this._service) {
+  SpellCheckProvider(this._storage, this._service, this._dictionary) {
     _enabled = _storage.getSpellCheckEnabled();
   }
 
   final StorageService _storage;
   final SpellCheckService _service;
+  final DictionaryService _dictionary;
   static const Duration _debounce = Duration(milliseconds: 700);
 
   bool _enabled = true;
@@ -143,6 +145,12 @@ class SpellCheckProvider extends ChangeNotifier {
 
   /// Permanently add a word to the user's personal dictionary. Future
   /// scans (in this and other sections) will treat the word as known.
+  ///
+  /// Also fires off a best-effort POST to `/api/dictionary/submit` so the
+  /// word lands in the admin's merge queue. The submit is fire-and-forget
+  /// — a failed network call must never break the local "Add to
+  /// dictionary" gesture, since the user expects the underline to vanish
+  /// immediately regardless of connectivity.
   Future<void> addToDictionary(String word) async {
     final lower = word.toLowerCase();
     if (_ignored.contains(lower)) return;
@@ -152,6 +160,7 @@ class SpellCheckProvider extends ChangeNotifier {
         _issues.where((i) => i.word.toLowerCase() != lower).toList());
     final c = _attached;
     if (c != null) applySpellCheckErrors(c, _issues);
+    unawaited(_dictionary.submitWord(lower));
     notifyListeners();
   }
 

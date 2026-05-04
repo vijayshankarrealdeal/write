@@ -144,4 +144,24 @@ export const api = {
     if (filters.env) params.set("env", filters.env);
     return request(`/logs/stats?${params}`);
   },
+
+  // Dictionary
+  dictionaryStats: () => request("/dictionary/stats"),
+  dictionarySubmissions: (page = 1, perPage = 50, status = "pending") => {
+    const params = new URLSearchParams({ page, per_page: perPage });
+    if (status) params.set("status", status);
+    return request(`/dictionary/submissions?${params}`);
+  },
+  dictionaryWords: (page = 1, perPage = 100, search = "") => {
+    const params = new URLSearchParams({ page, per_page: perPage });
+    if (search) params.set("search", search);
+    return request(`/dictionary/words?${params}`);
+  },
+  dictionaryMerge: () =>
+    request(`/dictionary/merge`, { method: "POST" }),
+  dictionaryDeleteWord: (word, language = "en") =>
+    request(
+      `/dictionary/words/${encodeURIComponent(word)}?language=${encodeURIComponent(language)}`,
+      { method: "DELETE" }
+    ),
 };

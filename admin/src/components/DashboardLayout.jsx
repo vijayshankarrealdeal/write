@@ -8,6 +8,7 @@ import {
   BarChart3,
   Bug,
   Flag,
+  BookText,
   ScrollText,
   PenTool,
   LogOut,
@@ -27,6 +28,7 @@ const links = [
   { to: "/analytics", icon: BarChart3, label: "Analytics" },
   { to: "/crashes", icon: Bug, label: "Crash Reports" },
   { to: "/reports", icon: Flag, label: "Reports" },
+  { to: "/dictionary", icon: BookText, label: "Dictionary" },
   { to: "/logs", icon: ScrollText, label: "Logs" },
 ];
 

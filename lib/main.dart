@@ -32,6 +32,8 @@ import 'package:inkspacex/provider/version_history_provider.dart';
 import 'package:inkspacex/router.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_client.dart';
+import 'package:inkspacex/services/api/api_realtime_service.dart';
+import 'package:inkspacex/services/dictionary_service.dart';
 import 'package:inkspacex/services/spell_check_service.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
@@ -342,11 +344,43 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => SettingsProvider(storage)),
         ChangeNotifierProvider(create: (_) => AnnotationProvider(storage)),
         ChangeNotifierProvider(create: (_) => VersionHistoryProvider(storage)),
-        ChangeNotifierProvider(
-          create: (_) => SpellCheckProvider(
+        ChangeNotifierProvider<DictionaryService>(
+          create: (_) {
+            final svc = DictionaryService(ApiClient(storage), storage);
+            // Hydrate from Hive immediately, then async-refresh against
+            // the server. SSE bumps after auth resolves do their own
+            // refresh — see _DictionaryAutoRefresh below.
+            unawaited(svc.init().then((_) => svc.refresh()));
+            return svc;
+          },
+        ),
+        ChangeNotifierProxyProvider<DictionaryService, SpellCheckProvider>(
+          create: (context) => SpellCheckProvider(
             storage,
             SpellCheckService(ApiClient(storage)),
+            context.read<DictionaryService>(),
           ),
+          update: (context, dict, previous) =>
+              previous ??
+              SpellCheckProvider(
+                storage,
+                SpellCheckService(ApiClient(storage)),
+                dict,
+              ),
+        ),
+        // Re-attach the dictionary SSE listener whenever AuthProvider
+        // swaps its realtime service (login / logout / re-auth). Each
+        // attach also triggers an immediate refresh so the cache picks
+        // up anything the admin merged while the device was offline.
+        ProxyProvider2<AuthProvider, DictionaryService, _DictionaryAutoRefresh>(
+          create: (_) => _DictionaryAutoRefresh(),
+          update: (context, auth, dict, prev) {
+            final hook = prev ?? _DictionaryAutoRefresh();
+            if (auth.isAuthenticated) {
+              hook.bind(auth.realtimeService, dict);
+            }
+            return hook;
+          },
         ),
         ChangeNotifierProxyProvider<AuthProvider, FeedProvider>(
           create: (_) => FeedProvider()..setStorage(storage),
@@ -478,6 +512,24 @@ class _AppWithRouterState extends State<_AppWithRouter> {
         );
       },
     );
+  }
+}
+
+/// Glue that keeps the device's dictionary cache fresh.
+///
+/// Lives at the provider level so the SSE subscription is rebound every
+/// time AuthProvider rotates its realtime service (login, logout,
+/// re-auth). Each rebind also forces an immediate snapshot fetch so a
+/// device that came back online after an admin merge picks up the
+/// delta without waiting for the next ``dictionary.updated`` ping.
+class _DictionaryAutoRefresh {
+  ApiRealtimeService? _attachedRealtime;
+
+  void bind(ApiRealtimeService realtime, DictionaryService dict) {
+    if (identical(_attachedRealtime, realtime)) return;
+    _attachedRealtime = realtime;
+    dict.attachRealtime(realtime);
+    unawaited(dict.refresh());
   }
 }
 

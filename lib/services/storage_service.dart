@@ -362,6 +362,60 @@ class StorageService {
     await _box.put(_userKey('spell_check_ignored'), words);
   }
 
+  // --- Global dictionary cache (shared across users on this device) ---
+  // Words are global; the version we hold is too. Not user-scoped — a
+  // fresh login re-uses the same cache rather than re-downloading the
+  // bundled base + every accumulated delta from scratch.
+  //
+  // Keys are language-scoped so a device that switches between locales
+  // (en → es) keeps each cache distinct rather than mixing words from
+  // unrelated dictionaries. Legacy un-scoped keys are migrated to `en`
+  // on first read so existing installs don't lose their cached delta.
+
+  static const String _legacyKeyDictWords = 'global_dictionary_words_v1';
+  static const String _legacyKeyDictVersion = 'global_dictionary_version_v1';
+
+  String _dictWordsKey(String lang) =>
+      'global_dictionary_words_v1__${lang.toLowerCase()}';
+  String _dictVersionKey(String lang) =>
+      'global_dictionary_version_v1__${lang.toLowerCase()}';
+
+  Set<String> getGlobalDictionaryWords({String language = 'en'}) {
+    final raw = _box.get(_dictWordsKey(language));
+    if (raw is List) return raw.whereType<String>().toSet();
+    if (language.toLowerCase() == 'en') {
+      // Fallback to the pre-multilang key so existing installs keep
+      // their cached set on the first read after upgrade.
+      final legacy = _box.get(_legacyKeyDictWords);
+      if (legacy is List) return legacy.whereType<String>().toSet();
+    }
+    return <String>{};
+  }
+
+  Future<void> saveGlobalDictionaryWords(
+    Set<String> words, {
+    String language = 'en',
+  }) async {
+    await _box.put(_dictWordsKey(language), words.toList(growable: false));
+  }
+
+  int getGlobalDictionaryVersion({String language = 'en'}) {
+    final raw = _box.get(_dictVersionKey(language));
+    if (raw is int) return raw;
+    if (language.toLowerCase() == 'en') {
+      final legacy = _box.get(_legacyKeyDictVersion);
+      if (legacy is int) return legacy;
+    }
+    return 0;
+  }
+
+  Future<void> saveGlobalDictionaryVersion(
+    int version, {
+    String language = 'en',
+  }) async {
+    await _box.put(_dictVersionKey(language), version);
+  }
+
   // --- Feed cache (per-user) ---
   // Persists the personalized feed so an app restart can paint instantly
   // from disk while a silent network refresh runs in the background. Mirrors

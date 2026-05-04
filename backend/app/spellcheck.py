@@ -38,6 +38,31 @@ def _get_checker() -> SpellChecker:
         return _checker
 
 
+def add_words(words: list[str]) -> None:
+    """Splice the merged global dictionary into the in-memory checker.
+
+    Called from the admin merge handler after new words are committed
+    so subsequent ``/api/spellcheck/check`` requests immediately stop
+    flagging them — without waiting for a process restart.
+    """
+    if not words:
+        return
+    checker = _get_checker()
+    with _checker_lock:
+        checker.word_frequency.load_words([w.lower() for w in words])
+
+
+def remove_words(words: list[str]) -> None:
+    """Remove words from the in-memory checker. Called after the admin
+    deletes entries from ``dictionary_words``."""
+    if not words:
+        return
+    checker = _get_checker()
+    with _checker_lock:
+        for w in words:
+            checker.word_frequency.remove(w.lower())
+
+
 def _is_known(token: str, checker: SpellChecker) -> bool:
     if len(token) < 2:
         return True
@@ -111,4 +136,26 @@ def _match_case(original: str, suggestion: str) -> str:
 
 def warm() -> int:
     """Force-load the dictionary. Returns the entry count."""
+    return len(_get_checker().word_frequency.dictionary)
+
+
+async def warm_with_global_dict() -> int:
+    """Warm the bundled dictionary, then fold in the merged global dict
+    persisted in ``dictionary_words``. Returns the total word count.
+
+    Run from the lifespan startup hook so the very first
+    ``/api/spellcheck/check`` already knows about every admin-approved
+    addition without waiting for the next merge to refresh memory.
+    """
+    from sqlalchemy import select
+
+    from app.database import async_session
+    from app.models.dictionary import DictionaryWord
+
+    warm()
+    async with async_session() as session:
+        rows = await session.execute(select(DictionaryWord.word))
+        words = [r for (r,) in rows.all()]
+    if words:
+        add_words(words)
     return len(_get_checker().word_frequency.dictionary)

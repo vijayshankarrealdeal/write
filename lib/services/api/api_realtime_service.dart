@@ -188,6 +188,17 @@ class ApiRealtimeService {
     );
   }
 
+  /// Global dictionary version pings. Payloads:
+  ///   {"type": "dictionary.updated", "version": N}
+  /// The frame carries no word strings — clients react by GET'ing
+  /// `/api/dictionary/snapshot?since=<cached>` to pull the delta.
+  Stream<Map<String, dynamic>> dictionaryChannel() {
+    return _channelFor(
+      'dictionary',
+      _streamUri('/api/stream/dictionary'),
+    );
+  }
+
   /// Live writing/section mutations for [writingId]. Payloads:
   ///   {"type": "writing.updated", "op_id": "...", "writing": {...}}
   ///   {"type": "writing.deleted", "op_id": "...", "writing_id": "..."}

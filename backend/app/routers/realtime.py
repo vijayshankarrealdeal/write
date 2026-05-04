@@ -93,6 +93,31 @@ async def comments_stream(
     )
 
 
+@router.get("/dictionary")
+async def dictionary_stream(
+    request: Request,
+    token: str | None = Query(default=None),
+):
+    """Live dictionary version updates for every authenticated client.
+
+    Payloads: ``{"type":"dictionary.updated","version":N}``. The client
+    reacts by GET'ing ``/api/dictionary/snapshot?since=<cached>`` to
+    pull the delta. The wire frame is a single integer — no user prose
+    crosses this channel.
+    """
+    user = await _resolve_user(_extract_token(request, token))
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing token",
+        )
+    return StreamingResponse(
+        event_stream("dictionary"),
+        media_type="text/event-stream",
+        headers=_SSE_HEADERS,
+    )
+
+
 @router.get("/writings/{writing_id}")
 async def writing_stream(
     writing_id: UUID,

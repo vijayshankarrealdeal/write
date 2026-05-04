@@ -12,6 +12,7 @@ import Analytics from "./pages/Analytics";
 import CrashReports from "./pages/CrashReports";
 import Logs from "./pages/Logs";
 import Reports from "./pages/Reports";
+import Dictionary from "./pages/Dictionary";
 
 function ProtectedRoute({ children }) {
   if (!api.isAuthenticated()) {
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="analytics" element={<Analytics />} />
         <Route path="crashes" element={<CrashReports />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="dictionary" element={<Dictionary />} />
         <Route path="logs" element={<Logs />} />
       </Route>
     </Routes>

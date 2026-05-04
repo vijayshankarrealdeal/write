@@ -56,6 +56,20 @@ class Settings(BaseSettings):
     # other than the one handling a mutation go silent.
     redis_url: str = ""
 
+    # Per-user daily cap on POST /api/dictionary/submit. The dedup
+    # constraint blocks same-word repeats; this caps the unique-word
+    # flood vector. ~50/day is well above the realistic ceiling for a
+    # writer (a long session of "Add to dictionary" taps) but low
+    # enough to keep a malicious client from filling the queue.
+    dictionary_submit_daily_cap: int = 50
+
+    # Per-user retention window for raw dictionary submissions. Rows
+    # older than this are anonymised (user_id NULLed) by the daily
+    # sweep — see backend/scripts/dictionary_retention.py and the
+    # background task in app.main.lifespan. Mirrors the privacy
+    # policy's 12-month commitment.
+    dictionary_submission_retention_days: int = 365
+
     # `extra="ignore"` matches prod's docker-compose `environment:` injection (which
     # passes vars not declared here, e.g. AZURE_OPENAI_MAP_DEPLOYMENT consumed by
     # app.ai.* via os.getenv). Without it, env_file loads (local dev) reject those.

@@ -1,3 +1,4 @@
+from app.models.admin_audit import AdminAudit
 from app.models.analytics import (
     AnalyticsEvent,
     AppLog,
@@ -11,6 +12,12 @@ from app.models.bookmark import Bookmark
 from app.models.bookshelf import Bookshelf
 from app.models.chat import ChatMessage, Conversation
 from app.models.comment import Comment
+from app.models.dictionary import (
+    DictionaryMeta,
+    DictionaryRemoval,
+    DictionarySubmission,
+    DictionaryWord,
+)
 from app.models.early_tester import EarlyTester
 from app.models.feed_item import FeedItem
 from app.models.follow import Follow
@@ -24,6 +31,7 @@ from app.models.user import User
 from app.models.writing import Writing
 
 __all__ = [
+    "AdminAudit",
     "AnalyticsEvent",
     "AppLog",
     "Base",
@@ -34,6 +42,10 @@ __all__ = [
     "Comment",
     "Conversation",
     "CrashReport",
+    "DictionaryMeta",
+    "DictionaryRemoval",
+    "DictionarySubmission",
+    "DictionaryWord",
     "EarlyTester",
     "FeedItem",
     "Follow",

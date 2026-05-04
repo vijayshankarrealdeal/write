@@ -36,7 +36,7 @@ log = get_logger("app.realtime")
 
 # Patterns the Redis reader subscribes to. Add new channel kinds here so
 # they get fanned out across workers.
-_REDIS_PATTERNS = ("user:*", "feed:*", "writing:*")
+_REDIS_PATTERNS = ("user:*", "feed:*", "writing:*", "dictionary")
 
 
 class _Hub:
@@ -209,6 +209,15 @@ class _Hub:
         self, writing_id: UUID, payload: dict[str, Any]
     ) -> None:
         await self.broadcast(f"writing:{writing_id}", payload)
+
+    async def broadcast_dictionary(self, payload: dict[str, Any]) -> None:
+        """Fan a ``dictionary.updated`` event out to every subscriber.
+
+        Single global channel — every authenticated client subscribes
+        to this on app start. The payload carries the new ``version``
+        so clients can immediately pull the delta.
+        """
+        await self.broadcast("dictionary", payload)
 
 
 def _default_json(value: Any) -> Any:

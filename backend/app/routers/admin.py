@@ -13,11 +13,19 @@ from typing import Any
 from fastapi import APIRouter, Depends, Query
 from passlib.context import CryptContext
 from sqlalchemy import func, inspect, or_, select, text
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import engine, get_db
+from app.models.admin_audit import AdminAudit
 from app.models.analytics import AppLog, CrashReport, PageVisit
+from app.models.dictionary import (
+    DictionaryMeta,
+    DictionaryRemoval,
+    DictionarySubmission,
+    DictionaryWord,
+)
 from app.models.user import User
 from app.storage import minio_client
 
@@ -950,6 +958,459 @@ async def log_stats(
         }
         for r in result.fetchall()
     ]
+
+
+# ── Dictionary (admin merge of user-submitted words) ──────────────────────
+
+
+@router.get("/dictionary/stats")
+async def dictionary_stats(
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Counts for the dictionary admin landing card."""
+    pending = (
+        await db.execute(
+            select(func.count(DictionarySubmission.id)).where(
+                DictionarySubmission.status == "pending"
+            )
+        )
+    ).scalar() or 0
+    approved = (
+        await db.execute(
+            select(func.count(DictionarySubmission.id)).where(
+                DictionarySubmission.status == "approved"
+            )
+        )
+    ).scalar() or 0
+    rejected = (
+        await db.execute(
+            select(func.count(DictionarySubmission.id)).where(
+                DictionarySubmission.status == "rejected"
+            )
+        )
+    ).scalar() or 0
+    total_words = (
+        await db.execute(select(func.count(DictionaryWord.word)))
+    ).scalar() or 0
+    version = (
+        await db.execute(select(DictionaryMeta.version))
+    ).scalar() or 0
+    return {
+        "pending": pending,
+        "approved": approved,
+        "rejected": rejected,
+        "global_words": total_words,
+        "version": version,
+    }
+
+
+@router.get("/dictionary/submissions")
+async def list_submissions(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(50, ge=1, le=200),
+    status: str | None = Query(None, description="pending | approved | rejected"),
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Paginated raw-submission queue. Most recent first."""
+    q = select(
+        DictionarySubmission.id,
+        DictionarySubmission.word,
+        DictionarySubmission.language,
+        DictionarySubmission.status,
+        DictionarySubmission.note,
+        DictionarySubmission.created_at,
+        DictionarySubmission.processed_at,
+        # Distinct-user count per word so admins can eyeball
+        # popularity even before the merge runs.
+        func.count(DictionarySubmission.user_id).over(
+            partition_by=(
+                DictionarySubmission.word,
+                DictionarySubmission.language,
+            )
+        ).label("submitter_count"),
+    ).order_by(DictionarySubmission.created_at.desc())
+    count_q = select(func.count(DictionarySubmission.id))
+    if status:
+        q = q.where(DictionarySubmission.status == status)
+        count_q = count_q.where(DictionarySubmission.status == status)
+
+    total = (await db.execute(count_q)).scalar() or 0
+    rows = await db.execute(q.offset((page - 1) * per_page).limit(per_page))
+    return {
+        "submissions": [
+            {
+                "id": str(r.id),
+                "word": r.word,
+                "language": r.language,
+                "status": r.status,
+                "note": r.note,
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+                "processed_at": (
+                    r.processed_at.isoformat() if r.processed_at else None
+                ),
+                "submitter_count": r.submitter_count,
+            }
+            for r in rows.all()
+        ],
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": (total + per_page - 1) // per_page if total else 0,
+    }
+
+
+@router.get("/dictionary/words")
+async def list_global_words(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(100, ge=1, le=500),
+    search: str | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Paginated browse of the merged global dictionary."""
+    q = select(
+        DictionaryWord.word,
+        DictionaryWord.language,
+        DictionaryWord.source,
+        DictionaryWord.submission_count,
+        DictionaryWord.added_in_version,
+        DictionaryWord.created_at,
+    ).order_by(DictionaryWord.created_at.desc())
+    count_q = select(func.count(DictionaryWord.word))
+    if search:
+        like = f"%{search.lower()}%"
+        q = q.where(DictionaryWord.word.ilike(like))
+        count_q = count_q.where(DictionaryWord.word.ilike(like))
+    total = (await db.execute(count_q)).scalar() or 0
+    rows = await db.execute(q.offset((page - 1) * per_page).limit(per_page))
+    return {
+        "words": [
+            {
+                "word": r.word,
+                "language": r.language,
+                "source": r.source,
+                "submission_count": r.submission_count,
+                "added_in_version": r.added_in_version,
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+            }
+            for r in rows.all()
+        ],
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": (total + per_page - 1) // per_page if total else 0,
+    }
+
+
+@router.delete("/dictionary/words/{word}")
+async def delete_global_word(
+    word: str,
+    language: str = Query(default="en"),
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Pull a word from the global dictionary, broadcast the change.
+
+    Bumps the version, writes a tombstone so client caches drop the
+    word too, and reloads the in-memory spell-check engine so the
+    next ``/api/spellcheck/check`` re-flags it.
+    """
+    from app import spellcheck as engine_mod
+    from app.realtime import hub as realtime_hub
+
+    word_l = word.strip().lower()
+    lang_l = language.strip().lower()
+
+    deleted = await db.execute(
+        DictionaryWord.__table__.delete().where(
+            DictionaryWord.word == word_l, DictionaryWord.language == lang_l
+        )
+    )
+    if deleted.rowcount == 0:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=404, detail="Word not found")
+
+    new_version = await _bump_dict_version(db)
+    await db.execute(
+        pg_insert(DictionaryRemoval)
+        .values(
+            word=word_l, language=lang_l, removed_in_version=new_version
+        )
+        .on_conflict_do_update(
+            index_elements=["word", "language"],
+            set_={"removed_in_version": new_version},
+        )
+    )
+    await _record_admin_audit(
+        db,
+        action="dictionary.word.remove",
+        target={"word": word_l, "language": lang_l, "version": new_version},
+    )
+    await db.commit()
+
+    engine_mod.remove_words([word_l])
+    await realtime_hub.broadcast_dictionary(
+        {"type": "dictionary.updated", "version": new_version}
+    )
+    return {"status": "removed", "word": word_l, "version": new_version}
+
+
+@router.post("/dictionary/merge")
+async def merge_dictionary(
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Run the AI pipeline on every pending submission, accept the good
+    ones into the global dictionary, mark the rest rejected.
+
+    Atomic per word: a single failed classification doesn't block the
+    rest of the batch. Bumps the dictionary version once at the end so
+    every accepted word lands in the same delta.
+    """
+    from app import spellcheck as engine_mod
+    from app.ai.dictionary_merge import classify_words
+    from app.realtime import hub as realtime_hub
+
+    pending = (
+        await db.execute(
+            select(
+                DictionarySubmission.word,
+                DictionarySubmission.language,
+                func.count(DictionarySubmission.id).label("count"),
+            )
+            .where(DictionarySubmission.status == "pending")
+            .group_by(DictionarySubmission.word, DictionarySubmission.language)
+        )
+    ).all()
+
+    if not pending:
+        version = (
+            await db.execute(select(DictionaryMeta.version))
+        ).scalar() or 0
+        return {
+            "status": "noop",
+            "version": version,
+            "accepted": 0,
+            "rejected": 0,
+        }
+
+    # Words already in the global dict — flip their submissions to
+    # approved without round-tripping the classifier.
+    existing_rows = await db.execute(
+        select(DictionaryWord.word, DictionaryWord.language)
+    )
+    existing = {(w, l) for w, l in existing_rows.all()}
+
+    candidates: list[tuple[str, str, int]] = []
+    auto_approved: list[tuple[str, str]] = []
+    for word, lang, count in pending:
+        if (word, lang) in existing:
+            auto_approved.append((word, lang))
+        else:
+            candidates.append((word, lang, count))
+
+    verdict_words = [w for w, _, _ in candidates]
+    verdicts = await classify_words(verdict_words) if verdict_words else []
+    verdict_map = {v.word: v for v in verdicts}
+
+    accepted_now: list[tuple[str, str, int, str]] = []  # word, lang, count, note
+    rejected_now: list[tuple[str, str, str]] = []  # word, lang, note
+    for word, lang, count in candidates:
+        v = verdict_map.get(word)
+        if v is None:
+            rejected_now.append((word, lang, "no verdict"))
+            continue
+        if v.verdict == "accept":
+            accepted_now.append((word, lang, count, v.note))
+        else:
+            rejected_now.append((word, lang, v.note))
+
+    # Bump the version exactly once for the whole merge so every
+    # accepted word shares an ``added_in_version`` and the SSE event
+    # we broadcast points clients at a single delta.
+    new_version = await _bump_dict_version(db)
+    now = datetime.now(timezone.utc)
+
+    if accepted_now:
+        # Insert into global dict; on conflict bump the
+        # submission_count so re-merges accumulate popularity rather
+        # than overwriting it.
+        for word, lang, count, _note in accepted_now:
+            await db.execute(
+                pg_insert(DictionaryWord)
+                .values(
+                    word=word,
+                    language=lang,
+                    source="merged",
+                    submission_count=count,
+                    added_in_version=new_version,
+                )
+                .on_conflict_do_update(
+                    index_elements=["word", "language"],
+                    set_={
+                        "submission_count": (
+                            DictionaryWord.submission_count + count
+                        ),
+                    },
+                )
+            )
+
+    # Flip submission rows to their final status. Done after the
+    # word-level upserts so nothing approves on disk that didn't make
+    # it into dictionary_words.
+    if auto_approved:
+        await db.execute(
+            DictionarySubmission.__table__.update()
+            .where(
+                DictionarySubmission.status == "pending",
+                DictionarySubmission.word.in_([w for w, _ in auto_approved]),
+            )
+            .values(status="approved", processed_at=now, note="already in global dict")
+        )
+    for word, lang, _count, note in accepted_now:
+        await db.execute(
+            DictionarySubmission.__table__.update()
+            .where(
+                DictionarySubmission.status == "pending",
+                DictionarySubmission.word == word,
+                DictionarySubmission.language == lang,
+            )
+            .values(status="approved", processed_at=now, note=note or None)
+        )
+    for word, lang, note in rejected_now:
+        await db.execute(
+            DictionarySubmission.__table__.update()
+            .where(
+                DictionarySubmission.status == "pending",
+                DictionarySubmission.word == word,
+                DictionarySubmission.language == lang,
+            )
+            .values(status="rejected", processed_at=now, note=note or None)
+        )
+
+    # Audit row carries the words touched (capped) so an investigator
+    # can answer "did admin X accept slur Y on date Z?" without
+    # cross-referencing the submission table on its own.
+    _AUDIT_WORD_CAP = 200
+    await _record_admin_audit(
+        db,
+        action="dictionary.merge",
+        target={
+            "version": new_version,
+            "accepted_count": len(accepted_now) + len(auto_approved),
+            "rejected_count": len(rejected_now),
+            "accepted_words": [w for w, _, _, _ in accepted_now][:_AUDIT_WORD_CAP],
+            "auto_approved_words": [w for w, _ in auto_approved][:_AUDIT_WORD_CAP],
+            "rejected_words": [w for w, _, _ in rejected_now][:_AUDIT_WORD_CAP],
+        },
+    )
+
+    await db.commit()
+
+    # Hot-reload the in-memory checker and notify every connected
+    # client. The SSE event itself carries only the new version — no
+    # word strings — so a passive listener leaks nothing.
+    if accepted_now:
+        engine_mod.add_words([w for w, _, _, _ in accepted_now])
+    await realtime_hub.broadcast_dictionary(
+        {"type": "dictionary.updated", "version": new_version}
+    )
+
+    return {
+        "status": "ok",
+        "version": new_version,
+        "accepted": len(accepted_now) + len(auto_approved),
+        "rejected": len(rejected_now),
+    }
+
+
+# ── Admin audit log ────────────────────────────────────────────────────────
+
+
+@router.get("/audit")
+async def list_audit(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(50, ge=1, le=200),
+    action: str | None = Query(None, description="Filter by action key"),
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Paginated admin-action audit log. Most recent first."""
+    q = select(AdminAudit).order_by(AdminAudit.created_at.desc())
+    count_q = select(func.count(AdminAudit.id))
+    if action:
+        q = q.where(AdminAudit.action == action)
+        count_q = count_q.where(AdminAudit.action == action)
+    total = (await db.execute(count_q)).scalar() or 0
+    rows = (
+        await db.execute(q.offset((page - 1) * per_page).limit(per_page))
+    ).scalars().all()
+    return {
+        "rows": [
+            {
+                "id": str(r.id),
+                "admin_username": r.admin_username,
+                "action": r.action,
+                "target": r.target,
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+            }
+            for r in rows
+        ],
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": (total + per_page - 1) // per_page if total else 0,
+    }
+
+
+async def _record_admin_audit(
+    db: AsyncSession, action: str, target: dict | None = None
+) -> None:
+    """Append-only audit row for a privileged admin action.
+
+    The session map only tracks tokens, not which human is logged in —
+    but the env-configured admin user is the only identity that can
+    issue tokens, so ``settings.admin_username`` is the authoritative
+    actor here. If the table doesn't exist yet (dev DB on an old
+    schema), swallow the failure rather than poisoning the mutation
+    we're trying to log.
+    """
+    try:
+        db.add(
+            AdminAudit(
+                admin_username=settings.admin_username,
+                action=action,
+                target=target,
+            )
+        )
+        await db.flush()
+    except Exception:  # noqa: BLE001 — auditing is best-effort
+        pass
+
+
+async def _bump_dict_version(db: AsyncSession) -> int:
+    """Atomically increment the singleton meta row and return the new value."""
+    result = await db.execute(
+        text(
+            "UPDATE dictionary_meta SET version = version + 1, "
+            "updated_at = NOW() WHERE id = 1 RETURNING version"
+        )
+    )
+    new_version = result.scalar()
+    if new_version is None:
+        # Defensive: dev DB without the seed row. Insert and recurse.
+        await db.execute(
+            text(
+                "INSERT INTO dictionary_meta (id, version) VALUES (1, 1) "
+                "ON CONFLICT (id) DO UPDATE SET version = dictionary_meta.version + 1"
+            )
+        )
+        result = await db.execute(select(DictionaryMeta.version))
+        new_version = result.scalar() or 1
+    return int(new_version)
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────

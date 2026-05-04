@@ -45,12 +45,16 @@ api.{$DOMAIN} {
 		reverse_proxy minio:9000
 	}
 
-	# Public marketing landing page. Pretty URL `/land` → static HTML file.
+	# Public marketing landing page — canonical URL is /landing.html.
 	# Must precede the SPA catch-all so the Flutter shell never owns this path.
-	handle /land {
+	# /land is kept as a permanent redirect for any old links.
+	redir /land /landing.html permanent
+
+	handle /landing.html {
 		root * /srv/web
-		rewrite * /landing.html
 		header Cache-Control "no-cache, no-store, must-revalidate"
+		# landing.html is plain static HTML — skip the SPA's COOP/COEP so
+		# Google Fonts and embedded SVGs load without cross-origin friction.
 		file_server
 	}
 
