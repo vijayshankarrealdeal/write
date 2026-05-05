@@ -3,6 +3,8 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest_all.dart' as tz_data;
+import 'package:timezone/timezone.dart' as tz;
 
 import 'package:inkspacex/models/chat_message_model.dart';
 import 'package:inkspacex/models/notification_model.dart';
@@ -57,9 +59,16 @@ class LocalNotificationService {
   static const String _uploadChannelDesc =
       'Book publishing and upload progress';
 
+  static const String _goalChannelId = 'inkspacex_goal';
+  static const String _goalChannelName = 'Writing Goals';
+  static const String _goalChannelDesc =
+      'Daily writing goal reminders';
+
   // Notification id namespaces (prevent collision across surfaces).
   static const int _uploadIdBase = 0x10000000;
   static const int _chatIdBase = 0x20000000;
+  static const int _goalIdBase = 0x30000000;
+  static const int _goalReminderId = _goalIdBase | 1;
 
   /// Initialize the plugin + create the Android notification channels.
   /// Idempotent. Returns true if local notifications are usable on
@@ -100,6 +109,9 @@ class LocalNotificationService {
         onDidReceiveNotificationResponse: _onResponse,
       );
       _supported = true;
+      // `zonedSchedule` (used for the daily goal reminder) needs the
+      // timezone DB initialized at least once per process.
+      tz_data.initializeTimeZones();
 
       if (Platform.isAndroid) {
         final androidImpl = _plugin
@@ -129,6 +141,14 @@ class LocalNotificationService {
             // Low importance: progress should be visible but never
             // pop a heads-up banner.
             importance: Importance.low,
+          ),
+        );
+        await androidImpl?.createNotificationChannel(
+          const AndroidNotificationChannel(
+            _goalChannelId,
+            _goalChannelName,
+            description: _goalChannelDesc,
+            importance: Importance.high,
           ),
         );
         await androidImpl?.requestNotificationsPermission();
@@ -408,6 +428,142 @@ class LocalNotificationService {
 
   int _uploadId(String tag) =>
       _uploadIdBase | (tag.hashCode & 0x0fffffff);
+
+  // ── Daily writing goal reminder ─────────────────────────────────
+
+  /// Schedule a single one-shot reminder at [when] (local wall-clock).
+  /// Replaces any previously-scheduled goal reminder. The caller is
+  /// responsible for re-arming this on a new day — typically by calling
+  /// from app startup and from the goal settings UI.
+  ///
+  /// Past times are silently ignored (the system would either fire
+  /// immediately or refuse, neither of which is useful here).
+  Future<void> scheduleDailyGoalReminder({
+    required DateTime when,
+    required int wordsRemaining,
+    required int dailyGoal,
+  }) async {
+    if (!_supported) return;
+    await _plugin.cancel(_goalReminderId);
+
+    // Convert the local wall-clock time to a TZDateTime in UTC. We don't
+    // depend on `flutter_timezone` to detect the system zone — going
+    // through UTC sidesteps that and the OS still fires at the right
+    // wall-clock moment.
+    final whenUtc = when.toUtc();
+    final tzWhen = tz.TZDateTime.utc(
+      whenUtc.year,
+      whenUtc.month,
+      whenUtc.day,
+      whenUtc.hour,
+      whenUtc.minute,
+      whenUtc.second,
+    );
+    if (!tzWhen.isAfter(tz.TZDateTime.now(tz.UTC))) {
+      return;
+    }
+
+    final body = wordsRemaining > 0
+        ? "You're $wordsRemaining words short of your $dailyGoal-word goal — finish strong."
+        : "Don't break the streak — open the editor and write today.";
+
+    final androidDetails = AndroidNotificationDetails(
+      _goalChannelId,
+      _goalChannelName,
+      channelDescription: _goalChannelDesc,
+      importance: Importance.high,
+      priority: Priority.high,
+      ticker: 'Daily writing goal',
+    );
+    const darwinDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: false,
+      presentSound: true,
+    );
+    final details = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    );
+
+    try {
+      await _plugin.zonedSchedule(
+        _goalReminderId,
+        'Keep your writing streak alive',
+        body,
+        tzWhen,
+        details,
+        // Inexact is fine: a few minutes of drift on a writing reminder
+        // is invisible, and exact alarms need a runtime permission on
+        // Android 13+ that we'd rather not ask for.
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        // 17.x still requires this arg even though it's iOS-only legacy.
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        // Daily-repeat at the wall-clock time encoded in `tzWhen`. Without
+        // this the notification is a one-shot and the user only ever gets
+        // a reminder if they re-open the app each day.
+        matchDateTimeComponents: DateTimeComponents.time,
+        payload: 'goal-reminder',
+      );
+    } catch (e, st) {
+      log.w('[local-notif] failed to schedule goal reminder: $e\n$st');
+    }
+  }
+
+  /// Returns true if the OS will actually deliver notifications.
+  ///
+  /// Useful when surfacing an opt-in toggle: if this returns false,
+  /// the toggle should warn the user that nothing will fire until
+  /// they grant permission in Settings.
+  Future<bool> areNotificationsEnabled() async {
+    if (!_supported) return false;
+    if (Platform.isAndroid) {
+      final impl = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      return (await impl?.areNotificationsEnabled()) ?? false;
+    }
+    if (Platform.isIOS) {
+      final impl = _plugin.resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>();
+      final perms = await impl?.checkPermissions();
+      return perms?.isEnabled ?? false;
+    }
+    // macOS / others: assume enabled — the plugin no-ops if not.
+    return true;
+  }
+
+  /// Re-prompt for notification permission. Safe to call multiple
+  /// times: on iOS this only shows the dialog once per install (the
+  /// system caches the user's choice), and on Android 13+ it shows
+  /// once per app launch until the user decides.
+  ///
+  /// Returns the resulting "are notifications enabled" state.
+  Future<bool> requestNotificationPermission() async {
+    if (!_supported) return false;
+    if (Platform.isAndroid) {
+      final impl = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      await impl?.requestNotificationsPermission();
+      return (await impl?.areNotificationsEnabled()) ?? false;
+    }
+    if (Platform.isIOS) {
+      final impl = _plugin.resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>();
+      final granted = await impl?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      return granted ?? false;
+    }
+    return true;
+  }
+
+  Future<void> cancelDailyGoalReminder() async {
+    if (!_supported) return;
+    await _plugin.cancel(_goalReminderId);
+  }
 
   // ── Tap handling ─────────────────────────────────────────────────
 

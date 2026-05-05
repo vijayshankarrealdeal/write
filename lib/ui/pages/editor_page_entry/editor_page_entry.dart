@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -21,6 +22,8 @@ import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
 import 'package:inkspacex/provider/spell_check_provider.dart';
 import 'package:inkspacex/provider/version_history_provider.dart';
+import 'package:inkspacex/services/daily_goal_service.dart';
+import 'package:inkspacex/services/local_notification_service.dart';
 import 'package:inkspacex/services/spell_check_decoration.dart';
 import 'package:inkspacex/services/spell_check_service.dart' as spellsvc;
 import 'package:inkspacex/services/analytics_service.dart';
@@ -115,8 +118,21 @@ class _EditiorPageState extends State<EditiorPage>
   PaperTheme _paperTheme = PaperTheme.defaultTheme;
   int _sessionStartWords = 0;
   bool _sessionStarted = false;
-  int _dailyGoal = 500;
+  int _dailyGoal = DailyGoalService.defaultGoal;
   bool _showGoalWidget = false;
+  // Cross-session daily counter — persisted, keyed by date so it
+  // auto-resets at midnight. Updated from positive deltas in the
+  // active editor controller (so deletes never lower today's score).
+  final DailyGoalService _goalService = DailyGoalService();
+  int _dailyWordsToday = 0;
+  bool _dailyMet = false;
+  String _dailyDate = DailyGoalService.todayKey();
+  // Per-controller tracker for delta computation. We only count words
+  // *added* — switching sections must not retroactively credit the
+  // user with the entire word count of the new section.
+  QuillController? _trackedGoalController;
+  int _lastObservedWords = 0;
+  Timer? _goalPersistTimer;
   String? _activePrompt;
   late AnimationController _focusModeController;
   late Animation<double> _focusModeAnimation;
@@ -170,6 +186,121 @@ class _EditiorPageState extends State<EditiorPage>
     HardwareKeyboard.instance.addHandler(_handleGlobalKey);
     _removeFindShortcutSuppressor = web_utils.installFindShortcutSuppressor();
     _loadMargins();
+    _loadDailyGoal();
+  }
+
+  // ── Daily goal: load + persist + notification scheduling ──
+
+  Future<void> _loadDailyGoal() async {
+    final s = await _goalService.load();
+    if (!mounted) return;
+    setState(() {
+      _dailyGoal = s.goal;
+      _showGoalWidget = s.enabled;
+      _dailyWordsToday = s.todayWords;
+      _dailyMet = s.todayMet;
+      _dailyDate = s.todayDate;
+    });
+    _refreshGoalReminder();
+  }
+
+  Future<void> _persistGoalSetting({bool promptForPermission = false}) async {
+    await _goalService.setGoal(_dailyGoal);
+    await _goalService.setEnabled(_showGoalWidget);
+    if (promptForPermission && _showGoalWidget) {
+      await _ensureNotificationPermissionForGoal();
+    }
+    _refreshGoalReminder();
+  }
+
+  /// Re-checks (and re-requests if needed) OS notification permission
+  /// when the user opts into the daily goal reminder. If the OS still
+  /// won't deliver, surface a snackbar pointing to system Settings —
+  /// otherwise the schedule call is a silent no-op and the user
+  /// wonders why nothing ever fires.
+  Future<void> _ensureNotificationPermissionForGoal() async {
+    if (!mounted) return;
+    final notifs = context.read<LocalNotificationService>();
+    final enabled = await notifs.areNotificationsEnabled();
+    if (enabled) return;
+    final granted = await notifs.requestNotificationPermission();
+    if (granted || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Notifications are off — enable them in Settings to get '
+          'daily writing reminders.',
+        ),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 5),
+      ),
+    );
+  }
+
+  void _persistDailyTotalDebounced() {
+    _goalPersistTimer?.cancel();
+    _goalPersistTimer = Timer(const Duration(seconds: 2), () {
+      _goalService.setTodayWords(_dailyWordsToday, date: _dailyDate);
+    });
+  }
+
+  void _maybeRollDailyDate() {
+    final today = DailyGoalService.todayKey();
+    if (today == _dailyDate) return;
+    setState(() {
+      _dailyDate = today;
+      _dailyWordsToday = 0;
+      _dailyMet = false;
+    });
+    // Wipe yesterday's counters so reload-from-prefs sees a fresh day.
+    _goalService.setTodayWords(0, date: today);
+    _goalService.setTodayMet(false, date: today);
+  }
+
+  void _onWordCountTick(int currentWords) {
+    if (!mounted) return;
+    _maybeRollDailyDate();
+    final delta = currentWords - _lastObservedWords;
+    _lastObservedWords = currentWords;
+    if (delta <= 0) return;
+    setState(() {
+      _dailyWordsToday += delta;
+    });
+    _persistDailyTotalDebounced();
+    if (!_dailyMet && _dailyWordsToday >= _dailyGoal) {
+      _dailyMet = true;
+      _goalService.setTodayMet(true, date: _dailyDate);
+      // Goal hit → no need to nag the user this evening. Reschedule
+      // for tomorrow so the streak prompt resumes on a new day.
+      _refreshGoalReminder();
+    }
+  }
+
+  /// Recompute the next reminder time from current state and push it
+  /// to [LocalNotificationService]. Called whenever something that
+  /// affects scheduling changes: settings load, toggle, goal value,
+  /// goal-met crossover.
+  Future<void> _refreshGoalReminder() async {
+    if (!mounted) return;
+    final notifs = context.read<LocalNotificationService>();
+    if (!_showGoalWidget) {
+      await notifs.cancelDailyGoalReminder();
+      return;
+    }
+    final now = DateTime.now();
+    // 9:00 PM local — late enough to give the writer all day, early
+    // enough that a reminder still has time to convert into writing.
+    var when = DateTime(now.year, now.month, now.day, 21, 0);
+    final tomorrowOnly = _dailyMet || !when.isAfter(now);
+    if (tomorrowOnly) {
+      when = when.add(const Duration(days: 1));
+    }
+    final remaining = (_dailyGoal - _dailyWordsToday).clamp(0, _dailyGoal);
+    await notifs.scheduleDailyGoalReminder(
+      when: when,
+      wordsRemaining: remaining,
+      dailyGoal: _dailyGoal,
+    );
   }
 
   // ── Margin persistence ──
@@ -282,6 +413,17 @@ class _EditiorPageState extends State<EditiorPage>
       // suspended before the timer expires.
       final controller = context.read<EditorProvider>().controller;
       context.read<VersionHistoryProvider>().flush(controller);
+      // Flush today's word counter — pause may be the last thing that
+      // happens before the OS kills the process.
+      if (_goalPersistTimer?.isActive ?? false) {
+        _goalPersistTimer!.cancel();
+        _goalService.setTodayWords(_dailyWordsToday, date: _dailyDate);
+      }
+    } else if (state == AppLifecycleState.resumed) {
+      // App may have been backgrounded across midnight. If the date
+      // rolled over, reset today's counter and re-arm the reminder.
+      _maybeRollDailyDate();
+      _refreshGoalReminder();
     }
   }
 
@@ -644,6 +786,12 @@ class _EditiorPageState extends State<EditiorPage>
     _slashMenu?.dispose();
     _detachDocListener();
     _detachTypewriterListener();
+    // Flush a pending word-count persist before tearing down so we
+    // don't lose the last few seconds of writing on close.
+    if (_goalPersistTimer?.isActive ?? false) {
+      _goalPersistTimer!.cancel();
+      _goalService.setTodayWords(_dailyWordsToday, date: _dailyDate);
+    }
     _editorScrollController.dispose();
     _editorFocusNode.dispose();
     super.dispose();
@@ -1859,6 +2007,9 @@ class _EditiorPageState extends State<EditiorPage>
                                     onChanged: (v) {
                                       setSheetState(() {});
                                       setState(() => _showGoalWidget = v);
+                                      _persistGoalSetting(
+                                        promptForPermission: v,
+                                      );
                                     },
                                     activeTrackColor: const Color(0xFF5B8DEF),
                                   ),
@@ -1873,7 +2024,19 @@ class _EditiorPageState extends State<EditiorPage>
                                       child: GestureDetector(
                                         onTap: () {
                                           setSheetState(() {});
-                                          setState(() => _dailyGoal = goal);
+                                          setState(() {
+                                            _dailyGoal = goal;
+                                            // Lowering the bar can flip
+                                            // today from "missed" to
+                                            // "met"; recompute.
+                                            _dailyMet =
+                                                _dailyWordsToday >= _dailyGoal;
+                                          });
+                                          _goalService.setTodayMet(
+                                            _dailyMet,
+                                            date: _dailyDate,
+                                          );
+                                          _persistGoalSetting();
                                         },
                                         child: AnimatedContainer(
                                           duration: const Duration(
@@ -3878,8 +4041,22 @@ class _EditiorPageState extends State<EditiorPage>
           final text = controller.document.toPlainText().trim();
           final wordCount =
               text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
-          final sessionWords = (wordCount - _sessionStartWords).clamp(0, _dailyGoal * 2);
-          final progress = (sessionWords / _dailyGoal).clamp(0.0, 1.0);
+          // Section/controller swap: don't credit the entire new doc
+          // as words written today — re-baseline silently and let the
+          // next keystroke produce the first delta.
+          if (controller != _trackedGoalController) {
+            _trackedGoalController = controller;
+            _lastObservedWords = wordCount;
+          } else if (wordCount != _lastObservedWords) {
+            // Defer the state mutation past the current build; setState
+            // during build is illegal and we'd rather not silently no-op
+            // the tracking.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _onWordCountTick(wordCount);
+            });
+          }
+          final progress =
+              (_dailyWordsToday / _dailyGoal).clamp(0.0, 1.0);
           final isComplete = progress >= 1.0;
 
           return Container(
@@ -3974,8 +4151,10 @@ class _EditiorPageState extends State<EditiorPage>
                             ),
                           ),
                           GestureDetector(
-                            onTap: () =>
-                                setState(() => _showGoalWidget = false),
+                            onTap: () {
+                              setState(() => _showGoalWidget = false);
+                              _persistGoalSetting();
+                            },
                             child: Icon(CupertinoIcons.xmark,
                                 size: 10,
                                 color: textColor.withValues(alpha: 0.2)),
@@ -4000,7 +4179,7 @@ class _EditiorPageState extends State<EditiorPage>
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        '$sessionWords / $_dailyGoal words',
+                        '$_dailyWordsToday / $_dailyGoal words',
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           color: textColor.withValues(alpha: 0.4),

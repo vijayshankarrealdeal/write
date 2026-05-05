@@ -21,7 +21,7 @@ class UserBadgeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _parseHex(badge.colorHex);
+    final color = parseHex(badge.colorHex);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = color.withValues(alpha: isDark ? 0.16 : 0.10);
     final border = color.withValues(alpha: 0.45);
@@ -64,7 +64,7 @@ class UserBadgeChip extends StatelessWidget {
     );
   }
 
-  static Color _parseHex(String hex) {
+  static Color parseHex(String hex) {
     var s = hex.replaceFirst('#', '');
     if (s.length == 6) s = 'FF$s';
     return Color(int.parse(s, radix: 16));
@@ -108,7 +108,7 @@ void showBadgeDetailSheet(
   required UserBadge badge,
   required bool isSelf,
 }) {
-  final color = UserBadgeChip._parseHex(badge.colorHex);
+  final color = UserBadgeChip.parseHex(badge.colorHex);
   final isDark = Theme.of(context).brightness == Brightness.dark;
   final bg = isDark ? const Color(0xFF111114) : Colors.white;
   final textColor = isDark ? Colors.white : const Color(0xFF0F172A);

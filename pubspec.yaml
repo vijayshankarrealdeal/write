@@ -68,6 +68,10 @@ dependencies:
   # foreground. Background/killed-app push needs FCM/APNS native config
   # in addition to this package — see LocalNotificationService.
   flutter_local_notifications: ^17.2.4
+  # `flutter_local_notifications.zonedSchedule` requires a TZDateTime,
+  # so we pull `timezone` in as a direct dep (otherwise it's transitive
+  # via flutter_local_notifications).
+  timezone: ^0.9.4
   # Phase 4 (offline `.inkx`): pure-Dart crypto for AES-GCM, HKDF, HMAC,
   # and Ed25519 signature verify. The package falls back to pure Dart in
   # unit tests; production builds may later layer `cryptography_flutter`
