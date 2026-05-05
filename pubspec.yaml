@@ -70,8 +70,11 @@ dependencies:
   flutter_local_notifications: ^17.2.4
   # `flutter_local_notifications.zonedSchedule` requires a TZDateTime,
   # so we pull `timezone` in as a direct dep (otherwise it's transitive
-  # via flutter_local_notifications).
+  # via flutter_local_notifications). `flutter_timezone` reads the
+  # device's IANA zone so a 9 PM reminder stays at 9 PM after the
+  # user crosses a timezone — without it, `tz.local` defaults to UTC.
   timezone: ^0.9.4
+  flutter_timezone: ^3.0.1
   # Phase 4 (offline `.inkx`): pure-Dart crypto for AES-GCM, HKDF, HMAC,
   # and Ed25519 signature verify. The package falls back to pure Dart in
   # unit tests; production builds may later layer `cryptography_flutter`

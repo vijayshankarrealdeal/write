@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -13,6 +14,7 @@ import 'package:inkspacex/services/app_log.dart';
 
 typedef NotificationTapHandler = void Function(NotificationModel notif);
 typedef ChatTapHandler = void Function(String conversationId);
+typedef GoalTapHandler = void Function();
 
 /// Bridges incoming SSE notification events to OS-level notifications.
 ///
@@ -38,6 +40,7 @@ class LocalNotificationService {
   bool _supported = false;
   NotificationTapHandler? _onTap;
   ChatTapHandler? _onChatTap;
+  GoalTapHandler? _onGoalTap;
 
   // Identity / UI hints used to suppress noisy chat notifications.
   String? _currentUserId;
@@ -76,11 +79,13 @@ class LocalNotificationService {
   Future<bool> init({
     NotificationTapHandler? onTap,
     ChatTapHandler? onChatTap,
+    GoalTapHandler? onGoalTap,
   }) async {
     if (_initialized) return _supported;
     _initialized = true;
     _onTap = onTap;
     _onChatTap = onChatTap;
+    _onGoalTap = onGoalTap;
 
     if (kIsWeb) {
       _supported = false;
@@ -110,8 +115,19 @@ class LocalNotificationService {
       );
       _supported = true;
       // `zonedSchedule` (used for the daily goal reminder) needs the
-      // timezone DB initialized at least once per process.
+      // timezone DB initialized at least once per process. We also
+      // pin `tz.local` to the device's IANA zone so a 9 PM reminder
+      // stays at 9 PM after the user crosses a timezone — without
+      // this `tz.local` defaults to UTC, which would shift the fire
+      // time by the local offset.
       tz_data.initializeTimeZones();
+      try {
+        final name = await FlutterTimezone.getLocalTimezone();
+        tz.setLocalLocation(tz.getLocation(name));
+      } catch (e) {
+        log.w('[local-notif] timezone detection failed, falling back '
+            'to UTC: $e');
+      }
 
       if (Platform.isAndroid) {
         final androidImpl = _plugin
@@ -172,9 +188,11 @@ class LocalNotificationService {
   void setTapHandlers({
     NotificationTapHandler? onTap,
     ChatTapHandler? onChatTap,
+    GoalTapHandler? onGoalTap,
   }) {
     if (onTap != null) _onTap = onTap;
     if (onChatTap != null) _onChatTap = onChatTap;
+    if (onGoalTap != null) _onGoalTap = onGoalTap;
   }
 
   /// Track the signed-in user so we can drop the user's own outgoing
@@ -446,20 +464,21 @@ class LocalNotificationService {
     if (!_supported) return;
     await _plugin.cancel(_goalReminderId);
 
-    // Convert the local wall-clock time to a TZDateTime in UTC. We don't
-    // depend on `flutter_timezone` to detect the system zone — going
-    // through UTC sidesteps that and the OS still fires at the right
-    // wall-clock moment.
-    final whenUtc = when.toUtc();
-    final tzWhen = tz.TZDateTime.utc(
-      whenUtc.year,
-      whenUtc.month,
-      whenUtc.day,
-      whenUtc.hour,
-      whenUtc.minute,
-      whenUtc.second,
+    // Build the schedule in the device's local zone (set during
+    // `init()` from `flutter_timezone`). This way `matchDateTimeComponents`
+    // re-fires at the same wall-clock time on subsequent days — and
+    // crossing into another timezone reschedules from local 9 PM
+    // again on the next app open, rather than silently drifting.
+    final tzWhen = tz.TZDateTime(
+      tz.local,
+      when.year,
+      when.month,
+      when.day,
+      when.hour,
+      when.minute,
+      when.second,
     );
-    if (!tzWhen.isAfter(tz.TZDateTime.now(tz.UTC))) {
+    if (!tzWhen.isAfter(tz.TZDateTime.now(tz.local))) {
       return;
     }
 
@@ -576,6 +595,10 @@ class LocalNotificationService {
     }
     if (payload.startsWith('notif:')) {
       _onTap?.call(_payloadStub(payload.substring('notif:'.length)));
+      return;
+    }
+    if (payload == 'goal-reminder') {
+      _onGoalTap?.call();
       return;
     }
     // upload:* and upload-done:* taps just bring the app forward —

@@ -38,6 +38,7 @@ import 'package:inkspacex/services/spell_check_service.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/desktop_tray_service.dart';
+import 'package:inkspacex/services/daily_goal_scheduler.dart';
 import 'package:inkspacex/services/home_widget_service.dart';
 import 'package:inkspacex/services/local_notification_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
@@ -116,7 +117,14 @@ void main() {
     // this awaits a system permission dialog, which would otherwise
     // block the first frame on cold start.
     final localNotifications = LocalNotificationService();
-    unawaited(localNotifications.init());
+    // Chain the goal-reminder bootstrap onto init so we don't fight the
+    // permission dialog or fire `zonedSchedule` before the timezone DB
+    // is ready. If the user opted-in last week and never opens the
+    // editor today, this is what keeps the daily-repeating reminder
+    // armed across cold starts.
+    unawaited(localNotifications.init().then((_) {
+      DailyGoalScheduler(notifications: localNotifications).refresh();
+    }));
 
     // Home-screen widget bridge — best-effort init. On platforms that
     // don't ship a widget surface (web) this is a no-op.
@@ -493,6 +501,7 @@ class _AppWithRouterState extends State<_AppWithRouter> {
     localNotifs.setTapHandlers(
       onTap: (_) => _router.go('/notifications'),
       onChatTap: (_) => _router.go('/chats'),
+      onGoalTap: () => _router.go('/editor'),
     );
     // Warm auth-screen assets (doodles + scribbles) on app boot so when
     // the user lands on /login or /signup later, the scene paints

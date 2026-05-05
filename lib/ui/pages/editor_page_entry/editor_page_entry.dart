@@ -127,12 +127,24 @@ class _EditiorPageState extends State<EditiorPage>
   int _dailyWordsToday = 0;
   bool _dailyMet = false;
   String _dailyDate = DailyGoalService.todayKey();
-  // Per-controller tracker for delta computation. We only count words
-  // *added* — switching sections must not retroactively credit the
-  // user with the entire word count of the new section.
+  int _streak = 0;
+  int _reminderHour = DailyGoalService.defaultReminderHour;
+  int _reminderMinute = DailyGoalService.defaultReminderMinute;
+  Map<String, int> _dailyHistory = const <String, int>{};
+  // Word-count tracking lives on a controller listener attached in
+  // didChangeDependencies (re-attached whenever EditorProvider swaps
+  // the controller — i.e. when the user opens a different section or
+  // book). Going through a listener instead of computing deltas in
+  // the goal-widget builder means we keep tracking even when the
+  // floating widget is hidden, and never double-credit a section
+  // swap as "freshly written" words.
   QuillController? _trackedGoalController;
+  VoidCallback? _goalControllerListener;
+  EditorProvider? _trackedEditorProvider;
+  VoidCallback? _editorProviderListener;
   int _lastObservedWords = 0;
   Timer? _goalPersistTimer;
+  Timer? _midnightTimer;
   String? _activePrompt;
   late AnimationController _focusModeController;
   late Animation<double> _focusModeAnimation;
@@ -200,8 +212,192 @@ class _EditiorPageState extends State<EditiorPage>
       _dailyWordsToday = s.todayWords;
       _dailyMet = s.todayMet;
       _dailyDate = s.todayDate;
+      _streak = s.streak;
+      _reminderHour = s.reminderHour;
+      _reminderMinute = s.reminderMinute;
+      _dailyHistory = s.history;
     });
     _refreshGoalReminder();
+    _scheduleMidnightTick();
+  }
+
+  void _scheduleMidnightTick() {
+    _midnightTimer?.cancel();
+    final now = DateTime.now();
+    // 00:00:05 of the next calendar day — a few seconds of slack so
+    // the wall-clock has actually rolled over by the time we read it.
+    final tomorrow = DateTime(now.year, now.month, now.day)
+        .add(const Duration(days: 1, seconds: 5));
+    _midnightTimer = Timer(tomorrow.difference(now), () async {
+      if (!mounted) return;
+      _maybeRollDailyDate();
+      await _refreshGoalReminder();
+      _scheduleMidnightTick();
+    });
+  }
+
+  /// Attach a listener to [c] so every doc-change emits a
+  /// `_onWordCountTick` callback. Idempotent — if we're already on
+  /// [c], this is a no-op. Detaches the prior controller's listener
+  /// first to avoid leaks across section swaps.
+  void _attachWordTracker(QuillController c) {
+    if (identical(c, _trackedGoalController)) return;
+    _detachWordTracker();
+    _trackedGoalController = c;
+    _lastObservedWords = _wordCountOf(c);
+    _goalControllerListener = () {
+      if (!mounted) return;
+      _onWordCountTick(_wordCountOf(c));
+    };
+    c.addListener(_goalControllerListener!);
+  }
+
+  void _detachWordTracker() {
+    final c = _trackedGoalController;
+    final l = _goalControllerListener;
+    if (c != null && l != null) {
+      c.removeListener(l);
+    }
+    _trackedGoalController = null;
+    _goalControllerListener = null;
+  }
+
+  int _wordCountOf(QuillController c) {
+    final text = c.document.toPlainText().trim();
+    if (text.isEmpty) return 0;
+    return text.split(RegExp(r'\s+')).length;
+  }
+
+  void _applyGoalChange(int goal) {
+    setState(() {
+      _dailyGoal = goal;
+      // Lowering the bar can flip today from "missed" to "met";
+      // raising it can do the reverse. Recompute and let setTodayMet
+      // reconcile the streak.
+      _dailyMet = _dailyWordsToday >= _dailyGoal;
+    });
+    _goalService.setTodayMet(_dailyMet, date: _dailyDate).then((s) {
+      if (!mounted) return;
+      setState(() => _streak = s);
+    });
+    _persistGoalSetting();
+  }
+
+  /// Show a number-input dialog for a custom goal value. Returns the
+  /// chosen value (rounded to a positive int) or null if cancelled.
+  Future<int?> _promptCustomGoal() async {
+    final controller = TextEditingController(text: '$_dailyGoal');
+    final result = await showCupertinoDialog<int>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: const Text('Custom daily goal'),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: CupertinoTextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            autofocus: true,
+            placeholder: 'Words per day',
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () {
+              final v = int.tryParse(controller.text.trim());
+              if (v == null || v <= 0) {
+                Navigator.of(ctx).pop();
+                return;
+              }
+              Navigator.of(ctx).pop(v);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    return result;
+  }
+
+  /// Cupertino time picker for the daily reminder. Returns hour/minute
+  /// or null if cancelled.
+  Future<TimeOfDay?> _pickReminderTime() async {
+    var picked = TimeOfDay(hour: _reminderHour, minute: _reminderMinute);
+    final ok = await showCupertinoModalPopup<bool>(
+      context: context,
+      builder: (ctx) => Container(
+        height: 280,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF111111)
+            : Colors.white,
+        child: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CupertinoButton(
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  CupertinoButton(
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    child: const Text('Save'),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  use24hFormat: false,
+                  initialDateTime: DateTime(
+                    2020,
+                    1,
+                    1,
+                    _reminderHour,
+                    _reminderMinute,
+                  ),
+                  onDateTimeChanged: (dt) {
+                    picked = TimeOfDay(hour: dt.hour, minute: dt.minute);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (ok != true) return null;
+    return picked;
+  }
+
+  /// Sum of today's words plus the rolling 7-day history (excluding
+  /// today, which lives in `_dailyWordsToday`). Used for a "this week"
+  /// surface in the goal settings sheet.
+  int _weekTotalWords() {
+    var total = _dailyWordsToday;
+    final cutoff = DateTime.now().subtract(const Duration(days: 6));
+    final cutoffKey = DailyGoalService.todayKey(cutoff);
+    for (final e in _dailyHistory.entries) {
+      if (e.key.compareTo(cutoffKey) >= 0 && e.key != _dailyDate) {
+        total += e.value;
+      }
+    }
+    return total;
+  }
+
+  String _formatReminderTime() {
+    final h12 = _reminderHour == 0
+        ? 12
+        : (_reminderHour > 12 ? _reminderHour - 12 : _reminderHour);
+    final mm = _reminderMinute.toString().padLeft(2, '0');
+    final suffix = _reminderHour >= 12 ? 'PM' : 'AM';
+    return '$h12:$mm $suffix';
   }
 
   Future<void> _persistGoalSetting({bool promptForPermission = false}) async {
@@ -269,7 +465,12 @@ class _EditiorPageState extends State<EditiorPage>
     _persistDailyTotalDebounced();
     if (!_dailyMet && _dailyWordsToday >= _dailyGoal) {
       _dailyMet = true;
-      _goalService.setTodayMet(true, date: _dailyDate);
+      // setTodayMet returns the post-update streak so we can mirror it
+      // into UI state without a second prefs read.
+      _goalService.setTodayMet(true, date: _dailyDate).then((newStreak) {
+        if (!mounted) return;
+        setState(() => _streak = newStreak);
+      });
       // Goal hit → no need to nag the user this evening. Reschedule
       // for tomorrow so the streak prompt resumes on a new day.
       _refreshGoalReminder();
@@ -288,9 +489,13 @@ class _EditiorPageState extends State<EditiorPage>
       return;
     }
     final now = DateTime.now();
-    // 9:00 PM local — late enough to give the writer all day, early
-    // enough that a reminder still has time to convert into writing.
-    var when = DateTime(now.year, now.month, now.day, 21, 0);
+    var when = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      _reminderHour,
+      _reminderMinute,
+    );
     final tomorrowOnly = _dailyMet || !when.isAfter(now);
     if (tomorrowOnly) {
       when = when.add(const Duration(days: 1));
@@ -399,6 +604,25 @@ class _EditiorPageState extends State<EditiorPage>
     if (route is PageRoute) {
       route.animation?.addStatusListener(_routeAnimationListener);
     }
+    // Re-bind goal-tracking to the EditorProvider exposed by the
+    // current scope. didChangeDependencies fires whenever providers
+    // up the tree change, so this also re-attaches if the user logs
+    // out/in (which rebuilds EditorProvider) without unmounting.
+    final ep = context.read<EditorProvider>();
+    if (ep != _trackedEditorProvider) {
+      if (_trackedEditorProvider != null && _editorProviderListener != null) {
+        _trackedEditorProvider!.removeListener(_editorProviderListener!);
+      }
+      _trackedEditorProvider = ep;
+      _editorProviderListener = () {
+        if (!mounted) return;
+        _attachWordTracker(ep.controller);
+      };
+      ep.addListener(_editorProviderListener!);
+      // Attach immediately for the initial controller — subsequent
+      // swaps come through the listener above.
+      _attachWordTracker(ep.controller);
+    }
   }
 
   @override
@@ -424,7 +648,19 @@ class _EditiorPageState extends State<EditiorPage>
       // rolled over, reset today's counter and re-arm the reminder.
       _maybeRollDailyDate();
       _refreshGoalReminder();
+      // Re-poll permission: user may have toggled notifications on
+      // (or off) in system Settings while the app was backgrounded.
+      // No prompt — we silently re-evaluate so the schedule call in
+      // _refreshGoalReminder is a no-op or a real schedule per the
+      // current state, and the next toggle-on shows the snackbar
+      // again if appropriate.
+      _maybeRescheduleMidnightTimer();
     }
+  }
+
+  void _maybeRescheduleMidnightTimer() {
+    final fires = _midnightTimer?.isActive ?? false;
+    if (!fires) _scheduleMidnightTick();
   }
 
   void _routeAnimationListener(AnimationStatus status) {
@@ -791,6 +1027,13 @@ class _EditiorPageState extends State<EditiorPage>
     if (_goalPersistTimer?.isActive ?? false) {
       _goalPersistTimer!.cancel();
       _goalService.setTodayWords(_dailyWordsToday, date: _dailyDate);
+    }
+    _midnightTimer?.cancel();
+    _detachWordTracker();
+    if (_trackedEditorProvider != null && _editorProviderListener != null) {
+      _trackedEditorProvider!.removeListener(_editorProviderListener!);
+      _trackedEditorProvider = null;
+      _editorProviderListener = null;
     }
     _editorScrollController.dispose();
     _editorFocusNode.dispose();
@@ -2024,19 +2267,7 @@ class _EditiorPageState extends State<EditiorPage>
                                       child: GestureDetector(
                                         onTap: () {
                                           setSheetState(() {});
-                                          setState(() {
-                                            _dailyGoal = goal;
-                                            // Lowering the bar can flip
-                                            // today from "missed" to
-                                            // "met"; recompute.
-                                            _dailyMet =
-                                                _dailyWordsToday >= _dailyGoal;
-                                          });
-                                          _goalService.setTodayMet(
-                                            _dailyMet,
-                                            date: _dailyDate,
-                                          );
-                                          _persistGoalSetting();
+                                          _applyGoalChange(goal);
                                         },
                                         child: AnimatedContainer(
                                           duration: const Duration(
@@ -2083,6 +2314,116 @@ class _EditiorPageState extends State<EditiorPage>
                                     ),
                                 ],
                               ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () async {
+                                      final v = await _promptCustomGoal();
+                                      if (v == null) return;
+                                      setSheetState(() {});
+                                      _applyGoalChange(v);
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: textColor.withValues(
+                                              alpha: 0.12),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(CupertinoIcons.pencil,
+                                              size: 11,
+                                              color: mutedColor),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            'Custom',
+                                            style: GoogleFonts.inter(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                              color: mutedColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      final picked =
+                                          await _pickReminderTime();
+                                      if (picked == null) return;
+                                      setSheetState(() {});
+                                      setState(() {
+                                        _reminderHour = picked.hour;
+                                        _reminderMinute = picked.minute;
+                                      });
+                                      await _goalService.setReminderTime(
+                                        hour: picked.hour,
+                                        minute: picked.minute,
+                                      );
+                                      _refreshGoalReminder();
+                                    },
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(CupertinoIcons.bell,
+                                            size: 12,
+                                            color: mutedColor),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          'Remind at ${_formatReminderTime()}',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w500,
+                                            color: mutedColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (_streak > 0 || _weekTotalWords() > 0) ...[
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    if (_streak > 0) ...[
+                                      Icon(CupertinoIcons.flame_fill,
+                                          size: 12, color: Colors.orange),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '$_streak-day streak',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.orange,
+                                        ),
+                                      ),
+                                      Text('  ·  ',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 11,
+                                            color: mutedColor,
+                                          )),
+                                    ],
+                                    Text(
+                                      'This week: ${_weekTotalWords()} words',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                        color: mutedColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -4033,28 +4374,13 @@ class _EditiorPageState extends State<EditiorPage>
       right: isMobile ? 8 : 20,
       // Live word count via direct controller listening (see status bar
       // for the same pattern). Avoids per-keystroke EditorProvider rebuild.
-      child: Selector<EditorProvider, QuillController>(
-        selector: (_, p) => p.controller,
-        builder: (context, controller, _) => ListenableBuilder(
-          listenable: controller,
-          builder: (context, _) {
-          final text = controller.document.toPlainText().trim();
-          final wordCount =
-              text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
-          // Section/controller swap: don't credit the entire new doc
-          // as words written today — re-baseline silently and let the
-          // next keystroke produce the first delta.
-          if (controller != _trackedGoalController) {
-            _trackedGoalController = controller;
-            _lastObservedWords = wordCount;
-          } else if (wordCount != _lastObservedWords) {
-            // Defer the state mutation past the current build; setState
-            // during build is illegal and we'd rather not silently no-op
-            // the tracking.
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _onWordCountTick(wordCount);
-            });
-          }
+      // The progress numbers come straight from this State's fields —
+      // word tracking is handled by the always-on controller listener
+      // wired up in didChangeDependencies, so we don't need to read
+      // the controller here at all. This builder simply re-renders
+      // when setState fires from _onWordCountTick.
+      child: Builder(
+        builder: (context) {
           final progress =
               (_dailyWordsToday / _dailyGoal).clamp(0.0, 1.0);
           final isComplete = progress >= 1.0;
@@ -4150,6 +4476,20 @@ class _EditiorPageState extends State<EditiorPage>
                               ),
                             ),
                           ),
+                          if (_streak > 0) ...[
+                            Icon(CupertinoIcons.flame_fill,
+                                size: 11, color: Colors.orange),
+                            const SizedBox(width: 2),
+                            Text(
+                              '$_streak',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.orange,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                          ],
                           GestureDetector(
                             onTap: () {
                               setState(() => _showGoalWidget = false);
@@ -4188,8 +4528,7 @@ class _EditiorPageState extends State<EditiorPage>
                     ],
                   ),
           );
-          },
-        ),
+        },
       ),
     );
   }
