@@ -8,6 +8,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
+import 'package:inkspacex/services/app_log.dart' show log;
 import 'package:inkspacex/services/smart_substitutions.dart';
 import 'package:inkspacex/services/spell_check_decoration.dart';
 
@@ -289,10 +290,17 @@ class MultiSectionEditingSession {
       try {
         await onSectionPersist(section, current);
         _lastSavedContent[sectionId] = current;
-      } catch (_) {
-        // The caller is responsible for retrying via the outbox/drainer.
-        // We swallow here so a transient failure doesn't poison the
-        // typing state — the next keystroke re-arms the timer.
+      } catch (e, st) {
+        // The caller is responsible for retrying via the outbox/drainer
+        // — we don't propagate so a transient failure doesn't poison
+        // the typing state (the next keystroke re-arms the timer). But
+        // we DO ship a warning to the remote logger so dropped saves
+        // surface in CI / production telemetry instead of disappearing.
+        log.w(
+          '[multi-section] persist failed for section $sectionId: $e',
+          error: e,
+          stackTrace: st,
+        );
       }
     }
     _typingSections.remove(sectionId);
@@ -398,7 +406,13 @@ class MultiSectionEditingSession {
     try {
       final ops = jsonDecode(raw);
       if (ops is List) return Document.fromJson(ops);
-    } catch (_) {}
+    } catch (e) {
+      // Malformed delta — the editor falls back to a plain-text
+      // paragraph so the user can still see and edit something. Worth
+      // a warning so corrupt local cache surfaces in telemetry instead
+      // of being silently rewritten as plain text on first save.
+      log.w('[multi-section] non-JSON section content, falling back: $e');
+    }
     return Document()..insert(0, content);
   }
 

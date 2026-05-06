@@ -117,7 +117,7 @@ class AuthorBookmarkProvider extends ChangeNotifier {
           'writing_id': writingId,
           'section_id': sectionId,
           'offset': offset,
-          if (label != null) 'label': label,
+          'label': ?label,
           'color': color,
         },
       },

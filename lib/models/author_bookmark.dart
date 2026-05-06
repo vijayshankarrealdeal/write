@@ -52,9 +52,9 @@ class AuthorBookmark {
         'writing_id': writingId,
         'section_id': sectionId,
         'offset': offset,
-        if (label != null) 'label': label,
+        'label': ?label,
         'color': color,
-        if (clientOpId != null) 'client_op_id': clientOpId,
+        'client_op_id': ?clientOpId,
       };
 
   Map<String, dynamic> toPatchJson({
@@ -64,9 +64,9 @@ class AuthorBookmark {
     bool clearLabel = false,
   }) =>
       {
-        if (clearLabel) 'label': null else if (newLabel != null) 'label': newLabel,
-        if (newColor != null) 'color': newColor,
-        if (newOffset != null) 'offset': newOffset,
+        if (clearLabel) 'label': null else 'label': ?newLabel,
+        'color': ?newColor,
+        'offset': ?newOffset,
       };
 
   AuthorBookmark copyWith({

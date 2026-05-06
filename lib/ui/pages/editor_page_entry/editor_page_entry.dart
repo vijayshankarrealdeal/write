@@ -1965,7 +1965,6 @@ class _EditiorPageState extends State<EditiorPage>
     final delta = controller.document.toDelta().toJson();
     int offset = 0;
     for (final op in delta) {
-      if (op is! Map) continue;
       final insert = op['insert'];
       if (insert is String) {
         offset += insert.length;
