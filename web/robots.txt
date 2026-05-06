@@ -2,10 +2,19 @@
 User-agent: *
 Allow: /
 Allow: /landing.html
-Allow: /privacy-policy
-Allow: /terms-of-service
+Allow: /scrivener-alternative.html
+Allow: /scrivener-vs-inkspacex.html
+Allow: /sudowrite-vs-inkspacex.html
+Allow: /best-writing-software-2026.html
+Allow: /blog/
+Allow: /privacy_policy.html
+Allow: /terms_of_service.html
+Allow: /data_deletion.html
 Disallow: /api/
 Disallow: /admin
+Disallow: /admin/
 Disallow: /storage/
+Disallow: /app
+Disallow: /app/
 
 Sitemap: https://inkspacex.com/sitemap.xml

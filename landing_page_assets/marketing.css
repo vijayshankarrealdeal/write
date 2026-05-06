@@ -1,0 +1,391 @@
+/*
+ * Shared stylesheet for InkSpaceX marketing pages other than the
+ * landing page itself (which keeps its inline styles for above-the-
+ * fold paint speed). Comparison pages, the blog index, and individual
+ * blog posts all link this file so the visual identity stays in sync.
+ *
+ * The variables and palette mirror the inline CSS at the top of
+ * landing.html so the two surfaces feel like one site.
+ */
+
+:root {
+  --cream: #FAFAF7;
+  --cream-dark: #F2EFE8;
+  --paper: #FFFFFF;
+  --ink: #111111;
+  --ink-soft: #2a2a2a;
+  --muted: #5B6470;
+  --muted-2: #8A8472;
+  --accent: #1E6EF4;
+  --accent-hover: #0088FF;
+  --accent-soft: #DDEAFF;
+  --accent-2: #6B5BFF;
+  --accent-2-soft: #DCD4FF;
+  --accent-3: #FFD25E;
+  --accent-3-soft: #FFE9A8;
+  --accent-4: #0E7A4F;
+  --accent-4-soft: #C7EFD7;
+  --paper-line: #E5E2D8;
+  --shadow-card: var(--ink);
+  --good: #0E7A4F;
+  --bad: #C13B3B;
+  --neutral: #8A8472;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --cream: #191919;
+    --cream-dark: #0E0E0E;
+    --paper: #1F1F1F;
+    --ink: #F1ECDD;
+    --ink-soft: #E0DAC9;
+    --muted: #B5AC97;
+    --paper-line: #2C2C2C;
+    /* Lift the accent in dark mode so brand mark + links keep WCAG AA on
+       #191919 (the #1E6EF4 light-mode accent only hits 3.78:1). */
+    --accent: #5CB8FF;
+    --accent-hover: #0091FF;
+    --accent-soft: #102A47;
+    --accent-2-soft: #221E47;
+    --accent-3-soft: #2E2614;
+    --accent-4: #6FD8A4;
+    --accent-4-soft: #14291F;
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+html, body { background: var(--cream); }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+.container-wide { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Top nav ────────────────────────────────────────────────────── */
+.nav-wrap {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(250,250,247,0.92);
+  border-bottom: 1px solid transparent;
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+}
+@media (prefers-color-scheme: dark) {
+  .nav-wrap { background: rgba(25,25,25,0.92); }
+}
+.nav {
+  max-width: 1200px; margin: 0 auto;
+  padding: 14px 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+.brand {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; color: var(--ink);
+  font-weight: 800; font-size: 18px; letter-spacing: -0.3px;
+}
+.brand .x { color: var(--accent); }
+.nav-links {
+  display: flex; gap: 22px; margin-left: 28px; flex: 1;
+  flex-wrap: wrap;
+}
+.nav-links a {
+  color: var(--ink-soft); text-decoration: none;
+  font-weight: 500; font-size: 14.5px;
+}
+.nav-links a:hover { color: var(--accent); }
+.nav-cta { display: flex; gap: 10px; }
+.nav-cta a {
+  text-decoration: none; padding: 9px 14px; border-radius: 10px;
+  font-weight: 600; font-size: 14px;
+}
+.nav-cta .ghost { color: var(--ink); }
+.nav-cta .primary { background: var(--ink); color: var(--cream); }
+.nav-cta .primary:hover { background: var(--accent); color: #fff; }
+
+/* ── Hero / page header ─────────────────────────────────────────── */
+.page-hero {
+  padding: 80px 0 48px;
+  border-bottom: 1px solid var(--paper-line);
+}
+.page-hero .eyebrow {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
+  /* AA contrast: --accent (#1E6EF4) on --accent-soft (#DDEAFF) is only
+     3.76:1. Dropping to #1257D6 hits 5.6:1 — passes for any text size. */
+  color: #1257D6;
+  background: var(--accent-soft);
+  padding: 6px 12px; border-radius: 999px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .page-hero .eyebrow { color: var(--accent); }
+}
+.page-hero h1 {
+  font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.05; letter-spacing: -0.02em;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.page-hero h1 .em { color: var(--accent); }
+.page-hero h1 .em-2 { color: var(--accent-2); }
+.page-hero h1 .em-3 { color: var(--accent-4); }
+.page-hero .lede {
+  font-size: clamp(17px, 2.2vw, 21px);
+  color: var(--muted);
+  max-width: 720px;
+  line-height: 1.5;
+}
+.page-hero .meta {
+  margin-top: 18px; color: var(--muted-2); font-size: 14px;
+}
+
+/* ── Section blocks ─────────────────────────────────────────────── */
+.section { padding: 60px 0; border-bottom: 1px solid var(--paper-line); }
+.section:last-of-type { border-bottom: none; }
+.section h2 {
+  font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.15; letter-spacing: -0.02em;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+.section h2 .em { color: var(--accent); }
+.section h3 {
+  font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+  font-size: 22px; font-weight: 600;
+  margin: 32px 0 12px;
+}
+.section p {
+  font-size: 16.5px; color: var(--ink-soft);
+  margin-bottom: 16px; max-width: 700px;
+}
+.section ul, .section ol {
+  font-size: 16.5px; color: var(--ink-soft);
+  margin: 0 0 18px 24px; max-width: 700px;
+}
+.section ul li, .section ol li { margin-bottom: 8px; }
+.section a { color: var(--accent); }
+.section a:hover { color: var(--accent-hover); }
+.section strong { color: var(--ink); font-weight: 700; }
+
+.callout {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  padding: 20px 22px; border-radius: 8px;
+  margin: 24px 0;
+}
+.callout.warn { background: #FFF3CD; border-left-color: var(--accent-3); }
+.callout.good { background: var(--accent-4-soft); border-left-color: var(--good); }
+@media (prefers-color-scheme: dark) {
+  .callout { background: rgba(30,110,244,0.12); }
+  .callout.warn { background: rgba(255,210,94,0.12); border-left-color: var(--accent-3); }
+  .callout.good { background: rgba(14,122,79,0.16); }
+}
+.callout p:last-child { margin-bottom: 0; }
+
+/* ── Comparison table ───────────────────────────────────────────── */
+.cmp-table-wrap { overflow-x: auto; margin: 24px 0 8px; }
+.cmp-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 15px;
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cmp-table th, .cmp-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--paper-line);
+  text-align: left;
+  vertical-align: top;
+}
+.cmp-table thead th {
+  background: var(--cream-dark);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--ink);
+}
+.cmp-table tbody tr:last-child td { border-bottom: none; }
+.cmp-table tbody tr:hover { background: rgba(30,110,244,0.04); }
+.cmp-table .row-feat { font-weight: 600; color: var(--ink); }
+.cmp-table .yes { color: var(--good); font-weight: 700; }
+.cmp-table .no { color: var(--bad); font-weight: 700; }
+.cmp-table .meh { color: var(--neutral); font-weight: 600; }
+
+/* ── Pros / cons cards ──────────────────────────────────────────── */
+.pc-grid {
+  display: grid; gap: 16px; margin: 24px 0;
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 720px) { .pc-grid { grid-template-columns: 1fr; } }
+.pc-card {
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-radius: 12px;
+  padding: 20px 22px;
+}
+.pc-card h3, .pc-card h4 {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 800; letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+  color: var(--ink);
+}
+.pc-card.pros h3, .pc-card.pros h4 { color: var(--good); }
+.pc-card.cons h3, .pc-card.cons h4 { color: var(--bad); }
+.pc-card ul { margin: 0 0 0 18px; }
+.pc-card li { margin-bottom: 6px; font-size: 15px; }
+
+/* ── CTA blocks ─────────────────────────────────────────────────── */
+.cta-block {
+  text-align: center;
+  padding: 56px 24px;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 18px;
+  margin: 40px 0;
+}
+.cta-block h2 {
+  color: var(--cream);
+  font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+  font-size: clamp(26px, 4vw, 38px);
+  margin-bottom: 14px;
+}
+.cta-block p {
+  color: rgba(241,236,221,0.85);
+  max-width: 540px; margin: 0 auto 24px;
+  font-size: 16px;
+}
+.cta-btn {
+  display: inline-block;
+  background: var(--accent-3);
+  /* Yellow accent-3 background only has AA contrast against the
+     light-mode #111 ink. In dark mode --ink flips to #F1ECDD, which
+     gives 1.2:1 — a fail. Force ink-black on the yellow chip in both
+     modes; the chip is always visually a light surface. */
+  color: #111111;
+  font-weight: 700; font-size: 15px;
+  text-decoration: none;
+  padding: 14px 24px; border-radius: 12px;
+  box-shadow: 4px 4px 0 0 var(--accent);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.cta-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 var(--accent);
+  color: #111111;
+}
+
+/* ── Breadcrumbs ────────────────────────────────────────────────── */
+.crumbs {
+  font-size: 13px; color: var(--muted);
+  padding: 18px 0 0;
+}
+.crumbs a { color: var(--muted); text-decoration: none; }
+.crumbs a:hover { color: var(--accent); }
+.crumbs .sep { margin: 0 8px; opacity: 0.5; }
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+.site-footer {
+  padding: 40px 0 60px;
+  border-top: 1px solid var(--paper-line);
+  background: var(--cream-dark);
+  margin-top: 60px;
+}
+.site-footer .row {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 24px;
+  display: flex; flex-wrap: wrap; gap: 24px;
+  align-items: baseline; justify-content: space-between;
+  font-size: 13px; color: var(--muted);
+}
+.site-footer a { color: var(--muted); text-decoration: none; }
+.site-footer a:hover { color: var(--accent); }
+.site-footer .links { display: flex; gap: 18px; flex-wrap: wrap; }
+
+/* ── Blog post body ─────────────────────────────────────────────── */
+.post-body {
+  max-width: 720px; margin: 0 auto;
+  padding: 24px 24px 48px;
+}
+.post-body p {
+  font-size: 18px; line-height: 1.65;
+  color: var(--ink-soft);
+  margin: 0 0 22px;
+}
+.post-body h2 {
+  font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+  font-size: 30px; line-height: 1.2;
+  font-weight: 700;
+  margin: 44px 0 14px;
+}
+.post-body h3 {
+  font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  margin: 28px 0 10px;
+}
+.post-body ul, .post-body ol {
+  font-size: 18px; line-height: 1.65;
+  color: var(--ink-soft);
+  margin: 0 0 22px 24px;
+}
+.post-body li { margin-bottom: 8px; }
+.post-body blockquote {
+  border-left: 4px solid var(--accent);
+  padding: 6px 18px;
+  margin: 22px 0;
+  font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 19px;
+  color: var(--ink-soft);
+}
+.post-body a { color: var(--accent); }
+
+/* ── Blog index cards ───────────────────────────────────────────── */
+.post-list { display: grid; gap: 18px; margin: 32px 0; }
+.post-card {
+  display: block; text-decoration: none;
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-radius: 14px;
+  padding: 24px 26px;
+  color: var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.post-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 var(--ink);
+}
+.post-card .tag {
+  display: inline-block;
+  font-size: 11px; font-weight: 800; letter-spacing: 1.2px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.post-card h3 {
+  font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+  font-size: 22px; font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+.post-card .excerpt {
+  color: var(--muted);
+  font-size: 15px; line-height: 1.5;
+}
+.post-card .meta {
+  margin-top: 12px;
+  /* AA contrast: --muted-2 (#8A8472) on white is only 3.7:1.
+     --muted (#5B6470) is 6.4:1 — passes for any small-text size. */
+  color: var(--muted);
+  font-size: 13px;
+}

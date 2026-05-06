@@ -6,31 +6,35 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <meta name="description" content="InkSpaceX is the calm writing app — distraction-free editor, beautiful reader, and a quiet community of writers. Write, publish and discover stories across web, iOS, Android, macOS and Windows.">
-  <meta name="keywords" content="inkspacex, ink space x, writing app, online writing platform, distraction-free writer, story writing app, novel writing, free writing app, publish stories online, reading app">
+  <meta name="description" content="Free writing software for novelists. Distraction-free editor, scene binder, AI writing assistant, and offline sync. A modern Scrivener alternative on every device.">
+  <meta name="keywords" content="writing software, novel writing software, scrivener alternative, online writing tool, distraction-free writing app, ai writing assistant for fiction, best writing app, story writing software, free writing software">
   <meta name="author" content="InkSpaceX">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
   <meta name="theme-color" content="#000000">
-  <link rel="canonical" href="https://inkspacex.com/">
+  <!-- The SPA shell at / is duplicate-content for every authenticated route.
+       Canonical points at the marketing landing page so Google credits ranking
+       signals to the indexable surface, not the empty shell. -->
+  <link rel="canonical" href="https://inkspacex.com/landing.html">
   <!-- Replace the content value with the token from Google Search Console once the property is verified. -->
   <meta name="google-site-verification" content="">
 
   <!-- Open Graph -->
   <meta property="og:site_name" content="InkSpaceX">
-  <meta property="og:title" content="InkSpaceX — Where stories begin.">
-  <meta property="og:description" content="Write the way you think. Read the way you feel. A calm place for stories — across every device.">
+  <meta property="og:title" content="Free Writing Software for Novels & Stories — InkSpaceX">
+  <meta property="og:description" content="Distraction-free editor, smart drafting tools, offline support. A modern Scrivener alternative — free on web, iOS, Android, macOS, Windows.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://inkspacex.com/">
-  <meta property="og:image" content="https://inkspacex.com/icons/Icon-512.png">
-  <meta property="og:image:width" content="512">
-  <meta property="og:image:height" content="512">
+  <meta property="og:url" content="https://inkspacex.com/landing.html">
+  <meta property="og:image" content="https://inkspacex.com/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="InkSpaceX — calm writing software for novelists.">
   <meta property="og:locale" content="en_US">
 
   <!-- Twitter / X card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="InkSpaceX — Where stories begin.">
-  <meta name="twitter:description" content="Write the way you think. Read the way you feel. A calm place for stories — across every device.">
-  <meta name="twitter:image" content="https://inkspacex.com/icons/Icon-512.png">
+  <meta name="twitter:title" content="Free Writing Software for Novels & Stories — InkSpaceX">
+  <meta name="twitter:description" content="Distraction-free editor, smart drafting tools, offline support. A modern Scrivener alternative — free across every device.">
+  <meta name="twitter:image" content="https://inkspacex.com/og-image.png">
 
   <!-- PWA -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -45,7 +49,7 @@
        X-Frame-Options / X-Content-Type-Options must be set as HTTP headers by Caddy). -->
   <meta name="referrer" content="strict-origin-when-cross-origin">
 
-  <title>InkSpaceX — A calm place to write, read & share your stories</title>
+  <title>InkSpaceX — Free Writing Software for Novels & Stories</title>
 
   <!-- Schema.org structured data — helps Google understand the brand and site. -->
   <script type="application/ld+json">
@@ -55,7 +59,8 @@
     "name": "InkSpaceX",
     "alternateName": ["Ink Space X", "InkSpace X"],
     "url": "https://inkspacex.com/",
-    "logo": "https://inkspacex.com/icons/Icon-512.png"
+    "logo": "https://inkspacex.com/icons/Icon-512.png",
+    "email": "support@inkspacex.com"
   }
   </script>
   <script type="application/ld+json">
@@ -63,7 +68,15 @@
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "InkSpaceX",
-    "url": "https://inkspacex.com/"
+    "url": "https://inkspacex.com/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://inkspacex.com/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
   }
   </script>
 

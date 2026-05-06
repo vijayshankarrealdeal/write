@@ -42,10 +42,23 @@ if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
   command -v "$NPM_BIN" >/dev/null || { echo "Missing npm — set NPM_BIN or install Node.js"; exit 1; }
   ( cd admin && "$NPM_BIN" install --silent && "$NPM_BIN" run build )
 
-  echo "→ Stamping version + copying policy files..."
+  echo "→ Stamping version + copying policy + marketing files..."
   TS=$(date +%s)
   echo "{\"version\": \"$TS\"}" > build/web/version.json
   cp privacy_policy.html terms_of_service.html data_deletion.html landing.html build/web/
+  cp scrivener-alternative.html scrivener-vs-inkspacex.html sudowrite-vs-inkspacex.html best-writing-software-2026.html build/web/
+  rm -rf build/web/blog
+  cp -R blog build/web/blog
+  cp landing_page_assets/marketing.css build/web/marketing.css
+  for og in og-image.png og-scrivener-alternative.png og-scrivener-vs.png og-sudowrite-vs.png og-best-2026.png og-blog-three-act.png og-blog-ugly-draft.png og-blog-switching.png; do
+    if [[ -f "landing_page_assets/$og" ]]; then
+      cp "landing_page_assets/$og" "build/web/$og"
+    fi
+  done
+  if [[ -d "Hand Drawn Doodle Elements" ]]; then
+    rm -rf "build/web/Hand Drawn Doodle Elements"
+    cp -R "Hand Drawn Doodle Elements" "build/web/Hand Drawn Doodle Elements"
+  fi
 fi
 
 # ── Local mode: just bring up the stack here ──────────────────────────
