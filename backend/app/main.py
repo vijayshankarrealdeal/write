@@ -37,6 +37,7 @@ from app.routers import (
     feed,
     feedback,
     highlights,
+    linguistic,
     logs,
     notifications,
     reading,
@@ -221,6 +222,7 @@ app.include_router(notifications.router)
 app.include_router(realtime.router)
 app.include_router(analytics.router)
 app.include_router(spellcheck.router)
+app.include_router(linguistic.router)
 app.include_router(dictionary.router)
 app.include_router(reports.router)
 app.include_router(feedback.router)

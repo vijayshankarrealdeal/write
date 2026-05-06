@@ -18,6 +18,7 @@ import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/desktop_tray_service.dart';
 import 'package:inkspacex/services/home_widget_service.dart';
+import 'package:inkspacex/services/linguistic_focus_decoration.dart';
 import 'package:inkspacex/services/scrivenings_session.dart';
 import 'package:inkspacex/services/spell_check_decoration.dart';
 import 'package:inkspacex/services/storage_service.dart';
@@ -2035,7 +2036,14 @@ class EditorProvider extends ChangeNotifier {
   }
 
   String dumpData() {
-    final clean = stripSpellCheckErrors(controller.document.toDelta());
+    // Strip transient overlay attributes (spell-check underlines,
+    // linguistic-focus highlight + dim) so they never reach storage
+    // or the collab broadcast. Both decorators use `ignore`-scope
+    // attributes that wouldn't be respected on read-back, but
+    // sending them on the wire would bloat deltas and confuse
+    // diffing.
+    final delta = controller.document.toDelta();
+    final clean = stripLinguisticAttrs(stripSpellCheckErrors(delta));
     return jsonEncode(clean.toJson());
   }
 

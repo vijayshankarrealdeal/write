@@ -4,6 +4,10 @@ WORKDIR /app
 
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+# spaCy ships its language models out-of-band (not via PyPI). Pull the
+# small English model so /api/linguistic/tag has POS data without a
+# first-request download. ~12 MB.
+RUN python -m spacy download en_core_web_sm
 
 COPY backend/ .
 

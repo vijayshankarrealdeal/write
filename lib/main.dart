@@ -28,6 +28,7 @@ import 'package:inkspacex/provider/nav_provider.dart';
 import 'package:inkspacex/provider/notification_provider.dart';
 import 'package:inkspacex/provider/offline_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
+import 'package:inkspacex/provider/linguistic_focus_provider.dart';
 import 'package:inkspacex/provider/spell_check_provider.dart';
 import 'package:inkspacex/provider/version_history_provider.dart';
 import 'package:inkspacex/router.dart';
@@ -35,6 +36,7 @@ import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_client.dart';
 import 'package:inkspacex/services/api/api_realtime_service.dart';
 import 'package:inkspacex/services/dictionary_service.dart';
+import 'package:inkspacex/services/linguistic_focus_service.dart';
 import 'package:inkspacex/services/spell_check_service.dart';
 import 'package:inkspacex/services/app_log.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
@@ -383,6 +385,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 SpellCheckService(ApiClient(storage)),
                 dict,
               ),
+        ),
+        ChangeNotifierProvider<LinguisticFocusProvider>(
+          create: (_) => LinguisticFocusProvider(
+            storage,
+            LinguisticFocusService(ApiClient(storage)),
+          ),
         ),
         // Re-attach the dictionary SSE listener whenever AuthProvider
         // swaps its realtime service (login / logout / re-auth). Each

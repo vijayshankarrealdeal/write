@@ -23,10 +23,12 @@ import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/author_bookmark_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
+import 'package:inkspacex/provider/linguistic_focus_provider.dart';
 import 'package:inkspacex/provider/spell_check_provider.dart';
 import 'package:inkspacex/provider/version_history_provider.dart';
 import 'package:inkspacex/services/daily_goal_service.dart';
 import 'package:inkspacex/services/local_notification_service.dart';
+import 'package:inkspacex/services/linguistic_focus_decoration.dart';
 import 'package:inkspacex/services/spell_check_decoration.dart';
 import 'package:inkspacex/services/spell_check_service.dart' as spellsvc;
 import 'package:inkspacex/services/analytics_service.dart';
@@ -56,6 +58,7 @@ import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/editor_constan
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/find_replace_bar.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/focus_widgets.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/inline_spell_check_bar.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/linguistic_focus_chip.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/ruler_bar.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/side_actions_pill.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/spell_check_sheet.dart';
@@ -138,6 +141,11 @@ class _EditiorPageState extends State<EditiorPage>
   VoidCallback? _docListener;
   QuillController? _listenerAttachedTo;
   String? _spellSectionId;
+  // Linguistic-focus overlay attaches per-section like spell check —
+  // each section keeps its own debounced scan loop, and the marks are
+  // cleared on detach so an unmounted section doesn't leak decoration
+  // attrs into the next one.
+  String? _linguisticSectionId;
   PaperTheme _paperTheme = PaperTheme.defaultTheme;
   int _sessionStartWords = 0;
   bool _sessionStarted = false;
@@ -1094,6 +1102,24 @@ class _EditiorPageState extends State<EditiorPage>
     if (_spellSectionId == section.id) return;
     _spellSectionId = section.id;
     sp.attach(context.read<EditorProvider>().controller);
+  }
+
+  // ─── Linguistic focus ───
+  // Same shape as spell check: attach the provider's debounced scan
+  // loop to the active section's controller. Toggle UI lives in the
+  // status bar; the provider is what owns the "scan ↔ paint" cycle.
+  void _syncLinguisticSection(SectionModel? section) {
+    final lp = context.read<LinguisticFocusProvider>();
+    if (section == null) {
+      if (_linguisticSectionId != null) {
+        _linguisticSectionId = null;
+        lp.detach();
+      }
+      return;
+    }
+    if (_linguisticSectionId == section.id) return;
+    _linguisticSectionId = section.id;
+    lp.attach(context.read<EditorProvider>().controller);
   }
 
   void _replaceMisspelling(spellsvc.Misspelling m, String replacement) {
@@ -3041,12 +3067,14 @@ class _EditiorPageState extends State<EditiorPage>
     if (_isReady &&
         (activeSection?.id != _annotationSectionId ||
             activeSection?.id != _versionSectionId ||
-            activeSection?.id != _spellSectionId)) {
+            activeSection?.id != _spellSectionId ||
+            activeSection?.id != _linguisticSectionId)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         _syncAnnotationSection(activeSection);
         _syncVersionSection(activeSection);
         _syncSpellSection(activeSection);
+        _syncLinguisticSection(activeSection);
         _attachTypewriterListenerIfNeeded(
           context.read<EditorProvider>().controller,
         );
@@ -4508,6 +4536,16 @@ class _EditiorPageState extends State<EditiorPage>
     if (attr.key == kSpellCheckErrorKey && attr.value == true) {
       return kSpellCheckErrorStyle;
     }
+    if (attr.key == kLinguisticHighlightKey && attr.value != null) {
+      // Value is the active class name; the colour map keeps each
+      // class visually distinct so toggling between e.g. "Adverbs"
+      // and "Verbs" feels like swapping highlighters, not refreshing
+      // the same one.
+      return linguisticHighlightStyle(attr.value as String?);
+    }
+    if (attr.key == kLinguisticDimKey && attr.value == true) {
+      return kLinguisticDimStyle;
+    }
     return const TextStyle();
   }
 
@@ -4652,9 +4690,11 @@ class _EditiorPageState extends State<EditiorPage>
                   ),
                 ),
               ),
-              // Right: goal/streak chip (persistent, low-key) + spell-check
-              // chip + session + optional mode badge
+              // Right: goal/streak chip (persistent, low-key) +
+              // linguistic-focus chip + spell-check chip + session +
+              // optional mode badge
               _buildGoalChip(textColor: textColor, isDark: isDark),
+              LinguisticFocusChip(textColor: textColor, isDark: isDark),
               Consumer<SpellCheckProvider>(
                 builder: (_, sp, _) {
                   if (!sp.enabled) return const SizedBox.shrink();
