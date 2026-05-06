@@ -15,7 +15,7 @@ Status legend: ✅ merged to main · 🟢 implementation complete, PR open · �
 
 ## P2 — Polish / power features
 - ✅ #7 Linguistic Focus (POS-class highlighter w/ spaCy backend) — merged via PR [#13](https://github.com/vijayshankarrealdeal/write/pull/13) (branch commit 924434e, merge commit a01f948).
-- ✅ #8 Page view / paginated layout — merged via PR [#11](https://github.com/vijayshankarrealdeal/write/pull/11) (branch commit 1ac187c after rebase, merge commit 8dd7be9). **Read-only v1** — paginated rendering only; live editing inside the page view is deferred (same scope-cut shape as Scrivenings v1 — see #4). Toggle via ⌘5 / "Page" in the view switcher; jump back to Draft view to edit.
+- ✅ #8 Page view / paginated layout — merged via PR [#11](https://github.com/vijayshankarrealdeal/write/pull/11) (branch commit 1ac187c, merge commit 8dd7be9). Live in-page editing followed in PR [#14](https://github.com/vijayshankarrealdeal/write/pull/14) (branch commit 6d742ec, merge commit b440df4) — the read-only scope-cut from v1 is now closed. The two multi-section live editors (Scrivenings + Page view) share a common `MultiSectionEditingSession` extracted in #14, so future edit-routing changes land in one place.
 
 ## How this file is updated
 Each feature branch updates this file in its final commit before merging to main, flipping its row through ⬜ → 🟡 → 🟢 (when the PR opens) → ✅ (when it merges, with the merge commit hash). Bugs discovered during work get appended at the bottom of their priority section.
