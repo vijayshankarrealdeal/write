@@ -24,7 +24,7 @@ Goal: close the remaining gap to Scrivener for the **drafting / editor experienc
 **Acceptance.** Type `"hello"` → renders `“hello”`. Type `--` → `—`. Type `...` → `…`. Backspace once after substitution restores the original keystroke (so users can opt out per-instance). Toggle off disables all four.
 
 ### 2. Session target footer chip in the editor chrome ✅
-**Done in commit `<P0_2_HASH>`** — `_buildGoalChip` in [editor_page_entry.dart](lib/ui/pages/editor_page_entry/editor_page_entry.dart) renders a tiny progress ring + `<wordsToday>/<goal>` + flame `<streak>` on the right side of the always-visible status bar. Tappable; opens the existing Writer Settings sheet. The pre-existing floating `_buildGoalWidget` (opt-in via toggle) is unchanged — the chip is the persistent low-key counterpart.
+**Done in commit `1e107e6`** — `_buildGoalChip` in [editor_page_entry.dart](lib/ui/pages/editor_page_entry/editor_page_entry.dart) renders a tiny progress ring + `<wordsToday>/<goal>` + flame `<streak>` on the right side of the always-visible status bar. Tappable; opens the existing Writer Settings sheet. The pre-existing floating `_buildGoalWidget` (opt-in via toggle) is unchanged — the chip is the persistent low-key counterpart.
 
 **What.** Daily goal/streak exist but live in side panels and focus-mode only. Add a persistent low-key chip in the main editor footer/toolbar showing `<wordsToday> / <goal> · 🔥<streak>` so it's visible during normal drafting, not just in focus.
 **Where.**
