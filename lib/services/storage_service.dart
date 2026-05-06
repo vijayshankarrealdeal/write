@@ -362,6 +362,29 @@ class StorageService {
     await _box.put(_userKey('spell_check_ignored'), words);
   }
 
+  // --- Linguistic Focus (POS-class highlighter) ---
+  //
+  // Persists the user's current overlay choice (one of the five
+  // canonical class names from [LinguisticClass.all], or null = Off)
+  // so the toggle survives app restarts. Stored as a plain string —
+  // we don't import the class-name enum here to keep the storage
+  // layer independent of the linguistic feature.
+  static const String _keyLinguisticFocusClass = 'linguistic_focus_class_v1';
+
+  String? getLinguisticFocusClass() {
+    final raw = _box.get(_keyLinguisticFocusClass);
+    if (raw is String && raw.isNotEmpty) return raw;
+    return null;
+  }
+
+  Future<void> saveLinguisticFocusClass(String? className) async {
+    if (className == null) {
+      await _box.delete(_keyLinguisticFocusClass);
+    } else {
+      await _box.put(_keyLinguisticFocusClass, className);
+    }
+  }
+
   // --- Global dictionary cache (shared across users on this device) ---
   // Words are global; the version we hold is too. Not user-scoped — a
   // fresh login re-uses the same cache rather than re-downloading the
