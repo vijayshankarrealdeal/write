@@ -1082,11 +1082,17 @@ class EditorProvider extends ChangeNotifier {
   /// the next drain creates them server-side.
   Future<void> _ensureBinderFolders() async {
     final renames = <_FolderRename>[];
+    final duplicateDeletes = <_DuplicateFolderDelete>[];
     var changed = false;
     for (final book in allBooks) {
       final result = _ensureFoldersForBook(book);
       changed = result.changed || changed;
       renames.addAll(result.renames);
+      for (final id in result.duplicateIds) {
+        duplicateDeletes.add(
+          _DuplicateFolderDelete(bookId: book.id, sectionId: id),
+        );
+      }
     }
     if (renames.isNotEmpty) {
       await _migrateOutboxForRenames(renames);
@@ -1100,6 +1106,14 @@ class EditorProvider extends ChangeNotifier {
       if (_userId != null) {
         for (final r in renames) {
           await _enqueueRenameUpserts(r);
+        }
+        // Tell the server about every duplicate folder we collapsed
+        // locally so its row goes away from the next pull too.
+        for (final d in duplicateDeletes) {
+          await _enqueue(PendingOp(
+            kind: PendingOpKind.deleteSection,
+            payload: {'writingId': d.bookId, 'sectionId': d.sectionId},
+          ));
         }
       }
     }
@@ -1235,7 +1249,50 @@ class EditorProvider extends ChangeNotifier {
         changed = true;
       }
     }
-    return _EnsureFoldersResult(changed: changed, renames: renames);
+
+    // Step 4: dedupe scaffolding folders. A migration race or stale
+    // server payload can leave two top-level Trash (or Research, or
+    // Manuscript) folders side by side — `findFolder` only returns the
+    // first match, so the duplicates would otherwise live forever.
+    // Keep the canonical UUIDv5 instance, reparent any children of the
+    // loser(s) into the keeper, then drop the duplicate ids.
+    final duplicateIds = <String>[];
+    void dedupKind(SectionKind kind) {
+      final canonicalId = _folderUuid(book.id, kind);
+      final matches = <SectionModel>[];
+      for (final s in book.sections) {
+        if (s.parentId == null && s.kind == kind) matches.add(s);
+      }
+      if (matches.length < 2) return;
+      final keeper = matches.firstWhere(
+        (s) => s.id == canonicalId,
+        orElse: () => matches.first,
+      );
+      final loserIds = <String>{
+        for (final s in matches)
+          if (s.id != keeper.id) s.id,
+      };
+      if (loserIds.isEmpty) return;
+      for (final s in book.sections) {
+        if (s.parentId != null && loserIds.contains(s.parentId)) {
+          s.parentId = keeper.id;
+          s.isSynced = false;
+        }
+      }
+      book.sections.removeWhere((s) => loserIds.contains(s.id));
+      duplicateIds.addAll(loserIds);
+      changed = true;
+    }
+
+    dedupKind(SectionKind.folder);
+    dedupKind(SectionKind.research);
+    dedupKind(SectionKind.trash);
+
+    return _EnsureFoldersResult(
+      changed: changed,
+      renames: renames,
+      duplicateIds: duplicateIds,
+    );
   }
 
   /// Drop any outbox op that references a renamed folder id. Those ops
@@ -2314,8 +2371,24 @@ class _FolderRename {
   final List<String> movedChildIds;
 }
 
+/// One duplicate-folder removal queued for the server. The local model
+/// already had the row stripped; this is just so the next pull doesn't
+/// resurrect it.
+class _DuplicateFolderDelete {
+  _DuplicateFolderDelete({required this.bookId, required this.sectionId});
+  final String bookId;
+  final String sectionId;
+}
+
 class _EnsureFoldersResult {
-  _EnsureFoldersResult({required this.changed, required this.renames});
+  _EnsureFoldersResult({
+    required this.changed,
+    required this.renames,
+    this.duplicateIds = const <String>[],
+  });
   final bool changed;
   final List<_FolderRename> renames;
+  // Section ids removed by the dedup pass. The caller fires a
+  // `deleteSection` op for each so the server cleans up too.
+  final List<String> duplicateIds;
 }
