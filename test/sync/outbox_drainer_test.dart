@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
+import 'package:inkspacex/models/author_bookmark.dart';
 import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
@@ -85,6 +86,31 @@ class _FakeDispatcher implements SyncDispatcher {
   @override
   Future<void> deleteBookmark(String bookmarkId) async {
     calls.add('deleteBookmark:$bookmarkId');
+  }
+
+  @override
+  Future<String> upsertAuthorBookmark(
+    AuthorBookmark bookmark, {
+    String? clientOpId,
+  }) async {
+    calls.add('upsertAuthorBookmark:${bookmark.id}');
+    return bookmark.id;
+  }
+
+  @override
+  Future<void> patchAuthorBookmark(
+    String bookmarkId, {
+    String? label,
+    String? color,
+    int? offset,
+    bool clearLabel = false,
+  }) async {
+    calls.add('patchAuthorBookmark:$bookmarkId');
+  }
+
+  @override
+  Future<void> deleteAuthorBookmark(String bookmarkId) async {
+    calls.add('deleteAuthorBookmark:$bookmarkId');
   }
 
   @override

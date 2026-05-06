@@ -17,6 +17,8 @@ class SideActionsPill extends StatelessWidget {
     required this.onVersionHistory,
     this.inspectorActive = false,
     this.onToggleInspector,
+    this.onAddBookmark,
+    this.bookmarkCount = 0,
   });
 
   final bool isDark;
@@ -32,6 +34,13 @@ class SideActionsPill extends StatelessWidget {
   final VoidCallback onToggleAnnotations;
   final VoidCallback onVersionHistory;
   final VoidCallback? onToggleInspector;
+
+  /// Add an author bookmark at the current cursor position. Pill button
+  /// is hidden if null. Long-press semantics live on the editor itself —
+  /// this is the discoverable affordance for users who don't know
+  /// ⌘⇧B.
+  final VoidCallback? onAddBookmark;
+  final int bookmarkCount;
 
   @override
   Widget build(BuildContext context) {
@@ -116,6 +125,17 @@ class SideActionsPill extends StatelessWidget {
               activeBg: activeBg,
               active: inspectorActive,
               onTap: onToggleInspector!,
+            ),
+          if (onAddBookmark != null)
+            _SidePillButton(
+              icon: CupertinoIcons.bookmark,
+              tooltip: bookmarkCount > 0
+                  ? 'Add bookmark (⌘⇧B) — $bookmarkCount in this section'
+                  : 'Add bookmark (⌘⇧B)',
+              color: fg,
+              activeBg: activeBg,
+              badgeCount: bookmarkCount,
+              onTap: onAddBookmark!,
             ),
           _SidePillButton(
             icon: CupertinoIcons.eye_slash,

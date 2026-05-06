@@ -39,6 +39,7 @@ class User(UUIDMixin, Base):
     highlights: Mapped[list["Highlight"]] = relationship(back_populates="user", cascade="all, delete-orphan")  # noqa: F821
     reading_progress: Mapped[list["ReadingProgress"]] = relationship(back_populates="user", cascade="all, delete-orphan")  # noqa: F821
     bookmarks: Mapped[list["Bookmark"]] = relationship(back_populates="user", cascade="all, delete-orphan")  # noqa: F821
+    author_bookmarks: Mapped[list["AuthorBookmark"]] = relationship(back_populates="user", cascade="all, delete-orphan")  # noqa: F821
 
     __table_args__ = (
         # Collaborative filtering pivots on "find users whose `likes` array

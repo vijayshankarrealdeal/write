@@ -1,3 +1,4 @@
+import 'package:inkspacex/models/author_bookmark.dart';
 import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
@@ -87,4 +88,31 @@ abstract class SyncDispatcher {
   /// Phase 3 (P2): bookmark deletion. Server returns 204 on miss too,
   /// so an offline replay after a successful prior delete is a no-op.
   Future<void> deleteBookmark(String bookmarkId);
+
+  /// P1 #6: author bookmarks (writer-side flag-this-spot marks inside
+  /// drafts). Idempotent on the server (dedupe by `(user, section_id,
+  /// offset)`), so the outbox can replay an upsert when a previous
+  /// response was lost. Returns the server-issued bookmark id so the
+  /// drainer can remap the local op id to the server id for subsequent
+  /// patches/deletes.
+  Future<String> upsertAuthorBookmark(
+    AuthorBookmark bookmark, {
+    String? clientOpId,
+  });
+
+  /// Patch label/color/offset on an existing author bookmark. Offset
+  /// changes drive the "marker survives section edits" requirement —
+  /// the editor recomputes the position via Quill delta math and
+  /// flushes the new value through here.
+  Future<void> patchAuthorBookmark(
+    String bookmarkId, {
+    String? label,
+    String? color,
+    int? offset,
+    bool clearLabel,
+  });
+
+  /// Idempotent delete — the server returns 204 on miss too, so an
+  /// offline replay after a successful prior delete is a no-op.
+  Future<void> deleteAuthorBookmark(String bookmarkId);
 }

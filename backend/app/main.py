@@ -26,6 +26,7 @@ from app.routers import (
     admin,
     analytics,
     auth,
+    author_bookmarks,
     bookmarks,
     bookshelves,
     chat,
@@ -118,6 +119,20 @@ async def lifespan(app: FastAPI):
             "ALTER TABLE reading_progress "
             "ADD COLUMN IF NOT EXISTS last_anchor JSONB"
         ))
+        # P1 #6: author bookmarks. Idempotent for dev DBs that bypass
+        # Alembic — `Base.metadata.create_all` above already creates the
+        # table from the SQLAlchemy model, but the index DDL below adds
+        # the helper indexes that aren't declared via `Index(...)` in
+        # the model (kept here so the constraint set ratchets forward
+        # without a fresh migration on existing dev DBs).
+        await conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_author_bookmarks_user_section "
+            "ON author_bookmarks (user_id, section_id)"
+        ))
+        await conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_author_bookmarks_user_writing "
+            "ON author_bookmarks (user_id, writing_id)"
+        ))
         # Phase 2 (P2): facet count cache table. Idempotent for dev DBs
         # that bypass Alembic. Populated by the nightly script in
         # `backend/scripts/refresh_feed_facets.py`.
@@ -195,6 +210,7 @@ app.include_router(highlights.router)
 app.include_router(bookshelves.router)
 app.include_router(reading.router)
 app.include_router(bookmarks.router)
+app.include_router(author_bookmarks.router)
 app.include_router(upload.router)
 app.include_router(ai_router)
 app.include_router(offline_router)
