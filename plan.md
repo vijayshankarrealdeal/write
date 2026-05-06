@@ -47,9 +47,15 @@ Goal: close the remaining gap to Scrivener for the **drafting / editor experienc
 
 ## P1 — Major features
 
-### 4. Scrivenings mode (continuous scroll across selected sections) ✅ (read-only v1)
-**Done in commit `066f416`** — new [scrivenings_view.dart](lib/ui/pages/editor_page_entry/writing_page/views/scrivenings_view.dart) renders every publishable chapter / scene of the active book as a single vertical scroll of read-only Quill editors with title + synopsis dividers. Added a fourth `EditorViewMode.scrivenings` with ⌘4 / ⌥4 shortcut and an "All" segment in the view switcher. A pencil icon on each section header jumps back to Draft mode focused on that section.
-> **Scope cut from the original plan:** v1 is read-only. Live in-place editing (one controller routing edits across N sections by offset, or N controllers running N autosave timers) is a substantial provider-state rework — deferred. The "see it all together → jump in to fix one spot" workflow that drives most Scrivenings usage works today via the per-section pencil. Promote to writable when there's a concrete user pull.
+### 4. Scrivenings mode (continuous scroll across selected sections) ✅
+**Read-only v1 in commit `066f416`; live multi-section editing in branch `feat/scrivenings-live`** — every publishable chapter / scene of the active book is now an independently editable Quill editor in one continuous scroll. Architecture:
+- New `lib/services/scrivenings_session.dart` owns one `QuillController` per section (built lazily on viewport entry, disposed on viewport exit via `ListView.builder` + `cacheExtent: 600`). Each controller has its own doc-changes listener feeding a per-section debounced autosave; the persist callback writes to local storage and enqueues an `upsertSection` outbox op identical to single-section autosave.
+- `EditorProvider.enterScrivenningsMode` / `exitScrivenningsMode` drive the session lifecycle. While a session is running, `provider.controller` is **retargeted** to whichever section currently owns keyboard focus — so the toolbar, find/replace bar, floating format bar, slash menu, spell-check decoration, version history snapshotter, annotation panel, and section inspector all "just work" against the focused section without rewires.
+- Section keys are `ValueKey(section.id)`, so reordering in the binder preserves per-section controller state (cursor, undo, scroll). Remote section updates flow through `ScrivenningsSession.refreshSectionContent` so a sync-driven edit lands in the live multi-section view.
+- Per-project scroll position is persisted in SharedPreferences via `lib/services/scrivenings_scroll_store.dart` and restored on view re-entry.
+- Smart substitutions, typing haptics, and the typing-state badge all wire through the session per-section.
+
+Tests added: 12 unit tests for `ScrivenningsSession` (lifecycle, debounce, focus tracking, remote refresh, smart substitutions), 5 unit tests for `ScrivenningsScrollStore`, 7 widget tests for `ScrivenningsView` (rendering, empty state, jump-to-section, per-section dirtying, filter rules, scroll persistence, reorder cursor preservation), 3 integration tests against a real `Outbox` (per-section op enqueue, force-flush, remote refresh).
 
 **What.** When the user multi-selects sections in the binder (or selects Manuscript root), render their Quill deltas concatenated into one editor with subtle separators between scenes. Editing a region writes back to the originating section.
 **Where.**
