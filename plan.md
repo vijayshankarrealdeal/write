@@ -66,7 +66,9 @@ Tests added: 12 unit tests for `ScrivenningsSession` (lifecycle, debounce, focus
 **Effort.** 4–6 days. The offset bookkeeping is the hard part.
 **Acceptance.** Selecting 3 chapters renders all three in one scroll with section dividers. Edit in chapter 2 → only chapter 2's `updatedAt` changes. Splitting a chapter (Enter at a divider creates a new scene? — defer) is **not** required for v1.
 
-### 5. Footnotes (inline + inspector)
+### 5. Footnotes (inline + inspector) ✅
+**Done in commit `8e2c540` (PR [#10](https://github.com/vijayshankarrealdeal/write/pull/10), merge `e339e65`)** — custom inline Quill embed + inspector tab + endnote rendering in publish path. Schema rides inside the section's `content` JSON; backend `Section` model has a parallel `footnotes` column added in alembic `20260506_01_section_footnotes`.
+
 **What.** Inline marker `¹` in the prose; full footnote text edited in a dedicated bottom panel. Persisted as a Quill custom embed with a stable id; rendered both in the editor and in published output.
 **Where.**
 - Custom Quill embed: new `lib/ui/editor/footnote_embed.dart` (model + builder).
@@ -77,7 +79,9 @@ Tests added: 12 unit tests for `ScrivenningsSession` (lifecycle, debounce, focus
 **Effort.** 4–5 days.
 **Acceptance.** Insert footnote via toolbar → marker appears, panel focuses the new entry. Reload reproduces footnotes in order. Publish view shows them as endnotes at the chapter end.
 
-### 6. Author bookmarks (in-document)
+### 6. Author bookmarks (in-document) ✅
+**Done in commit `d4d9652` (PR [#12](https://github.com/vijayshankarrealdeal/write/pull/12), merge `363cb2b`)** — `AuthorBookmark` model + `AuthorBookmarkProvider` + Inspector "BOOKMARKS" tab (third tab next to DETAILS / FOOTNOTES); ⌘⇧B / long-press to flag a spot. Backend route `/api/author-bookmarks/...` and alembic `20260506_01_author_bookmarks`. Storage promoted to its own outbox op kind (not piggybacked on `SectionModel` as the original plan envisioned) so the cross-section list view stays accurate.
+
 **What.** Author-side flag-this-spot markers (distinct from the existing reader-side [BookmarkModel](lib/models/bookmark_model.dart) which anchors reader bookmarks). A small flag icon in the gutter, listed in the Inspector; click to jump.
 **Where.**
 - New `lib/models/author_bookmark.dart` (id, sectionId, offset, label, createdAt).
@@ -90,7 +94,9 @@ Tests added: 12 unit tests for `ScrivenningsSession` (lifecycle, debounce, focus
 
 ## P2 — Polish / power features
 
-### 7. Linguistic Focus (highlight by part-of-speech)
+### 7. Linguistic Focus (highlight by part-of-speech) ✅
+**Done in commit `924434e` (PR [#13](https://github.com/vijayshankarrealdeal/write/pull/13), merge `a01f948`)** — backend `/api/linguistic/tag` (spaCy) + `LinguisticFocusService` / `LinguisticFocusProvider` (lives at `lib/provider/linguistic_focus_provider.dart`, not `lib/services/`) + a paint-time decorator that dims non-matching spans. Polish PR #15 added per-class underline styles so the overlay is colorblind-safe.
+
 **What.** Toggleable overlay that fades all text except dialogue / adverbs / adjectives / nouns / verbs. Useful for self-editing.
 **Where.**
 - New `lib/services/linguistic_focus.dart` — POS tagger. Options: ship with a small JS-port library, or call a backend `/api/linguistic/tag` endpoint that uses spaCy. **Backend-first** is the right call here per project preference.
@@ -99,7 +105,9 @@ Tests added: 12 unit tests for `ScrivenningsSession` (lifecycle, debounce, focus
 **Effort.** 1–1.5 weeks (backend + client + 5 categories).
 **Acceptance.** Toggle "Dialogue" → only quoted strings stay full opacity. Toggle "Adverbs" → only `-ly` and tagged adverbs stay full opacity. Works on a 5k-word section without typing lag.
 
-### 8. Page view / paginated layout
+### 8. Page view / paginated layout ✅
+**Done in commit `1ac187c` (PR [#11](https://github.com/vijayshankarrealdeal/write/pull/11), merge `8dd7be9`); live in-page editing in commit `6d742ec` (PR [#14](https://github.com/vijayshankarrealdeal/write/pull/14), merge `b440df4`)** — paginated render via `pagination_engine.dart` + `page_view_layout.dart` with ⌘5 toggle. #14 closed the read-only scope-cut by extracting a shared `MultiSectionEditingSession` (the same engine now powers both Scrivenings live editing and Page view live editing) — see [multi_section_editing_session.dart](lib/services/multi_section_editing_session.dart).
+
 **What.** Optional page-shaped layout (8.5×11 / A4 with margins) so the writer sees approximate manuscript pages. Pure render mode; storage unchanged.
 **Where.**
 - New `lib/ui/pages/editor_page_entry/writing_page/page_view_layout.dart` — wraps the existing Quill editor in a paginated `CustomScrollView` with page-break markers.
@@ -114,10 +122,10 @@ Tests added: 12 unit tests for `ScrivenningsSession` (lifecycle, debounce, focus
 
 - **`writing_id` UUID 422 on section autosave** — *Resolved* in commit `c8ccd7d`. New books and sections now mint UUIDv4; legacy digit-only book ids are migrated on load with an `isNew=true` upsertWriting enqueued. See [editor_provider.dart `addNewBook` / `_migrateLegacyBookIds`](lib/provider/editor_provider.dart).
 - **`addSection` still uses `DateTime.now().millisecondsSinceEpoch.toString()` for legacy callers** — Fixed in the same commit; verify no other section-creation paths slipped through (grep for `millisecondsSinceEpoch.toString()` in `lib/provider/`).
-- **[editor_page_entry.dart](lib/ui/pages/editor_page_entry/editor_page_entry.dart) is 4,813 lines** — long-lived god widget. Not a functional bug, but it makes every P1 change above harder than it needs to be. Worth a structural extraction pass (toolbar, footer, listeners) before P1 lands. Out of scope for this plan; spin off as its own task.
-- **[editor_provider.dart](lib/provider/editor_provider.dart) is 1,983 lines** — same shape problem. The legacy ghost-fix / folder-migration / outbox-rewrite paths are doing real work; a follow-up extraction into `lib/provider/editor/` modules would pay off.
+- **[editor_page_entry.dart](lib/ui/pages/editor_page_entry/editor_page_entry.dart) is 5,460 lines** (was 4,813 when this list was first written; the P1/P2 features grew it further). Long-lived god widget. Not a functional bug, but it makes every change above harder than it needs to be. Worth a structural extraction pass (toolbar, footer, listeners) — still out of scope for this plan; spin off as its own task.
+- **[editor_provider.dart](lib/provider/editor_provider.dart) is 2,321 lines** (was 1,983) — same shape problem. The legacy ghost-fix / folder-migration / outbox-rewrite / multi-section-session-glue paths are doing real work; a follow-up extraction into `lib/provider/editor/` modules would pay off.
 - **No automatic snapshot before AI rewrite** — [Scrivener.md §2.10](Scrivener.md) flags this as a one-line add in the AI service hook ([ai_bottom_sheet.dart](lib/ui/pages/editor_page_entry/writing_page/ai_bottom_sheet.dart) / [grow_shrink_button.dart](lib/ui/pages/editor_page_entry/writing_page/grow_shrink_button.dart)). Currently the user can lose generated text on regret. Easy P0 candidate if prioritized — left out above only because the user's P0 list was specific.
-- **Test infra: [test/widget_test.dart](test/widget_test.dart) `App initializes correctly` times out at 10 min** — `pumpAndSettle` over the full app never settles. Pre-existing; muddies CI signal. Worth a separate fix (replace with a narrow smoke test that pumps a single frame).
+- **Test infra: [test/widget_test.dart](test/widget_test.dart) `App initializes correctly` 10-min `pumpAndSettle` hang** — *Resolved* in PR [#15](https://github.com/vijayshankarrealdeal/write/pull/15) (commit `162033e`, merge `4da1dfb`). Test is now a narrow smoke test (41 lines). Full `flutter test` runs clean.
 
 ---
 
