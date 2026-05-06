@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -43,6 +45,17 @@ class _PublishPageState extends State<PublishPage> {
   bool _isPublishing = false;
   bool _includeWriting = true;
   bool _includeCanvas = true;
+  // Two-step flow: 0 = "Review chapters" (what readers will see), 1 =
+  // "Details" (cover, title, description, format, tags). The author
+  // confirms the content first, then dresses it up for the audience.
+  // Selections + form state are kept across step changes — flipping back
+  // and forth is cheap.
+  int _step = 0;
+  // Which publishable unit is currently shown in the right-pane preview
+  // on the desktop split-view review. Initialised lazily on first build
+  // so we always default to the first publishable chapter the writer
+  // sees in the tree.
+  String? _focusedUnitId;
 
   // Freestyle spaces skip type/subtype at creation; collect them at publish time.
   WritingType? _publishType;
@@ -137,22 +150,240 @@ class _PublishPageState extends State<PublishPage> {
   bool get _hasAnyCanvas =>
       _publishableSections.any((s) => s.canvasData.trim().isNotEmpty);
 
-  /// Author-side scaffolding (Manuscript / Research / Trash folders) is
-  /// invisible to readers. Filter to only sections under the Manuscript
-  /// folder with `includeInPublish == true` so the publish dialog never
-  /// offers a folder row or a Research / Trash leaf.
-  List<SectionModel> get _publishableSections {
-    return widget.book.sections.where((s) {
-      if (s.kind == SectionKind.folder ||
-          s.kind == SectionKind.research ||
-          s.kind == SectionKind.trash ||
-          s.kind == SectionKind.act) {
-        return false;
+  /// Top-level publishable rows for the writer to pick from. A "unit" is
+  /// the first non-container hit while walking the binder depth-first
+  /// from `Manuscript` (folders/acts are containers; chapters/scenes are
+  /// not). Sub-scenes nested *inside* a chapter merge into the chapter's
+  /// payload at publish time — they don't appear here as independent
+  /// rows. Research / Trash subtrees and any section with
+  /// `includeInPublish == false` are skipped.
+  ///
+  /// This is what readers will see in their chapter list, in order.
+  List<SectionModel> get _publishableSections => _publishableUnits;
+
+  List<SectionModel> get _publishableUnits {
+    final byParent = <String?, List<SectionModel>>{};
+    for (final s in widget.book.sections) {
+      byParent.putIfAbsent(s.parentId, () => <SectionModel>[]).add(s);
+    }
+    for (final list in byParent.values) {
+      list.sort((a, b) => a.order.compareTo(b.order));
+    }
+    final units = <SectionModel>[];
+    void walk(String? parentId) {
+      final kids = byParent[parentId] ?? const <SectionModel>[];
+      for (final k in kids) {
+        if (k.kind == SectionKind.research ||
+            k.kind == SectionKind.trash) {
+          continue;
+        }
+        if (k.kind == SectionKind.folder || k.kind == SectionKind.act) {
+          walk(k.id);
+          continue;
+        }
+        // Chapter or scene whose parent is a container → publishable unit.
+        if (!k.includeInPublish) continue;
+        units.add(k);
       }
-      return s.includeInPublish;
-    }).toList()
-      ..sort((a, b) => a.order.compareTo(b.order));
+    }
+    walk(null);
+    return units;
   }
+
+  /// Every chapter / scene nested under [unit] that should merge into
+  /// its published Delta, in tree order. Stops at non-publishable
+  /// (Research / Trash / `includeInPublish == false`) subtrees.
+  List<SectionModel> _descendantsOf(SectionModel unit) {
+    final byParent = <String?, List<SectionModel>>{};
+    for (final s in widget.book.sections) {
+      byParent.putIfAbsent(s.parentId, () => <SectionModel>[]).add(s);
+    }
+    for (final list in byParent.values) {
+      list.sort((a, b) => a.order.compareTo(b.order));
+    }
+    final result = <SectionModel>[];
+    void walk(String parentId) {
+      final kids = byParent[parentId] ?? const <SectionModel>[];
+      for (final k in kids) {
+        if (k.kind == SectionKind.research ||
+            k.kind == SectionKind.trash ||
+            k.kind == SectionKind.folder ||
+            k.kind == SectionKind.act) {
+          continue;
+        }
+        if (!k.includeInPublish) continue;
+        result.add(k);
+        walk(k.id);
+      }
+    }
+    walk(unit.id);
+    return result;
+  }
+
+  /// Concatenate [unit]'s own Quill Delta with each descendant's Delta
+  /// in tree order, separated by a single newline op so paragraphs
+  /// stay distinct without inserting an `* * *` ornament. Author scene
+  /// titles (`jello`, `hello`) never leak — they were authoring
+  /// scaffolding, not body content. Malformed deltas are silently
+  /// skipped so one corrupt scene doesn't poison a chapter.
+  String _buildMergedContent(SectionModel unit) {
+    final parts = <SectionModel>[unit, ..._descendantsOf(unit)];
+    final ops = <dynamic>[];
+    for (final s in parts) {
+      final raw = s.content.trim();
+      if (raw.isEmpty) continue;
+      List<dynamic>? sectionOps;
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is List) sectionOps = decoded;
+      } catch (_) {
+        continue;
+      }
+      if (sectionOps == null || sectionOps.isEmpty) continue;
+      if (ops.isNotEmpty) {
+        // One blank line between merged subsections — Quill's renderer
+        // collapses consecutive newlines correctly.
+        ops.add({'insert': '\n'});
+      }
+      ops.addAll(sectionOps);
+    }
+    return jsonEncode(ops);
+  }
+
+  /// Open a full-screen sheet that renders [unit]'s merged Delta in
+  /// read-only Quill — exactly what the reader will see for this
+  /// chapter. The author uses this to confirm the merge looks right
+  /// before continuing to the details step.
+  void _showChapterPreview(SectionModel unit) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF111111);
+    final bgColor = isDark ? const Color(0xFF0A0A0A) : Colors.white;
+    final mergedJson = _buildMergedContent(unit);
+    QuillController? controller;
+    try {
+      final decoded = jsonDecode(mergedJson);
+      if (decoded is List) {
+        controller = QuillController(
+          document: Document.fromJson(decoded),
+          readOnly: true,
+          selection: const TextSelection.collapsed(offset: 0),
+        );
+      }
+    } catch (_) {}
+    final sceneCount = _descendantsOf(unit).length;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: bgColor,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (sheetCtx) {
+        return SafeArea(
+          child: SizedBox(
+            height: MediaQuery.sizeOf(sheetCtx).height * 0.85,
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: textColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 14, 12, 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Reader preview',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.0,
+                                color:
+                                    textColor.withValues(alpha: 0.4),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              unit.title.isEmpty
+                                  ? 'Untitled'
+                                  : unit.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.playfairDisplay(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                                color: textColor,
+                              ),
+                            ),
+                            if (sceneCount > 0)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  '$sceneCount scene${sceneCount == 1 ? '' : 's'} merged inline',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: textColor.withValues(
+                                        alpha: 0.55),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(CupertinoIcons.xmark,
+                            size: 18,
+                            color:
+                                textColor.withValues(alpha: 0.7)),
+                        onPressed: () => Navigator.pop(sheetCtx),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
+                    child: controller == null
+                        ? Center(
+                            child: Text(
+                              'This chapter is empty.',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                color:
+                                    textColor.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          )
+                        : QuillEditor.basic(
+                            controller: controller,
+                            config: const QuillEditorConfig(
+                              padding: EdgeInsets.zero,
+                              scrollable: true,
+                              autoFocus: false,
+                              expands: true,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   bool get _isUpdate => _existingSpace != null;
   bool get _canPublish =>
       _selectedSectionIds.isNotEmpty &&
@@ -210,12 +441,16 @@ class _PublishPageState extends State<PublishPage> {
     final desc = _descriptionController.text.trim();
     final newTitle = _titleController.text.trim();
     final coverBytes = _coverBytes;
+    // Each "section" we ship to readers is a publishable unit (top-level
+    // chapter under Manuscript) with its descendant scenes merged into
+    // its Delta. Author scaffolding (folder names, scene titles, scene
+    // ordering metadata) never leaves this map.
     final processedSections = _publishableSections
         .where((s) => _selectedSectionIds.contains(s.id))
         .map((s) => SectionModel(
               id: s.id,
               title: s.title,
-              content: _includeWriting ? s.content : '',
+              content: _includeWriting ? _buildMergedContent(s) : '',
               canvasData: _includeCanvas ? s.canvasData : '',
               sectionColor: s.sectionColor,
               createdAt: s.createdAt,
@@ -399,30 +634,38 @@ class _PublishPageState extends State<PublishPage> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(
-                parent: AlwaysScrollableScrollPhysics(),
-              ),
-              child: Center(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // Wide enough to host the split-view review (tree + live
+          // preview side by side). Below this threshold we fall back
+          // to the centered, single-column form — same UX as before
+          // but the preview moves into a modal sheet behind the eye
+          // icon so phone screens stay usable.
+          final isWide = constraints.maxWidth >= 900;
+          return Column(
+            children: [
+              // Top chrome (top bar + step indicator + live banner)
+              // is always centered/constrained even on wide displays
+              // because it's chrome, not content.
+              SizedBox(height: safePad.top + 8),
+              Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
+                  constraints: const BoxConstraints(maxWidth: 1200),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: safePad.top + 8),
-
-                      // ── Top bar ──
                       _buildTopBar(
                         isDark: isDark,
                         textColor: textColor,
                         mutedColor: mutedColor,
                         bgColor: bgColor,
                       ),
-
-                      // ── Live banner ──
+                      _buildStepIndicator(
+                        isDark: isDark,
+                        accent: accent,
+                        textColor: textColor,
+                        mutedColor: mutedColor,
+                      ),
                       if (!_loadingSpace && _isUpdate)
                         _buildLiveBanner(
                           isDark: isDark,
@@ -430,99 +673,143 @@ class _PublishPageState extends State<PublishPage> {
                           textColor: textColor,
                           mutedColor: mutedColor,
                         ),
-
-                      const SizedBox(height: 8),
-
-                      // ── Cover ──
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: _buildCover(isDark: isDark, mutedColor: mutedColor),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // ── Title & Description ──
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: _buildDetailsSection(
-                          isDark: isDark,
-                          textColor: textColor,
-                          mutedColor: mutedColor,
-                        ),
-                      ),
-
-                      _buildDivider(dividerColor),
-
-                      // ── Freestyle format picker ──
-                      if (_isFreestyle)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: _buildFreestyleFormatSection(
-                            isDark: isDark,
-                            textColor: textColor,
-                            mutedColor: mutedColor,
-                            dividerColor: dividerColor,
-                            accent: accent,
-                          ),
-                        ),
-
-                      if (_isFreestyle) _buildDivider(dividerColor),
-
-                      // ── Sections ──
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: _buildSectionsSection(
-                          isDark: isDark,
-                          accent: accent,
-                          textColor: textColor,
-                          mutedColor: mutedColor,
-                        ),
-                      ),
-
-                      _buildDivider(dividerColor),
-
-                      // ── Tags ──
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: _buildTagsSection(
-                          isDark: isDark,
-                          textColor: textColor,
-                          mutedColor: mutedColor,
-                        ),
-                      ),
-
-                      _buildDivider(dividerColor),
-
-                      // ── Draft toggle ──
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: _buildDraftToggle(
-                          isDark: isDark,
-                          textColor: textColor,
-                          mutedColor: mutedColor,
-                        ),
-                      ),
-
-                      const SizedBox(height: 32),
                     ],
                   ),
                 ),
               ),
-            ),
-          ),
 
-          // ── Bottom CTA ──
-          _buildBottomCta(
-            isDark: isDark,
-            textColor: textColor,
-            accent: accent,
-            dividerColor: dividerColor,
-            safePad: safePad,
-            bgColor: bgColor,
-          ),
-        ],
+              const SizedBox(height: 12),
+
+              // Body — wide reviews stretch full screen, everything
+              // else stays centered + constrained.
+              Expanded(
+                child: _step == 0 && isWide
+                    ? _buildReviewDesktop(
+                        isDark: isDark,
+                        accent: accent,
+                        textColor: textColor,
+                        mutedColor: mutedColor,
+                        dividerColor: dividerColor,
+                      )
+                    : SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(
+                          parent: AlwaysScrollableScrollPhysics(),
+                        ),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints:
+                                const BoxConstraints(maxWidth: 600),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: _step == 0
+                                  ? _buildReviewMobile(
+                                      isDark: isDark,
+                                      accent: accent,
+                                      textColor: textColor,
+                                      mutedColor: mutedColor,
+                                    )
+                                  : _buildDetailsBody(
+                                      isDark: isDark,
+                                      accent: accent,
+                                      textColor: textColor,
+                                      mutedColor: mutedColor,
+                                      dividerColor: dividerColor,
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ),
+              ),
+
+              // ── Bottom CTA ──
+              _buildBottomCta(
+                isDark: isDark,
+                textColor: textColor,
+                accent: accent,
+                dividerColor: dividerColor,
+                safePad: safePad,
+                bgColor: bgColor,
+              ),
+            ],
+          );
+        },
       ),
     );
+  }
+
+  List<Widget> _buildReviewMobile({
+    required bool isDark,
+    required Color accent,
+    required Color textColor,
+    required Color mutedColor,
+  }) {
+    return [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: _buildSectionsSection(
+          isDark: isDark,
+          accent: accent,
+          textColor: textColor,
+          mutedColor: mutedColor,
+        ),
+      ),
+      const SizedBox(height: 32),
+    ];
+  }
+
+  List<Widget> _buildDetailsBody({
+    required bool isDark,
+    required Color accent,
+    required Color textColor,
+    required Color mutedColor,
+    required Color dividerColor,
+  }) {
+    return [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: _buildCover(isDark: isDark, mutedColor: mutedColor),
+      ),
+      const SizedBox(height: 24),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: _buildDetailsSection(
+          isDark: isDark,
+          textColor: textColor,
+          mutedColor: mutedColor,
+        ),
+      ),
+      _buildDivider(dividerColor),
+      if (_isFreestyle)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: _buildFreestyleFormatSection(
+            isDark: isDark,
+            textColor: textColor,
+            mutedColor: mutedColor,
+            dividerColor: dividerColor,
+            accent: accent,
+          ),
+        ),
+      if (_isFreestyle) _buildDivider(dividerColor),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: _buildTagsSection(
+          isDark: isDark,
+          textColor: textColor,
+          mutedColor: mutedColor,
+        ),
+      ),
+      _buildDivider(dividerColor),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: _buildDraftToggle(
+          isDark: isDark,
+          textColor: textColor,
+          mutedColor: mutedColor,
+        ),
+      ),
+      const SizedBox(height: 32),
+    ];
   }
 
   // ── TOP BAR ──
@@ -572,6 +859,106 @@ class _PublishPageState extends State<PublishPage> {
       ),
     );
   }
+
+  // ── STEP INDICATOR ──
+  // Two-pill progress strip under the top bar so the writer always
+  // knows which page they're on. Tappable: jumping to step 0 from
+  // step 1 is harmless; jumping forward only works if the gate
+  // (`_canAdvanceToDetails`) passes.
+  Widget _buildStepIndicator({
+    required bool isDark,
+    required Color accent,
+    required Color textColor,
+    required Color mutedColor,
+  }) {
+    Widget pill(int index, String label) {
+      final active = _step == index;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () {
+            if (index == _step) return;
+            if (index == 1 && !_canAdvanceToDetails) return;
+            setState(() => _step = index);
+          },
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: active
+                  ? accent.withValues(alpha: isDark ? 0.16 : 0.08)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: active
+                    ? accent.withValues(alpha: 0.5)
+                    : (isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : Colors.black.withValues(alpha: 0.07)),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 22,
+                  height: 22,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? accent
+                        : (isDark
+                            ? Colors.white.withValues(alpha: 0.08)
+                            : Colors.black.withValues(alpha: 0.06)),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '${index + 1}',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: active
+                          ? (isDark ? Colors.black : Colors.white)
+                          : mutedColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: active ? textColor : mutedColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+      child: Row(
+        children: [
+          pill(0, 'Review'),
+          const SizedBox(width: 8),
+          pill(1, 'Details'),
+        ],
+      ),
+    );
+  }
+
+  /// True iff at least one publishable unit is selected. Required
+  /// before the writer can move on to the cover/title/format step —
+  /// a publish with zero chapters is meaningless.
+  bool get _canAdvanceToDetails => _selectedSectionIds.isNotEmpty;
 
   // ── LIVE BANNER ──
   Widget _buildLiveBanner({
@@ -816,6 +1203,7 @@ class _PublishPageState extends State<PublishPage> {
         ..._publishableSections.map((section) {
           final isSelected = _selectedSectionIds.contains(section.id);
           final isLive = _alreadyPublishedIds.contains(section.id);
+          final mergedCount = _descendantsOf(section).length;
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
@@ -909,9 +1297,47 @@ class _PublishPageState extends State<PublishPage> {
                                   color: mutedColor.withValues(alpha: 0.7),
                                 ),
                               ),
+                              if (mergedCount > 0) ...[
+                                Text(
+                                  '  ·  ',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    color:
+                                        mutedColor.withValues(alpha: 0.5),
+                                  ),
+                                ),
+                                Text(
+                                  '$mergedCount scene${mergedCount == 1 ? '' : 's'} merged',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w500,
+                                    color:
+                                        accent.withValues(alpha: 0.85),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ],
+                      ),
+                    ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _showChapterPreview(section),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        margin: const EdgeInsets.only(right: 6),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : Colors.black.withValues(alpha: 0.04),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Icon(
+                          CupertinoIcons.eye,
+                          size: 13,
+                          color: mutedColor,
+                        ),
                       ),
                     ),
                     AnimatedContainer(
@@ -1184,6 +1610,528 @@ class _PublishPageState extends State<PublishPage> {
     );
   }
 
+  // ── DESKTOP REVIEW (split view) ──
+  // Two-pane layout: full binder tree on the left (chapters,
+  // descendant scenes nested under their merge target, Research /
+  // Trash dimmed for transparency about what won't ship), reader-
+  // identical Quill preview of the focused chapter on the right.
+  // Selecting a row in the tree updates the right pane live so the
+  // writer can audit any chapter without leaving the page.
+  Widget _buildReviewDesktop({
+    required bool isDark,
+    required Color accent,
+    required Color textColor,
+    required Color mutedColor,
+    required Color dividerColor,
+  }) {
+    final units = _publishableUnits;
+    // Default focus to the first publishable chapter the first time
+    // this page renders. Honours the user's choice afterwards even if
+    // selections shift.
+    if ((_focusedUnitId == null ||
+            !units.any((u) => u.id == _focusedUnitId)) &&
+        units.isNotEmpty) {
+      _focusedUnitId = units.first.id;
+    }
+    SectionModel? focused;
+    for (final u in units) {
+      if (u.id == _focusedUnitId) {
+        focused = u;
+        break;
+      }
+    }
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1400),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ── Left pane: full binder tree ──
+              SizedBox(
+                width: 360,
+                child: _buildBinderTreePane(
+                  isDark: isDark,
+                  accent: accent,
+                  textColor: textColor,
+                  mutedColor: mutedColor,
+                  dividerColor: dividerColor,
+                ),
+              ),
+              const SizedBox(width: 20),
+              // ── Right pane: live preview of focused chapter ──
+              Expanded(
+                child: _buildLivePreviewPane(
+                  isDark: isDark,
+                  accent: accent,
+                  textColor: textColor,
+                  mutedColor: mutedColor,
+                  dividerColor: dividerColor,
+                  focused: focused,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBinderTreePane({
+    required bool isDark,
+    required Color accent,
+    required Color textColor,
+    required Color mutedColor,
+    required Color dividerColor,
+  }) {
+    final book = widget.book;
+    // Group children by parent so we can walk the tree depth-first
+    // exactly the way the binder renders it.
+    final byParent = <String?, List<SectionModel>>{};
+    for (final s in book.sections) {
+      byParent.putIfAbsent(s.parentId, () => <SectionModel>[]).add(s);
+    }
+    for (final list in byParent.values) {
+      list.sort((a, b) => a.order.compareTo(b.order));
+    }
+    final rows = <Widget>[];
+    void walk(String? parentId, int depth, bool inExcluded) {
+      final kids = byParent[parentId] ?? const <SectionModel>[];
+      for (final k in kids) {
+        final isResearchOrTrash = k.kind == SectionKind.research ||
+            k.kind == SectionKind.trash;
+        final isContainer = k.kind == SectionKind.folder ||
+            k.kind == SectionKind.act;
+        final excluded = inExcluded || isResearchOrTrash;
+        rows.add(_buildTreeRow(
+          isDark: isDark,
+          accent: accent,
+          textColor: textColor,
+          mutedColor: mutedColor,
+          section: k,
+          depth: depth,
+          excluded: excluded,
+        ));
+        if (isContainer || isResearchOrTrash) {
+          walk(k.id, depth + 1, excluded);
+        } else {
+          // Chapters/scenes can have nested children too — keep walking
+          // so scenes nested under a chapter render under it (greyed in
+          // a "merges into parent" style).
+          walk(k.id, depth + 1, excluded);
+        }
+      }
+    }
+    walk(null, 0, false);
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.025)
+            : Colors.black.withValues(alpha: 0.02),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: dividerColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+            child: Row(
+              children: [
+                Text(
+                  'BINDER',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.2,
+                    color: textColor.withValues(alpha: 0.45),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '${_selectedSectionIds.length} / ${_publishableUnits.length}',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: accent,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              children: rows,
+            ),
+          ),
+          const Divider(height: 1),
+          // Writing / Canvas include toggles live in the tree pane so
+          // they're visible while the writer audits.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildIncludeChip(
+                    icon: CupertinoIcons.doc_text_fill,
+                    label: 'Writing',
+                    active: _includeWriting,
+                    enabled: true,
+                    accent: accent,
+                    isDark: isDark,
+                    textColor: textColor,
+                    mutedColor: mutedColor,
+                    onTap: () => setState(
+                        () => _includeWriting = !_includeWriting),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildIncludeChip(
+                    icon: CupertinoIcons.paintbrush_fill,
+                    label: 'Canvas',
+                    active: _includeCanvas && _hasAnyCanvas,
+                    enabled: _hasAnyCanvas,
+                    accent: accent,
+                    isDark: isDark,
+                    textColor: textColor,
+                    mutedColor: mutedColor,
+                    onTap: _hasAnyCanvas
+                        ? () => setState(
+                            () => _includeCanvas = !_includeCanvas)
+                        : null,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTreeRow({
+    required bool isDark,
+    required Color accent,
+    required Color textColor,
+    required Color mutedColor,
+    required SectionModel section,
+    required int depth,
+    required bool excluded,
+  }) {
+    final isContainer = section.kind == SectionKind.folder ||
+        section.kind == SectionKind.act;
+    final isResearch = section.kind == SectionKind.research;
+    final isTrash = section.kind == SectionKind.trash;
+    final isUnit = !isContainer &&
+        !isResearch &&
+        !isTrash &&
+        _publishableUnits.any((u) => u.id == section.id);
+    final isMergedDescendant = !isContainer &&
+        !isResearch &&
+        !isTrash &&
+        !isUnit;
+    final isFocused = _focusedUnitId == section.id;
+    final indent = 8 + depth * 14.0;
+    Color rowColor = Colors.transparent;
+    if (isFocused) {
+      rowColor = accent.withValues(alpha: isDark ? 0.16 : 0.08);
+    }
+    final fade = excluded ? 0.4 : 1.0;
+    IconData icon;
+    Color iconColor;
+    if (isContainer) {
+      icon = CupertinoIcons.book;
+      iconColor = textColor.withValues(alpha: 0.5 * fade);
+    } else if (isResearch) {
+      icon = CupertinoIcons.lightbulb;
+      iconColor = textColor.withValues(alpha: 0.45 * fade);
+    } else if (isTrash) {
+      icon = CupertinoIcons.trash;
+      iconColor = textColor.withValues(alpha: 0.45 * fade);
+    } else if (section.kind == SectionKind.scene) {
+      icon = CupertinoIcons.doc;
+      iconColor = (isUnit ? textColor : mutedColor).withValues(alpha: fade);
+    } else {
+      icon = CupertinoIcons.doc_text;
+      iconColor = (isUnit ? textColor : mutedColor).withValues(alpha: fade);
+    }
+    final canTap = isUnit;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: canTap
+          ? () => setState(() => _focusedUnitId = section.id)
+          : null,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+        padding: EdgeInsets.fromLTRB(indent, 7, 8, 7),
+        decoration: BoxDecoration(
+          color: rowColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isFocused
+                ? accent.withValues(alpha: 0.4)
+                : Colors.transparent,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 13, color: iconColor),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    section.title.isEmpty ? 'Untitled' : section.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 12.5,
+                      fontWeight: isFocused
+                          ? FontWeight.w700
+                          : (isUnit ? FontWeight.w600 : FontWeight.w500),
+                      fontStyle:
+                          isMergedDescendant ? FontStyle.italic : null,
+                      color: textColor.withValues(
+                          alpha: isUnit ? fade : 0.6 * fade),
+                    ),
+                  ),
+                  if (isMergedDescendant)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 1),
+                      child: Text(
+                        'merges into parent',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color:
+                              accent.withValues(alpha: 0.7 * fade),
+                        ),
+                      ),
+                    ),
+                  if (excluded && (isResearch || isTrash) && depth == 0)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 1),
+                      child: Text(
+                        'won\'t be published',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color: mutedColor.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (isUnit)
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => setState(() {
+                  if (_selectedSectionIds.contains(section.id)) {
+                    _selectedSectionIds.remove(section.id);
+                  } else {
+                    _selectedSectionIds.add(section.id);
+                  }
+                }),
+                child: Container(
+                  width: 18,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: _selectedSectionIds.contains(section.id)
+                        ? accent
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                      color: _selectedSectionIds.contains(section.id)
+                          ? accent
+                          : mutedColor.withValues(alpha: 0.3),
+                      width: 1.4,
+                    ),
+                  ),
+                  child: _selectedSectionIds.contains(section.id)
+                      ? const Icon(CupertinoIcons.checkmark,
+                          size: 10, color: Colors.white)
+                      : null,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLivePreviewPane({
+    required bool isDark,
+    required Color accent,
+    required Color textColor,
+    required Color mutedColor,
+    required Color dividerColor,
+    required SectionModel? focused,
+  }) {
+    if (focused == null) {
+      return Container(
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.025)
+              : Colors.black.withValues(alpha: 0.02),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: dividerColor),
+        ),
+        child: Center(
+          child: Text(
+            'No publishable chapters in this space yet.',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: textColor.withValues(alpha: 0.5),
+            ),
+          ),
+        ),
+      );
+    }
+    final mergedJson = _buildMergedContent(focused);
+    final descendants = _descendantsOf(focused);
+    QuillController? controller;
+    try {
+      final decoded = jsonDecode(mergedJson);
+      if (decoded is List) {
+        controller = QuillController(
+          document: decoded.isEmpty
+              ? Document()
+              : Document.fromJson(decoded),
+          readOnly: true,
+          selection: const TextSelection.collapsed(offset: 0),
+        );
+      }
+    } catch (_) {}
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.025)
+            : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: dividerColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 14, 14, 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'READER PREVIEW',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.2,
+                          color: textColor.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        focused.title.isEmpty
+                            ? 'Untitled'
+                            : focused.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: textColor,
+                        ),
+                      ),
+                      if (descendants.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            '${descendants.length} scene${descendants.length == 1 ? '' : 's'} merged inline · ${_wordCount(mergedJson)} words',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color:
+                                  textColor.withValues(alpha: 0.55),
+                            ),
+                          ),
+                        )
+                      else
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            '${_wordCount(mergedJson)} words',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color:
+                                  textColor.withValues(alpha: 0.55),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(28, 18, 28, 18),
+              child: controller == null
+                  ? Center(
+                      child: Text(
+                        'This chapter is empty.',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: textColor.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    )
+                  : QuillEditor.basic(
+                      controller: controller,
+                      config: const QuillEditorConfig(
+                        padding: EdgeInsets.zero,
+                        scrollable: true,
+                        autoFocus: false,
+                        expands: true,
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Approximate word count of a Quill Delta JSON. Splits on whitespace
+  /// of the inline-text inserts; image/embed inserts are skipped.
+  int _wordCount(String deltaJson) {
+    try {
+      final ops = jsonDecode(deltaJson);
+      if (ops is! List) return 0;
+      final buffer = StringBuffer();
+      for (final op in ops) {
+        if (op is Map && op['insert'] is String) {
+          buffer.write(op['insert']);
+          buffer.write(' ');
+        }
+      }
+      final words = buffer
+          .toString()
+          .trim()
+          .split(RegExp(r'\s+'))
+          .where((w) => w.isNotEmpty);
+      return words.length;
+    } catch (_) {
+      return 0;
+    }
+  }
+
   // ── BOTTOM CTA ──
   Widget _buildBottomCta({
     required bool isDark,
@@ -1192,6 +2140,88 @@ class _PublishPageState extends State<PublishPage> {
     required Color dividerColor,
     required EdgeInsets safePad,
     required Color bgColor,
+  }) {
+    return Container(
+      padding:
+          EdgeInsets.fromLTRB(20, 12, 20, safePad.bottom.clamp(12, 40)),
+      decoration: BoxDecoration(
+        color: bgColor,
+        border: Border(top: BorderSide(color: dividerColor)),
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: _step == 0
+              ? _buildContinueButton(
+                  isDark: isDark,
+                  textColor: textColor,
+                  accent: accent,
+                )
+              : _buildPublishRow(
+                  isDark: isDark,
+                  textColor: textColor,
+                  accent: accent,
+                ),
+        ),
+      ),
+    );
+  }
+
+  /// Step 0 footer: a single "Continue → Details" button. Disabled when
+  /// nothing's selected — no point letting the writer walk into the
+  /// metadata step with an empty payload.
+  Widget _buildContinueButton({
+    required bool isDark,
+    required Color textColor,
+    required Color accent,
+  }) {
+    final ready = _canAdvanceToDetails;
+    final btnBg = ready
+        ? textColor
+        : (isDark
+            ? Colors.white.withValues(alpha: 0.06)
+            : Colors.black.withValues(alpha: 0.04));
+    final btnFg = ready
+        ? (isDark ? Colors.black : Colors.white)
+        : textColor.withValues(alpha: 0.25);
+    return GestureDetector(
+      onTap: ready ? () => setState(() => _step = 1) : null,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        width: double.infinity,
+        height: 48,
+        decoration: BoxDecoration(
+          color: btnBg,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Continue',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: btnFg,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Icon(CupertinoIcons.arrow_right, size: 16, color: btnFg),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Step 1 footer: "← Back" and "Publish/Update/Save Draft" side by side.
+  /// Back never strands the writer — selections persist across the hop.
+  Widget _buildPublishRow({
+    required bool isDark,
+    required Color textColor,
+    required Color accent,
   }) {
     final ready = _canPublish;
     final btnBg = _isDraft
@@ -1211,22 +2241,47 @@ class _PublishPageState extends State<PublishPage> {
             ? "Update Space"
             : "Publish Space";
 
-    return Container(
-      padding:
-          EdgeInsets.fromLTRB(20, 12, 20, safePad.bottom.clamp(12, 40)),
-      decoration: BoxDecoration(
-        color: bgColor,
-        border: Border(top: BorderSide(color: dividerColor)),
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
+    return Row(
+      children: [
+        GestureDetector(
+          onTap:
+              _isPublishing ? null : () => setState(() => _step = 0),
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(CupertinoIcons.arrow_left,
+                    size: 16, color: textColor.withValues(alpha: 0.85)),
+                const SizedBox(width: 6),
+                Text(
+                  'Back',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: textColor.withValues(alpha: 0.85),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
           child: GestureDetector(
             onTap: _isPublishing || !ready ? null : _publish,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 220),
               curve: Curves.easeOutCubic,
-              width: double.infinity,
               height: 48,
               decoration: BoxDecoration(
                 color: btnBg,
@@ -1260,7 +2315,7 @@ class _PublishPageState extends State<PublishPage> {
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 
