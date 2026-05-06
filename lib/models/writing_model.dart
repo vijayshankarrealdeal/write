@@ -1,4 +1,5 @@
 import 'package:inkspacex/models/image_meta.dart';
+import 'package:inkspacex/models/page_layout_settings.dart';
 import 'package:inkspacex/models/section_model.dart';
 
 enum WritingStatus { ongoing, completed, paused }
@@ -196,6 +197,12 @@ class WritingModel {
   String labelMeaning;
   Map<int, String> labelNames;
 
+  // Paginated-view configuration (page size, margins, font, line
+  // spacing). Stored as a single JSON blob on the backend so the
+  // shape can grow without a schema migration. Null on legacy
+  // projects → callers should fall back to [PageLayoutSettings.standard].
+  PageLayoutSettings? pageLayout;
+
   WritingModel({
     required this.id,
     required this.title,
@@ -211,6 +218,7 @@ class WritingModel {
     this.targetDeadline,
     this.labelMeaning = 'status',
     Map<int, String>? labelNames,
+    this.pageLayout,
   }) : labelNames = labelNames ?? <int, String>{};
 
   factory WritingModel.fromJson(Map<String, dynamic> json) {
@@ -235,6 +243,9 @@ class WritingModel {
           : null,
       labelMeaning: (json['labelMeaning'] as String?) ?? 'status',
       labelNames: _decodeLabelNames(json['labelNames']),
+      pageLayout: _decodePageLayout(
+        json['pageLayout'] ?? json['page_layout'],
+      ),
     );
   }
 
@@ -257,7 +268,13 @@ class WritingModel {
       'labelNames': {
         for (final entry in labelNames.entries) entry.key.toString(): entry.value,
       },
+      'pageLayout': pageLayout?.toJson(),
     };
+  }
+
+  static PageLayoutSettings? _decodePageLayout(dynamic raw) {
+    if (raw is! Map) return null;
+    return PageLayoutSettings.fromJson(Map<String, dynamic>.from(raw));
   }
 
   static Map<int, String> _decodeLabelNames(dynamic raw) {
