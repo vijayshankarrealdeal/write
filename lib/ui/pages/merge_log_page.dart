@@ -66,7 +66,7 @@ class _MergeLogPageState extends State<MergeLogPage> {
           : ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: entries.length,
-              separatorBuilder: (_, __) => Divider(
+              separatorBuilder: (_, _) => Divider(
                 color: textColor.withValues(alpha: 0.08),
                 height: 24,
               ),

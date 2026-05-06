@@ -69,8 +69,8 @@ class _ChatListPageState extends State<ChatListPage> {
           if (chat.isLoadingConversations && chat.conversations.isEmpty) {
             return ListView.separated(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              itemBuilder: (_, __) => const _ChatSkeletonRow(),
-              separatorBuilder: (_, __) => const SizedBox(height: 4),
+              itemBuilder: (_, _) => const _ChatSkeletonRow(),
+              separatorBuilder: (_, _) => const SizedBox(height: 4),
               itemCount: 8,
             );
           }
@@ -82,7 +82,7 @@ class _ChatListPageState extends State<ChatListPage> {
             color: textColor,
             child: ListView.separated(
               itemCount: chat.conversations.length,
-              separatorBuilder: (_, __) => Divider(
+              separatorBuilder: (_, _) => Divider(
                 height: 1,
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.05)

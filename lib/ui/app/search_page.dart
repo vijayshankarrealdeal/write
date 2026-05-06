@@ -422,7 +422,7 @@ class _SearchPageState extends State<SearchPage> {
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: hPad),
         itemCount: _SearchScope.values.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, i) {
           final scope = _SearchScope.values[i];
           final selected = scope == _scope;
@@ -897,7 +897,7 @@ class _SearchPageState extends State<SearchPage> {
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.zero,
               itemCount: authors.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 14),
+              separatorBuilder: (_, _) => const SizedBox(width: 14),
               itemBuilder: (_, i) {
                 final a = authors[i];
                 return _AuthorChip(
@@ -1120,7 +1120,7 @@ class _SearchPageState extends State<SearchPage> {
             padding: EdgeInsets.fromLTRB(hPad, 4, hPad, 12),
             sliver: SliverList.separated(
               itemCount: _users.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 4),
+              separatorBuilder: (_, _) => const SizedBox(height: 4),
               itemBuilder: (context, i) =>
                   _buildUserRow(_users[i], isDark, textColor),
             ),
@@ -1136,7 +1136,7 @@ class _SearchPageState extends State<SearchPage> {
             sliver: isMobile
                 ? SliverList.separated(
                     itemCount: _results.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 14),
+                    separatorBuilder: (_, _) => const SizedBox(height: 14),
                     itemBuilder: (context, i) =>
                         _buildStoryRow(_results[i], isDark, textColor),
                   )

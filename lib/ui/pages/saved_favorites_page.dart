@@ -43,15 +43,19 @@ class _SavedFavoritesPageState extends State<SavedFavoritesPage> {
     try {
       final dataService = context.read<AuthProvider>().dataService;
       final items = await dataService.getFeedItemsByIds(ids);
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _items = items;
         _loading = false;
       });
+      }
     } catch (_) {
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _items = [];
         _loading = false;
       });
+      }
     }
   }
 
@@ -157,7 +161,7 @@ class _SavedFavoritesPageState extends State<SavedFavoritesPage> {
                     return ListView.separated(
                       padding: const EdgeInsets.all(20),
                       itemCount: filtered.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      separatorBuilder: (_, _) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final item = filtered[index];
                         return _SavedItemCard(

@@ -98,19 +98,19 @@ void main() {
     );
     final observer = AnalyticsNavigatorObserver();
 
-    Route<dynamic> _route(String name) =>
+    Route<dynamic> route(String name) =>
         PageRouteBuilder(
           settings: RouteSettings(name: name),
-          pageBuilder: (_, __, ___) => const SizedBox.shrink(),
+          pageBuilder: (_, _, _) => const SizedBox.shrink(),
         );
 
-    observer.didPush(_route('/login'), null);
+    observer.didPush(route('/login'), null);
     // Dwell on /login for a measurable amount.
     await Future<void>.delayed(const Duration(milliseconds: 25));
-    observer.didPush(_route('/'), _route('/login'));
+    observer.didPush(route('/'), route('/login'));
     // Now on /. Pop back — should emit screen_left for /.
     await Future<void>.delayed(const Duration(milliseconds: 15));
-    observer.didPop(_route('/'), _route('/login'));
+    observer.didPop(route('/'), route('/login'));
 
     await AnalyticsService.instance.flush();
 

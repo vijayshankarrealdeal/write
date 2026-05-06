@@ -12,7 +12,7 @@ class ApiNotificationService {
       '/api/notifications/',
       queryParams: {
         'limit': limit,
-        if (cursor != null) 'cursor': cursor,
+        'cursor': ?cursor,
       },
     );
     return (response.data as List)
@@ -32,7 +32,7 @@ class ApiNotificationService {
   /// Mark notifications as read. When [ids] is null, marks ALL as read.
   Future<void> markRead({List<String>? ids}) async {
     await _client.post('/api/notifications/mark-read', data: {
-      if (ids != null) 'ids': ids,
+      'ids': ?ids,
     });
   }
 

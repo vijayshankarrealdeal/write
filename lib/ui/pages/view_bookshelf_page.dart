@@ -238,7 +238,7 @@ class _ViewBookshelfPageState extends State<ViewBookshelfPage> {
                                     100,
                                   ),
                                   itemCount: visibleItems.length,
-                                  separatorBuilder: (_, __) =>
+                                  separatorBuilder: (_, _) =>
                                       const SizedBox(height: 12),
                                   itemBuilder: (context, index) {
                                     final item = visibleItems[index];

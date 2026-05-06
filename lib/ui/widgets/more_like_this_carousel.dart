@@ -106,7 +106,7 @@ class _MoreLikeThisCarouselState extends State<MoreLikeThisCarousel> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: items.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  separatorBuilder: (_, _) => const SizedBox(width: 12),
                   itemBuilder: (context, idx) =>
                       _SimilarCard(item: items[idx], isDark: widget.isDark),
                 ),

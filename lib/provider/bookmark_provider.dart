@@ -112,13 +112,13 @@ class BookmarkProvider extends ChangeNotifier {
         'bookmarkId': '', // filled below once we know the local id
         'fields': {
           'feed_item_id': feedItemId,
-          if (sectionId != null) 'section_id': sectionId,
+          'section_id': ?sectionId,
           'section_index': sectionIndex,
           'anchor': {
             'paragraph_idx': paragraphIdx,
             'char_offset': charOffset,
           },
-          if (label != null) 'label': label,
+          'label': ?label,
           'color': color,
         },
       },

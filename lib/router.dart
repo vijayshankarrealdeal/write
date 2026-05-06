@@ -127,10 +127,10 @@ GoRouter createRouter(AuthProvider authProvider) {
         pageBuilder: (_, state) =>
             const NoTransitionPage(child: ForgotPasswordPage()),
       ),
-      GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingPage()),
+      GoRoute(path: '/onboarding', builder: (_, _) => const OnboardingPage()),
 
       // --- Main app ---
-      GoRoute(path: '/', builder: (_, __) => const HomePage()),
+      GoRoute(path: '/', builder: (_, _) => const HomePage()),
 
       // --- Sub-pages (pushed on top) ---
       GoRoute(
@@ -152,7 +152,7 @@ GoRouter createRouter(AuthProvider authProvider) {
       ),
       GoRoute(
         path: '/editor',
-        pageBuilder: (_, __) => const CupertinoPage(child: EditiorPage()),
+        pageBuilder: (_, _) => const CupertinoPage(child: EditiorPage()),
       ),
       GoRoute(
         path: '/publish',
@@ -166,32 +166,32 @@ GoRouter createRouter(AuthProvider authProvider) {
       ),
       GoRoute(
         path: '/profile',
-        builder: (_, __) => const ProfilePage(),
+        builder: (_, _) => const ProfilePage(),
       ),
       GoRoute(
         path: '/language',
-        builder: (_, __) => const LanguagePage(),
+        builder: (_, _) => const LanguagePage(),
       ),
       GoRoute(
         path: '/search',
-        pageBuilder: (_, __) => const CupertinoPage(
+        pageBuilder: (_, _) => const CupertinoPage(
           fullscreenDialog: true,
           child: SearchPage(),
         ),
       ),
       GoRoute(
         path: '/feed-preferences',
-        builder: (_, __) => const FeedPreferencesPage(),
+        builder: (_, _) => const FeedPreferencesPage(),
       ),
       GoRoute(
         path: '/feedback',
-        builder: (_, __) => const FeedbackPage(),
+        builder: (_, _) => const FeedbackPage(),
       ),
       // Explore was merged into the unified search surface — keep the
       // path for any deep links / shortcuts and redirect through.
       GoRoute(
         path: '/explore',
-        redirect: (_, __) => '/search',
+        redirect: (_, _) => '/search',
       ),
       GoRoute(
         path: '/u/:id',
@@ -262,25 +262,25 @@ GoRouter createRouter(AuthProvider authProvider) {
       ),
       GoRoute(
         path: '/notifications',
-        pageBuilder: (_, __) => const CupertinoPage(
+        pageBuilder: (_, _) => const CupertinoPage(
           child: NotificationsPage(),
         ),
       ),
       GoRoute(
         path: '/follow-requests',
-        pageBuilder: (_, __) => const CupertinoPage(
+        pageBuilder: (_, _) => const CupertinoPage(
           child: FollowRequestsPage(),
         ),
       ),
       GoRoute(
         path: '/chats',
-        pageBuilder: (_, __) => const CupertinoPage(
+        pageBuilder: (_, _) => const CupertinoPage(
           child: ChatListPage(),
         ),
       ),
       GoRoute(
         path: '/chat/new',
-        pageBuilder: (_, __) => const CupertinoPage(
+        pageBuilder: (_, _) => const CupertinoPage(
           fullscreenDialog: true,
           child: NewChatPage(),
         ),
@@ -296,43 +296,43 @@ GoRouter createRouter(AuthProvider authProvider) {
       ),
       GoRoute(
         path: '/blocked',
-        pageBuilder: (_, __) => const CupertinoPage(
+        pageBuilder: (_, _) => const CupertinoPage(
           child: BlockedUsersPage(),
         ),
       ),
       GoRoute(
         path: '/drafts',
-        builder: (_, __) => const DraftsPage(),
+        builder: (_, _) => const DraftsPage(),
       ),
       GoRoute(
         path: '/saved',
-        builder: (_, __) => const SavedFavoritesPage(type: CollectionType.saved),
+        builder: (_, _) => const SavedFavoritesPage(type: CollectionType.saved),
       ),
       GoRoute(
         path: '/favorites',
-        builder: (_, __) => const SavedFavoritesPage(type: CollectionType.favorites),
+        builder: (_, _) => const SavedFavoritesPage(type: CollectionType.favorites),
       ),
       GoRoute(
         path: '/bookmarks',
-        pageBuilder: (_, __) =>
+        pageBuilder: (_, _) =>
             const CupertinoPage(child: BookmarksPage()),
       ),
       GoRoute(
         path: '/manage-downloads',
-        pageBuilder: (_, __) =>
+        pageBuilder: (_, _) =>
             const CupertinoPage(child: ManageDownloadsPage()),
       ),
       GoRoute(
         path: '/reading-statistics',
-        builder: (_, __) => const ReadingStatisticsPage(),
+        builder: (_, _) => const ReadingStatisticsPage(),
       ),
       GoRoute(
         path: '/subscription',
-        builder: (_, __) => const SubscriptionPage(),
+        builder: (_, _) => const SubscriptionPage(),
       ),
       GoRoute(
         path: '/bookshelf/new',
-        builder: (_, __) => const CreateBookshelfPage(),
+        builder: (_, _) => const CreateBookshelfPage(),
       ),
       GoRoute(
         path: '/bookshelf/:id',
@@ -348,7 +348,7 @@ GoRouter createRouter(AuthProvider authProvider) {
       ),
       GoRoute(
         path: '/settings-detail',
-        builder: (_, __) => Scaffold(
+        builder: (_, _) => Scaffold(
           appBar: AppBar(
             title: const Text('Settings'),
             centerTitle: true,
@@ -358,15 +358,15 @@ GoRouter createRouter(AuthProvider authProvider) {
       ),
       GoRoute(
         path: '/debug/merge-log',
-        builder: (_, __) => const MergeLogPage(),
+        builder: (_, _) => const MergeLogPage(),
       ),
       GoRoute(
         path: '/privacy-policy',
-        builder: (_, __) => LegalPage.privacyPolicy(),
+        builder: (_, _) => LegalPage.privacyPolicy(),
       ),
       GoRoute(
         path: '/terms-of-service',
-        builder: (_, __) => LegalPage.termsOfService(),
+        builder: (_, _) => LegalPage.termsOfService(),
       ),
     ],
   );
@@ -419,10 +419,12 @@ class _PostLoaderPageState extends State<_PostLoaderPage> {
         _loading = false;
       });
     } catch (e) {
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _error = 'Failed to load post';
         _loading = false;
       });
+      }
     }
   }
 

@@ -77,9 +77,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
           if (notif.isLoading && notif.items.isEmpty) {
             return ListView.separated(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              itemBuilder: (_, __) =>
+              itemBuilder: (_, _) =>
                   const _NotificationSkeletonRow(),
-              separatorBuilder: (_, __) => const SizedBox(height: 4),
+              separatorBuilder: (_, _) => const SizedBox(height: 4),
               itemCount: 8,
             );
           }
@@ -92,7 +92,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(vertical: 4),
               itemCount: notif.items.length,
-              separatorBuilder: (_, __) => Divider(
+              separatorBuilder: (_, _) => Divider(
                 height: 1,
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.05)

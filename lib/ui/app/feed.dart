@@ -950,7 +950,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.symmetric(horizontal: hPadding),
               itemCount: items.length,
-              separatorBuilder: (_, __) =>
+              separatorBuilder: (_, _) =>
                   SizedBox(width: isMobile ? 12 : 16),
               itemBuilder: (context, index) {
                 final item = items[index];
@@ -1020,7 +1020,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.symmetric(horizontal: hPadding),
               itemCount: items.length,
-              separatorBuilder: (_, __) =>
+              separatorBuilder: (_, _) =>
                   SizedBox(width: isMobile ? 16 : 24),
               itemBuilder: (context, index) => _RankedBookCard(
                 rank: index + 1,

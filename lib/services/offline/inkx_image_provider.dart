@@ -61,7 +61,7 @@ class InkxImageProvider extends ImageProvider<InkxImageProvider> {
     final book = await key.resolver(key.bookId);
     final bytes = await book.readImage(key.imageId);
     final buffer = await ui.ImmutableBuffer.fromUint8List(
-      bytes is Uint8List ? bytes : Uint8List.fromList(bytes),
+      bytes,
     );
     return decode(buffer);
   }

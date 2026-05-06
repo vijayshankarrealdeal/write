@@ -57,7 +57,7 @@ class BookmarkModel {
         },
         if (label != null) 'label': label,
         'color': color,
-        if (clientOpId != null) 'client_op_id': clientOpId,
+        'client_op_id': ?clientOpId,
       };
 
   BookmarkModel copyWith({

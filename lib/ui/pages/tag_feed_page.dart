@@ -247,7 +247,7 @@ class _TagFeedPageState extends State<TagFeedPage> {
         child: ListView.separated(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           itemCount: _items.length + (_isLoadingMore ? 1 : 0),
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, idx) {
             if (idx >= _items.length) {
               return const Padding(

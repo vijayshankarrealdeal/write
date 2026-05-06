@@ -270,9 +270,9 @@ void main() {
     );
     controlled.failNext = false;
     // We want: first op succeeds, second op fails, third op never seen.
-    Future<void> Function() runOne = () async {
+    Future<void> runOne() async {
       await drainerControlled.drain();
-    };
+    }
     // Trip failure on op 2 by setting the flag right after op 1 completes.
     // The fake throws on the *next* updateSectionContent call when the flag
     // is on, so we run drain in a loop and toggle it.

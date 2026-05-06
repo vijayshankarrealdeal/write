@@ -56,7 +56,6 @@ import 'package:inkspacex/ui/app/feed.dart';
 import 'package:inkspacex/ui/app/writing_page.dart';
 import 'package:inkspacex/ui/pages/profile_hub_page.dart';
 import 'package:inkspacex/ui/pages/my_books_page.dart';
-import 'package:inkspacex/ui/pages/new_book_addition.dart';
 import 'package:inkspacex/ui/theme/app_theme.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:flutter/foundation.dart';

@@ -1073,7 +1073,7 @@ class CanvasEditorState extends State<CanvasEditor>
               bytes,
               fit: BoxFit.cover,
               gaplessPlayback: true,
-              errorBuilder: (_, __, ___) => _errorPlaceholder(isDark),
+              errorBuilder: (_, _, _) => _errorPlaceholder(isDark),
             );
     } else if (e.imageUrl.startsWith('http')) {
       imageWidget = AppNetworkImage(
@@ -2237,7 +2237,7 @@ class CanvasEditorState extends State<CanvasEditor>
           if (mounted) {
             _showSnack(
               attempt > 0
-                  ? 'Layout generated (fixed after ${attempt} ${attempt == 1 ? "retry" : "retries"})!'
+                  ? 'Layout generated (fixed after $attempt ${attempt == 1 ? "retry" : "retries"})!'
                   : 'Layout generated! Tap placeholders to add photos.',
             );
           }
@@ -2363,8 +2363,7 @@ class CanvasEditorState extends State<CanvasEditor>
     for (final e in elementsList) {
       try {
         final map = Map<String, dynamic>.from(e as Map);
-        map['id'] = DateTime.now().microsecondsSinceEpoch.toString() +
-            '_${_nextZIndex}';
+        map['id'] = '${DateTime.now().microsecondsSinceEpoch}_${_nextZIndex}';
         map['zIndex'] = _nextZIndex++;
         map.putIfAbsent('rotation', () => 0.0);
         map.putIfAbsent('hasBorder', () => false);
@@ -2891,7 +2890,7 @@ class CanvasEditorState extends State<CanvasEditor>
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: fonts.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 6),
+                      separatorBuilder: (_, _) => const SizedBox(width: 6),
                       itemBuilder: (_, i) {
                         final f = fonts[i];
                         final isActive = f == selectedFont;

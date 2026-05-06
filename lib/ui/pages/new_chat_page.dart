@@ -129,7 +129,7 @@ class _NewChatPageState extends State<NewChatPage> {
                       )
                     : ListView.separated(
                         itemCount: _results.length,
-                        separatorBuilder: (_, __) => Divider(
+                        separatorBuilder: (_, _) => Divider(
                           height: 1,
                           color: isDark
                               ? Colors.white.withValues(alpha: 0.05)

@@ -5,6 +5,7 @@
 /// and remap local→server ids so subsequent deletes target the right
 /// row. Mirrors the section-outbox tests in shape so a regression in
 /// either pipeline is obvious from the diff.
+library;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -38,7 +39,7 @@ PendingOp _bookmarkOp({
             'paragraph_idx': paragraphIdx,
             'char_offset': charOffset,
           },
-          if (label != null) 'label': label,
+          'label': ?label,
           'color': color,
         },
       },

@@ -5681,8 +5681,8 @@ class _CanvasPreview extends StatelessWidget {
                     begin: bgGradientAlign.$1,
                     end: bgGradientAlign.$2,
                     colors: [
-                      Color(bgGradientStart!),
-                      Color(bgGradientEnd!)
+                      Color(bgGradientStart),
+                      Color(bgGradientEnd)
                     ],
                   )
                 : null,

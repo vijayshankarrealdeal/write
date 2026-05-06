@@ -78,7 +78,7 @@ class AnalyticsService {
   /// signed-in user.
   final String clientId;
 
-  bool _enabled;
+  final bool _enabled;
   bool get enabled => _enabled;
 
   String _sessionId = const Uuid().v4();
@@ -196,12 +196,12 @@ class AnalyticsService {
       'client_id': clientId,
       'session_id': _sessionId,
       'event_name': eventName,
-      if (screen != null) 'screen': screen,
-      if (action != null) 'action': action,
-      if (entityType != null) 'entity_type': entityType,
-      if (entityId != null) 'entity_id': entityId,
-      if (sourceScreen != null) 'source_screen': sourceScreen,
-      if (durationMs != null) 'duration_ms': durationMs,
+      'screen': ?screen,
+      'action': ?action,
+      'entity_type': ?entityType,
+      'entity_id': ?entityId,
+      'source_screen': ?sourceScreen,
+      'duration_ms': ?durationMs,
       'properties': props,
       'client_ts': DateTime.now().toUtc().toIso8601String(),
     };

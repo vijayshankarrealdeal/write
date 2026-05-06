@@ -20,7 +20,7 @@ class ApiPushTokenService {
     await _client.post('/api/notifications/push-token', data: {
       'platform': platform,
       'token': token,
-      if (deviceLabel != null) 'device_label': deviceLabel,
+      'device_label': ?deviceLabel,
     });
   }
 

@@ -66,7 +66,7 @@ class AppNetworkImage extends StatelessWidget {
           (fillsBox && height != null) ? (height! * dpr).round() : null,
       cacheManager: AppImageCacheManager(),
       placeholder: (ctx, _) => _buildPlaceholder(ctx, isError: false),
-      errorWidget: (ctx, _, __) => errorWidget ?? _buildPlaceholder(ctx, isError: true),
+      errorWidget: (ctx, _, _) => errorWidget ?? _buildPlaceholder(ctx, isError: true),
       fadeInDuration: const Duration(milliseconds: 180),
     );
     return _wrap(image);

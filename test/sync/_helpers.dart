@@ -1,4 +1,5 @@
 /// Shared test fakes for Phase 6 sync scenario tests.
+library;
 import 'package:inkspacex/models/author_bookmark.dart';
 import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/image_meta.dart';

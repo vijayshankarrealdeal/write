@@ -141,7 +141,7 @@ class GeminiService {
     final response = await _apiClient!.post('/api/ai/text-edit-delta', data: {
       'action': action,
       'delta': deltaOps,
-      if (tone != null) 'tone': tone,
+      'tone': ?tone,
     });
     final data = response.data as Map<String, dynamic>;
     return DeltaEditResult.fromJson(data);
@@ -180,7 +180,7 @@ class GeminiService {
     final response = await _apiClient!.post('/api/ai/text-edit', data: {
       'action': action,
       'text': text,
-      if (tone != null) 'tone': tone,
+      'tone': ?tone,
     });
 
     final result = response.data['result'] as String;

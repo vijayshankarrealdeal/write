@@ -4839,7 +4839,7 @@ class _EditiorPageState extends State<EditiorPage>
                       size: 10, color: mutedColor),
                   const SizedBox(width: 4),
                 ],
-                if (sessionWidget != null) sessionWidget,
+                ?sessionWidget,
               ],
             ],
           );
@@ -5215,7 +5215,7 @@ class _EditiorPageState extends State<EditiorPage>
                 shrinkWrap: true,
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                 itemCount: ops.length,
-                separatorBuilder: (_, __) => Divider(
+                separatorBuilder: (_, _) => Divider(
                   color: textColor.withValues(alpha: 0.08),
                   height: 24,
                 ),

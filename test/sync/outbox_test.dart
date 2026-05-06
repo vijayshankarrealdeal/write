@@ -18,7 +18,7 @@ void main() {
     if (await tmp.exists()) await tmp.delete(recursive: true);
   });
 
-  PendingOp _op(String name) => PendingOp(
+  PendingOp op0(String name) => PendingOp(
         kind: PendingOpKind.upsertSection,
         payload: {
           'writingId': 'w1',
@@ -31,7 +31,7 @@ void main() {
   test('round-trips an op through restart (Hive-backed)', () async {
     final box1 = Outbox(boxName: 'tb1');
     await box1.init();
-    final op = _op('alpha');
+    final op = op0('alpha');
     await box1.enqueue(op);
     expect(box1.length, 1);
     expect(box1.pendingCount.value, 1);
@@ -52,7 +52,7 @@ void main() {
     await box.init();
     final names = ['a', 'b', 'c', 'd'];
     for (final n in names) {
-      await box.enqueue(_op(n));
+      await box.enqueue(op0(n));
     }
     final ids = box.snapshot().map((o) => o.payload['sectionId']).toList();
     expect(ids, names.map((n) => 's-$n').toList());
@@ -62,8 +62,8 @@ void main() {
   test('remove drops only the targeted op', () async {
     final box = Outbox(boxName: 'tb_remove');
     await box.init();
-    final a = _op('a');
-    final b = _op('b');
+    final a = op0('a');
+    final b = op0('b');
     await box.enqueue(a);
     await box.enqueue(b);
     await box.remove(a.id);
@@ -77,7 +77,7 @@ void main() {
       () async {
     final box = Outbox(boxName: 'tb_update');
     await box.init();
-    final op = _op('retry');
+    final op = op0('retry');
     await box.enqueue(op);
     await box.update(op.copyWith(attemptCount: 3, lastError: 'boom'));
     await box.dispose();
@@ -93,8 +93,8 @@ void main() {
   test('rewriteAll lets the drainer remap ids on every queued op', () async {
     final box = Outbox(boxName: 'tb_rewrite');
     await box.init();
-    await box.enqueue(_op('a'));
-    await box.enqueue(_op('b'));
+    await box.enqueue(op0('a'));
+    await box.enqueue(op0('b'));
     await box.rewriteAll((op) {
       final p = Map<String, dynamic>.from(op.payload);
       p['writingId'] = 'remote-w1';
@@ -108,8 +108,8 @@ void main() {
   test('clear empties the queue and resets pendingCount', () async {
     final box = Outbox(boxName: 'tb_clear');
     await box.init();
-    await box.enqueue(_op('x'));
-    await box.enqueue(_op('y'));
+    await box.enqueue(op0('x'));
+    await box.enqueue(op0('y'));
     await box.clear();
     expect(box.isEmpty, isTrue);
     expect(box.pendingCount.value, 0);

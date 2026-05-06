@@ -181,7 +181,7 @@ class _AddBooksToShelfPageState extends State<AddBooksToShelfPage> {
                       : ListView.separated(
                           padding: const EdgeInsets.fromLTRB(20, 4, 20, 120),
                           itemCount: _results.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               const SizedBox(height: 10),
                           itemBuilder: (context, index) {
                             final item = _results[index];
