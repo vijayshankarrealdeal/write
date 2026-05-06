@@ -933,7 +933,7 @@ class _BinderRowSurface extends StatelessWidget {
                 const SizedBox(width: 14),
               const SizedBox(width: 4),
               Icon(
-                _kindIcon(section.kind),
+                _kindIcon(section.kind, isExpanded: isExpanded),
                 size: 13,
                 color: iconColor,
               ),
@@ -982,12 +982,16 @@ class _BinderRowSurface extends StatelessWidget {
     );
   }
 
-  IconData _kindIcon(SectionKind kind) {
+  IconData _kindIcon(SectionKind kind, {bool isExpanded = false}) {
     switch (kind) {
       case SectionKind.folder:
-        return CupertinoIcons.book;
+        return isExpanded
+            ? CupertinoIcons.folder_open
+            : CupertinoIcons.folder;
       case SectionKind.act:
-        return CupertinoIcons.square_stack;
+        return isExpanded
+            ? CupertinoIcons.folder_open
+            : CupertinoIcons.folder_fill;
       case SectionKind.chapter:
         return CupertinoIcons.doc_text;
       case SectionKind.scene:
