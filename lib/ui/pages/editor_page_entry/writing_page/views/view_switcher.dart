@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Three-way segmented control matching Scrivener's ⌘1 / ⌘2 / ⌘3.
-/// Same selected section drives every view.
-enum EditorViewMode { draft, cards, outline }
+/// Four-way segmented control. The first three mirror Scrivener's
+/// ⌘1 / ⌘2 / ⌘3; `scrivenings` is the continuous-scroll view of every
+/// publishable section in the active book (read-only in v1; click any
+/// section's pencil to jump back to Draft mode focused there).
+enum EditorViewMode { draft, cards, outline, scrivenings }
 
 extension EditorViewModeLabel on EditorViewMode {
   String get label {
@@ -15,6 +17,8 @@ extension EditorViewModeLabel on EditorViewMode {
         return 'Cards';
       case EditorViewMode.outline:
         return 'Outline';
+      case EditorViewMode.scrivenings:
+        return 'All';
     }
   }
 
@@ -26,6 +30,8 @@ extension EditorViewModeLabel on EditorViewMode {
         return CupertinoIcons.square_grid_2x2;
       case EditorViewMode.outline:
         return CupertinoIcons.list_bullet;
+      case EditorViewMode.scrivenings:
+        return CupertinoIcons.doc_text_viewfinder;
     }
   }
 }

@@ -45,6 +45,7 @@ import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/section_inspec
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/secondary_pane.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/views/cards_view.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/views/outline_view.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/views/scrivenings_view.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/views/view_switcher.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/comment_compose_dialog.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/editor_constants.dart';
@@ -2722,12 +2723,16 @@ class _EditiorPageState extends State<EditiorPage>
               setState(() => _viewMode = EditorViewMode.cards),
           const SingleActivator(LogicalKeyboardKey.digit3, meta: true): () =>
               setState(() => _viewMode = EditorViewMode.outline),
+          const SingleActivator(LogicalKeyboardKey.digit4, meta: true): () =>
+              setState(() => _viewMode = EditorViewMode.scrivenings),
           const SingleActivator(LogicalKeyboardKey.digit1, control: true): () =>
               setState(() => _viewMode = EditorViewMode.draft),
           const SingleActivator(LogicalKeyboardKey.digit2, control: true): () =>
               setState(() => _viewMode = EditorViewMode.cards),
           const SingleActivator(LogicalKeyboardKey.digit3, control: true): () =>
               setState(() => _viewMode = EditorViewMode.outline),
+          const SingleActivator(LogicalKeyboardKey.digit4, control: true): () =>
+              setState(() => _viewMode = EditorViewMode.scrivenings),
         },
         child: Focus(
           autofocus: true,
@@ -2899,11 +2904,28 @@ class _EditiorPageState extends State<EditiorPage>
                                                       color: bgColor,
                                                       child: const CardsView(),
                                                     )
-                                                  else
+                                                  else if (_viewMode ==
+                                                      EditorViewMode.outline)
                                                     Container(
                                                       color: bgColor,
                                                       child:
                                                           const OutlineView(),
+                                                    )
+                                                  else
+                                                    Container(
+                                                      color: bgColor,
+                                                      child: ScrivenningsView(
+                                                        onJumpToSection:
+                                                            (section) {
+                                                          context
+                                                              .read<
+                                                                  EditorProvider>()
+                                                              .setActiveSection(
+                                                                  section);
+                                                          setState(() => _viewMode =
+                                                              EditorViewMode.draft);
+                                                        },
+                                                      ),
                                                     ),
                                                   if (!isMobile)
                                                     Positioned(
