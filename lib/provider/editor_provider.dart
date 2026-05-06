@@ -19,6 +19,7 @@ import 'package:inkspacex/services/desktop_tray_service.dart';
 import 'package:inkspacex/services/home_widget_service.dart';
 import 'package:inkspacex/services/spell_check_decoration.dart';
 import 'package:inkspacex/services/storage_service.dart';
+import 'package:inkspacex/services/smart_substitutions.dart';
 import 'package:inkspacex/services/sync/merge_log.dart';
 import 'package:inkspacex/services/sync/outbox.dart';
 import 'package:inkspacex/services/sync/outbox_drainer.dart';
@@ -44,6 +45,10 @@ class EditorProvider extends ChangeNotifier {
     this._mergeLog,
   ) {
     loadBooks();
+    unawaited(SmartSubstitutions.loadEnabled().then((v) {
+      smartPunctuationEnabled = v;
+      _smartPunctuationLoaded = true;
+    }));
     _connectivitySub = _connectivity.onChange.listen((online) {
       if (online) _drainer.kick();
       _recomputeSyncStatus();
@@ -122,6 +127,15 @@ class EditorProvider extends ChangeNotifier {
       defaultTargetPlatform == TargetPlatform.iOS ||
       defaultTargetPlatform == TargetPlatform.android;
   DateTime _lastHapticAt = DateTime.fromMillisecondsSinceEpoch(0);
+
+  /// Scrivener-style autocorrect (curly quotes, em dashes, ellipsis).
+  /// Loaded from SharedPreferences on first read; default on. Toggled
+  /// from the editor settings sheet.
+  bool smartPunctuationEnabled = true;
+  bool _smartPunctuationLoaded = false;
+  // Set while a substitution is being applied so the doc-changes
+  // listener doesn't re-enter on the synthetic delta we just emitted.
+  bool _applyingSmartSubstitution = false;
 
   Future<void> _enqueue(PendingOp op) async {
     await _outbox.enqueue(op);
@@ -1697,6 +1711,7 @@ class EditorProvider extends ChangeNotifier {
       // Decoration-only mutations (spell-check underlines) compose with
       // ChangeSource.silent. They must not flip the typing/save state.
       if (event.source == ChangeSource.silent) return;
+      _maybeSmartSubstitute(event);
       _maybeTypingHaptic(event);
       _onUserTyped();
     });
@@ -1745,6 +1760,62 @@ class EditorProvider extends ChangeNotifier {
   void setTypingHapticsEnabled(bool value) {
     if (typingHapticsEnabled == value) return;
     typingHapticsEnabled = value;
+    notifyListeners();
+  }
+
+  /// Apply a smart-punctuation rule if the just-emitted change was a
+  /// single-character user insertion that matches one of the rules in
+  /// [SmartSubstitutions]. The synthetic replace re-enters the same
+  /// listener — `_applyingSmartSubstitution` short-circuits the recursion.
+  void _maybeSmartSubstitute(DocChange event) {
+    if (!_smartPunctuationLoaded || !smartPunctuationEnabled) return;
+    if (_applyingSmartSubstitution) return;
+    if (event.source != ChangeSource.local) return;
+
+    int retain = 0;
+    String? inserted;
+    int? insertOffset;
+    for (final op in event.change.toList()) {
+      if (op.isRetain) {
+        retain += (op.value as int? ?? 0);
+      } else if (op.isInsert) {
+        if (op.data is! String) return;
+        if (inserted != null) return; // only act on a single insert op
+        inserted = op.data as String;
+        insertOffset = retain;
+        retain += inserted.length;
+      } else if (op.isDelete) {
+        return; // mixed insert/delete — skip
+      }
+    }
+    if (inserted == null || insertOffset == null) return;
+
+    final textAfter = controller.document.toPlainText();
+    final sub = SmartSubstitutions.compute(
+      textAfter: textAfter,
+      insertOffset: insertOffset,
+      inserted: inserted,
+    );
+    if (sub == null) return;
+
+    _applyingSmartSubstitution = true;
+    try {
+      controller.replaceText(
+        sub.start,
+        sub.length,
+        sub.replacement,
+        TextSelection.collapsed(offset: sub.cursorAfter),
+      );
+    } finally {
+      _applyingSmartSubstitution = false;
+    }
+  }
+
+  Future<void> setSmartPunctuationEnabled(bool value) async {
+    if (smartPunctuationEnabled == value) return;
+    smartPunctuationEnabled = value;
+    _smartPunctuationLoaded = true;
+    await SmartSubstitutions.saveEnabled(value);
     notifyListeners();
   }
 

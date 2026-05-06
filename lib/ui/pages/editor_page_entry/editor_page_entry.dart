@@ -2154,6 +2154,26 @@ class _EditiorPageState extends State<EditiorPage>
                                 .setTypingHapticsEnabled(v);
                           },
                         ),
+                        const SizedBox(height: 8),
+                        _settingsToggle(
+                          icon: CupertinoIcons.textformat_alt,
+                          label: 'Smart Punctuation',
+                          subtitle:
+                              'Curl quotes, em dashes, and ellipsis as you type',
+                          value: context
+                              .read<EditorProvider>()
+                              .smartPunctuationEnabled,
+                          textColor: textColor,
+                          mutedColor: mutedColor,
+                          surfaceColor: surfaceColor,
+                          isDark: isDark,
+                          onChanged: (v) {
+                            setSheetState(() {});
+                            context
+                                .read<EditorProvider>()
+                                .setSmartPunctuationEnabled(v);
+                          },
+                        ),
 
                         const SizedBox(height: 24),
 
