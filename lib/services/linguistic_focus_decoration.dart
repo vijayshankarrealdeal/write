@@ -42,12 +42,37 @@ const Map<String, Color> kLinguisticHighlightColors = {
   LinguisticClass.nouns: Color(0x66CE93D8), // lavender
 };
 
-/// Style applied to a span carrying [kLinguisticHighlightKey]. We
-/// only set [backgroundColor] so the original font colour, weight,
-/// and size from the editor's `customStyles` block survive.
+/// Per-class underline decoration. Pairs with the background colour so
+/// the overlay is still legible for users with colour-vision deficiency
+/// — each class gets a structurally-different underline (solid,
+/// dashed, dotted, wavy, double) on top of its tint, which is
+/// recognisable by shape alone. Off / unknown classes get no
+/// decoration so we don't underline arbitrary prose.
+const Map<String, TextDecorationStyle> kLinguisticDecorationStyles = {
+  LinguisticClass.dialogue: TextDecorationStyle.solid,
+  LinguisticClass.adverbs: TextDecorationStyle.dashed,
+  LinguisticClass.adjectives: TextDecorationStyle.dotted,
+  LinguisticClass.verbs: TextDecorationStyle.wavy,
+  LinguisticClass.nouns: TextDecorationStyle.double,
+};
+
+/// Style applied to a span carrying [kLinguisticHighlightKey]. Sets a
+/// background colour and a class-specific underline so the overlay is
+/// distinguishable by shape, not colour alone (the colourblind a11y
+/// requirement). Original font colour, weight, and size from the
+/// editor's `customStyles` block survive — we only add decoration.
 TextStyle linguisticHighlightStyle(String? className) {
-  final color = className == null ? null : kLinguisticHighlightColors[className];
-  return TextStyle(backgroundColor: color);
+  if (className == null) return const TextStyle();
+  final color = kLinguisticHighlightColors[className];
+  final decorationStyle = kLinguisticDecorationStyles[className];
+  return TextStyle(
+    backgroundColor: color,
+    decoration:
+        decorationStyle == null ? null : TextDecoration.underline,
+    decorationStyle: decorationStyle,
+    decorationColor: color?.withValues(alpha: 1.0),
+    decorationThickness: 1.4,
+  );
 }
 
 /// Dimming style for non-matching text. Lowering the colour alpha

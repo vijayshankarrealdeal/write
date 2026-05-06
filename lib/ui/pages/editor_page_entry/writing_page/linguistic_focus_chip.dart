@@ -59,25 +59,50 @@ class LinguisticFocusChip extends StatelessWidget {
           icon = CupertinoIcons.eye_fill;
           label = '${LinguisticClass.label(c)} · ${lp.matchCount}';
         }
+        // POS engine unavailable surfaces as a subtle degraded sigil
+        // alongside the chip — the user sees that the highlight may
+        // be incomplete (only Dialogue is reliable in this state) and
+        // the picker sheet has the full explanation.
+        final degraded = c != null && c != LinguisticClass.dialogue && lp.posUnavailable;
+        final semanticsLabel = c == null
+            ? 'Linguistic focus, off. Tap to choose a part-of-speech filter.'
+            : (lp.scanning && !lp.hasScanned)
+                ? 'Linguistic focus scanning ${LinguisticClass.label(c)}'
+                : '${LinguisticClass.label(c)} highlighted: ${lp.matchCount} matches'
+                    '${degraded ? '. Engine degraded' : ''}. Tap to change filter.';
         return Padding(
           padding: const EdgeInsets.only(right: 8),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(4),
-            onTap: () => _openPicker(context),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, size: 11, color: activeColor),
-                const SizedBox(width: 4),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: activeColor,
-                    fontWeight: FontWeight.w500,
+          child: Semantics(
+            button: true,
+            label: semanticsLabel,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(4),
+              onTap: () => _openPicker(context),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 11, color: activeColor),
+                  const SizedBox(width: 4),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: activeColor,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-              ],
+                  if (degraded) ...[
+                    const SizedBox(width: 4),
+                    // Bullet-then-icon pattern so screen readers don't
+                    // announce a meaningless dot.
+                    Icon(
+                      CupertinoIcons.exclamationmark_circle,
+                      size: 10,
+                      color: activeColor.withValues(alpha: 0.7),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         );

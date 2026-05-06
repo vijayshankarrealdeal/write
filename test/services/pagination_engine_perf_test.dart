@@ -1,20 +1,20 @@
-/// Performance benchmark for the pagination engine.
-///
-/// The P2 #8 acceptance bar:
-///   "performance must remain smooth on 100k-word documents …
-///    100k words renders in <500ms initial paint."
-///
-/// "Initial paint" for the engine is the work that runs *before*
-/// the first frame: parse the Quill delta into [PageBlock]s and
-/// run [PaginationEngine.paginate]. Mounting individual page
-/// widgets is amortised across the user's scroll via
-/// [ListView.builder], so the engine pass is the only blocking
-/// chunk.
-///
-/// We measure this end-to-end (delta → blocks → paginate) on a
-/// synthetic 100,000-word manuscript and assert the budget. If a
-/// future change regresses the engine the benchmark will fail
-/// before it lands in CI.
+// Performance benchmark for the pagination engine.
+//
+// The P2 #8 acceptance bar:
+//   "performance must remain smooth on 100k-word documents …
+//    100k words renders in <500ms initial paint."
+//
+// "Initial paint" for the engine is the work that runs *before*
+// the first frame: parse the Quill delta into [PageBlock]s and
+// run [PaginationEngine.paginate]. Mounting individual page
+// widgets is amortised across the user's scroll via
+// [ListView.builder], so the engine pass is the only blocking
+// chunk.
+//
+// We measure this end-to-end (delta → blocks → paginate) on a
+// synthetic 100,000-word manuscript and assert the budget. If a
+// future change regresses the engine the benchmark will fail
+// before it lands in CI.
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
