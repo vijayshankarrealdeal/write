@@ -7,16 +7,16 @@ position into the section's plain-text view; the client recomputes it
 locally via Quill delta math when text is inserted/deleted before the
 marker, then flushes the new offset through the outbox.
 
-Revision ID: 20260506_01
-Revises: 20260504_02
+Revision ID: 20260506_02
+Revises: 20260506_01
 Create Date: 2026-05-06
 """
 from __future__ import annotations
 
 from alembic import op
 
-revision = "20260506_01"
-down_revision = "20260504_02"
+revision = "20260506_02"
+down_revision = "20260506_01"
 branch_labels = None
 depends_on = None
 
