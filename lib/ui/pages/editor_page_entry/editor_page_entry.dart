@@ -4233,7 +4233,9 @@ class _EditiorPageState extends State<EditiorPage>
                   ),
                 ),
               ),
-              // Right: spell-check chip + session + optional mode badge
+              // Right: goal/streak chip (persistent, low-key) + spell-check
+              // chip + session + optional mode badge
+              _buildGoalChip(textColor: textColor, isDark: isDark),
               Consumer<SpellCheckProvider>(
                 builder: (_, sp, _) {
                   if (!sp.enabled) return const SizedBox.shrink();
@@ -4381,6 +4383,70 @@ class _EditiorPageState extends State<EditiorPage>
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Persistent goal/streak chip in the status bar ───
+  // The floating `_buildGoalWidget` is opt-in (top-right corner). This
+  // chip lives in the always-visible status bar so the writer sees
+  // today's progress + streak during normal drafting without enabling
+  // the bigger overlay. Tap opens the writer settings sheet where the
+  // goal can be edited.
+  Widget _buildGoalChip({
+    required Color textColor,
+    required bool isDark,
+  }) {
+    final progress = _dailyGoal > 0
+        ? (_dailyWordsToday / _dailyGoal).clamp(0.0, 1.0)
+        : 0.0;
+    final isComplete = _dailyGoal > 0 && _dailyWordsToday >= _dailyGoal;
+    final accent = isComplete ? Colors.green : const Color(0xFF5B8DEF);
+    final dimmed = textColor.withValues(alpha: 0.45);
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(4),
+        onTap: _showWriterSettings,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 10,
+              height: 10,
+              child: CircularProgressIndicator(
+                value: progress,
+                strokeWidth: 2,
+                backgroundColor: textColor.withValues(alpha: 0.12),
+                valueColor: AlwaysStoppedAnimation(accent),
+              ),
+            ),
+            const SizedBox(width: 5),
+            Text(
+              '$_dailyWordsToday/$_dailyGoal',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: dimmed,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            if (_streak > 0) ...[
+              const SizedBox(width: 6),
+              Icon(CupertinoIcons.flame_fill,
+                  size: 10, color: Colors.orange.withValues(alpha: 0.7)),
+              const SizedBox(width: 2),
+              Text(
+                '$_streak',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: Colors.orange.withValues(alpha: 0.7),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

@@ -23,14 +23,18 @@ Goal: close the remaining gap to Scrivener for the **drafting / editor experienc
 **Effort.** 0.5–1 day.
 **Acceptance.** Type `"hello"` → renders `“hello”`. Type `--` → `—`. Type `...` → `…`. Backspace once after substitution restores the original keystroke (so users can opt out per-instance). Toggle off disables all four.
 
-### 2. Session target footer chip in the editor chrome
+### 2. Session target footer chip in the editor chrome ✅
+**Done in commit `<P0_2_HASH>`** — `_buildGoalChip` in [editor_page_entry.dart](lib/ui/pages/editor_page_entry/editor_page_entry.dart) renders a tiny progress ring + `<wordsToday>/<goal>` + flame `<streak>` on the right side of the always-visible status bar. Tappable; opens the existing Writer Settings sheet. The pre-existing floating `_buildGoalWidget` (opt-in via toggle) is unchanged — the chip is the persistent low-key counterpart.
+
 **What.** Daily goal/streak exist but live in side panels and focus-mode only. Add a persistent low-key chip in the main editor footer/toolbar showing `<wordsToday> / <goal> · 🔥<streak>` so it's visible during normal drafting, not just in focus.
 **Where.**
 - [editor_page_entry.dart](lib/ui/pages/editor_page_entry/editor_page_entry.dart) — render in the bottom toolbar row alongside save status. Reuses existing `_dailyWordsToday`, `_dailyGoal`, `_streak` state (no new service).
 **Effort.** 2–3 hours.
 **Acceptance.** Chip visible in non-focus editor on web + mobile. Tapping opens the existing goal-edit dialog. Counter updates live as the user types.
 
-### 3. Section-scoped word count + read-time estimate
+### 3. Section-scoped word count + read-time estimate ✅
+**Already shipped before this plan landed** — `_buildStatusBar` in [editor_page_entry.dart](lib/ui/pages/editor_page_entry/editor_page_entry.dart) already renders `<sectionWords> words · <chars> chars · <minutes> min read` (200 wpm, `<1` floor). All three values are computed from the active section's `QuillController`, so they are section-scoped, not project-total. Marking done without a code change. The original plan-entry was based on a stale read of the editor — keeping the section here for traceability.
+
 **What.** Today the focus-mode counter is total. Add a small chip in the section toolbar: `<sectionWords> words · <minutes> min read`. Cheap, high signal.
 **Where.**
 - [editor_constants.dart](lib/ui/pages/editor_page_entry/writing_page/editor_constants.dart) for the words-per-minute constant (use 250).
