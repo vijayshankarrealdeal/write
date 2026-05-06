@@ -17,6 +17,7 @@ import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/desktop_tray_service.dart';
 import 'package:inkspacex/services/home_widget_service.dart';
+import 'package:inkspacex/services/scrivenings_session.dart';
 import 'package:inkspacex/services/spell_check_decoration.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/services/smart_substitutions.dart';
@@ -238,6 +239,22 @@ class EditorProvider extends ChangeNotifier {
   String _lastSavedContent = "";
   String _lastSyncedContent = "";
   bool _needsFirestoreSync = false;
+
+  /// Live multi-section editing session, non-null while the editor is
+  /// in Scrivenings (continuous-scroll) mode. Per-section QuillControllers
+  /// live in the session; while it's active, [controller] is retargeted
+  /// to whichever section currently owns keyboard focus so existing
+  /// chrome (toolbar, find/replace, floating bars, spell check) keeps
+  /// reading `provider.controller` and gets the right one.
+  ScrivenningsSession? _scrivenningsSession;
+  ScrivenningsSession? get scrivenningsSession => _scrivenningsSession;
+  bool get inScrivenningsMode => _scrivenningsSession != null;
+
+  /// Stash for the single-section controller while a scrivenings session
+  /// is active. The controller field itself gets retargeted to focused
+  /// per-section controllers; on exit we restore this one.
+  QuillController? _draftControllerStash;
+  String? _draftSectionIdStash;
 
   // Books that adopted a server UUID during ghost-duplicate reconciliation.
   // Each entry records the now-promoted book ID and the empty server-side
@@ -809,8 +826,13 @@ class EditorProvider extends ChangeNotifier {
     allBooksSection = book.sections;
     if (isActive) {
       activeSection = merged;
-      initEditor();
+      if (_scrivenningsSession == null) {
+        initEditor();
+      }
     }
+    // Refresh scrivenings controllers (focused or not) so a remote
+    // edit lands in the live multi-section view too.
+    _scrivenningsSession?.refreshSectionContent(merged);
     _storage.saveBooks(allBooks);
     notifyListeners();
   }
@@ -824,10 +846,17 @@ class EditorProvider extends ChangeNotifier {
     book.sections.removeWhere((s) => s.id == id);
     if (book.sections.length == before) return;
     allBooksSection = book.sections;
+    // Drop any per-section controller whose section just disappeared
+    // remotely. Defer disposal so we don't await inside this synchronous
+    // event handler — the session swallows in-flight typing state safely.
+    final session = _scrivenningsSession;
+    if (session != null) {
+      unawaited(session.unregister(id));
+    }
     if (activeSection?.id == id) {
       if (book.sections.isNotEmpty) {
         activeSection = book.sections.first;
-        initEditor();
+        if (session == null) initEditor();
       } else {
         activeSection = null;
         controller = QuillController.basic();
@@ -1625,6 +1654,15 @@ class EditorProvider extends ChangeNotifier {
     final writingId = activeBook!.id;
     final descendants = _collectDescendants(activeBook!, section.id);
     final allIds = {section.id, ...descendants};
+    // If a scrivenings session is open, drop any controllers for purged
+    // sections so they don't keep firing autosave for content that no
+    // longer exists in the model.
+    final session = _scrivenningsSession;
+    if (session != null) {
+      for (final id in allIds) {
+        await session.unregister(id);
+      }
+    }
     activeBook!.sections.removeWhere((c) => allIds.contains(c.id));
     allBooksSection = activeBook!.sections;
 
@@ -1907,6 +1945,13 @@ class EditorProvider extends ChangeNotifier {
   void forceSaveImmediately() {
     _autoSaveTimer?.cancel();
     _stopPeriodicSync();
+    // Flush any in-flight per-section autosaves first — pause / back-button
+    // can fire while scrivenings is open and we don't want a 3-second
+    // debounce window to swallow the user's last keystrokes.
+    final session = _scrivenningsSession;
+    if (session != null) {
+      unawaited(session.flushAll());
+    }
     if (activeSection == null || activeBook == null) return;
     final currentContent = dumpData();
     if (currentContent != _lastSavedContent ||
@@ -1931,6 +1976,138 @@ class EditorProvider extends ChangeNotifier {
   String dumpData() {
     final clean = stripSpellCheckErrors(controller.document.toDelta());
     return jsonEncode(clean.toJson());
+  }
+
+  // ==========================================
+  // SCRIVENINGS (multi-section live editing)
+  // ==========================================
+
+  /// Switch the editor into Scrivenings mode: every publishable section
+  /// becomes independently editable in a continuous scroll. The single-
+  /// section [controller] is stashed so we can restore it on exit, and
+  /// the doc-changes listener is paused so it doesn't double-fire with
+  /// the per-section listeners owned by the session.
+  ///
+  /// No-op if a session is already running or there is no active book.
+  void enterScrivenningsMode() {
+    if (_scrivenningsSession != null) return;
+    if (activeBook == null) return;
+
+    // Flush any pending single-section autosave before we hand over.
+    if (_autoSaveTimer?.isActive ?? false) {
+      _autoSaveTimer!.cancel();
+      _saveToLocal();
+    }
+    _docSubscription?.cancel();
+    _docSubscription = null;
+
+    _draftControllerStash = controller;
+    _draftSectionIdStash = activeSection?.id;
+
+    _scrivenningsSession = ScrivenningsSession(
+      book: activeBook!,
+      onSectionPersist: _persistScrivenningsSection,
+      onFocusChanged: _onScrivenningsFocusChanged,
+      onTypingStateChanged: _onScrivenningsTypingChanged,
+      smartSubstitutionsEnabled: () =>
+          _smartPunctuationLoaded && smartPunctuationEnabled,
+      typingHapticsEnabled: () => typingHapticsEnabled,
+    );
+    notifyListeners();
+  }
+
+  /// Exit Scrivenings mode: flush every per-section autosave, dispose
+  /// per-section controllers, and restore the stashed single-section
+  /// controller so Draft view picks up exactly where it left off.
+  Future<void> exitScrivenningsMode() async {
+    final session = _scrivenningsSession;
+    if (session == null) return;
+    await session.flushAll();
+    await session.dispose();
+    _scrivenningsSession = null;
+
+    // Restore (or rebuild) the single-section controller. If the stashed
+    // controller is still alive and points to the same section, keep it
+    // — that preserves cursor / undo / scroll across the round-trip.
+    final stashed = _draftControllerStash;
+    final stashedId = _draftSectionIdStash;
+    _draftControllerStash = null;
+    _draftSectionIdStash = null;
+    if (stashed != null && activeSection != null && stashedId == activeSection!.id) {
+      controller = stashed;
+      _lastSavedContent = dumpData();
+      _lastSyncedContent = _lastSavedContent;
+      _needsFirestoreSync = false;
+      _docSubscription?.cancel();
+      _docSubscription = controller.document.changes.listen((event) {
+        if (event.source == ChangeSource.silent) return;
+        _maybeSmartSubstitute(event);
+        _maybeTypingHaptic(event);
+        _onUserTyped();
+      });
+      _startPeriodicSync();
+    } else {
+      stashed?.dispose();
+      initEditor();
+    }
+    notifyListeners();
+  }
+
+  /// Persist callback handed to [ScrivenningsSession]. Mirrors the
+  /// single-section autosave path: write the new content into the in-
+  /// memory model + local storage, then enqueue an outbox upsertSection
+  /// so the drainer pushes when online.
+  Future<void> _persistScrivenningsSection(
+    SectionModel section,
+    String contentJson,
+  ) async {
+    if (activeBook == null) return;
+    if (section.content == contentJson) return;
+    section.content = contentJson;
+    section.updatedAt = DateTime.now();
+    section.isSynced = false;
+    await _storage.saveBooks(allBooks);
+    if (_userId != null) {
+      await _enqueue(PendingOp(
+        kind: PendingOpKind.upsertSection,
+        payload: {
+          'writingId': activeBook!.id,
+          'sectionId': section.id,
+          'isNew': false,
+          'fields': {
+            'content': contentJson,
+            if (section.canvasData.isNotEmpty)
+              'canvas_data': section.canvasData,
+          },
+        },
+      ));
+    }
+    saveStatus = 'Saved';
+    notifyListeners();
+  }
+
+  /// Focus callback. Promote the focused section to `activeSection` and
+  /// retarget [controller] to its per-section QuillController so
+  /// `provider.controller` — read by toolbar, find/replace, floating
+  /// bars, spell-check, slash menu, version history — points at the
+  /// right document.
+  void _onScrivenningsFocusChanged(SectionModel section) {
+    final session = _scrivenningsSession;
+    if (session == null) return;
+    final focused = session.focusedController;
+    if (focused == null) return;
+    activeSection = section;
+    controller = focused;
+    _recomputeSyncStatus();
+    notifyListeners();
+  }
+
+  void _onScrivenningsTypingChanged(bool typing) {
+    if (_typing == typing) return;
+    _typing = typing;
+    saveStatus = typing ? 'Typing...' : 'Saved';
+    _recomputeSyncStatus();
+    if (!typing) notifyListeners();
   }
 
   /// Save canvas data for the active section and trigger sync.

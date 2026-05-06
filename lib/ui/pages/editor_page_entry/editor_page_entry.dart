@@ -1037,6 +1037,16 @@ class _EditiorPageState extends State<EditiorPage>
     _slashMenu?.dispose();
     _detachDocListener();
     _detachTypewriterListener();
+    // If the user closes the editor while in scrivenings mode (e.g.
+    // back button), make sure the per-section session tears down so
+    // its controllers/timers/listeners don't leak across page lives.
+    final ep = _trackedEditorProvider;
+    if (ep != null && ep.inScrivenningsMode) {
+      // exitScrivenningsMode is async but we don't have an opportunity
+      // to await in dispose; the underlying flushAll fires sequentially
+      // and the stashed controller will be re-created on next entry.
+      unawaited(ep.exitScrivenningsMode());
+    }
     // Flush a pending word-count persist before tearing down so we
     // don't lose the last few seconds of writing on close.
     if (_goalPersistTimer?.isActive ?? false) {
@@ -1053,6 +1063,24 @@ class _EditiorPageState extends State<EditiorPage>
     _editorScrollController.dispose();
     _editorFocusNode.dispose();
     super.dispose();
+  }
+
+  /// Single entry point for view-mode changes. Drives [EditorProvider]'s
+  /// scrivenings-session lifecycle: enter on the way into scrivenings,
+  /// exit on the way out. All ⌘1–⌘4 shortcuts and the [ViewSwitcher]
+  /// segmented control route through here so we never end up with the
+  /// session running while a different view is on screen, or vice versa.
+  void _setViewMode(EditorViewMode next) {
+    if (_viewMode == next) return;
+    final wasScrivenings = _viewMode == EditorViewMode.scrivenings;
+    final goingScrivenings = next == EditorViewMode.scrivenings;
+    setState(() => _viewMode = next);
+    final ep = context.read<EditorProvider>();
+    if (goingScrivenings && !wasScrivenings) {
+      ep.enterScrivenningsMode();
+    } else if (wasScrivenings && !goingScrivenings) {
+      unawaited(ep.exitScrivenningsMode());
+    }
   }
 
   // ─── Typewriter mode ───
@@ -2718,21 +2746,21 @@ class _EditiorPageState extends State<EditiorPage>
       child: CallbackShortcuts(
         bindings: <ShortcutActivator, VoidCallback>{
           const SingleActivator(LogicalKeyboardKey.digit1, meta: true): () =>
-              setState(() => _viewMode = EditorViewMode.draft),
+              _setViewMode(EditorViewMode.draft),
           const SingleActivator(LogicalKeyboardKey.digit2, meta: true): () =>
-              setState(() => _viewMode = EditorViewMode.cards),
+              _setViewMode(EditorViewMode.cards),
           const SingleActivator(LogicalKeyboardKey.digit3, meta: true): () =>
-              setState(() => _viewMode = EditorViewMode.outline),
+              _setViewMode(EditorViewMode.outline),
           const SingleActivator(LogicalKeyboardKey.digit4, meta: true): () =>
-              setState(() => _viewMode = EditorViewMode.scrivenings),
+              _setViewMode(EditorViewMode.scrivenings),
           const SingleActivator(LogicalKeyboardKey.digit1, control: true): () =>
-              setState(() => _viewMode = EditorViewMode.draft),
+              _setViewMode(EditorViewMode.draft),
           const SingleActivator(LogicalKeyboardKey.digit2, control: true): () =>
-              setState(() => _viewMode = EditorViewMode.cards),
+              _setViewMode(EditorViewMode.cards),
           const SingleActivator(LogicalKeyboardKey.digit3, control: true): () =>
-              setState(() => _viewMode = EditorViewMode.outline),
+              _setViewMode(EditorViewMode.outline),
           const SingleActivator(LogicalKeyboardKey.digit4, control: true): () =>
-              setState(() => _viewMode = EditorViewMode.scrivenings),
+              _setViewMode(EditorViewMode.scrivenings),
         },
         child: Focus(
           autofocus: true,
@@ -2838,9 +2866,7 @@ class _EditiorPageState extends State<EditiorPage>
                                                   children: [
                                                     ViewSwitcher(
                                                       mode: _viewMode,
-                                                      onChanged: (m) =>
-                                                          setState(() =>
-                                                              _viewMode = m),
+                                                      onChanged: _setViewMode,
                                                     ),
                                                     const Spacer(),
                                                     if (!isMobile)
@@ -2922,8 +2948,9 @@ class _EditiorPageState extends State<EditiorPage>
                                                                   EditorProvider>()
                                                               .setActiveSection(
                                                                   section);
-                                                          setState(() => _viewMode =
-                                                              EditorViewMode.draft);
+                                                          _setViewMode(
+                                                              EditorViewMode
+                                                                  .draft);
                                                         },
                                                       ),
                                                     ),

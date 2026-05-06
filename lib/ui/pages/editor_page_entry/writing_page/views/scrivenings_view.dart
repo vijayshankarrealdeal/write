@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,29 +9,126 @@ import 'package:provider/provider.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/services/scrivenings_session.dart';
+import 'package:inkspacex/services/scrivenings_scroll_store.dart';
 
 /// Scrivener-style "scrivenings" mode: every publishable chapter / scene
-/// in the active book rendered as one continuous read-only scroll with
-/// section title dividers between them.
+/// in the active book stitched into one continuous scroll of independently
+/// editable Quill editors with section title / synopsis dividers.
 ///
-/// v1 is read-only by design. Live multi-section editing would require
-/// either N independent QuillControllers (heavy provider state) or a
-/// single controller with offset bookkeeping that maps cursor positions
-/// back to originating sections. Both are deferred. The "Edit" button
-/// on each section header switches the editor back to Draft view
-/// focused on that section, which is adequate for the "see it all
-/// together, jump in to fix one spot" workflow Scrivener users want.
+/// Live editing model
+/// ==================
+/// Each section gets its own [QuillController] owned by [ScrivenningsSession]
+/// (created in [EditorProvider.enterScrivenningsMode]). Per-section
+/// QuillEditors mount lazily as the user scrolls — Flutter's ListView.builder
+/// disposes off-screen children outside `cacheExtent`, and our State's
+/// `dispose()` flushes any pending autosave for that section before
+/// dropping the controller.
 ///
-/// Same renderer shape as `secondary_pane.dart` (read-only Quill per
-/// section). Folders / Research / Trash are filtered out so the writer
-/// only sees the manuscript content readers will see.
-class ScrivenningsView extends StatelessWidget {
-  const ScrivenningsView({super.key, required this.onJumpToSection});
+/// Focus drives chrome
+/// ------------------
+/// When a section editor receives keyboard focus, it tells the session,
+/// which retargets `provider.controller` to that section's controller and
+/// promotes it to `activeSection`. The toolbar, find/replace bar, floating
+/// format bar, spell-check decoration, slash menu, version history, and
+/// section inspector all read `provider.controller` / `activeSection` so
+/// they "just work" against whichever section the cursor is in.
+///
+/// Cursor preservation across reorders
+/// -----------------------------------
+/// Sections are keyed by `ValueKey(section.id)`. When the binder reorders
+/// sections, Flutter keeps the State (and its registration with the
+/// session) attached to the same id, so the per-section controller —
+/// including its cursor and undo stack — survives the rebuild.
+///
+/// Scroll position per project
+/// ---------------------------
+/// On scroll-settle, the scroll offset is debounced and written via
+/// [ScrivenningsScrollStore] keyed by `book.id`. On view init, the stored
+/// offset (if any) is restored after the first frame.
+class ScrivenningsView extends StatefulWidget {
+  const ScrivenningsView({
+    super.key,
+    required this.onJumpToSection,
+    this.scrollStore = const ScrivenningsScrollStore(),
+    this.bookOverride,
+    this.sessionOverride,
+  });
 
   /// Switch the surrounding editor back to Draft mode focused on the
   /// given section. Wired by the parent so this widget stays decoupled
   /// from the editor's view-mode state machine.
   final void Function(SectionModel section) onJumpToSection;
+
+  /// Per-project scroll-position persistence backend. Injectable for
+  /// tests; defaults to the SharedPreferences-backed implementation.
+  final ScrivenningsScrollStore scrollStore;
+
+  /// Direct book + session injection for widget tests, bypassing the
+  /// `Consumer<EditorProvider>` setup. Production callers leave both
+  /// null and the view reads from the provider tree.
+  @visibleForTesting
+  final WritingModel? bookOverride;
+  @visibleForTesting
+  final ScrivenningsSession? sessionOverride;
+
+  @override
+  State<ScrivenningsView> createState() => _ScrivenningsViewState();
+}
+
+class _ScrivenningsViewState extends State<ScrivenningsView> {
+  late final ScrollController _scroll = ScrollController();
+  Timer? _persistTimer;
+  String? _restoredForBookId;
+  String? _activeBookId;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _persistTimer?.cancel();
+    _scroll.removeListener(_onScroll);
+    _flushScrollImmediately();
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_activeBookId == null) return;
+    if (!_scroll.hasClients) return;
+    _persistTimer?.cancel();
+    _persistTimer = Timer(const Duration(milliseconds: 400), () {
+      _flushScrollImmediately();
+    });
+  }
+
+  void _flushScrollImmediately() {
+    final bookId = _activeBookId;
+    if (bookId == null) return;
+    if (!_scroll.hasClients) return;
+    widget.scrollStore.write(bookId, _scroll.offset);
+  }
+
+  Future<void> _restoreScrollFor(String bookId) async {
+    if (_restoredForBookId == bookId) return;
+    _restoredForBookId = bookId;
+    final saved = await widget.scrollStore.read(bookId);
+    if (!mounted) return;
+    if (saved == null) return;
+    // Wait one frame so the list has actual extent before we jumpTo —
+    // jumpTo on an unbuilt sliver is a no-op.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!_scroll.hasClients) return;
+      final maxExtent = _scroll.position.maxScrollExtent;
+      final clamped = saved.clamp(0.0, maxExtent);
+      _scroll.jumpTo(clamped);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,43 +138,81 @@ class ScrivenningsView extends StatelessWidget {
     final mutedColor = textColor.withValues(alpha: 0.55);
     final dividerColor = textColor.withValues(alpha: 0.08);
 
+    final overrideBook = widget.bookOverride;
+    final overrideSession = widget.sessionOverride;
+    if (overrideBook != null && overrideSession != null) {
+      return _buildList(overrideBook, overrideSession, isDark, textColor,
+          mutedColor, dividerColor);
+    }
+
     return Consumer<EditorProvider>(
       builder: (context, provider, _) {
         final book = provider.activeBook;
-        if (book == null) return const SizedBox.shrink();
-        final sections = _publishableSections(book);
-        if (sections.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Text(
-                'Add a chapter or scene to start writing.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: mutedColor,
-                ),
-              ),
-            ),
-          );
+        final session = provider.scrivenningsSession;
+        if (book == null || session == null) {
+          return const SizedBox.shrink();
         }
-        return ListView.separated(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          itemCount: sections.length,
-          separatorBuilder: (_, _) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Divider(color: dividerColor, height: 1),
+        return _buildList(book, session, isDark, textColor, mutedColor,
+            dividerColor);
+      },
+    );
+  }
+
+  Widget _buildList(
+    WritingModel book,
+    ScrivenningsSession session,
+    bool isDark,
+    Color textColor,
+    Color mutedColor,
+    Color dividerColor,
+  ) {
+    if (_activeBookId != book.id) {
+      _activeBookId = book.id;
+      _restoredForBookId = null;
+      unawaited(_restoreScrollFor(book.id));
+    }
+
+    final sections = _publishableSections(book);
+    if (sections.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text(
+            'Add a chapter or scene to start writing.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: mutedColor,
+            ),
           ),
-          itemBuilder: (context, index) {
-            final section = sections[index];
-            return _ScrivenningsSection(
-              section: section,
-              isDark: isDark,
-              textColor: textColor,
-              mutedColor: mutedColor,
-              onEdit: () => onJumpToSection(section),
-            );
-          },
+        ),
+      );
+    }
+    return ListView.separated(
+      controller: _scroll,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      itemCount: sections.length,
+      // Below-the-fold sections still get a hot controller within
+      // ~600px of the viewport so a nudge of the wheel doesn't pop
+      // the editor. Anything beyond is unmounted and re-mounts when
+      // the user scrolls back.
+      cacheExtent: 600,
+      addAutomaticKeepAlives: false,
+      addRepaintBoundaries: true,
+      separatorBuilder: (_, _) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Divider(color: dividerColor, height: 1),
+      ),
+      itemBuilder: (context, index) {
+        final section = sections[index];
+        return _LiveScrivenningsSection(
+          key: ValueKey('scrivenings:${section.id}'),
+          section: section,
+          session: session,
+          isDark: isDark,
+          textColor: textColor,
+          mutedColor: mutedColor,
+          onEdit: () => widget.onJumpToSection(section),
         );
       },
     );
@@ -99,9 +234,11 @@ class ScrivenningsView extends StatelessWidget {
   }
 }
 
-class _ScrivenningsSection extends StatefulWidget {
-  const _ScrivenningsSection({
+class _LiveScrivenningsSection extends StatefulWidget {
+  const _LiveScrivenningsSection({
+    required super.key,
     required this.section,
+    required this.session,
     required this.isDark,
     required this.textColor,
     required this.mutedColor,
@@ -109,75 +246,64 @@ class _ScrivenningsSection extends StatefulWidget {
   });
 
   final SectionModel section;
+  final ScrivenningsSession session;
   final bool isDark;
   final Color textColor;
   final Color mutedColor;
   final VoidCallback onEdit;
 
   @override
-  State<_ScrivenningsSection> createState() => _ScrivenningsSectionState();
+  State<_LiveScrivenningsSection> createState() =>
+      _LiveScrivenningsSectionState();
 }
 
-class _ScrivenningsSectionState extends State<_ScrivenningsSection> {
+class _LiveScrivenningsSectionState extends State<_LiveScrivenningsSection> {
   QuillController? _controller;
-  String? _renderedContent;
+  FocusNode? _focusNode;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _ensureController();
+  void initState() {
+    super.initState();
+    _bind();
   }
 
   @override
-  void didUpdateWidget(covariant _ScrivenningsSection old) {
+  void didUpdateWidget(covariant _LiveScrivenningsSection old) {
     super.didUpdateWidget(old);
-    if (old.section.id != widget.section.id ||
-        old.section.content != widget.section.content) {
-      _ensureController(force: true);
+    // Section id is stable for the same key, but if the underlying
+    // SectionModel content changed externally (remote update), the
+    // session's refreshSectionContent path will have already written
+    // the new doc into our controller. Nothing to do here.
+    if (old.session != widget.session) {
+      _bind();
     }
   }
 
   @override
   void dispose() {
-    _controller?.dispose();
+    // Defer unregister: the session is shared and cheap to keep around,
+    // but we must not unregister while a build is in flight or we'd
+    // tear down a controller that's still referenced by chrome reading
+    // `provider.controller`. The session's `unregister` is async and
+    // handles flush internally.
+    final session = widget.session;
+    final id = widget.section.id;
+    Future.microtask(() {
+      if (session.isDisposed) return;
+      session.unregister(id);
+    });
     super.dispose();
   }
 
-  /// Build (or rebuild) the read-only QuillController for this section.
-  /// Rebuild only when `content` actually changed to avoid losing the
-  /// scroll offset on every parent rebuild.
-  void _ensureController({bool force = false}) {
-    if (!force && _renderedContent == widget.section.content) return;
-    _controller?.dispose();
-    final raw = widget.section.content;
-    if (raw.trim().isEmpty) {
-      _controller = QuillController(
-        document: Document()..insert(0, ''),
-        readOnly: true,
-        selection: const TextSelection.collapsed(offset: 0),
-      );
-    } else {
-      try {
-        final ops = jsonDecode(raw);
-        _controller = QuillController(
-          document: ops is List ? Document.fromJson(ops) : Document(),
-          readOnly: true,
-          selection: const TextSelection.collapsed(offset: 0),
-        );
-      } catch (_) {
-        _controller = QuillController(
-          document: Document()..insert(0, raw),
-          readOnly: true,
-          selection: const TextSelection.collapsed(offset: 0),
-        );
-      }
-    }
-    _renderedContent = raw;
+  void _bind() {
+    _controller = widget.session.register(widget.section);
+    _focusNode = widget.session.focusNode(widget.section);
   }
 
   @override
   Widget build(BuildContext context) {
     final controller = _controller!;
+    final focusNode = _focusNode!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -196,7 +322,7 @@ class _ScrivenningsSectionState extends State<_ScrivenningsSection> {
               ),
             ),
             IconButton(
-              tooltip: 'Edit this section',
+              tooltip: 'Open this section in Draft',
               icon: Icon(
                 CupertinoIcons.pencil,
                 size: 16,
@@ -220,14 +346,16 @@ class _ScrivenningsSectionState extends State<_ScrivenningsSection> {
           const SizedBox(height: 12),
         ] else
           const SizedBox(height: 8),
-        QuillEditor.basic(
+        QuillEditor(
           controller: controller,
+          focusNode: focusNode,
+          scrollController: ScrollController(),
           config: const QuillEditorConfig(
             padding: EdgeInsets.zero,
             scrollable: false,
             autoFocus: false,
             expands: false,
-            showCursor: false,
+            placeholder: 'Start writing…',
           ),
         ),
       ],
