@@ -37,6 +37,8 @@ api.{$DOMAIN} {
 	}
 
 	handle /admin* {
+		# Admin SPA must not be indexed by search engines.
+		header X-Robots-Tag "noindex, nofollow"
 		reverse_proxy fastapi:8000
 	}
 
@@ -50,11 +52,35 @@ api.{$DOMAIN} {
 	# /land is kept as a permanent redirect for any old links.
 	redir /land /landing.html permanent
 
-	handle /landing.html {
+	# Static marketing + SEO surfaces (landing, comparison, blog, og-image).
+	# Plain HTML — skip the SPA's COOP/COEP so Google Fonts and embedded
+	# SVGs load without cross-origin friction.
+	@marketing_html path /landing.html /scrivener-alternative.html /scrivener-vs-inkspacex.html /sudowrite-vs-inkspacex.html /best-writing-software-2026.html
+	handle @marketing_html {
 		root * /srv/web
 		header Cache-Control "no-cache, no-store, must-revalidate"
-		# landing.html is plain static HTML — skip the SPA's COOP/COEP so
-		# Google Fonts and embedded SVGs load without cross-origin friction.
+		file_server
+	}
+
+	# OG / Twitter card images — public, long-cached.
+	@og_images path /og-image.png /og-scrivener-alternative.png /og-scrivener-vs.png /og-sudowrite-vs.png /og-best-2026.png /og-blog-three-act.png /og-blog-ugly-draft.png /og-blog-switching.png
+	handle @og_images {
+		root * /srv/web
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+
+	# Shared comparison + blog stylesheet — long-cache, immutable.
+	handle /marketing.css {
+		root * /srv/web
+		header Content-Type "text/css; charset=utf-8"
+		header Cache-Control "public, max-age=3600"
+		file_server
+	}
+
+	handle /blog/* {
+		root * /srv/web
+		header Cache-Control "public, max-age=300, must-revalidate"
 		file_server
 	}
 
