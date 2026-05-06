@@ -14,7 +14,7 @@ Status legend: ✅ merged to main · 🟢 implementation complete, PR open · �
 - ✅ #6 Author bookmarks (in-document) — merged via PR [#12](https://github.com/vijayshankarrealdeal/write/pull/12) (branch commit d4d9652 after rebase, merge commit 363cb2b).
 
 ## P2 — Polish / power features
-- ⬜ #7 Linguistic Focus (POS-class highlighter w/ spaCy backend) — branch `feat/linguistic-focus`
+- ✅ #7 Linguistic Focus (POS-class highlighter w/ spaCy backend) — merged via PR [#13](https://github.com/vijayshankarrealdeal/write/pull/13) (branch commit 924434e, merge commit a01f948).
 - ⬜ #8 Page view / paginated layout — branch `feat/page-view`
 
 ## How this file is updated
