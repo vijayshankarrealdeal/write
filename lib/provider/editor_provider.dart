@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
+import 'package:inkspacex/models/footnote_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/models/section_model.dart';
@@ -821,6 +822,8 @@ class EditorProvider extends ChangeNotifier {
       labelColor: remote.labelColor ?? local.labelColor,
       keywords: remote.keywords.isNotEmpty ? remote.keywords : local.keywords,
       includeInPublish: remote.includeInPublish,
+      footnotes:
+          remote.footnotes.isNotEmpty ? remote.footnotes : local.footnotes,
     );
     book.sections[idx] = merged;
     allBooksSection = book.sections;
@@ -893,7 +896,21 @@ class EditorProvider extends ChangeNotifier {
       includeInPublish: json['include_in_publish'] is bool
           ? json['include_in_publish'] as bool
           : true,
+      footnotes: _decodeRemoteFootnotes(json['footnotes']),
     );
+  }
+
+  static List<FootnoteModel> _decodeRemoteFootnotes(dynamic raw) {
+    if (raw is! List) return <FootnoteModel>[];
+    final out = <FootnoteModel>[];
+    for (final entry in raw) {
+      if (entry is Map) {
+        try {
+          out.add(FootnoteModel.fromJson(entry.cast<String, dynamic>()));
+        } catch (_) {}
+      }
+    }
+    return out;
   }
 
   static String _encodeRemoteContent(dynamic value) {
@@ -1529,6 +1546,25 @@ class EditorProvider extends ChangeNotifier {
     if (fields.containsKey('kind')) {
       section.kind = SectionKindCodec.fromCode(fields['kind'] as String?);
     }
+    if (fields.containsKey('footnotes')) {
+      final raw = fields['footnotes'];
+      if (raw is List<FootnoteModel>) {
+        section.footnotes = List<FootnoteModel>.from(raw);
+      } else if (raw is List) {
+        section.footnotes = [
+          for (final entry in raw)
+            if (entry is FootnoteModel)
+              entry
+            else if (entry is Map)
+              FootnoteModel.fromJson(entry.cast<String, dynamic>()),
+        ];
+      }
+      // Outbox payloads round-trip through JSON; normalize footnote
+      // models to plain maps so the drainer / Hive codec doesn't choke
+      // on a non-encodable List<FootnoteModel>.
+      fields['footnotes'] =
+          section.footnotes.map((f) => f.toJson()).toList();
+    }
     await persistSectionMetadata(section, fields);
     notifyListeners();
   }
@@ -1555,6 +1591,8 @@ class EditorProvider extends ChangeNotifier {
             if (section.labelColor != null) 'label_color': section.labelColor,
             'keywords': section.keywords,
             'include_in_publish': section.includeInPublish,
+            'footnotes':
+                section.footnotes.map((f) => f.toJson()).toList(),
           },
         },
       ));

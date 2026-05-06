@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
+import 'package:inkspacex/models/footnote_model.dart';
+
 /// Hierarchical role of a section within the binder.
 ///
 /// `chapter` and `scene` are the only nodes whose `content` is a meaningful
@@ -54,6 +56,11 @@ class SectionModel {
   // writings continue to publish unchanged. Sections under Research /
   // Trash are auto-set to false at folder-creation time.
   bool includeInPublish;
+  // Ordered list of footnote bodies for this section. Rendering uses the
+  // list order to stamp visible numbers (¹, ², …) so adding, deleting, or
+  // reordering an entry implicitly renumbers the section without rewriting
+  // the Quill delta — inline embeds reference the stable [FootnoteModel.id].
+  List<FootnoteModel> footnotes;
 
   SectionModel({
     required this.id,
@@ -72,9 +79,11 @@ class SectionModel {
     this.labelColor,
     List<String>? keywords,
     this.includeInPublish = true,
+    List<FootnoteModel>? footnotes,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
-        keywords = keywords ?? <String>[];
+        keywords = keywords ?? <String>[],
+        footnotes = footnotes ?? <FootnoteModel>[];
 
   factory SectionModel.fromJson(Map<String, dynamic> json) {
     return SectionModel(
@@ -105,6 +114,7 @@ class SectionModel {
       includeInPublish: json['includeInPublish'] is bool
           ? json['includeInPublish'] as bool
           : true,
+      footnotes: _decodeFootnotes(json['footnotes']),
     );
   }
 
@@ -126,6 +136,22 @@ class SectionModel {
       'labelColor': labelColor,
       'keywords': keywords,
       'includeInPublish': includeInPublish,
+      'footnotes': footnotes.map((f) => f.toJson()).toList(),
     };
   }
+}
+
+List<FootnoteModel> _decodeFootnotes(dynamic raw) {
+  if (raw is! List) return <FootnoteModel>[];
+  final out = <FootnoteModel>[];
+  for (final entry in raw) {
+    if (entry is Map) {
+      try {
+        out.add(FootnoteModel.fromJson(entry.cast<String, dynamic>()));
+      } catch (_) {
+        // Drop malformed entries rather than crashing a section open.
+      }
+    }
+  }
+  return out;
 }

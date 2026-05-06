@@ -15,7 +15,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inkspacex/models/editor_annotation_model.dart';
+import 'package:inkspacex/models/footnote_model.dart';
 import 'package:inkspacex/models/section_model.dart';
+import 'package:inkspacex/services/footnotes_service.dart';
 import 'package:inkspacex/provider/annotation_provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
@@ -32,6 +34,7 @@ import 'package:inkspacex/web_utils_stub.dart'
     if (dart.library.html) 'package:inkspacex/web_utils.dart' as web_utils;
 import 'package:inkspacex/ui/editor/command_palette.dart';
 import 'package:inkspacex/ui/editor/floating_format_bar.dart';
+import 'package:inkspacex/ui/editor/footnote_embed_builder.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
 import 'package:inkspacex/ui/editor/slash_menu.dart';
 import 'package:inkspacex/ui/editor/name_generator_dialog.dart';
@@ -104,6 +107,10 @@ class _EditiorPageState extends State<EditiorPage>
   bool _showOutline = false;
   bool _showAnnotations = false;
   bool _showInspector = false;
+  // The inspector's currently focused tab. We hold it on the page so a
+  // toolbar / marker tap can switch tabs without having to rebuild the
+  // inspector through a key.
+  InspectorTab _inspectorTab = InspectorTab.details;
   bool _showSplitView = false;
   // Width of the right-side reference pane. User-resizable by dragging
   // its left handle. Persisted only in-memory for now — survives across
@@ -1610,6 +1617,79 @@ class _EditiorPageState extends State<EditiorPage>
   }
 
   // ─── Image Insertion (instant preview + background upload) ───
+  // ─── Footnotes ───
+  // Insert a footnote embed at the current caret. The embed stores a
+  // stable id; the visible ¹² number is rendered from the section's
+  // footnote-list order, so reorder/delete never has to rewrite the
+  // Quill delta. Also opens the inspector on its Footnotes tab so the
+  // user can immediately type the body.
+  void _insertFootnote() {
+    final provider = context.read<EditorProvider>();
+    final section = provider.activeSection;
+    if (section == null) return;
+    final controller = provider.controller;
+    final selection = controller.selection;
+    if (!selection.isValid) return;
+    final index = selection.baseOffset;
+    final length = selection.extentOffset - selection.baseOffset;
+    if (length > 0) {
+      controller.replaceText(index, length, '', null);
+    }
+    final newId = FootnotesService.newId();
+    controller.document.insert(index, FootnoteBlockEmbed.of(newId));
+    controller.updateSelection(
+      TextSelection.collapsed(offset: index + 1),
+      ChangeSource.local,
+    );
+    final nextList = List<FootnoteModel>.from(section.footnotes)
+      ..add(FootnoteModel(id: newId, text: ''));
+    // Footnotes are renumbered by document order on save — sort the
+    // list by the order their inline markers appear in the freshly
+    // updated delta so the inspector matches what the reader will see.
+    final delta = controller.document.toDelta().toJson();
+    final ordered = FootnotesService.sortByDeltaOrder(nextList, delta);
+    provider.updateSectionFields(section, {'footnotes': ordered});
+    setState(() {
+      _showInspector = true;
+      _inspectorTab = InspectorTab.footnotes;
+    });
+  }
+
+  /// Open the inspector and surface the Footnotes tab when the user
+  /// taps a footnote marker in the prose.
+  void _scrollFootnoteIntoView(String _) {
+    setState(() {
+      _showInspector = true;
+      _inspectorTab = InspectorTab.footnotes;
+    });
+  }
+
+  /// Move the editor caret to the inline marker for a given footnote id.
+  /// Wired up by the inspector's "jump" affordance.
+  void _jumpToFootnoteMarker(String footnoteId) {
+    final controller = context.read<EditorProvider>().controller;
+    final delta = controller.document.toDelta().toJson();
+    int offset = 0;
+    for (final op in delta) {
+      if (op is! Map) continue;
+      final insert = op['insert'];
+      if (insert is String) {
+        offset += insert.length;
+      } else if (insert is Map) {
+        final id = insert[FootnoteBlockEmbed.footnoteType];
+        if (id == footnoteId) {
+          controller.updateSelection(
+            TextSelection.collapsed(offset: offset),
+            ChangeSource.local,
+          );
+          _editorFocusNode.requestFocus();
+          return;
+        }
+        offset += 1;
+      }
+    }
+  }
+
   Future<void> _insertImage() async {
     final auth = context.read<AuthProvider>();
     final editorProvider = context.read<EditorProvider>();
@@ -3073,10 +3153,15 @@ class _EditiorPageState extends State<EditiorPage>
                                           !isMobile &&
                                           !_focusMode)
                                         SectionInspector(
+                                          key: ValueKey(
+                                              'inspector-${_inspectorTab.name}'),
                                           isDark: isDark,
                                           textColor: textColor,
                                           borderColor: borderColor,
                                           surfaceColor: surfaceColor,
+                                          initialTab: _inspectorTab,
+                                          onJumpToFootnote:
+                                              _jumpToFootnoteMarker,
                                           onClose: () => setState(() =>
                                               _showInspector = false),
                                         ),
@@ -3442,6 +3527,20 @@ class _EditiorPageState extends State<EditiorPage>
             onPressed: _insertImage,
           ),
 
+          // Footnote insert — drops a stable-id embed at the caret and
+          // opens the inspector's Footnotes tab so the user can type
+          // the body without an extra navigation.
+          ToolbarIconButton(
+            iconWidget: Iconify(
+              Ph.note_pencil_bold,
+              size: 19,
+              color: textColor,
+            ),
+            tooltip: 'Insert Footnote',
+            color: textColor,
+            onPressed: _insertFootnote,
+          ),
+
           // Sections sidebar toggle — paired with the image insert so the
           // top bar stays focused on title + status + new section.
           ToolbarIconButton(
@@ -3548,6 +3647,16 @@ class _EditiorPageState extends State<EditiorPage>
               tooltip: 'Insert Image',
               color: textColor,
               onPressed: _insertImage,
+            ),
+            ToolbarIconButton(
+              iconWidget: Iconify(
+                Ph.note_pencil_bold,
+                size: 19,
+                color: textColor,
+              ),
+              tooltip: 'Insert Footnote',
+              color: textColor,
+              onPressed: _insertFootnote,
             ),
             ToolbarIconButton(
               icon: CupertinoIcons.sidebar_right,
@@ -3968,6 +4077,12 @@ class _EditiorPageState extends State<EditiorPage>
                   embedBuilders: [
                     ImageEmbedBuilder(
                       controller: ctx.read<EditorProvider>().controller,
+                    ),
+                    FootnoteEmbedBuilder(
+                      footnotesProvider: () =>
+                          ctx.read<EditorProvider>().activeSection?.footnotes ??
+                              const <FootnoteModel>[],
+                      onTapMarker: _scrollFootnoteIntoView,
                     ),
                   ],
                   padding: EdgeInsets.only(top: topPad, bottom: bottomPad),
@@ -4882,6 +4997,11 @@ class _EditiorPageState extends State<EditiorPage>
               borderColor: borderColor,
               surfaceColor: surfaceColor,
               asSheet: true,
+              initialTab: _inspectorTab,
+              onJumpToFootnote: (id) {
+                Navigator.pop(ctx);
+                _jumpToFootnoteMarker(id);
+              },
               onClose: () => Navigator.pop(ctx),
             ),
           ),

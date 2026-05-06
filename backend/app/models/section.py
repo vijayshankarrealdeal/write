@@ -46,6 +46,15 @@ class Section(UUIDMixin, Base):
         Boolean, nullable=False, default=True, server_default="true"
     )
 
+    # Ordered list of footnote bodies for this section. JSONB so we
+    # store the whole list per upsert (matches the client's section
+    # outbox: footnotes ride inside the same `upsertSection` payload as
+    # title / content / synopsis). Each entry has the shape
+    # ``{"id": str, "text": str, "createdAt": iso, "updatedAt": iso}``.
+    # Visible numbers are derived from list order at render time, so
+    # editing this column never forces a Quill delta rewrite.
+    footnotes: Mapped[list[dict] | None] = mapped_column(JSONB)
+
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )

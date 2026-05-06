@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show ValueListenable, ValueNotifier;
 import 'package:flutter/material.dart' show Color;
 import 'package:inkspacex/models/bookmark_model.dart';
+import 'package:inkspacex/models/footnote_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
@@ -363,6 +364,17 @@ class OutboxDrainer {
     final fields = Map<String, dynamic>.from(p['fields'] as Map);
 
     if (isNew) {
+      final rawFootnotes = fields['footnotes'];
+      final footnotes = <FootnoteModel>[];
+      if (rawFootnotes is List) {
+        for (final entry in rawFootnotes) {
+          if (entry is Map) {
+            try {
+              footnotes.add(FootnoteModel.fromJson(entry.cast<String, dynamic>()));
+            } catch (_) {}
+          }
+        }
+      }
       final section = SectionModel(
         id: sectionId,
         title: fields['title'] as String? ?? '',
@@ -382,6 +394,7 @@ class OutboxDrainer {
         includeInPublish: fields['include_in_publish'] is bool
             ? fields['include_in_publish'] as bool
             : true,
+        footnotes: footnotes,
       );
       await _dataService.addSection('', writingId, section, opId: op.id);
       if (section.id != sectionId) {
@@ -405,6 +418,7 @@ class OutboxDrainer {
         'keywords',
         'include_in_publish',
         'section_color',
+        'footnotes',
       ]) {
         if (fields.containsKey(key)) metadata[key] = fields[key];
       }

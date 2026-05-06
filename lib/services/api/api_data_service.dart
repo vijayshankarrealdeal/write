@@ -7,6 +7,7 @@ import 'package:inkspacex/models/chat_message_model.dart';
 import 'package:inkspacex/models/comment_model.dart';
 import 'package:inkspacex/models/conversation_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
+import 'package:inkspacex/models/footnote_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/reading_progress_model.dart';
 import 'package:inkspacex/models/section_model.dart';
@@ -1385,6 +1386,7 @@ class ApiDataService implements SyncDispatcher {
       if (section.labelColor != null) 'label_color': section.labelColor,
       'keywords': section.keywords,
       'include_in_publish': section.includeInPublish,
+      'footnotes': section.footnotes.map((f) => f.toJson()).toList(),
     };
   }
 
@@ -1931,7 +1933,21 @@ class ApiDataService implements SyncDispatcher {
       includeInPublish: json['include_in_publish'] is bool
           ? json['include_in_publish'] as bool
           : true,
+      footnotes: _decodeFootnotesField(json['footnotes']),
     );
+  }
+
+  List<FootnoteModel> _decodeFootnotesField(dynamic raw) {
+    if (raw is! List) return <FootnoteModel>[];
+    final out = <FootnoteModel>[];
+    for (final entry in raw) {
+      if (entry is Map) {
+        try {
+          out.add(FootnoteModel.fromJson(entry.cast<String, dynamic>()));
+        } catch (_) {}
+      }
+    }
+    return out;
   }
 
   Bookshelf _bookshelfFromJson(Map<String, dynamic> json) {
