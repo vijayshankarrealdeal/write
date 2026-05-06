@@ -10,7 +10,7 @@ Status legend: ✅ merged to main · 🟢 implementation complete, PR open · �
 
 ## P1 — Major features
 - 🟢 #4 Scrivenings — read-only v1 merged (commit 066f416). Live multi-section editing implementation complete on branch `feat/scrivenings-live` (commit 02274c3); PR [#9](https://github.com/vijayshankarrealdeal/write/pull/9) open, awaiting review/merge.
-- ⬜ #5 Footnotes (inline + inspector panel) — branch `feat/footnotes`
+- 🟢 #5 Footnotes (inline + inspector panel) — branch `feat/footnotes` (commit 8e2c540); PR [#10](https://github.com/vijayshankarrealdeal/write/pull/10) open, awaiting review/merge.
 - ⬜ #6 Author bookmarks (in-document) — branch `feat/author-bookmarks`
 
 ## P2 — Polish / power features
