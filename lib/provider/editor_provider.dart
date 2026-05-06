@@ -19,7 +19,7 @@ import 'package:inkspacex/services/connectivity_service.dart';
 import 'package:inkspacex/services/desktop_tray_service.dart';
 import 'package:inkspacex/services/home_widget_service.dart';
 import 'package:inkspacex/services/linguistic_focus_decoration.dart';
-import 'package:inkspacex/services/scrivenings_session.dart';
+import 'package:inkspacex/services/multi_section_editing_session.dart';
 import 'package:inkspacex/services/spell_check_decoration.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/services/smart_substitutions.dart';
@@ -259,18 +259,28 @@ class EditorProvider extends ChangeNotifier {
   bool _needsFirestoreSync = false;
 
   /// Live multi-section editing session, non-null while the editor is
-  /// in Scrivenings (continuous-scroll) mode. Per-section QuillControllers
-  /// live in the session; while it's active, [controller] is retargeted
-  /// to whichever section currently owns keyboard focus so existing
-  /// chrome (toolbar, find/replace, floating bars, spell check) keeps
-  /// reading `provider.controller` and gets the right one.
-  ScrivenningsSession? _scrivenningsSession;
-  ScrivenningsSession? get scrivenningsSession => _scrivenningsSession;
-  bool get inScrivenningsMode => _scrivenningsSession != null;
+  /// in either Scrivenings (continuous-scroll) or Page (paginated) view.
+  /// Per-section QuillControllers live in the session; while it's
+  /// active, [controller] is retargeted to whichever section currently
+  /// owns keyboard focus so existing chrome (toolbar, find/replace,
+  /// floating bars, spell check) keeps reading `provider.controller`
+  /// and gets the right one. Switching between Scrivenings and Page
+  /// keeps the session alive — only the renderer changes.
+  MultiSectionEditingSession? _multiSectionSession;
+  MultiSectionEditingSession? get multiSectionSession =>
+      _multiSectionSession;
+  bool get inMultiSectionMode => _multiSectionSession != null;
 
-  /// Stash for the single-section controller while a scrivenings session
-  /// is active. The controller field itself gets retargeted to focused
-  /// per-section controllers; on exit we restore this one.
+  /// Backward-compat: existing call sites still query for "scrivenings
+  /// mode". Both Scrivenings and Page view drive the same session.
+  @Deprecated('Use multiSectionSession instead')
+  MultiSectionEditingSession? get scrivenningsSession => _multiSectionSession;
+  @Deprecated('Use inMultiSectionMode instead')
+  bool get inScrivenningsMode => _multiSectionSession != null;
+
+  /// Stash for the single-section controller while a multi-section
+  /// session is active. The controller field itself gets retargeted
+  /// to focused per-section controllers; on exit we restore this one.
   QuillController? _draftControllerStash;
   String? _draftSectionIdStash;
 
@@ -846,13 +856,13 @@ class EditorProvider extends ChangeNotifier {
     allBooksSection = book.sections;
     if (isActive) {
       activeSection = merged;
-      if (_scrivenningsSession == null) {
+      if (_multiSectionSession == null) {
         initEditor();
       }
     }
     // Refresh scrivenings controllers (focused or not) so a remote
     // edit lands in the live multi-section view too.
-    _scrivenningsSession?.refreshSectionContent(merged);
+    _multiSectionSession?.refreshSectionContent(merged);
     _storage.saveBooks(allBooks);
     notifyListeners();
   }
@@ -869,7 +879,7 @@ class EditorProvider extends ChangeNotifier {
     // Drop any per-section controller whose section just disappeared
     // remotely. Defer disposal so we don't await inside this synchronous
     // event handler — the session swallows in-flight typing state safely.
-    final session = _scrivenningsSession;
+    final session = _multiSectionSession;
     if (session != null) {
       unawaited(session.unregister(id));
     }
@@ -1712,7 +1722,7 @@ class EditorProvider extends ChangeNotifier {
     // If a scrivenings session is open, drop any controllers for purged
     // sections so they don't keep firing autosave for content that no
     // longer exists in the model.
-    final session = _scrivenningsSession;
+    final session = _multiSectionSession;
     if (session != null) {
       for (final id in allIds) {
         await session.unregister(id);
@@ -2010,7 +2020,7 @@ class EditorProvider extends ChangeNotifier {
     // Flush any in-flight per-section autosaves first — pause / back-button
     // can fire while scrivenings is open and we don't want a 3-second
     // debounce window to swallow the user's last keystrokes.
-    final session = _scrivenningsSession;
+    final session = _multiSectionSession;
     if (session != null) {
       unawaited(session.flushAll());
     }
@@ -2048,18 +2058,18 @@ class EditorProvider extends ChangeNotifier {
   }
 
   // ==========================================
-  // SCRIVENINGS (multi-section live editing)
+  // MULTI-SECTION LIVE EDITING (Scrivenings + Page)
   // ==========================================
 
-  /// Switch the editor into Scrivenings mode: every publishable section
-  /// becomes independently editable in a continuous scroll. The single-
-  /// section [controller] is stashed so we can restore it on exit, and
-  /// the doc-changes listener is paused so it doesn't double-fire with
-  /// the per-section listeners owned by the session.
+  /// Switch the editor into a multi-section view (Scrivenings or
+  /// Page): every publishable section becomes independently editable.
+  /// The single-section [controller] is stashed so we can restore it
+  /// on exit, and the doc-changes listener is paused so it doesn't
+  /// double-fire with the per-section listeners owned by the session.
   ///
   /// No-op if a session is already running or there is no active book.
-  void enterScrivenningsMode() {
-    if (_scrivenningsSession != null) return;
+  void enterMultiSectionMode() {
+    if (_multiSectionSession != null) return;
     if (activeBook == null) return;
 
     // Flush any pending single-section autosave before we hand over.
@@ -2073,11 +2083,11 @@ class EditorProvider extends ChangeNotifier {
     _draftControllerStash = controller;
     _draftSectionIdStash = activeSection?.id;
 
-    _scrivenningsSession = ScrivenningsSession(
+    _multiSectionSession = MultiSectionEditingSession(
       book: activeBook!,
-      onSectionPersist: _persistScrivenningsSection,
-      onFocusChanged: _onScrivenningsFocusChanged,
-      onTypingStateChanged: _onScrivenningsTypingChanged,
+      onSectionPersist: _persistMultiSectionSection,
+      onFocusChanged: _onMultiSectionFocusChanged,
+      onTypingStateChanged: _onMultiSectionTypingChanged,
       smartSubstitutionsEnabled: () =>
           _smartPunctuationLoaded && smartPunctuationEnabled,
       typingHapticsEnabled: () => typingHapticsEnabled,
@@ -2085,15 +2095,20 @@ class EditorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Exit Scrivenings mode: flush every per-section autosave, dispose
-  /// per-section controllers, and restore the stashed single-section
-  /// controller so Draft view picks up exactly where it left off.
-  Future<void> exitScrivenningsMode() async {
-    final session = _scrivenningsSession;
+  /// Backward-compat alias used by older call sites and tests.
+  @Deprecated('Use enterMultiSectionMode instead')
+  void enterScrivenningsMode() => enterMultiSectionMode();
+
+  /// Exit the multi-section view: flush every per-section autosave,
+  /// dispose per-section controllers, and restore the stashed
+  /// single-section controller so Draft view picks up exactly where
+  /// it left off.
+  Future<void> exitMultiSectionMode() async {
+    final session = _multiSectionSession;
     if (session == null) return;
     await session.flushAll();
     await session.dispose();
-    _scrivenningsSession = null;
+    _multiSectionSession = null;
 
     // Restore (or rebuild) the single-section controller. If the stashed
     // controller is still alive and points to the same section, keep it
@@ -2122,11 +2137,16 @@ class EditorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Persist callback handed to [ScrivenningsSession]. Mirrors the
-  /// single-section autosave path: write the new content into the in-
-  /// memory model + local storage, then enqueue an outbox upsertSection
-  /// so the drainer pushes when online.
-  Future<void> _persistScrivenningsSection(
+  /// Backward-compat alias for older call sites that still call
+  /// `exitScrivenningsMode()` directly.
+  @Deprecated('Use exitMultiSectionMode instead')
+  Future<void> exitScrivenningsMode() => exitMultiSectionMode();
+
+  /// Persist callback handed to [MultiSectionEditingSession]. Mirrors
+  /// the single-section autosave path: write the new content into the
+  /// in-memory model + local storage, then enqueue an outbox
+  /// upsertSection so the drainer pushes when online.
+  Future<void> _persistMultiSectionSection(
     SectionModel section,
     String contentJson,
   ) async {
@@ -2160,8 +2180,8 @@ class EditorProvider extends ChangeNotifier {
   /// `provider.controller` — read by toolbar, find/replace, floating
   /// bars, spell-check, slash menu, version history — points at the
   /// right document.
-  void _onScrivenningsFocusChanged(SectionModel section) {
-    final session = _scrivenningsSession;
+  void _onMultiSectionFocusChanged(SectionModel section) {
+    final session = _multiSectionSession;
     if (session == null) return;
     final focused = session.focusedController;
     if (focused == null) return;
@@ -2171,7 +2191,7 @@ class EditorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _onScrivenningsTypingChanged(bool typing) {
+  void _onMultiSectionTypingChanged(bool typing) {
     if (_typing == typing) return;
     _typing = typing;
     saveStatus = typing ? 'Typing...' : 'Saved';

@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
-import 'package:inkspacex/services/scrivenings_session.dart';
+import 'package:inkspacex/services/multi_section_editing_session.dart';
 import 'package:inkspacex/services/scrivenings_scroll_store.dart';
 
 /// Scrivener-style "scrivenings" mode: every publishable chapter / scene
@@ -18,7 +18,7 @@ import 'package:inkspacex/services/scrivenings_scroll_store.dart';
 ///
 /// Live editing model
 /// ==================
-/// Each section gets its own [QuillController] owned by [ScrivenningsSession]
+/// Each section gets its own [QuillController] owned by [MultiSectionEditingSession]
 /// (created in [EditorProvider.enterScrivenningsMode]). Per-section
 /// QuillEditors mount lazily as the user scrolls — Flutter's ListView.builder
 /// disposes off-screen children outside `cacheExtent`, and our State's
@@ -70,7 +70,7 @@ class ScrivenningsView extends StatefulWidget {
   @visibleForTesting
   final WritingModel? bookOverride;
   @visibleForTesting
-  final ScrivenningsSession? sessionOverride;
+  final MultiSectionEditingSession? sessionOverride;
 
   @override
   State<ScrivenningsView> createState() => _ScrivenningsViewState();
@@ -148,7 +148,7 @@ class _ScrivenningsViewState extends State<ScrivenningsView> {
     return Consumer<EditorProvider>(
       builder: (context, provider, _) {
         final book = provider.activeBook;
-        final session = provider.scrivenningsSession;
+        final session = provider.multiSectionSession;
         if (book == null || session == null) {
           return const SizedBox.shrink();
         }
@@ -160,7 +160,7 @@ class _ScrivenningsViewState extends State<ScrivenningsView> {
 
   Widget _buildList(
     WritingModel book,
-    ScrivenningsSession session,
+    MultiSectionEditingSession session,
     bool isDark,
     Color textColor,
     Color mutedColor,
@@ -246,7 +246,7 @@ class _LiveScrivenningsSection extends StatefulWidget {
   });
 
   final SectionModel section;
-  final ScrivenningsSession session;
+  final MultiSectionEditingSession session;
   final bool isDark;
   final Color textColor;
   final Color mutedColor;

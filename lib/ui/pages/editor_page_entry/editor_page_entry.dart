@@ -130,6 +130,9 @@ class _EditiorPageState extends State<EditiorPage>
   // Updated by PageViewLayout callbacks; consumed by the status bar.
   int _pageViewTotal = 0;
   int _pageViewCurrent = 0;
+  // Imperative handle so ⌘G ("Go to page") can scroll the live view
+  // without reaching into PageViewLayout's State.
+  final PageViewController _pageViewController = PageViewController();
 
   // ── AI Assist (on-canvas result panel) ──
   // Set after the user picks an action from the bottom-sheet [AIActionPicker].
@@ -1047,17 +1050,17 @@ class _EditiorPageState extends State<EditiorPage>
     );
   }
 
-  /// Switch to Draft view at a specific character offset. Used by
-  /// the paginated Page view's pencil → "edit this page" affordance.
-  void _jumpToOffsetInDraft(int offset) {
-    final controller = context.read<EditorProvider>().controller;
-    final docLen = controller.document.length;
-    final clamped = offset.clamp(0, math.max(0, docLen - 1)).toInt();
-    controller.updateSelection(
-      TextSelection.collapsed(offset: clamped),
-      ChangeSource.local,
+  /// "Go to page N" — bound to ⌘G / Ctrl-G while the paginated Page
+  /// view is on screen. Opens a small dialog, validates the page
+  /// number against the live total, and animates the live view to
+  /// the requested page on submit.
+  Future<void> _showGoToPageDialog() async {
+    if (_viewMode != EditorViewMode.page) return;
+    if (_pageViewTotal <= 0) return;
+    await showGoToPageDialog(
+      context: context,
+      controller: _pageViewController,
     );
-    setState(() => _viewMode = EditorViewMode.draft);
   }
 
   // ─── Version history ───
@@ -1314,15 +1317,17 @@ class _EditiorPageState extends State<EditiorPage>
     _slashMenu?.dispose();
     _detachDocListener();
     _detachTypewriterListener();
-    // If the user closes the editor while in scrivenings mode (e.g.
-    // back button), make sure the per-section session tears down so
-    // its controllers/timers/listeners don't leak across page lives.
+    // If the user closes the editor while a multi-section view
+    // (Scrivenings or Page) is active, tear down the per-section
+    // session so its controllers/timers/listeners don't leak across
+    // page lives.
     final ep = _trackedEditorProvider;
-    if (ep != null && ep.inScrivenningsMode) {
-      // exitScrivenningsMode is async but we don't have an opportunity
-      // to await in dispose; the underlying flushAll fires sequentially
-      // and the stashed controller will be re-created on next entry.
-      unawaited(ep.exitScrivenningsMode());
+    if (ep != null && ep.inMultiSectionMode) {
+      // exitMultiSectionMode is async but we don't have an
+      // opportunity to await in dispose; the underlying flushAll
+      // fires sequentially and the stashed controller will be
+      // re-created on next entry.
+      unawaited(ep.exitMultiSectionMode());
     }
     // Flush a pending word-count persist before tearing down so we
     // don't lose the last few seconds of writing on close.
@@ -1339,27 +1344,35 @@ class _EditiorPageState extends State<EditiorPage>
     }
     _editorScrollController.dispose();
     _editorFocusNode.dispose();
+    _pageViewController.dispose();
     _authorBookmarkSub?.cancel();
     _flashTimer?.cancel();
     super.dispose();
   }
 
-  /// Single entry point for view-mode changes. Drives [EditorProvider]'s
-  /// scrivenings-session lifecycle: enter on the way into scrivenings,
-  /// exit on the way out. All ⌘1–⌘4 shortcuts and the [ViewSwitcher]
-  /// segmented control route through here so we never end up with the
-  /// session running while a different view is on screen, or vice versa.
+  /// Single entry point for view-mode changes. Drives
+  /// [EditorProvider]'s multi-section session lifecycle: enter when
+  /// crossing from a single-section view (Draft / Cards / Outline)
+  /// into a multi-section one (Scrivenings / Page), exit on the way
+  /// back. Switching between Scrivenings and Page keeps the session
+  /// alive — only the renderer changes — so the per-section
+  /// controllers, undo stacks, autosave timers, and cursor positions
+  /// survive the swap.
   void _setViewMode(EditorViewMode next) {
     if (_viewMode == next) return;
-    final wasScrivenings = _viewMode == EditorViewMode.scrivenings;
-    final goingScrivenings = next == EditorViewMode.scrivenings;
+    final wasMulti = _isMultiSectionView(_viewMode);
+    final goingMulti = _isMultiSectionView(next);
     setState(() => _viewMode = next);
     final ep = context.read<EditorProvider>();
-    if (goingScrivenings && !wasScrivenings) {
-      ep.enterScrivenningsMode();
-    } else if (wasScrivenings && !goingScrivenings) {
-      unawaited(ep.exitScrivenningsMode());
+    if (goingMulti && !wasMulti) {
+      ep.enterMultiSectionMode();
+    } else if (!goingMulti && wasMulti) {
+      unawaited(ep.exitMultiSectionMode());
     }
+  }
+
+  static bool _isMultiSectionView(EditorViewMode m) {
+    return m == EditorViewMode.scrivenings || m == EditorViewMode.page;
   }
 
   // ─── Typewriter mode ───
@@ -3128,6 +3141,13 @@ class _EditiorPageState extends State<EditiorPage>
               _setViewMode(EditorViewMode.scrivenings),
           const SingleActivator(LogicalKeyboardKey.digit5, control: true): () =>
               _setViewMode(EditorViewMode.page),
+          // Go to page N — only meaningful while the paginated view
+          // is on screen, but registered globally so it survives the
+          // editor losing focus to a chrome panel.
+          const SingleActivator(LogicalKeyboardKey.keyG, meta: true):
+              _showGoToPageDialog,
+          const SingleActivator(LogicalKeyboardKey.keyG, control: true):
+              _showGoToPageDialog,
         },
         child: Focus(
           autofocus: true,
@@ -3325,11 +3345,8 @@ class _EditiorPageState extends State<EditiorPage>
                                                     )
                                                   else
                                                     PageViewLayout(
-                                                      onJumpToOffset:
-                                                          (offset) {
-                                                        _jumpToOffsetInDraft(
-                                                            offset);
-                                                      },
+                                                      controller:
+                                                          _pageViewController,
                                                       onPageCountChanged: (n) {
                                                         if (!mounted) return;
                                                         if (n ==
