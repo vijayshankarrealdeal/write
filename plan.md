@@ -13,7 +13,7 @@ Goal: close the remaining gap to Scrivener for the **drafting / editor experienc
 ## P0 — Critical / quick wins
 
 ### 1. Smart quotes, dashes, and ellipsis ✅
-**Done in commit `<P0_1_HASH>`** — `SmartSubstitutions.compute` is a pure transformer in [smart_substitutions.dart](lib/services/smart_substitutions.dart); `_maybeSmartSubstitute` wires it into the editor's doc-changes listener; toggle lives next to Typing Haptics in the editor settings sheet; preference persists via `SharedPreferences` (default on); 14 unit tests cover the rules. Per-project (vs per-app) toggle deferred — would have required a backend schema change disproportionate to a P0 quick win.
+**Done in commit `31b0f79`** — `SmartSubstitutions.compute` is a pure transformer in [smart_substitutions.dart](lib/services/smart_substitutions.dart); `_maybeSmartSubstitute` wires it into the editor's doc-changes listener; toggle lives next to Typing Haptics in the editor settings sheet; preference persists via `SharedPreferences` (default on); 14 unit tests cover the rules. Per-project (vs per-app) toggle deferred — would have required a backend schema change disproportionate to a P0 quick win.
 
 **What.** Replace `"` with `“ ”`, `'` with `‘ ’`, `--` with `—`, `...` with `…` as the user types. Per-project toggle in settings.
 **Where.**
