@@ -1,4 +1,5 @@
 /// Shared test fakes for Phase 6 sync scenario tests.
+import 'package:inkspacex/models/author_bookmark.dart';
 import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
@@ -151,6 +152,37 @@ class RecordingDispatcher implements SyncDispatcher {
   }) async {
     calls.add('updateWritingProjectFields:$writingId');
     _maybeThrow('updateWritingProjectFields');
+  }
+
+  /// Lets tests exercise the author-bookmark id-remap path.
+  Map<String, String> authorBookmarkServerIds = const {};
+
+  @override
+  Future<String> upsertAuthorBookmark(
+    AuthorBookmark bookmark, {
+    String? clientOpId,
+  }) async {
+    calls.add('upsertAuthorBookmark:${bookmark.id}');
+    _maybeThrow('upsertAuthorBookmark');
+    return authorBookmarkServerIds[bookmark.id] ?? bookmark.id;
+  }
+
+  @override
+  Future<void> patchAuthorBookmark(
+    String bookmarkId, {
+    String? label,
+    String? color,
+    int? offset,
+    bool clearLabel = false,
+  }) async {
+    calls.add('patchAuthorBookmark:$bookmarkId');
+    _maybeThrow('patchAuthorBookmark');
+  }
+
+  @override
+  Future<void> deleteAuthorBookmark(String bookmarkId) async {
+    calls.add('deleteAuthorBookmark:$bookmarkId');
+    _maybeThrow('deleteAuthorBookmark');
   }
 }
 

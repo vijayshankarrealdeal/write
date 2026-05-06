@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:inkspacex/models/author_bookmark.dart';
 import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/bookshelf_model.dart';
 import 'package:inkspacex/models/chat_message_model.dart';
@@ -1276,6 +1277,71 @@ class ApiDataService implements SyncDispatcher {
     if (raw is! List) return const [];
     return raw
         .map((e) => BookmarkModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  // =========================================================================
+  // AUTHOR BOOKMARKS (P1 #6 — writer-side flag-this-spot marks inside drafts)
+  // =========================================================================
+
+  /// Idempotent server-side: the `(user, section_id, offset)` tuple
+  /// dedupes, so the outbox can replay this op without producing
+  /// duplicates. Returns the server-issued bookmark id; the drainer
+  /// will remap any pending follow-up patches/deletes to this id.
+  @override
+  Future<String> upsertAuthorBookmark(
+    AuthorBookmark bookmark, {
+    String? clientOpId,
+  }) async {
+    final response = await _client.post(
+      '/api/author-bookmarks/',
+      data: bookmark.toCreateJson(clientOpId: clientOpId),
+    );
+    return (response.data['id'] ?? '').toString();
+  }
+
+  @override
+  Future<void> patchAuthorBookmark(
+    String bookmarkId, {
+    String? label,
+    String? color,
+    int? offset,
+    bool clearLabel = false,
+  }) async {
+    final body = <String, dynamic>{};
+    if (clearLabel) {
+      body['label'] = null;
+    } else if (label != null) {
+      body['label'] = label;
+    }
+    if (color != null) body['color'] = color;
+    if (offset != null) body['offset'] = offset;
+    await _client.patch(
+      '/api/author-bookmarks/$bookmarkId',
+      data: body,
+    );
+  }
+
+  @override
+  Future<void> deleteAuthorBookmark(String bookmarkId) async {
+    await _client.delete('/api/author-bookmarks/$bookmarkId');
+  }
+
+  Future<List<AuthorBookmark>> listAuthorBookmarks({
+    String? writingId,
+    String? sectionId,
+  }) async {
+    final query = <String, dynamic>{};
+    if (writingId != null) query['writing_id'] = writingId;
+    if (sectionId != null) query['section_id'] = sectionId;
+    final response = await _client.get(
+      '/api/author-bookmarks/',
+      queryParams: query.isEmpty ? null : query,
+    );
+    final raw = response.data;
+    if (raw is! List) return const [];
+    return raw
+        .map((e) => AuthorBookmark.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 

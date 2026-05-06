@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:inkspacex/provider/annotation_provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/provider/author_bookmark_provider.dart';
 import 'package:inkspacex/provider/bookmark_provider.dart';
 import 'package:inkspacex/provider/bookshelf_provider.dart';
 import 'package:inkspacex/provider/chat_provider.dart';
@@ -435,6 +436,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           update: (context, auth, previous) =>
               previous ??
               BookmarkProvider(
+                auth: auth,
+                outbox: outbox,
+                drainer: context.read<OutboxDrainer>(),
+              ),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, AuthorBookmarkProvider>(
+          create: (context) => AuthorBookmarkProvider(
+            auth: context.read<AuthProvider>(),
+            outbox: outbox,
+            drainer: context.read<OutboxDrainer>(),
+          ),
+          update: (context, auth, previous) =>
+              previous ??
+              AuthorBookmarkProvider(
                 auth: auth,
                 outbox: outbox,
                 drainer: context.read<OutboxDrainer>(),

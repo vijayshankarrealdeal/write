@@ -9,6 +9,9 @@ enum PendingOpKind {
   deleteSection, // DELETE /api/writings/{wid}/sections/{sid}
   upsertBookmark, // POST /api/bookmarks/  (idempotent — server dedupes)
   deleteBookmark, // DELETE /api/bookmarks/{id}
+  upsertAuthorBookmark, // POST /api/author-bookmarks/  (P1 #6, idempotent)
+  patchAuthorBookmark, // PATCH /api/author-bookmarks/{id} — label/color/offset
+  deleteAuthorBookmark, // DELETE /api/author-bookmarks/{id}
   updateWritingProject, // PUT /api/writings/{id} — Scrivener-class project fields
 }
 

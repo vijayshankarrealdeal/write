@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import 'package:inkspacex/models/author_bookmark.dart';
 import 'package:inkspacex/models/section_model.dart';
+import 'package:inkspacex/provider/author_bookmark_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/footnotes_panel.dart';
 
@@ -26,6 +28,7 @@ class SectionInspector extends StatefulWidget {
     required this.onClose,
     this.asSheet = false,
     this.onJumpToFootnote,
+    this.onJumpToBookmark,
     this.initialTab = InspectorTab.details,
   });
 
@@ -39,6 +42,11 @@ class SectionInspector extends StatefulWidget {
   // is tapped — the inspector itself can't move the QuillController's
   // selection because the controller is owned by the editor page.
   final void Function(String footnoteId)? onJumpToFootnote;
+  // Same shape as [onJumpToFootnote] but for the Bookmarks tab. The
+  // editor page owns the QuillController + scroll controller and does
+  // the actual jump + flash-highlight.
+  final void Function({required String sectionId, required int offset})?
+      onJumpToBookmark;
   final InspectorTab initialTab;
 
   @override
@@ -46,8 +54,10 @@ class SectionInspector extends StatefulWidget {
 }
 
 /// Inspector tabs. `details` keeps the legacy synopsis / keywords / notes /
-/// publish-gate stack; `footnotes` is the new P1 #5 surface.
-enum InspectorTab { details, footnotes }
+/// publish-gate stack; `footnotes` is the P1 #5 surface; `bookmarks` is
+/// the P1 #6 author-bookmark list (writer-side flag-this-spot markers,
+/// distinct from reader-side `BookmarkModel`).
+enum InspectorTab { details, footnotes, bookmarks }
 
 class _SectionInspectorState extends State<SectionInspector> {
   String? _trackedSectionId;
@@ -125,6 +135,8 @@ class _SectionInspectorState extends State<SectionInspector> {
                     ],
                   ),
                 )
+              else if (_tab == InspectorTab.bookmarks)
+                Expanded(child: _bookmarksTab(provider, section))
               else
               Expanded(
                 child: ListView(
@@ -455,15 +467,30 @@ class _SectionInspectorState extends State<SectionInspector> {
         ),
       );
     }
-    return Row(
-      children: [
-        tab(InspectorTab.details, 'DETAILS'),
-        tab(
-          InspectorTab.footnotes,
-          'FOOTNOTES',
-          badge: section.footnotes.length,
-        ),
-      ],
+    final bookmarks = context.watch<AuthorBookmarkProvider>();
+    final bookmarkCount = bookmarks.forSection(section.id).length;
+    // Three tabs (DETAILS / FOOTNOTES / BOOKMARKS) overflow narrower
+    // panels (mobile bottom-sheet, ~300px desktop rail under tests).
+    // Horizontal scroll keeps the visual identical on wide layouts and
+    // gracefully scrolls when the panel is tight.
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          tab(InspectorTab.details, 'DETAILS'),
+          tab(
+            InspectorTab.footnotes,
+            'FOOTNOTES',
+            badge: section.footnotes.length,
+          ),
+          tab(
+            InspectorTab.bookmarks,
+            'BOOKMARKS',
+            badge: bookmarkCount,
+          ),
+        ],
+      ),
     );
   }
 
@@ -478,5 +505,221 @@ class _SectionInspectorState extends State<SectionInspector> {
     final next = List<String>.from(section.keywords)..add(v);
     provider.updateSectionFields(section, {'keywords': next});
     _keywordCtrl.clear();
+  }
+
+  // ─── Bookmarks tab (P1 #6) ───
+  Widget _bookmarksTab(EditorProvider editor, SectionModel section) {
+    return Consumer<AuthorBookmarkProvider>(
+      builder: (context, bookmarks, _) {
+        final book = editor.activeBook;
+        final inSection = bookmarks.forSection(section.id);
+        final allInBook = book == null
+            ? const <AuthorBookmark>[]
+            : bookmarks.forWriting(book.id);
+        final otherSections = allInBook
+            .where((b) => b.sectionId != section.id)
+            .toList(growable: false);
+
+        if (inSection.isEmpty && otherSections.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  CupertinoIcons.bookmark,
+                  size: 32,
+                  color: widget.textColor.withValues(alpha: 0.25),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'No bookmarks yet.',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: widget.textColor.withValues(alpha: 0.6),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Press ⌘⇧B (or long-press in the editor) to flag a spot '
+                  'to come back to.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    height: 1.5,
+                    color: widget.textColor.withValues(alpha: 0.4),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        return ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          children: [
+            if (inSection.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
+                child: _label('IN THIS SECTION'),
+              ),
+              for (final b in inSection)
+                _bookmarkTile(b, isInSection: true, bookmarks: bookmarks),
+              const SizedBox(height: 14),
+            ],
+            if (otherSections.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
+                child: _label('ELSEWHERE IN THIS PROJECT'),
+              ),
+              for (final b in otherSections)
+                _bookmarkTile(
+                  b,
+                  isInSection: false,
+                  bookmarks: bookmarks,
+                  sectionTitle: book == null
+                      ? null
+                      : (book.sections
+                                  .firstWhere(
+                                      (s) => s.id == b.sectionId,
+                                      orElse: () => book.sections.first)
+                                  .title)
+                              .trim()
+                              .isEmpty
+                          ? 'Untitled'
+                          : book.sections
+                              .firstWhere((s) => s.id == b.sectionId,
+                                  orElse: () => book.sections.first)
+                              .title,
+                ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _bookmarkTile(
+    AuthorBookmark b, {
+    required bool isInSection,
+    required AuthorBookmarkProvider bookmarks,
+    String? sectionTitle,
+  }) {
+    final color = _parseHexColor(b.color);
+    final label = (b.label ?? '').trim();
+    return InkWell(
+      onTap: () => widget.onJumpToBookmark?.call(
+        sectionId: b.sectionId,
+        offset: b.offset,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 4,
+              height: 24,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label.isEmpty ? 'Bookmark @ ${b.offset}' : label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: widget.textColor,
+                    ),
+                  ),
+                  if (!isInSection && sectionTitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      sectionTitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        color: widget.textColor.withValues(alpha: 0.45),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            IconButton(
+              tooltip: 'Rename',
+              visualDensity: VisualDensity.compact,
+              icon: Icon(
+                CupertinoIcons.pencil,
+                size: 14,
+                color: widget.textColor.withValues(alpha: 0.55),
+              ),
+              onPressed: () => _renamePrompt(b, bookmarks),
+            ),
+            IconButton(
+              tooltip: 'Delete',
+              visualDensity: VisualDensity.compact,
+              icon: Icon(
+                CupertinoIcons.trash,
+                size: 14,
+                color: widget.textColor.withValues(alpha: 0.55),
+              ),
+              onPressed: () => bookmarks.deleteBookmark(b.id),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _renamePrompt(
+      AuthorBookmark b, AuthorBookmarkProvider bookmarks) async {
+    final ctrl = TextEditingController(text: b.label ?? '');
+    await showCupertinoDialog<void>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: const Text('Rename bookmark'),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: CupertinoTextField(
+            controller: ctrl,
+            autofocus: true,
+            placeholder: 'e.g. fix later, POV slip',
+            padding: const EdgeInsets.all(12),
+            onSubmitted: (_) => Navigator.pop(ctx, true),
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    final next = ctrl.text.trim();
+    if (next == (b.label ?? '').trim()) return;
+    await bookmarks.renameBookmark(b.id, label: next);
+  }
+
+  Color _parseHexColor(String hex) {
+    final cleaned = hex.replaceFirst('#', '');
+    final v = int.tryParse(cleaned, radix: 16) ?? 0xFFB300;
+    if (cleaned.length == 6) return Color(0xFF000000 | v);
+    return Color(v);
   }
 }

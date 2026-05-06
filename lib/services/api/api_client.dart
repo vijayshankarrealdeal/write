@@ -142,6 +142,11 @@ class ApiClient {
               .put(uri, headers: headers, body: bodyStr)
               .timeout(_timeout);
           break;
+        case 'PATCH':
+          resp = await _http
+              .patch(uri, headers: headers, body: bodyStr)
+              .timeout(_timeout);
+          break;
         case 'DELETE':
           resp = await _http
               .delete(uri, headers: headers, body: bodyStr)
@@ -300,6 +305,13 @@ class ApiClient {
     Map<String, String>? headers,
   }) =>
       _request('PUT', path, data: data, extraHeaders: headers);
+
+  Future<ApiResponse> patch(
+    String path, {
+    dynamic data,
+    Map<String, String>? headers,
+  }) =>
+      _request('PATCH', path, data: data, extraHeaders: headers);
 
   Future<ApiResponse> delete(
     String path, {

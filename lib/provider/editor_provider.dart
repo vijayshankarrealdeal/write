@@ -236,6 +236,22 @@ class EditorProvider extends ChangeNotifier {
   Timer? _autoSaveTimer;
   Timer? _periodicSyncTimer;
   StreamSubscription? _docSubscription;
+
+  /// Broadcasts every user-driven Quill ``DocChange`` for the active
+  /// section, tagged with the section id. Subscribers (currently the
+  /// [AuthorBookmarkProvider]) use this to recompute marker offsets
+  /// without coupling the editor to a specific feature provider —
+  /// adding a new "react to typing" feature is a `.listen` away.
+  ///
+  /// Decoration-only mutations (spell-check underlines applied with
+  /// `ChangeSource.silent`) are filtered out before broadcast, so
+  /// listeners only see real edits.
+  final StreamController<({String sectionId, DocChange change})>
+      _docChangeBroadcast =
+      StreamController<({String sectionId, DocChange change})>.broadcast();
+  Stream<({String sectionId, DocChange change})> get onDocChange =>
+      _docChangeBroadcast.stream;
+
   String saveStatus = "";
   String _lastSavedContent = "";
   String _lastSyncedContent = "";
@@ -1790,6 +1806,13 @@ class EditorProvider extends ChangeNotifier {
       _maybeSmartSubstitute(event);
       _maybeTypingHaptic(event);
       _onUserTyped();
+      // Fan out to feature providers (e.g. author bookmarks) — broadcast
+      // controller's broadcast contract is "best effort, dropped on
+      // disposal", which is the right shape for offset adjustment.
+      final sid = activeSection?.id;
+      if (sid != null && !_docChangeBroadcast.isClosed) {
+        _docChangeBroadcast.add((sectionId: sid, change: event));
+      }
     });
     _startPeriodicSync();
   }
@@ -2232,6 +2255,7 @@ class EditorProvider extends ChangeNotifier {
     _outbox.pendingCount.removeListener(_onSyncCounterChanged);
     _drainer.failedCount.removeListener(_onSyncCounterChanged);
     _syncStatusNotifier.dispose();
+    _docChangeBroadcast.close();
     controller.dispose();
     super.dispose();
   }

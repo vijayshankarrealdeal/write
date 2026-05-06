@@ -20,6 +20,7 @@ import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/services/footnotes_service.dart';
 import 'package:inkspacex/provider/annotation_provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
+import 'package:inkspacex/provider/author_bookmark_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
 import 'package:inkspacex/provider/spell_check_provider.dart';
@@ -184,6 +185,21 @@ class _EditiorPageState extends State<EditiorPage>
   // so detaching is a single removeListener call.
   VoidCallback? _typewriterListener;
   QuillController? _typewriterAttachedTo;
+
+  // Bridges the editor's onDocChange broadcast to the AuthorBookmarkProvider
+  // so marker offsets stay aligned with text edits without coupling
+  // EditorProvider to the bookmark feature.
+  StreamSubscription<({String sectionId, DocChange change})>?
+      _authorBookmarkSub;
+  String? _loadedBookmarkWritingId;
+  // Inspector tab the section_inspector renders — kept on the page so
+  // the toolbar/shortcut "add bookmark" can switch the right rail to
+  // the bookmarks tab and the user sees the new mark immediately.
+  // (removed) _inspectorTabIndex — superseded by `_inspectorTab` (the
+  // InspectorTab enum) when the footnotes tab merged ahead of bookmarks.
+  // Timer for the post-jump flash. Drives a short selection-flicker
+  // around the marker offset so the eye finds it without hunting.
+  Timer? _flashTimer;
   // Coalesces back-to-back typewriter scrolls (every keystroke fires a
   // selection change) into one frame of work.
   bool _typewriterPending = false;
@@ -603,7 +619,193 @@ class _EditiorPageState extends State<EditiorPage>
       _openCommandPalette();
       return true;
     }
+    // ⌘⇧B / Ctrl+Shift+B → add an author bookmark at the cursor.
+    // We use Shift+B (not bare ⌘B) because flutter_quill binds ⌘B to
+    // the Bold attribute at the editor level — Bold is high-traffic
+    // and we don't want to fight the framework over it. Shift+B is
+    // the cleanest mnemonic that doesn't collide.
+    if (event.logicalKey == LogicalKeyboardKey.keyB &&
+        HardwareKeyboard.instance.isShiftPressed &&
+        !_isCanvasMode) {
+      _addAuthorBookmarkAtCursor();
+      return true;
+    }
     return false;
+  }
+
+  /// Add an author bookmark at the editor's current selection. The
+  /// label is filled in via a follow-up dialog (cancelable — the
+  /// bookmark sticks even if the user dismisses without naming it).
+  void _addAuthorBookmarkAtCursor({String? presetLabel}) {
+    if (!mounted) return;
+    final editor = context.read<EditorProvider>();
+    final section = editor.activeSection;
+    final book = editor.activeBook;
+    if (section == null || book == null) return;
+    final selection = editor.controller.selection;
+    final offset = selection.isValid ? selection.baseOffset : 0;
+    final provider = context.read<AuthorBookmarkProvider>();
+    unawaited(
+      provider.addBookmark(
+        writingId: book.id,
+        sectionId: section.id,
+        offset: offset,
+        label: presetLabel,
+      ),
+    );
+    HapticFeedback.lightImpact();
+    setState(() {
+      _showInspector = true;
+      _inspectorTab = InspectorTab.bookmarks;
+    });
+    // If the user didn't pre-name the mark, prompt for one. Cancelable
+    // — the bookmark itself is already saved.
+    if (presetLabel == null) {
+      _promptForBookmarkLabelLastAdded();
+    }
+  }
+
+  void _promptForBookmarkLabelLastAdded() {
+    final provider = context.read<AuthorBookmarkProvider>();
+    if (provider.all.isEmpty) return;
+    // The most-recently added mark for the current section.
+    final section = context.read<EditorProvider>().activeSection;
+    if (section == null) return;
+    final marks = provider.forSection(section.id);
+    if (marks.isEmpty) return;
+    final last = marks
+        .reduce((a, b) => a.createdAt.isAfter(b.createdAt) ? a : b);
+    _showBookmarkLabelDialog(last.id, initial: last.label ?? '');
+  }
+
+  void _showBookmarkLabelDialog(String bookmarkId, {String initial = ''}) {
+    final ctrl = TextEditingController(text: initial);
+    showCupertinoDialog(
+      context: context,
+      builder: (ctx) => CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.escape): () =>
+              Navigator.of(ctx).pop(),
+        },
+        child: CupertinoAlertDialog(
+          title: const Text('Bookmark label'),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: CupertinoTextField(
+              controller: ctrl,
+              autofocus: true,
+              placeholder: 'e.g. Daisy reveal, fix later, POV slip',
+              padding: const EdgeInsets.all(12),
+              onSubmitted: (_) {
+                Navigator.pop(ctx);
+                if (ctrl.text.trim() != initial) {
+                  context
+                      .read<AuthorBookmarkProvider>()
+                      .renameBookmark(bookmarkId, label: ctrl.text.trim());
+                }
+              },
+            ),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Skip'),
+            ),
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              onPressed: () {
+                Navigator.pop(ctx);
+                if (ctrl.text.trim() != initial) {
+                  context
+                      .read<AuthorBookmarkProvider>()
+                      .renameBookmark(bookmarkId, label: ctrl.text.trim());
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Jump the editor to the bookmark's offset and flash a soft yellow
+  /// highlight over a small range so the user's eye finds it without
+  /// having to hunt. Called from the Inspector list and the project-wide
+  /// view.
+  void _jumpToBookmark({required String sectionId, required int offset}) {
+    if (!mounted) return;
+    final editor = context.read<EditorProvider>();
+    final activeSec = editor.activeSection;
+    final book = editor.activeBook;
+    if (book == null) return;
+
+    void doJump() {
+      final controller = editor.controller;
+      final docLength = controller.document.length;
+      // Clamp the offset — the marker may have moved past the end of
+      // the doc if a delta arrived between adjustment and tap.
+      final safeOffset = offset.clamp(0, docLength == 0 ? 0 : docLength - 1);
+      controller.updateSelection(
+        TextSelection.collapsed(offset: safeOffset),
+        ChangeSource.local,
+      );
+      // Scroll the offset into view. flutter_quill drives scrolling off
+      // the selection's render box; updateSelection alone doesn't
+      // scroll on every platform, so we also nudge the controller's
+      // moveCursorToPosition extension via animateTo when a scroll
+      // controller is attached.
+      if (_editorScrollController.hasClients) {
+        // Approximate vertical position: average line height × line
+        // count up to the offset. Cheap, doesn't require a layout
+        // pass, and good enough for "scroll to the right neighbourhood
+        // before flashing the highlight."
+        final text = controller.document.toPlainText();
+        final upTo = text.substring(0, safeOffset.clamp(0, text.length));
+        final linesBefore = '\n'.allMatches(upTo).length;
+        const lineHeightPx = 30.0;
+        final target = (linesBefore * lineHeightPx)
+            .clamp(0.0, _editorScrollController.position.maxScrollExtent);
+        unawaited(_editorScrollController.animateTo(
+          target,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+        ));
+      }
+      _editorFocusNode.requestFocus();
+      _flashTimer?.cancel();
+      // Flash: highlight a 1-char range around the marker for ~1.4s,
+      // then collapse to a caret. A non-empty selection is the clearest
+      // "look here" cue we can paint without bolting a custom decorator
+      // onto QuillEditor — and it auto-clears on the next click.
+      final flashEnd = (safeOffset + 1).clamp(0, docLength);
+      controller.updateSelection(
+        TextSelection(baseOffset: safeOffset, extentOffset: flashEnd),
+        ChangeSource.local,
+      );
+      _flashTimer = Timer(const Duration(milliseconds: 1400), () {
+        if (!mounted) return;
+        controller.updateSelection(
+          TextSelection.collapsed(offset: safeOffset),
+          ChangeSource.local,
+        );
+      });
+    }
+
+    if (activeSec?.id == sectionId) {
+      doJump();
+      return;
+    }
+    // Different section — switch first, then jump on the next frame
+    // (initEditor runs synchronously but the QuillEditor needs one
+    // build to mount the new controller).
+    final target =
+        book.sections.firstWhere((s) => s.id == sectionId, orElse: () => activeSec ?? book.sections.first);
+    editor.setActiveSection(target);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      doJump();
+    });
   }
 
   // Wraps a modal sheet/dialog body so Escape pops the route on desktop/web.
@@ -639,12 +841,34 @@ class _EditiorPageState extends State<EditiorPage>
       _editorProviderListener = () {
         if (!mounted) return;
         _attachWordTracker(ep.controller);
+        _maybeLoadAuthorBookmarks();
       };
       ep.addListener(_editorProviderListener!);
       // Attach immediately for the initial controller — subsequent
       // swaps come through the listener above.
       _attachWordTracker(ep.controller);
+      _authorBookmarkSub?.cancel();
+      _authorBookmarkSub = ep.onDocChange.listen((evt) {
+        if (!mounted) return;
+        context
+            .read<AuthorBookmarkProvider>()
+            .applyDocChange(evt.sectionId, evt.change);
+      });
+      _maybeLoadAuthorBookmarks();
     }
+  }
+
+  /// Pull author bookmarks for the active writing on first open. The
+  /// provider merges into its cache so subsequent openings of the same
+  /// writing skip the network round-trip if the cache is warm.
+  void _maybeLoadAuthorBookmarks() {
+    if (!mounted) return;
+    final wid = context.read<EditorProvider>().activeBook?.id;
+    if (wid == null || wid.isEmpty) return;
+    if (wid == _loadedBookmarkWritingId) return;
+    _loadedBookmarkWritingId = wid;
+    final prov = context.read<AuthorBookmarkProvider>();
+    unawaited(prov.loadForWriting(wid));
   }
 
   @override
@@ -1069,6 +1293,8 @@ class _EditiorPageState extends State<EditiorPage>
     }
     _editorScrollController.dispose();
     _editorFocusNode.dispose();
+    _authorBookmarkSub?.cancel();
+    _flashTimer?.cancel();
     super.dispose();
   }
 
@@ -1483,6 +1709,15 @@ class _EditiorPageState extends State<EditiorPage>
         label: 'AI assist',
         icon: CupertinoIcons.wand_stars,
         run: _showAIPanel,
+      ),
+      PaletteCommand(
+        id: 'add_bookmark',
+        group: 'Actions',
+        label: 'Add bookmark at cursor',
+        icon: CupertinoIcons.bookmark,
+        shortcut: '⌘⇧B',
+        keywords: const ['mark', 'spot', 'flag'],
+        run: _addAuthorBookmarkAtCursor,
       ),
 
       // ── Jump to section ──
@@ -3124,6 +3359,19 @@ class _EditiorPageState extends State<EditiorPage>
                                                               () => setState(
                                                                   () => _showInspector =
                                                                       !_showInspector),
+                                                          onAddBookmark:
+                                                              _addAuthorBookmarkAtCursor,
+                                                          bookmarkCount: context
+                                                                  .watch<
+                                                                      AuthorBookmarkProvider>()
+                                                                  .forSection(
+                                                                      context
+                                                                              .watch<
+                                                                                  EditorProvider>()
+                                                                              .activeSection
+                                                                              ?.id ??
+                                                                          '')
+                                                                  .length,
                                                         ),
                                                       ),
                                                     ),
@@ -3164,6 +3412,13 @@ class _EditiorPageState extends State<EditiorPage>
                                               _jumpToFootnoteMarker,
                                           onClose: () => setState(() =>
                                               _showInspector = false),
+                                          onJumpToBookmark: ({
+                                            required sectionId,
+                                            required offset,
+                                          }) =>
+                                              _jumpToBookmark(
+                                                  sectionId: sectionId,
+                                                  offset: offset),
                                         ),
                                       if (_showSplitView &&
                                           !isMobile &&
@@ -5003,6 +5258,13 @@ class _EditiorPageState extends State<EditiorPage>
                 _jumpToFootnoteMarker(id);
               },
               onClose: () => Navigator.pop(ctx),
+              onJumpToBookmark: ({
+                required sectionId,
+                required offset,
+              }) {
+                Navigator.pop(ctx);
+                _jumpToBookmark(sectionId: sectionId, offset: offset);
+              },
             ),
           ),
         ),

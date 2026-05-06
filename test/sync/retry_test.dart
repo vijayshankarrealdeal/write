@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
+import 'package:inkspacex/models/author_bookmark.dart';
 import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/section_model.dart';
@@ -91,6 +92,20 @@ class _ScriptedDispatcher implements SyncDispatcher {
     Map<String, dynamic> fields, {
     String? opId,
   }) =>
+      throw UnimplementedError();
+  @override
+  Future<String> upsertAuthorBookmark(AuthorBookmark bookmark,
+          {String? clientOpId}) =>
+      throw UnimplementedError();
+  @override
+  Future<void> patchAuthorBookmark(String bookmarkId,
+          {String? label,
+          String? color,
+          int? offset,
+          bool clearLabel = false}) =>
+      throw UnimplementedError();
+  @override
+  Future<void> deleteAuthorBookmark(String bookmarkId) =>
       throw UnimplementedError();
 }
 

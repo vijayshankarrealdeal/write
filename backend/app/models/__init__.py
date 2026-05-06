@@ -6,6 +6,7 @@ from app.models.analytics import (
     PageVisit,
     RecommendationEvent,
 )
+from app.models.author_bookmark import AuthorBookmark
 from app.models.base import Base
 from app.models.block import Block
 from app.models.bookmark import Bookmark
@@ -35,6 +36,7 @@ __all__ = [
     "AdminAudit",
     "AnalyticsEvent",
     "AppLog",
+    "AuthorBookmark",
     "Base",
     "Block",
     "Bookmark",
