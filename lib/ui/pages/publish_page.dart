@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
+import 'package:inkspacex/models/footnote_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
@@ -219,6 +220,11 @@ class _PublishPageState extends State<PublishPage> {
               sectionColor: s.sectionColor,
               createdAt: s.createdAt,
               updatedAt: s.updatedAt,
+              // Footnotes only ride the publish output when the prose
+              // body is included (footnotes without their numbered
+              // markers in the prose are nonsensical).
+              footnotes:
+                  _includeWriting ? List.of(s.footnotes) : <FootnoteModel>[],
             ))
         .toList();
     final publishedSectionIds = _selectedSectionIds.toList();

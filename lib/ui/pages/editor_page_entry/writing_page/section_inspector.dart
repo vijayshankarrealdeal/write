@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/footnotes_panel.dart';
 
 /// Right-rail panel: synopsis (drives corkboard + outline), free-form
 /// notes (the "graveyard for cut text"), and per-section keywords.
@@ -24,6 +25,8 @@ class SectionInspector extends StatefulWidget {
     required this.surfaceColor,
     required this.onClose,
     this.asSheet = false,
+    this.onJumpToFootnote,
+    this.initialTab = InspectorTab.details,
   });
 
   final bool isDark;
@@ -32,16 +35,26 @@ class SectionInspector extends StatefulWidget {
   final Color surfaceColor;
   final VoidCallback onClose;
   final bool asSheet;
+  // Optional handler invoked when the Footnotes tab's "jump" affordance
+  // is tapped — the inspector itself can't move the QuillController's
+  // selection because the controller is owned by the editor page.
+  final void Function(String footnoteId)? onJumpToFootnote;
+  final InspectorTab initialTab;
 
   @override
   State<SectionInspector> createState() => _SectionInspectorState();
 }
+
+/// Inspector tabs. `details` keeps the legacy synopsis / keywords / notes /
+/// publish-gate stack; `footnotes` is the new P1 #5 surface.
+enum InspectorTab { details, footnotes }
 
 class _SectionInspectorState extends State<SectionInspector> {
   String? _trackedSectionId;
   late final TextEditingController _synopsisCtrl;
   late final TextEditingController _notesCtrl;
   late final TextEditingController _keywordCtrl;
+  late InspectorTab _tab;
 
   @override
   void initState() {
@@ -49,6 +62,7 @@ class _SectionInspectorState extends State<SectionInspector> {
     _synopsisCtrl = TextEditingController();
     _notesCtrl = TextEditingController();
     _keywordCtrl = TextEditingController();
+    _tab = widget.initialTab;
   }
 
   @override
@@ -89,6 +103,29 @@ class _SectionInspectorState extends State<SectionInspector> {
             children: [
               _header(section),
               const Divider(height: 1),
+              _tabBar(section),
+              Divider(color: widget.borderColor, height: 1),
+              if (_tab == InspectorTab.footnotes)
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
+                    children: [
+                      FootnotesPanel(
+                        section: section,
+                        isDark: widget.isDark,
+                        textColor: widget.textColor,
+                        borderColor: widget.borderColor,
+                        onJumpToMarker: widget.onJumpToFootnote,
+                        onChanged: (next) =>
+                            provider.updateSectionFields(section, {
+                          'footnotes': next,
+                        }),
+                      ),
+                    ],
+                  ),
+                )
+              else
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.symmetric(
@@ -367,6 +404,65 @@ class _SectionInspectorState extends State<SectionInspector> {
             ],
           ),
         ],
+      ],
+    );
+  }
+
+  Widget _tabBar(SectionModel section) {
+    final accent = widget.isDark
+        ? const Color(0xFF93B4F5)
+        : const Color(0xFF4A6CF7);
+    final muted = widget.textColor.withValues(alpha: 0.55);
+    Widget tab(InspectorTab t, String label, {int? badge}) {
+      final selected = _tab == t;
+      return InkWell(
+        onTap: () => setState(() => _tab = t),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.8,
+                  color: selected ? accent : muted,
+                ),
+              ),
+              if (badge != null && badge > 0) ...[
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 5, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: (selected ? accent : muted).withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '$badge',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: selected ? accent : muted,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
+    return Row(
+      children: [
+        tab(InspectorTab.details, 'DETAILS'),
+        tab(
+          InspectorTab.footnotes,
+          'FOOTNOTES',
+          badge: section.footnotes.length,
+        ),
       ],
     );
   }

@@ -136,6 +136,7 @@ async def get_section_content(
                 Section.title,
                 Section.content,
                 Section.canvas_data,
+                Section.footnotes,
                 Section.updated_at,
             ).where(
                 Section.id == section_id,
@@ -146,14 +147,77 @@ async def get_section_content(
     ).one_or_none()
     if row is None:
         return None
+    footnotes = row.footnotes or []
+    # Splice the footnote endnotes onto the tail of the Quill delta the
+    # reader will render. The author's own editor reads from
+    # /api/writings/... which keeps content + footnotes as separate
+    # fields, so the inline editor never sees this synthetic tail.
+    rendered_content = _content_with_endnotes(row.content, footnotes)
     return {
         "section_id": str(row.id),
         "title": row.title,
-        "content": row.content,
+        "content": rendered_content,
         "canvasData": row.canvas_data,
+        # Returned alongside the rendered content so a future reader UI
+        # can render endnotes as a side panel instead — currently the
+        # reader just renders `content`, so the inline tail is what
+        # surfaces footnotes today.
+        "footnotes": footnotes,
         "updated_at": row.updated_at.isoformat() if row.updated_at else None,
         "_has_image": _has_image(row.content),
     }
+
+
+def _content_with_endnotes(content, footnotes) -> list | None:
+    """Return [content...] + footnote endnotes, or None if there's nothing
+    to render. Skips footnotes whose marker doesn't appear in [content]
+    so a draft footnote the author never inserted into the prose isn't
+    leaked to readers as an orphan endnote."""
+    if not isinstance(content, list):
+        # Don't synthesise a tail when the body isn't a Quill delta —
+        # we only know how to splice into a list-of-ops.
+        return content
+    if not footnotes:
+        return content
+    live_ids = set()
+    for op in content:
+        if isinstance(op, dict) and isinstance(op.get("insert"), dict):
+            fid = op["insert"].get("footnote")
+            if isinstance(fid, str) and fid:
+                live_ids.add(fid)
+    visible_in_order = []
+    seen = set()
+    for f in footnotes:
+        if not isinstance(f, dict):
+            continue
+        fid = f.get("id")
+        if not isinstance(fid, str):
+            continue
+        if fid not in live_ids or fid in seen:
+            continue
+        seen.add(fid)
+        visible_in_order.append(f)
+    if not visible_in_order:
+        return content
+    tail: list[dict] = [
+        {"insert": "\n"},
+        {"insert": "Footnotes"},
+        {"insert": "\n", "attributes": {"header": 3}},
+    ]
+    for i, f in enumerate(visible_in_order, start=1):
+        text = f.get("text") or ""
+        tail.append({"insert": f"{_to_superscript(i)} {text}\n"})
+    return list(content) + tail
+
+
+_SUPERSCRIPT = {
+    "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
+    "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
+}
+
+
+def _to_superscript(n: int) -> str:
+    return "".join(_SUPERSCRIPT.get(ch, ch) for ch in str(n))
 
 
 async def section_id_at_index(

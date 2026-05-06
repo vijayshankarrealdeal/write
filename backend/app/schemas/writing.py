@@ -71,6 +71,11 @@ class SectionCreate(BaseModel):
     label_color: int | None = None
     keywords: list[str] | None = None
     include_in_publish: bool | None = None
+    # Ordered list of {id, text, createdAt, updatedAt} entries. The
+    # backend doesn't enforce the inner shape — storage is opaque
+    # JSONB and the client owns the canonical schema (see
+    # FootnoteModel / FootnotesService on the Flutter side).
+    footnotes: list[dict] | None = None
 
 
 class SectionUpdate(BaseModel):
@@ -86,6 +91,7 @@ class SectionUpdate(BaseModel):
     label_color: int | None = None
     keywords: list[str] | None = None
     include_in_publish: bool | None = None
+    footnotes: list[dict] | None = None
 
 
 class SectionResponse(BaseModel):
@@ -103,6 +109,7 @@ class SectionResponse(BaseModel):
     label_color: int | None = None
     keywords: list[str] | None = None
     include_in_publish: bool = True
+    footnotes: list[dict] | None = None
     updated_at: datetime
 
     model_config = {"from_attributes": True}
