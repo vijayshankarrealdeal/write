@@ -33,6 +33,12 @@ class Writing(UUIDMixin, Base):
     # without a side table.
     label_names: Mapped[dict | None] = mapped_column(JSONB)
 
+    # Paginated-view configuration (page size, margins, font, line
+    # spacing). Stored as a JSONB blob so the shape can grow without
+    # a schema migration. Null on legacy projects → client falls
+    # back to PageLayoutSettings.standard.
+    page_layout: Mapped[dict | None] = mapped_column(JSONB)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

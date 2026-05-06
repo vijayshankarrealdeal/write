@@ -10,6 +10,7 @@ import 'package:inkspacex/models/conversation_model.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/footnote_model.dart';
 import 'package:inkspacex/models/image_meta.dart';
+import 'package:inkspacex/models/page_layout_settings.dart';
 import 'package:inkspacex/models/reading_progress_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/models/user_model.dart';
@@ -1964,7 +1965,13 @@ class ApiDataService implements SyncDispatcher {
           : null,
       labelMeaning: (json['label_meaning'] as String?) ?? 'status',
       labelNames: _decodeServerLabelNames(json['label_names']),
+      pageLayout: _decodeServerPageLayout(json['page_layout']),
     );
+  }
+
+  static PageLayoutSettings? _decodeServerPageLayout(dynamic raw) {
+    if (raw is! Map) return null;
+    return PageLayoutSettings.fromJson(Map<String, dynamic>.from(raw));
   }
 
   static Map<int, String> _decodeServerLabelNames(dynamic raw) {

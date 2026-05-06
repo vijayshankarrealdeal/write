@@ -108,6 +108,9 @@ async def lifespan(app: FastAPI):
             "ADD COLUMN IF NOT EXISTS target_deadline TIMESTAMPTZ",
             "ADD COLUMN IF NOT EXISTS label_meaning VARCHAR(64)",
             "ADD COLUMN IF NOT EXISTS label_names JSONB",
+            # P2 #8 paginated-view config (page size, margins, font,
+            # line spacing). Null is the legacy/default state.
+            "ADD COLUMN IF NOT EXISTS page_layout JSONB",
         ):
             await conn.execute(text(f"ALTER TABLE writings {col_sql}"))
         # Phase 3 (P2): paragraph-precise resume anchor columns on

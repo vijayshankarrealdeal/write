@@ -53,6 +53,8 @@ import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/views/cards_vi
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/views/outline_view.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/views/scrivenings_view.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/views/view_switcher.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/page_layout_settings_dialog.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/page_view_layout.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/comment_compose_dialog.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/editor_constants.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/find_replace_bar.dart';
@@ -123,6 +125,11 @@ class _EditiorPageState extends State<EditiorPage>
   bool _findReplaceOpen = false;
   EditorViewMode _viewMode = EditorViewMode.draft;
   void Function()? _removeFindShortcutSuppressor;
+
+  // Live page-count + current-page wiring for the paginated view.
+  // Updated by PageViewLayout callbacks; consumed by the status bar.
+  int _pageViewTotal = 0;
+  int _pageViewCurrent = 0;
 
   // ── AI Assist (on-canvas result panel) ──
   // Set after the user picks an action from the bottom-sheet [AIActionPicker].
@@ -1038,6 +1045,19 @@ class _EditiorPageState extends State<EditiorPage>
       TextSelection(baseOffset: start, extentOffset: start + length),
       ChangeSource.local,
     );
+  }
+
+  /// Switch to Draft view at a specific character offset. Used by
+  /// the paginated Page view's pencil → "edit this page" affordance.
+  void _jumpToOffsetInDraft(int offset) {
+    final controller = context.read<EditorProvider>().controller;
+    final docLen = controller.document.length;
+    final clamped = offset.clamp(0, math.max(0, docLen - 1)).toInt();
+    controller.updateSelection(
+      TextSelection.collapsed(offset: clamped),
+      ChangeSource.local,
+    );
+    setState(() => _viewMode = EditorViewMode.draft);
   }
 
   // ─── Version history ───
@@ -3096,6 +3116,8 @@ class _EditiorPageState extends State<EditiorPage>
               _setViewMode(EditorViewMode.outline),
           const SingleActivator(LogicalKeyboardKey.digit4, meta: true): () =>
               _setViewMode(EditorViewMode.scrivenings),
+          const SingleActivator(LogicalKeyboardKey.digit5, meta: true): () =>
+              _setViewMode(EditorViewMode.page),
           const SingleActivator(LogicalKeyboardKey.digit1, control: true): () =>
               _setViewMode(EditorViewMode.draft),
           const SingleActivator(LogicalKeyboardKey.digit2, control: true): () =>
@@ -3104,6 +3126,8 @@ class _EditiorPageState extends State<EditiorPage>
               _setViewMode(EditorViewMode.outline),
           const SingleActivator(LogicalKeyboardKey.digit4, control: true): () =>
               _setViewMode(EditorViewMode.scrivenings),
+          const SingleActivator(LogicalKeyboardKey.digit5, control: true): () =>
+              _setViewMode(EditorViewMode.page),
         },
         child: Focus(
           autofocus: true,
@@ -3280,7 +3304,9 @@ class _EditiorPageState extends State<EditiorPage>
                                                       child:
                                                           const OutlineView(),
                                                     )
-                                                  else
+                                                  else if (_viewMode ==
+                                                      EditorViewMode
+                                                          .scrivenings)
                                                     Container(
                                                       color: bgColor,
                                                       child: ScrivenningsView(
@@ -3296,6 +3322,37 @@ class _EditiorPageState extends State<EditiorPage>
                                                                   .draft);
                                                         },
                                                       ),
+                                                    )
+                                                  else
+                                                    PageViewLayout(
+                                                      onJumpToOffset:
+                                                          (offset) {
+                                                        _jumpToOffsetInDraft(
+                                                            offset);
+                                                      },
+                                                      onPageCountChanged: (n) {
+                                                        if (!mounted) return;
+                                                        if (n ==
+                                                            _pageViewTotal) {
+                                                          return;
+                                                        }
+                                                        setState(() =>
+                                                            _pageViewTotal = n);
+                                                      },
+                                                      onCurrentPageChanged:
+                                                          (n) {
+                                                        if (!mounted) return;
+                                                        if (n ==
+                                                            _pageViewCurrent) {
+                                                          return;
+                                                        }
+                                                        setState(() =>
+                                                            _pageViewCurrent =
+                                                                n);
+                                                      },
+                                                      onOpenSettings: () =>
+                                                          PageLayoutSettingsDialog
+                                                              .show(context),
                                                     ),
                                                   if (!isMobile)
                                                     Positioned(
@@ -4636,6 +4693,23 @@ class _EditiorPageState extends State<EditiorPage>
               dot(),
               Text(
                   '${readTime < 1 ? '<1' : readTime} min read', style: style),
+            ],
+            // Page X of Y — only meaningful in paginated view; gated
+            // here so the chip is invisible in Draft / Cards / etc.
+            if (_viewMode == EditorViewMode.page &&
+                _pageViewTotal > 0) ...[
+              dot(),
+              GestureDetector(
+                onTap: () => PageLayoutSettingsDialog.show(context),
+                child: Text(
+                  'Page ${_pageViewCurrent.clamp(1, _pageViewTotal)} of '
+                  '$_pageViewTotal',
+                  style: style.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: textColor.withValues(alpha: 0.55),
+                  ),
+                ),
+              ),
             ],
           ];
 

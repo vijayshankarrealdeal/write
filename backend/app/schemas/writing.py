@@ -17,6 +17,7 @@ class WritingCreate(BaseModel):
     target_deadline: datetime | None = None
     label_meaning: str | None = None
     label_names: dict | None = None
+    page_layout: dict | None = None
 
 
 class WritingUpdate(BaseModel):
@@ -32,6 +33,7 @@ class WritingUpdate(BaseModel):
     target_deadline: datetime | None = None
     label_meaning: str | None = None
     label_names: dict | None = None
+    page_layout: dict | None = None
 
 
 class WritingResponse(BaseModel):
@@ -50,6 +52,7 @@ class WritingResponse(BaseModel):
     target_deadline: datetime | None = None
     label_meaning: str | None = None
     label_names: dict | None = None
+    page_layout: dict | None = None
     created_at: datetime
     updated_at: datetime
 
