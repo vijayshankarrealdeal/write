@@ -245,6 +245,11 @@ class EditorProvider extends ChangeNotifier {
         if (_pendingGhostFixes.isNotEmpty) {
           unawaited(_runGhostFixes(uid));
         }
+        // Books created while logged out kept their digit-only local id and
+        // were never registered server-side; promote them to a real UUID +
+        // queue an isNew=true upsertWriting before _syncUnsyncedSections
+        // enqueues content updates (those need the new writingId).
+        await _migrateLegacyBookIds();
         _syncUnsyncedSections(uid);
       } catch (e) {
         allBooks = localBooks;
@@ -504,6 +509,77 @@ class EditorProvider extends ChangeNotifier {
   /// them. Cheap to call repeatedly — duplicates would just produce extra
   /// PUTs (idempotent on the server side). For now we only enqueue if the
   /// outbox doesn't already have a same-target upsert pending.
+  /// Promote books whose id is a legacy digit-only timestamp (the
+  /// pre-fix `addNewBook` shape) to a proper UUIDv4 and queue an
+  /// upsertWriting so the server actually registers them. Without this,
+  /// any later upsertSection enqueued for the book hits 422 — the
+  /// section routes validate writing_id as a UUID at the path level.
+  ///
+  /// Only migrates books that have NO upsertWriting already in the
+  /// outbox; if one is queued, the existing remap-on-drain path will
+  /// heal it without our help (and a parallel migration would create
+  /// a duplicate server-side).
+  Future<void> _migrateLegacyBookIds() async {
+    final pendingWritings = <String>{};
+    for (final op in _outbox.snapshot()) {
+      if (op.kind == PendingOpKind.upsertWriting) {
+        final id = op.payload['writingId'];
+        if (id is String) pendingWritings.add(id);
+      }
+    }
+    var changed = false;
+    for (final book in allBooks) {
+      if (!_isLegacyLocalBookId(book.id)) continue;
+      if (pendingWritings.contains(book.id)) continue;
+      final oldId = book.id;
+      final newId = _uuid.v4();
+      book.id = newId;
+      // Sections need to be re-pushed under the new writing — the
+      // server has no record of them yet. _syncUnsyncedSections, which
+      // runs right after this, will pick up the unsynced flag and
+      // enqueue them with the new writingId.
+      for (final section in book.sections) {
+        section.isSynced = false;
+      }
+      await _rewriteOutboxWritingId(oldId, newId);
+      await _enqueue(PendingOp(
+        kind: PendingOpKind.upsertWriting,
+        payload: {
+          'writingId': newId,
+          'isNew': true,
+          'fields': {
+            'title': book.title,
+            'description': book.description,
+            'coverImagePath': book.coverImagePath,
+            'writingType': book.writingType.index,
+            'subtype': book.subtype,
+            'author': book.author,
+          },
+        },
+      ));
+      changed = true;
+      if (activeBook?.id == oldId) activeBook!.id = newId;
+      if (_writingChannelKey == oldId) {
+        _teardownWritingChannel();
+        _subscribeToWritingChannel(newId);
+      }
+    }
+    if (changed) {
+      await _storage.saveBooks(allBooks);
+    }
+  }
+
+  /// Replace every queued op's `writingId == oldId` with `newId`. Used
+  /// when a legacy book id is promoted to a UUID so already-queued
+  /// section/bookmark/project ops still target the right writing.
+  Future<void> _rewriteOutboxWritingId(String oldId, String newId) async {
+    await _outbox.rewriteAll((op) {
+      final wid = op.payload['writingId'];
+      if (wid is! String || wid != oldId) return op;
+      return op.copyWith(payload: {...op.payload, 'writingId': newId});
+    });
+  }
+
   void _syncUnsyncedSections(String uid) async {
     final pendingTargets = <String>{
       for (final op in _outbox.snapshot())
@@ -788,15 +864,19 @@ class EditorProvider extends ChangeNotifier {
       throw Exception("Title cannot be empty");
     }
     if (subtype.trim().isEmpty) throw Exception("Please select a format");
-    final epoch = DateTime.now().millisecondsSinceEpoch;
-    final manuscriptId = '$epoch-manuscript';
-    final researchId = '${epoch + 1}-research';
-    final trashId = '${epoch + 2}-trash';
-    final firstChapterId = '${epoch + 3}';
+    // Server validates writing_id / section_id as UUIDs on every section
+    // route — generate them client-side as UUIDv4 so a queued upsertSection
+    // can land even if the user creates the book offline (or while
+    // logged out) and edits a section before the upsertWriting drains.
+    final bookId = _uuid.v4();
+    final manuscriptId = _folderUuid(bookId, SectionKind.folder);
+    final researchId = _folderUuid(bookId, SectionKind.research);
+    final trashId = _folderUuid(bookId, SectionKind.trash);
+    final firstChapterId = _uuid.v4();
     final newBook = WritingModel(
       author: _auth.currentUser?.name ?? "Unknown Author",
       coverImagePath: "",
-      id: epoch.toString(),
+      id: bookId,
       title: titleController.text,
       description: descriptionController.text,
       writingType: type,
@@ -1278,7 +1358,7 @@ class EditorProvider extends ChangeNotifier {
         .where((s) => s.parentId == effectiveParentId)
         .toList();
     final newSection = SectionModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: _uuid.v4(),
       title: title,
       content: jsonEncode([
         {"insert": "\n"},
