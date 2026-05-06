@@ -9,8 +9,8 @@ Status legend: ✅ merged to main · 🟢 implementation complete, PR open · �
 - ✅ Bug: writing_id UUID 422 — commit c8ccd7d (resolved)
 
 ## P1 — Major features
-- 🟢 #4 Scrivenings — read-only v1 merged (commit 066f416). Live multi-section editing implementation complete on branch `feat/scrivenings-live` (commit 02274c3); PR [#9](https://github.com/vijayshankarrealdeal/write/pull/9) open, awaiting review/merge.
-- 🟢 #5 Footnotes (inline + inspector panel) — branch `feat/footnotes` (commit 8e2c540); PR [#10](https://github.com/vijayshankarrealdeal/write/pull/10) open, awaiting review/merge.
+- ✅ #4 Scrivenings — read-only v1 merged (commit 066f416); live multi-section editing merged via PR [#9](https://github.com/vijayshankarrealdeal/write/pull/9) (branch commit 02274c3, merge commit 78f85ff).
+- ✅ #5 Footnotes (inline + inspector panel + endnote publish) — merged via PR [#10](https://github.com/vijayshankarrealdeal/write/pull/10) (branch commit 8e2c540, merge commit e339e65).
 - ⬜ #6 Author bookmarks (in-document) — branch `feat/author-bookmarks`
 
 ## P2 — Polish / power features
