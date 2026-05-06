@@ -87,6 +87,27 @@ async def lifespan(app: FastAPI):
         await conn.execute(text(
             "ALTER TABLE app_logs ADD COLUMN IF NOT EXISTS env VARCHAR(10)"
         ))
+        # Scrivener-class binder fields. All additive / nullable so legacy
+        # rows keep working unchanged. Idempotent for dev DBs that bypass
+        # Alembic.
+        for col_sql in (
+            "ADD COLUMN IF NOT EXISTS parent_id VARCHAR(64)",
+            "ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0",
+            "ADD COLUMN IF NOT EXISTS kind VARCHAR(32)",
+            "ADD COLUMN IF NOT EXISTS synopsis VARCHAR(2000)",
+            "ADD COLUMN IF NOT EXISTS notes JSONB",
+            "ADD COLUMN IF NOT EXISTS label_color BIGINT",
+            "ADD COLUMN IF NOT EXISTS keywords VARCHAR[]",
+            "ADD COLUMN IF NOT EXISTS include_in_publish BOOLEAN NOT NULL DEFAULT TRUE",
+        ):
+            await conn.execute(text(f"ALTER TABLE sections {col_sql}"))
+        for col_sql in (
+            "ADD COLUMN IF NOT EXISTS target_word_count INTEGER",
+            "ADD COLUMN IF NOT EXISTS target_deadline TIMESTAMPTZ",
+            "ADD COLUMN IF NOT EXISTS label_meaning VARCHAR(64)",
+            "ADD COLUMN IF NOT EXISTS label_names JSONB",
+        ):
+            await conn.execute(text(f"ALTER TABLE writings {col_sql}"))
         # Phase 3 (P2): paragraph-precise resume anchor columns on
         # reading_progress. Idempotent for dev DBs that bypass Alembic.
         await conn.execute(text(

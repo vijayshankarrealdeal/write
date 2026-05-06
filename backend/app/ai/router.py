@@ -214,6 +214,21 @@ _TEXT_EDIT_PROMPTS = {
         _WRITER_VOICE,
         "Fix spelling, grammar, and punctuation only. Do not rewrite for style, flow, or tone. Preserve the writer's voice exactly, including informal constructions and intentional fragments. Return the corrected text.\n\n{text}",
     ),
+
+    # ── Scrivener-class name generator. The "text" field carries the
+    # constraints as a JSON-ish description (gender, origin, era,
+    # alliteration, surname, count). The model returns one name per
+    # line, no commentary.
+    "generate_names": (
+        "You are a careful name-generator for fiction writers. Return one "
+        "name per line, no numbering, no preamble, no explanations. Match "
+        "every constraint the user gives (gender, origin, era, alliteration, "
+        "surname requirements). Names should sound like real people, not "
+        "stage names. Vary the rhythm — don't repeat first letters across "
+        "the list unless the user asked for alliteration.",
+        "Generate names with these constraints. Return only the names, one "
+        "per line.\n\n{text}",
+    ),
 }
 
 

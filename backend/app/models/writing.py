@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -23,6 +23,15 @@ class Writing(UUIDMixin, Base):
     writing_type: Mapped[str | None] = mapped_column(String(100))
     subtype: Mapped[str | None] = mapped_column(String(100))
     section_ids: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
+
+    # Scrivener-class project metadata. All optional — legacy projects
+    # keep working without these.
+    target_word_count: Mapped[int | None] = mapped_column(Integer)
+    target_deadline: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    label_meaning: Mapped[str | None] = mapped_column(String(64))
+    # ARGB int → human name. JSONB lets us store an arbitrary palette
+    # without a side table.
+    label_names: Mapped[dict | None] = mapped_column(JSONB)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

@@ -13,6 +13,10 @@ class WritingCreate(BaseModel):
     status: str | None = None
     writing_type: str | None = None
     subtype: str | None = None
+    target_word_count: int | None = None
+    target_deadline: datetime | None = None
+    label_meaning: str | None = None
+    label_names: dict | None = None
 
 
 class WritingUpdate(BaseModel):
@@ -24,6 +28,10 @@ class WritingUpdate(BaseModel):
     writing_type: str | None = None
     subtype: str | None = None
     section_ids: list[str] | None = None
+    target_word_count: int | None = None
+    target_deadline: datetime | None = None
+    label_meaning: str | None = None
+    label_names: dict | None = None
 
 
 class WritingResponse(BaseModel):
@@ -38,6 +46,10 @@ class WritingResponse(BaseModel):
     writing_type: str | None
     subtype: str | None
     section_ids: list[str]
+    target_word_count: int | None = None
+    target_deadline: datetime | None = None
+    label_meaning: str | None = None
+    label_names: dict | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -51,6 +63,14 @@ class SectionCreate(BaseModel):
     content: Any | None = None
     canvas_data: Any | None = None
     section_color: int | None = None
+    parent_id: str | None = None
+    sort_order: int | None = None
+    kind: str | None = None
+    synopsis: str | None = None
+    notes: Any | None = None
+    label_color: int | None = None
+    keywords: list[str] | None = None
+    include_in_publish: bool | None = None
 
 
 class SectionUpdate(BaseModel):
@@ -58,6 +78,14 @@ class SectionUpdate(BaseModel):
     content: Any | None = None
     canvas_data: Any | None = None
     section_color: int | None = None
+    parent_id: str | None = None
+    sort_order: int | None = None
+    kind: str | None = None
+    synopsis: str | None = None
+    notes: Any | None = None
+    label_color: int | None = None
+    keywords: list[str] | None = None
+    include_in_publish: bool | None = None
 
 
 class SectionResponse(BaseModel):
@@ -67,6 +95,14 @@ class SectionResponse(BaseModel):
     content: Any | None
     canvas_data: Any | None
     section_color: int | None
+    parent_id: str | None = None
+    sort_order: int = 0
+    kind: str | None = None
+    synopsis: str | None = None
+    notes: Any | None = None
+    label_color: int | None = None
+    keywords: list[str] | None = None
+    include_in_publish: bool = True
     updated_at: datetime
 
     model_config = {"from_attributes": True}

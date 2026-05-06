@@ -98,6 +98,35 @@ class GeminiService {
   // Legacy — kept for any non-panel caller that still uses it.
   Future<String> fixSpelling(String text) => _textEdit('fix_spelling', text);
 
+  /// Scrivener-class name generator. The constraints are sent as a
+  /// natural-language paragraph the model reads, not a structured form,
+  /// so the surface stays a single text endpoint. Returns one name per
+  /// line, ready to drop into a list view.
+  Future<List<String>> generateNames({
+    String? gender,
+    String? origin,
+    String? era,
+    String? alliteration,
+    String? surname,
+    int count = 5,
+  }) async {
+    final lines = <String>[
+      'Count: $count',
+      if (gender != null && gender.isNotEmpty) 'Gender: $gender',
+      if (origin != null && origin.isNotEmpty) 'Origin: $origin',
+      if (era != null && era.isNotEmpty) 'Era: $era',
+      if (alliteration != null && alliteration.isNotEmpty)
+        'Alliteration on letter: $alliteration',
+      if (surname != null && surname.isNotEmpty) 'Surname constraint: $surname',
+    ];
+    final raw = await _textEdit('generate_names', lines.join('\n'));
+    return raw
+        .split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .toList(growable: false);
+  }
+
   /// Delta-aware text edit. Sends the document's Delta to the backend, which
   /// extracts text, runs the action, and re-projects formatting paragraph-by-
   /// paragraph. Returns both sides so the UI can render a per-paragraph diff

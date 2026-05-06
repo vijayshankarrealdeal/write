@@ -112,7 +112,7 @@ class _PublishPageState extends State<PublishPage> {
           if (_alreadyPublishedIds.isNotEmpty) {
             _selectedSectionIds.addAll(_alreadyPublishedIds);
           } else if (widget.preselectedSection == null) {
-            _selectedSectionIds.addAll(widget.book.sections.map((s) => s.id));
+            _selectedSectionIds.addAll(_publishableSections.map((s) => s.id));
           }
           _loadingSpace = false;
         });
@@ -134,7 +134,24 @@ class _PublishPageState extends State<PublishPage> {
   bool get _hasCover =>
       _coverBytes != null || widget.book.coverImagePath.isNotEmpty;
   bool get _hasAnyCanvas =>
-      widget.book.sections.any((s) => s.canvasData.trim().isNotEmpty);
+      _publishableSections.any((s) => s.canvasData.trim().isNotEmpty);
+
+  /// Author-side scaffolding (Manuscript / Research / Trash folders) is
+  /// invisible to readers. Filter to only sections under the Manuscript
+  /// folder with `includeInPublish == true` so the publish dialog never
+  /// offers a folder row or a Research / Trash leaf.
+  List<SectionModel> get _publishableSections {
+    return widget.book.sections.where((s) {
+      if (s.kind == SectionKind.folder ||
+          s.kind == SectionKind.research ||
+          s.kind == SectionKind.trash ||
+          s.kind == SectionKind.act) {
+        return false;
+      }
+      return s.includeInPublish;
+    }).toList()
+      ..sort((a, b) => a.order.compareTo(b.order));
+  }
   bool get _isUpdate => _existingSpace != null;
   bool get _canPublish =>
       _selectedSectionIds.isNotEmpty &&
@@ -192,7 +209,7 @@ class _PublishPageState extends State<PublishPage> {
     final desc = _descriptionController.text.trim();
     final newTitle = _titleController.text.trim();
     final coverBytes = _coverBytes;
-    final processedSections = widget.book.sections
+    final processedSections = _publishableSections
         .where((s) => _selectedSectionIds.contains(s.id))
         .map((s) => SectionModel(
               id: s.id,
@@ -779,7 +796,7 @@ class _PublishPageState extends State<PublishPage> {
             _buildSectionLabel("Sections"),
             const Spacer(),
             Text(
-              "${_selectedSectionIds.length} of ${widget.book.sections.length}",
+              "${_selectedSectionIds.length} of ${_publishableSections.length}",
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -790,7 +807,7 @@ class _PublishPageState extends State<PublishPage> {
         ),
         const SizedBox(height: 14),
 
-        ...widget.book.sections.map((section) {
+        ..._publishableSections.map((section) {
           final isSelected = _selectedSectionIds.contains(section.id);
           final isLive = _alreadyPublishedIds.contains(section.id);
 

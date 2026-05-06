@@ -1282,6 +1282,42 @@ class ApiDataService implements SyncDispatcher {
   // WRITINGS
   // =========================================================================
 
+  /// Per-section reader drop-off for the author's outline view.
+  ///
+  /// Returns `(total, completed, stalledCounts)` where `stalledCounts` is
+  /// keyed by section id. Backend aggregates `reading_progress` rows for
+  /// the feed item that backs this writing — completed readers count
+  /// toward `completed`, in-progress readers contribute to the section
+  /// bucket matching their `last_section_id`. Empty/silent on networks
+  /// errors so the outline still renders without retention.
+  Future<({int total, int completed, Map<String, int> stalled})>
+      getSectionRetention(String writingId) async {
+    try {
+      final response =
+          await _client.get('/api/writings/$writingId/section-retention');
+      final data = response.data;
+      if (data is! Map) {
+        return (total: 0, completed: 0, stalled: <String, int>{});
+      }
+      final stalled = <String, int>{};
+      for (final row in (data['sections'] as List? ?? const [])) {
+        if (row is Map &&
+            row['section_id'] is String &&
+            row['stalled_count'] is num) {
+          stalled[row['section_id'] as String] =
+              (row['stalled_count'] as num).toInt();
+        }
+      }
+      return (
+        total: (data['total_readers'] as num?)?.toInt() ?? 0,
+        completed: (data['completed_readers'] as num?)?.toInt() ?? 0,
+        stalled: stalled,
+      );
+    } catch (_) {
+      return (total: 0, completed: 0, stalled: <String, int>{});
+    }
+  }
+
   Future<List<WritingModel>> getWritings(String userId) async {
     final response = await _client.get('/api/writings/');
     final writings = <WritingModel>[];
@@ -1325,12 +1361,7 @@ class ApiDataService implements SyncDispatcher {
     for (final section in book.sections) {
       final sectionResp = await _client.post(
         '/api/writings/${book.id}/sections',
-        data: {
-          'title': section.title,
-          'content': _decodeJsonField(section.content),
-          'canvas_data': _decodeJsonField(section.canvasData),
-          'section_color': section.sectionColor.toARGB32(),
-        },
+        data: _sectionCreatePayload(section),
         headers: _opHeaders(opId),
       );
       section.id = sectionResp.data['id'] as String;
@@ -1338,6 +1369,23 @@ class ApiDataService implements SyncDispatcher {
     }
 
     return book;
+  }
+
+  Map<String, dynamic> _sectionCreatePayload(SectionModel section) {
+    return {
+      'title': section.title,
+      'content': _decodeJsonField(section.content),
+      'canvas_data': _decodeJsonField(section.canvasData),
+      'section_color': section.sectionColor.toARGB32(),
+      if (section.parentId != null) 'parent_id': section.parentId,
+      'sort_order': section.order,
+      'kind': section.kind.code,
+      'synopsis': section.synopsis,
+      'notes': _decodeJsonField(section.notes),
+      if (section.labelColor != null) 'label_color': section.labelColor,
+      'keywords': section.keywords,
+      'include_in_publish': section.includeInPublish,
+    };
   }
 
   @override
@@ -1369,16 +1417,42 @@ class ApiDataService implements SyncDispatcher {
   }) async {
     final response = await _client.post(
       '/api/writings/$writingId/sections',
-      data: {
-        'title': section.title,
-        'content': _decodeJsonField(section.content),
-        'canvas_data': _decodeJsonField(section.canvasData),
-        'section_color': section.sectionColor.toARGB32(),
-      },
+      data: _sectionCreatePayload(section),
       headers: _opHeaders(opId),
     );
     section.id = response.data['id'] as String;
     section.isSynced = true;
+  }
+
+  @override
+  Future<void> updateSectionMetadata(
+    String userId,
+    String writingId,
+    String sectionId,
+    Map<String, dynamic> fields, {
+    String? opId,
+  }) async {
+    if (fields.isEmpty) return;
+    await _client.put(
+      '/api/writings/$writingId/sections/$sectionId',
+      data: fields,
+      headers: _opHeaders(opId),
+    );
+  }
+
+  @override
+  Future<void> updateWritingProjectFields(
+    String userId,
+    String writingId,
+    Map<String, dynamic> fields, {
+    String? opId,
+  }) async {
+    if (fields.isEmpty) return;
+    await _client.put(
+      '/api/writings/$writingId',
+      data: fields,
+      headers: _opHeaders(opId),
+    );
   }
 
   @override
@@ -1816,7 +1890,24 @@ class ApiDataService implements SyncDispatcher {
           WritingType.values[int.tryParse(json['writing_type'] ?? '0') ?? 0],
       subtype: json['subtype'] ?? '',
       sections: sections,
+      targetWordCount: (json['target_word_count'] as num?)?.toInt(),
+      targetDeadline: json['target_deadline'] != null
+          ? DateTime.tryParse(json['target_deadline'].toString())
+          : null,
+      labelMeaning: (json['label_meaning'] as String?) ?? 'status',
+      labelNames: _decodeServerLabelNames(json['label_names']),
     );
+  }
+
+  static Map<int, String> _decodeServerLabelNames(dynamic raw) {
+    if (raw is! Map) return <int, String>{};
+    final out = <int, String>{};
+    raw.forEach((k, v) {
+      final key = k is int ? k : int.tryParse('$k');
+      if (key == null || v is! String) return;
+      out[key] = v;
+    });
+    return out;
   }
 
   SectionModel _sectionFromJson(Map<String, dynamic> json) {
@@ -1828,6 +1919,18 @@ class ApiDataService implements SyncDispatcher {
       sectionColor: Color((json['section_color'] as num?)?.toInt() ?? 0xFF1982C4),
       updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
       isSynced: true,
+      parentId: json['parent_id'] as String?,
+      order: (json['sort_order'] as num?)?.toInt() ?? 0,
+      kind: SectionKindCodec.fromCode(json['kind'] as String?),
+      synopsis: (json['synopsis'] as String?) ?? '',
+      notes: _encodeJsonField(json['notes']),
+      labelColor: (json['label_color'] as num?)?.toInt(),
+      keywords: (json['keywords'] is List)
+          ? (json['keywords'] as List).whereType<String>().toList()
+          : <String>[],
+      includeInPublish: json['include_in_publish'] is bool
+          ? json['include_in_publish'] as bool
+          : true,
     );
   }
 

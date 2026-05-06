@@ -23,6 +23,7 @@ import 'package:inkspacex/services/sync/merge_log.dart';
 import 'package:inkspacex/services/sync/outbox.dart';
 import 'package:inkspacex/services/sync/outbox_drainer.dart';
 import 'package:inkspacex/services/sync/pending_op.dart';
+import 'package:uuid/uuid.dart';
 
 class EditorProvider extends ChangeNotifier {
   final StorageService _storage;
@@ -252,6 +253,7 @@ class EditorProvider extends ChangeNotifier {
       allBooks = localBooks;
     }
 
+    await _ensureBinderFolders();
     if (allBooks.isNotEmpty && activeBook == null) {
       setActiveBook(allBooks.first);
     }
@@ -281,10 +283,38 @@ class EditorProvider extends ChangeNotifier {
 
   /// Merge local and remote books. For each section present in both,
   /// keep whichever has the later updatedAt timestamp.
+  /// IDs of books and sections the user has deleted locally but whose
+  /// `deleteWriting` / `deleteSection` op hasn't drained yet. Pulled
+  /// fresh from the outbox on every merge so we don't get stale.
+  ({Set<String> bookIds, Set<String> sectionIds}) _pendingDeletes() {
+    final bookIds = <String>{};
+    final sectionIds = <String>{};
+    for (final op in _outbox.snapshot()) {
+      if (op.kind == PendingOpKind.deleteWriting) {
+        final id = op.payload['writingId'];
+        if (id is String) bookIds.add(id);
+      } else if (op.kind == PendingOpKind.deleteSection) {
+        final id = op.payload['sectionId'];
+        if (id is String) sectionIds.add(id);
+      }
+    }
+    return (bookIds: bookIds, sectionIds: sectionIds);
+  }
+
   List<WritingModel> _mergeBooks(
     List<WritingModel> local,
     List<WritingModel> remote,
   ) {
+    final pending = _pendingDeletes();
+    // Drop remote books the user already deleted locally — without this,
+    // a refresh fired between `deleteBook` and the outbox draining
+    // resurrects the book from the server response. The outbox is the
+    // source of truth: if a `deleteWriting` op is still queued for an
+    // ID, the user's intent is "gone."
+    final liveRemote = pending.bookIds.isEmpty
+        ? remote
+        : remote.where((r) => !pending.bookIds.contains(r.id)).toList();
+
     // Detect "ghost" duplicates produced by an old createWriting bug:
     // a local book kept its client-generated timestamp ID instead of the
     // server's UUID, so subsequent fetches saw the same book under both
@@ -292,7 +322,7 @@ class EditorProvider extends ChangeNotifier {
     // only contains untouched default sections, then promote the local
     // book to the server's UUID so it dedupes by ID from now on.
     final remoteByTitle = <String, List<WritingModel>>{};
-    for (final r in remote) {
+    for (final r in liveRemote) {
       remoteByTitle.putIfAbsent(_titleKey(r.title), () => []).add(r);
     }
     final claimedRemoteIds = <String>{};
@@ -321,7 +351,7 @@ class EditorProvider extends ChangeNotifier {
     }
 
     final filteredRemote =
-        remote.where((r) => !claimedRemoteIds.contains(r.id)).toList();
+        liveRemote.where((r) => !claimedRemoteIds.contains(r.id)).toList();
 
     final localMap = {for (final b in local) b.id: b};
     final merged = <WritingModel>[];
@@ -335,6 +365,7 @@ class EditorProvider extends ChangeNotifier {
       final mergedSections = _mergeSections(
         localBook.sections,
         remoteBook.sections,
+        pendingSectionDeletes: pending.sectionIds,
       );
       remoteBook.sections = mergedSections;
       merged.add(remoteBook);
@@ -412,9 +443,14 @@ class EditorProvider extends ChangeNotifier {
 
   List<SectionModel> _mergeSections(
     List<SectionModel> local,
-    List<SectionModel> remote,
-  ) {
-    return mergeSectionsLww(local, remote, onMergeDecision: _maybeRecordMerge);
+    List<SectionModel> remote, {
+    Set<String> pendingSectionDeletes = const <String>{},
+  }) {
+    final liveRemote = pendingSectionDeletes.isEmpty
+        ? remote
+        : remote.where((s) => !pendingSectionDeletes.contains(s.id)).toList();
+    return mergeSectionsLww(local, liveRemote,
+        onMergeDecision: _maybeRecordMerge);
   }
 
   /// Pure last-write-wins merge of two section lists, exposed for tests.
@@ -658,7 +694,9 @@ class EditorProvider extends ChangeNotifier {
         local.updatedAt.isAfter(remote.updatedAt) && !local.isSynced;
     _maybeRecordMerge(local, remote, localWins);
     if (localWins) return;
-    // Preserve fields the remote doesn't carry (canvas data, color).
+    // Preserve fields the remote doesn't carry (canvas data, color, plus
+    // any binder metadata the server omits in this echo). Remote takes
+    // precedence when it does carry the field.
     final merged = SectionModel(
       id: remote.id,
       title: remote.title,
@@ -668,6 +706,14 @@ class EditorProvider extends ChangeNotifier {
       isSynced: true,
       createdAt: local.createdAt,
       updatedAt: remote.updatedAt,
+      parentId: remote.parentId ?? local.parentId,
+      order: remote.order != 0 ? remote.order : local.order,
+      kind: remote.kind != SectionKind.chapter ? remote.kind : local.kind,
+      synopsis: remote.synopsis.isNotEmpty ? remote.synopsis : local.synopsis,
+      notes: remote.notes.isNotEmpty ? remote.notes : local.notes,
+      labelColor: remote.labelColor ?? local.labelColor,
+      keywords: remote.keywords.isNotEmpty ? remote.keywords : local.keywords,
+      includeInPublish: remote.includeInPublish,
     );
     book.sections[idx] = merged;
     allBooksSection = book.sections;
@@ -716,6 +762,18 @@ class EditorProvider extends ChangeNotifier {
       updatedAt:
           DateTime.tryParse(json['updated_at']?.toString() ?? '') ??
               DateTime.now(),
+      parentId: json['parent_id'] as String?,
+      order: (json['sort_order'] as num?)?.toInt() ?? 0,
+      kind: SectionKindCodec.fromCode(json['kind'] as String?),
+      synopsis: (json['synopsis'] as String?) ?? '',
+      notes: _encodeRemoteContent(json['notes']),
+      labelColor: (json['label_color'] as num?)?.toInt(),
+      keywords: (json['keywords'] is List)
+          ? (json['keywords'] as List).whereType<String>().toList()
+          : <String>[],
+      includeInPublish: json['include_in_publish'] is bool
+          ? json['include_in_publish'] as bool
+          : true,
     );
   }
 
@@ -730,22 +788,58 @@ class EditorProvider extends ChangeNotifier {
       throw Exception("Title cannot be empty");
     }
     if (subtype.trim().isEmpty) throw Exception("Please select a format");
+    final epoch = DateTime.now().millisecondsSinceEpoch;
+    final manuscriptId = '$epoch-manuscript';
+    final researchId = '${epoch + 1}-research';
+    final trashId = '${epoch + 2}-trash';
+    final firstChapterId = '${epoch + 3}';
     final newBook = WritingModel(
       author: _auth.currentUser?.name ?? "Unknown Author",
       coverImagePath: "",
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: epoch.toString(),
       title: titleController.text,
       description: descriptionController.text,
       writingType: type,
       subtype: subtype,
       sections: [
         SectionModel(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          title: "Untitled Section",
+          id: manuscriptId,
+          title: 'Manuscript',
+          content: '',
+          kind: SectionKind.folder,
+          order: 0,
+          sectionColor: sectionColors[0],
+          includeInPublish: true,
+        ),
+        SectionModel(
+          id: researchId,
+          title: 'Research',
+          content: '',
+          kind: SectionKind.research,
+          order: 1,
+          sectionColor: sectionColors[3],
+          includeInPublish: false,
+        ),
+        SectionModel(
+          id: trashId,
+          title: 'Trash',
+          content: '',
+          kind: SectionKind.trash,
+          order: 2,
+          sectionColor: sectionColors[1],
+          includeInPublish: false,
+        ),
+        SectionModel(
+          id: firstChapterId,
+          title: 'Untitled Section',
           content: jsonEncode([
             {"insert": "\n"},
           ]),
           sectionColor: sectionColors[0],
+          parentId: manuscriptId,
+          order: 0,
+          kind: SectionKind.chapter,
+          includeInPublish: true,
         ),
       ],
     );
@@ -791,12 +885,267 @@ class EditorProvider extends ChangeNotifier {
               'content': section.content,
               'canvas_data': section.canvasData,
               'section_color': section.sectionColor.toARGB32(),
+              if (section.parentId != null) 'parent_id': section.parentId,
+              'sort_order': section.order,
+              'kind': section.kind.code,
+              'include_in_publish': section.includeInPublish,
             },
           },
         ));
       }
     }
+    // First chapter is the natural place to drop the user — folder rows
+    // aren't editable.
+    final firstChapter = newBook.sections.firstWhere(
+      (s) => s.id == firstChapterId,
+      orElse: () => newBook.sections.first,
+    );
+    setActiveSection(firstChapter);
     notifyListeners();
+  }
+
+  /// Idempotent: ensures every book has the three top-level folders
+  /// (Manuscript, Research, Trash), reparents orphan top-level
+  /// chapters/scenes under Manuscript, and migrates any pre-existing
+  /// folder whose id is not a UUID (legacy `${book.id}-manuscript`
+  /// shape) into a deterministic UUIDv5. The legacy id was rejected
+  /// server-side as not-a-UUID, so chapters under those folders never
+  /// synced; the migration also rewrites the offending outbox ops to
+  /// point at the new ids and marks the touched sections unsynced so
+  /// the next drain creates them server-side.
+  Future<void> _ensureBinderFolders() async {
+    final renames = <_FolderRename>[];
+    var changed = false;
+    for (final book in allBooks) {
+      final result = _ensureFoldersForBook(book);
+      changed = result.changed || changed;
+      renames.addAll(result.renames);
+    }
+    if (renames.isNotEmpty) {
+      await _migrateOutboxForRenames(renames);
+    }
+    if (changed) {
+      await _storage.saveBooks(allBooks);
+      // Anything we marked unsynced (renamed folders + their direct
+      // children whose parent_id we rewrote) needs an upsert so the
+      // server creates the folder and links children properly. The
+      // outbox is per-user; only enqueue once we know there's a uid.
+      if (_userId != null) {
+        for (final r in renames) {
+          await _enqueueRenameUpserts(r);
+        }
+      }
+    }
+  }
+
+  // RFC4122 / RFC9562 UUID layout. Used to detect legacy folder ids
+  // that the server (which does strict UUID validation on `section_id`)
+  // would otherwise reject with HTTP 422.
+  static final RegExp _uuidPattern = RegExp(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+    caseSensitive: false,
+  );
+
+  // Project-private namespace UUID for binder folder ids. Pinned here
+  // forever — every client MUST use the same namespace so two devices
+  // bootstrapping the same legacy book produce identical folder UUIDs
+  // (otherwise we'd duplicate folders on first cross-device sync).
+  static const String _folderNamespace =
+      '9e7c8d2a-4b5f-4a3e-9c1d-8a7b6f5e4d3c';
+  static const Uuid _uuid = Uuid();
+
+  /// Deterministic UUIDv5 for the binder folder of [kind] inside [bookId].
+  /// Same input always returns the same UUID so concurrent migrations on
+  /// different devices converge instead of producing duplicates.
+  static String _folderUuid(String bookId, SectionKind kind) {
+    return _uuid.v5(_folderNamespace, '$bookId/${kind.code}');
+  }
+
+  static bool _looksLikeUuid(String id) => _uuidPattern.hasMatch(id);
+
+  _EnsureFoldersResult _ensureFoldersForBook(WritingModel book) {
+    SectionModel? findFolder(SectionKind kind) {
+      for (final s in book.sections) {
+        if (s.parentId == null && s.kind == kind) return s;
+      }
+      return null;
+    }
+
+    final renames = <_FolderRename>[];
+    var changed = false;
+
+    // Step 1: rename any existing top-level folder whose id isn't a
+    // UUID. This is the migration arm — bookId-manuscript / -research /
+    // -trash get rewritten in place and every child's parent_id
+    // follows.
+    SectionModel? migrate(SectionModel folder) {
+      if (_looksLikeUuid(folder.id)) return folder;
+      final newId = _folderUuid(book.id, folder.kind);
+      if (newId == folder.id) return folder;
+      final oldId = folder.id;
+      folder.id = newId;
+      folder.isSynced = false;
+      // Rewrite every child's parentId so the binder hierarchy survives.
+      // Also mark them unsynced so the parent-id change propagates to
+      // the server on the next drain.
+      final movedChildIds = <String>[];
+      for (final s in book.sections) {
+        if (s.parentId == oldId) {
+          s.parentId = newId;
+          s.isSynced = false;
+          movedChildIds.add(s.id);
+        }
+      }
+      renames.add(_FolderRename(
+        bookId: book.id,
+        oldId: oldId,
+        newId: newId,
+        movedChildIds: movedChildIds,
+      ));
+      changed = true;
+      return folder;
+    }
+
+    SectionModel? manuscript = findFolder(SectionKind.folder);
+    if (manuscript != null) manuscript = migrate(manuscript);
+    final research = findFolder(SectionKind.research);
+    if (research != null) migrate(research);
+    final trash = findFolder(SectionKind.trash);
+    if (trash != null) migrate(trash);
+
+    // Step 2: create any missing folder with a fresh deterministic UUID.
+    if (manuscript == null) {
+      manuscript = SectionModel(
+        id: _folderUuid(book.id, SectionKind.folder),
+        title: 'Manuscript',
+        content: '',
+        kind: SectionKind.folder,
+        order: 0,
+        sectionColor: sectionColors[0],
+        includeInPublish: true,
+      );
+      book.sections.add(manuscript);
+      changed = true;
+    }
+    if (findFolder(SectionKind.research) == null) {
+      book.sections.add(SectionModel(
+        id: _folderUuid(book.id, SectionKind.research),
+        title: 'Research',
+        content: '',
+        kind: SectionKind.research,
+        order: 1,
+        sectionColor: sectionColors[3],
+        includeInPublish: false,
+      ));
+      changed = true;
+    }
+    if (findFolder(SectionKind.trash) == null) {
+      book.sections.add(SectionModel(
+        id: _folderUuid(book.id, SectionKind.trash),
+        title: 'Trash',
+        content: '',
+        kind: SectionKind.trash,
+        order: 2,
+        sectionColor: sectionColors[1],
+        includeInPublish: false,
+      ));
+      changed = true;
+    }
+
+    // Step 3: adopt orphan top-level chapters/scenes into the Manuscript
+    // folder so legacy flat writings keep all their existing chapters
+    // visible.
+    var nextOrder = 0;
+    for (final s in book.sections) {
+      if (s.id == manuscript.id) continue;
+      if (s.parentId == null &&
+          s.kind != SectionKind.folder &&
+          s.kind != SectionKind.research &&
+          s.kind != SectionKind.trash &&
+          s.kind != SectionKind.act) {
+        s.parentId = manuscript.id;
+        s.order = nextOrder++;
+        changed = true;
+      }
+    }
+    return _EnsureFoldersResult(changed: changed, renames: renames);
+  }
+
+  /// Drop any outbox op that references a renamed folder id. Those ops
+  /// were created when the section_id was the legacy `bookId-kind`
+  /// string — the server already rejected them with HTTP 422, and the
+  /// `_enqueueRenameUpserts` call below will queue a fresh isNew=true
+  /// upsert under the new UUID so the folder actually lands.
+  Future<void> _migrateOutboxForRenames(List<_FolderRename> renames) async {
+    if (renames.isEmpty) return;
+    final oldIds = {for (final r in renames) r.oldId};
+    final ops = _outbox.snapshot();
+    for (final op in ops) {
+      final sectionId = op.payload['sectionId'];
+      if (sectionId is String && oldIds.contains(sectionId)) {
+        await _outbox.remove(op.id);
+      }
+    }
+  }
+
+  /// Queue upserts for a freshly-renamed folder + every child whose
+  /// parent_id we rewrote. Marked `isNew: true` because the legacy id
+  /// was never accepted server-side, so this UUID is genuinely new.
+  Future<void> _enqueueRenameUpserts(_FolderRename rename) async {
+    final book = allBooks.firstWhere(
+      (b) => b.id == rename.bookId,
+      orElse: () => WritingModel(
+        id: '',
+        title: '',
+        sections: const [],
+        author: '',
+        description: '',
+        coverImagePath: '',
+        writingType: WritingType.freestyle,
+        subtype: 'freestyle',
+      ),
+    );
+    if (book.id.isEmpty) return;
+    SectionModel? folder;
+    for (final s in book.sections) {
+      if (s.id == rename.newId) {
+        folder = s;
+        break;
+      }
+    }
+    if (folder == null) return;
+    await _enqueue(PendingOp(
+      kind: PendingOpKind.upsertSection,
+      payload: {
+        'writingId': book.id,
+        'sectionId': folder.id,
+        'isNew': true,
+        'fields': {
+          'title': folder.title,
+          'content': folder.content,
+          'canvas_data': folder.canvasData,
+          'section_color': folder.sectionColor.toARGB32(),
+          'sort_order': folder.order,
+          'kind': folder.kind.code,
+          'synopsis': folder.synopsis,
+          'notes': folder.notes,
+          'keywords': folder.keywords,
+          'include_in_publish': folder.includeInPublish,
+        },
+      },
+    ));
+    // Each child's parent_id changed; surface that to the server too.
+    for (final childId in rename.movedChildIds) {
+      await _enqueue(PendingOp(
+        kind: PendingOpKind.upsertSection,
+        payload: {
+          'writingId': book.id,
+          'sectionId': childId,
+          'isNew': false,
+          'fields': {'parent_id': rename.newId},
+        },
+      ));
+    }
   }
 
   Future<String> updateBookCoverImage(WritingModel book, Uint8List bytes) async {
@@ -915,8 +1264,19 @@ class EditorProvider extends ChangeNotifier {
     }
   }
 
-  void addSection(String title, {bool autoSelect = true}) {
+  void addSection(
+    String title, {
+    bool autoSelect = true,
+    String? parentId,
+    SectionKind kind = SectionKind.chapter,
+  }) {
     if (activeBook == null) return;
+    // Default to nesting under Manuscript so new chapters land in the
+    // publishable folder, not as orphans at the top level.
+    final effectiveParentId = parentId ?? _defaultManuscriptId();
+    final siblings = activeBook!.sections
+        .where((s) => s.parentId == effectiveParentId)
+        .toList();
     final newSection = SectionModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
@@ -925,6 +1285,10 @@ class EditorProvider extends ChangeNotifier {
       ]),
       sectionColor:
           sectionColors[activeBook!.sections.length % sectionColors.length],
+      parentId: effectiveParentId,
+      order: siblings.length,
+      kind: kind,
+      includeInPublish: _isWithinManuscript(effectiveParentId),
     );
 
     activeBook!.sections.insert(0, newSection);
@@ -938,6 +1302,112 @@ class EditorProvider extends ChangeNotifier {
     } else {
       notifyListeners();
     }
+  }
+
+  String? _defaultManuscriptId() {
+    if (activeBook == null) return null;
+    for (final s in activeBook!.sections) {
+      if (s.parentId == null && s.kind == SectionKind.folder) return s.id;
+    }
+    return null;
+  }
+
+  bool _isWithinManuscript(String? parentId) {
+    if (activeBook == null || parentId == null) return true;
+    var current = parentId;
+    final byId = {for (final s in activeBook!.sections) s.id: s};
+    final visited = <String>{};
+    while (true) {
+      if (!visited.add(current)) return false;
+      final node = byId[current];
+      if (node == null) return false;
+      if (node.kind == SectionKind.research || node.kind == SectionKind.trash) {
+        return false;
+      }
+      if (node.parentId == null) return node.kind == SectionKind.folder;
+      current = node.parentId!;
+    }
+  }
+
+  /// Move [section] to live under [newParentId] at the given index among
+  /// siblings, rewriting `order` densely. Drag-reorder + drag-between-
+  /// folders both call this.
+  Future<void> moveSection(
+    SectionModel section, {
+    required String? newParentId,
+    required int newIndex,
+  }) async {
+    if (activeBook == null) return;
+    final book = activeBook!;
+    section.parentId = newParentId;
+    final newWithinPublishable = _isWithinManuscript(newParentId);
+    section.includeInPublish = newWithinPublishable;
+    // Renumber siblings under the new parent so `order` is dense and
+    // dragging always produces a stable result.
+    final siblings = book.sections
+        .where((s) => s.id != section.id && s.parentId == newParentId)
+        .toList()
+      ..sort((a, b) => a.order.compareTo(b.order));
+    final clampedIndex = newIndex.clamp(0, siblings.length).toInt();
+    siblings.insert(clampedIndex, section);
+    for (var i = 0; i < siblings.length; i++) {
+      siblings[i].order = i;
+    }
+    section.updatedAt = DateTime.now();
+    await _storage.saveBooks(allBooks);
+    notifyListeners();
+    if (_userId != null) {
+      // Persist the move for the dragged section + every renumbered
+      // sibling whose order changed. Each is a metadata-only PUT.
+      for (final s in siblings) {
+        await _enqueue(PendingOp(
+          kind: PendingOpKind.upsertSection,
+          payload: {
+            'writingId': book.id,
+            'sectionId': s.id,
+            'isNew': false,
+            'fields': {
+              if (s.id == section.id) 'parent_id': s.parentId,
+              'sort_order': s.order,
+              if (s.id == section.id)
+                'include_in_publish': s.includeInPublish,
+            },
+          },
+        ));
+      }
+    }
+  }
+
+  /// Update one or more metadata fields on [section] in memory + persist.
+  /// `fields` keys are the server-side names (e.g. `synopsis`, `notes`,
+  /// `label_color`, `keywords`, `include_in_publish`).
+  Future<void> updateSectionFields(
+    SectionModel section,
+    Map<String, dynamic> fields,
+  ) async {
+    if (fields.containsKey('synopsis')) {
+      section.synopsis = fields['synopsis'] as String? ?? '';
+    }
+    if (fields.containsKey('notes')) {
+      section.notes = fields['notes'] as String? ?? '';
+    }
+    if (fields.containsKey('label_color')) {
+      section.labelColor = (fields['label_color'] as num?)?.toInt();
+    }
+    if (fields.containsKey('keywords')) {
+      final raw = fields['keywords'];
+      section.keywords = (raw is List)
+          ? raw.whereType<String>().toList()
+          : <String>[];
+    }
+    if (fields.containsKey('include_in_publish')) {
+      section.includeInPublish = fields['include_in_publish'] as bool? ?? true;
+    }
+    if (fields.containsKey('kind')) {
+      section.kind = SectionKindCodec.fromCode(fields['kind'] as String?);
+    }
+    await persistSectionMetadata(section, fields);
+    notifyListeners();
   }
 
   Future<void> _persistSectionAdd(SectionModel section) async {
@@ -954,10 +1424,60 @@ class EditorProvider extends ChangeNotifier {
             'content': section.content,
             'canvas_data': section.canvasData,
             'section_color': section.sectionColor.toARGB32(),
+            if (section.parentId != null) 'parent_id': section.parentId,
+            'sort_order': section.order,
+            'kind': section.kind.code,
+            'synopsis': section.synopsis,
+            'notes': section.notes,
+            if (section.labelColor != null) 'label_color': section.labelColor,
+            'keywords': section.keywords,
+            'include_in_publish': section.includeInPublish,
           },
         },
       ));
     }
+  }
+
+  /// Patch a section's binder metadata locally + queue the same delta
+  /// for the server. Used by the binder for parent/order changes,
+  /// label assignment, keyword edits, synopsis/notes edits, etc.
+  Future<void> persistSectionMetadata(
+    SectionModel section,
+    Map<String, dynamic> fields, {
+    bool save = true,
+  }) async {
+    section.updatedAt = DateTime.now();
+    if (save) {
+      await _storage.saveBooks(allBooks);
+    }
+    if (_userId != null && activeBook != null) {
+      await _enqueue(PendingOp(
+        kind: PendingOpKind.upsertSection,
+        payload: {
+          'writingId': activeBook!.id,
+          'sectionId': section.id,
+          'isNew': false,
+          'fields': fields,
+        },
+      ));
+    }
+  }
+
+  /// Patch project-level fields on the active book (target word count,
+  /// deadline, label palette).
+  Future<void> persistProjectFields(Map<String, dynamic> fields) async {
+    if (activeBook == null) return;
+    await _storage.saveBooks(allBooks);
+    if (_userId != null) {
+      await _enqueue(PendingOp(
+        kind: PendingOpKind.updateWritingProject,
+        payload: {
+          'writingId': activeBook!.id,
+          'fields': fields,
+        },
+      ));
+    }
+    notifyListeners();
   }
 
   void addSectionToActiveBook(String title) {
@@ -981,15 +1501,46 @@ class EditorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Soft-delete: move the section under the Trash folder. Permanent
+  /// deletion happens from inside the Trash folder via [purgeSection].
+  /// Sections that are *already* under Trash skip the move and are
+  /// purged immediately so the user can clear Trash item-by-item.
   Future<void> deleteSection(SectionModel section) async {
     if (activeBook == null) return;
+    final book = activeBook!;
+    String? trashId;
+    for (final s in book.sections) {
+      if (s.parentId == null && s.kind == SectionKind.trash) {
+        trashId = s.id;
+        break;
+      }
+    }
+    final alreadyInTrash = trashId != null && _isAncestor(book, trashId, section);
+    if (trashId != null && !alreadyInTrash) {
+      await moveSection(section,
+          newParentId: trashId, newIndex: 1 << 30);
+      return;
+    }
+    await purgeSection(section);
+  }
+
+  /// Permanent delete — used from Trash and from the soft-delete fallback
+  /// when no Trash folder exists (defensive).
+  Future<void> purgeSection(SectionModel section) async {
+    if (activeBook == null) return;
     final writingId = activeBook!.id;
-    activeBook!.sections.removeWhere((c) => c.id == section.id);
+    final descendants = _collectDescendants(activeBook!, section.id);
+    final allIds = {section.id, ...descendants};
+    activeBook!.sections.removeWhere((c) => allIds.contains(c.id));
     allBooksSection = activeBook!.sections;
 
-    if (activeSection?.id == section.id) {
-      if (allBooksSection.isNotEmpty) {
-        activeSection = allBooksSection.first;
+    if (activeSection != null && allIds.contains(activeSection!.id)) {
+      final firstChapter = activeBook!.sections
+          .where((s) => s.kind == SectionKind.chapter || s.kind == SectionKind.scene)
+          .toList()
+        ..sort((a, b) => a.order.compareTo(b.order));
+      if (firstChapter.isNotEmpty) {
+        activeSection = firstChapter.first;
         initEditor();
       } else {
         activeSection = null;
@@ -999,12 +1550,40 @@ class EditorProvider extends ChangeNotifier {
 
     await _storage.saveBooks(allBooks);
     if (_userId != null) {
-      await _enqueue(PendingOp(
-        kind: PendingOpKind.deleteSection,
-        payload: {'writingId': writingId, 'sectionId': section.id},
-      ));
+      for (final id in allIds) {
+        await _enqueue(PendingOp(
+          kind: PendingOpKind.deleteSection,
+          payload: {'writingId': writingId, 'sectionId': id},
+        ));
+      }
     }
     notifyListeners();
+  }
+
+  bool _isAncestor(WritingModel book, String ancestorId, SectionModel section) {
+    var current = section.parentId;
+    final byId = {for (final s in book.sections) s.id: s};
+    final visited = <String>{};
+    while (current != null) {
+      if (current == ancestorId) return true;
+      if (!visited.add(current)) return false;
+      current = byId[current]?.parentId;
+    }
+    return false;
+  }
+
+  Set<String> _collectDescendants(WritingModel book, String parentId) {
+    final result = <String>{};
+    final stack = <String>[parentId];
+    while (stack.isNotEmpty) {
+      final current = stack.removeLast();
+      for (final s in book.sections) {
+        if (s.parentId == current && result.add(s.id)) {
+          stack.add(s.id);
+        }
+      }
+    }
+    return result;
   }
 
   // ==========================================
@@ -1299,4 +1878,26 @@ class _GhostFix {
   _GhostFix({required this.adoptedBookId, required this.ghostSectionIds});
   final String adoptedBookId;
   final List<String> ghostSectionIds;
+}
+
+/// One legacy → UUID rename pass for a single binder folder. Captured
+/// so the post-walk code can drop dead outbox ops and queue fresh
+/// upserts in one place.
+class _FolderRename {
+  _FolderRename({
+    required this.bookId,
+    required this.oldId,
+    required this.newId,
+    required this.movedChildIds,
+  });
+  final String bookId;
+  final String oldId;
+  final String newId;
+  final List<String> movedChildIds;
+}
+
+class _EnsureFoldersResult {
+  _EnsureFoldersResult({required this.changed, required this.renames});
+  final bool changed;
+  final List<_FolderRename> renames;
 }

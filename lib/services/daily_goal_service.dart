@@ -167,6 +167,37 @@ class DailyGoalService {
     return streak;
   }
 
+  /// What today's word target should be when the writer has a manuscript
+  /// goal + deadline set. Distributes the remaining work over the
+  /// remaining days (inclusive of today). Returns null when the inputs
+  /// don't justify a recommendation (no target / no deadline / deadline
+  /// already passed / target already hit).
+  static int? recommendedDailyGoal({
+    required int? targetWordCount,
+    required DateTime? targetDeadline,
+    required int currentWordCount,
+    DateTime? now,
+  }) {
+    if (targetWordCount == null || targetWordCount <= 0) return null;
+    if (targetDeadline == null) return null;
+    final today = DateTime(
+      (now ?? DateTime.now()).year,
+      (now ?? DateTime.now()).month,
+      (now ?? DateTime.now()).day,
+    );
+    final deadlineDay = DateTime(
+      targetDeadline.year,
+      targetDeadline.month,
+      targetDeadline.day,
+    );
+    final daysLeft = deadlineDay.difference(today).inDays + 1;
+    if (daysLeft <= 0) return null;
+    final remaining = targetWordCount - currentWordCount;
+    if (remaining <= 0) return 0;
+    final perDay = (remaining / daysLeft).ceil();
+    return perDay < 50 ? 50 : perDay;
+  }
+
   Future<Map<String, int>> _loadHistory(SharedPreferences p) async {
     final raw = p.getString(_kHistory);
     if (raw == null || raw.isEmpty) return <String, int>{};

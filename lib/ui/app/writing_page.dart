@@ -26,6 +26,20 @@ class WritingPageUI extends StatelessWidget {
   }
 }
 
+/// Strip the binder's structural folders (Manuscript / Research / Trash)
+/// from a flat section list so this overview page only renders the
+/// author's actual writing — chapters, scenes, acts. Those folders are
+/// containers, not content; surfacing them here was a leak from the
+/// Scrivener-style binder into a list that pre-dates the hierarchy.
+List<SectionModel> _contentSections(List<SectionModel> all) {
+  return all
+      .where((s) =>
+          s.kind != SectionKind.folder &&
+          s.kind != SectionKind.research &&
+          s.kind != SectionKind.trash)
+      .toList();
+}
+
 // ===========================================================================
 // MOBILE LAYOUT (iOS Style)
 // ===========================================================================
@@ -292,7 +306,9 @@ class _MobileProjectCard extends StatelessWidget {
     WritingModel book,
     bool isDark,
   ) {
-    final sections = context.watch<EditorProvider>().allBooksSection;
+    final sections = _contentSections(
+      context.watch<EditorProvider>().allBooksSection,
+    );
     if (sections.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -558,7 +574,7 @@ class _DesktopWritingPage extends StatelessWidget {
                     Builder(
                       builder: (context) {
                         final count = context.select<EditorProvider, int>(
-                          (p) => p.allBooksSection.length,
+                          (p) => _contentSections(p.allBooksSection).length,
                         );
                         return Text(
                           "$count ${count == 1 ? 'section' : 'sections'}",
@@ -654,7 +670,8 @@ class _DesktopWritingPage extends StatelessWidget {
         Expanded(
           child: Consumer2<EditorProvider, SettingsProvider>(
             builder: (context, provider, settings, _) {
-              if (provider.allBooksSection.isEmpty) {
+              final sections = _contentSections(provider.allBooksSection);
+              if (sections.isEmpty) {
                 return Center(
                   child: Text(
                     "No sections yet. Create one to start writing.",
@@ -677,9 +694,9 @@ class _DesktopWritingPage extends StatelessWidget {
                     crossAxisSpacing: 16,
                     childAspectRatio: 1.6,
                   ),
-                  itemCount: provider.allBooksSection.length,
+                  itemCount: sections.length,
                   itemBuilder: (context, index) {
-                    final section = provider.allBooksSection[index];
+                    final section = sections[index];
                     return _SectionCard(
                       section: section,
                       isDark: isDark,
@@ -697,11 +714,11 @@ class _DesktopWritingPage extends StatelessWidget {
                   horizontal: 40,
                   vertical: 0,
                 ),
-                itemCount: provider.allBooksSection.length,
+                itemCount: sections.length,
                 separatorBuilder: (context, index) =>
                     const SizedBox(height: 12),
                 itemBuilder: (context, index) {
-                  final section = provider.allBooksSection[index];
+                  final section = sections[index];
                   return _SectionListTile(
                     section: section,
                     isDark: isDark,

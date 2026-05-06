@@ -17,6 +17,7 @@ enum SlashAction {
   code,
   divider,
   image,
+  generateNames,
 }
 
 class SlashItem {
@@ -112,6 +113,13 @@ const _items = <SlashItem>[
     hint: 'Insert from gallery',
     icon: Icons.image,
     keywords: ['image', 'photo', 'picture'],
+  ),
+  SlashItem(
+    action: SlashAction.generateNames,
+    label: 'Generate names',
+    hint: 'AI character namer (gender, origin, era, alliteration)',
+    icon: Icons.face_retouching_natural,
+    keywords: ['name', 'character', 'generate', 'ai'],
   ),
 ];
 

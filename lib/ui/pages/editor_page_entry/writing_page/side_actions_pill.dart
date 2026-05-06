@@ -15,6 +15,8 @@ class SideActionsPill extends StatelessWidget {
     required this.onToggleFocus,
     required this.onToggleAnnotations,
     required this.onVersionHistory,
+    this.inspectorActive = false,
+    this.onToggleInspector,
   });
 
   final bool isDark;
@@ -22,12 +24,14 @@ class SideActionsPill extends StatelessWidget {
   final bool focusActive;
   final bool annotationsActive;
   final int annotationCount;
+  final bool inspectorActive;
   final VoidCallback onAI;
   final VoidCallback onPrompt;
   final VoidCallback onToggleOutline;
   final VoidCallback onToggleFocus;
   final VoidCallback onToggleAnnotations;
   final VoidCallback onVersionHistory;
+  final VoidCallback? onToggleInspector;
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +107,16 @@ class SideActionsPill extends StatelessWidget {
             activeBg: activeBg,
             onTap: onVersionHistory,
           ),
+          if (onToggleInspector != null)
+            _SidePillButton(
+              icon: CupertinoIcons.info,
+              tooltip:
+                  inspectorActive ? 'Hide inspector' : 'Inspector (synopsis, notes)',
+              color: inspectorActive ? accent : fg,
+              activeBg: activeBg,
+              active: inspectorActive,
+              onTap: onToggleInspector!,
+            ),
           _SidePillButton(
             icon: CupertinoIcons.eye_slash,
             tooltip: focusActive ? 'Exit focus mode' : 'Focus mode',

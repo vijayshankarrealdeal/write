@@ -8,10 +8,13 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
+import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/widgets/report_dialog.dart';
 import 'package:inkspacex/ui/widgets/user_badge_chip.dart';
+
+const double _kProfileMaxWidth = 1080;
 
 /// Public profile page — what one user sees when opening another user's
 /// space. Treats the page as the author's "shelf": a tall masthead with
@@ -150,65 +153,83 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
     final user = _user;
     final viewerId = context.watch<AuthProvider>().currentUser?.id;
     final isSelf = viewerId != null && viewerId == widget.userId;
+    final width = MediaQuery.sizeOf(context).width;
+    final isMobile = Breakpoints.isMobile(width);
+    final isDesktop = Breakpoints.isDesktop(width);
+    final gridCols = isDesktop ? 3 : (isMobile ? 1 : 2);
 
-    return Scaffold(
-      backgroundColor: bg,
-      body: _loadingUser
-          ? const Center(child: AppSpinner())
-          : user == null
-              ? _NotFound(textColor: textColor, subtle: subtle)
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  color: textColor,
-                  child: CustomScrollView(
-                    slivers: [
-                      _buildAppBar(user, textColor, isSelf),
-                      SliverToBoxAdapter(
-                        child: _Hero(
-                          user: user,
-                          isDark: isDark,
-                          surface: surface,
-                          textColor: textColor,
-                          subtle: subtle,
-                          isSelf: isSelf,
-                          followInFlight: _followInFlight,
-                          onFollow: _toggleFollow,
-                          onFollowersTap: () => context.push(
-                            '/u/${user.id}/followers',
-                            extra: user,
-                          ),
-                          onFollowingTap: () => context.push(
-                            '/u/${user.id}/following',
-                            extra: user,
-                          ),
-                        ),
-                      ),
-                      SliverToBoxAdapter(
-                        child: _SectionHeader(
-                          textColor: textColor,
-                          subtle: subtle,
-                          count: _posts.length,
-                          sort: _sort,
-                          onSortChanged: (m) => setState(() => _sort = m),
-                        ),
-                      ),
-                      if (_genreOptions().length > 1)
-                        SliverToBoxAdapter(
-                          child: _GenreFilterStrip(
-                            genres: _genreOptions(),
-                            active: _activeGenre,
-                            isDark: isDark,
-                            textColor: textColor,
-                            subtle: subtle,
-                            onTap: (g) => setState(() => _activeGenre = g),
-                          ),
-                        ),
-                      _buildPostsSlivers(isDark, surface, textColor, subtle),
-                      const SliverToBoxAdapter(child: SizedBox(height: 40)),
-                    ],
+    Widget body;
+    if (_loadingUser) {
+      body = const Center(child: AppSpinner());
+    } else if (user == null) {
+      body = _NotFound(textColor: textColor, subtle: subtle);
+    } else {
+      body = RefreshIndicator(
+        onRefresh: _load,
+        color: textColor,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: _kProfileMaxWidth),
+            child: CustomScrollView(
+              slivers: [
+                _buildAppBar(user, textColor, isSelf),
+                SliverToBoxAdapter(
+                  child: _Hero(
+                    user: user,
+                    isDark: isDark,
+                    surface: surface,
+                    textColor: textColor,
+                    subtle: subtle,
+                    isSelf: isSelf,
+                    isMobile: isMobile,
+                    followInFlight: _followInFlight,
+                    onFollow: _toggleFollow,
+                    onFollowersTap: () => context.push(
+                      '/u/${user.id}/followers',
+                      extra: user,
+                    ),
+                    onFollowingTap: () => context.push(
+                      '/u/${user.id}/following',
+                      extra: user,
+                    ),
                   ),
                 ),
-    );
+                SliverToBoxAdapter(
+                  child: _SectionHeader(
+                    textColor: textColor,
+                    subtle: subtle,
+                    count: _posts.length,
+                    sort: _sort,
+                    onSortChanged: (m) => setState(() => _sort = m),
+                  ),
+                ),
+                if (_genreOptions().length > 1)
+                  SliverToBoxAdapter(
+                    child: _GenreFilterStrip(
+                      genres: _genreOptions(),
+                      active: _activeGenre,
+                      isDark: isDark,
+                      textColor: textColor,
+                      subtle: subtle,
+                      onTap: (g) => setState(() => _activeGenre = g),
+                    ),
+                  ),
+                _buildPostsSlivers(
+                  isDark,
+                  surface,
+                  textColor,
+                  subtle,
+                  gridCols,
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 40)),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(backgroundColor: bg, body: body);
   }
 
   Widget _buildAppBar(PublicUser user, Color textColor, bool isSelf) {
@@ -271,6 +292,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
     Color surface,
     Color textColor,
     Color subtle,
+    int gridCols,
   ) {
     if (_loadingPosts) {
       return const SliverToBoxAdapter(
@@ -286,17 +308,40 @@ class _AuthorProfilePageState extends State<AuthorProfilePage> {
         child: _PostsEmpty(textColor: textColor, subtle: subtle),
       );
     }
+    if (gridCols == 1) {
+      return SliverPadding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        sliver: SliverList.separated(
+          itemCount: list.length,
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
+          itemBuilder: (_, i) => _StoryCard(
+            item: list[i],
+            isDark: isDark,
+            surface: surface,
+            textColor: textColor,
+            subtle: subtle,
+          ),
+        ),
+      );
+    }
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-      sliver: SliverList.separated(
-        itemCount: list.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (_, i) => _StoryCard(
-          item: list[i],
-          isDark: isDark,
-          surface: surface,
-          textColor: textColor,
-          subtle: subtle,
+      sliver: SliverGrid(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: gridCols,
+          mainAxisSpacing: 14,
+          crossAxisSpacing: 14,
+          childAspectRatio: 0.74,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (_, i) => _StoryGridCard(
+            item: list[i],
+            isDark: isDark,
+            surface: surface,
+            textColor: textColor,
+            subtle: subtle,
+          ),
+          childCount: list.length,
         ),
       ),
     );
@@ -314,6 +359,7 @@ class _Hero extends StatelessWidget {
   final Color textColor;
   final Color subtle;
   final bool isSelf;
+  final bool isMobile;
   final bool followInFlight;
   final VoidCallback onFollow;
   final VoidCallback onFollowersTap;
@@ -325,6 +371,7 @@ class _Hero extends StatelessWidget {
     required this.textColor,
     required this.subtle,
     required this.isSelf,
+    required this.isMobile,
     required this.followInFlight,
     required this.onFollow,
     required this.onFollowersTap,
@@ -337,110 +384,153 @@ class _Hero extends StatelessWidget {
     final accent = user.writerBadge != null
         ? UserBadgeChip.parseHex(user.writerBadge!.colorHex)
         : (isDark ? Colors.white24 : Colors.black12);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            alignment: Alignment.bottomRight,
+    final avatar = _avatarStack(isMaster, accent);
+    final nameStyle = GoogleFonts.playfairDisplay(
+      fontSize: isMobile ? 26 : 34,
+      fontWeight: FontWeight.w800,
+      color: textColor,
+      height: 1.05,
+      letterSpacing: -0.5,
+    );
+    final badges = (user.writerBadge != null || user.readerBadge != null)
+        ? Wrap(
+            spacing: 6,
+            runSpacing: 6,
             children: [
-              _BigAvatar(
-                user: user,
-                isDark: isDark,
-                textColor: textColor,
-                ringColor: isMaster ? accent : null,
-                size: 96,
-              ),
-              if (isMaster)
-                Container(
-                  margin: const EdgeInsets.only(right: 2, bottom: 2),
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: accent,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isDark ? Colors.black : Colors.white,
-                      width: 2,
-                    ),
+              if (user.writerBadge != null)
+                UserBadgeChip(
+                  badge: user.writerBadge!,
+                  compact: false,
+                  onTap: () => showBadgeDetailSheet(
+                    context,
+                    badge: user.writerBadge!,
+                    isSelf: isSelf,
                   ),
-                  child: const Icon(
-                    CupertinoIcons.checkmark_seal_fill,
-                    size: 14,
-                    color: Colors.white,
+                ),
+              if (user.readerBadge != null)
+                UserBadgeChip(
+                  badge: user.readerBadge!,
+                  compact: false,
+                  onTap: () => showBadgeDetailSheet(
+                    context,
+                    badge: user.readerBadge!,
+                    isSelf: isSelf,
                   ),
                 ),
             ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Text(
+          )
+        : null;
+    final stats = _StatsStrip(
+      user: user,
+      surface: surface,
+      isDark: isDark,
+      textColor: textColor,
+      subtle: subtle,
+      onFollowersTap: onFollowersTap,
+      onFollowingTap: onFollowingTap,
+    );
+    final actions = isSelf
+        ? null
+        : _ActionsRow(
+            user: user,
+            loading: followInFlight,
+            isDark: isDark,
+            onFollow: onFollow,
+          );
+
+    if (isMobile) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            avatar,
+            const SizedBox(height: 14),
+            Text(
+              user.name ?? 'Unnamed',
+              style: nameStyle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 6),
+            ?badges,
+            const SizedBox(height: 16),
+            stats,
+            if (actions != null) ...[
+              const SizedBox(height: 14),
+              actions,
+            ],
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(28, 14, 28, 22),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          avatar,
+          const SizedBox(width: 28),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   user.name ?? 'Unnamed',
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    color: textColor,
-                    height: 1.05,
-                    letterSpacing: -0.5,
-                  ),
+                  style: nameStyle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          if (user.writerBadge != null || user.readerBadge != null)
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                if (user.writerBadge != null)
-                  UserBadgeChip(
-                    badge: user.writerBadge!,
-                    compact: false,
-                    onTap: () => showBadgeDetailSheet(
-                      context,
-                      badge: user.writerBadge!,
-                      isSelf: isSelf,
-                    ),
-                  ),
-                if (user.readerBadge != null)
-                  UserBadgeChip(
-                    badge: user.readerBadge!,
-                    compact: false,
-                    onTap: () => showBadgeDetailSheet(
-                      context,
-                      badge: user.readerBadge!,
-                      isSelf: isSelf,
-                    ),
-                  ),
+                const SizedBox(height: 10),
+                if (badges != null) ...[
+                  badges,
+                  const SizedBox(height: 18),
+                ],
+                stats,
+                if (actions != null) ...[
+                  const SizedBox(height: 16),
+                  actions,
+                ],
               ],
             ),
-          const SizedBox(height: 16),
-          _StatsStrip(
-            user: user,
-            surface: surface,
-            isDark: isDark,
-            textColor: textColor,
-            subtle: subtle,
-            onFollowersTap: onFollowersTap,
-            onFollowingTap: onFollowingTap,
           ),
-          if (!isSelf) ...[
-            const SizedBox(height: 14),
-            _ActionsRow(
-              user: user,
-              loading: followInFlight,
-              isDark: isDark,
-              onFollow: onFollow,
-            ),
-          ],
         ],
       ),
+    );
+  }
+
+  Widget _avatarStack(bool isMaster, Color accent) {
+    final size = isMobile ? 96.0 : 144.0;
+    return Stack(
+      alignment: Alignment.bottomRight,
+      children: [
+        _BigAvatar(
+          user: user,
+          isDark: isDark,
+          textColor: textColor,
+          ringColor: isMaster ? accent : null,
+          size: size,
+        ),
+        if (isMaster)
+          Container(
+            margin: const EdgeInsets.only(right: 2, bottom: 2),
+            padding: EdgeInsets.all(isMobile ? 4 : 5),
+            decoration: BoxDecoration(
+              color: accent,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isDark ? Colors.black : Colors.white,
+                width: 2,
+              ),
+            ),
+            child: Icon(
+              CupertinoIcons.checkmark_seal_fill,
+              size: isMobile ? 14 : 18,
+              color: Colors.white,
+            ),
+          ),
+      ],
     );
   }
 }
@@ -1054,50 +1144,164 @@ class _StoryCard extends StatelessWidget {
           border: Border.all(color: border, width: 1),
         ),
         padding: const EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: SizedBox(
-                width: 78,
-                height: 102,
-                child: _cover(item, isDark),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: SizedBox(
+                  width: 78,
+                  height: 102,
+                  child: _cover(item, isDark),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title.isEmpty ? 'Untitled' : item.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: textColor,
-                      height: 1.25,
-                      letterSpacing: -0.1,
-                    ),
-                  ),
-                  if (item.description.trim().isNotEmpty) ...[
-                    const SizedBox(height: 6),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      item.description.trim(),
+                      item.title.isEmpty ? 'Untitled' : item.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.inter(
-                        fontSize: 12.5,
-                        color: subtle,
-                        height: 1.35,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: textColor,
+                        height: 1.25,
+                        letterSpacing: -0.1,
                       ),
                     ),
+                    if (item.description.trim().isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        item.description.trim(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 12.5,
+                          color: subtle,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                    const Spacer(),
+                    _MetaStrip(item: item, subtle: subtle),
                   ],
-                  const Spacer(),
-                  _MetaStrip(item: item, subtle: subtle),
-                ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _cover(FeedItemModel item, bool isDark) {
+    final placeholder = Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [const Color(0xFF1F1F23), const Color(0xFF111114)]
+              : [const Color(0xFFEFF1F4), const Color(0xFFFFFFFF)],
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Icon(
+        CupertinoIcons.book,
+        color: isDark ? Colors.white24 : Colors.black26,
+        size: 26,
+      ),
+    );
+    if (item.imageUrl.isEmpty && item.imageMeta == null) return placeholder;
+    return AppNetworkImage(
+      url: item.imageUrl,
+      meta: item.imageMeta,
+      fit: BoxFit.cover,
+      errorWidget: placeholder,
+    );
+  }
+}
+
+// Vertical card variant — used in the desktop / tablet grid where each
+// story stands as its own tile (cover above, title + snippet + meta below).
+class _StoryGridCard extends StatelessWidget {
+  final FeedItemModel item;
+  final bool isDark;
+  final Color surface;
+  final Color textColor;
+  final Color subtle;
+  const _StoryGridCard({
+    required this.item,
+    required this.isDark,
+    required this.surface,
+    required this.textColor,
+    required this.subtle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final border = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.05);
+    return InkWell(
+      onTap: () => context.push('/post/${item.id}', extra: item),
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        decoration: BoxDecoration(
+          color: surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: border, width: 1),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 10,
+              child: _cover(item, isDark),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.title.isEmpty ? 'Untitled' : item.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: textColor,
+                        height: 1.25,
+                        letterSpacing: -0.1,
+                      ),
+                    ),
+                    if (item.description.trim().isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Expanded(
+                        child: Text(
+                          item.description.trim(),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                            fontSize: 12.5,
+                            color: subtle,
+                            height: 1.35,
+                          ),
+                        ),
+                      ),
+                    ] else
+                      const Spacer(),
+                    const SizedBox(height: 10),
+                    _MetaStrip(item: item, subtle: subtle),
+                  ],
+                ),
               ),
             ),
           ],
@@ -1121,7 +1325,7 @@ class _StoryCard extends StatelessWidget {
       child: Icon(
         CupertinoIcons.book,
         color: isDark ? Colors.white24 : Colors.black26,
-        size: 26,
+        size: 32,
       ),
     );
     if (item.imageUrl.isEmpty && item.imageMeta == null) return placeholder;

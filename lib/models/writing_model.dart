@@ -184,6 +184,18 @@ class WritingModel {
   DateTime createdAt = DateTime.now();
   List<SectionModel> sections;
 
+  // Project Targets — manuscript-wide goal that the daily-goal service
+  // uses to compute today's recommended word count.
+  int? targetWordCount;
+  DateTime? targetDeadline;
+
+  // Color-label semantics. `labelMeaning` is what the colors *mean* on
+  // this project ("status", "pov", "subplot", "mood", or a custom string).
+  // `labelNames` maps an ARGB int to a human name ("Daisy", "Drafting",
+  // …). Empty defaults are harmless — labels become a no-op.
+  String labelMeaning;
+  Map<int, String> labelNames;
+
   WritingModel({
     required this.id,
     required this.title,
@@ -195,7 +207,11 @@ class WritingModel {
     required this.subtype, // 🔥 NEW
     this.coverImageMeta,
     this.status = WritingStatus.ongoing,
-  });
+    this.targetWordCount,
+    this.targetDeadline,
+    this.labelMeaning = 'status',
+    Map<int, String>? labelNames,
+  }) : labelNames = labelNames ?? <int, String>{};
 
   factory WritingModel.fromJson(Map<String, dynamic> json) {
     return WritingModel(
@@ -213,6 +229,12 @@ class WritingModel {
       sections: (json['sections'] as List)
           .map((sectionJson) => SectionModel.fromJson(sectionJson))
           .toList(),
+      targetWordCount: (json['targetWordCount'] as num?)?.toInt(),
+      targetDeadline: json['targetDeadline'] != null
+          ? DateTime.tryParse(json['targetDeadline'] as String)
+          : null,
+      labelMeaning: (json['labelMeaning'] as String?) ?? 'status',
+      labelNames: _decodeLabelNames(json['labelNames']),
     );
   }
 
@@ -229,6 +251,23 @@ class WritingModel {
       'subtype': subtype, // 🔥
       'createdAt': createdAt.toIso8601String(),
       'sections': sections.map((section) => section.toJson()).toList(),
+      'targetWordCount': targetWordCount,
+      'targetDeadline': targetDeadline?.toIso8601String(),
+      'labelMeaning': labelMeaning,
+      'labelNames': {
+        for (final entry in labelNames.entries) entry.key.toString(): entry.value,
+      },
     };
+  }
+
+  static Map<int, String> _decodeLabelNames(dynamic raw) {
+    if (raw is! Map) return <int, String>{};
+    final result = <int, String>{};
+    raw.forEach((k, v) {
+      final key = k is int ? k : int.tryParse('$k');
+      if (key == null || v is! String) return;
+      result[key] = v;
+    });
+    return result;
   }
 }

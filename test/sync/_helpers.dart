@@ -129,6 +129,29 @@ class RecordingDispatcher implements SyncDispatcher {
     calls.add('deleteBookmark:$bookmarkId');
     _maybeThrow('deleteBookmark');
   }
+
+  @override
+  Future<void> updateSectionMetadata(
+    String userId,
+    String writingId,
+    String sectionId,
+    Map<String, dynamic> fields, {
+    String? opId,
+  }) async {
+    calls.add('updateSectionMetadata:$writingId/$sectionId');
+    _maybeThrow('updateSectionMetadata');
+  }
+
+  @override
+  Future<void> updateWritingProjectFields(
+    String userId,
+    String writingId,
+    Map<String, dynamic> fields, {
+    String? opId,
+  }) async {
+    calls.add('updateWritingProjectFields:$writingId');
+    _maybeThrow('updateWritingProjectFields');
+  }
 }
 
 PendingOp contentOp(String wid, String sid, String body) => PendingOp(

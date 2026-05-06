@@ -2,11 +2,13 @@ import uuid
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import get_current_user
 from app.database import get_db
+from app.models.feed_item import FeedItem
+from app.models.reading_progress import ReadingProgress
 from app.models.section import Section
 from app.models.user import User
 from app.models.writing import Writing
@@ -221,6 +223,73 @@ async def delete_section(
             "section_ids": list(writing.section_ids or []),
         },
     )
+
+
+@router.get("/{writing_id}/section-retention")
+async def section_retention(
+    writing_id: UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Per-section reader drop-off for the outline view.
+
+    Only the writing's author can call this — `_get_user_writing` 404s
+    otherwise. Aggregates `reading_progress` rows for the feed item that
+    backs this writing: total distinct readers, how many completed, and
+    a per-section count of in-progress readers whose `last_section_id`
+    points at that section ("stalled here right now").
+
+    A reader is counted at most once: completed readers contribute to
+    `completed_readers` only, never to a section bucket. Rows missing
+    `last_section_id` (legacy reading_progress before paragraph-precise
+    anchors landed) are silently excluded from the per-section bucket
+    but still count toward `total_readers`.
+    """
+    await _get_user_writing(writing_id, user.id, db)
+
+    fi = await db.execute(
+        select(FeedItem.id).where(FeedItem.writing_id == writing_id)
+    )
+    feed_item_id = fi.scalar_one_or_none()
+    if feed_item_id is None:
+        return {
+            "total_readers": 0,
+            "completed_readers": 0,
+            "sections": [],
+        }
+
+    totals = await db.execute(
+        select(
+            func.count(ReadingProgress.id).label("total"),
+            func.count(ReadingProgress.id)
+            .filter(ReadingProgress.completed.is_(True))
+            .label("completed"),
+        ).where(ReadingProgress.feed_item_id == feed_item_id)
+    )
+    totals_row = totals.one()
+
+    by_section = await db.execute(
+        select(
+            ReadingProgress.last_section_id,
+            func.count(ReadingProgress.id),
+        )
+        .where(
+            ReadingProgress.feed_item_id == feed_item_id,
+            ReadingProgress.completed.is_(False),
+            ReadingProgress.last_section_id.is_not(None),
+        )
+        .group_by(ReadingProgress.last_section_id)
+    )
+    sections = [
+        {"section_id": sid, "stalled_count": int(count)}
+        for sid, count in by_section.all()
+    ]
+
+    return {
+        "total_readers": int(totals_row.total or 0),
+        "completed_readers": int(totals_row.completed or 0),
+        "sections": sections,
+    }
 
 
 async def _get_user_writing(writing_id: UUID, user_id, db: AsyncSession) -> Writing:

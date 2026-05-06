@@ -34,11 +34,18 @@ import 'package:inkspacex/ui/editor/command_palette.dart';
 import 'package:inkspacex/ui/editor/floating_format_bar.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
 import 'package:inkspacex/ui/editor/slash_menu.dart';
+import 'package:inkspacex/ui/editor/name_generator_dialog.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/canvas_page/canvas_editor.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/ai_bottom_sheet.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/annotations_panel.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/binder_pane.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/section_inspector.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/secondary_pane.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/views/cards_view.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/views/outline_view.dart';
+import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/views/view_switcher.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/comment_compose_dialog.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/editor_constants.dart';
 import 'package:inkspacex/ui/pages/editor_page_entry/writing_page/find_replace_bar.dart';
@@ -95,7 +102,14 @@ class _EditiorPageState extends State<EditiorPage>
   bool _typewriterMode = false;
   bool _showOutline = false;
   bool _showAnnotations = false;
+  bool _showInspector = false;
+  bool _showSplitView = false;
+  // Width of the right-side reference pane. User-resizable by dragging
+  // its left handle. Persisted only in-memory for now — survives across
+  // toggles within a session, resets to default on app restart.
+  double _splitViewWidth = 360;
   bool _findReplaceOpen = false;
+  EditorViewMode _viewMode = EditorViewMode.draft;
   void Function()? _removeFindShortcutSuppressor;
 
   // ── AI Assist (on-canvas result panel) ──
@@ -1210,7 +1224,25 @@ class _EditiorPageState extends State<EditiorPage>
       case SlashAction.image:
         _insertImage();
         break;
+      case SlashAction.generateNames:
+        _runNameGenerator();
+        break;
     }
+  }
+
+  Future<void> _runNameGenerator() async {
+    final controller = context.read<EditorProvider>().controller;
+    final picked = await NameGeneratorDialog.show(context);
+    if (picked == null || picked.isEmpty) return;
+    final selection = controller.selection;
+    final start =
+        selection.baseOffset.clamp(0, controller.document.length).toInt();
+    controller.replaceText(
+      start,
+      0,
+      picked,
+      TextSelection.collapsed(offset: start + picked.length),
+    );
   }
 
   // ─── Command palette (Cmd/Ctrl+K) ───
@@ -1825,6 +1857,13 @@ class _EditiorPageState extends State<EditiorPage>
     int replaceLength, {
     required bool stripTrailingNewline,
   }) {
+    // Scrivener-class auto-snapshot: capture pre-AI state so the user can
+    // restore if the rewrite goes sideways. Awaiting the future would
+    // delay the apply by one frame; fire-and-forget is fine because the
+    // version provider uses last-write-wins on disk.
+    unawaited(context
+        .read<VersionHistoryProvider>()
+        .captureManual(controller, label: 'Before AI rewrite'));
     var newDelta = Delta.fromJson(mergedJson);
 
     if (stripTrailingNewline) {
@@ -2655,7 +2694,24 @@ class _EditiorPageState extends State<EditiorPage>
       onPopInvokedWithResult: (didPop, result) {
         context.read<EditorProvider>().forceSaveImmediately();
       },
-      child: Scaffold(
+      child: CallbackShortcuts(
+        bindings: <ShortcutActivator, VoidCallback>{
+          const SingleActivator(LogicalKeyboardKey.digit1, meta: true): () =>
+              setState(() => _viewMode = EditorViewMode.draft),
+          const SingleActivator(LogicalKeyboardKey.digit2, meta: true): () =>
+              setState(() => _viewMode = EditorViewMode.cards),
+          const SingleActivator(LogicalKeyboardKey.digit3, meta: true): () =>
+              setState(() => _viewMode = EditorViewMode.outline),
+          const SingleActivator(LogicalKeyboardKey.digit1, control: true): () =>
+              setState(() => _viewMode = EditorViewMode.draft),
+          const SingleActivator(LogicalKeyboardKey.digit2, control: true): () =>
+              setState(() => _viewMode = EditorViewMode.cards),
+          const SingleActivator(LogicalKeyboardKey.digit3, control: true): () =>
+              setState(() => _viewMode = EditorViewMode.outline),
+        },
+        child: Focus(
+          autofocus: true,
+          child: Scaffold(
         backgroundColor: bgColor,
         body: SafeArea(
           child: _isReady
@@ -2747,6 +2803,51 @@ class _EditiorPageState extends State<EditiorPage>
                                       Expanded(
                                         child: Column(
                                           children: [
+                                            if (!_focusMode)
+                                              Padding(
+                                                padding: const EdgeInsets
+                                                        .symmetric(
+                                                    horizontal: 16,
+                                                    vertical: 6),
+                                                child: Row(
+                                                  children: [
+                                                    ViewSwitcher(
+                                                      mode: _viewMode,
+                                                      onChanged: (m) =>
+                                                          setState(() =>
+                                                              _viewMode = m),
+                                                    ),
+                                                    const Spacer(),
+                                                    if (!isMobile)
+                                                      IconButton(
+                                                        tooltip: _showSplitView
+                                                            ? 'Hide split view'
+                                                            : 'Split view',
+                                                        visualDensity:
+                                                            VisualDensity
+                                                                .compact,
+                                                        iconSize: 16,
+                                                        icon: Icon(
+                                                          _showSplitView
+                                                              ? CupertinoIcons
+                                                                  .rectangle_compress_vertical
+                                                              : CupertinoIcons
+                                                                  .square_split_2x1,
+                                                          color: textColor
+                                                              .withValues(
+                                                                  alpha:
+                                                                      _showSplitView
+                                                                          ? 1
+                                                                          : 0.55),
+                                                        ),
+                                                        onPressed: () =>
+                                                            setState(() =>
+                                                                _showSplitView =
+                                                                    !_showSplitView),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
                                             if (_findReplaceOpen && !_focusMode)
                                               FindReplaceBar(
                                                 controller: context
@@ -2762,12 +2863,28 @@ class _EditiorPageState extends State<EditiorPage>
                                             Expanded(
                                               child: Stack(
                                                 children: [
-                                                  _buildEditorArea(
-                                                    isDark: isDark,
-                                                    bgColor: bgColor,
-                                                    textColor: textColor,
-                                                    isMobile: isMobile,
-                                                  ),
+                                                  if (_viewMode ==
+                                                          EditorViewMode
+                                                              .draft ||
+                                                      _focusMode)
+                                                    _buildEditorArea(
+                                                      isDark: isDark,
+                                                      bgColor: bgColor,
+                                                      textColor: textColor,
+                                                      isMobile: isMobile,
+                                                    )
+                                                  else if (_viewMode ==
+                                                      EditorViewMode.cards)
+                                                    Container(
+                                                      color: bgColor,
+                                                      child: const CardsView(),
+                                                    )
+                                                  else
+                                                    Container(
+                                                      color: bgColor,
+                                                      child:
+                                                          const OutlineView(),
+                                                    ),
                                                   if (!isMobile)
                                                     Positioned(
                                                       top: 0,
@@ -2852,6 +2969,12 @@ class _EditiorPageState extends State<EditiorPage>
                                                                       !_showAnnotations),
                                                           onVersionHistory:
                                                               _showVersionHistory,
+                                                          inspectorActive:
+                                                              _showInspector,
+                                                          onToggleInspector:
+                                                              () => setState(
+                                                                  () => _showInspector =
+                                                                      !_showInspector),
                                                         ),
                                                       ),
                                                     ),
@@ -2876,6 +2999,27 @@ class _EditiorPageState extends State<EditiorPage>
                                           onDelete: _deleteAnnotation,
                                           onClose: () => setState(() =>
                                               _showAnnotations = false),
+                                        ),
+                                      if (_showInspector &&
+                                          !isMobile &&
+                                          !_focusMode)
+                                        SectionInspector(
+                                          isDark: isDark,
+                                          textColor: textColor,
+                                          borderColor: borderColor,
+                                          surfaceColor: surfaceColor,
+                                          onClose: () => setState(() =>
+                                              _showInspector = false),
+                                        ),
+                                      if (_showSplitView &&
+                                          !isMobile &&
+                                          !_focusMode)
+                                        SecondaryPane(
+                                          width: _splitViewWidth,
+                                          onWidthChanged: (w) => setState(
+                                              () => _splitViewWidth = w),
+                                          onClose: () => setState(() =>
+                                              _showSplitView = false),
                                         ),
                                     ],
                                   ),
@@ -2976,6 +3120,8 @@ class _EditiorPageState extends State<EditiorPage>
                     ],
                   )
               : const Center(child: AppSpinner(size: 28)),
+        ),
+      ),
         ),
       ),
     );
@@ -3368,6 +3514,16 @@ class _EditiorPageState extends State<EditiorPage>
               color: _showOutline ? accentColor : textColor,
               onPressed: () =>
                   setState(() => _showOutline = !_showOutline),
+            ),
+            ToolbarIconButton(
+              icon: CupertinoIcons.info,
+              tooltip: 'Inspector',
+              color: textColor,
+              onPressed: () => _showInspectorSheet(
+                isDark: isDark,
+                textColor: textColor,
+                borderColor: borderColor,
+              ),
             ),
             ToolbarIconButton(
               icon: CupertinoIcons.eye_slash,
@@ -3939,163 +4095,10 @@ class _EditiorPageState extends State<EditiorPage>
           physics: const NeverScrollableScrollPhysics(),
           child: SizedBox(
             width: 260,
-            child: _buildSectionsList(
-              isDark: isDark,
-              textColor: textColor,
-              borderColor: borderColor,
-            ),
+            child: const BinderPane(),
           ),
         ),
       ),
-    );
-  }
-
-  // ─── Sections List (shared between sidebar & bottom sheet) ───
-  Widget _buildSectionsList({
-    required bool isDark,
-    required Color textColor,
-    required Color borderColor,
-    VoidCallback? onItemTap,
-    ScrollController? scrollController,
-  }) {
-    return Consumer<EditorProvider>(
-      builder: (context, provider, _) {
-        final sections = provider.allBooksSection;
-        return ListView.separated(
-          controller: scrollController,
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-          itemCount: sections.length,
-          separatorBuilder: (_, i) => const SizedBox(height: 2),
-          itemBuilder: (ctx, idx) {
-            final section = sections[idx];
-            final isActive = provider.activeSection?.id == section.id;
-
-            return Material(
-              color: isActive
-                  ? (isDark
-                      ? Colors.white.withValues(alpha: 0.08)
-                      : Colors.black.withValues(alpha: 0.04))
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: () {
-                  if (!isActive) {
-                    provider.forceSaveImmediately();
-                    provider.setActiveSection(section);
-                    provider.initEditor();
-                    _initSessionTracking();
-                    onItemTap?.call();
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 10),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 7,
-                        height: 7,
-                        decoration: BoxDecoration(
-                          color: section.sectionColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              section.title,
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: isActive
-                                    ? FontWeight.w600
-                                    : FontWeight.w500,
-                                color: isActive
-                                    ? textColor
-                                    : textColor.withValues(alpha: 0.75),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (section.content.isNotEmpty) ...[
-                              const SizedBox(height: 3),
-                              Text(
-                                provider.getPreviewText(section.content),
-                                style: GoogleFonts.inter(
-                                  fontSize: 11,
-                                  color: textColor.withValues(alpha: 0.35),
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      PopupMenuButton<String>(
-                        icon: Icon(
-                          CupertinoIcons.ellipsis,
-                          size: 14,
-                          color: textColor.withValues(alpha: 0.3),
-                        ),
-                        color:
-                            isDark ? const Color(0xFF1A1A1A) : Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        onSelected: (value) {
-                          if (value == 'rename') {
-                            _showTextInputDialog(
-                              title: 'Rename Section',
-                              initialValue: section.title,
-                              onSave: (v) =>
-                                  provider.renameSection(section, v),
-                            );
-                          } else if (value == 'delete') {
-                            provider.deleteSection(section);
-                            if (provider.allBooksSection.isEmpty) {
-                              Navigator.pop(context);
-                            }
-                          }
-                        },
-                        itemBuilder: (_) => [
-                          PopupMenuItem(
-                            value: 'rename',
-                            child: Row(
-                              children: [
-                                Icon(CupertinoIcons.pencil,
-                                    size: 16, color: textColor),
-                                const SizedBox(width: 10),
-                                Text('Rename', style: GoogleFonts.inter()),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                const Icon(CupertinoIcons.trash,
-                                    size: 16, color: Colors.redAccent),
-                                const SizedBox(width: 10),
-                                Text('Delete',
-                                    style: GoogleFonts.inter(
-                                        color: Colors.redAccent)),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 
@@ -4703,17 +4706,51 @@ class _EditiorPageState extends State<EditiorPage>
               ),
             ),
             Expanded(
-              child: _buildSectionsList(
-                isDark: isDark,
-                textColor: textColor,
-                borderColor: borderColor,
+              child: BinderPane(
                 onItemTap: () => Navigator.pop(ctx),
-                scrollController: scrollCtrl,
               ),
             ),
           ],
         ),
       ),
+      ),
+    );
+  }
+
+  void _showInspectorSheet({
+    required bool isDark,
+    required Color textColor,
+    required Color borderColor,
+  }) {
+    final sheetBg = isDark ? const Color(0xFF0C0C0C) : Colors.white;
+    final surfaceColor = isDark
+        ? Colors.white.withValues(alpha: 0.04)
+        : Colors.black.withValues(alpha: 0.02);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: sheetBg,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => _escapeDismiss(
+        ctx,
+        Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(ctx).bottom,
+          ),
+          child: SizedBox(
+            height: MediaQuery.sizeOf(ctx).height * 0.78,
+            child: SectionInspector(
+              isDark: isDark,
+              textColor: textColor,
+              borderColor: borderColor,
+              surfaceColor: surfaceColor,
+              asSheet: true,
+              onClose: () => Navigator.pop(ctx),
+            ),
+          ),
+        ),
       ),
     );
   }

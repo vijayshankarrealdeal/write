@@ -225,6 +225,9 @@ class OutboxDrainer {
         case PendingOpKind.deleteBookmark:
           await _dispatchDeleteBookmark(op);
           break;
+        case PendingOpKind.updateWritingProject:
+          await _dispatchUpdateWritingProject(op);
+          break;
       }
       await _outbox.remove(op.id);
       _failedCount.value = _countFailed();
@@ -367,28 +370,45 @@ class OutboxDrainer {
         canvasData: fields['canvas_data'] as String? ?? '',
         sectionColor:
             Color((fields['section_color'] as num?)?.toInt() ?? 0xFF1982C4),
+        parentId: fields['parent_id'] as String?,
+        order: (fields['sort_order'] as num?)?.toInt() ?? 0,
+        kind: SectionKindCodec.fromCode(fields['kind'] as String?),
+        synopsis: fields['synopsis'] as String? ?? '',
+        notes: fields['notes'] as String? ?? '',
+        labelColor: (fields['label_color'] as num?)?.toInt(),
+        keywords: (fields['keywords'] is List)
+            ? (fields['keywords'] as List).whereType<String>().toList()
+            : <String>[],
+        includeInPublish: fields['include_in_publish'] is bool
+            ? fields['include_in_publish'] as bool
+            : true,
       );
       await _dataService.addSection('', writingId, section, opId: op.id);
       if (section.id != sectionId) {
         await _propagateSectionRemap(writingId, sectionId, section.id);
       }
     } else {
-      // Three sub-cases on the same endpoint: rename (title only),
-      // content+canvas update, or both. The current API exposes them as
-      // separate methods for the rename path and a single combined call
-      // for content; we route by which fields are present.
+      // Title-only and content updates have dedicated endpoints; everything
+      // else (parent/order/kind/synopsis/notes/label/keywords/publish-gate)
+      // routes through the generic metadata patch.
       final hasTitle = fields.containsKey('title');
       final hasContent = fields.containsKey('content') ||
           fields.containsKey('canvas_data');
-      if (hasTitle && !hasContent) {
-        await _dataService.renameSection(
-          '',
-          writingId,
-          sectionId,
-          fields['title'] as String,
-          opId: op.id,
-        );
-      } else if (hasContent) {
+      final metadata = <String, dynamic>{};
+      for (final key in const [
+        'parent_id',
+        'sort_order',
+        'kind',
+        'synopsis',
+        'notes',
+        'label_color',
+        'keywords',
+        'include_in_publish',
+        'section_color',
+      ]) {
+        if (fields.containsKey(key)) metadata[key] = fields[key];
+      }
+      if (hasContent) {
         await _dataService.updateSectionContent(
           '',
           writingId,
@@ -398,7 +418,48 @@ class OutboxDrainer {
           opId: op.id,
         );
       }
+      if (hasTitle && !hasContent) {
+        await _dataService.renameSection(
+          '',
+          writingId,
+          sectionId,
+          fields['title'] as String,
+          opId: op.id,
+        );
+      } else if (hasTitle && hasContent) {
+        // Title + content together — already updated content above; PUT
+        // the title separately so the rename endpoint stays the canonical
+        // path for echo-suppression headers.
+        await _dataService.renameSection(
+          '',
+          writingId,
+          sectionId,
+          fields['title'] as String,
+          opId: op.id,
+        );
+      }
+      if (metadata.isNotEmpty) {
+        await _dataService.updateSectionMetadata(
+          '',
+          writingId,
+          sectionId,
+          metadata,
+          opId: op.id,
+        );
+      }
     }
+  }
+
+  Future<void> _dispatchUpdateWritingProject(PendingOp op) async {
+    final writingId = op.payload['writingId'] as String;
+    final fields = Map<String, dynamic>.from(op.payload['fields'] as Map);
+    if (fields.isEmpty) return;
+    await _dataService.updateWritingProjectFields(
+      '',
+      writingId,
+      fields,
+      opId: op.id,
+    );
   }
 
   Future<void> _dispatchDeleteSection(PendingOp op) async {

@@ -1,8 +1,8 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Index, String, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Index, Integer, String, func
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, UUIDMixin
@@ -27,6 +27,23 @@ class Section(UUIDMixin, Base):
     # public list is an explicit curation step.
     is_published: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
+    )
+
+    # --- Scrivener-class binder fields. All additive / nullable so legacy
+    # rows keep working unchanged. `parent_id` references another section
+    # in the same writing — kept as String (not FK) to avoid a
+    # write-order chicken-and-egg with bulk inserts.
+    parent_id: Mapped[str | None] = mapped_column(String(64))
+    sort_order: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    kind: Mapped[str | None] = mapped_column(String(32))
+    synopsis: Mapped[str | None] = mapped_column(String(2000))
+    notes: Mapped[str | None] = mapped_column(JSONB)
+    label_color: Mapped[int | None] = mapped_column(BigInteger)
+    keywords: Mapped[list[str] | None] = mapped_column(ARRAY(String))
+    include_in_publish: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default="true"
     )
 
     updated_at: Mapped[datetime] = mapped_column(

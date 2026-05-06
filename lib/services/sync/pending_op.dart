@@ -9,6 +9,7 @@ enum PendingOpKind {
   deleteSection, // DELETE /api/writings/{wid}/sections/{sid}
   upsertBookmark, // POST /api/bookmarks/  (idempotent — server dedupes)
   deleteBookmark, // DELETE /api/bookmarks/{id}
+  updateWritingProject, // PUT /api/writings/{id} — Scrivener-class project fields
 }
 
 PendingOpKind _kindFromString(String s) =>

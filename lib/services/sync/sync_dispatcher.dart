@@ -56,6 +56,27 @@ abstract class SyncDispatcher {
     String? opId,
   });
 
+  /// Patch arbitrary section metadata (synopsis, notes, parent_id,
+  /// sort_order, kind, label_color, keywords, include_in_publish).
+  /// Used by the binder for drag-reorder / drag-between-folders / label
+  /// changes — anything that isn't a title or content edit.
+  Future<void> updateSectionMetadata(
+    String userId,
+    String writingId,
+    String sectionId,
+    Map<String, dynamic> fields, {
+    String? opId,
+  });
+
+  /// Patch project-level fields on the writing (target word count,
+  /// deadline, label meaning, label names palette).
+  Future<void> updateWritingProjectFields(
+    String userId,
+    String writingId,
+    Map<String, dynamic> fields, {
+    String? opId,
+  });
+
   /// Phase 3 (P2): bookmarks. Idempotent on the server (dedupe by
   /// `(user, feed_item, section_index, anchor)`), so the outbox can
   /// safely replay an upsert when a previous response was lost.

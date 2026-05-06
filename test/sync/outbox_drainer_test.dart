@@ -86,6 +86,27 @@ class _FakeDispatcher implements SyncDispatcher {
   Future<void> deleteBookmark(String bookmarkId) async {
     calls.add('deleteBookmark:$bookmarkId');
   }
+
+  @override
+  Future<void> updateSectionMetadata(
+    String userId,
+    String writingId,
+    String sectionId,
+    Map<String, dynamic> fields, {
+    String? opId,
+  }) async {
+    calls.add('updateSectionMetadata:$writingId/$sectionId');
+  }
+
+  @override
+  Future<void> updateWritingProjectFields(
+    String userId,
+    String writingId,
+    Map<String, dynamic> fields, {
+    String? opId,
+  }) async {
+    calls.add('updateWritingProjectFields:$writingId');
+  }
 }
 
 PendingOp _contentOp(String wid, String sid, String body) => PendingOp(
