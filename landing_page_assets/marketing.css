@@ -41,6 +41,15 @@
     --ink-soft: #E0DAC9;
     --muted: #B5AC97;
     --paper-line: #2C2C2C;
+    /* Lift the accent in dark mode so brand mark + links keep WCAG AA on
+       #191919 (the #1E6EF4 light-mode accent only hits 3.78:1). */
+    --accent: #5CB8FF;
+    --accent-hover: #0091FF;
+    --accent-soft: #102A47;
+    --accent-2-soft: #221E47;
+    --accent-3-soft: #2E2614;
+    --accent-4: #6FD8A4;
+    --accent-4-soft: #14291F;
   }
 }
 
@@ -107,11 +116,16 @@ body {
   display: inline-block;
   font-family: 'Inter', sans-serif;
   font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
-  color: var(--accent);
+  /* AA contrast: --accent (#1E6EF4) on --accent-soft (#DDEAFF) is only
+     3.76:1. Dropping to #1257D6 hits 5.6:1 — passes for any text size. */
+  color: #1257D6;
   background: var(--accent-soft);
   padding: 6px 12px; border-radius: 999px;
   text-transform: uppercase;
   margin-bottom: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .page-hero .eyebrow { color: var(--accent); }
 }
 .page-hero h1 {
   font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
@@ -219,14 +233,15 @@ body {
   border-radius: 12px;
   padding: 20px 22px;
 }
-.pc-card h4 {
+.pc-card h3, .pc-card h4 {
+  font-family: 'Inter', sans-serif;
   font-size: 13px; font-weight: 800; letter-spacing: 1px;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin: 0 0 12px;
   color: var(--ink);
 }
-.pc-card.pros h4 { color: var(--good); }
-.pc-card.cons h4 { color: var(--bad); }
+.pc-card.pros h3, .pc-card.pros h4 { color: var(--good); }
+.pc-card.cons h3, .pc-card.cons h4 { color: var(--bad); }
 .pc-card ul { margin: 0 0 0 18px; }
 .pc-card li { margin-bottom: 6px; font-size: 15px; }
 
@@ -253,7 +268,11 @@ body {
 .cta-btn {
   display: inline-block;
   background: var(--accent-3);
-  color: var(--ink);
+  /* Yellow accent-3 background only has AA contrast against the
+     light-mode #111 ink. In dark mode --ink flips to #F1ECDD, which
+     gives 1.2:1 — a fail. Force ink-black on the yellow chip in both
+     modes; the chip is always visually a light surface. */
+  color: #111111;
   font-weight: 700; font-size: 15px;
   text-decoration: none;
   padding: 14px 24px; border-radius: 12px;
@@ -263,6 +282,7 @@ body {
 .cta-btn:hover {
   transform: translate(-2px, -2px);
   box-shadow: 6px 6px 0 0 var(--accent);
+  color: #111111;
 }
 
 /* ── Breadcrumbs ────────────────────────────────────────────────── */
@@ -364,6 +384,8 @@ body {
 }
 .post-card .meta {
   margin-top: 12px;
-  color: var(--muted-2);
+  /* AA contrast: --muted-2 (#8A8472) on white is only 3.7:1.
+     --muted (#5B6470) is 6.4:1 — passes for any small-text size. */
+  color: var(--muted);
   font-size: 13px;
 }
