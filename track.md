@@ -1,6 +1,6 @@
 # Writing Section Roadmap — Track
 
-Status legend: ✅ done · 🟡 in progress · ⬜ pending
+Status legend: ✅ merged to main · 🟢 implementation complete, PR open · 🟡 in progress · ⬜ pending
 
 ## P0 — Critical / quick wins
 - ✅ #1 Smart quotes / dashes / ellipsis — commit 31b0f79
@@ -9,7 +9,7 @@ Status legend: ✅ done · 🟡 in progress · ⬜ pending
 - ✅ Bug: writing_id UUID 422 — commit c8ccd7d (resolved)
 
 ## P1 — Major features
-- 🟡 #4 Scrivenings — read-only v1 shipped (commit 066f416). Live multi-section editing PENDING — being implemented on branch `feat/scrivenings-live`.
+- 🟢 #4 Scrivenings — read-only v1 merged (commit 066f416). Live multi-section editing implementation complete on branch `feat/scrivenings-live` (commit 02274c3); PR [#9](https://github.com/vijayshankarrealdeal/write/pull/9) open, awaiting review/merge.
 - ⬜ #5 Footnotes (inline + inspector panel) — branch `feat/footnotes`
 - ⬜ #6 Author bookmarks (in-document) — branch `feat/author-bookmarks`
 
@@ -18,4 +18,4 @@ Status legend: ✅ done · 🟡 in progress · ⬜ pending
 - ⬜ #8 Page view / paginated layout — branch `feat/page-view`
 
 ## How this file is updated
-Each feature branch updates this file in its final commit before merging to main, flipping its row from ⬜/🟡 to ✅ with the merge commit hash. Bugs discovered during work get appended at the bottom of their priority section.
+Each feature branch updates this file in its final commit before merging to main, flipping its row through ⬜ → 🟡 → 🟢 (when the PR opens) → ✅ (when it merges, with the merge commit hash). Bugs discovered during work get appended at the bottom of their priority section.
