@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show ChangeNotifier;
 import 'package:inkspacex/models/user_model.dart' as app;
@@ -92,6 +93,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _openUserScope(String uid) async {
     _storage.setUserScope(uid);
     await _outbox.switchUser(uid);
+    verifyHiveScope(reason: '_openUserScope');
   }
 
   /// Close the per-user sandbox without wiping it on disk — pending ops
@@ -99,6 +101,77 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _closeUserScope() async {
     await _outbox.switchUser(null);
     _storage.setUserScope(null);
+  }
+
+  /// Defensive check: every Hive read for a logged-in user must come
+  /// from the box scoped to *that* user — never a stale uid left over
+  /// from a previous session, never the bare unscoped key. This walks
+  /// every authoritative source (signed-in user, storage scope, outbox
+  /// uid, JWT subject) and confirms they all agree. If they don't, we
+  /// log loud, attempt to remediate (force the storage + outbox back to
+  /// the canonical uid from the JWT), and return false so the caller
+  /// can decide whether to surface a banner.
+  ///
+  /// Cheap to call — just compares four strings — so we run it after
+  /// every scope change. Bugs that swap users mid-session would be
+  /// invisible without this; here they show up loudly in the log.
+  bool verifyHiveScope({String reason = 'verify'}) {
+    final user = _currentUser;
+    if (user == null) return true; // not signed in — nothing to verify
+    final expected = user.id;
+    final storageUid = _storage.currentScopeUid;
+    final outboxUid = _outbox.currentUid;
+    final tokenSub = _decodeJwtSubject(_storage.getAuthToken());
+
+    final mismatches = <String>[];
+    if (storageUid != expected) {
+      mismatches.add('storage=$storageUid');
+    }
+    if (outboxUid != expected) {
+      mismatches.add('outbox=$outboxUid');
+    }
+    if (tokenSub != null && tokenSub != expected) {
+      mismatches.add('jwt.sub=$tokenSub');
+    }
+
+    if (mismatches.isEmpty) {
+      log.i('[hive-scope] ✓ verified uid=$expected ($reason)');
+      return true;
+    }
+
+    log.e(
+      '[hive-scope] ✗ MISMATCH for uid=$expected ($reason): '
+      '${mismatches.join(', ')}',
+    );
+
+    // Remediate: force every scope back to the user we *think* is
+    // signed in. The token's `sub` is the most authoritative signal —
+    // if it disagrees, that means we have a token for someone else and
+    // the safest move is a full logout (handled by onSessionExpired).
+    if (tokenSub != null && tokenSub != expected) {
+      log.e('[hive-scope] JWT subject disagrees with currentUser — '
+          'forcing logout');
+      unawaited(_handleSessionExpired());
+      return false;
+    }
+    _storage.setUserScope(expected);
+    unawaited(_outbox.switchUser(expected));
+    return false;
+  }
+
+  static String? _decodeJwtSubject(String? token) {
+    if (token == null || token.isEmpty) return null;
+    try {
+      final parts = token.split('.');
+      if (parts.length < 2) return null;
+      final normalized = base64.normalize(parts[1]);
+      final payload = jsonDecode(utf8.decode(base64Url.decode(normalized)))
+          as Map<String, dynamic>;
+      final sub = payload['sub'];
+      return sub is String ? sub : null;
+    } catch (_) {
+      return null;
+    }
   }
 
   bool get isAuthenticated => _isAuthenticated;

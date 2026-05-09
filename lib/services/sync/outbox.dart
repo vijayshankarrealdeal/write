@@ -36,6 +36,11 @@ class Outbox {
   /// True once a user-scoped box is open and ready to enqueue/drain.
   bool get isOpen => _box != null;
 
+  /// The uid this outbox is currently scoped to. `null` when no user is
+  /// signed in (or we're using a fixed-name test box). Exposed so the
+  /// AuthProvider can verify the outbox uid matches the JWT subject.
+  String? get currentUid => _currentUid;
+
   /// Initialise the durable queue. In production this is called once at
   /// app boot and is a no-op until [switchUser] is called with a real uid;
   /// in tests, when the outbox is constructed with an explicit `boxName`

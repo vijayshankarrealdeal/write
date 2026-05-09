@@ -60,6 +60,11 @@ class StorageService {
     _currentUid = uid;
   }
 
+  /// The uid we're currently scoped to. Exposed so callers (e.g. the
+  /// AuthProvider) can sanity-check that storage, outbox, and JWT all
+  /// agree on who's signed in.
+  String? get currentScopeUid => _currentUid;
+
   String _userKey(String prefix) {
     final uid = _currentUid;
     if (uid == null) {
