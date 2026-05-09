@@ -80,6 +80,15 @@ class ApiClient {
   // rotated refresh tokens and the loser silently logs the user out.
   Future<bool>? _refreshInFlight;
 
+  /// Invoked when the refresh endpoint itself rejects our refresh token
+  /// (401/403/410). At that point our session is genuinely dead and the
+  /// app must redirect to login — the AuthProvider sets this hook in its
+  /// constructor to call [logout]. We do *not* fire this on transient
+  /// network failures; those should keep the queued ops around so the
+  /// user's writing isn't lost when the network comes back.
+  void Function()? onSessionExpired;
+  bool _sessionExpiredFired = false;
+
   // Main domain proxies /api/* to FastAPI via Caddy, so web hits same-origin
   // and native builds reach the same backend. Override via
   // --dart-define=API_BASE_URL=... (e.g. http://localhost:8000 for dev).
@@ -90,7 +99,91 @@ class ApiClient {
 
   static const Duration _timeout = Duration(seconds: 30);
 
+  /// Window before access-token expiry within which a passing API call
+  /// (or a scheduled tick, or an app-resume) will pre-emptively refresh.
+  /// Wide enough that a slow network has time to complete the refresh
+  /// before the token actually expires; narrow enough that we don't burn
+  /// a refresh on every keystroke.
+  static const Duration _refreshBuffer = Duration(minutes: 5);
+
+  Timer? _refreshTimer;
+
   ApiClient(this._storage);
+
+  /// Decode a JWT's `exp` claim as a UTC DateTime. Returns null if the
+  /// token is malformed or missing `exp` — callers must treat null as
+  /// "can't tell, assume valid" so a malformed-but-accepted token doesn't
+  /// log the user out.
+  DateTime? _parseJwtExp(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length < 2) return null;
+      final normalized = base64.normalize(parts[1]);
+      final payload = jsonDecode(utf8.decode(base64Url.decode(normalized)))
+          as Map<String, dynamic>;
+      final exp = payload['exp'];
+      if (exp is! int) return null;
+      return DateTime.fromMillisecondsSinceEpoch(exp * 1000, isUtc: true);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Pre-emptively refresh if the access token is missing, already
+  /// expired, or expires within [_refreshBuffer]. Returns true if a
+  /// usable token is available afterwards. Safe to call repeatedly —
+  /// the underlying [_refreshToken] is single-flight and shared across
+  /// concurrent callers.
+  ///
+  /// This is what makes the user feel "always logged in" Firebase-style:
+  /// every app-resume / lifecycle wake-up calls this, so the access
+  /// token is rotated *before* it can produce a 401, and the refresh
+  /// token's TTL clock resets each time.
+  Future<bool> ensureFreshAccessToken() async {
+    final access = _storage.getAuthToken();
+    if (access == null || access.isEmpty) return false;
+    final exp = _parseJwtExp(access);
+    if (exp == null) return true;
+    final now = DateTime.now().toUtc();
+    if (exp.isAfter(now.add(_refreshBuffer))) {
+      _scheduleNextRefresh();
+      return true;
+    }
+    final ok = await _refreshToken();
+    if (ok) _scheduleNextRefresh();
+    return ok;
+  }
+
+  /// Arm a one-shot timer to refresh the access token shortly before it
+  /// expires. Re-armed automatically each time a refresh succeeds, so a
+  /// foreground session keeps a continuously-fresh token without any
+  /// caller having to think about it.
+  void _scheduleNextRefresh() {
+    _refreshTimer?.cancel();
+    final access = _storage.getAuthToken();
+    if (access == null || access.isEmpty) return;
+    final exp = _parseJwtExp(access);
+    if (exp == null) return;
+    final now = DateTime.now().toUtc();
+    final fireAt = exp.subtract(_refreshBuffer);
+    final delay = fireAt.difference(now);
+    if (delay.isNegative) {
+      // Already past the refresh point — fire on next microtask.
+      unawaited(ensureFreshAccessToken());
+      return;
+    }
+    _refreshTimer = Timer(delay, () {
+      unawaited(ensureFreshAccessToken());
+    });
+  }
+
+  /// Stop the periodic refresh — called on logout so we don't keep
+  /// trying to refresh tokens for a signed-out user.
+  void cancelRefreshSchedule() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+    _sessionExpiredFired = false;
+  }
 
   Future<ApiResponse> _request(
     String method,
@@ -257,7 +350,10 @@ class ApiClient {
 
   Future<bool> _doRefresh() async {
     final refreshToken = _storage.getRefreshToken();
-    if (refreshToken == null || refreshToken.isEmpty) return false;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      _signalSessionExpired();
+      return false;
+    }
 
     try {
       final resp = await http.post(
@@ -274,10 +370,28 @@ class ApiClient {
         await _storage.saveRefreshToken(data['refresh_token']);
         return true;
       }
+      // The refresh endpoint itself rejected us — our refresh token is
+      // expired or revoked. No retry will help; the session is dead.
+      // Network errors (caught below) deliberately do NOT fire this so a
+      // brief offline window doesn't sign the user out and discard their
+      // local edits.
+      if (resp.statusCode == 401 ||
+          resp.statusCode == 403 ||
+          resp.statusCode == 410) {
+        _signalSessionExpired();
+      }
     } catch (e, st) {
       log.e('[auth] Token refresh failed', error: e, stackTrace: st);
     }
     return false;
+  }
+
+  void _signalSessionExpired() {
+    if (_sessionExpiredFired) return;
+    _sessionExpiredFired = true;
+    log.w('[auth] Session expired — refresh token is dead');
+    final cb = onSessionExpired;
+    if (cb != null) cb();
   }
 
   // -- Convenience methods (signatures preserved from the Dio version) --

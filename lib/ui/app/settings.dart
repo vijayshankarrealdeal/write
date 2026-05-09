@@ -23,24 +23,71 @@ class SettingsPage extends StatelessWidget {
     final editor = context.read<EditorProvider>();
     final nav = context.read<NavProvider>();
 
-    void doLogout() {
+    Future<void> doLogout({bool drainFirst = true}) async {
       feed.clearFeed();
       editor.clearData();
       nav.setIndex(SelectedPage.story);
-      auth.logout();
+      await auth.logout(drainFirst: drainFirst);
     }
+
+    final pending = editor.pendingOpsCount.value;
+    final failed = editor.failedOpsCount.value;
+    final hasUnsynced = pending > 0 || failed > 0;
+
+    if (!hasUnsynced) {
+      showCupertinoDialog(
+        context: context,
+        builder: (dialogCtx) => CupertinoAlertDialog(
+          title: Text(
+            "Logout",
+            style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+          ),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              "Are you sure you want to log out of your account?",
+              style: GoogleFonts.inter(),
+            ),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.of(dialogCtx).pop(),
+              child: const Text("Cancel"),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.of(dialogCtx).pop();
+                doLogout();
+              },
+              child: const Text("Logout"),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    // There are local edits the server hasn't ack'd. Block the user with an
+    // explicit choice: wait (recommended), sign out anyway (acknowledges
+    // risk), or cancel.
+    final unsyncedBlurb = failed > 0
+        ? "$pending pending • $failed failed to sync"
+        : "$pending change${pending == 1 ? '' : 's'} not yet saved to the cloud";
 
     showCupertinoDialog(
       context: context,
+      barrierDismissible: false,
       builder: (dialogCtx) => CupertinoAlertDialog(
         title: Text(
-          "Logout",
+          "Unsynced changes",
           style: GoogleFonts.inter(fontWeight: FontWeight.w600),
         ),
         content: Padding(
           padding: const EdgeInsets.only(top: 8.0),
           child: Text(
-            "Are you sure you want to log out of your account?",
+            "$unsyncedBlurb.\n\nSigning out now may lose them on this device. "
+            "We recommend syncing first.",
             style: GoogleFonts.inter(),
           ),
         ),
@@ -53,13 +100,67 @@ class SettingsPage extends StatelessWidget {
             isDestructiveAction: true,
             onPressed: () {
               Navigator.of(dialogCtx).pop();
-              doLogout();
+              doLogout(drainFirst: false);
             },
-            child: const Text("Logout"),
+            child: const Text("Sign out anyway"),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () async {
+              Navigator.of(dialogCtx).pop();
+              await _showSyncProgressAndLogout(
+                context,
+                auth: auth,
+                doLogout: doLogout,
+              );
+            },
+            child: const Text("Sync, then sign out"),
           ),
         ],
       ),
     );
+  }
+
+  /// Blocks on a drain pass with a spinner. Cancel-safe — if the user
+  /// dismisses, we don't sign them out, leaving their queue intact.
+  Future<void> _showSyncProgressAndLogout(
+    BuildContext context, {
+    required AuthProvider auth,
+    required Future<void> Function({bool drainFirst}) doLogout,
+  }) async {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    bool dismissed = false;
+    showCupertinoDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogCtx) => CupertinoAlertDialog(
+        title: Text(
+          "Syncing…",
+          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+        ),
+        content: const Padding(
+          padding: EdgeInsets.only(top: 12.0),
+          child: Center(child: AppSpinner()),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () {
+              dismissed = true;
+              Navigator.of(dialogCtx).pop();
+            },
+            child: const Text("Cancel"),
+          ),
+        ],
+      ),
+    );
+
+    await auth.drainBeforeLogout(timeout: const Duration(seconds: 60));
+
+    if (dismissed) return;
+    // Close the spinner dialog programmatically.
+    if (navigator.canPop()) navigator.pop();
+    // Drain already ran; skip a second pass inside logout().
+    await doLogout(drainFirst: false);
   }
 
   @override

@@ -78,11 +78,17 @@ class AuthorBookmarkProvider extends ChangeNotifier {
 
   /// Pull all marks for [writingId] from the server and merge them into
   /// the cache. Called when the editor opens a project.
+  ///
+  /// Callers may invoke this from `didChangeDependencies` — that is
+  /// during the build phase. To avoid `setState() called during build`
+  /// when this runs synchronously up to the first `await`, the leading
+  /// `notifyListeners()` is deferred to a microtask so it lands after
+  /// the current frame's build pass.
   Future<void> loadForWriting(String writingId) async {
     if (!_auth.isAuthenticated) return;
     _loading = true;
     _error = null;
-    notifyListeners();
+    await Future<void>.microtask(notifyListeners);
     try {
       final list = await _auth.dataService
           .listAuthorBookmarks(writingId: writingId);

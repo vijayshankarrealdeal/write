@@ -119,6 +119,20 @@ class EditorProvider extends ChangeNotifier {
       _drainer.retryFailedOp(opId);
   Future<void> discardFailedOp(String opId) => _drainer.discardOp(opId);
 
+  /// User-triggered "Sync now". Resets backoff windows on every queued op
+  /// (so a 30s wait doesn't make the button feel dead) and kicks the
+  /// drainer immediately. Failed ops are NOT auto-retried — those need
+  /// the explicit Retry affordance in the dead-letter sheet.
+  Future<void> syncNow() async {
+    final ops = _outbox.snapshot();
+    for (final op in ops) {
+      if (op.failed) continue;
+      if (op.nextAttemptAt == null) continue;
+      await _outbox.update(op.copyWith(clearNextAttempt: true));
+    }
+    _drainer.kick();
+  }
+
   bool _typing = false;
   bool _saving = false;
 
@@ -140,9 +154,9 @@ class EditorProvider extends ChangeNotifier {
   // listener doesn't re-enter on the synthetic delta we just emitted.
   bool _applyingSmartSubstitution = false;
 
-  Future<void> _enqueue(PendingOp op) async {
+  Future<void> _enqueue(PendingOp op, {bool kick = true}) async {
     await _outbox.enqueue(op);
-    _drainer.kick();
+    if (kick) _drainer.kick();
   }
 
   /// Enqueue a content-only `upsertSection` (isNew=false), coalescing
@@ -1068,44 +1082,55 @@ class EditorProvider extends ChangeNotifier {
     await _storage.saveBooks(allBooks);
 
     if (_userId != null) {
-      // Queue create-writing first; the drainer rewrites the queued
-      // create-section's writingId once the server returns the canonical
-      // id, so order matters here.
-      await _enqueue(PendingOp(
-        kind: PendingOpKind.upsertWriting,
-        payload: {
-          'writingId': newBook.id,
-          'isNew': true,
-          'fields': {
-            'title': newBook.title,
-            'description': newBook.description,
-            'coverImagePath': newBook.coverImagePath,
-            'writingType': newBook.writingType.index,
-            'subtype': newBook.subtype,
-            'author': newBook.author,
-          },
-        },
-      ));
-      for (final section in newBook.sections) {
-        await _enqueue(PendingOp(
-          kind: PendingOpKind.upsertSection,
+      // Queue create-writing first, then every section, *then* kick the
+      // drainer once. If we kicked between enqueues, the drainer could
+      // finish upsertWriting (and rewrite queued ops with the new server
+      // id) while the for-loop is still mid-flight — the late-enqueued
+      // section ops would land with the now-stale local writingId and
+      // 404 on push. Enqueuing all of them before the first drain pass
+      // guarantees the rewriteAll catches every related op.
+      await _enqueue(
+        PendingOp(
+          kind: PendingOpKind.upsertWriting,
           payload: {
             'writingId': newBook.id,
-            'sectionId': section.id,
             'isNew': true,
             'fields': {
-              'title': section.title,
-              'content': section.content,
-              'canvas_data': section.canvasData,
-              'section_color': section.sectionColor.toARGB32(),
-              if (section.parentId != null) 'parent_id': section.parentId,
-              'sort_order': section.order,
-              'kind': section.kind.code,
-              'include_in_publish': section.includeInPublish,
+              'title': newBook.title,
+              'description': newBook.description,
+              'coverImagePath': newBook.coverImagePath,
+              'writingType': newBook.writingType.index,
+              'subtype': newBook.subtype,
+              'author': newBook.author,
             },
           },
-        ));
+        ),
+        kick: false,
+      );
+      for (final section in newBook.sections) {
+        await _enqueue(
+          PendingOp(
+            kind: PendingOpKind.upsertSection,
+            payload: {
+              'writingId': newBook.id,
+              'sectionId': section.id,
+              'isNew': true,
+              'fields': {
+                'title': section.title,
+                'content': section.content,
+                'canvas_data': section.canvasData,
+                'section_color': section.sectionColor.toARGB32(),
+                if (section.parentId != null) 'parent_id': section.parentId,
+                'sort_order': section.order,
+                'kind': section.kind.code,
+                'include_in_publish': section.includeInPublish,
+              },
+            },
+          ),
+          kick: false,
+        );
       }
+      _drainer.kick();
     }
     // First chapter is the natural place to drop the user — folder rows
     // aren't editable.

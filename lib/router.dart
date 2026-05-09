@@ -48,8 +48,17 @@ import 'package:inkspacex/ui/pages/view_bookshelf_page.dart';
 import 'package:inkspacex/ui/pages/add_books_to_shelf_page.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
+
+/// App-wide navigator handle. Widgets mounted *above* the router (e.g.
+/// banners installed via MaterialApp.builder) cannot use `Navigator.of` —
+/// they have no Navigator ancestor. They use `rootNavigatorKey.currentContext`
+/// instead so modal sheets / dialogs land on the active route's Navigator.
+final GlobalKey<NavigatorState> rootNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'rootNavigator');
+
 GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
     refreshListenable: authProvider,
     initialLocation: '/',
     observers: [_NavigationLogger(), AnalyticsNavigatorObserver()],

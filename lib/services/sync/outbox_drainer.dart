@@ -57,9 +57,13 @@ enum IdRemapKind { writing, section, bookmark, authorBookmark }
 /// - On success, the op is removed from the outbox. On failure, the op
 ///   is left in place and `attemptCount` is incremented; the caller
 ///   decides when to retry (Phase 3 adds backoff & cap).
-/// - The drainer never advances past a failing op — head-of-line
-///   blocking is intentional, because subsequent ops may depend on the
-///   id remap performed by an earlier upsert.
+/// - Transient failures hold the queue head (we wait through the backoff
+///   window) so that a still-alive op finishes before any of the ones
+///   queued behind it. Permanent failures (`failed: true` after a 4xx)
+///   are skipped — otherwise one bad op (e.g. a 404 from a writing the
+///   user deleted on another device) would freeze every subsequent
+///   edit forever. Dependent ops downstream will fail in the same way
+///   and surface together in the dead-letter UI.
 class OutboxDrainer {
   OutboxDrainer({
     required Outbox outbox,
@@ -76,6 +80,11 @@ class OutboxDrainer {
         _backoff = backoff ?? _defaultBackoff,
         _sleep = sleep ?? Future.delayed,
         _random = random ?? math.Random() {
+    // Seed the failed-count from anything already on disk. Without this,
+    // a previous session's dead-letter ops stay invisible (banner shows
+    // amber instead of red) until the next op fails — which may be
+    // never if the queue is otherwise quiet.
+    _failedCount.value = _countFailed();
     _connectivitySub = _connectivity.onChange.listen((online) {
       if (online) kick();
     });
@@ -180,19 +189,47 @@ class OutboxDrainer {
 
   Future<void> _runDrain() async {
     _stopRequested = false;
+    // Re-seed the failed-count whenever a drain pass starts. Cheap (the
+    // queue is small) and catches the "outbox just switched users —
+    // there were already failed ops on disk for this account" case
+    // without needing an explicit notification path from Outbox.
+    _failedCount.value = _countFailed();
     while (!_stopRequested) {
       final ops = _outbox.snapshot();
       if (ops.isEmpty) break;
       if (!_connectivity.isOnlineNow) break;
-      final op = ops.first;
-      if (op.failed) break; // user must retry/discard
-      final scheduled = op.nextAttemptAt;
-      if (scheduled != null && scheduled.isAfter(DateTime.now())) {
-        _scheduleRetryAt(scheduled);
+      // Find the next actionable op: skip past dead-letter (failed:true)
+      // ops so one bad write — e.g. a 404 because a book was deleted on
+      // another device — can't freeze every subsequent edit. The user
+      // resolves dead-letter ops via the failed-ops sheet (Retry/Discard).
+      // Also skip ops whose backoff window hasn't elapsed yet.
+      final now = DateTime.now();
+      PendingOp? next;
+      DateTime? earliestScheduled;
+      for (final op in ops) {
+        if (op.failed) continue;
+        final scheduled = op.nextAttemptAt;
+        if (scheduled != null && scheduled.isAfter(now)) {
+          if (earliestScheduled == null ||
+              scheduled.isBefore(earliestScheduled)) {
+            earliestScheduled = scheduled;
+          }
+          continue;
+        }
+        next = op;
         break;
       }
-      final ok = await _processOne(op);
-      if (!ok) break;
+      if (next == null) {
+        if (earliestScheduled != null) _scheduleRetryAt(earliestScheduled);
+        break;
+      }
+      final ok = await _processOne(next);
+      if (!ok) {
+        // _processOne already updated this op (transient: nextAttemptAt;
+        // permanent: failed). Loop again — the iterator above will skip
+        // past it and pick up whatever comes after.
+        continue;
+      }
     }
   }
 

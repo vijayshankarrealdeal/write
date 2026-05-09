@@ -3,7 +3,8 @@ import 'dart:ui';
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import 'package:inkspacex/ui/auth/widgets/auth_scaffold.dart' show precacheAuthAssets;
+import 'package:inkspacex/ui/auth/widgets/auth_scaffold.dart'
+    show precacheAuthAssets;
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,7 @@ import 'package:inkspacex/ui/widgets/chat_badge.dart';
 import 'package:inkspacex/ui/widgets/notification_badge.dart';
 import 'package:inkspacex/ui/widgets/offline_banner.dart';
 import 'package:inkspacex/ui/widgets/sync_conflict_banner.dart';
+import 'package:inkspacex/ui/widgets/unsynced_banner.dart';
 import 'package:inkspacex/ui/app/feed.dart';
 import 'package:inkspacex/ui/app/writing_page.dart';
 import 'package:inkspacex/ui/pages/profile_hub_page.dart';
@@ -60,118 +62,137 @@ import 'package:inkspacex/ui/theme/app_theme.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:flutter/foundation.dart';
 import 'package:inkspacex/web_utils_stub.dart'
-    if (dart.library.html) 'package:inkspacex/web_utils.dart' as web_utils;
-
+    if (dart.library.html) 'package:inkspacex/web_utils.dart'
+    as web_utils;
 
 void main() {
-  runZonedGuarded(() async {
-    if (kIsWeb) {
-      web_utils.useWebPathUrlStrategy();
-      web_utils.listenForUpdates();
-    }
-    WidgetsFlutterBinding.ensureInitialized();
-
-    // Flutter framework errors (widget build, layout, etc.)
-    FlutterError.onError = (FlutterErrorDetails details) {
-      FlutterError.presentError(details);
-      log.e(
-        '[flutter] ${details.exception}',
-        error: details.exception,
-        stackTrace: details.stack,
-      );
-    };
-
-    // Uncaught async errors outside the framework
-    PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
-      log.e('[dispatcher] $error', error: error, stackTrace: stack);
-      return true;
-    };
-
-    log.i('[lifecycle] App starting');
-
-    final storage = StorageService();
-    await storage.init();
-
-    // Web-only: if we just came back from the backend's Google OAuth callback,
-    // the tokens ride in the URL fragment. Persist them before AuthProvider
-    // boots so its restoreSession picks them up like any other resume.
-    if (kIsWeb) {
-      final tokens = web_utils.consumeOAuthTokensFromUrl();
-      if (tokens != null) {
-        await storage.saveAuthToken(tokens.access);
-        await storage.saveRefreshToken(tokens.refresh);
-        log.i('[auth] Imported Google OAuth tokens from URL fragment');
+  runZonedGuarded(
+    () async {
+      if (kIsWeb) {
+        web_utils.useWebPathUrlStrategy();
+        web_utils.listenForUpdates();
       }
-    }
+      WidgetsFlutterBinding.ensureInitialized();
 
-    final connectivity = ConnectivityService();
-    await connectivity.init();
-    // The outbox stays closed until AuthProvider opens the per-user sandbox
-    // after auth resolves — this is what guarantees one user's queued ops
-    // can never be drained under another user's auth token.
-    final outbox = Outbox();
-    await outbox.init();
-    final mergeLog = MergeLog();
-    await mergeLog.init();
-    // Local notifications: best-effort init — on platforms where the
-    // package isn't supported (web, desktop) this is a no-op and the
-    // service simply never publishes anything. Fire-and-forget: on iOS
-    // this awaits a system permission dialog, which would otherwise
-    // block the first frame on cold start.
-    final localNotifications = LocalNotificationService();
-    // Chain the goal-reminder bootstrap onto init so we don't fight the
-    // permission dialog or fire `zonedSchedule` before the timezone DB
-    // is ready. If the user opted-in last week and never opens the
-    // editor today, this is what keeps the daily-repeating reminder
-    // armed across cold starts.
-    unawaited(localNotifications.init().then((_) {
-      DailyGoalScheduler(notifications: localNotifications).refresh();
-    }));
+      // Flutter framework errors (widget build, layout, etc.)
+      FlutterError.onError = (FlutterErrorDetails details) {
+        FlutterError.presentError(details);
+        log.e(
+          '[flutter] ${details.exception}',
+          error: details.exception,
+          stackTrace: details.stack,
+        );
+      };
 
-    // Home-screen widget bridge — best-effort init. On platforms that
-    // don't ship a widget surface (web) this is a no-op.
-    unawaited(HomeWidgetService.instance.init());
-    // Windows / Linux don't have a real home-screen widget API, so we
-    // surface the same quick actions through a system-tray icon
-    // instead. Best-effort — failures are logged but never fatal.
-    unawaited(DesktopTrayService.instance.init());
+      // Uncaught async errors outside the framework
+      PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+        log.e('[dispatcher] $error', error: error, stackTrace: stack);
+        return true;
+      };
 
-// Remote log shipping: every `log.i/w/e/f(...)` call from now on is
-    // batched and POSTed to /api/logs so the admin "Application Logs"
-    // viewer can show frontend crashes / auth failures / production
-    // errors.
-    RemoteLogger.init(api: ApiClient(storage));
+      log.i('[lifecycle] App starting');
 
-// Analytics: spins up its own ApiClient (stateless aside from the
-    // shared storage handle for auth tokens) so behaviour events flow
-    // even before AuthProvider — pre-login screens are first-class
-    // entries in the funnel. Disabled by default in debug builds; flip
-    // with --dart-define=ANALYTICS_ENABLED=true.
-    await AnalyticsService.init(api: ApiClient(storage));
-    AnalyticsService.instance.track('app_started', action: 'lifecycle');
+      final storage = StorageService();
+      await storage.init();
 
-    // DEBUG: dump every open Hive box to the console so we can see what's
-    // currently cached. Runs once now (writer_app_box, sync_merge_log,
-    // analytics_queue) and again after 3s so the per-user sync_outbox box,
-    // which only opens after auth resolves, is included.
-    if (kDebugMode) {
-      _debugDumpHiveBoxes(label: 'boot');
-      Future.delayed(const Duration(seconds: 3), () {
-        _debugDumpHiveBoxes(label: 'post-auth');
-      });
-    }
+      // Web-only: if we just came back from the backend's Google OAuth callback,
+      // the tokens ride in the URL fragment. Persist them before AuthProvider
+      // boots so its restoreSession picks them up like any other resume.
+      if (kIsWeb) {
+        final tokens = web_utils.consumeOAuthTokensFromUrl();
+        if (tokens != null) {
+          await storage.saveAuthToken(tokens.access);
+          await storage.saveRefreshToken(tokens.refresh);
+          log.i('[auth] Imported Google OAuth tokens from URL fragment');
+        }
+      }
 
-    runApp(MyApp(
-      storage: storage,
-      connectivity: connectivity,
-      outbox: outbox,
-      mergeLog: mergeLog,
-      localNotifications: localNotifications,
-    ));
-  }, (error, stack) {
-    // Top-level zone fallback — anything uncaught (including bare `print` errors).
-    log.e('[zone] uncaught: $error', error: error, stackTrace: stack);
-  });
+      final connectivity = ConnectivityService();
+      await connectivity.init();
+      // The outbox is opened eagerly for the most-recently signed-in user (if
+      // any) so queued ops from a previous session can drain even before
+      // _restoreSession() finishes. AuthProvider re-applies switchUser(uid)
+      // when the session resolves; if a *different* user signs in, the box is
+      // closed and the new user's box opened. The cross-user safety guarantee
+      // (one user's ops never drain under another's token) holds because the
+      // drainer waits for connectivity AND the API client only sends requests
+      // with the current token.
+      final outbox = Outbox();
+      await outbox.init();
+      final cachedUser = storage.getUser();
+      final cachedUid = cachedUser?['id'] as String?;
+      if (cachedUid != null && cachedUid.isNotEmpty) {
+        storage.setUserScope(cachedUid);
+        await outbox.switchUser(cachedUid);
+        log.i('[boot] Eagerly opened outbox for cached uid=$cachedUid');
+      }
+      final mergeLog = MergeLog();
+      await mergeLog.init();
+      // Local notifications: best-effort init — on platforms where the
+      // package isn't supported (web, desktop) this is a no-op and the
+      // service simply never publishes anything. Fire-and-forget: on iOS
+      // this awaits a system permission dialog, which would otherwise
+      // block the first frame on cold start.
+      final localNotifications = LocalNotificationService();
+      // Chain the goal-reminder bootstrap onto init so we don't fight the
+      // permission dialog or fire `zonedSchedule` before the timezone DB
+      // is ready. If the user opted-in last week and never opens the
+      // editor today, this is what keeps the daily-repeating reminder
+      // armed across cold starts.
+      unawaited(
+        localNotifications.init().then((_) {
+          DailyGoalScheduler(notifications: localNotifications).refresh();
+        }),
+      );
+
+      // Home-screen widget bridge — best-effort init. On platforms that
+      // don't ship a widget surface (web) this is a no-op.
+      unawaited(HomeWidgetService.instance.init());
+      // Windows / Linux don't have a real home-screen widget API, so we
+      // surface the same quick actions through a system-tray icon
+      // instead. Best-effort — failures are logged but never fatal.
+      unawaited(DesktopTrayService.instance.init());
+
+      // Remote log shipping: every `log.i/w/e/f(...)` call from now on is
+      // batched and POSTed to /api/logs so the admin "Application Logs"
+      // viewer can show frontend crashes / auth failures / production
+      // errors.
+      RemoteLogger.init(api: ApiClient(storage));
+
+      // Analytics: spins up its own ApiClient (stateless aside from the
+      // shared storage handle for auth tokens) so behaviour events flow
+      // even before AuthProvider — pre-login screens are first-class
+      // entries in the funnel. Disabled by default in debug builds; flip
+      // with --dart-define=ANALYTICS_ENABLED=true.
+      await AnalyticsService.init(api: ApiClient(storage));
+      AnalyticsService.instance.track('app_started', action: 'lifecycle');
+
+      // DEBUG: dump every open Hive box to the console so we can see what's
+      // currently cached. Runs once now (writer_app_box, sync_merge_log,
+      // analytics_queue) and again after 3s so the per-user sync_outbox box,
+      // which only opens after auth resolves, is included.
+      if (kDebugMode) {
+        _debugDumpHiveBoxes(label: 'boot');
+        Future.delayed(const Duration(seconds: 3), () {
+          _debugDumpHiveBoxes(label: 'post-auth');
+        });
+      }
+
+      runApp(
+        MyApp(
+          storage: storage,
+          connectivity: connectivity,
+          outbox: outbox,
+          mergeLog: mergeLog,
+          localNotifications: localNotifications,
+        ),
+      );
+    },
+    (error, stack) {
+      // Top-level zone fallback — anything uncaught (including bare `print` errors).
+      log.e('[zone] uncaught: $error', error: error, stackTrace: stack);
+    },
+  );
 }
 
 /// DEBUG helper: walk every Hive box that's currently open and print
@@ -222,8 +243,9 @@ void _debugDumpHiveBoxes({required String label}) async {
     for (final key in box.keys) {
       final value = box.get(key);
       final preview = value.toString();
-      final trimmed =
-          preview.length > 500 ? '${preview.substring(0, 500)}…' : preview;
+      final trimmed = preview.length > 500
+          ? '${preview.substring(0, 500)}…'
+          : preview;
       // ignore: avoid_print
       print('    • $key → $trimmed');
     }
@@ -273,6 +295,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         AnalyticsService.instance.onAppForegrounded();
         widget.localNotifications.setAppForegrounded(true);
+        // Pre-emptive token refresh on every resume — keeps the user
+        // "always logged in" Firebase-style. The first API call after
+        // resume sees a fresh access token instead of paying a 401 +
+        // refresh round-trip.
+        final ctx = rootNavigatorKey.currentContext;
+        if (ctx != null && ctx.mounted) {
+          final auth = Provider.of<AuthProvider>(ctx, listen: false);
+          unawaited(auth.refreshOnResume());
+        }
         break;
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
@@ -343,7 +374,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             mergeLog,
           ),
           update: (context, auth, previous) {
-            final provider = previous ??
+            final provider =
+                previous ??
                 EditorProvider(
                   storage,
                   auth,
@@ -414,8 +446,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, BookshelfProvider>(
-          create: (context) =>
-              BookshelfProvider(context.read<AuthProvider>()),
+          create: (context) => BookshelfProvider(context.read<AuthProvider>()),
           update: (context, auth, previous) =>
               previous ?? BookshelfProvider(auth),
         ),
@@ -429,10 +460,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ),
           update: (context, auth, previous) =>
               previous ??
-              OfflineProvider(
-                storage: storage,
-                apiClient: auth.apiClient,
-              ),
+              OfflineProvider(storage: storage, apiClient: auth.apiClient),
         ),
         ChangeNotifierProxyProvider<AuthProvider, BookmarkProvider>(
           create: (context) => BookmarkProvider(
@@ -466,9 +494,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         // Notifications: rebuilt when the user logs out (which swaps
         // the realtime service) so the new session starts clean.
         ChangeNotifierProxyProvider<AuthProvider, NotificationProvider>(
-          create: (context) => buildNotificationProvider(
-            context.read<AuthProvider>(),
-          ),
+          create: (context) =>
+              buildNotificationProvider(context.read<AuthProvider>()),
           update: (context, auth, previous) {
             // When the user becomes authenticated, ensureStarted() pulls
             // history + opens the SSE channel. Safe to call repeatedly.
@@ -583,8 +610,10 @@ class _AppWithRouterState extends State<_AppWithRouter> {
           theme: MonochromeTheme.lightTheme,
           darkTheme: MonochromeTheme.darkTheme,
           builder: (context, child) => OfflineBanner(
-            child: SyncConflictBanner(
-              child: child ?? const SizedBox.shrink(),
+            child: UnsyncedBanner(
+              child: SyncConflictBanner(
+                child: child ?? const SizedBox.shrink(),
+              ),
             ),
           ),
         );
@@ -635,8 +664,7 @@ class _MobileHomePage extends StatelessWidget {
 
     return Consumer<NavProvider>(
       builder: (context, nav, _) {
-        final isProfileSelected =
-            nav.selectedPage == SelectedPage.settings;
+        final isProfileSelected = nav.selectedPage == SelectedPage.settings;
         final iconColor = isDark ? Colors.white : Colors.black;
         return CupertinoTabScaffold(
           tabBar: CupertinoTabBar(
@@ -646,23 +674,15 @@ class _MobileHomePage extends StatelessWidget {
             items: [
               BottomNavigationBarItem(
                 icon: Center(
-                  child: Iconify(
-                    Ri.home_2_line,
-                    size: 26,
-                    color: iconColor,
-                  ),
+                  child: Iconify(Ri.home_2_line, size: 26, color: iconColor),
                 ),
               ),
               const BottomNavigationBarItem(
-                icon: Center(
-                  child: Icon(CupertinoIcons.pencil_outline),
-                ),
+                icon: Center(child: Icon(CupertinoIcons.pencil_outline)),
               ),
               const BottomNavigationBarItem(
                 icon: Center(child: Icon(CupertinoIcons.heart)),
-                activeIcon: Center(
-                  child: Icon(CupertinoIcons.heart_fill),
-                ),
+                activeIcon: Center(child: Icon(CupertinoIcons.heart_fill)),
               ),
               BottomNavigationBarItem(
                 icon: Center(
@@ -724,10 +744,7 @@ class _NavAvatar extends StatelessWidget {
           height: 28,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(
-              color: ringColor,
-              width: isSelected ? 1.5 : 0,
-            ),
+            border: Border.all(color: ringColor, width: isSelected ? 1.5 : 0),
           ),
           padding: EdgeInsets.all(isSelected ? 1.5 : 0),
           child: ClipOval(
@@ -982,65 +999,77 @@ class _AppSidebar extends StatelessWidget {
       ),
     ];
 
+    final targetWidth = expanded ? _expandedWidth : _collapsedWidth;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       curve: Curves.easeOut,
-      width: expanded ? _expandedWidth : _collapsedWidth,
+      width: targetWidth,
       decoration: BoxDecoration(
         color: railBg,
         border: Border(right: BorderSide(color: borderColor)),
       ),
       child: ClipRect(
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _SidebarBrand(
-                expanded: expanded,
-                isDark: isDark,
-                onToggle: isTablet ? null : nav.toggleSidebar,
+        child: OverflowBox(
+          alignment: Alignment.topLeft,
+          minWidth: targetWidth,
+          maxWidth: targetWidth,
+          child: SizedBox(
+            width: targetWidth,
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _SidebarBrand(
+                    expanded: expanded,
+                    isDark: isDark,
+                    onToggle: isTablet ? null : nav.toggleSidebar,
+                  ),
+                  const SizedBox(height: 12),
+                  _SidebarSectionLabel(
+                    text: 'NAVIGATE',
+                    expanded: expanded,
+                    isDark: isDark,
+                  ),
+                  ...destinations.map(
+                    (d) => _SidebarItem(
+                      icon: d.icon,
+                      activeIcon: d.activeIcon,
+                      label: d.label,
+                      expanded: expanded,
+                      isDark: isDark,
+                      isSelected: selectedPage == d.page,
+                      onTap: () => context.read<NavProvider>().setIndex(d.page),
+                    ),
+                  ),
+                  const Spacer(),
+                  _SidebarItem(
+                    icon: CupertinoIcons.chat_bubble,
+                    activeIcon: CupertinoIcons.chat_bubble_fill,
+                    label: 'Feedback',
+                    expanded: expanded,
+                    isDark: isDark,
+                    isSelected: false,
+                    onTap: () => context.push('/feedback'),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Divider(color: borderColor, height: 1),
+                  ),
+                  const SizedBox(height: 12),
+                  _SidebarProfileTile(
+                    expanded: expanded,
+                    isDark: isDark,
+                    textColor: textColor,
+                    isSelected: selectedPage == SelectedPage.settings,
+                    onTap: () => context.read<NavProvider>().setIndex(
+                      SelectedPage.settings,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
               ),
-              const SizedBox(height: 12),
-              _SidebarSectionLabel(
-                  text: 'NAVIGATE', expanded: expanded, isDark: isDark),
-              ...destinations.map(
-                (d) => _SidebarItem(
-                  icon: d.icon,
-                  activeIcon: d.activeIcon,
-                  label: d.label,
-                  expanded: expanded,
-                  isDark: isDark,
-                  isSelected: selectedPage == d.page,
-                  onTap: () => context.read<NavProvider>().setIndex(d.page),
-                ),
-              ),
-              const Spacer(),
-              _SidebarItem(
-                icon: CupertinoIcons.chat_bubble,
-                activeIcon: CupertinoIcons.chat_bubble_fill,
-                label: 'Feedback',
-                expanded: expanded,
-                isDark: isDark,
-                isSelected: false,
-                onTap: () => context.push('/feedback'),
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Divider(color: borderColor, height: 1),
-              ),
-              const SizedBox(height: 12),
-              _SidebarProfileTile(
-                expanded: expanded,
-                isDark: isDark,
-                textColor: textColor,
-                isSelected: selectedPage == SelectedPage.settings,
-                onTap: () => context
-                    .read<NavProvider>()
-                    .setIndex(SelectedPage.settings),
-              ),
-              const SizedBox(height: 12),
-            ],
+            ),
           ),
         ),
       ),
@@ -1146,7 +1175,10 @@ class _SidebarBrand extends StatelessWidget {
                 splashRadius: 16,
                 padding: EdgeInsets.zero,
                 visualDensity: VisualDensity.compact,
-                constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+                constraints: const BoxConstraints.tightFor(
+                  width: 28,
+                  height: 28,
+                ),
                 icon: Icon(
                   CupertinoIcons.sidebar_left,
                   size: 16,
@@ -1174,7 +1206,9 @@ class _SidebarSectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!expanded) return const SizedBox(height: 4);
-    final color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.35);
+    final color = (isDark ? Colors.white : Colors.black).withValues(
+      alpha: 0.35,
+    );
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 6),
       child: Text(
@@ -1259,8 +1293,9 @@ class _SidebarItemState extends State<_SidebarItem> {
                 widget.label,
                 style: GoogleFonts.inter(
                   fontSize: 13.5,
-                  fontWeight:
-                      widget.isSelected ? FontWeight.w600 : FontWeight.w500,
+                  fontWeight: widget.isSelected
+                      ? FontWeight.w600
+                      : FontWeight.w500,
                   color: labelColor,
                 ),
               ),
@@ -1286,11 +1321,7 @@ class _SidebarItemState extends State<_SidebarItem> {
           behavior: HitTestBehavior.opaque,
           child: widget.expanded
               ? tile
-              : Tooltip(
-                  message: widget.label,
-                  preferBelow: false,
-                  child: tile,
-                ),
+              : Tooltip(message: widget.label, preferBelow: false, child: tile),
         ),
       ),
     );
@@ -1403,10 +1434,7 @@ class _SidebarProfileTileState extends State<_SidebarProfileTile> {
                         email.isNotEmpty ? email : 'Profile & settings',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: subtle,
-                        ),
+                        style: GoogleFonts.inter(fontSize: 11, color: subtle),
                       ),
                     ],
                   ),
@@ -1444,4 +1472,3 @@ class _SidebarProfileTileState extends State<_SidebarProfileTile> {
     );
   }
 }
-

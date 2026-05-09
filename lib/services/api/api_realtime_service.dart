@@ -50,6 +50,17 @@ class _SseChannel {
       if (response.statusCode != 200) {
         log.w('[sse] $uri returned ${response.statusCode}');
         client.close();
+        // Terminal client-side failures: the URL or resource is gone (or
+        // we're forbidden). No amount of reconnecting fixes a 404 — keep
+        // hammering and we get the spam pattern that brought us here.
+        // 401 stays retryable so a token refresh between connects can
+        // recover the channel without a full app reload.
+        const terminal = {403, 404, 410};
+        if (terminal.contains(response.statusCode)) {
+          await _controller.close();
+          _disposed = true;
+          return;
+        }
         _scheduleReconnect();
         return;
       }

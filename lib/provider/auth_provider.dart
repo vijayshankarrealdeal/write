@@ -52,7 +52,31 @@ class AuthProvider extends ChangeNotifier {
     _realtimeService = ApiRealtimeService(_storage);
     _dataService.attachRealtime(_realtimeService);
     GeminiService().init(_apiClient);
+    // When the refresh endpoint rejects our refresh token, our session
+    // is genuinely over. Force a clean logout so the router redirects
+    // to /login and the user can re-auth — silently retrying with a
+    // dead token would just spin up failed ops forever. We skip the
+    // pre-logout drain because the drainer would 401 on every push;
+    // the user's local edits stay in their outbox to retry after they
+    // sign in again as the same user.
+    _apiClient.onSessionExpired = _handleSessionExpired;
     _restoreSession();
+  }
+
+  bool _handlingSessionExpiry = false;
+  Future<void> _handleSessionExpired() async {
+    if (_handlingSessionExpiry) return;
+    _handlingSessionExpiry = true;
+    if (!_isAuthenticated && !_isRestoringSession) {
+      _handlingSessionExpiry = false;
+      return;
+    }
+    log.w('[auth] Session expired — forcing logout');
+    try {
+      await logout(drainFirst: false);
+    } finally {
+      _handlingSessionExpiry = false;
+    }
   }
 
   /// The OutboxDrainer is created downstream (in the provider tree); it
@@ -105,6 +129,11 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // Pre-emptive refresh: rotate the access token *before* the first
+      // API call goes out, so a returning user never sees a 401 on
+      // their opening request and never feels logged out. Mirrors the
+      // Firebase SDK's "always-fresh token" model on top of our JWTs.
+      await _apiClient.ensureFreshAccessToken();
       final user = await _authService.restoreSession();
       if (user != null) {
         await _openUserScope(user.id);
@@ -140,6 +169,20 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Public hook for the app-lifecycle observer: when the app comes
+  /// back to the foreground (or the OS resumes us from suspend), refresh
+  /// the access token if it's near expiry. Cheap when the token is still
+  /// fresh — `ensureFreshAccessToken` returns immediately in that case.
+  Future<void> refreshOnResume() async {
+    if (!_isAuthenticated) return;
+    try {
+      await _apiClient.ensureFreshAccessToken();
+    } catch (_) {
+      // Network blips during resume are fine — the next API call will
+      // trigger a refresh on demand. Don't surface this to the user.
+    }
+  }
+
   Future<void> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
@@ -151,6 +194,10 @@ class AuthProvider extends ChangeNotifier {
       _isAuthenticated = true;
       log.i('[auth] Login succeeded (uid=${user.id})');
       await _storage.saveUser(user.toJson());
+      // Arm proactive refresh so the user stays logged in indefinitely
+      // as long as they keep using the app — the token rotates on every
+      // periodic tick and resets the refresh-token TTL clock.
+      await _apiClient.ensureFreshAccessToken();
       AnalyticsService.instance.setUserId(user.id);
       // Anchor event for backend identity stitching.
       AnalyticsService.instance
@@ -177,6 +224,7 @@ class AuthProvider extends ChangeNotifier {
       _isAuthenticated = true;
       log.i('[auth] Signup succeeded (uid=${user.id})');
       await _storage.saveUser(user.toJson());
+      await _apiClient.ensureFreshAccessToken();
       AnalyticsService.instance.setUserId(user.id);
       AnalyticsService.instance.track(
         'signup_completed',
@@ -206,6 +254,7 @@ class AuthProvider extends ChangeNotifier {
       _isAuthenticated = true;
       log.i('[auth] Google sign-in succeeded (uid=${user.id})');
       await _storage.saveUser(user.toJson());
+      await _apiClient.ensureFreshAccessToken();
       AnalyticsService.instance.setUserId(user.id);
       AnalyticsService.instance.track(
         'auth_google_succeeded',
@@ -224,21 +273,32 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> logout() async {
-    log.i('[auth] Logout');
+  /// Run a final drain and wait up to [timeout] for the queue to settle.
+  /// Caller (typically the logout dialog) passes a generous timeout when
+  /// the user explicitly chose "wait for sync"; pass a short one for
+  /// "sign out anyway".
+  Future<void> drainBeforeLogout({
+    Duration timeout = const Duration(seconds: 30),
+  }) async {
+    final drainer = _drainer;
+    if (drainer == null) return;
+    try {
+      await drainer.drain().timeout(timeout);
+    } catch (e) {
+      log.w('[auth] pre-logout drain incomplete: $e');
+    }
+  }
+
+  Future<void> logout({bool drainFirst = true}) async {
+    log.i('[auth] Logout (drainFirst=$drainFirst)');
     AnalyticsService.instance.track('auth_logout', action: 'click');
 
-    // Best-effort final drain while the auth token is still valid. Bounded
-    // so a slow network can't block the sign-out flow indefinitely; any ops
-    // that don't make it in time stay queued in the user's sandbox and
-    // resume on next sign-in as that user.
-    final drainer = _drainer;
-    if (drainer != null) {
-      try {
-        await drainer.drain().timeout(const Duration(seconds: 3));
-      } catch (e) {
-        log.w('[auth] pre-logout drain skipped: $e');
-      }
+    // Final drain while the auth token is still valid. The 30s ceiling is a
+    // safety net — the logout dialog's "Sync now" path awaits drainBeforeLogout
+    // with a longer/explicit timeout before calling logout(drainFirst:false),
+    // so this branch only fires for legacy callers.
+    if (drainFirst) {
+      await drainBeforeLogout(timeout: const Duration(seconds: 30));
     }
 
     // Tear down any open realtime channels — they were authenticated as
