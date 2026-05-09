@@ -157,11 +157,22 @@ class _StripAction extends StatefulWidget {
 
 class _StripActionState extends State<_StripAction>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _spin = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 900),
-  );
+  late final AnimationController _spin;
   bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Eager init (not `late final` with an inline initializer) — if the
+    // widget mounts then unmounts without any build path touching _spin,
+    // the lazy initializer would otherwise fire inside dispose() and
+    // look up our TickerProvider on a deactivated widget, which is the
+    // exception we hit in production.
+    _spin = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+  }
 
   @override
   void dispose() {
