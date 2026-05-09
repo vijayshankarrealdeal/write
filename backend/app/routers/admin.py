@@ -19,7 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.database import engine, get_db
 from app.models.admin_audit import AdminAudit
-from app.models.analytics import AppLog, CrashReport, PageVisit
+from app.models.analytics import AnalyticsEvent, AppLog, CrashReport, PageVisit
 from app.models.dictionary import (
     DictionaryMeta,
     DictionaryRemoval,
@@ -487,22 +487,60 @@ async def track_visit(
     return {"status": "ok"}
 
 
+# All four endpoints below read from `analytics_events` — the table the
+# Flutter `AnalyticsService` actually populates via /api/analytics/events.
+# `screen_viewed` rows are the page-visit signal; the legacy `page_visits`
+# table is left in place for back-compat but is not read here.
+#
+# Platform attribution: clients put `platform` (android/ios/web/macos/...)
+# into `properties.platform`. When that's missing (older clients, anon
+# events before the field shipped), we fall back to a coarse parse of the
+# stored user-agent string.
+
+# COALESCE(properties->>'platform', <UA fallback>) as a single SQL fragment.
+# Order matters: Android UAs also contain "Linux", so check it first.
+_PLATFORM_EXPR = text(
+    """
+    COALESCE(
+        NULLIF(properties->>'platform', ''),
+        CASE
+            WHEN user_agent ILIKE '%android%' THEN 'android'
+            WHEN user_agent ILIKE '%iphone%' OR user_agent ILIKE '%ipad%' OR user_agent ILIKE '%ios%' THEN 'ios'
+            WHEN user_agent ILIKE '%mac os%' OR user_agent ILIKE '%macintosh%' THEN 'macos'
+            WHEN user_agent ILIKE '%windows%' THEN 'windows'
+            WHEN user_agent ILIKE '%linux%' THEN 'linux'
+            WHEN user_agent ILIKE '%mozilla%' OR user_agent ILIKE '%chrome%' OR user_agent ILIKE '%safari%' THEN 'web'
+            ELSE 'unknown'
+        END
+    )
+    """
+)
+
+
 @router.get("/analytics/page-visits")
 async def page_visit_analytics(
     days: int = Query(7, ge=1, le=90),
     db: AsyncSession = Depends(get_db),
     _=Depends(_verify_admin),
 ):
-    """Page visit counts grouped by page and day."""
+    """Page visit counts grouped by screen and day.
+
+    Reads `screen_viewed` events from `analytics_events`. A row missing a
+    screen name (rare — only background events) is skipped.
+    """
     since = datetime.now(timezone.utc) - timedelta(days=days)
     result = await db.execute(
         select(
-            PageVisit.page,
-            func.date_trunc("day", PageVisit.visited_at).label("day"),
+            AnalyticsEvent.screen,
+            func.date_trunc("day", AnalyticsEvent.server_ts).label("day"),
             func.count().label("visits"),
         )
-        .where(PageVisit.visited_at >= since)
-        .group_by(PageVisit.page, "day")
+        .where(
+            AnalyticsEvent.event_name == "screen_viewed",
+            AnalyticsEvent.server_ts >= since,
+            AnalyticsEvent.screen.isnot(None),
+        )
+        .group_by(AnalyticsEvent.screen, "day")
         .order_by(text("day"))
     )
     rows = result.fetchall()
@@ -519,12 +557,16 @@ async def top_pages(
     db: AsyncSession = Depends(get_db),
     _=Depends(_verify_admin),
 ):
-    """Most visited pages."""
+    """Most viewed screens, by event count."""
     since = datetime.now(timezone.utc) - timedelta(days=days)
     result = await db.execute(
-        select(PageVisit.page, func.count().label("visits"))
-        .where(PageVisit.visited_at >= since)
-        .group_by(PageVisit.page)
+        select(AnalyticsEvent.screen, func.count().label("visits"))
+        .where(
+            AnalyticsEvent.event_name == "screen_viewed",
+            AnalyticsEvent.server_ts >= since,
+            AnalyticsEvent.screen.isnot(None),
+        )
+        .group_by(AnalyticsEvent.screen)
         .order_by(text("visits DESC"))
         .limit(limit)
     )
@@ -537,17 +579,22 @@ async def user_activity(
     db: AsyncSession = Depends(get_db),
     _=Depends(_verify_admin),
 ):
-    """Daily active users and new users."""
+    """Daily active users, total visits, new signups, platform mix.
+
+    DAU counts distinct `client_id`s (so anonymous-but-active devices
+    still register). Total visits is the count of `screen_viewed` events.
+    """
     since = datetime.now(timezone.utc) - timedelta(days=days)
 
-    # Daily active users (unique visitors)
     dau_result = await db.execute(
         select(
-            func.date_trunc("day", PageVisit.visited_at).label("day"),
-            func.count(func.distinct(PageVisit.user_id)).label("active_users"),
-            func.count().label("total_visits"),
+            func.date_trunc("day", AnalyticsEvent.server_ts).label("day"),
+            func.count(func.distinct(AnalyticsEvent.client_id)).label("active_users"),
+            func.count(AnalyticsEvent.id).filter(
+                AnalyticsEvent.event_name == "screen_viewed"
+            ).label("total_visits"),
         )
-        .where(PageVisit.visited_at >= since)
+        .where(AnalyticsEvent.server_ts >= since)
         .group_by("day")
         .order_by(text("day"))
     )
@@ -556,7 +603,6 @@ async def user_activity(
         for r in dau_result.fetchall()
     ]
 
-    # New user registrations per day
     new_users_result = await db.execute(
         select(
             func.date_trunc("day", User.created_at).label("day"),
@@ -571,11 +617,11 @@ async def user_activity(
         for r in new_users_result.fetchall()
     ]
 
-    # Platform breakdown
     platform_result = await db.execute(
-        select(PageVisit.platform, func.count().label("count"))
-        .where(PageVisit.visited_at >= since)
-        .group_by(PageVisit.platform)
+        select(_PLATFORM_EXPR.label("platform"), func.count().label("count"))
+        .where(AnalyticsEvent.server_ts >= since)
+        .group_by(text("1"))
+        .order_by(text("count DESC"))
     )
     platforms = [{"platform": r[0] or "unknown", "count": r[1]} for r in platform_result.fetchall()]
 
@@ -590,35 +636,63 @@ async def device_breakdown(
 ):
     """Counts grouped by platform and device, plus signups over time.
 
-    Region is derived from PageVisit.referrer host as a proxy until a real
-    geo-IP pipeline is wired up.
+    Device strings come from `properties.device` when the client supplies
+    it (model name on mobile, browser+OS on web). User-agent is the
+    fallback.
     """
     since = datetime.now(timezone.utc) - timedelta(days=days)
 
     platform_rows = (
         await db.execute(
-            select(PageVisit.platform, func.count().label("count"))
-            .where(PageVisit.visited_at >= since)
-            .group_by(PageVisit.platform)
+            select(_PLATFORM_EXPR.label("platform"), func.count().label("count"))
+            .where(AnalyticsEvent.server_ts >= since)
+            .group_by(text("1"))
             .order_by(text("count DESC"))
         )
     ).fetchall()
 
+    # Prefer client-reported device, fall back to user_agent (truncated
+    # for legibility).
+    device_expr = text(
+        "COALESCE(NULLIF(properties->>'device', ''), LEFT(COALESCE(user_agent, ''), 80))"
+    )
     device_rows = (
         await db.execute(
-            select(PageVisit.device, func.count().label("count"))
-            .where(PageVisit.visited_at >= since)
-            .group_by(PageVisit.device)
+            select(device_expr.label("device"), func.count().label("count"))
+            .where(AnalyticsEvent.server_ts >= since)
+            .group_by(text("1"))
             .order_by(text("count DESC"))
             .limit(15)
         )
     ).fetchall()
 
+    # Region is derived client-side from the device locale's country code
+    # (e.g. en_US -> "US"). NOT GPS, NOT IP geolocation — see analytics
+    # service docs and the privacy policy for the rationale. Referrer is
+    # web-only and supplied via properties.referrer.
+    region_rows = (
+        await db.execute(
+            select(text("properties->>'region'").label("region"), func.count().label("count"))
+            .where(
+                AnalyticsEvent.server_ts >= since,
+                text("(properties->>'region') IS NOT NULL"),
+                text("(properties->>'region') <> ''"),
+            )
+            .group_by(text("1"))
+            .order_by(text("count DESC"))
+            .limit(25)
+        )
+    ).fetchall()
+
     referrer_rows = (
         await db.execute(
-            select(PageVisit.referrer, func.count().label("count"))
-            .where(PageVisit.visited_at >= since, PageVisit.referrer.isnot(None))
-            .group_by(PageVisit.referrer)
+            select(text("properties->>'referrer'").label("referrer"), func.count().label("count"))
+            .where(
+                AnalyticsEvent.server_ts >= since,
+                text("(properties->>'referrer') IS NOT NULL"),
+                text("(properties->>'referrer') <> ''"),
+            )
+            .group_by(text("1"))
             .order_by(text("count DESC"))
             .limit(15)
         )
@@ -638,7 +712,8 @@ async def device_breakdown(
 
     return {
         "platforms": [{"label": r[0] or "unknown", "count": r[1]} for r in platform_rows],
-        "devices": [{"label": r[0] or "unknown", "count": r[1]} for r in device_rows],
+        "devices": [{"label": (r[0] or "unknown")[:80], "count": r[1]} for r in device_rows],
+        "regions": [{"label": r[0] or "unknown", "count": r[1]} for r in region_rows],
         "referrers": [{"label": r[0] or "direct", "count": r[1]} for r in referrer_rows],
         "signups_per_day": [
             {"day": r[0].isoformat() if r[0] else None, "count": r[1]} for r in signup_rows

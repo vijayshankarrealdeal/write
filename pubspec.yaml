@@ -88,6 +88,21 @@ dependencies:
   # Web falls back to an AES-encrypted localStorage entry.
   flutter_secure_storage: ^9.2.2
 
+  # Device + app metadata for analytics. `device_info_plus` resolves the
+  # specific model (Pixel 8, iPhone15,3, MacBookPro18,3, etc.) so the
+  # admin "Top devices" panel is meaningful instead of a wall of
+  # truncated user-agent strings. `package_info_plus` provides the
+  # build version stamped onto every event so we can correlate
+  # behaviour with rollouts. Region is derived from `Platform.localeName`
+  # (no plugin) — locale country code, NOT GPS/IP geolocation. See
+  # privacy_policy.html §3.2 and lib/services/analytics_service.dart.
+  # Pinned to 12.x because 13.x bumps `win32` to ^6.0.1, which conflicts
+  # with the win32 ^5.0.0 transitive dep from flutter_secure_storage 9.x.
+  # 12.4.x covers the same APIs we use (Android model, iOS utsname,
+  # WebBrowserInfo) so the downgrade is purely cosmetic.
+  device_info_plus: ^12.4.0
+  package_info_plus: ^8.1.0
+
   # Home-screen widgets on iOS / macOS (WidgetKit) and Android (AppWidget).
   # The Flutter side just writes data into a shared container; native code
   # reads it and renders the widget.

@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:inkspacex/services/api/api_client.dart';
@@ -30,10 +33,12 @@ class AnalyticsService {
     required Box<dynamic> queueBox,
     required String clientId,
     required bool enabled,
+    required Map<String, dynamic> deviceContext,
   })  : _post = poster,
         _queueBox = queueBox,
         clientId = clientId,
-        _enabled = enabled;
+        _enabled = enabled,
+        _deviceContext = deviceContext;
 
   static AnalyticsService? _instance;
 
@@ -80,6 +85,14 @@ class AnalyticsService {
 
   final bool _enabled;
   bool get enabled => _enabled;
+
+  /// Device + app + region metadata, captured once at init and merged
+  /// into every event's `properties`. Keys: `platform`, `device`,
+  /// `app_version`, `region`. `region` is a 2-letter country code
+  /// derived from `Platform.localeName` — i.e. the user's chosen
+  /// system locale, NOT GPS or IP geolocation. See privacy_policy.html
+  /// §3.2.
+  final Map<String, dynamic> _deviceContext;
 
   String _sessionId = const Uuid().v4();
   DateTime _lastActivityAt = DateTime.now();
@@ -138,11 +151,14 @@ class AnalyticsService {
       await queue.put(_kClientId, cid);
     }
 
+    final ctx = await _resolveDeviceContext();
+
     final svc = AnalyticsService._(
       poster: poster,
       queueBox: queue,
       clientId: cid,
       enabled: enabled ?? defaultEnabled(),
+      deviceContext: ctx,
     );
     _instance = svc;
     if (svc._enabled) {
@@ -151,6 +167,94 @@ class AnalyticsService {
       unawaited(svc.flush());
     }
     return svc;
+  }
+
+  /// Resolve platform / device model / app version / region once at
+  /// init. All four end up on every event's `properties` so the admin
+  /// dashboard can break down activity without a separate identify call.
+  ///
+  /// Region is the country code from `Platform.localeName` (e.g. "en_US"
+  /// → "US"). It reflects the user's *chosen system locale*, not their
+  /// physical location — so a US English speaker travelling in Tokyo
+  /// still reports "US". This is intentional: we want a coarse signal
+  /// for product decisions without doing IP/GPS geolocation. See the
+  /// privacy policy for the user-facing wording.
+  static Future<Map<String, dynamic>> _resolveDeviceContext() async {
+    final ctx = <String, dynamic>{};
+
+    // Platform — coarse OS bucket. kIsWeb wins because dart:io.Platform
+    // throws on web.
+    if (kIsWeb) {
+      ctx['platform'] = 'web';
+    } else {
+      try {
+        ctx['platform'] = Platform.operatingSystem; // android/ios/macos/windows/linux/fuchsia
+      } catch (_) {
+        ctx['platform'] = 'unknown';
+      }
+    }
+
+    // Device model — best-effort, never throw. device_info_plus reads
+    // platform-specific APIs and can fail on heavily customised ROMs.
+    try {
+      final info = DeviceInfoPlugin();
+      if (kIsWeb) {
+        final w = await info.webBrowserInfo;
+        // Chrome / Safari / Firefox + a hint of the OS — short, not the
+        // full UA blob.
+        final browser = w.browserName.name;
+        ctx['device'] = w.platform != null ? '$browser / ${w.platform}' : browser;
+      } else if (Platform.isAndroid) {
+        final a = await info.androidInfo;
+        ctx['device'] = '${a.manufacturer} ${a.model}'.trim();
+      } else if (Platform.isIOS) {
+        final i = await info.iosInfo;
+        // utsname.machine is the precise hardware id (iPhone15,3); model
+        // is the friendly name (iPhone). Send both joined.
+        ctx['device'] = '${i.model} (${i.utsname.machine})';
+      } else if (Platform.isMacOS) {
+        final m = await info.macOsInfo;
+        ctx['device'] = '${m.model} / macOS ${m.osRelease}';
+      } else if (Platform.isWindows) {
+        final w = await info.windowsInfo;
+        ctx['device'] = '${w.computerName} / ${w.productName}';
+      } else if (Platform.isLinux) {
+        final l = await info.linuxInfo;
+        ctx['device'] = l.prettyName;
+      }
+    } catch (_) {
+      // Fall through — device is optional context.
+    }
+
+    // App version — useful for correlating regressions to a release.
+    try {
+      final pkg = await PackageInfo.fromPlatform();
+      ctx['app_version'] = pkg.version.isNotEmpty
+          ? '${pkg.version}+${pkg.buildNumber}'
+          : pkg.buildNumber;
+    } catch (_) {
+      // Tests / unsupported platforms — skip.
+    }
+
+    // Region — locale-derived country code. PlatformDispatcher works on
+    // every platform including web; dart:io.Platform.localeName does
+    // not. Normalised to upper-case.
+    String? region;
+    try {
+      final dispatcherLocale = PlatformDispatcher.instance.locale;
+      region = dispatcherLocale.countryCode;
+    } catch (_) {}
+    if ((region == null || region.isEmpty) && !kIsWeb) {
+      try {
+        final parts = Platform.localeName.split(RegExp(r'[_\-]'));
+        if (parts.length >= 2) region = parts[1];
+      } catch (_) {}
+    }
+    if (region != null && region.isNotEmpty) {
+      ctx['region'] = region.toUpperCase();
+    }
+
+    return ctx;
   }
 
   /// Reset for tests — drops the singleton so a fresh init() can run.
@@ -188,6 +292,7 @@ class AnalyticsService {
     _maybeRollSession();
 
     final props = <String, dynamic>{
+      ..._deviceContext,
       if (_userId != null) 'user_id': _userId,
       ...?properties,
     };
