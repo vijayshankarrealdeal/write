@@ -29,12 +29,18 @@ export default function Overview() {
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState(null);
   const [health, setHealth] = useState(null);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Health is checked live on every mount — a stale "OK" here would
-    // defeat the point, so we don't memoise it.
-    Promise.all([api.overview(), api.userActivity(14), api.health().catch(() => null)])
+    // defeat the point, so we don't memoise it. Each call swallows its
+    // own failure so one bad endpoint doesn't blank the whole dashboard.
+    Promise.all([
+      api.overview().catch((e) => { setError(e?.message || String(e)); return null; }),
+      api.userActivity(14).catch(() => null),
+      api.health().catch(() => null),
+    ])
       .then(([s, a, h]) => {
         setStats(s);
         setActivity(a);
@@ -45,6 +51,9 @@ export default function Overview() {
 
   if (loading) return <Loading />;
 
+  const s = stats || {};
+  const dash = (v) => (v == null ? "—" : v);
+
   return (
     <div className="p-8">
       <PageHeader
@@ -52,30 +61,36 @@ export default function Overview() {
         description="Real-time metrics for InkSpaceX"
       />
 
+      {error && (
+        <div className="mb-6 rounded-lg border border-red-900/60 bg-red-950/40 px-4 py-3 text-sm text-red-300">
+          Some stats failed to load: {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
           label="Total Users"
-          value={stats.total_users}
-          sub={`+${stats.new_users_week} this week`}
+          value={dash(s.total_users)}
+          sub={s.new_users_week != null ? `+${s.new_users_week} this week` : undefined}
           icon={Users}
           color="indigo"
         />
         <StatCard
           label="Writings"
-          value={stats.total_writings}
+          value={dash(s.total_writings)}
           icon={FileText}
           color="blue"
         />
         <StatCard
           label="Published Posts"
-          value={stats.total_feed_items}
+          value={dash(s.total_feed_items)}
           icon={Rss}
           color="green"
         />
         <StatCard
           label="Visits Today"
-          value={stats.visits_today}
-          sub={`${stats.visits_week} this week`}
+          value={dash(s.visits_today)}
+          sub={s.visits_week != null ? `${s.visits_week} this week` : undefined}
           icon={Eye}
           color="purple"
         />
@@ -84,26 +99,26 @@ export default function Overview() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
           label="Unresolved Crashes"
-          value={stats.unresolved_crashes}
-          sub={`${stats.total_crashes} total`}
+          value={dash(s.unresolved_crashes)}
+          sub={s.total_crashes != null ? `${s.total_crashes} total` : undefined}
           icon={Bug}
           color="red"
         />
         <StatCard
           label="Errors Today"
-          value={stats.errors_today}
+          value={dash(s.errors_today)}
           icon={AlertTriangle}
           color="amber"
         />
         <StatCard
           label="New Users (7d)"
-          value={stats.new_users_week}
+          value={dash(s.new_users_week)}
           icon={UserPlus}
           color="green"
         />
         <StatCard
           label="Weekly Visits"
-          value={stats.visits_week}
+          value={dash(s.visits_week)}
           icon={TrendingUp}
           color="blue"
         />

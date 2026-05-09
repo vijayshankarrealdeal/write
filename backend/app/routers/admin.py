@@ -12,7 +12,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, Query
 from passlib.context import CryptContext
-from sqlalchemy import func, inspect, or_, select, text
+from sqlalchemy import func, inspect, literal_column, or_, select, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -499,7 +499,9 @@ async def track_visit(
 
 # COALESCE(properties->>'platform', <UA fallback>) as a single SQL fragment.
 # Order matters: Android UAs also contain "Linux", so check it first.
-_PLATFORM_EXPR = text(
+# `literal_column` (not `text`) so the expression supports `.label()` in
+# `select()` — TextClause does not.
+_PLATFORM_EXPR = literal_column(
     """
     COALESCE(
         NULLIF(properties->>'platform', ''),
@@ -652,8 +654,9 @@ async def device_breakdown(
     ).fetchall()
 
     # Prefer client-reported device, fall back to user_agent (truncated
-    # for legibility).
-    device_expr = text(
+    # for legibility). `literal_column` (not `text`) — TextClause does not
+    # support `.label()` in `select()`.
+    device_expr = literal_column(
         "COALESCE(NULLIF(properties->>'device', ''), LEFT(COALESCE(user_agent, ''), 80))"
     )
     device_rows = (
@@ -672,7 +675,7 @@ async def device_breakdown(
     # web-only and supplied via properties.referrer.
     region_rows = (
         await db.execute(
-            select(text("properties->>'region'").label("region"), func.count().label("count"))
+            select(literal_column("properties->>'region'").label("region"), func.count().label("count"))
             .where(
                 AnalyticsEvent.server_ts >= since,
                 text("(properties->>'region') IS NOT NULL"),
