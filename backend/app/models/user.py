@@ -19,6 +19,14 @@ class User(UUIDMixin, Base):
     onboarding_complete: Mapped[bool] = mapped_column(Boolean, default=False)
     onboarding_data: Mapped[dict | None] = mapped_column(JSONB)
 
+    # Public profile copy. `bio` is free-text shown on the author profile
+    # page; `social_links` is a flat map of well-known platform → URL/
+    # handle (`website`, `twitter`, `instagram`, `github`, `linkedin`).
+    # Both are visible to anyone who can see the user, so write-side
+    # length / sanity checks live in the schema layer.
+    bio: Mapped[str | None] = mapped_column(Text)
+    social_links: Mapped[dict | None] = mapped_column(JSONB)
+
     likes: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     reading_list: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     saved_posts: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)

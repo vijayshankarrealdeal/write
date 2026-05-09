@@ -17,7 +17,13 @@ from app.models.highlight import Highlight
 from app.models.reading_progress import ReadingProgress
 from app.models.user import User
 from app.notifications import create_notification
-from app.schemas.user import ListUpdateRequest, UserResponse, UserUpdate
+from app.schemas.user import (
+    ListUpdateRequest,
+    UserResponse,
+    UserUpdate,
+    normalize_bio,
+    normalize_social_links,
+)
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -33,6 +39,12 @@ class PublicUser(BaseModel):
     name: str | None
     photo_url: str | None
     photo_meta: dict | None = None
+    # Author bio + social handles are part of the public profile —
+    # surfaced on `/u/:id` so other users can place the author and
+    # follow them off-platform. Both fields are optional and may be
+    # null for users who haven't filled them in yet.
+    bio: str | None = None
+    social_links: dict | None = None
     posts_count: int = 0
     followers_count: int = 0
     following_count: int = 0
@@ -185,6 +197,8 @@ async def search_users(
             name=u.name,
             photo_url=u.photo_url,
             photo_meta=u.photo_meta,
+            bio=u.bio,
+            social_links=u.social_links,
             posts_count=int(p or 0),
             followers_count=int(fc or 0),
             following_count=int(gc or 0),
@@ -443,6 +457,8 @@ async def get_public_user(
         name=u.name,
         photo_url=u.photo_url,
         photo_meta=u.photo_meta,
+        bio=u.bio,
+        social_links=u.social_links,
         posts_count=int(p or 0),
         followers_count=int(fc or 0),
         following_count=int(gc or 0),
@@ -725,6 +741,8 @@ async def list_follow_requests(
                 name=u.name,
                 photo_url=u.photo_url,
                 photo_meta=u.photo_meta,
+                bio=u.bio,
+                social_links=u.social_links,
                 posts_count=int(p or 0),
                 followers_count=int(fc or 0),
                 following_count=int(gc or 0),
@@ -907,6 +925,8 @@ async def list_blocked(
             name=u.name,
             photo_url=u.photo_url,
             photo_meta=u.photo_meta,
+            bio=u.bio,
+            social_links=u.social_links,
             posts_count=int(p or 0),
             followers_count=int(fc or 0),
             following_count=int(gc or 0),
@@ -989,6 +1009,8 @@ async def _list_relations(
             name=u.name,
             photo_url=u.photo_url,
             photo_meta=u.photo_meta,
+            bio=u.bio,
+            social_links=u.social_links,
             posts_count=int(p or 0),
             followers_count=int(fc or 0),
             following_count=int(gc or 0),
@@ -1013,7 +1035,15 @@ async def update_profile(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    for field, value in data.model_dump(exclude_unset=True).items():
+    payload = data.model_dump(exclude_unset=True)
+    # Bio + social_links are user-controlled free-text fields shown to
+    # other users — normalize before persisting so we don't store
+    # whitespace-only blobs, oversized values, or unknown social keys.
+    if "bio" in payload:
+        payload["bio"] = normalize_bio(payload["bio"])
+    if "social_links" in payload:
+        payload["social_links"] = normalize_social_links(payload["social_links"])
+    for field, value in payload.items():
         setattr(user, field, value)
     await db.commit()
     await db.refresh(user)

@@ -1,6 +1,30 @@
 import 'package:inkspacex/models/image_meta.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 
+/// Well-known keys allowed in [User.socialLinks]. Mirrored on the
+/// backend (`SOCIAL_LINK_KEYS` in `app/schemas/user.py`); anything
+/// outside this set is dropped server-side on write, so the client
+/// shouldn't bother sending it.
+const List<String> kSocialLinkKeys = <String>[
+  'website',
+  'twitter',
+  'instagram',
+  'linkedin',
+  'goodreads',
+];
+
+Map<String, String> _socialLinksFromJson(dynamic raw) {
+  if (raw is! Map) return const {};
+  final out = <String, String>{};
+  for (final key in kSocialLinkKeys) {
+    final v = raw[key];
+    if (v is String && v.trim().isNotEmpty) {
+      out[key] = v.trim();
+    }
+  }
+  return out;
+}
+
 class User {
   final String id;
   final String email;
@@ -11,6 +35,12 @@ class User {
   final DateTime? updatedAt;
   final bool onboardingComplete;
   final UserPreferences preferences;
+  /// Free-text author bio shown on the public profile page. Server
+  /// caps the persisted value at ~1000 chars and trims whitespace.
+  final String? bio;
+  /// Flat map of platform → URL/handle, restricted to
+  /// [kSocialLinkKeys]. Empty values are stripped server-side.
+  final Map<String, String> socialLinks;
   final List<String> likes;
   final List<String> readingList;
   final List<String> savedPosts;
@@ -27,12 +57,15 @@ class User {
     this.updatedAt,
     this.onboardingComplete = false,
     UserPreferences? preferences,
+    this.bio,
+    Map<String, String>? socialLinks,
     List<String>? likes,
     List<String>? readingList,
     List<String>? savedPosts,
     List<String>? favoritePosts,
     List<String>? sectionBookmarks,
   })  : preferences = preferences ?? const UserPreferences(),
+        socialLinks = socialLinks ?? const {},
         likes = likes ?? [],
         readingList = readingList ?? [],
         savedPosts = savedPosts ?? [],
@@ -56,6 +89,8 @@ class User {
       preferences: UserPreferences.fromJson(
         (json['onboardingData'] ?? json['preferences']) as Map<String, dynamic>?,
       ),
+      bio: json['bio'] as String?,
+      socialLinks: _socialLinksFromJson(json['socialLinks'] ?? json['social_links']),
       likes: List<String>.from(json['likes'] ?? []),
       readingList: List<String>.from(json['readingList'] ?? []),
       savedPosts: List<String>.from(json['savedPosts'] ?? []),
@@ -74,6 +109,8 @@ class User {
         'updatedAt': updatedAt?.toIso8601String(),
         'onboardingComplete': onboardingComplete,
         'onboardingData': preferences.toJson(),
+        'bio': bio,
+        'socialLinks': socialLinks,
         'likes': likes,
         'readingList': readingList,
         'savedPosts': savedPosts,
@@ -91,6 +128,9 @@ class User {
     DateTime? updatedAt,
     bool? onboardingComplete,
     UserPreferences? preferences,
+    String? bio,
+    bool clearBio = false,
+    Map<String, String>? socialLinks,
     List<String>? likes,
     List<String>? readingList,
     List<String>? savedPosts,
@@ -107,6 +147,8 @@ class User {
         updatedAt: updatedAt ?? this.updatedAt,
         onboardingComplete: onboardingComplete ?? this.onboardingComplete,
         preferences: preferences ?? this.preferences,
+        bio: clearBio ? null : (bio ?? this.bio),
+        socialLinks: socialLinks ?? this.socialLinks,
         likes: likes ?? this.likes,
         readingList: readingList ?? this.readingList,
         savedPosts: savedPosts ?? this.savedPosts,

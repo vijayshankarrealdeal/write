@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
@@ -438,6 +439,14 @@ class _Hero extends StatelessWidget {
             onFollow: onFollow,
           );
 
+    final bioBlock = _BioBlock(
+      bio: user.bio,
+      socialLinks: user.socialLinks,
+      textColor: textColor,
+      subtle: subtle,
+      isDark: isDark,
+    );
+
     if (isMobile) {
       return Padding(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 14),
@@ -454,6 +463,10 @@ class _Hero extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             ?badges,
+            if (bioBlock.hasContent) ...[
+              const SizedBox(height: 12),
+              bioBlock,
+            ],
             const SizedBox(height: 16),
             stats,
             if (actions != null) ...[
@@ -485,6 +498,10 @@ class _Hero extends StatelessWidget {
                 const SizedBox(height: 10),
                 if (badges != null) ...[
                   badges,
+                  const SizedBox(height: 18),
+                ],
+                if (bioBlock.hasContent) ...[
+                  bioBlock,
                   const SizedBox(height: 18),
                 ],
                 stats,
@@ -532,6 +549,235 @@ class _Hero extends StatelessWidget {
           ),
       ],
     );
+  }
+}
+
+/// Bio + social-link block on the author profile. Renders the
+/// free-text bio and a row of compact platform chips that, when tapped,
+/// open the user's social URL in the system browser. Hidden entirely
+/// when the author has filled neither field.
+class _BioBlock extends StatelessWidget {
+  final String? bio;
+  final Map<String, String> socialLinks;
+  final Color textColor;
+  final Color subtle;
+  final bool isDark;
+
+  const _BioBlock({
+    required this.bio,
+    required this.socialLinks,
+    required this.textColor,
+    required this.subtle,
+    required this.isDark,
+  });
+
+  bool get hasContent =>
+      (bio != null && bio!.trim().isNotEmpty) || socialLinks.isNotEmpty;
+
+  @override
+  Widget build(BuildContext context) {
+    final trimmed = bio?.trim() ?? '';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (trimmed.isNotEmpty)
+          Text(
+            trimmed,
+            style: GoogleFonts.inter(
+              fontSize: 14.5,
+              height: 1.5,
+              color: textColor.withValues(alpha: 0.85),
+            ),
+          ),
+        if (trimmed.isNotEmpty && socialLinks.isNotEmpty)
+          const SizedBox(height: 12),
+        if (socialLinks.isNotEmpty)
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final entry in _orderedLinks())
+                _SocialChip(
+                  keyName: entry.key,
+                  value: entry.value,
+                  textColor: textColor,
+                  subtle: subtle,
+                  isDark: isDark,
+                ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  // Render in the canonical order from kSocialLinkKeys so the row layout
+  // is stable across renders rather than reflecting insertion order.
+  Iterable<MapEntry<String, String>> _orderedLinks() {
+    return [
+      for (final key in [
+        'website',
+        'twitter',
+        'instagram',
+        'linkedin',
+        'goodreads',
+      ])
+        if (socialLinks[key] != null && socialLinks[key]!.isNotEmpty)
+          MapEntry(key, socialLinks[key]!),
+    ];
+  }
+}
+
+class _SocialChip extends StatelessWidget {
+  final String keyName;
+  final String value;
+  final Color textColor;
+  final Color subtle;
+  final bool isDark;
+
+  const _SocialChip({
+    required this.keyName,
+    required this.value,
+    required this.textColor,
+    required this.subtle,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _open(context),
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.12)
+                  : Colors.black.withValues(alpha: 0.10),
+            ),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.04)
+                : Colors.black.withValues(alpha: 0.02),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _iconFor(keyName),
+                size: 14,
+                color: subtle,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                _displayLabel(),
+                style: GoogleFonts.inter(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w500,
+                  color: textColor.withValues(alpha: 0.85),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _displayLabel() {
+    final v = value.trim();
+    switch (keyName) {
+      case 'website':
+        return _stripScheme(v);
+      case 'twitter':
+      case 'instagram':
+        // Show as @handle when the value isn't already a URL.
+        if (v.contains('://') || v.contains('/')) return _stripScheme(v);
+        return v.startsWith('@') ? v : '@$v';
+      case 'linkedin':
+      case 'goodreads':
+        return _stripScheme(v);
+    }
+    return v;
+  }
+
+  String _stripScheme(String v) {
+    var out = v;
+    if (out.startsWith('https://')) out = out.substring(8);
+    if (out.startsWith('http://')) out = out.substring(7);
+    if (out.startsWith('www.')) out = out.substring(4);
+    if (out.endsWith('/')) out = out.substring(0, out.length - 1);
+    return out;
+  }
+
+  IconData _iconFor(String key) {
+    switch (key) {
+      case 'website':
+        return CupertinoIcons.link;
+      case 'twitter':
+        return CupertinoIcons.chat_bubble;
+      case 'instagram':
+        return CupertinoIcons.camera;
+      case 'linkedin':
+        return CupertinoIcons.briefcase;
+      case 'goodreads':
+        return CupertinoIcons.book;
+    }
+    return CupertinoIcons.link;
+  }
+
+  Future<void> _open(BuildContext context) async {
+    final uri = _resolveUri();
+    if (uri == null) return;
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Couldn't open link",
+            style: GoogleFonts.inter(fontSize: 13),
+          ),
+        ),
+      );
+    }
+  }
+
+  // Build a sensible URI even when the user typed a bare handle. Each
+  // platform has its own convention; falling back to a search would be
+  // worse UX than just opening the canonical profile path.
+  Uri? _resolveUri() {
+    final raw = value.trim();
+    if (raw.isEmpty) return null;
+    if (raw.startsWith('http://') || raw.startsWith('https://')) {
+      return Uri.tryParse(raw);
+    }
+    final handle = raw.startsWith('@') ? raw.substring(1) : raw;
+    switch (keyName) {
+      case 'twitter':
+        return Uri.parse('https://twitter.com/$handle');
+      case 'instagram':
+        return Uri.parse('https://instagram.com/$handle');
+      case 'linkedin':
+        return Uri.parse(
+          handle.contains('/') ? 'https://$handle' : 'https://linkedin.com/in/$handle',
+        );
+      case 'goodreads':
+        // Goodreads has no clean "handle" form — author pages live at
+        // /author/show/<id>.<slug>. If the user typed something that
+        // looks like a path, keep it; otherwise treat it as raw text
+        // and prefix the domain so navigation at least lands them in
+        // the right place to refine.
+        return Uri.parse(
+          handle.contains('/') ? 'https://$handle' : 'https://goodreads.com/$handle',
+        );
+      case 'website':
+        return Uri.parse('https://$raw');
+    }
+    return null;
   }
 }
 

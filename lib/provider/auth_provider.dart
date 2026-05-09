@@ -542,11 +542,17 @@ class AuthProvider extends ChangeNotifier {
   Future<void> updateProfile({
     required String name,
     required String email,
+    String? bio,
+    bool clearBio = false,
+    Map<String, String>? socialLinks,
   }) async {
     if (_currentUser == null) return;
     _currentUser = _currentUser!.copyWith(
       name: name,
       email: email,
+      bio: bio,
+      clearBio: clearBio,
+      socialLinks: socialLinks,
       updatedAt: DateTime.now(),
     );
     await _dataService.setUser(_currentUser!);

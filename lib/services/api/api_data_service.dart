@@ -97,6 +97,18 @@ class UserBadge {
   }
 }
 
+Map<String, String> _publicSocialLinksFromJson(dynamic raw) {
+  if (raw is! Map) return const {};
+  final out = <String, String>{};
+  for (final key in kSocialLinkKeys) {
+    final v = raw[key];
+    if (v is String && v.trim().isNotEmpty) {
+      out[key] = v.trim();
+    }
+  }
+  return out;
+}
+
 /// Slim author record returned by `/api/users/search` and the public
 /// profile endpoint. Excludes private fields (email, lists, onboarding).
 class PublicUser {
@@ -104,6 +116,13 @@ class PublicUser {
   final String? name;
   final String? photoUrl;
   final ImageMeta? photoMeta;
+  /// Free-text bio shown on the public profile page. Null when the
+  /// author hasn't filled one in.
+  final String? bio;
+  /// Flat map of platform → URL/handle, restricted to the keys in
+  /// [kSocialLinkKeys] (mirrored on the backend). Empty map when the
+  /// user hasn't added any links.
+  final Map<String, String> socialLinks;
   final int postsCount;
   final int followersCount;
   final int followingCount;
@@ -132,6 +151,8 @@ class PublicUser {
     required this.photoUrl,
     required this.photoMeta,
     required this.postsCount,
+    this.bio,
+    this.socialLinks = const {},
     this.followersCount = 0,
     this.followingCount = 0,
     this.isFollowing = false,
@@ -147,6 +168,8 @@ class PublicUser {
         name: j['name'] as String?,
         photoUrl: j['photo_url'] as String?,
         photoMeta: ImageMeta.tryFromJson(j['photo_meta']),
+        bio: j['bio'] as String?,
+        socialLinks: _publicSocialLinksFromJson(j['social_links']),
         postsCount: (j['posts_count'] as num?)?.toInt() ?? 0,
         followersCount: (j['followers_count'] as num?)?.toInt() ?? 0,
         followingCount: (j['following_count'] as num?)?.toInt() ?? 0,
@@ -172,6 +195,8 @@ class PublicUser {
         name: name,
         photoUrl: photoUrl,
         photoMeta: photoMeta,
+        bio: bio,
+        socialLinks: socialLinks,
         postsCount: postsCount,
         followersCount: followersCount ?? this.followersCount,
         followingCount: followingCount ?? this.followingCount,
@@ -368,6 +393,8 @@ class ApiDataService implements SyncDispatcher {
       if (user.photoMeta != null) 'photo_meta': user.photoMeta!.toJson(),
       'onboarding_complete': user.onboardingComplete,
       'onboarding_data': user.preferences.toJson(),
+      'bio': user.bio,
+      'social_links': user.socialLinks,
     });
   }
 
@@ -1887,6 +1914,7 @@ class ApiDataService implements SyncDispatcher {
       'photoMeta': json['photo_meta'],
       'onboardingComplete': json['onboarding_complete'] ?? false,
       'onboardingData': json['onboarding_data'],
+      'socialLinks': json['social_links'],
       'readingList': json['reading_list'] ?? [],
       'savedPosts': json['saved_posts'] ?? [],
       'favoritePosts': json['favorite_posts'] ?? [],

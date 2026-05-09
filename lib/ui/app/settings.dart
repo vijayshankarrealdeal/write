@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:inkspacex/models/user_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
@@ -372,6 +373,8 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
+  late TextEditingController _bioController;
+  late final Map<String, TextEditingController> _socialControllers;
   bool _isUploading = false;
   bool _isSaving = false;
 
@@ -381,12 +384,21 @@ class _ProfilePageState extends State<ProfilePage> {
     final user = context.read<AuthProvider>().currentUser;
     _nameController = TextEditingController(text: user?.name ?? '');
     _emailController = TextEditingController(text: user?.email ?? '');
+    _bioController = TextEditingController(text: user?.bio ?? '');
+    _socialControllers = {
+      for (final key in kSocialLinkKeys)
+        key: TextEditingController(text: user?.socialLinks[key] ?? ''),
+    };
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _bioController.dispose();
+    for (final c in _socialControllers.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -427,11 +439,20 @@ class _ProfilePageState extends State<ProfilePage> {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     if (name.isEmpty || email.isEmpty) return;
+    final bioRaw = _bioController.text.trim();
+    final socials = <String, String>{
+      for (final entry in _socialControllers.entries)
+        if (entry.value.text.trim().isNotEmpty)
+          entry.key: entry.value.text.trim(),
+    };
     setState(() => _isSaving = true);
     try {
       await context.read<AuthProvider>().updateProfile(
         name: name,
         email: email,
+        bio: bioRaw.isEmpty ? null : bioRaw,
+        clearBio: bioRaw.isEmpty,
+        socialLinks: socials,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -447,6 +468,54 @@ class _ProfilePageState extends State<ProfilePage> {
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
+  }
+
+  String _socialLabelFor(String key) {
+    switch (key) {
+      case 'website':
+        return 'Website';
+      case 'twitter':
+        return 'Twitter / X';
+      case 'instagram':
+        return 'Instagram';
+      case 'linkedin':
+        return 'LinkedIn';
+      case 'goodreads':
+        return 'Goodreads';
+    }
+    return key;
+  }
+
+  String _socialHintFor(String key) {
+    switch (key) {
+      case 'website':
+        return 'https://yoursite.com';
+      case 'twitter':
+        return '@handle or full URL';
+      case 'instagram':
+        return '@handle';
+      case 'linkedin':
+        return 'linkedin.com/in/username';
+      case 'goodreads':
+        return 'goodreads.com/author/show/...';
+    }
+    return '';
+  }
+
+  IconData _socialIconFor(String key) {
+    switch (key) {
+      case 'website':
+        return CupertinoIcons.link;
+      case 'twitter':
+        return CupertinoIcons.chat_bubble;
+      case 'instagram':
+        return CupertinoIcons.camera;
+      case 'linkedin':
+        return CupertinoIcons.briefcase;
+      case 'goodreads':
+        return CupertinoIcons.book;
+    }
+    return CupertinoIcons.link;
   }
 
   @override
@@ -613,6 +682,57 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               const SizedBox(height: 28),
+              _buildSectionHeader(context, 'About', textColor),
+              _buildFieldCard(
+                cardColor: cardColor,
+                isDark: isDark,
+                children: [
+                  _buildBioField(
+                    isDark: isDark,
+                    textColor: textColor,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: Text(
+                  'A short intro shown on your public profile.',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: textColor.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28),
+              _buildSectionHeader(context, 'Social Links', textColor),
+              _buildFieldCard(
+                cardColor: cardColor,
+                isDark: isDark,
+                children: [
+                  for (var i = 0; i < kSocialLinkKeys.length; i++) ...[
+                    _buildSocialField(
+                      keyName: kSocialLinkKeys[i],
+                      isDark: isDark,
+                      textColor: textColor,
+                    ),
+                    if (i < kSocialLinkKeys.length - 1)
+                      _buildFieldDivider(isDark),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: Text(
+                  'Other readers will see these on your profile.',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: textColor.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -696,6 +816,117 @@ class _ProfilePageState extends State<ProfilePage> {
         color: isDark
             ? Colors.white.withValues(alpha: 0.06)
             : Colors.black.withValues(alpha: 0.06),
+      ),
+    );
+  }
+
+  Widget _buildBioField({required bool isDark, required Color textColor}) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Bio',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: textColor.withValues(alpha: 0.55),
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextField(
+            controller: _bioController,
+            maxLines: null,
+            minLines: 3,
+            maxLength: 1000,
+            style: GoogleFonts.inter(
+              color: textColor,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              height: 1.45,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Tell readers a little about yourself…',
+              hintStyle: GoogleFonts.inter(
+                color: textColor.withValues(alpha: 0.3),
+                fontSize: 15,
+              ),
+              isDense: true,
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              counterStyle: GoogleFonts.inter(
+                fontSize: 11,
+                color: textColor.withValues(alpha: 0.4),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSocialField({
+    required String keyName,
+    required bool isDark,
+    required Color textColor,
+  }) {
+    final controller = _socialControllers[keyName]!;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 22),
+            child: Icon(
+              _socialIconFor(keyName),
+              size: 18,
+              color: textColor.withValues(alpha: 0.55),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _socialLabelFor(keyName),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: textColor.withValues(alpha: 0.55),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.url,
+                  autocorrect: false,
+                  style: GoogleFonts.inter(
+                    color: textColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: _socialHintFor(keyName),
+                    hintStyle: GoogleFonts.inter(
+                      color: textColor.withValues(alpha: 0.3),
+                      fontSize: 15,
+                    ),
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

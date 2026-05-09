@@ -119,10 +119,8 @@ class _MobileWritingPage extends StatelessWidget {
   }
 
   void _showNewProjectDialog(BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => const NewBookAddition(),
-    );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    _showNewSpacePicker(context, isDark: isDark, compact: true);
   }
 }
 
@@ -462,9 +460,10 @@ class _DesktopWritingPage extends StatelessWidget {
               _buildIconButton(
                 context,
                 icon: CupertinoIcons.add,
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (_) => const NewBookAddition(),
+                onTap: () => _showNewSpacePicker(
+                  context,
+                  isDark: isDark,
+                  compact: false,
                 ),
                 isDark: isDark,
               ),
@@ -813,14 +812,123 @@ class _DesktopWritingPage extends StatelessWidget {
   }
 }
 
+/// Opens the "What will you write today?" picker as a dialog/sheet, then
+/// chains into [NewBookAddition] with the picked type. Used by the `+`
+/// button in the sidebar/nav so the form-required error from going
+/// straight to NewBookAddition (with no preselected subtype) is avoided.
+void _showNewSpacePicker(
+  BuildContext context, {
+  required bool isDark,
+  required bool compact,
+}) {
+  void launchForm(WritingType? type) {
+    if (compact) {
+      showCupertinoModalPopup(
+        context: context,
+        builder: (_) => NewBookAddition(initialType: type),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => NewBookAddition(initialType: type),
+      );
+    }
+  }
+
+  Widget hero(BuildContext dlgCtx) {
+    return _StartWritingHero(
+      isDark: isDark,
+      compact: compact,
+      onSelect: (type) {
+        Navigator.of(dlgCtx).pop();
+        launchForm(type);
+      },
+    );
+  }
+
+  final bgColor = isDark ? const Color(0xFF000000) : const Color(0xFFF8FAFC);
+
+  if (compact) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (dlgCtx) => Container(
+        height: MediaQuery.sizeOf(context).height * 0.92,
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () => Navigator.of(dlgCtx).pop(),
+                    child: Icon(
+                      CupertinoIcons.xmark,
+                      color: isDark ? Colors.white70 : Colors.black54,
+                      size: 22,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(child: hero(dlgCtx)),
+          ],
+        ),
+      ),
+    );
+  } else {
+    showDialog(
+      context: context,
+      builder: (dlgCtx) => Dialog(
+        backgroundColor: bgColor,
+        insetPadding: EdgeInsets.zero,
+        child: Stack(
+          children: [
+            Positioned.fill(child: hero(dlgCtx)),
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Material(
+                color: Colors.transparent,
+                child: IconButton(
+                  onPressed: () => Navigator.of(dlgCtx).pop(),
+                  icon: Icon(
+                    CupertinoIcons.xmark,
+                    color: isDark ? Colors.white70 : Colors.black54,
+                    size: 22,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ─── Start writing hero (empty state) ───────────────────────────────────────
 class _StartWritingHero extends StatelessWidget {
   final bool isDark;
   final bool compact;
+  final ValueChanged<WritingType?>? onSelect;
 
-  const _StartWritingHero({required this.isDark, required this.compact});
+  const _StartWritingHero({
+    required this.isDark,
+    required this.compact,
+    this.onSelect,
+  });
 
-  void _open(BuildContext context, {WritingType? type}) {
+  void _handlePick(BuildContext context, WritingType? type) {
+    if (onSelect != null) {
+      onSelect!(type);
+      return;
+    }
     if (compact) {
       showCupertinoModalPopup(
         context: context,
@@ -880,7 +988,8 @@ class _StartWritingHero extends StatelessWidget {
                   SizedBox(height: compact ? 46 : 58),
                   _BlankSpaceLink(
                     isDark: isDark,
-                    onTap: () => _open(context, type: WritingType.freestyle),
+                    onTap: () =>
+                        _handlePick(context, WritingType.freestyle),
                   ),
                   SizedBox(height: 12),
                   Text(
@@ -894,7 +1003,7 @@ class _StartWritingHero extends StatelessWidget {
                   SizedBox(height: 28),
                   TypeChooser(
                     selected: null,
-                    onSelect: (t) => _open(context, type: t),
+                    onSelect: (t) => _handlePick(context, t),
                     isDark: isDark,
                   ),
 

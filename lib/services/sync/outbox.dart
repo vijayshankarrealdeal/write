@@ -77,6 +77,53 @@ class Outbox {
     await _writeAll(ops);
   }
 
+  /// Append [op], or merge it into an already-queued op with the same
+  /// coalesce key — whichever is appropriate.
+  ///
+  /// Walks the queue from the tail and looks for the most-recent op whose
+  /// [keyOf] matches the new op's key. The match is only considered
+  /// mergeable if it is not [PendingOp.failed] AND has not started
+  /// attempting yet (`attemptCount == 0` and no `nextAttemptAt`) — once
+  /// the drainer has attempted an op it may already be in flight under a
+  /// snapshot, so mutating its payload is unsafe.
+  ///
+  /// On a mergeable match, [merge] is called with the existing op's
+  /// payload and the new op's payload; the returned map replaces the
+  /// existing op's payload in place. The op id, createdAt, and queue
+  /// position are preserved so head-of-line semantics are unchanged.
+  ///
+  /// If [keyOf] returns null for [op], or no mergeable match is found,
+  /// [op] is appended like a normal [enqueue].
+  Future<void> enqueueOrCoalesce(
+    PendingOp op, {
+    required String? Function(PendingOp) keyOf,
+    required Map<String, dynamic> Function(
+      Map<String, dynamic> existing,
+      Map<String, dynamic> incoming,
+    ) merge,
+  }) async {
+    final newKey = keyOf(op);
+    if (newKey == null) {
+      await enqueue(op);
+      return;
+    }
+    final ops = _readAll();
+    for (var i = ops.length - 1; i >= 0; i--) {
+      final candidate = ops[i];
+      if (candidate.failed) continue;
+      if (candidate.attemptCount > 0) continue;
+      if (candidate.nextAttemptAt != null) continue;
+      if (keyOf(candidate) != newKey) continue;
+      ops[i] = candidate.copyWith(
+        payload: merge(candidate.payload, op.payload),
+      );
+      await _writeAll(ops);
+      return;
+    }
+    ops.add(op);
+    await _writeAll(ops);
+  }
+
   /// Replace an op in place (used by the drainer to bump `attemptCount`
   /// after a failed attempt). Looks the op up by id.
   Future<void> update(PendingOp op) async {

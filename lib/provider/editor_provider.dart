@@ -145,6 +145,52 @@ class EditorProvider extends ChangeNotifier {
     _drainer.kick();
   }
 
+  /// Enqueue a content-only `upsertSection` (isNew=false), coalescing
+  /// with any pending op already targeting the same `(writingId,
+  /// sectionId)`. Without this, the 15s periodic sync + multi-section
+  /// autosave can stack many ops for the same section when the drainer
+  /// is blocked (offline or behind a failing head op), inflating the
+  /// "Syncing N" count for no benefit since the latest content fully
+  /// supersedes earlier snapshots.
+  Future<void> _enqueueSectionContentUpsert({
+    required String writingId,
+    required String sectionId,
+    required Map<String, dynamic> fields,
+  }) async {
+    final op = PendingOp(
+      kind: PendingOpKind.upsertSection,
+      payload: {
+        'writingId': writingId,
+        'sectionId': sectionId,
+        'isNew': false,
+        'fields': fields,
+      },
+    );
+    await _outbox.enqueueOrCoalesce(
+      op,
+      keyOf: (candidate) {
+        if (candidate.kind != PendingOpKind.upsertSection) return null;
+        if (candidate.payload['isNew'] == true) return null;
+        final wid = candidate.payload['writingId'];
+        final sid = candidate.payload['sectionId'];
+        if (wid is! String || sid is! String) return null;
+        return '$wid/$sid';
+      },
+      merge: (existing, incoming) {
+        final mergedFields = <String, dynamic>{
+          ...?(existing['fields'] as Map?)?.cast<String, dynamic>(),
+          ...?(incoming['fields'] as Map?)?.cast<String, dynamic>(),
+        };
+        return {
+          ...existing,
+          ...incoming,
+          'fields': mergedFields,
+        };
+      },
+    );
+    _drainer.kick();
+  }
+
   void _applyRemap(IdRemapEvent event) {
     if (event.isWriting) {
       for (final b in allBooks) {
@@ -2048,18 +2094,14 @@ class EditorProvider extends ChangeNotifier {
       return;
     }
     if (_userId == null) return;
-    await _enqueue(PendingOp(
-      kind: PendingOpKind.upsertSection,
-      payload: {
-        'writingId': activeBook!.id,
-        'sectionId': activeSection!.id,
-        'isNew': false,
-        'fields': {
-          'content': content,
-          if (canvasData.isNotEmpty) 'canvas_data': canvasData,
-        },
+    await _enqueueSectionContentUpsert(
+      writingId: activeBook!.id,
+      sectionId: activeSection!.id,
+      fields: {
+        'content': content,
+        if (canvasData.isNotEmpty) 'canvas_data': canvasData,
       },
-    ));
+    );
     _lastSyncedContent = content;
     _needsFirestoreSync = false;
     // The op is durable; treat the local section as "queued" for the
@@ -2214,19 +2256,14 @@ class EditorProvider extends ChangeNotifier {
     section.isSynced = false;
     await _storage.saveBooks(allBooks);
     if (_userId != null) {
-      await _enqueue(PendingOp(
-        kind: PendingOpKind.upsertSection,
-        payload: {
-          'writingId': activeBook!.id,
-          'sectionId': section.id,
-          'isNew': false,
-          'fields': {
-            'content': contentJson,
-            if (section.canvasData.isNotEmpty)
-              'canvas_data': section.canvasData,
-          },
+      await _enqueueSectionContentUpsert(
+        writingId: activeBook!.id,
+        sectionId: section.id,
+        fields: {
+          'content': contentJson,
+          if (section.canvasData.isNotEmpty) 'canvas_data': section.canvasData,
         },
-      ));
+      );
     }
     saveStatus = 'Saved';
     notifyListeners();
