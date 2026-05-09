@@ -862,14 +862,14 @@
   }
   @keyframes blink { 50% { opacity: 0; } }
   .ec-body em { color: var(--accent-2); font-style: italic; font-weight: 500; }
-  /* Subtle highlight pulse on active slash row — feels like the product is responding */
+  /* Subtle highlight pulse on active slash row — feels like the product is
+     responding. Glow color is themeable via --glow-rgb so one keyframe covers
+     both light and dark; @keyframes can't be nested under a selector. */
+  :root { --glow-rgb: 30, 110, 244; }
+  [data-theme="dark"] { --glow-rgb: 92, 184, 255; }
   @keyframes slashGlow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(30, 110, 244, 0); }
-    50%      { box-shadow: 0 0 0 4px rgba(30, 110, 244, 0.18); }
-  }
-  [data-theme="dark"] @keyframes slashGlow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(92, 184, 255, 0); }
-    50%      { box-shadow: 0 0 0 4px rgba(92, 184, 255, 0.18); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--glow-rgb), 0); }
+    50%      { box-shadow: 0 0 0 4px rgba(var(--glow-rgb), 0.18); }
   }
   .ec-slash li.active { animation: slashGlow 2.4s ease-in-out infinite; }
   @media (prefers-reduced-motion: reduce) {
@@ -2098,7 +2098,11 @@
   @media (max-width: 720px) {
     .nav-links { display: none; }
     .menu-toggle { display: inline-flex; }
-    .nav-cta .ghost { display: none; }
+    /* Hide nav CTAs on mobile — they overflow off-screen and the hero's
+       big "Start writing" button is right below, so users still have a
+       clear path. The hamburger covers Log in. */
+    .nav-cta .ghost,
+    .nav-cta .btn { display: none; }
     section.s { padding: 70px 0; }
     .hero { padding: 40px 0 60px; }
     .features { grid-template-columns: 1fr; }
@@ -2184,7 +2188,7 @@
             that runs on every device you own.
           </p>
           <div class="hero-cta">
-            <a href="#cta" class="btn accent lg">Start writing — it's free <span class="arrow">→</span></a>
+            <a href="/signup" class="btn accent lg">Start writing — it's free <span class="arrow">→</span></a>
             <a href="#showcase" class="btn ghost-lg">Take the tour</a>
           </div>
           <div class="micro-trust">
@@ -2419,7 +2423,7 @@
             <li>Drafts auto-save every keystroke and merge across devices</li>
             <li>Word count goals, focus mode, sepia / dark / paper themes</li>
           </ul>
-          <a href="#cta" class="row-link">Open a fresh draft <span>→</span></a>
+          <a href="/signup" class="row-link">Open a fresh draft <span>→</span></a>
         </div>
 
         <div class="mock purple-tilt">
@@ -2477,7 +2481,7 @@
             <li>Resume across devices to the exact paragraph you left</li>
             <li>Download chapters for offline reading on flights & trains</li>
           </ul>
-          <a href="#cta" class="row-link">Read a featured story <span>→</span></a>
+          <a href="/signup" class="row-link">Read a featured story <span>→</span></a>
         </div>
 
         <div class="mock tilt-r">
@@ -2530,7 +2534,7 @@
             <li>Auto-shelves for "Currently reading" &amp; "Finished"</li>
             <li>Share a shelf as a link — anyone can follow it</li>
           </ul>
-          <a href="#cta" class="row-link">Build your first shelf <span>→</span></a>
+          <a href="/signup" class="row-link">Build your first shelf <span>→</span></a>
         </div>
 
         <div class="mock">
@@ -2575,7 +2579,7 @@
             <li>Quiet notifications — daily digest by default, never push spam</li>
             <li>Direct messages with end-to-end encryption</li>
           </ul>
-          <a href="#cta" class="row-link">Claim your handle <span>→</span></a>
+          <a href="/signup" class="row-link">Claim your handle <span>→</span></a>
         </div>
 
         <div class="mock purple-tilt">
@@ -2780,7 +2784,7 @@
             <li>Direct messages with E2E encryption</li>
             <li>Export everything as Markdown or PDF</li>
           </ul>
-          <a href="#cta" class="btn dark lg">Create a free account →</a>
+          <a href="/signup" class="btn dark lg">Create a free account →</a>
         </div>
 
         <div class="plan pro">
@@ -2797,7 +2801,7 @@
             <li>Paid subscriptions &amp; tipping for your readers</li>
             <li>Priority email support &amp; early access</li>
           </ul>
-          <a href="#cta" class="btn accent lg">Try Pro free for 14 days →</a>
+          <a href="/signup" class="btn accent lg">Try Pro free for 14 days →</a>
         </div>
       </div>
 
@@ -2899,44 +2903,29 @@
     </div>
   </section>
 
-  <!-- ─── Big CTA ─── -->
+  <!-- ─── Final CTA — single button straight into the app. The email
+       magic-link form was removed because we now route directly to the
+       in-app signup flow; the button below replaces it. The decorative
+       doodles are kept for visual continuity with the rest of the page. -->
   <section class="big-cta" id="cta">
     <span class="section-doodle feather-cta" aria-hidden="true"><img loading="lazy" decoding="async" src="Hand%20Drawn%20Doodle%20Elements/200.png" alt=""></span>
     <span class="section-doodle star-cta" aria-hidden="true"><img loading="lazy" decoding="async" src="Hand%20Drawn%20Doodle%20Elements/280.png" alt=""></span>
     <span class="section-doodle lightning-cta" aria-hidden="true"><img loading="lazy" decoding="async" src="Hand%20Drawn%20Doodle%20Elements/850.png" alt=""></span>
     <span class="section-doodle bow-cta" aria-hidden="true"><img loading="lazy" decoding="async" src="Hand%20Drawn%20Doodle%20Elements/800.png" alt=""></span>
     <div class="container">
-      <span class="eyebrow">Get the app</span>
+      <span class="eyebrow">Start free</span>
       <h2>
         Your <span class="underline-w">story</span><br>
         is <span class="y">waiting</span>.
       </h2>
       <p class="cta-lede">
-        Drop your email — we'll send a magic link to start writing on the web,
-        and a link to the Android, macOS or Windows app if you'd rather start
-        there.
+        Free forever for personal use. No card. No spam. Sign up takes
+        about ten seconds.
       </p>
 
-      <form class="cta-form" id="signup-form" novalidate>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          placeholder="you@example.com"
-          autocomplete="email"
-          required
-          aria-label="Your email address"
-        >
-        <button type="submit" id="submit-btn">Get the app →</button>
-      </form>
-      <div class="cta-error" id="error" role="alert"></div>
-      <div class="cta-meta">No spam. No card. Unsubscribe in one click.</div>
-
-      <div class="cta-success" id="result" aria-live="polite">
-        <h3 id="result-title">You're in! ✦</h3>
-        <p id="result-msg">Tap the button below to download InkSpaceX. We've also saved your spot for upcoming updates.</p>
-        <a class="btn dark lg" id="app-link" href="#" target="_blank" rel="noopener" style="display:inline-flex;">Open the app link →</a>
-      </div>
+      <p style="margin-top: 28px;">
+        <a href="/signup" class="btn accent lg">Start writing — it's free <span class="arrow">→</span></a>
+      </p>
     </div>
   </section>
 
@@ -2979,7 +2968,7 @@
           <li><a href="#readers">Reader</a></li>
           <li><a href="#pricing">Pricing</a></li>
           <li><a href="#faq">FAQ</a></li>
-          <li><a href="#cta">Download</a></li>
+          <li><a href="/signup">Download</a></li>
         </ul>
       </div>
 
@@ -3099,72 +3088,6 @@
     document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
   })();
 
-  // Signup form (preserves the existing /api/early-testers/signup endpoint)
-  (function () {
-    var form = document.getElementById('signup-form');
-    var emailInput = document.getElementById('email');
-    var submitBtn = document.getElementById('submit-btn');
-    var errorEl = document.getElementById('error');
-    var resultEl = document.getElementById('result');
-    var resultTitle = document.getElementById('result-title');
-    var resultMsg = document.getElementById('result-msg');
-    var appLink = document.getElementById('app-link');
-
-    function showError(msg) {
-      errorEl.textContent = msg || '';
-      if (msg) errorEl.classList.add('show');
-      else errorEl.classList.remove('show');
-    }
-
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      showError('');
-
-      var email = (emailInput.value || '').trim();
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showError('Please enter a valid email address.');
-        emailInput.focus();
-        return;
-      }
-
-      submitBtn.disabled = true;
-      var originalText = submitBtn.textContent;
-      submitBtn.textContent = 'Sending…';
-
-      try {
-        var resp = await fetch('/api/early-testers/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email, source: 'land' }),
-        });
-        var data = await resp.json().catch(function () { return {}; });
-
-        if (!resp.ok) {
-          showError(data.detail || 'Something went wrong. Please try again.');
-          return;
-        }
-
-        form.style.display = 'none';
-        document.querySelector('.cta-meta').style.display = 'none';
-        if (data.already_signed_up) {
-          resultTitle.textContent = "Welcome back ✦";
-          resultMsg.textContent = "You're already on the list. Here's the app link again:";
-        }
-        if (data.app_url) {
-          appLink.href = data.app_url;
-        } else {
-          appLink.style.display = 'none';
-        }
-        resultEl.classList.add('show');
-        resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } catch (err) {
-        showError('Network error. Please try again.');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-      }
-    });
-  })();
 </script>
 </body>
 </html>
