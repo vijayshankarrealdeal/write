@@ -3,6 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/ri.dart';
+import 'package:iconify_flutter/icons/simple_icons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/models/user_model.dart';
@@ -603,20 +606,22 @@ class _ProfilePageState extends State<ProfilePage> {
     return '';
   }
 
-  IconData _socialIconFor(String key) {
+  /// Iconify SVG strings — brand-recognizable icons instead of generic
+  /// Cupertino glyphs (chat bubble for Twitter etc. read as wrong).
+  String _socialIconKey(String key) {
     switch (key) {
       case 'website':
-        return CupertinoIcons.link;
+        return Ri.global_line;
       case 'twitter':
-        return CupertinoIcons.chat_bubble;
+        return Ri.twitter_fill;
       case 'instagram':
-        return CupertinoIcons.camera;
+        return Ri.instagram_line;
       case 'linkedin':
-        return CupertinoIcons.briefcase;
+        return Ri.linkedin_box_fill;
       case 'goodreads':
-        return CupertinoIcons.book;
+        return SimpleIcons.goodreads;
     }
-    return CupertinoIcons.link;
+    return Ri.link;
   }
 
   @override
@@ -923,16 +928,17 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildBioField({required bool isDark, required Color textColor}) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Bio',
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w500,
-              color: textColor.withValues(alpha: 0.55),
+              color: textColor.withValues(alpha: 0.5),
+              letterSpacing: 0.2,
             ),
           ),
           const SizedBox(height: 4),
@@ -958,6 +964,7 @@ class _ProfilePageState extends State<ProfilePage> {
               border: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
+              filled: false,
               counterStyle: GoogleFonts.inter(
                 fontSize: 11,
                 color: textColor.withValues(alpha: 0.4),
@@ -975,53 +982,65 @@ class _ProfilePageState extends State<ProfilePage> {
     required Color textColor,
   }) {
     final controller = _socialControllers[keyName]!;
+    final iconBg = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.04);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      padding: const EdgeInsets.fromLTRB(14, 12, 16, 12),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 22),
-            child: Icon(
-              _socialIconFor(keyName),
+          Container(
+            width: 36,
+            height: 36,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: iconBg,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Iconify(
+              _socialIconKey(keyName),
               size: 18,
-              color: textColor.withValues(alpha: 0.55),
+              color: textColor.withValues(alpha: 0.78),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   _socialLabelFor(keyName),
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w500,
-                    color: textColor.withValues(alpha: 0.55),
+                    color: textColor.withValues(alpha: 0.5),
+                    letterSpacing: 0.2,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 TextField(
                   controller: controller,
                   keyboardType: TextInputType.url,
                   autocorrect: false,
                   style: GoogleFonts.inter(
                     color: textColor,
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
                   decoration: InputDecoration(
                     hintText: _socialHintFor(keyName),
                     hintStyle: GoogleFonts.inter(
                       color: textColor.withValues(alpha: 0.3),
-                      fontSize: 15,
+                      fontSize: 14,
                     ),
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
+                    filled: false,
                   ),
                 ),
               ],
@@ -1041,19 +1060,21 @@ class _ProfilePageState extends State<ProfilePage> {
     TextInputType? keyboardType,
   }) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w500,
-              color: textColor.withValues(alpha: 0.55),
+              color: textColor.withValues(alpha: 0.5),
+              letterSpacing: 0.2,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           TextField(
             controller: controller,
             keyboardType: keyboardType,
@@ -1073,6 +1094,7 @@ class _ProfilePageState extends State<ProfilePage> {
               border: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
+              filled: false,
             ),
           ),
         ],
