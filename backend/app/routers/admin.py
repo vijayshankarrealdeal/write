@@ -121,7 +121,9 @@ async def overview(
     errors_today = (
         await db.execute(
             select(func.count(AppLog.id)).where(
-                AppLog.level == "error", AppLog.created_at >= day_ago
+                AppLog.level == "error",
+                AppLog.created_at >= day_ago,
+                or_(AppLog.env.is_(None), AppLog.env != "dev"),
             )
         )
     ).scalar() or 0
@@ -497,6 +499,12 @@ async def track_visit(
 # events before the field shipped), we fall back to a coarse parse of the
 # stored user-agent string.
 
+# Filter: keep only production traffic. Clients tag every event with
+# `properties.env` ∈ {prod, dev}; we treat NULL as prod for back-compat
+# with rows written before the tag shipped.
+_PROD_ONLY = text("COALESCE(properties->>'env', 'prod') <> 'dev'")
+
+
 # COALESCE(properties->>'platform', <UA fallback>) as a single SQL fragment.
 # Order matters: Android UAs also contain "Linux", so check it first.
 # `literal_column` (not `text`) so the expression supports `.label()` in
@@ -541,6 +549,7 @@ async def page_visit_analytics(
             AnalyticsEvent.event_name == "screen_viewed",
             AnalyticsEvent.server_ts >= since,
             AnalyticsEvent.screen.isnot(None),
+            _PROD_ONLY,
         )
         .group_by(AnalyticsEvent.screen, "day")
         .order_by(text("day"))
@@ -567,6 +576,7 @@ async def top_pages(
             AnalyticsEvent.event_name == "screen_viewed",
             AnalyticsEvent.server_ts >= since,
             AnalyticsEvent.screen.isnot(None),
+            _PROD_ONLY,
         )
         .group_by(AnalyticsEvent.screen)
         .order_by(text("visits DESC"))
@@ -596,7 +606,7 @@ async def user_activity(
                 AnalyticsEvent.event_name == "screen_viewed"
             ).label("total_visits"),
         )
-        .where(AnalyticsEvent.server_ts >= since)
+        .where(AnalyticsEvent.server_ts >= since, _PROD_ONLY)
         .group_by("day")
         .order_by(text("day"))
     )
@@ -621,7 +631,7 @@ async def user_activity(
 
     platform_result = await db.execute(
         select(_PLATFORM_EXPR.label("platform"), func.count().label("count"))
-        .where(AnalyticsEvent.server_ts >= since)
+        .where(AnalyticsEvent.server_ts >= since, _PROD_ONLY)
         .group_by(text("1"))
         .order_by(text("count DESC"))
     )
@@ -647,7 +657,7 @@ async def device_breakdown(
     platform_rows = (
         await db.execute(
             select(_PLATFORM_EXPR.label("platform"), func.count().label("count"))
-            .where(AnalyticsEvent.server_ts >= since)
+            .where(AnalyticsEvent.server_ts >= since, _PROD_ONLY)
             .group_by(text("1"))
             .order_by(text("count DESC"))
         )
@@ -662,7 +672,7 @@ async def device_breakdown(
     device_rows = (
         await db.execute(
             select(device_expr.label("device"), func.count().label("count"))
-            .where(AnalyticsEvent.server_ts >= since)
+            .where(AnalyticsEvent.server_ts >= since, _PROD_ONLY)
             .group_by(text("1"))
             .order_by(text("count DESC"))
             .limit(15)
@@ -680,6 +690,7 @@ async def device_breakdown(
                 AnalyticsEvent.server_ts >= since,
                 text("(properties->>'region') IS NOT NULL"),
                 text("(properties->>'region') <> ''"),
+                _PROD_ONLY,
             )
             .group_by(text("1"))
             .order_by(text("count DESC"))
@@ -689,11 +700,12 @@ async def device_breakdown(
 
     referrer_rows = (
         await db.execute(
-            select(text("properties->>'referrer'").label("referrer"), func.count().label("count"))
+            select(literal_column("properties->>'referrer'").label("referrer"), func.count().label("count"))
             .where(
                 AnalyticsEvent.server_ts >= since,
                 text("(properties->>'referrer') IS NOT NULL"),
                 text("(properties->>'referrer') <> ''"),
+                _PROD_ONLY,
             )
             .group_by(text("1"))
             .order_by(text("count DESC"))

@@ -11,6 +11,20 @@ import 'package:uuid/uuid.dart';
 import 'package:inkspacex/services/api/api_client.dart';
 import 'package:inkspacex/services/app_log.dart';
 
+// Dev/prod tag for analytics events. `kReleaseMode` covers Flutter build
+// flavour; the API base URL covers release builds that target localhost
+// (e.g. dogfooding from a dev machine before a deploy). Either signal
+// flips the event to "dev", so the admin dashboard can filter local
+// traffic out of production metrics.
+String _resolveEnv() {
+  if (!kReleaseMode) return 'dev';
+  final url = ApiClient.baseUrl.toLowerCase();
+  if (url.contains('localhost') || url.contains('127.0.0.1') || url.contains('://10.') || url.contains('://192.168.') || url.contains('://172.')) {
+    return 'dev';
+  }
+  return 'prod';
+}
+
 /// User-behaviour analytics service.
 ///
 /// One singleton, owned by `main.dart`. Buffers events in memory, flushes
@@ -181,6 +195,10 @@ class AnalyticsService {
   /// privacy policy for the user-facing wording.
   static Future<Map<String, dynamic>> _resolveDeviceContext() async {
     final ctx = <String, dynamic>{};
+
+    // Build env so the admin dashboard can filter dev/local traffic out
+    // of production metrics. See _resolveEnv() at file top for the rule.
+    ctx['env'] = _resolveEnv();
 
     // Platform — coarse OS bucket. kIsWeb wins because dart:io.Platform
     // throws on web.
