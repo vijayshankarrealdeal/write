@@ -60,8 +60,43 @@ class EditorProvider extends ChangeNotifier {
     _ackSub = _drainer.onAck.listen(_applyAck);
     _outbox.pendingCount.addListener(_onSyncCounterChanged);
     _drainer.failedCount.addListener(_onSyncCounterChanged);
+    // Auto-recovery hook: when the drainer is about to dead-letter a
+    // permanent 4xx, give it a chance to swap in a fresh create payload
+    // built from local truth. Stops 404s from ever reaching the user as
+    // "1 failed" in the banner — sync just self-heals.
+    _drainer.onPermanentFailure = _autoRecoverPermanentFailure;
     // Drain anything left over from a previous run.
     _drainer.kick();
+  }
+
+  /// Op-ids we've already auto-promoted at least once. If the promoted
+  /// version *also* fails permanently, we don't promote again — that
+  /// signals a deeper backend issue and the user should see it in the
+  /// review dialog instead of an infinite recovery loop.
+  final Set<String> _autoPromotedOpIds = <String>{};
+
+  Future<PendingOp?> _autoRecoverPermanentFailure(
+    PendingOp op,
+    Object error,
+  ) async {
+    if (_autoPromotedOpIds.contains(op.id)) return null;
+    if (!_looksLikeNotFoundError(op.kind, error.toString())) return null;
+    if (!_canPromoteToCreate(op)) return null;
+    final promoted = _promoteToCreate(op);
+    if (promoted == null) return null;
+    _autoPromotedOpIds.add(op.id);
+    return promoted;
+  }
+
+  bool _looksLikeNotFoundError(PendingOpKind kind, String errString) {
+    if (kind != PendingOpKind.upsertSection &&
+        kind != PendingOpKind.upsertWriting &&
+        kind != PendingOpKind.deleteSection &&
+        kind != PendingOpKind.deleteWriting) {
+      return false;
+    }
+    return errString.contains('404') ||
+        errString.toLowerCase().contains('not found');
   }
 
   /// Sync/typing/saving micro-state surfaced for the status chip.
@@ -115,9 +150,285 @@ class EditorProvider extends ChangeNotifier {
 
   /// Snapshot of the failed ops queue for the failed-ops sheet UI.
   List<PendingOp> get failedOps => _drainer.snapshotFailed();
-  Future<void> retryFailedOp(String opId) =>
-      _drainer.retryFailedOp(opId);
-  Future<void> discardFailedOp(String opId) => _drainer.discardOp(opId);
+
+  /// User-triggered Retry. Self-healing: if the failed op was an
+  /// `isNew=false` upsert that 404'd ("Section not found" / "Writing
+  /// not found"), the server has lost the resource — a plain retry
+  /// would just 404 again. Instead we promote the op to `isNew=true`
+  /// and reconstruct the full create payload from the local copy, so
+  /// the server creates the resource fresh under our local id. For
+  /// any other failure (5xx, transient that simply gave up), we just
+  /// clear the failed flag and re-enqueue normally.
+  Future<void> retryFailedOp(String opId) async {
+    final op = _findFailedOp(opId);
+    if (op == null) return;
+    if (_looksLikeNotFound(op) && _canPromoteToCreate(op)) {
+      final promoted = _promoteToCreate(op);
+      if (promoted != null) {
+        await _outbox.update(promoted.copyWith(
+          failed: false,
+          attemptCount: 0,
+          clearLastError: true,
+          clearNextAttempt: true,
+        ));
+        _drainer.kick();
+        return;
+      }
+    }
+    await _drainer.retryFailedOp(opId);
+  }
+
+  /// User-triggered Discard. Per the "clean state" semantics: if the
+  /// op was a section/writing upsert and the resource is gone on the
+  /// server, the local copy is the only remaining trace of an
+  /// already-broken handoff — drop both. The user explicitly chose
+  /// "this is no longer mine" by tapping Discard.
+  Future<void> discardFailedOp(String opId) async {
+    final op = _findFailedOp(opId);
+    if (op == null) {
+      await _drainer.discardOp(opId);
+      return;
+    }
+    if (_looksLikeNotFound(op)) {
+      _removeLocalForOp(op);
+    }
+    await _drainer.discardOp(opId);
+    notifyListeners();
+  }
+
+  PendingOp? _findFailedOp(String opId) {
+    for (final op in _drainer.snapshotFailed()) {
+      if (op.id == opId) return op;
+    }
+    return null;
+  }
+
+  bool _looksLikeNotFound(PendingOp op) =>
+      _looksLikeNotFoundError(op.kind, op.lastError ?? '');
+
+  bool _canPromoteToCreate(PendingOp op) {
+    // Only update ops can be promoted; deletes have no create form,
+    // and isNew=true ops that 404 indicate a deeper backend issue we
+    // shouldn't paper over.
+    if (op.kind == PendingOpKind.upsertSection ||
+        op.kind == PendingOpKind.upsertWriting) {
+      return op.payload['isNew'] != true;
+    }
+    return false;
+  }
+
+  PendingOp? _promoteToCreate(PendingOp op) {
+    if (op.kind == PendingOpKind.upsertSection) {
+      final wid = op.payload['writingId'] as String?;
+      final sid = op.payload['sectionId'] as String?;
+      if (wid == null || sid == null) return null;
+      final book = allBooks.firstWhere(
+        (b) => b.id == wid,
+        orElse: () => WritingModel(
+          author: '', coverImagePath: '', id: '', title: '',
+          description: '', writingType: WritingType.personal, subtype: '',
+          sections: const [],
+        ),
+      );
+      if (book.id.isEmpty) return null;
+      final section = book.sections.firstWhere(
+        (s) => s.id == sid,
+        orElse: () => SectionModel(
+          id: '', title: '', content: '', kind: SectionKind.chapter,
+          order: 0, sectionColor: const Color(0xFF1982C4),
+        ),
+      );
+      if (section.id.isEmpty) return null;
+      return op.copyWith(payload: {
+        'writingId': wid,
+        'sectionId': sid,
+        'isNew': true,
+        'fields': {
+          'title': section.title,
+          'content': section.content,
+          'canvas_data': section.canvasData,
+          'section_color': section.sectionColor.toARGB32(),
+          if (section.parentId != null) 'parent_id': section.parentId,
+          'sort_order': section.order,
+          'kind': section.kind.code,
+          'include_in_publish': section.includeInPublish,
+        },
+      });
+    }
+    if (op.kind == PendingOpKind.upsertWriting) {
+      final wid = op.payload['writingId'] as String?;
+      if (wid == null) return null;
+      final book = allBooks.firstWhere(
+        (b) => b.id == wid,
+        orElse: () => WritingModel(
+          author: '', coverImagePath: '', id: '', title: '',
+          description: '', writingType: WritingType.personal, subtype: '',
+          sections: const [],
+        ),
+      );
+      if (book.id.isEmpty) return null;
+      return op.copyWith(payload: {
+        'writingId': wid,
+        'isNew': true,
+        'fields': {
+          'title': book.title,
+          'description': book.description,
+          'coverImagePath': book.coverImagePath,
+          'writingType': book.writingType.index,
+          'subtype': book.subtype,
+          'author': book.author,
+        },
+      });
+    }
+    return null;
+  }
+
+  /// Snapshot of the local + backend versions of the resource the
+  /// failed [op] targets, fetched fresh from the server. The review
+  /// dialog uses this to render a side-by-side comparison so the user
+  /// can pick which side wins.
+  Future<ConflictSnapshot> snapshotForOp(PendingOp op) async {
+    final wid = op.payload['writingId'] as String?;
+    final sid = op.payload['sectionId'] as String?;
+    if (wid == null) {
+      return ConflictSnapshot.empty();
+    }
+    if (op.kind == PendingOpKind.upsertSection ||
+        op.kind == PendingOpKind.deleteSection) {
+      if (sid == null) return ConflictSnapshot.empty();
+      String? localTitle;
+      String? localContent;
+      for (final b in allBooks) {
+        if (b.id != wid) continue;
+        for (final s in b.sections) {
+          if (s.id == sid) {
+            localTitle = s.title;
+            localContent = s.content;
+          }
+        }
+      }
+      Map<String, dynamic>? remote;
+      try {
+        final resp = await _auth.apiClient
+            .get('/api/writings/$wid/sections/$sid');
+        if (resp.data is Map<String, dynamic>) {
+          remote = resp.data as Map<String, dynamic>;
+        }
+      } catch (_) {
+        remote = null;
+      }
+      return ConflictSnapshot(
+        kind: 'section',
+        localTitle: localTitle,
+        localContent: localContent,
+        remoteTitle: remote == null ? null : remote['title'] as String?,
+        remoteContent: remote == null ? null : remote['content'] as String?,
+        remoteMissing: remote == null,
+      );
+    }
+    if (op.kind == PendingOpKind.upsertWriting ||
+        op.kind == PendingOpKind.deleteWriting) {
+      String? localTitle;
+      String? localDesc;
+      for (final b in allBooks) {
+        if (b.id == wid) {
+          localTitle = b.title;
+          localDesc = b.description;
+        }
+      }
+      Map<String, dynamic>? remote;
+      try {
+        final resp = await _auth.apiClient.get('/api/writings/$wid');
+        if (resp.data is Map<String, dynamic>) {
+          remote = resp.data as Map<String, dynamic>;
+        }
+      } catch (_) {
+        remote = null;
+      }
+      return ConflictSnapshot(
+        kind: 'writing',
+        localTitle: localTitle,
+        localContent: localDesc,
+        remoteTitle: remote == null ? null : remote['title'] as String?,
+        remoteContent:
+            remote == null ? null : remote['description'] as String?,
+        remoteMissing: remote == null,
+      );
+    }
+    return ConflictSnapshot.empty();
+  }
+
+  /// Resolve a conflicted op by pushing the local copy to the backend.
+  /// For a 404 (server has nothing), this promote-to-create publishes
+  /// our local state. For other failures it just retries the op.
+  Future<void> resolveUseLocal(String opId) => retryFailedOp(opId);
+
+  /// Resolve a conflicted op by accepting the backend copy: fetch the
+  /// authoritative server version, replace the local section/writing
+  /// content with it, and drop the failed op. If the server has
+  /// nothing (404), this just removes the local orphan.
+  Future<void> resolveUseBackend(String opId) async {
+    final op = _findFailedOp(opId);
+    if (op == null) return;
+    final snap = await snapshotForOp(op);
+    final wid = op.payload['writingId'] as String?;
+    final sid = op.payload['sectionId'] as String?;
+    if (wid == null) {
+      await _drainer.discardOp(opId);
+      return;
+    }
+    if (snap.remoteMissing) {
+      _removeLocalForOp(op);
+      await _drainer.discardOp(opId);
+      notifyListeners();
+      return;
+    }
+    if (op.kind == PendingOpKind.upsertSection && sid != null) {
+      for (final b in allBooks) {
+        if (b.id != wid) continue;
+        for (final s in b.sections) {
+          if (s.id == sid) {
+            if (snap.remoteTitle != null) s.title = snap.remoteTitle!;
+            if (snap.remoteContent != null) s.content = snap.remoteContent!;
+            s.isSynced = true;
+          }
+        }
+      }
+    } else if (op.kind == PendingOpKind.upsertWriting) {
+      for (final b in allBooks) {
+        if (b.id == wid) {
+          if (snap.remoteTitle != null) b.title = snap.remoteTitle!;
+          if (snap.remoteContent != null) b.description = snap.remoteContent!;
+        }
+      }
+    }
+    await _storage.saveBooks(allBooks);
+    await _drainer.discardOp(opId);
+    notifyListeners();
+  }
+
+  void _removeLocalForOp(PendingOp op) {
+    final wid = op.payload['writingId'] as String?;
+    final sid = op.payload['sectionId'] as String?;
+    if (wid == null) return;
+    if (op.kind == PendingOpKind.upsertSection ||
+        op.kind == PendingOpKind.deleteSection) {
+      if (sid == null) return;
+      for (final b in allBooks) {
+        if (b.id != wid) continue;
+        b.sections.removeWhere((s) => s.id == sid);
+      }
+      if (activeSection?.id == sid) activeSection = null;
+    } else if (op.kind == PendingOpKind.upsertWriting ||
+        op.kind == PendingOpKind.deleteWriting) {
+      allBooks.removeWhere((b) => b.id == wid);
+      if (activeBook?.id == wid) {
+        activeBook = null;
+        activeSection = null;
+      }
+    }
+    unawaited(_storage.saveBooks(allBooks));
+  }
 
   /// User-triggered "Sync now". Resets backoff windows on every queued op
   /// (so a 30s wait doesn't make the button feel dead) and kicks the
@@ -2410,6 +2721,31 @@ class EditorProvider extends ChangeNotifier {
 
 /// Coarse-grained sync state used by the editor's status chip.
 enum SyncStatus { idle, typing, saving, offline, syncing, error }
+
+/// Side-by-side snapshot of a resource as it exists locally vs on the
+/// backend, used by the failed-op review dialog so the user can pick a
+/// winner. `remoteMissing == true` means the server returned 404 — the
+/// "right side" of the dialog should render an empty state and the
+/// only meaningful action is "push local" or "drop local".
+class ConflictSnapshot {
+  ConflictSnapshot({
+    required this.kind,
+    this.localTitle,
+    this.localContent,
+    this.remoteTitle,
+    this.remoteContent,
+    required this.remoteMissing,
+  });
+  factory ConflictSnapshot.empty() =>
+      ConflictSnapshot(kind: 'unknown', remoteMissing: true);
+
+  final String kind;
+  final String? localTitle;
+  final String? localContent;
+  final String? remoteTitle;
+  final String? remoteContent;
+  final bool remoteMissing;
+}
 
 class _GhostFix {
   _GhostFix({required this.adoptedBookId, required this.ghostSectionIds});

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -243,6 +244,284 @@ class _StripActionState extends State<_StripAction>
   }
 }
 
+/// One-shot review experience for a failed op: show the local version
+/// next to the backend version, let the user pick a winner.
+class _ConflictReviewDialog extends StatefulWidget {
+  const _ConflictReviewDialog({
+    required this.provider,
+    required this.op,
+  });
+
+  final EditorProvider provider;
+  final PendingOp op;
+
+  @override
+  State<_ConflictReviewDialog> createState() => _ConflictReviewDialogState();
+}
+
+class _ConflictReviewDialogState extends State<_ConflictReviewDialog> {
+  ConflictSnapshot? _snap;
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final snap = await widget.provider.snapshotForOp(widget.op);
+      if (!mounted) return;
+      setState(() => _snap = snap);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _error = '$e');
+    }
+  }
+
+  Future<void> _useLocal() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await widget.provider.resolveUseLocal(widget.op.id);
+    } finally {
+      if (mounted) Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> _useBackend() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await widget.provider.resolveUseBackend(widget.op.id);
+    } finally {
+      if (mounted) Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+    final muted = textColor.withValues(alpha: 0.6);
+    final borderColor = textColor.withValues(alpha: 0.12);
+    final cardBg = isDark ? const Color(0xFF141414) : const Color(0xFFF7F7F7);
+
+    Widget body;
+    if (_error != null) {
+      body = Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text('Could not load: $_error',
+            style: GoogleFonts.inter(color: muted)),
+      );
+    } else if (_snap == null) {
+      body = const Padding(
+        padding: EdgeInsets.all(40),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    } else {
+      final s = _snap!;
+      body = Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              s.remoteMissing
+                  ? "This ${s.kind} only exists on this device. The "
+                      "backend has no copy."
+                  : "Pick which version to keep — your device's, or the "
+                      "backend's.",
+              style: GoogleFonts.inter(fontSize: 13, color: muted),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _SidePanel(
+                    label: 'YOUR DEVICE',
+                    title: s.localTitle ?? '(untitled)',
+                    content: s.localContent,
+                    isMissing: s.localTitle == null && s.localContent == null,
+                    bg: cardBg,
+                    border: borderColor,
+                    textColor: textColor,
+                    muted: muted,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _SidePanel(
+                    label: 'BACKEND',
+                    title: s.remoteTitle ?? '(no copy)',
+                    content: s.remoteContent,
+                    isMissing: s.remoteMissing,
+                    bg: cardBg,
+                    border: borderColor,
+                    textColor: textColor,
+                    muted: muted,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: _busy ? null : () => Navigator.of(context).pop(),
+                  child: const Text('Close'),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: _busy ? null : _useBackend,
+                  child: Text(s.remoteMissing
+                      ? 'Drop local'
+                      : 'Use backend'),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: _busy ? null : _useLocal,
+                  child: Text(s.remoteMissing
+                      ? 'Push to backend'
+                      : 'Keep mine'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Dialog(
+      backgroundColor: isDark ? const Color(0xFF0C0C0C) : Colors.white,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+                child: Text(
+                  'Review sync conflict',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
+                  ),
+                ),
+              ),
+              body,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SidePanel extends StatelessWidget {
+  const _SidePanel({
+    required this.label,
+    required this.title,
+    required this.content,
+    required this.isMissing,
+    required this.bg,
+    required this.border,
+    required this.textColor,
+    required this.muted,
+  });
+
+  final String label;
+  final String title;
+  final String? content;
+  final bool isMissing;
+  final Color bg;
+  final Color border;
+  final Color textColor;
+  final Color muted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: border),
+      ),
+      padding: const EdgeInsets.all(14),
+      constraints: const BoxConstraints(minHeight: 200),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: muted,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: isMissing ? muted : textColor,
+              fontStyle: isMissing ? FontStyle.italic : FontStyle.normal,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isMissing
+                ? '—'
+                : (content == null || content!.isEmpty
+                    ? '(empty)'
+                    : _previewText(content!)),
+            maxLines: 6,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: muted,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _previewText(String raw) {
+    // Quill content is JSON deltas; strip down to the first inserts so
+    // the preview is readable instead of showing curly braces.
+    final trimmed = raw.trim();
+    if (!trimmed.startsWith('[')) return trimmed;
+    try {
+      final list = jsonDecode(trimmed);
+      if (list is! List) return trimmed;
+      final out = StringBuffer();
+      for (final entry in list) {
+        if (entry is Map && entry['insert'] is String) {
+          out.write(entry['insert']);
+          if (out.length > 400) break;
+        }
+      }
+      return out.toString().trim();
+    } catch (_) {
+      return trimmed;
+    }
+  }
+}
+
 void _showFailedOpsSheet(BuildContext context, EditorProvider provider) {
   // The banner mounts inside MaterialApp.builder, which is *above* the
   // router's Navigator. We can't push a modal sheet from this context —
@@ -285,60 +564,63 @@ void _showFailedOpsSheet(BuildContext context, EditorProvider provider) {
               ),
               itemBuilder: (ctx, i) {
                 final PendingOp op = ops[i];
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            op.kind.name,
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w600,
-                              color: textColor,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            op.lastError ?? 'unknown error',
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: muted,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${op.attemptCount} attempts',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              color: muted,
-                            ),
-                          ),
-                        ],
+                return InkWell(
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    final root = rootNavigatorKey.currentContext ?? ctx;
+                    showDialog<void>(
+                      context: root,
+                      builder: (_) => _ConflictReviewDialog(
+                        provider: provider,
+                        op: op,
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    CupertinoButton(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      onPressed: () => provider.retryFailedOp(op.id),
-                      child: const Text('Retry'),
-                    ),
-                    CupertinoButton(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      onPressed: () => provider.discardFailedOp(op.id),
-                      child: Text(
-                        'Discard',
-                        style: TextStyle(
-                          color: CupertinoColors.systemRed.resolveFrom(ctx),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                op.kind.name,
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                op.lastError ?? 'unknown error',
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: muted,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Tap to compare local & backend · '
+                                '${op.attemptCount} attempts',
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  color: muted,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                        const Icon(
+                          CupertinoIcons.chevron_right,
+                          size: 14,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 );
               },
             );

@@ -128,6 +128,19 @@ class OutboxDrainer {
   final StreamController<PendingOp> _ackController =
       StreamController<PendingOp>.broadcast();
 
+  /// Optional hook fired on a permanent failure *before* the op is
+  /// marked `failed: true`. If the hook returns a replacement op, that
+  /// op overwrites the failed one in the queue (with retry counters
+  /// cleared) and the drainer carries on as if nothing happened. If it
+  /// returns null, the op is dead-lettered as usual.
+  ///
+  /// EditorProvider uses this to auto-promote a 404'd `isNew=false`
+  /// upsert into a fresh `isNew=true` create using the local copy as
+  /// truth — turning "the server lost it" into "let's recreate it"
+  /// without ever bothering the user.
+  Future<PendingOp?> Function(PendingOp op, Object error)?
+      onPermanentFailure;
+
   /// Stream of id remap events. Subscribe before calling [drain] if you
   /// want to react to local→server id transitions (e.g. update model.id).
   Stream<IdRemapEvent> get onRemap => _remapController.stream;
@@ -310,14 +323,41 @@ class OutboxDrainer {
           }
           break;
         case _ErrorClass.permanent:
-          // 4xx (other than 401, which the ApiClient already retried with
-          // a refreshed token before reaching us) is not worth retrying.
-          await _outbox.update(op.copyWith(
-            attemptCount: nextAttempt,
-            lastError: e.toString(),
-            failed: true,
-            clearNextAttempt: true,
-          ));
+          // 4xx (other than 401, which the ApiClient already retried
+          // with a refreshed token before reaching us) is not worth
+          // retrying *as-is*. But for 404s on update ops, the local
+          // copy is authoritative — give the optional recovery hook
+          // a chance to replace the op with a create payload before
+          // we dead-letter it.
+          PendingOp? replacement;
+          final hook = onPermanentFailure;
+          if (hook != null) {
+            try {
+              replacement = await hook(op, e);
+            } catch (hookError, hookSt) {
+              log.w('[outbox] onPermanentFailure hook threw: $hookError');
+              log.d('[outbox] hook stack: $hookSt');
+              replacement = null;
+            }
+          }
+          if (replacement != null) {
+            await _outbox.update(replacement.copyWith(
+              failed: false,
+              attemptCount: 0,
+              clearLastError: true,
+              clearNextAttempt: true,
+            ));
+            log.i('[outbox] auto-recovered op ${op.id} '
+                '(${op.kind.name}) — promoted to ${replacement.kind.name} '
+                'isNew=${replacement.payload['isNew'] == true}');
+          } else {
+            await _outbox.update(op.copyWith(
+              attemptCount: nextAttempt,
+              lastError: e.toString(),
+              failed: true,
+              clearNextAttempt: true,
+            ));
+          }
           break;
       }
       _failedCount.value = _countFailed();
