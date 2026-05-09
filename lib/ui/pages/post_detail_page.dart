@@ -4212,6 +4212,7 @@ class _HeroContinueCta extends StatefulWidget {
 
 class _HeroContinueCtaState extends State<_HeroContinueCta> {
   bool _hover = false;
+  bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -4225,8 +4226,9 @@ class _HeroContinueCtaState extends State<_HeroContinueCta> {
           cursor: SystemMouseCursors.click,
           onEnter: (_) => setState(() => _hover = true),
           onExit: (_) => setState(() => _hover = false),
-          child: GestureDetector(
-            onTap: widget.onTap,
+          child: AnimatedScale(
+            duration: const Duration(milliseconds: 120),
+            scale: _pressed ? 0.97 : 1.0,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 160),
               width: 320,
@@ -4244,25 +4246,37 @@ class _HeroContinueCtaState extends State<_HeroContinueCta> {
                   ),
                 ],
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    CupertinoIcons.book_fill,
-                    color: Colors.white,
-                    size: 18,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: widget.onTap,
+                  onTapDown: (_) => setState(() => _pressed = true),
+                  onTapUp: (_) => setState(() => _pressed = false),
+                  onTapCancel: () => setState(() => _pressed = false),
+                  borderRadius: BorderRadius.circular(28),
+                  splashColor: Colors.white.withValues(alpha: 0.20),
+                  highlightColor: Colors.white.withValues(alpha: 0.10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        CupertinoIcons.book_fill,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        widget.label,
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.1,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  Text(
-                    widget.label,
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: -0.1,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -4797,100 +4811,85 @@ class _ActionRow extends StatelessWidget {
       children: [
         Divider(color: dividerColor, height: 1),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           child: Consumer2<AuthProvider, FeedProvider>(
             builder: (context, auth, feed, _) {
               final liked =
                   auth.currentUser?.likes.contains(item.id) ?? false;
+              final saved =
+                  auth.currentUser?.savedPosts.contains(item.id) ?? false;
+              final liveLikes = feed.items
+                      .where((i) => i.id == item.id)
+                      .firstOrNull
+                      ?.likesCount ??
+                  item.likesCount;
               return Row(
                 children: [
-                  // Like
-                  GestureDetector(
+                  _ActionPill(
+                    isDark: isDark,
+                    tooltip: liked ? 'Unlike' : 'Like',
                     onTap: () =>
                         auth.toggleLike(item.id, feedProvider: feed),
-                    behavior: HitTestBehavior.opaque,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: Row(
-                        children: [
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 200),
-                            child: Icon(
-                              liked
-                                  ? CupertinoIcons.heart_fill
-                                  : CupertinoIcons.heart,
-                              key: ValueKey(liked),
-                              color: liked
-                                  ? const Color(0xFFEF4444)
-                                  : subtleColor,
-                              size: 22,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '${(feed.items.where((i) => i.id == item.id).firstOrNull?.likesCount ?? item.likesCount).clamp(0, 999999)}',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: textColor,
-                            ),
-                          ),
-                        ],
+                    icon: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      transitionBuilder: (child, anim) => ScaleTransition(
+                        scale: anim,
+                        child: child,
+                      ),
+                      child: Icon(
+                        liked
+                            ? CupertinoIcons.heart_fill
+                            : CupertinoIcons.heart,
+                        key: ValueKey(liked),
+                        color: liked
+                            ? const Color(0xFFEF4444)
+                            : subtleColor,
+                        size: 22,
+                      ),
+                    ),
+                    label: '${liveLikes.clamp(0, 999999)}',
+                    labelColor: textColor,
+                  ),
+                  const SizedBox(width: 4),
+                  _ActionPill(
+                    isDark: isDark,
+                    tooltip: 'Reviews',
+                    onTap: onCommentTap,
+                    icon: Icon(
+                      CupertinoIcons.chat_bubble,
+                      color: subtleColor,
+                      size: 20,
+                    ),
+                    label: '${item.commentsCount}',
+                    labelColor: textColor,
+                  ),
+                  const Spacer(),
+                  _ActionPill(
+                    isDark: isDark,
+                    tooltip: saved ? 'Saved' : 'Save',
+                    onTap: () => auth.toggleSave(item.id),
+                    icon: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      transitionBuilder: (child, anim) => ScaleTransition(
+                        scale: anim,
+                        child: child,
+                      ),
+                      child: Icon(
+                        saved
+                            ? CupertinoIcons.bookmark_fill
+                            : CupertinoIcons.bookmark,
+                        key: ValueKey(saved),
+                        color: saved
+                            ? const Color(0xFF2563EB)
+                            : subtleColor,
+                        size: 20,
                       ),
                     ),
                   ),
-
-                  const SizedBox(width: 24),
-
-                  // Comment
-                  GestureDetector(
-                    onTap: onCommentTap,
-                    behavior: HitTestBehavior.opaque,
-                    child: Row(
-                      children: [
-                        Icon(
-                          CupertinoIcons.chat_bubble,
-                          color: subtleColor,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${item.commentsCount}',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: textColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  // Bookmark (save)
-                  Builder(
-                    builder: (context) {
-                      final saved = auth.currentUser?.savedPosts.contains(item.id) ?? false;
-                      return GestureDetector(
-                        onTap: () => auth.toggleSave(item.id),
-                        child: Icon(
-                          saved
-                              ? CupertinoIcons.bookmark_fill
-                              : CupertinoIcons.bookmark,
-                          color: saved
-                              ? const Color(0xFF2563EB)
-                              : subtleColor,
-                          size: 20,
-                        ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(width: 20),
-
-                  // Share
-                  GestureDetector(
+                  const SizedBox(width: 4),
+                  _ActionPill(
+                    isDark: isDark,
+                    tooltip: 'Share link',
                     onTap: () {
                       final shareUrl = '${Uri.base.origin}/post/${item.id}';
                       Clipboard.setData(
@@ -4917,7 +4916,7 @@ class _ActionRow extends StatelessWidget {
                         ),
                       );
                     },
-                    child: Icon(
+                    icon: Icon(
                       CupertinoIcons.share,
                       color: subtleColor,
                       size: 20,
@@ -4930,6 +4929,75 @@ class _ActionRow extends StatelessWidget {
         ),
         Divider(color: dividerColor, height: 1),
       ],
+    );
+  }
+}
+
+// Pill-shaped tappable surface used for like/comment/save/share. Adds a
+// padded hit target, hover background, ripple, tooltip, and click cursor
+// so the icons read as buttons rather than static glyphs.
+class _ActionPill extends StatelessWidget {
+  final Widget icon;
+  final String? label;
+  final Color? labelColor;
+  final String tooltip;
+  final VoidCallback onTap;
+  final bool isDark;
+
+  const _ActionPill({
+    required this.icon,
+    this.label,
+    this.labelColor,
+    required this.tooltip,
+    required this.onTap,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hoverBg = isDark
+        ? Colors.white.withValues(alpha: 0.07)
+        : Colors.black.withValues(alpha: 0.05);
+    final splashBg = isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.black.withValues(alpha: 0.08);
+    return Tooltip(
+      message: tooltip,
+      waitDuration: const Duration(milliseconds: 400),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(999),
+          hoverColor: hoverBg,
+          splashColor: splashBg,
+          highlightColor: hoverBg,
+          mouseCursor: SystemMouseCursors.click,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: label == null ? 10 : 12,
+              vertical: 8,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                icon,
+                if (label != null) ...[
+                  const SizedBox(width: 6),
+                  Text(
+                    label!,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: labelColor,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

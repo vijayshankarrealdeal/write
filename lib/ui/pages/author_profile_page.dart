@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/ri.dart';
+import 'package:iconify_flutter/icons/simple_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -382,9 +385,13 @@ class _Hero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMaster = user.writerBadge?.slug == 'master';
+    // Every signed-up writer has a tier (Novice → Master). The accent
+    // ring around the avatar uses that tier's hex; falling back to a
+    // soft slate-blue keeps the "blue circle avatar" treatment even
+    // when the API hasn't returned a badge yet.
     final accent = user.writerBadge != null
         ? UserBadgeChip.parseHex(user.writerBadge!.colorHex)
-        : (isDark ? Colors.white24 : Colors.black12);
+        : const Color(0xFF6366F1);
     final avatar = _avatarStack(isMaster, accent);
     final nameStyle = GoogleFonts.playfairDisplay(
       fontSize: isMobile ? 26 : 34,
@@ -526,7 +533,7 @@ class _Hero extends StatelessWidget {
           user: user,
           isDark: isDark,
           textColor: textColor,
-          ringColor: isMaster ? accent : null,
+          ringColor: accent,
           size: size,
         ),
         if (isMaster)
@@ -665,8 +672,8 @@ class _SocialChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                _iconFor(keyName),
+              Iconify(
+                _iconKeyFor(keyName),
                 size: 14,
                 color: subtle,
               ),
@@ -712,20 +719,23 @@ class _SocialChip extends StatelessWidget {
     return out;
   }
 
-  IconData _iconFor(String key) {
+  /// Iconify SVG keys — brand-recognizable marks instead of generic
+  /// Cupertino glyphs that misread the platform (e.g. chat-bubble for
+  /// Twitter, camera for Instagram).
+  String _iconKeyFor(String key) {
     switch (key) {
       case 'website':
-        return CupertinoIcons.link;
+        return Ri.global_line;
       case 'twitter':
-        return CupertinoIcons.chat_bubble;
+        return Ri.twitter_fill;
       case 'instagram':
-        return CupertinoIcons.camera;
+        return Ri.instagram_line;
       case 'linkedin':
-        return CupertinoIcons.briefcase;
+        return Ri.linkedin_box_fill;
       case 'goodreads':
-        return CupertinoIcons.book;
+        return SimpleIcons.goodreads;
     }
-    return CupertinoIcons.link;
+    return Ri.link;
   }
 
   Future<void> _open(BuildContext context) async {
@@ -1046,17 +1056,7 @@ class _ActionsRow extends StatelessWidget {
         _IconAction(
           icon: CupertinoIcons.bubble_left,
           isDark: isDark,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Messaging this author isn\'t available yet.',
-                  style: GoogleFonts.inter(fontSize: 13),
-                ),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          },
+          onTap: () => context.push('/chat/${user.id}'),
         ),
         const SizedBox(width: 8),
         _IconAction(
@@ -1318,41 +1318,52 @@ class _GenreFilterStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 36,
-      child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+    // Let the row size itself instead of clamping to 36px — that
+    // clamp was squeezing ChoiceChip's intrinsic height and dropping
+    // Inter's tall descent below the visual centerline. Symmetric
+    // labelPadding + height:1 on the text box keeps "All" / "Short
+    // Story" centered without relying on the chip's defaults.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        itemCount: genres.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 6),
-        itemBuilder: (_, i) {
-          final g = genres[i];
-          final isActive = (active ?? 'All') == g;
-          return ChoiceChip(
-            label: Text(
-              g,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                color: isActive
-                    ? (isDark ? Colors.black : Colors.white)
-                    : textColor,
-              ),
-            ),
-            selected: isActive,
-            onSelected: (_) => onTap(g == 'All' ? null : g),
-            selectedColor: isDark ? Colors.white : const Color(0xFF0F172A),
-            backgroundColor: subtle.withValues(alpha: 0.08),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(999),
-              side: BorderSide.none,
-            ),
-            visualDensity: VisualDensity.compact,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            showCheckmark: false,
-          );
-        },
+        child: Row(
+          children: [
+            for (var i = 0; i < genres.length; i++) ...[
+              if (i > 0) const SizedBox(width: 6),
+              _buildChip(genres[i]),
+            ],
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildChip(String g) {
+    final isActive = (active ?? 'All') == g;
+    return ChoiceChip(
+      label: Text(
+        g,
+        style: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+          height: 1.0,
+          color: isActive ? (isDark ? Colors.black : Colors.white) : textColor,
+        ),
+      ),
+      labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+      selected: isActive,
+      onSelected: (_) => onTap(g == 'All' ? null : g),
+      selectedColor: isDark ? Colors.white : const Color(0xFF0F172A),
+      backgroundColor: subtle.withValues(alpha: 0.08),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(999),
+        side: BorderSide.none,
+      ),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      showCheckmark: false,
     );
   }
 }
