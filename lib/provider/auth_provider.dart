@@ -293,6 +293,10 @@ class AuthProvider extends ChangeNotifier {
     log.i('[auth] Logout (drainFirst=$drainFirst)');
     AnalyticsService.instance.track('auth_logout', action: 'click');
 
+    // Stop the proactive-refresh timer so we don't keep trying to mint
+    // tokens for a signed-out user.
+    _apiClient.cancelRefreshSchedule();
+
     // Final drain while the auth token is still valid. The 30s ceiling is a
     // safety net — the logout dialog's "Sync now" path awaits drainBeforeLogout
     // with a longer/explicit timeout before calling logout(drainFirst:false),

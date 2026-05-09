@@ -150,7 +150,20 @@ class ApiClient {
       return true;
     }
     final ok = await _refreshToken();
-    if (ok) _scheduleNextRefresh();
+    if (ok) {
+      _scheduleNextRefresh();
+    } else if (!_sessionExpiredFired) {
+      // Refresh failed but the session isn't actually expired (likely a
+      // network blip — _doRefresh only sets _sessionExpiredFired on a
+      // hard 401/403/410 from the refresh endpoint). Retry shortly so
+      // the user comes back to a valid token without us having to wait
+      // for the next API call to fail.
+      _refreshTimer?.cancel();
+      _refreshTimer = Timer(
+        const Duration(seconds: 30),
+        () => unawaited(ensureFreshAccessToken()),
+      );
+    }
     return ok;
   }
 
