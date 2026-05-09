@@ -3,6 +3,8 @@
 # FastAPI already carry their own `/api/...` prefix, so paths are unchanged
 # (e.g. https://api.{$DOMAIN}/api/feed). DNS: A record api.{$DOMAIN} → VM IP.
 api.{$DOMAIN} {
+	encode zstd gzip
+
 	header {
 		X-Content-Type-Options nosniff
 		Referrer-Policy strict-origin-when-cross-origin
@@ -17,6 +19,11 @@ api.{$DOMAIN} {
 }
 
 {$DOMAIN}, www.{$DOMAIN} {
+	# Compress text responses on the wire. Flutter's main.dart.js is ~22 MB
+	# uncompressed but ~3-4 MB with brotli/zstd; without this directive the
+	# whole bundle ships raw on every load.
+	encode zstd gzip
+
 	# Security headers that can't be set via <meta> — handled here.
 	header {
 		X-Frame-Options SAMEORIGIN
@@ -52,13 +59,25 @@ api.{$DOMAIN} {
 	# /land is kept as a permanent redirect for any old links.
 	redir /land /landing.html permanent
 
+	# First impression: the bare root `/` serves the static marketing page
+	# directly instead of the 22 MB Flutter shell. New visitors see content
+	# in <300ms. Authenticated users hit `/app` instead (their bookmarks and
+	# the post-login redirect both target /app).
+	@root path /
+	handle @root {
+		root * /srv/web
+		rewrite * /landing.html
+		header Cache-Control "no-cache"
+		file_server
+	}
+
 	# Static marketing + SEO surfaces (landing, comparison, blog, og-image).
 	# Plain HTML — skip the SPA's COOP/COEP so Google Fonts and embedded
 	# SVGs load without cross-origin friction.
 	@marketing_html path /landing.html /scrivener-alternative.html /scrivener-vs-inkspacex.html /sudowrite-vs-inkspacex.html /best-writing-software-2026.html
 	handle @marketing_html {
 		root * /srv/web
-		header Cache-Control "no-cache, no-store, must-revalidate"
+		header Cache-Control "no-cache"
 		file_server
 	}
 
@@ -108,13 +127,15 @@ api.{$DOMAIN} {
 		header Cross-Origin-Opener-Policy "same-origin"
 		header Cross-Origin-Embedder-Policy "credentialless"
 		# Flutter web's bootstrap files don't carry content hashes in their
-		# names — if the browser caches them, users keep running yesterday's
-		# build forever. Force revalidate on every load. Hashed assets under
-		# /assets, /canvaskit, /icons stay long-cached as normal.
-		@nocache path /index.html / /main.dart.js /main.dart.js.map /flutter.js /flutter_bootstrap.js /flutter_service_worker.js /manifest.json /version.json /favicon.png
-		header @nocache Cache-Control "no-cache, no-store, must-revalidate"
-		header @nocache Pragma "no-cache"
-		header @nocache Expires "0"
+		# names — if the browser caches them stale, users keep running
+		# yesterday's build forever. Use `no-cache` (NOT `no-store`): the
+		# browser keeps the bytes but revalidates with the server on every
+		# load. Unchanged → 304 (no body, fast); changed → 200 (fresh).
+		# `no-store` was forcing the full 22 MB main.dart.js to redownload
+		# on every visit, which is what made cold loads take 20-30s.
+		# Hashed assets under /assets, /canvaskit, /icons stay long-cached.
+		@nocache path /index.html / /app /main.dart.js /main.dart.js.map /flutter.js /flutter_bootstrap.js /flutter_service_worker.js /manifest.json /version.json /favicon.png
+		header @nocache Cache-Control "no-cache"
 		try_files {path} /index.html
 		file_server
 	}

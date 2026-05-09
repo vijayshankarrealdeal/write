@@ -40,7 +40,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         leading: IconButton(
           icon: Icon(CupertinoIcons.back, color: textColor),
           onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/'),
+              context.canPop() ? context.pop() : context.go('/app'),
         ),
         title: Text(
           'Notifications',

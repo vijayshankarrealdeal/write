@@ -240,7 +240,7 @@ class _SearchPageState extends State<SearchPage> {
                 } else if (context.canPop()) {
                   context.pop();
                 } else {
-                  context.go('/');
+                  context.go('/app');
                 }
                 return null;
               },
@@ -382,7 +382,7 @@ class _SearchPageState extends State<SearchPage> {
                 if (context.canPop()) {
                   context.pop();
                 } else {
-                  context.go('/');
+                  context.go('/app');
                 }
               },
               child: Text(

@@ -65,7 +65,7 @@ GoRouter createRouter(AuthProvider authProvider) {
       // Auth state not yet known or restoring session → splash
       if (!auth.authStateKnown || auth.isRestoringSession) {
         // Save the intended destination before redirecting to splash
-        if (location != '/splash' && location != '/' && !isAuthRoute) {
+        if (location != '/splash' && location != '/' && location != '/app' && !isAuthRoute) {
           auth.setPendingDeepLink(state.uri.toString());
         }
         return location == '/splash' ? null : '/splash';
@@ -74,14 +74,16 @@ GoRouter createRouter(AuthProvider authProvider) {
       // Not authenticated → login (unless already on an auth route)
       if (!auth.isAuthenticated) {
         if (!isAuthRoute) {
-          // Web visitors landing on the root URL see the static marketing
-          // page instead of the login form — native apps go straight to login.
+          // Web visitors landing on the bare root see the static marketing
+          // page (Caddy serves it directly, but we still hit this branch
+          // when Flutter handles in-app navigation to /). Native apps go
+          // straight to login.
           if (kIsWeb && location == '/') {
             web_utils.redirectToLandingPage();
             return null;
           }
           // Save the intended destination so we can redirect after login
-          if (location != '/' && location != '/splash') {
+          if (location != '/' && location != '/app' && location != '/splash') {
             auth.setPendingDeepLink(state.uri.toString());
           }
           return '/login';
@@ -95,12 +97,14 @@ GoRouter createRouter(AuthProvider authProvider) {
       }
 
       // Fully authenticated — redirect away from auth/splash/onboarding pages
-      // (but allow legal pages to stay accessible)
+      // (but allow legal pages to stay accessible). Default destination is
+      // /app so logged-in users don't fight the bare-/ landing-page handler
+      // on web (Caddy serves landing.html at /).
       final isLegalRoute = location == '/privacy-policy' || location == '/terms-of-service';
       if ((isAuthRoute && !isLegalRoute) || location == '/splash' || location == '/onboarding') {
         // Check if there's a pending deep link to restore
         final pendingLink = auth.consumePendingDeepLink();
-        return pendingLink ?? '/';
+        return pendingLink ?? '/app';
       }
 
       return null;
@@ -130,6 +134,11 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(path: '/onboarding', builder: (_, _) => const OnboardingPage()),
 
       // --- Main app ---
+      // /app is the canonical authenticated home on web (Caddy serves the
+      // static landing page at the bare /). / is kept as an alias so any
+      // legacy bookmarks or in-app `context.go('/')` calls still land on
+      // HomePage instead of 404'ing.
+      GoRoute(path: '/app', builder: (_, _) => const HomePage()),
       GoRoute(path: '/', builder: (_, _) => const HomePage()),
 
       // --- Sub-pages (pushed on top) ---

@@ -80,30 +80,66 @@
   }
   </script>
 
-  <!-- Loading indicator while Flutter boots -->
+  <!-- Loading indicator while Flutter boots. Visible feedback matters: a
+       black screen with just a wordmark feels like the page is broken. We
+       show a wordmark + a thin progress bar so the user can see something
+       is actually happening while the Flutter bundle downloads. -->
   <style>
-    body { margin: 0; background: #000; overflow: hidden; }
-    .loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
-    .loading span { color: rgba(255,255,255,0.3); font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; letter-spacing: 2px; }
+    body { margin: 0; background: #000; overflow: hidden; -webkit-font-smoothing: antialiased; }
+    .loading {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .loading-wordmark {
+      color: rgba(255,255,255,0.85);
+      font-size: 18px; font-weight: 500; letter-spacing: 4px;
+    }
+    .loading-bar {
+      width: 180px; height: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px; overflow: hidden;
+      position: relative;
+    }
+    .loading-bar::after {
+      content: ""; position: absolute; inset: 0;
+      width: 40%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+      animation: loading-slide 1.4s ease-in-out infinite;
+    }
+    .loading-hint {
+      color: rgba(255,255,255,0.35);
+      font-size: 12px; letter-spacing: 1px;
+      opacity: 0; transition: opacity .4s ease;
+    }
+    .loading-hint.visible { opacity: 1; }
+    @keyframes loading-slide {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .loading-bar::after { animation: none; width: 100%; opacity: .4; }
+    }
   </style>
 </head>
 
 <body>
-  <div class="loading" id="loading"><span>INKSPACEX</span></div>
+  <div class="loading" id="loading">
+    <div class="loading-wordmark">INKSPACEX</div>
+    <div class="loading-bar"></div>
+    <div class="loading-hint" id="loading-hint">Loading editor…</div>
+  </div>
   <script>
-    // Unregister all old service workers so new deploys are always fresh
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(regs) {
-        for (var r of regs) r.unregister();
-      });
-      if ('caches' in window) {
-        caches.keys().then(function(names) {
-          for (var n of names) caches.delete(n);
-        });
-      }
-    }
+    // After 2.5s, surface a hint so the user knows something is still happening.
+    // (Don't show immediately — most loads finish before this.)
+    var hintTimer = setTimeout(function () {
+      var h = document.getElementById('loading-hint');
+      if (h) h.classList.add('visible');
+    }, 2500);
 
     window.addEventListener('flutter-first-frame', function () {
+      clearTimeout(hintTimer);
       var el = document.getElementById('loading');
       if (el) el.remove();
     });

@@ -554,7 +554,7 @@ class _AppWithRouterState extends State<_AppWithRouter> {
       _router.go('/editor');
       return;
     }
-    _router.go('/');
+    _router.go('/app');
   }
 
   @override
