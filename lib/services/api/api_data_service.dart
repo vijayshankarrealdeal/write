@@ -956,6 +956,9 @@ class ApiDataService implements SyncDispatcher {
     bool isDraft = false,
     bool isPrivate = false,
     List<String>? publishedSectionIds,
+    List<String>? freePreviewSectionIds,
+    int? priceCents,
+    String? currency,
   }) async {
     // The author's curated chapter selection at publish time. Backend
     // bulk-flips `Section.is_published` based on this list — ids
@@ -981,6 +984,10 @@ class ApiDataService implements SyncDispatcher {
       'is_draft': isDraft,
       'visibility': isPrivate ? 'private' : 'public',
       'published_section_ids': selectedIds,
+      if (freePreviewSectionIds != null)
+        'free_preview_section_ids': freePreviewSectionIds,
+      if (priceCents != null) 'price_cents': priceCents,
+      if (currency != null) 'currency': currency,
     };
     if (existing != null) {
       await _client.put('/api/feed/${existing.id}', data: basePayload);

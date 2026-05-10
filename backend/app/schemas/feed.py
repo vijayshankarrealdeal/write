@@ -22,6 +22,16 @@ class FeedItemCreate(BaseModel):
     # `None` means "leave per-section publish flags alone" (used on
     # metadata-only republishes — rename, retag, draft toggle).
     published_section_ids: list[UUID] | None = None
+    # Per-chapter free-preview gate for paid books. `is_free_preview`
+    # flips True for ids in this list, False for everything else under
+    # the writing. `None` means "leave the flags alone" (mirrors
+    # `published_section_ids`).
+    free_preview_section_ids: list[UUID] | None = None
+    # Price in the smallest currency unit (cents / paise). 0 = free.
+    # Validated server-side: a positive price requires the calling
+    # author to have completed Stripe Connect onboarding.
+    price_cents: int | None = None
+    currency: str | None = None
     # Accepted-but-ignored — old clients still send chapter bodies in
     # the publish payload from cached state. Sections live in the
     # `sections` table now; the publish path discards this field.
@@ -44,6 +54,9 @@ class FeedItemUpdate(BaseModel):
     visibility: str | None = None
     # See FeedItemCreate.published_section_ids — applies on update too.
     published_section_ids: list[UUID] | None = None
+    free_preview_section_ids: list[UUID] | None = None
+    price_cents: int | None = None
+    currency: str | None = None
     # Accepted-but-ignored — see FeedItemCreate.sections.
     sections: list[dict] | None = None
 
@@ -64,11 +77,18 @@ class FeedItemResponse(BaseModel):
     comments_count: int
     is_draft: bool
     visibility: str = "public"
+    # Pricing surface. `price_cents == 0` is the historical default and
+    # means "free, no gate". `purchased` is computed per-request: True
+    # for the author, True for users with a Purchase row, False
+    # otherwise. The chip / Buy button on the feed card use it directly.
+    price_cents: int = 0
+    currency: str = "usd"
+    purchased: bool = False
     # Listings (`/`, `/by-tag`, `/by-genre`, `/by-author`, `/search`,
     # `/home`) leave this null. The detail endpoint
     # (`GET /api/feed/{id}`) fills it with ordered chapter stubs:
-    # `[{section_id, title, updated_at, _has_image, _lazy: True}, ...]`.
-    # Bodies are fetched per-section via
+    # `[{section_id, title, updated_at, _has_image, is_free_preview,
+    # _lazy: True}, ...]`. Bodies are fetched per-section via
     # `/api/feed/{id}/sections/{section_id}` — keeps the response
     # bounded for thousand-chapter books.
     sections: list[dict] | None = None

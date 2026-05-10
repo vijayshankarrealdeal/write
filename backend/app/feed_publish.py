@@ -42,6 +42,8 @@ async def upsert_feed_item_for_writing(
     tags: list[str] | None = None,
     is_draft: bool = False,
     visibility: str = "public",
+    price_cents: int | None = None,
+    currency: str | None = None,
 ) -> FeedItem:
     """Create or update the feed card for [writing_id].
 
@@ -71,6 +73,14 @@ async def upsert_feed_item_for_writing(
         "is_draft": is_draft,
         "visibility": visibility,
     }
+    # Pricing fields are optional on the publish call so a metadata-only
+    # republish (rename, retag) doesn't have to re-send the price. None
+    # means "leave the existing column alone"; the upsert below skips
+    # the assignment.
+    if price_cents is not None:
+        fields["price_cents"] = max(0, int(price_cents))
+    if currency is not None:
+        fields["currency"] = currency.lower()[:8] or "usd"
     # Note: section bodies live in the `sections` table, owned by the
     # source `Writing`. The publish path used to denormalize them into
     # a `feed_items.sections` JSONB column for read-path performance,

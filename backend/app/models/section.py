@@ -28,6 +28,15 @@ class Section(UUIDMixin, Base):
     is_published: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
+    # Free-preview gate for paid books. When the source FeedItem has
+    # `price_cents > 0`, only sections with `is_free_preview=True` are
+    # readable to non-purchasers — every other published section is
+    # gated. Ignored on free books (the price gate doesn't fire there).
+    # Defaults to False so a paid book starts fully locked; the author
+    # opts chapters into the preview from the publish dialog.
+    is_free_preview: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
 
     # --- Scrivener-class binder fields. All additive / nullable so legacy
     # rows keep working unchanged. `parent_id` references another section

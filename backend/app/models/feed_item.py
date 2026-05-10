@@ -36,6 +36,17 @@ class FeedItem(UUIDMixin, Base):
     likes_count: Mapped[int] = mapped_column(Integer, default=0)
     comments_count: Mapped[int] = mapped_column(Integer, default=0)
     is_draft: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Price in the smallest currency unit (cents / paise / etc). 0 means
+    # free — the gate in `feed_sections` only kicks in for `price_cents
+    # > 0` cards. Currency is an ISO-4217 code that Stripe Checkout
+    # accepts; we don't enforce the set in the DB so a future price
+    # change to a new currency doesn't need a migration.
+    price_cents: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    currency: Mapped[str] = mapped_column(
+        String(8), nullable=False, default="usd", server_default="usd"
+    )
     # Audience gate among published items. 'public' = any authenticated user;
     # 'private' = author + approved followers (Instagram-style). The author
     # can flip this at any time. Independent of `is_draft`: both checks must

@@ -40,6 +40,7 @@ from app.routers import (
     linguistic,
     logs,
     notifications,
+    payments,
     reading,
     realtime,
     reports,
@@ -113,6 +114,24 @@ async def lifespan(app: FastAPI):
             "ADD COLUMN IF NOT EXISTS page_layout JSONB",
         ):
             await conn.execute(text(f"ALTER TABLE writings {col_sql}"))
+        # Monetization (creator studio): paid feed items + free-preview
+        # section gate + Stripe Connect author state. Idempotent for dev
+        # DBs that bypass Alembic. Mirrors backend/alembic/versions/
+        # 20260510_01_monetization.py.
+        for col_sql in (
+            "ADD COLUMN IF NOT EXISTS price_cents INTEGER NOT NULL DEFAULT 0",
+            "ADD COLUMN IF NOT EXISTS currency VARCHAR(8) NOT NULL DEFAULT 'usd'",
+        ):
+            await conn.execute(text(f"ALTER TABLE feed_items {col_sql}"))
+        await conn.execute(text(
+            "ALTER TABLE sections "
+            "ADD COLUMN IF NOT EXISTS is_free_preview BOOLEAN NOT NULL DEFAULT FALSE"
+        ))
+        for col_sql in (
+            "ADD COLUMN IF NOT EXISTS stripe_account_id VARCHAR(64)",
+            "ADD COLUMN IF NOT EXISTS stripe_charges_enabled BOOLEAN NOT NULL DEFAULT FALSE",
+        ):
+            await conn.execute(text(f"ALTER TABLE users {col_sql}"))
         # Phase 3 (P2): paragraph-precise resume anchor columns on
         # reading_progress. Idempotent for dev DBs that bypass Alembic.
         await conn.execute(text(
@@ -230,6 +249,7 @@ app.include_router(dictionary.router)
 app.include_router(reports.router)
 app.include_router(feedback.router)
 app.include_router(early_testers.router)
+app.include_router(payments.router)
 
 # Request logging middleware
 app.add_middleware(RequestLoggingMiddleware)

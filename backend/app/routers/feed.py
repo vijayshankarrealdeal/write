@@ -15,10 +15,12 @@ from app.feed_sections import (
     get_section_content,
     list_section_stubs,
     section_id_at_index,
+    set_free_preview_section_ids,
     set_published_section_ids,
 )
 from app.feed_visibility import public_feed_clause, visibility_clause
 from app.models.feed_item import FeedItem
+from app.models.purchase import Purchase
 from app.models.user import User
 from app.models.writing import Writing
 from app.notifications import create_notification
@@ -33,6 +35,51 @@ from app.schemas.feed import (
 )
 
 router = APIRouter(prefix="/api/feed", tags=["feed"])
+
+
+async def _user_purchased_ids(
+    db: AsyncSession, user_id: UUID, item_ids: list[UUID]
+) -> set[UUID]:
+    """Return the subset of [item_ids] this user has purchased.
+
+    One round-trip to fold `purchased=True` onto a list of feed items.
+    Used by the listing endpoints so a paid book the user has bought
+    shows the right chip without per-item access calls.
+    """
+    if not item_ids:
+        return set()
+    rows = (
+        await db.execute(
+            select(Purchase.feed_item_id).where(
+                Purchase.user_id == user_id,
+                Purchase.feed_item_id.in_(item_ids),
+            )
+        )
+    ).all()
+    return {r[0] for r in rows}
+
+
+def _annotate_purchased(
+    items: list[FeedItem], user_id: UUID, purchased_ids: set[UUID]
+) -> list[FeedItem]:
+    """Stamp `purchased: bool` onto each item via __dict__ so the
+    Pydantic response picks it up without an ORM column.
+
+    The author always sees their own items as `purchased=True` so the
+    Buy button never appears on their own publishes."""
+    for item in items:
+        owns = item.author_id == user_id or item.id in purchased_ids
+        item.__dict__["purchased"] = owns
+    return items
+
+
+async def _annotate_listing_purchased(
+    db: AsyncSession, items: list[FeedItem], user_id: UUID
+) -> list[FeedItem]:
+    """Per-listing helper: skip the round-trip when no item is paid."""
+    paid_ids = [it.id for it in items if (it.price_cents or 0) > 0]
+    purchased = await _user_purchased_ids(db, user_id, paid_ids)
+    return _annotate_purchased(items, user_id, purchased)
 
 
 def _apply_sort(query, sort: str):
@@ -135,7 +182,8 @@ async def list_feed(
 
     query = query.limit(limit)
     result = await db.execute(query)
-    return result.scalars().all()
+    items = list(result.scalars().all())
+    return await _annotate_listing_purchased(db, items, user.id)
 
 
 # ===== Drill-down: by-tag / by-genre / by-type ===============================
@@ -161,7 +209,8 @@ async def list_feed_by_tag(
         query = _apply_cursor(query, sort, cursor_item)
     query = query.limit(limit)
     result = await db.execute(query)
-    return result.scalars().all()
+    items = list(result.scalars().all())
+    return await _annotate_listing_purchased(db, items, user.id)
 
 
 @router.get("/by-genre/{genre}", response_model=list[FeedItemResponse])
@@ -185,7 +234,8 @@ async def list_feed_by_genre(
         query = _apply_cursor(query, sort, cursor_item)
     query = query.limit(limit)
     result = await db.execute(query)
-    return result.scalars().all()
+    items = list(result.scalars().all())
+    return await _annotate_listing_purchased(db, items, user.id)
 
 
 # ===== Facets (Explore tab + filter chip suggestions) ========================
@@ -340,7 +390,7 @@ async def search_feed_items(
         out.append(item)
         if len(out) >= limit:
             break
-    return out
+    return await _annotate_listing_purchased(db, out, user.id)
 
 
 @router.get("/by-author/{author_id}", response_model=list[FeedItemResponse])
@@ -363,7 +413,8 @@ async def list_feed_by_author(
         query = query.where(visibility_clause(user.id))
     query = query.order_by(FeedItem.created_at.desc())
     result = await db.execute(query)
-    return result.scalars().all()
+    items = list(result.scalars().all())
+    return await _annotate_listing_purchased(db, items, user.id)
 
 
 @router.get("/by-writing/{writing_id}", response_model=FeedItemResponse)
@@ -387,6 +438,7 @@ async def get_feed_item_by_writing(
     item = result.scalar_one_or_none()
     if not item:
         raise HTTPException(status_code=404, detail="Feed item not found")
+    item.__dict__["purchased"] = True
     return item
 
 
@@ -401,6 +453,7 @@ async def create_feed_item(
     # The author's curated chapter set — handled separately from the
     # FeedItem fields because it touches the `sections` table directly.
     published_section_ids = payload.pop("published_section_ids", None)
+    free_preview_section_ids = payload.pop("free_preview_section_ids", None)
     # Section bodies are owned by the `sections` table, not the feed
     # card. Discard any incoming `sections` field — old clients still
     # send it from cached state.
@@ -425,6 +478,15 @@ async def create_feed_item(
         raise HTTPException(
             status_code=400, detail="writing_id does not belong to user"
         )
+    # Pricing gate: a positive price requires the calling author to
+    # have completed Stripe Connect onboarding, otherwise the destination
+    # charge would 400 at Checkout time and strand readers in a broken
+    # buy flow. Free publishes (price_cents <= 0) bypass this entirely.
+    if (payload.get("price_cents") or 0) > 0 and not user.stripe_charges_enabled:
+        raise HTTPException(
+            status_code=409,
+            detail="Finish Stripe payouts setup before pricing a book.",
+        )
     # Author's curation step: flip per-section is_published bits before
     # we upsert the feed card so a reader hitting the listing endpoints
     # immediately after publish sees a consistent (chapter list, card)
@@ -435,12 +497,20 @@ async def create_feed_item(
             writing_id=writing_id,
             published_ids=published_section_ids,
         )
-    return await upsert_feed_item_for_writing(
+    if free_preview_section_ids is not None:
+        await set_free_preview_section_ids(
+            db,
+            writing_id=writing_id,
+            preview_ids=free_preview_section_ids,
+        )
+    item = await upsert_feed_item_for_writing(
         db,
         writing_id=writing_id,
         publisher=user,
         **payload,
     )
+    item.__dict__["purchased"] = True
+    return item
 
 
 @router.get("/{item_id}", response_model=FeedItemResponse)
@@ -486,7 +556,26 @@ async def get_feed_item(
     # Transient response field — bypass the ORM so SQLAlchemy doesn't try
     # to write the stubs list back to (the now-removed) `sections` JSONB.
     item.__dict__["sections"] = stubs
+    item.__dict__["purchased"] = await _viewer_owns(db, user, item)
     return item
+
+
+async def _viewer_owns(db: AsyncSession, user: User, item: FeedItem) -> bool:
+    """True iff the viewer is the author or has a Purchase row for the
+    item. Free books always read as `purchased=True` so the client UI
+    treats them as fully unlocked.
+    """
+    if (item.price_cents or 0) <= 0:
+        return True
+    if item.author_id == user.id:
+        return True
+    row = await db.execute(
+        select(Purchase.id).where(
+            Purchase.user_id == user.id,
+            Purchase.feed_item_id == item.id,
+        )
+    )
+    return row.scalar_one_or_none() is not None
 
 
 async def _load_visible_feed_item(
@@ -525,12 +614,21 @@ async def get_feed_item_section_by_id(
     reorder) so a reader on chapter X stays on chapter X even after
     the author shuffles the chapter list. Body is read live from the
     `sections` table; author errata reach the reader on the next fetch.
+
+    For paid books, non-owner viewers only get bodies for sections the
+    author has flagged as a free preview — every other section comes
+    back as `{locked: true, content: null}` so the client renders a
+    Buy CTA in place of the chapter body.
     """
     item = await _load_visible_feed_item(db, user, item_id)
     if item.writing_id is None:
         raise HTTPException(status_code=404, detail="Section not found")
+    preview_only = not await _viewer_owns(db, user, item)
     section = await get_section_content(
-        db, writing_id=item.writing_id, section_id=section_id
+        db,
+        writing_id=item.writing_id,
+        section_id=section_id,
+        preview_only=preview_only,
     )
     if section is None:
         raise HTTPException(status_code=404, detail="Section not found")
@@ -556,8 +654,12 @@ async def get_feed_item_section(
     sid = await section_id_at_index(db, item.writing_id, index)
     if sid is None:
         raise HTTPException(status_code=404, detail="Section index out of range")
+    preview_only = not await _viewer_owns(db, user, item)
     section = await get_section_content(
-        db, writing_id=item.writing_id, section_id=sid
+        db,
+        writing_id=item.writing_id,
+        section_id=sid,
+        preview_only=preview_only,
     )
     if section is None:
         raise HTTPException(status_code=404, detail="Section not found")
@@ -590,6 +692,23 @@ async def update_feed_item(
             writing_id=item.writing_id,
             published_ids=published_section_ids,
         )
+    free_preview_section_ids = payload.pop("free_preview_section_ids", None)
+    if free_preview_section_ids is not None and item.writing_id is not None:
+        await set_free_preview_section_ids(
+            db,
+            writing_id=item.writing_id,
+            preview_ids=free_preview_section_ids,
+        )
+    # Same gate as create — a positive price requires Connect onboarding.
+    if "price_cents" in payload and (payload["price_cents"] or 0) > 0:
+        if not user.stripe_charges_enabled:
+            raise HTTPException(
+                status_code=409,
+                detail="Finish Stripe payouts setup before pricing a book.",
+            )
+        payload["price_cents"] = max(0, int(payload["price_cents"]))
+    if "currency" in payload and payload["currency"]:
+        payload["currency"] = payload["currency"].lower()[:8]
     # Section bodies live in the `sections` table — old clients still
     # send `sections` from cached publish state, but we ignore it here.
     payload.pop("sections", None)
@@ -599,6 +718,7 @@ async def update_feed_item(
         setattr(item, field, value)
     await db.commit()
     await db.refresh(item)
+    item.__dict__["purchased"] = True
     # Re-embed when the item transitions to published, or when its
     # text-bearing fields change while already published. The publish
     # path must not block on Azure — fire-and-forget.

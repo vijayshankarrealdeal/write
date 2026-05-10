@@ -25,6 +25,7 @@ from app.models.feedback import Feedback
 from app.models.follow import Follow
 from app.models.highlight import Highlight
 from app.models.notification import Notification
+from app.models.purchase import Purchase
 from app.models.push_subscription import PushSubscription
 from app.models.reading_progress import ReadingProgress
 from app.models.report import Report
@@ -56,6 +57,7 @@ __all__ = [
     "Highlight",
     "Notification",
     "PageVisit",
+    "Purchase",
     "PushSubscription",
     "ReadingProgress",
     "RecommendationEvent",

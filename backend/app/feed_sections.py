@@ -86,6 +86,7 @@ async def list_section_stubs(
                 Section.title,
                 Section.content,
                 Section.updated_at,
+                Section.is_free_preview,
             ).where(
                 Section.id.in_(parsed_ids),
                 Section.is_published.is_(True),
@@ -109,6 +110,11 @@ async def list_section_stubs(
                 "title": row.title,
                 "updated_at": row.updated_at.isoformat() if row.updated_at else None,
                 "_has_image": _has_image(row.content),
+                # `is_free_preview` lets the reader UI paint a lock icon on
+                # locked chapters of a paid book without a per-chapter
+                # access call. The body endpoint enforces the gate; this
+                # flag is just a hint for the chapter list.
+                "is_free_preview": bool(row.is_free_preview),
                 "_lazy": True,
             }
         )
@@ -120,6 +126,7 @@ async def get_section_content(
     *,
     writing_id: uuid.UUID,
     section_id: uuid.UUID,
+    preview_only: bool = False,
 ) -> dict | None:
     """Fetch one section's body, scoped to the given writing.
 
@@ -128,6 +135,13 @@ async def get_section_content(
     belong to the requested writing. The writing scope is what makes
     this safe — a malicious client can't enumerate sections by guessing
     UUIDs and walking writings they don't own.
+
+    When `preview_only=True` (the paid-book gate fired upstream:
+    `price_cents > 0` and the viewer is neither the author nor a
+    purchaser), non-preview sections are still resolvable but their
+    body and canvas are stripped — the response carries `locked: True`
+    so the client can render a "Buy to read" placeholder instead of a
+    blank page. Preview sections pass through unchanged.
     """
     row = (
         await db.execute(
@@ -138,6 +152,7 @@ async def get_section_content(
                 Section.canvas_data,
                 Section.footnotes,
                 Section.updated_at,
+                Section.is_free_preview,
             ).where(
                 Section.id == section_id,
                 Section.writing_id == writing_id,
@@ -147,6 +162,18 @@ async def get_section_content(
     ).one_or_none()
     if row is None:
         return None
+    if preview_only and not row.is_free_preview:
+        return {
+            "section_id": str(row.id),
+            "title": row.title,
+            "content": None,
+            "canvasData": None,
+            "footnotes": [],
+            "updated_at": row.updated_at.isoformat() if row.updated_at else None,
+            "_has_image": False,
+            "is_free_preview": False,
+            "locked": True,
+        }
     footnotes = row.footnotes or []
     # Splice the footnote endnotes onto the tail of the Quill delta the
     # reader will render. The author's own editor reads from
@@ -165,6 +192,8 @@ async def get_section_content(
         "footnotes": footnotes,
         "updated_at": row.updated_at.isoformat() if row.updated_at else None,
         "_has_image": _has_image(row.content),
+        "is_free_preview": bool(row.is_free_preview),
+        "locked": False,
     }
 
 
@@ -327,10 +356,35 @@ async def set_published_section_ids(
     )
 
 
+async def set_free_preview_section_ids(
+    db: AsyncSession,
+    *,
+    writing_id: uuid.UUID,
+    preview_ids: list[uuid.UUID],
+) -> None:
+    """Atomically set `is_free_preview` for every section under [writing_id].
+
+    Mirrors `set_published_section_ids`. Sections in `preview_ids` flip
+    to True; every other section flips to False. Used by the publish
+    flow when the author marks a curated subset of chapters as the
+    free preview for a paid book.
+
+    Caller must commit. Caller must verify writing ownership.
+    """
+    from sqlalchemy import update
+
+    await db.execute(
+        update(Section)
+        .where(Section.writing_id == writing_id)
+        .values(is_free_preview=Section.id.in_(preview_ids))
+    )
+
+
 __all__ = [
     "list_section_stubs",
     "get_section_content",
     "section_id_at_index",
     "flatten_writing_text",
     "set_published_section_ids",
+    "set_free_preview_section_ids",
 ]

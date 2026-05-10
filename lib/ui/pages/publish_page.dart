@@ -12,8 +12,11 @@ import 'package:inkspacex/models/footnote_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/models/section_model.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
+import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
+import 'package:inkspacex/services/api/api_payments_service.dart';
 import 'package:inkspacex/services/local_notification_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:inkspacex/ui/utilities/writing_type_style.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
@@ -65,6 +68,19 @@ class _PublishPageState extends State<PublishPage> {
   FeedItemModel? _existingSpace;
   Set<String> _alreadyPublishedIds = {};
 
+  // Monetization. `_isPaid` flips the flow into "set a price + pick free
+  // preview chapters". Price is captured in cents to match the backend
+  // column (`feed_items.price_cents`). The author can publish a paid
+  // book only when `_connectStatus.chargesEnabled` is true; the UI
+  // surfaces a "Set up payouts" CTA otherwise that opens hosted Stripe
+  // onboarding via `url_launcher`.
+  bool _isPaid = false;
+  late final TextEditingController _priceController;
+  String _priceCurrency = 'usd';
+  final Set<String> _freePreviewSectionIds = {};
+  ConnectStatus? _connectStatus;
+  bool _stripeBusy = false;
+
   List<String> get _suggestedTags {
     final typeForSuggestions = _publishType ?? widget.book.writingType;
     final subtypes = typeForSuggestions == WritingType.freestyle
@@ -90,6 +106,7 @@ class _PublishPageState extends State<PublishPage> {
     _descriptionController =
         TextEditingController(text: widget.book.description);
     _tagInputController = TextEditingController();
+    _priceController = TextEditingController();
     // Pre-populate publish-type for non-freestyle spaces.
     if (widget.book.writingType != WritingType.freestyle) {
       _publishType = widget.book.writingType;
@@ -99,7 +116,61 @@ class _PublishPageState extends State<PublishPage> {
       _selectedSectionIds.add(widget.preselectedSection!.id);
     }
     _loadExistingSpace();
+    _loadConnectStatus();
   }
+
+  ApiPaymentsService _paymentsService() {
+    final auth = context.read<AuthProvider>();
+    return ApiPaymentsService(auth.apiClient);
+  }
+
+  Future<void> _loadConnectStatus() async {
+    try {
+      final status = await _paymentsService().getStatus();
+      if (!mounted) return;
+      setState(() => _connectStatus = status);
+    } catch (_) {
+      // Silent — the publish dialog still works for free books even
+      // when the payments surface is misconfigured (the gate fires
+      // server-side before any charge).
+    }
+  }
+
+  Future<void> _startStripeOnboarding() async {
+    if (_stripeBusy) return;
+    setState(() => _stripeBusy = true);
+    try {
+      final url = await _paymentsService().startOnboarding();
+      final ok = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!ok) throw Exception('Could not open the onboarding link.');
+    } catch (e) {
+      if (mounted) {
+        _showAlert(
+          'Stripe setup failed',
+          e.toString().replaceFirst('Exception: ', ''),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _stripeBusy = false);
+    }
+  }
+
+  /// Parse the price field into cents. Returns 0 for an empty / unparseable
+  /// field, which the publish gate uses to refuse a paid publish without
+  /// silently downgrading to free.
+  int get _priceCents {
+    final raw = _priceController.text.trim();
+    if (raw.isEmpty) return 0;
+    final parsed = double.tryParse(raw);
+    if (parsed == null || parsed.isNaN || parsed < 0) return 0;
+    return (parsed * 100).round();
+  }
+
+  bool get _canSell =>
+      _connectStatus != null && _connectStatus!.chargesEnabled;
 
   Future<void> _loadExistingSpace() async {
     try {
@@ -128,6 +199,24 @@ class _PublishPageState extends State<PublishPage> {
           } else if (widget.preselectedSection == null) {
             _selectedSectionIds.addAll(_publishableSections.map((s) => s.id));
           }
+          // Hydrate pricing + preview state from the existing card so a
+          // republish doesn't silently flip the book back to free or
+          // wipe the author's preview curation.
+          if (existing != null) {
+            if (existing.priceCents > 0) {
+              _isPaid = true;
+              _priceController.text =
+                  (existing.priceCents / 100).toStringAsFixed(2);
+              _priceCurrency = existing.currency.isNotEmpty
+                  ? existing.currency
+                  : 'usd';
+            }
+            for (final s in existing.sections) {
+              if (s.isFreePreview) {
+                _freePreviewSectionIds.add(s.id);
+              }
+            }
+          }
           _loadingSpace = false;
         });
       }
@@ -141,6 +230,7 @@ class _PublishPageState extends State<PublishPage> {
     _titleController.dispose();
     _descriptionController.dispose();
     _tagInputController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 
@@ -432,6 +522,21 @@ class _PublishPageState extends State<PublishPage> {
           "Cover Image Required", "Add a cover image before publishing.");
       return;
     }
+    if (_isPaid) {
+      if (_priceCents <= 0) {
+        _showAlert("Set a price",
+            "Enter a price in ${_priceCurrency.toUpperCase()} or switch the book to free.");
+        return;
+      }
+      if (!_canSell) {
+        _showAlert(
+          "Set up payouts first",
+          "Finish Stripe payouts setup before publishing a paid book. "
+              "Tap 'Set up payouts' below to continue.",
+        );
+        return;
+      }
+    }
 
     setState(() => _isPublishing = true);
     final provider = context.read<EditorProvider>();
@@ -469,6 +574,16 @@ class _PublishPageState extends State<PublishPage> {
     final isDraft = _isDraft;
     final isUpdate = _isUpdate;
     final includeCanvas = _includeCanvas;
+    // Free-preview ids are only meaningful for paid books — every
+    // chapter is freely readable on a free book, so we send an empty
+    // list there to clear any stale flags from a prior paid publish.
+    final priceCentsToSend = _isPaid ? _priceCents : 0;
+    final freePreviewToSend = _isPaid
+        ? _selectedSectionIds
+            .where((id) => _freePreviewSectionIds.contains(id))
+            .toList()
+        : <String>[];
+    final currencyToSend = _isPaid ? _priceCurrency : 'usd';
 
     // Per-publish notification tag — different books / republishes
     // get their own progress slot in the tray.
@@ -501,6 +616,9 @@ class _PublishPageState extends State<PublishPage> {
       isDraft: isDraft,
       isUpdate: isUpdate,
       includeCanvas: includeCanvas,
+      priceCents: priceCentsToSend,
+      currency: currencyToSend,
+      freePreviewSectionIds: freePreviewToSend,
     ));
   }
 
@@ -520,6 +638,9 @@ class _PublishPageState extends State<PublishPage> {
     required bool isDraft,
     required bool isUpdate,
     required bool includeCanvas,
+    required int priceCents,
+    required String currency,
+    required List<String> freePreviewSectionIds,
   }) async {
     try {
       if (freestyleType != null) {
@@ -553,6 +674,9 @@ class _PublishPageState extends State<PublishPage> {
         descriptionOverride: desc.isNotEmpty ? desc : null,
         isDraft: isDraft,
         publishedSectionIds: publishedSectionIds,
+        freePreviewSectionIds: freePreviewSectionIds,
+        priceCents: priceCents,
+        currency: currency,
       );
 
       AnalyticsService.instance.track(
@@ -797,6 +921,16 @@ class _PublishPageState extends State<PublishPage> {
           isDark: isDark,
           textColor: textColor,
           mutedColor: mutedColor,
+        ),
+      ),
+      _buildDivider(dividerColor),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: _buildPricingSection(
+          isDark: isDark,
+          textColor: textColor,
+          mutedColor: mutedColor,
+          accent: accent,
         ),
       ),
       _buildDivider(dividerColor),
@@ -1561,6 +1695,266 @@ class _PublishPageState extends State<PublishPage> {
   }
 
   // ── DRAFT TOGGLE ──
+  // ── PRICING ──
+  // Free / Paid switch + price field + "Set up payouts" CTA. Author
+  // also picks which already-selected chapters become the free preview
+  // for a paid book — defaults to none, so a paid book starts fully
+  // locked. The block disables itself for free publishes.
+  Widget _buildPricingSection({
+    required bool isDark,
+    required Color textColor,
+    required Color mutedColor,
+    required Color accent,
+  }) {
+    final feeBps = _connectStatus?.platformFeeBps ?? 2000;
+    final feePct = (feeBps / 100).toStringAsFixed(0);
+    final tileBg = isDark
+        ? Colors.white.withValues(alpha: 0.04)
+        : Colors.black.withValues(alpha: 0.03);
+    final tileBorder = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.06);
+    final selectedUnits = _publishableSections
+        .where((s) => _selectedSectionIds.contains(s.id))
+        .toList();
+    final price = _priceCents;
+    final authorTakeCents =
+        price - ((price * feeBps) / 10000).floor();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _buildSectionLabel("Pricing"),
+            const Spacer(),
+            CupertinoSwitch(
+              value: _isPaid,
+              activeTrackColor: accent,
+              onChanged: (v) => setState(() => _isPaid = v),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          _isPaid
+              ? "Readers pay to unlock the book. You receive their "
+                  "payment minus a $feePct% platform fee, instantly into "
+                  "your Stripe balance."
+              : "Free for everyone. Switch on to charge for this book.",
+          style: GoogleFonts.inter(fontSize: 12, color: mutedColor),
+        ),
+        if (_isPaid) ...[
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: tileBg,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: tileBorder),
+            ),
+            child: Row(
+              children: [
+                Text(
+                  _priceCurrency.toUpperCase(),
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: mutedColor,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextField(
+                    controller: _priceController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true),
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: '4.99',
+                      hintStyle: GoogleFonts.inter(
+                        color: mutedColor.withValues(alpha: 0.6),
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (price > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                "You receive ${(authorTakeCents / 100).toStringAsFixed(2)} "
+                "${_priceCurrency.toUpperCase()} per sale",
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: mutedColor,
+                ),
+              ),
+            ),
+          const SizedBox(height: 14),
+          if (!_canSell)
+            GestureDetector(
+              onTap: _stripeBusy ? null : _startStripeOnboarding,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: isDark ? 0.18 : 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: accent.withValues(alpha: 0.4),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(CupertinoIcons.creditcard,
+                        size: 18, color: accent),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        _stripeBusy
+                            ? "Opening Stripe…"
+                            : "Set up payouts to publish a paid book",
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: textColor,
+                        ),
+                      ),
+                    ),
+                    Icon(CupertinoIcons.arrow_up_right_square,
+                        size: 16, color: accent),
+                  ],
+                ),
+              ),
+            )
+          else
+            Row(
+              children: [
+                Icon(CupertinoIcons.checkmark_seal_fill,
+                    size: 16,
+                    color: CupertinoColors.activeGreen),
+                const SizedBox(width: 8),
+                Text(
+                  "Payouts ready",
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                  ),
+                ),
+              ],
+            ),
+          const SizedBox(height: 18),
+          Text(
+            "Free preview chapters",
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "Tick the chapters anyone can read without buying. "
+            "Untick all to lock the book entirely.",
+            style: GoogleFonts.inter(fontSize: 12, color: mutedColor),
+          ),
+          const SizedBox(height: 8),
+          if (selectedUnits.isEmpty)
+            Text(
+              "Select chapters in the Review step first.",
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                color: mutedColor,
+              ),
+            )
+          else
+            Column(
+              children: [
+                for (final s in selectedUnits)
+                  _buildFreePreviewRow(
+                    section: s,
+                    isDark: isDark,
+                    textColor: textColor,
+                    mutedColor: mutedColor,
+                    accent: accent,
+                  ),
+              ],
+            ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildFreePreviewRow({
+    required SectionModel section,
+    required bool isDark,
+    required Color textColor,
+    required Color mutedColor,
+    required Color accent,
+  }) {
+    final ticked = _freePreviewSectionIds.contains(section.id);
+    return InkWell(
+      onTap: () {
+        setState(() {
+          if (ticked) {
+            _freePreviewSectionIds.remove(section.id);
+          } else {
+            _freePreviewSectionIds.add(section.id);
+          }
+        });
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Icon(
+              ticked
+                  ? CupertinoIcons.check_mark_circled_solid
+                  : CupertinoIcons.circle,
+              size: 18,
+              color: ticked ? accent : mutedColor,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                section.title.isEmpty ? "Untitled" : section.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: textColor,
+                ),
+              ),
+            ),
+            if (ticked)
+              Text(
+                "FREE",
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: accent,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildDraftToggle({
     required bool isDark,
     required Color textColor,

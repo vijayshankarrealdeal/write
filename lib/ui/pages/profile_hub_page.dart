@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
+import 'package:inkspacex/services/api/api_payments_service.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 
 class ProfileHubPage extends StatefulWidget {
@@ -194,6 +195,20 @@ class _ProfileHubPageState extends State<ProfileHubPage> {
 
               const SizedBox(height: 24),
 
+              _buildSectionHeader(context, 'Creator'),
+              _buildCardGroup(
+                cardColor: cardColor,
+                children: [
+                  _HubTile(
+                    icon: CupertinoIcons.money_dollar_circle,
+                    label: "Payouts & earnings",
+                    onTap: () => _openCreatorPayouts(context),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
               _buildSectionHeader(context, 'Preferences'),
               _buildCardGroup(
                 cardColor: cardColor,
@@ -299,6 +314,31 @@ class _ProfileHubPageState extends State<ProfileHubPage> {
         thickness: 1,
       ),
     );
+  }
+
+  /// Open the Stripe Connect dashboard for the calling author.
+  ///
+  /// First call also kicks off Express onboarding — the backend creates
+  /// the account and returns a hosted URL that doubles as the Express
+  /// dashboard once verification is complete. So a single tap covers
+  /// both "I haven't set up payouts yet" and "show me my balance",
+  /// without us needing a separate creator-earnings screen of our own.
+  Future<void> _openCreatorPayouts(BuildContext context) async {
+    final auth = context.read<AuthProvider>();
+    final payments = ApiPaymentsService(auth.apiClient);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final url = await payments.startOnboarding();
+      final ok = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!ok) throw Exception("Couldn't open the Stripe page.");
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    }
   }
 
   void _showSupportSheet(BuildContext context) {

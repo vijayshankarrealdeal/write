@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import 'package:inkspacex/models/section_model.dart';
+import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/editor_provider.dart';
 import 'package:inkspacex/router.dart' show rootNavigatorKey;
@@ -263,10 +265,12 @@ class _ConflictReviewDialogState extends State<_ConflictReviewDialog> {
   ConflictSnapshot? _snap;
   bool _busy = false;
   String? _error;
+  String? _selectedSectionId;
 
   @override
   void initState() {
     super.initState();
+    _selectedSectionId = widget.op.payload['sectionId'] as String?;
     _load();
   }
 
@@ -301,6 +305,15 @@ class _ConflictReviewDialogState extends State<_ConflictReviewDialog> {
     }
   }
 
+  WritingModel? _parentBook() {
+    final wid = widget.op.payload['writingId'] as String?;
+    if (wid == null) return null;
+    for (final b in widget.provider.allBooks) {
+      if (b.id == wid) return b;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -308,6 +321,11 @@ class _ConflictReviewDialogState extends State<_ConflictReviewDialog> {
     final muted = textColor.withValues(alpha: 0.6);
     final borderColor = textColor.withValues(alpha: 0.12);
     final cardBg = isDark ? const Color(0xFF141414) : const Color(0xFFF7F7F7);
+    final dialogBg = isDark ? const Color(0xFF0C0C0C) : Colors.white;
+
+    final media = MediaQuery.of(context);
+    final maxW = media.size.width * 0.94;
+    final maxH = media.size.height * 0.92;
 
     Widget body;
     if (_error != null) {
@@ -322,140 +340,363 @@ class _ConflictReviewDialogState extends State<_ConflictReviewDialog> {
         child: Center(child: CircularProgressIndicator()),
       );
     } else {
-      final s = _snap!;
-      body = Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              s.remoteMissing
-                  ? "This ${s.kind} only exists on this device. The "
-                      "backend has no copy."
-                  : "Pick which version to keep — your device's, or the "
-                      "backend's.",
-              style: GoogleFonts.inter(fontSize: 13, color: muted),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _SidePanel(
-                    label: 'YOUR DEVICE',
-                    title: s.localTitle ?? '(untitled)',
-                    content: s.localContent,
-                    isMissing: s.localTitle == null && s.localContent == null,
-                    bg: cardBg,
-                    border: borderColor,
-                    textColor: textColor,
-                    muted: muted,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _SidePanel(
-                    label: 'BACKEND',
-                    title: s.remoteTitle ?? '(no copy)',
-                    content: s.remoteContent,
-                    isMissing: s.remoteMissing,
-                    bg: cardBg,
-                    border: borderColor,
-                    textColor: textColor,
-                    muted: muted,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: _busy ? null : () => Navigator.of(context).pop(),
-                  child: const Text('Close'),
-                ),
-                const SizedBox(width: 8),
-                TextButton(
-                  onPressed: _busy ? null : _useBackend,
-                  child: Text(s.remoteMissing
-                      ? 'Drop local'
-                      : 'Use backend'),
-                ),
-                const SizedBox(width: 8),
-                FilledButton(
-                  onPressed: _busy ? null : _useLocal,
-                  child: Text(s.remoteMissing
-                      ? 'Push to backend'
-                      : 'Keep mine'),
-                ),
-              ],
-            ),
-          ],
-        ),
+      body = _buildBody(
+        snap: _snap!,
+        textColor: textColor,
+        muted: muted,
+        borderColor: borderColor,
+        cardBg: cardBg,
       );
     }
 
     return Dialog(
-      backgroundColor: isDark ? const Color(0xFF0C0C0C) : Colors.white,
+      backgroundColor: dialogBg,
+      insetPadding: const EdgeInsets.all(24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 720),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
-                child: Text(
-                  'Review sync conflict',
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: textColor,
-                  ),
+        constraints: BoxConstraints(maxWidth: maxW, maxHeight: maxH),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+              child: Text(
+                'Review sync conflict',
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: textColor,
                 ),
               ),
-              body,
+            ),
+            Flexible(child: body),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody({
+    required ConflictSnapshot snap,
+    required Color textColor,
+    required Color muted,
+    required Color borderColor,
+    required Color cardBg,
+  }) {
+    final book = _parentBook();
+    final chapterSections = <SectionModel>[
+      if (book != null)
+        ...book.sections.where((s) => s.kind != SectionKind.trash),
+    ]..sort((a, b) => a.order.compareTo(b.order));
+
+    final conflictedSectionId = widget.op.payload['sectionId'] as String?;
+    final selectedId = _selectedSectionId ?? conflictedSectionId;
+    SectionModel? selectedSection;
+    for (final s in chapterSections) {
+      if (s.id == selectedId) {
+        selectedSection = s;
+        break;
+      }
+    }
+
+    final isViewingConflicted =
+        selectedId == null || selectedId == conflictedSectionId;
+
+    final localTitle = isViewingConflicted
+        ? (snap.localTitle ?? selectedSection?.title ?? '(untitled)')
+        : (selectedSection?.title ?? '(untitled)');
+    final localContent = isViewingConflicted
+        ? (snap.localContent ?? selectedSection?.content)
+        : selectedSection?.content;
+    final localMissing = isViewingConflicted &&
+        snap.localTitle == null &&
+        snap.localContent == null &&
+        selectedSection == null;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            snap.remoteMissing
+                ? "This ${snap.kind} only exists on this device. The "
+                    "backend has no copy."
+                : "Pick which version to keep — your device's, or the "
+                    "backend's.",
+            style: GoogleFonts.inter(fontSize: 13, color: muted),
+          ),
+          const SizedBox(height: 14),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: borderColor),
+                color: cardBg,
+              ),
+              clipBehavior: Clip.hardEdge,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (chapterSections.isNotEmpty) ...[
+                    SizedBox(
+                      width: 240,
+                      child: _ChaptersSidebar(
+                        sections: chapterSections,
+                        selectedId: selectedId,
+                        conflictedId: conflictedSectionId,
+                        textColor: textColor,
+                        muted: muted,
+                        border: borderColor,
+                        onSelect: (id) =>
+                            setState(() => _selectedSectionId = id),
+                      ),
+                    ),
+                    VerticalDivider(width: 1, color: borderColor),
+                  ],
+                  Expanded(
+                    child: _ContentPane(
+                      label: 'YOUR DEVICE',
+                      title: localTitle,
+                      content: localContent,
+                      isMissing: localMissing,
+                      isConflictTarget:
+                          selectedId == conflictedSectionId,
+                      textColor: textColor,
+                      muted: muted,
+                    ),
+                  ),
+                  VerticalDivider(width: 1, color: borderColor),
+                  Expanded(
+                    child: _ContentPane(
+                      label: 'BACKEND',
+                      title: snap.remoteTitle ?? '(no copy)',
+                      content: snap.remoteContent,
+                      isMissing: snap.remoteMissing,
+                      isConflictTarget: true,
+                      // Backend snapshot only exists for the conflicted
+                      // resource; if the user wandered off to a different
+                      // chapter, hint that this side hasn't moved.
+                      footnote: !isViewingConflicted
+                          ? 'Showing backend copy of the conflicted '
+                              'chapter only.'
+                          : null,
+                      textColor: textColor,
+                      muted: muted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: _busy ? null : () => Navigator.of(context).pop(),
+                style: TextButton.styleFrom(foregroundColor: textColor),
+                child: const Text('Close'),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: _busy ? null : _useBackend,
+                style: TextButton.styleFrom(foregroundColor: textColor),
+                child: Text(snap.remoteMissing ? 'Drop local' : 'Use backend'),
+              ),
+              const SizedBox(width: 8),
+              FilledButton(
+                onPressed: _busy ? null : _useLocal,
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF2563EB),
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor:
+                      const Color(0xFF2563EB).withValues(alpha: 0.45),
+                  disabledForegroundColor:
+                      Colors.white.withValues(alpha: 0.7),
+                ),
+                child: Text(
+                    snap.remoteMissing ? 'Push to backend' : 'Keep mine'),
+              ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-class _SidePanel extends StatelessWidget {
-  const _SidePanel({
+String _previewText(String raw) {
+  // Quill content is JSON deltas; strip down to the first inserts so
+  // the preview is readable instead of showing curly braces.
+  final trimmed = raw.trim();
+  if (!trimmed.startsWith('[')) return trimmed;
+  try {
+    final list = jsonDecode(trimmed);
+    if (list is! List) return trimmed;
+    final out = StringBuffer();
+    for (final entry in list) {
+      if (entry is Map && entry['insert'] is String) {
+        out.write(entry['insert']);
+        if (out.length > 4000) break;
+      }
+    }
+    return out.toString().trim();
+  } catch (_) {
+    return trimmed;
+  }
+}
+
+class _ChaptersSidebar extends StatelessWidget {
+  const _ChaptersSidebar({
+    required this.sections,
+    required this.selectedId,
+    required this.conflictedId,
+    required this.textColor,
+    required this.muted,
+    required this.border,
+    required this.onSelect,
+  });
+
+  final List<SectionModel> sections;
+  final String? selectedId;
+  final String? conflictedId;
+  final Color textColor;
+  final Color muted;
+  final Color border;
+  final ValueChanged<String> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final selectedBg = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.04);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+          child: Text(
+            'LOCAL CHAPTERS',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: muted,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+        Divider(height: 1, color: border),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            itemCount: sections.length,
+            itemBuilder: (ctx, i) {
+              final s = sections[i];
+              final isSelected = s.id == selectedId;
+              final isConflicted = s.id == conflictedId;
+              final preview = s.content.isEmpty
+                  ? '(empty)'
+                  : _previewText(s.content);
+              return InkWell(
+                onTap: () => onSelect(s.id),
+                child: Container(
+                  color: isSelected ? selectedBg : null,
+                  padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              s.title.isEmpty ? '(untitled)' : s.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                              ),
+                            ),
+                          ),
+                          if (isConflicted)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFB00020)
+                                    .withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'CONFLICT',
+                                style: GoogleFonts.inter(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFFB00020),
+                                  letterSpacing: 0.6,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        preview,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: muted,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ContentPane extends StatelessWidget {
+  const _ContentPane({
     required this.label,
     required this.title,
     required this.content,
     required this.isMissing,
-    required this.bg,
-    required this.border,
+    required this.isConflictTarget,
     required this.textColor,
     required this.muted,
+    this.footnote,
   });
 
   final String label;
   final String title;
   final String? content;
   final bool isMissing;
-  final Color bg;
-  final Color border;
+  final bool isConflictTarget;
   final Color textColor;
   final Color muted;
+  final String? footnote;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: border),
-      ),
-      padding: const EdgeInsets.all(14),
-      constraints: const BoxConstraints(minHeight: 200),
+    final body = isMissing
+        ? '—'
+        : (content == null || content!.isEmpty
+            ? '(empty)'
+            : _previewText(content!));
+    return Padding(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -474,51 +715,39 @@ class _SidePanel extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
               color: isMissing ? muted : textColor,
               fontStyle: isMissing ? FontStyle.italic : FontStyle.normal,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            isMissing
-                ? '—'
-                : (content == null || content!.isEmpty
-                    ? '(empty)'
-                    : _previewText(content!)),
-            maxLines: 6,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: muted,
-              height: 1.4,
+          if (footnote != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              footnote!,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: muted,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+          const SizedBox(height: 12),
+          Expanded(
+            child: SingleChildScrollView(
+              child: SelectableText(
+                body,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: isMissing ? muted : textColor,
+                  height: 1.5,
+                ),
+              ),
             ),
           ),
         ],
       ),
     );
-  }
-
-  static String _previewText(String raw) {
-    // Quill content is JSON deltas; strip down to the first inserts so
-    // the preview is readable instead of showing curly braces.
-    final trimmed = raw.trim();
-    if (!trimmed.startsWith('[')) return trimmed;
-    try {
-      final list = jsonDecode(trimmed);
-      if (list is! List) return trimmed;
-      final out = StringBuffer();
-      for (final entry in list) {
-        if (entry is Map && entry['insert'] is String) {
-          out.write(entry['insert']);
-          if (out.length > 400) break;
-        }
-      }
-      return out.toString().trim();
-    } catch (_) {
-      return trimmed;
-    }
   }
 }
 

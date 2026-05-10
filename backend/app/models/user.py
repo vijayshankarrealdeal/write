@@ -33,6 +33,18 @@ class User(UUIDMixin, Base):
     favorite_posts: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     section_bookmarks: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
 
+    # Stripe Connect (Express) account. Populated after the author
+    # completes hosted onboarding. `stripe_charges_enabled` mirrors the
+    # `charges_enabled` flag from the Account object — only true once
+    # the author has cleared identity verification, at which point
+    # destination charges can route money into their balance at the
+    # moment of charge (minus our `application_fee_amount`). Both fields
+    # are null for readers who never opt into selling.
+    stripe_account_id: Mapped[str | None] = mapped_column(String(64))
+    stripe_charges_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

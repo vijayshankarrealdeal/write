@@ -1791,6 +1791,50 @@ class _FeedCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  // Price chip — paid books wear a price tag in the
+                  // top-left of the cover. Drops to a "Owned" pill once
+                  // the viewer has bought it (the backend stamps
+                  // `purchased=true` on the response). Free books skip
+                  // both states.
+                  if (item.priceCents > 0)
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 9, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: item.purchased
+                              ? const Color(0xFF16A34A)
+                              : const Color(0xFF2F62E0),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              item.purchased
+                                  ? CupertinoIcons.checkmark_seal_fill
+                                  : CupertinoIcons.bag_fill,
+                              size: 11,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              item.purchased
+                                  ? 'Owned'
+                                  : '${(item.priceCents / 100).toStringAsFixed(2)} '
+                                      '${item.currency.toUpperCase()}',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

@@ -30,6 +30,8 @@ import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/provider/offline_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
+import 'package:inkspacex/services/api/api_payments_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // ---------------------------------------------------------------------------
 // Custom style builder (matches editor font rendering)
@@ -139,6 +141,13 @@ class _PostDetailPageState extends State<PostDetailPage>
   // from `_refreshCountsFromServer`. Reads go through this field, never
   // `widget.item`, so the chapter list paints once the detail fetch lands.
   late FeedItemModel _item;
+
+  // -- Stripe Checkout state. `_checkoutBusy` guards the buy CTA against
+  // double-tap. After returning from hosted Checkout we poll the
+  // purchases endpoint until the webhook lands, then refresh the item
+  // so the reader UI flips from "Buy" to fully unlocked without the
+  // user having to back out and re-enter the page.
+  bool _checkoutBusy = false;
 
   // -- Two-level navigation: null = overview, int = section detail --
   int? _selectedSectionIndex;
@@ -435,6 +444,68 @@ class _PostDetailPageState extends State<PostDetailPage>
   // matches the DB before the SSE stream even has a chance to fire.
   // Also refresh the signed-in user so the heart's filled state matches
   // likes the user gave on a different device.
+  // --------------------------------------------------------------------------
+  // Stripe Checkout flow.
+  //
+  // Backend mints a hosted Checkout URL (destination charge with a
+  // platform-fee cut), we open it via `url_launcher`, then poll the
+  // purchases endpoint until the webhook lands. A poll-based gate
+  // beats listening for app-foreground events because the user might
+  // complete the payment in a browser tab and never return to the app
+  // — once they do, the next render hits a freshly-`purchased=true`
+  // item and the gate dissolves.
+  // --------------------------------------------------------------------------
+  Future<void> _startCheckout() async {
+    if (_checkoutBusy) return;
+    if (_item.priceCents <= 0 || _item.purchased) return;
+    setState(() => _checkoutBusy = true);
+    final auth = context.read<AuthProvider>();
+    final payments = ApiPaymentsService(auth.apiClient);
+    try {
+      final url = await payments.startCheckout(_item.id);
+      final ok = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!ok) throw Exception("Couldn't open the payment page.");
+      // Optimistic poll loop. Real-world latency is "webhook within a
+      // second or two", so 10 attempts at 1.5s = 15s ceiling is plenty
+      // without burning battery. We stop early as soon as the row
+      // appears.
+      for (var attempt = 0; attempt < 10; attempt++) {
+        await Future.delayed(const Duration(milliseconds: 1500));
+        if (!mounted) return;
+        try {
+          final status = await payments.getPurchase(_item.id);
+          if (status.purchased) {
+            await _refreshAfterPurchase();
+            return;
+          }
+        } catch (_) {
+          // Transient — keep polling.
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _checkoutBusy = false);
+    }
+  }
+
+  Future<void> _refreshAfterPurchase() async {
+    try {
+      final fresh = await _dataService.getFeedItem(_item.id);
+      if (fresh != null && mounted) {
+        setState(() => _item = fresh);
+      }
+    } catch (_) {}
+  }
+
   Future<void> _refreshCountsFromServer() async {
     final auth = context.read<AuthProvider>();
     final feed = context.read<FeedProvider>();
@@ -2717,6 +2788,18 @@ class _PostDetailPageState extends State<PostDetailPage>
                   ),
               ],
 
+              // ---- Buy banner (paid books, viewer hasn't purchased) ----
+              if (item.priceCents > 0 && !item.purchased)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                      contentPadding, 24, contentPadding, 0),
+                  child: _BuyBanner(
+                    item: item,
+                    busy: _checkoutBusy,
+                    onTap: _startCheckout,
+                  ),
+                ),
+
               // ---- Action row (like, comment, bookmark, share) ----
               Padding(
                 padding: EdgeInsets.fromLTRB(
@@ -4784,6 +4867,128 @@ class _TagWrap extends StatelessWidget {
     );
   }
 }
+
+// ============================================================================
+// BUY BANNER — paid books, viewer hasn't purchased
+//
+// Surfaces price, the platform's promise (instant payout to author), and
+// a single CTA that opens hosted Stripe Checkout via `url_launcher`.
+// The detail page polls the purchases endpoint after the user returns
+// so the gate dissolves the moment the webhook lands.
+// ============================================================================
+class _BuyBanner extends StatelessWidget {
+  final FeedItemModel item;
+  final bool busy;
+  final Future<void> Function() onTap;
+
+  const _BuyBanner({
+    required this.item,
+    required this.busy,
+    required this.onTap,
+  });
+
+  String _formatPrice() {
+    final dollars = item.priceCents / 100;
+    final code = item.currency.toUpperCase();
+    return '${dollars.toStringAsFixed(2)} $code';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = const Color(0xFF2F62E0);
+    final bg = accent.withValues(alpha: isDark ? 0.18 : 0.08);
+    final border = accent.withValues(alpha: 0.3);
+    final textColor = isDark ? Colors.white : Colors.black;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: accent,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              CupertinoIcons.lock_open_fill,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Unlock the full book',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Pays the author instantly via Stripe',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: textColor.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: busy ? null : () => onTap(),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: accent,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: busy
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: AppSpinner(color: Colors.white),
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          CupertinoIcons.bag_fill,
+                          color: Colors.white,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Buy ${_formatPrice()}',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 // ============================================================================
 // ACTION ROW (Like / Comment / Bookmark / Share)

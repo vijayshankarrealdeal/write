@@ -70,6 +70,22 @@ class Settings(BaseSettings):
     # policy's 12-month commitment.
     dictionary_submission_retention_days: int = 365
 
+    # Stripe Connect monetization. When `stripe_secret_key` is empty the
+    # payments router returns 503 — keeps prod misconfigs loud and lets
+    # local dev run without a Stripe account. Authors are onboarded as
+    # Express accounts; readers pay via hosted Checkout; the platform
+    # takes `stripe_platform_fee_bps` (basis points, 2000 = 20%) per
+    # purchase via `application_fee_amount` on a destination charge so
+    # the remainder lands in the author's connected account at charge
+    # time (no separate transfer step).
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_platform_fee_bps: int = 2000
+    # URL the author is sent back to after Stripe-hosted onboarding /
+    # Checkout. The backend appends `?status=…` so the client can show
+    # success/cancel UI on return. Empty falls back to `frontend_origin`.
+    stripe_return_url: str = ""
+
     # `extra="ignore"` matches prod's docker-compose `environment:` injection (which
     # passes vars not declared here, e.g. AZURE_OPENAI_MAP_DEPLOYMENT consumed by
     # app.ai.* via os.getenv). Without it, env_file loads (local dev) reject those.

@@ -2660,6 +2660,9 @@ class EditorProvider extends ChangeNotifier {
     bool isDraft = false,
     bool isPrivate = false,
     List<String>? publishedSectionIds,
+    List<String>? freePreviewSectionIds,
+    int? priceCents,
+    String? currency,
   }) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception("User not logged in");
@@ -2673,6 +2676,9 @@ class EditorProvider extends ChangeNotifier {
       isDraft: isDraft,
       isPrivate: isPrivate,
       publishedSectionIds: publishedSectionIds,
+      freePreviewSectionIds: freePreviewSectionIds,
+      priceCents: priceCents,
+      currency: currency,
     );
   }
 

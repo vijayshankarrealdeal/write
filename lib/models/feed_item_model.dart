@@ -22,6 +22,14 @@ class FeedItemSection {
   /// "Updated" badge on chapters the author edited since the user
   /// last opened the book. Null on legacy responses.
   final DateTime? updatedAt;
+  /// True iff the author flagged this chapter as a free preview for a
+  /// paid book. Free books ignore the flag — every published chapter
+  /// renders normally.
+  final bool isFreePreview;
+  /// True iff the backend redacted the body for a paid-book gate (the
+  /// viewer hasn't bought it and the chapter isn't a free preview).
+  /// `content` is empty when locked — render a "Buy to read" placeholder.
+  final bool locked;
 
   const FeedItemSection({
     required this.id,
@@ -30,6 +38,8 @@ class FeedItemSection {
     this.canvasData = '',
     this.hasImage = false,
     this.updatedAt,
+    this.isFreePreview = false,
+    this.locked = false,
   });
 
   factory FeedItemSection.fromJson(Map<String, dynamic> json) {
@@ -76,6 +86,8 @@ class FeedItemSection {
       canvasData: canvasJson,
       hasImage: json['_has_image'] == true,
       updatedAt: updated,
+      isFreePreview: json['is_free_preview'] == true || json['isFreePreview'] == true,
+      locked: json['locked'] == true,
     );
   }
 
@@ -86,6 +98,8 @@ class FeedItemSection {
         if (canvasData.isNotEmpty) 'canvasData': canvasData,
         if (hasImage) '_has_image': true,
         if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
+        if (isFreePreview) 'is_free_preview': true,
+        if (locked) 'locked': true,
       };
 }
 
@@ -115,6 +129,19 @@ class FeedItemModel {
   /// Whether this post is a draft (not visible in the public feed).
   final bool isDraft;
 
+  /// Price in the smallest currency unit (cents / paise / etc). 0 means
+  /// the book is free — the Buy CTA hides and chapter bodies aren't
+  /// gated. Backed by `feed_items.price_cents` server-side.
+  final int priceCents;
+
+  /// ISO-4217 code Stripe Checkout uses for this listing's price.
+  final String currency;
+
+  /// Server-computed flag: true for the author of the book and for
+  /// users who have a Purchase row. Free books always read as
+  /// `purchased=true` so the reader UI treats them as fully unlocked.
+  final bool purchased;
+
   /// Set on items returned from `/api/ai/recommendations`. Carries the
   /// engine's score, the LLM-generated "why this" reason, and where in
   /// the pipeline the item came from (engine | cold_start | llm_rerank).
@@ -140,6 +167,9 @@ class FeedItemModel {
     this.sections = const [],
     this.bookId = '',
     this.isDraft = false,
+    this.priceCents = 0,
+    this.currency = 'usd',
+    this.purchased = true,
     this.recommendation,
   }) : updatedAt = updatedAt ?? createdAt;
 
@@ -193,6 +223,15 @@ class FeedItemModel {
       bookId: (json['writing_id'] ?? json['writingId'] ?? json['bookId'] ?? '')
           .toString(),
       isDraft: json['isDraft'] ?? json['is_draft'] ?? false,
+      priceCents: ((json['priceCents'] ?? json['price_cents']) as num?)
+              ?.toInt() ??
+          0,
+      currency: ((json['currency'] as String?) ?? 'usd').toLowerCase(),
+      // Free items default to purchased=true so reader UI doesn't gate
+      // them when an older payload predates the field.
+      purchased: json['purchased'] is bool
+          ? json['purchased'] as bool
+          : ((json['priceCents'] ?? json['price_cents'] ?? 0) as num) <= 0,
     );
   }
 
@@ -214,6 +253,9 @@ class FeedItemModel {
         'sections': sections.map((s) => s.toJson()).toList(),
         'bookId': bookId,
         'isDraft': isDraft,
+        'priceCents': priceCents,
+        'currency': currency,
+        'purchased': purchased,
       };
 
   FeedItemModel copyWith({
@@ -234,6 +276,9 @@ class FeedItemModel {
     List<FeedItemSection>? sections,
     String? bookId,
     bool? isDraft,
+    int? priceCents,
+    String? currency,
+    bool? purchased,
     RecommendationMeta? recommendation,
   }) =>
       FeedItemModel(
@@ -254,6 +299,9 @@ class FeedItemModel {
         sections: sections ?? this.sections,
         bookId: bookId ?? this.bookId,
         isDraft: isDraft ?? this.isDraft,
+        priceCents: priceCents ?? this.priceCents,
+        currency: currency ?? this.currency,
+        purchased: purchased ?? this.purchased,
         recommendation: recommendation ?? this.recommendation,
       );
 }

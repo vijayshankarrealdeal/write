@@ -266,6 +266,24 @@ async def compose_home(user: User, db: AsyncSession) -> list[dict]:
     ).scalars().all()
     items_by_id: dict[uuid.UUID, FeedItem] = {it.id: it for it in rows}
 
+    # Fold purchased state onto every paid card so home rails render the
+    # right Buy/Read affordance without a per-card access call. Only
+    # paid items query the purchases table; free items short-circuit to
+    # `purchased=True` (no gate fires).
+    from app.models.purchase import Purchase  # noqa: WPS433 — local to avoid cycle
+    paid_ids = [iid for iid, it in items_by_id.items() if (it.price_cents or 0) > 0]
+    purchased_ids: set[uuid.UUID] = set()
+    if paid_ids:
+        rows_p = (
+            await db.execute(
+                select(Purchase.feed_item_id).where(
+                    Purchase.user_id == user.id,
+                    Purchase.feed_item_id.in_(paid_ids),
+                )
+            )
+        ).all()
+        purchased_ids = {r[0] for r in rows_p}
+
     out: list[dict] = []
     for rail, ids in rail_orders:
         ordered = [items_by_id[iid] for iid in ids if iid in items_by_id]
@@ -276,6 +294,11 @@ async def compose_home(user: User, db: AsyncSession) -> list[dict]:
         # 1400-section book this saves ~30 MB per home request.
         slim_items = []
         for item in ordered:
+            owns = (
+                (item.price_cents or 0) <= 0
+                or item.author_id == user.id
+                or item.id in purchased_ids
+            )
             slim = {
                 "id": item.id,
                 "title": item.title,
@@ -291,6 +314,9 @@ async def compose_home(user: User, db: AsyncSession) -> list[dict]:
                 "likes_count": item.likes_count or 0,
                 "comments_count": item.comments_count or 0,
                 "is_draft": item.is_draft,
+                "price_cents": item.price_cents or 0,
+                "currency": item.currency or "usd",
+                "purchased": owns,
                 "sections": None,
                 "created_at": item.created_at,
                 "updated_at": item.updated_at,

@@ -56,6 +56,11 @@ class SectionModel {
   // writings continue to publish unchanged. Sections under Research /
   // Trash are auto-set to false at folder-creation time.
   bool includeInPublish;
+  // Per-chapter free-preview opt-in for paid books. Mirrors
+  // `sections.is_free_preview` server-side. Ignored on free books —
+  // every published chapter renders normally there. Author-side state
+  // only; readers infer the flag from the chapter-list stub.
+  bool isFreePreview;
   // Ordered list of footnote bodies for this section. Rendering uses the
   // list order to stamp visible numbers (¹, ², …) so adding, deleting, or
   // reordering an entry implicitly renumbers the section without rewriting
@@ -79,6 +84,7 @@ class SectionModel {
     this.labelColor,
     List<String>? keywords,
     this.includeInPublish = true,
+    this.isFreePreview = false,
     List<FootnoteModel>? footnotes,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
@@ -114,6 +120,11 @@ class SectionModel {
       includeInPublish: json['includeInPublish'] is bool
           ? json['includeInPublish'] as bool
           : true,
+      isFreePreview: json['isFreePreview'] is bool
+          ? json['isFreePreview'] as bool
+          : (json['is_free_preview'] is bool
+              ? json['is_free_preview'] as bool
+              : false),
       footnotes: _decodeFootnotes(json['footnotes']),
     );
   }
@@ -136,6 +147,7 @@ class SectionModel {
       'labelColor': labelColor,
       'keywords': keywords,
       'includeInPublish': includeInPublish,
+      'isFreePreview': isFreePreview,
       'footnotes': footnotes.map((f) => f.toJson()).toList(),
     };
   }
