@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import {
   Users,
-  FileText,
   Rss,
   Bug,
   Eye,
@@ -67,19 +66,13 @@ export default function Overview() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <StatCard
           label="Total Users"
           value={dash(s.total_users)}
           sub={s.new_users_week != null ? `+${s.new_users_week} this week` : undefined}
           icon={Users}
           color="indigo"
-        />
-        <StatCard
-          label="Writings"
-          value={dash(s.total_writings)}
-          icon={FileText}
-          color="blue"
         />
         <StatCard
           label="Published Posts"

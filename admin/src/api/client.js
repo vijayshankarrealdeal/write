@@ -92,6 +92,14 @@ export const api = {
   userActivity: (days = 7) => request(`/analytics/user-activity?days=${days}`),
   deviceBreakdown: (days = 30) => request(`/analytics/devices?days=${days}`),
 
+  // Writings (read-only)
+  writings: (page = 1, perPage = 25, search = "") => {
+    const params = new URLSearchParams({ page, per_page: perPage });
+    if (search) params.set("search", search);
+    return request(`/writings?${params}`);
+  },
+  writing: (id) => request(`/writings/${id}`),
+
   // Users (admin-managed)
   users: (page = 1, perPage = 25, search = "") => {
     const params = new URLSearchParams({ page, per_page: perPage });

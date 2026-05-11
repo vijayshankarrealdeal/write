@@ -9,6 +9,7 @@ import TableDetail from "./pages/TableDetail";
 import Storage from "./pages/Storage";
 import UserActivity from "./pages/UserActivity";
 import Analytics from "./pages/Analytics";
+import Writings from "./pages/Writings";
 import CrashReports from "./pages/CrashReports";
 import Logs from "./pages/Logs";
 import Reports from "./pages/Reports";
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="storage" element={<Storage />} />
         <Route path="activity" element={<UserActivity />} />
         <Route path="analytics" element={<Analytics />} />
+        <Route path="writings" element={<Writings />} />
         <Route path="crashes" element={<CrashReports />} />
         <Route path="reports" element={<Reports />} />
         <Route path="feedback" element={<Feedback />} />

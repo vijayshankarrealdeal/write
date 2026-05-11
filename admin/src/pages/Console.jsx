@@ -11,7 +11,6 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronUp,
-  Globe,
   Smartphone,
   TrendingUp,
 } from "lucide-react";
@@ -773,68 +772,6 @@ function AnalyticsTab() {
           )}
         </Card>
 
-        <Card icon={Globe} title="Region / referrer">
-          {(breakdown?.regions?.length || breakdown?.referrers?.length) ? (
-            <div className="space-y-3 max-h-[260px] overflow-y-auto">
-              {breakdown?.regions?.length ? (
-                <div>
-                  <div className="text-[10px] uppercase tracking-wide text-gray-500 mb-2">
-                    Region (locale)
-                  </div>
-                  <div className="space-y-2">
-                    {breakdown.regions.map((r) => {
-                      const max = breakdown.regions[0].count;
-                      const pct = Math.round((r.count / max) * 100);
-                      return (
-                        <div key={`region-${r.label}`}>
-                          <div className="flex justify-between text-xs text-gray-400 mb-1">
-                            <span className="font-mono">{r.label}</span>
-                            <span>{r.count}</span>
-                          </div>
-                          <div className="h-1.5 bg-gray-800 rounded">
-                            <div
-                              className="h-1.5 bg-emerald-500/60 rounded"
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : null}
-              {breakdown?.referrers?.length ? (
-                <div>
-                  <div className="text-[10px] uppercase tracking-wide text-gray-500 mb-2 mt-2">
-                    Referrer host (web)
-                  </div>
-                  <div className="space-y-2">
-                    {breakdown.referrers.map((r) => {
-                      const max = breakdown.referrers[0].count;
-                      const pct = Math.round((r.count / max) * 100);
-                      return (
-                        <div key={`ref-${r.label}`}>
-                          <div className="flex justify-between text-xs text-gray-400 mb-1">
-                            <span className="truncate font-mono" title={r.label}>{r.label}</span>
-                            <span>{r.count}</span>
-                          </div>
-                          <div className="h-1.5 bg-gray-800 rounded">
-                            <div
-                              className="h-1.5 bg-indigo-500/60 rounded"
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          ) : (
-            <Empty label="Region (from device locale) and referrer hosts will appear here once visits start streaming in." />
-          )}
-        </Card>
       </div>
     </div>
   );

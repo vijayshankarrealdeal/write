@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -10,7 +10,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import { BarChart3, TrendingUp } from "lucide-react";
+import { BarChart3, TrendingUp, X } from "lucide-react";
 import { api } from "../api/client";
 import PageHeader from "../components/PageHeader";
 
@@ -19,6 +19,7 @@ export default function Analytics() {
   const [visits, setVisits] = useState([]);
   const [days, setDays] = useState(7);
   const [loading, setLoading] = useState(true);
+  const [selectedPage, setSelectedPage] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -30,16 +31,28 @@ export default function Analytics() {
       .finally(() => setLoading(false));
   }, [days]);
 
+  // Reset filter when the time window changes — yesterday's "/saved"
+  // selection has no meaning if the user just switched to "last 90d".
+  useEffect(() => {
+    setSelectedPage(null);
+  }, [days]);
+
+  // Aggregate per-day visits, optionally restricted to one page.
+  const dailyVisits = useMemo(() => {
+    const byDay = {};
+    for (const v of visits) {
+      if (selectedPage && v.page !== selectedPage) continue;
+      const day = v.day?.split("T")[0];
+      if (!byDay[day]) byDay[day] = { day, visits: 0 };
+      byDay[day].visits += v.visits;
+    }
+    return Object.values(byDay).sort((a, b) => a.day.localeCompare(b.day));
+  }, [visits, selectedPage]);
+
   if (loading) return <div className="p-8 animate-pulse text-gray-500">Loading...</div>;
 
-  // Group visits by day for line chart
-  const byDay = {};
-  for (const v of visits) {
-    const day = v.day?.split("T")[0];
-    if (!byDay[day]) byDay[day] = { day, visits: 0 };
-    byDay[day].visits += v.visits;
-  }
-  const dailyVisits = Object.values(byDay).sort((a, b) => a.day.localeCompare(b.day));
+  const trendTitle = selectedPage ? `Visits to ${selectedPage}` : "Visit Trend";
+  const tableRows = selectedPage ? topPages.filter((p) => p.page === selectedPage) : topPages;
 
   return (
     <div className="p-8">
@@ -56,11 +69,24 @@ export default function Analytics() {
         </select>
       </PageHeader>
 
+      {selectedPage && (
+        <div className="mb-4 inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-200 text-sm rounded-lg px-3 py-1.5">
+          Filtered by <span className="font-mono">{selectedPage}</span>
+          <button
+            onClick={() => setSelectedPage(null)}
+            className="text-indigo-300 hover:text-indigo-100"
+            aria-label="Clear filter"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Total visits trend */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
           <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2 mb-4">
-            <TrendingUp className="w-4 h-4" /> Visit Trend
+            <TrendingUp className="w-4 h-4" /> {trendTitle}
           </h3>
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={dailyVisits}>
@@ -100,7 +126,13 @@ export default function Analytics() {
               <Tooltip
                 contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8 }}
               />
-              <Bar dataKey="visits" fill="#34d399" radius={[0, 4, 4, 0]} />
+              <Bar
+                dataKey="visits"
+                fill="#34d399"
+                radius={[0, 4, 4, 0]}
+                onClick={(entry) => setSelectedPage(entry?.page ?? null)}
+                style={{ cursor: "pointer" }}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -108,8 +140,9 @@ export default function Analytics() {
 
       {/* Detailed table */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-800">
+        <div className="px-5 py-4 border-b border-gray-800 flex items-center justify-between">
           <h3 className="text-sm font-medium text-gray-400">Page Visit Details</h3>
+          <span className="text-xs text-gray-500">Click a row to filter the chart</span>
         </div>
         <table className="w-full text-sm">
           <thead>
@@ -120,14 +153,25 @@ export default function Analytics() {
             </tr>
           </thead>
           <tbody>
-            {topPages.map((p, i) => (
-              <tr key={p.page} className="border-b border-gray-800/50 hover:bg-gray-800/30">
-                <td className="px-5 py-3 text-gray-500">{i + 1}</td>
-                <td className="px-5 py-3 font-mono text-indigo-300">{p.page}</td>
-                <td className="px-5 py-3 text-right font-medium">{p.visits}</td>
-              </tr>
-            ))}
-            {topPages.length === 0 && (
+            {tableRows.map((p, i) => {
+              const isSelected = selectedPage === p.page;
+              return (
+                <tr
+                  key={p.page}
+                  onClick={() => setSelectedPage(isSelected ? null : p.page)}
+                  className={`border-b border-gray-800/50 cursor-pointer transition-colors ${
+                    isSelected ? "bg-indigo-500/10" : "hover:bg-gray-800/40"
+                  }`}
+                >
+                  <td className="px-5 py-3 text-gray-500">
+                    {topPages.findIndex((tp) => tp.page === p.page) + 1}
+                  </td>
+                  <td className="px-5 py-3 font-mono text-indigo-300">{p.page}</td>
+                  <td className="px-5 py-3 text-right font-medium">{p.visits}</td>
+                </tr>
+              );
+            })}
+            {tableRows.length === 0 && (
               <tr>
                 <td colSpan={3} className="px-5 py-8 text-center text-gray-500">
                   No visit data yet

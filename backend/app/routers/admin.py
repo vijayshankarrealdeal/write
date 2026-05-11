@@ -504,6 +504,14 @@ async def track_visit(
 # with rows written before the tag shipped.
 _PROD_ONLY = text("COALESCE(properties->>'env', 'prod') <> 'dev'")
 
+# Routes the admin doesn't want in page-visit charts — the writing/editor
+# surfaces dominate sessions in raw counts and drown out the navigational
+# pages we actually care about.
+_WRITING_ROUTES = ("/editor", "/publish")
+_NOT_WRITING = text(
+    "NOT (screen LIKE '/editor%' OR screen LIKE '/publish%')"
+)
+
 
 # COALESCE(properties->>'platform', <UA fallback>) as a single SQL fragment.
 # Order matters: Android UAs also contain "Linux", so check it first.
@@ -550,6 +558,7 @@ async def page_visit_analytics(
             AnalyticsEvent.server_ts >= since,
             AnalyticsEvent.screen.isnot(None),
             _PROD_ONLY,
+            _NOT_WRITING,
         )
         .group_by(AnalyticsEvent.screen, "day")
         .order_by(text("day"))
@@ -577,6 +586,7 @@ async def top_pages(
             AnalyticsEvent.server_ts >= since,
             AnalyticsEvent.screen.isnot(None),
             _PROD_ONLY,
+            _NOT_WRITING,
         )
         .group_by(AnalyticsEvent.screen)
         .order_by(text("visits DESC"))
@@ -733,6 +743,226 @@ async def device_breakdown(
         "signups_per_day": [
             {"day": r[0].isoformat() if r[0] else None, "count": r[1]} for r in signup_rows
         ],
+    }
+
+
+# ── Writings (read-only, for user-behaviour insight) ───────────────────────
+#
+# Admin browses what users are actually writing — title, author, section
+# tree, body — to understand how the editor is being used. Read-only:
+# editing or deleting a user's writing belongs in the Database tab where
+# the destructive action is explicit.
+
+def _quill_delta_to_text(delta: Any) -> str:
+    """Best-effort plain-text rendering of a Quill delta.
+
+    Sections store body as a Quill delta (`{"ops": [...]}`). For an
+    admin preview we only need readable text — newlines preserved,
+    formatting dropped. Embeds (images / mentions) become a single
+    placeholder so block layout is still visible.
+    """
+    if not delta:
+        return ""
+    if isinstance(delta, str):
+        return delta
+    if isinstance(delta, list):
+        ops = delta
+    elif isinstance(delta, dict):
+        ops = delta.get("ops") or []
+    else:
+        return ""
+    out: list[str] = []
+    for op in ops:
+        if not isinstance(op, dict):
+            continue
+        ins = op.get("insert")
+        if isinstance(ins, str):
+            out.append(ins)
+        elif isinstance(ins, dict):
+            # image / video / mention etc — keep block flow intact
+            out.append("[embed]")
+    return "".join(out)
+
+
+@router.get("/writings")
+async def list_writings(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(25, ge=1, le=100),
+    search: str | None = Query(None, description="Match title, author, or owner email"),
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Paginated list of every writing in the system.
+
+    Joined with the owner so the admin can see *who* wrote it. Section
+    count and aggregate word count come from a per-writing subquery so
+    one round-trip serves the whole page.
+    """
+    from sqlalchemy import desc
+
+    from app.models.section import Section
+    from app.models.writing import Writing
+
+    # Base query — join owner once.
+    q = (
+        select(
+            Writing.id,
+            Writing.title,
+            Writing.author,
+            Writing.writing_type,
+            Writing.subtype,
+            Writing.status,
+            Writing.created_at,
+            Writing.updated_at,
+            User.id.label("user_id"),
+            User.email,
+            User.name,
+        )
+        .join(User, User.id == Writing.user_id)
+    )
+
+    if search:
+        like = f"%{search.strip().lower()}%"
+        q = q.where(
+            or_(
+                func.lower(Writing.title).like(like),
+                func.lower(Writing.author).like(like),
+                func.lower(User.email).like(like),
+                func.lower(User.name).like(like),
+            )
+        )
+
+    total = (
+        await db.execute(select(func.count()).select_from(q.subquery()))
+    ).scalar() or 0
+
+    rows = (
+        await db.execute(
+            q.order_by(desc(Writing.updated_at))
+            .offset((page - 1) * per_page)
+            .limit(per_page)
+        )
+    ).fetchall()
+
+    writing_ids = [r[0] for r in rows]
+    section_counts: dict[Any, int] = {}
+    if writing_ids:
+        cnt_rows = (
+            await db.execute(
+                select(Section.writing_id, func.count())
+                .where(Section.writing_id.in_(writing_ids))
+                .group_by(Section.writing_id)
+            )
+        ).fetchall()
+        section_counts = {wid: cnt for wid, cnt in cnt_rows}
+
+    return {
+        "writings": [
+            {
+                "id": str(r.id),
+                "title": r.title or "Untitled",
+                "author": r.author,
+                "writing_type": r.writing_type,
+                "subtype": r.subtype,
+                "status": r.status,
+                "section_count": section_counts.get(r.id, 0),
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+                "updated_at": r.updated_at.isoformat() if r.updated_at else None,
+                "owner": {
+                    "id": str(r.user_id),
+                    "email": r.email,
+                    "name": r.name,
+                },
+            }
+            for r in rows
+        ],
+        "page": page,
+        "per_page": per_page,
+        "total": total,
+        "total_pages": (total + per_page - 1) // per_page,
+    }
+
+
+@router.get("/writings/{writing_id}")
+async def get_writing_detail(
+    writing_id: str,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Single writing plus every section, ready to read in the dashboard."""
+    from fastapi import HTTPException
+
+    from app.models.section import Section
+    from app.models.writing import Writing
+
+    row = (
+        await db.execute(
+            select(
+                Writing,
+                User.id.label("uid"),
+                User.email,
+                User.name,
+            )
+            .join(User, User.id == Writing.user_id)
+            .where(Writing.id == writing_id)
+        )
+    ).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Writing not found")
+
+    writing: Any = row[0]
+
+    sections = (
+        await db.execute(
+            select(Section)
+            .where(Section.writing_id == writing.id)
+            .order_by(Section.sort_order, Section.updated_at)
+        )
+    ).scalars().all()
+
+    section_payload = []
+    total_words = 0
+    for s in sections:
+        body = _quill_delta_to_text(s.content)
+        words = len(body.split()) if body else 0
+        total_words += words
+        section_payload.append(
+            {
+                "id": str(s.id),
+                "title": s.title or "Untitled",
+                "kind": s.kind,
+                "synopsis": s.synopsis,
+                "is_published": s.is_published,
+                "is_free_preview": s.is_free_preview,
+                "include_in_publish": s.include_in_publish,
+                "parent_id": s.parent_id,
+                "sort_order": s.sort_order,
+                "word_count": words,
+                "body": body,
+                "updated_at": s.updated_at.isoformat() if s.updated_at else None,
+            }
+        )
+
+    return {
+        "id": str(writing.id),
+        "title": writing.title or "Untitled",
+        "author": writing.author,
+        "description": writing.description,
+        "writing_type": writing.writing_type,
+        "subtype": writing.subtype,
+        "status": writing.status,
+        "target_word_count": writing.target_word_count,
+        "target_deadline": writing.target_deadline.isoformat() if writing.target_deadline else None,
+        "created_at": writing.created_at.isoformat() if writing.created_at else None,
+        "updated_at": writing.updated_at.isoformat() if writing.updated_at else None,
+        "owner": {
+            "id": str(row.uid),
+            "email": row.email,
+            "name": row.name,
+        },
+        "total_words": total_words,
+        "section_count": len(section_payload),
+        "sections": section_payload,
     }
 
 
