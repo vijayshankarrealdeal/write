@@ -90,37 +90,50 @@ async def start_connect_onboarding(user: User, db: AsyncSession) -> str:
     page.
     """
     rzp = _razorpay()
-    if not user.razorpay_account_id:
-        # Razorpay v2 Linked Account creation. `type=route` declares the
-        # marketplace intent; `reference_id` lets us correlate webhook
-        # events back to our local user without an extra lookup.
-        account = rzp.account.create({
-            "email": user.email,
-            "type": "route",
-            "reference_id": str(user.id),
-            "legal_business_name": user.name or "Individual",
-            "business_type": "individual",
-            "contact_name": user.name or "Author",
-            "profile": {
-                "category": "education",
-                "subcategory": "other",
-            },
-        })
-        user.razorpay_account_id = account["id"]
-        await db.commit()
-        await db.refresh(user)
+    try:
+        if not user.razorpay_account_id:
+            # Razorpay v2 Linked Account creation. `type=route` declares
+            # the marketplace intent; `reference_id` lets us correlate
+            # webhook events back to our local user without an extra
+            # lookup.
+            account = rzp.account.create({
+                "email": user.email,
+                "type": "route",
+                "reference_id": str(user.id),
+                "legal_business_name": user.name or "Individual",
+                "business_type": "individual",
+                "contact_name": user.name or "Author",
+                "profile": {
+                    "category": "education",
+                    "subcategory": "other",
+                },
+            })
+            user.razorpay_account_id = account["id"]
+            await db.commit()
+            await db.refresh(user)
 
-    # Request Route product configuration; the response carries the
-    # `activation_form_link` Razorpay hosts for KYC + bank-detail
-    # capture. Idempotent — Razorpay returns the same link for a
-    # still-onboarding account.
-    product = rzp.product.request_product_configuration(
-        user.razorpay_account_id,
-        {
-            "product_name": "route",
-            "tnc_accepted": True,
-        },
-    )
+        # Request Route product configuration; the response carries the
+        # `activation_form_link` Razorpay hosts for KYC + bank-detail
+        # capture. Idempotent — Razorpay returns the same link for a
+        # still-onboarding account.
+        product = rzp.product.request_product_configuration(
+            user.razorpay_account_id,
+            {
+                "product_name": "route",
+                "tnc_accepted": True,
+            },
+        )
+    except Exception as exc:
+        # Surface Razorpay's own message as a 409 instead of a generic
+        # 500. Common cases we hit here:
+        #   * "Route feature not enabled for the merchant" — the
+        #     platform hasn't been approved for Route yet; the author
+        #     can't be onboarded until Razorpay grants access.
+        #   * Field validation errors on the v2 account payload.
+        # 409 lets the Flutter client show the verbatim reason in the
+        # publish dialog without leaking a stack trace.
+        raise HTTPException(status_code=409, detail=str(exc))
+
     link = (
         product.get("activation_form_link")
         or product.get("activation_url")
@@ -141,7 +154,14 @@ async def refresh_account_status(user: User, db: AsyncSession) -> User:
     if not user.razorpay_account_id:
         return user
     rzp = _razorpay()
-    account = rzp.account.fetch(user.razorpay_account_id)
+    try:
+        account = rzp.account.fetch(user.razorpay_account_id)
+    except Exception:
+        # If Razorpay is unreachable or the account has been wiped on
+        # their side, fall back to the locally-cached state rather than
+        # 500-ing the polling endpoint. The webhook handler is the
+        # authoritative refresh path anyway.
+        return user
     # Razorpay marks a linked account ready to receive transfers when
     # its `status` is `activated`. Activation requires KYC + bank
     # details + Route product configuration to be complete.
@@ -178,28 +198,34 @@ async def create_checkout_session(
         "buyer_id": str(user.id),
         "author_id": str(author.id),
     }
-    order = rzp.order.create({
-        "amount": item.price_cents,
-        "currency": item.currency.upper(),
-        "notes": notes,
-    })
-    link = rzp.payment_link.create({
-        "amount": item.price_cents,
-        "currency": item.currency.upper(),
-        "accept_partial": False,
-        "description": (item.title or "Untitled")[:255],
-        "customer": {
-            "email": user.email,
-            "name": user.name or "",
-        },
-        "notify": {"sms": False, "email": False},
-        "reminder_enable": False,
-        "notes": {**notes, "order_id": order["id"]},
-        "callback_url": _return_url(
-            f"?razorpay_status=purchase_success&feed_item_id={item.id}"
-        ),
-        "callback_method": "get",
-    })
+    try:
+        order = rzp.order.create({
+            "amount": item.price_cents,
+            "currency": item.currency.upper(),
+            "notes": notes,
+        })
+        link = rzp.payment_link.create({
+            "amount": item.price_cents,
+            "currency": item.currency.upper(),
+            "accept_partial": False,
+            "description": (item.title or "Untitled")[:255],
+            "customer": {
+                "email": user.email,
+                "name": user.name or "",
+            },
+            "notify": {"sms": False, "email": False},
+            "reminder_enable": False,
+            "notes": {**notes, "order_id": order["id"]},
+            "callback_url": _return_url(
+                f"?razorpay_status=purchase_success&feed_item_id={item.id}"
+            ),
+            "callback_method": "get",
+        })
+    except Exception as exc:
+        # Same pattern as onboarding — surface Razorpay's reason as a
+        # 409 so the buyer sees a clean message ("payment temporarily
+        # unavailable") instead of a 500 stack trace.
+        raise HTTPException(status_code=409, detail=str(exc))
     return link["short_url"]
 
 
