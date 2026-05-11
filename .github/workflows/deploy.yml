@@ -121,6 +121,11 @@ jobs:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
+          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+          RAZORPAY_WEBHOOK_SECRET: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
+          RAZORPAY_PLATFORM_FEE_BPS: ${{ secrets.RAZORPAY_PLATFORM_FEE_BPS }}
+          RAZORPAY_RETURN_URL: ${{ secrets.RAZORPAY_RETURN_URL }}
         run: |
           printf '%s\n' "$DOTENV" > .env
           # Overlay individual secrets so they can be rotated without touching DOTENV.
@@ -148,6 +153,18 @@ jobs:
           if [[ -n "$AZURE_OPENAI_CHAT_DEPLOYMENT" ]]; then
             printf 'AZURE_OPENAI_CHAT_DEPLOYMENT=%s\n' "$AZURE_OPENAI_CHAT_DEPLOYMENT" >> .env
           fi
+          # Razorpay overlays — same rotation pattern. Each secret strips its
+          # DOTENV-baked line (if any) and appends the current value so we can
+          # swap test→live keys (or rotate after a leak) by re-running this
+          # workflow without touching DOTENV.
+          for var in RAZORPAY_KEY_ID RAZORPAY_KEY_SECRET RAZORPAY_WEBHOOK_SECRET RAZORPAY_PLATFORM_FEE_BPS RAZORPAY_RETURN_URL; do
+            value="${!var}"
+            if [[ -n "$value" ]]; then
+              grep -v "^${var}=" .env > .env.tmp || true
+              mv .env.tmp .env
+              printf '%s=%s\n' "$var" "$value" >> .env
+            fi
+          done
 
       - name: Configure SSH
         env:

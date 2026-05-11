@@ -134,7 +134,7 @@ class FeedItemModel {
   /// gated. Backed by `feed_items.price_cents` server-side.
   final int priceCents;
 
-  /// ISO-4217 code Stripe Checkout uses for this listing's price.
+  /// ISO-4217 code Razorpay uses for this listing's price.
   final String currency;
 
   /// Server-computed flag: true for the author of the book and for

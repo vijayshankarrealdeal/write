@@ -1,13 +1,14 @@
 """Reader -> FeedItem purchase ledger.
 
-One row per successful Stripe Checkout for a paid feed item. Written
-only by the Stripe webhook handler after the session reports
-`payment_status == 'paid'`, so the absence of a row means the user has
-not paid (or the webhook hasn't landed yet — the client polls a
-`/purchases/by-item` endpoint right after returning from Checkout).
+One row per successful Razorpay payment for a paid feed item. Written
+only by the Razorpay webhook handler after a `payment.captured` event
+lands for an order we created, so the absence of a row means the user
+has not paid (or the webhook hasn't landed yet — the client polls a
+`/purchases/by-item` endpoint right after returning from the payment
+link).
 
-The `stripe_payment_intent_id` is unique so the webhook can replay
-without double-recording on Stripe's at-least-once delivery.
+The `razorpay_payment_id` is unique so the webhook can replay without
+double-recording on Razorpay's at-least-once delivery.
 """
 import uuid
 from datetime import datetime
@@ -33,13 +34,13 @@ class Purchase(UUIDMixin, Base):
     author_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
-    stripe_payment_intent_id: Mapped[str] = mapped_column(
+    razorpay_payment_id: Mapped[str] = mapped_column(
         String(128), nullable=False, unique=True
     )
-    stripe_checkout_session_id: Mapped[str | None] = mapped_column(String(128))
+    razorpay_order_id: Mapped[str | None] = mapped_column(String(128))
     amount_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     platform_fee_cents: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    currency: Mapped[str] = mapped_column(String(8), nullable=False, default="usd")
+    currency: Mapped[str] = mapped_column(String(8), nullable=False, default="inr")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -48,7 +49,7 @@ class Purchase(UUIDMixin, Base):
     feed_item: Mapped["FeedItem"] = relationship()  # noqa: F821
 
     __table_args__ = (
-        # One purchase per (reader, feed_item). A second Checkout for the
+        # One purchase per (reader, feed_item). A second payment for the
         # same book is a no-op — the unique constraint here is the safety
         # net for the webhook idempotency.
         UniqueConstraint("user_id", "feed_item_id", name="uq_purchases_user_feed_item"),

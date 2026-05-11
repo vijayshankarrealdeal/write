@@ -1,21 +1,25 @@
-"""Monetization: paid books + Stripe Connect.
+"""Monetization: paid books + payments-processor scaffolding.
 
-Adds the schema for the creator-studio paid-publish flow:
+Adds the schema for the creator-studio paid-publish flow. Columns were
+originally created with Stripe-flavoured names; the 20260511_01
+migration renames them to Razorpay since Stripe doesn't support Indian
+merchants. This migration is left in its original shape so a fresh
+database replays cleanly through both migrations.
 
 * `feed_items.price_cents` / `currency` — per-card price. 0 means free
-  (the historical default). Currency is an ISO-4217 code Stripe Checkout
-  accepts; the column is intentionally lax so a future cross-currency
-  rollout doesn't need a second migration.
+  (the historical default). Currency is an ISO-4217 code; the column
+  is intentionally lax so a future cross-currency rollout doesn't need
+  a second migration.
 * `sections.is_free_preview` — when the source feed item is paid, only
   preview-flagged sections are readable by non-purchasers. Ignored on
   free books (the price gate doesn't fire there).
 * `users.stripe_account_id` / `stripe_charges_enabled` — author-side
-  Connect account state. Both null/false until the author runs hosted
-  Stripe onboarding from the publish dialog.
+  processor account state. Renamed to `razorpay_*` by the next
+  migration.
 * `purchases` — reader -> feed_item ledger. One row per successful
-  Checkout. The unique constraint on `stripe_payment_intent_id` is the
+  payment. The unique constraint on the payment id is the
   webhook-replay safety net; the unique `(user_id, feed_item_id)` pair
-  enforces "one purchase per book" so a duplicate Checkout is a no-op.
+  enforces "one purchase per book" so a duplicate payment is a no-op.
 
 Revision ID: 20260510_01
 Revises: 20260509_01

@@ -27,9 +27,9 @@ class FeedItemCreate(BaseModel):
     # the writing. `None` means "leave the flags alone" (mirrors
     # `published_section_ids`).
     free_preview_section_ids: list[UUID] | None = None
-    # Price in the smallest currency unit (cents / paise). 0 = free.
+    # Price in the smallest currency unit (paise / cents). 0 = free.
     # Validated server-side: a positive price requires the calling
-    # author to have completed Stripe Connect onboarding.
+    # author to have completed Razorpay linked-account onboarding.
     price_cents: int | None = None
     currency: str | None = None
     # Accepted-but-ignored — old clients still send chapter bodies in

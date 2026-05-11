@@ -1,20 +1,24 @@
-"""Stripe Connect plumbing — single funnel for creator monetization.
+"""Razorpay Route plumbing — single funnel for creator monetization.
 
 Three external surfaces:
 
-* `start_connect_onboarding(user, db)` — returns a hosted-onboarding URL
-  the author opens in a browser. Creates an Express account on first
-  call, then refreshes the onboarding link on every subsequent call so
-  expired links don't strand the author mid-verification.
-* `create_checkout_session(user, item)` — returns a hosted Checkout URL
-  the reader opens to pay. Uses a destination charge with
-  `application_fee_amount` so the platform's `stripe_platform_fee_bps`
-  cut is withheld at charge time and the remainder lands in the
-  author's connected balance instantly — no separate `transfer` call.
+* `start_connect_onboarding(user, db)` — returns a hosted-onboarding
+  URL the author opens in a browser. Creates a Razorpay Linked Account
+  on first call and requests the Route product to mint an activation
+  form link, then refreshes the link on every subsequent call so
+  expired/stale links don't strand the author mid-KYC.
+* `create_checkout_session(user, item)` — returns a hosted Payment
+  Link URL the reader opens to pay. Creates an Order keyed on the
+  feed item + buyer (metadata in `notes`) and a Payment Link tied to
+  that order. Route transfers are fanned out on the `payment.captured`
+  webhook so the platform's `razorpay_platform_fee_bps` cut is retained
+  and the remainder lands in the author's linked-account balance.
 * `record_purchase_from_event(event, db)` — webhook handler. On
-  `checkout.session.completed` with `payment_status == 'paid'`, writes
-  the `purchases` row keyed on `payment_intent`. Idempotent: replays
-  hit the unique constraint and no-op.
+  `payment.captured` with a matching order in our `notes` map, writes
+  the `purchases` row keyed on `razorpay_payment_id` and creates a
+  Route transfer of `amount - platform_fee` to the author. Idempotent:
+  replays hit the unique constraint and no-op; transfer creation also
+  catches "already transferred" errors.
 
 Authorization isn't checked here. Callers (the routers in
 `app.routers.payments`) verify the requester owns the relevant entity
@@ -34,89 +38,117 @@ from app.models.purchase import Purchase
 from app.models.user import User
 
 
-# Initialise the SDK lazily so a missing key (or a missing `stripe`
-# package on a dev box that doesn't talk to Stripe at all) doesn't
+# Initialise the SDK lazily so a missing key (or a missing `razorpay`
+# package on a dev box that doesn't talk to Razorpay at all) doesn't
 # blow up the process at import time — the routers raise 503 in that
 # case so the rest of the API keeps responding. This is also why we
 # import the module inside the helper instead of at the top.
-def _stripe():
-    if not settings.stripe_secret_key:
+def _razorpay():
+    if not settings.razorpay_key_id or not settings.razorpay_key_secret:
         raise HTTPException(
-            status_code=503, detail="Stripe is not configured on this deployment."
+            status_code=503, detail="Razorpay is not configured on this deployment."
         )
     try:
-        import stripe  # type: ignore[import-untyped]
+        import razorpay  # type: ignore[import-untyped]
     except ImportError as exc:  # pragma: no cover — prod always has it
         raise HTTPException(
             status_code=503,
-            detail="Stripe SDK is not installed on the server.",
+            detail="Razorpay SDK is not installed on the server.",
         ) from exc
-    stripe.api_key = settings.stripe_secret_key
-    return stripe
+    return razorpay.Client(
+        auth=(settings.razorpay_key_id, settings.razorpay_key_secret)
+    )
 
 
 def _platform_fee_cents(amount_cents: int) -> int:
-    """Platform fee in cents for [amount_cents], using
-    `settings.stripe_platform_fee_bps` (basis points). 2000 bps = 20%.
-    Rounds down — the author keeps the fractional cent on cheap items."""
-    return (amount_cents * settings.stripe_platform_fee_bps) // 10_000
+    """Platform fee in paise for [amount_cents], using
+    `settings.razorpay_platform_fee_bps` (basis points). 2000 bps = 20%.
+    Rounds down — the author keeps the fractional paisa on cheap items."""
+    return (amount_cents * settings.razorpay_platform_fee_bps) // 10_000
 
 
 def _return_url(suffix: str = "") -> str:
-    """Where Stripe sends the user after onboarding / Checkout. Falls
-    back to `frontend_origin` so a single config rules both surfaces.
-    Empty origin -> empty URL is rejected by Stripe later, surfacing as
-    a 400 with a clear hint instead of a silent redirect to nowhere.
+    """Where Razorpay sends the user after onboarding / Payment Link.
+    Falls back to `frontend_origin` so a single config rules both
+    surfaces. Empty origin -> empty URL is rejected by Razorpay later,
+    surfacing as a 400 with a clear hint instead of a silent redirect
+    to nowhere.
     """
-    base = settings.stripe_return_url or settings.frontend_origin
+    base = settings.razorpay_return_url or settings.frontend_origin
     return f"{base.rstrip('/')}{suffix}"
 
 
 async def start_connect_onboarding(user: User, db: AsyncSession) -> str:
-    """Return a hosted-onboarding URL for [user]. Creates the Express
-    account on the first call and persists `stripe_account_id` so the
-    next call refreshes the link against the same account.
+    """Return a hosted-onboarding URL for [user]. Creates the Razorpay
+    Linked Account on the first call, requests the Route product, and
+    persists `razorpay_account_id` so the next call refreshes the
+    activation link against the same account.
 
-    Stripe AccountLink URLs expire (~minutes); we always mint a fresh
-    one so an author who started onboarding yesterday and tapped the
-    button again today doesn't hit a dead link.
+    Razorpay activation form links don't expire as aggressively as
+    some processors' onboarding URLs, but we still mint a fresh one
+    each call so an author returning to finish KYC doesn't hit a stale
+    page.
     """
-    s = _stripe()
-    if not user.stripe_account_id:
-        account = s.Account.create(
-            type="express",
-            email=user.email,
-            capabilities={"transfers": {"requested": True}},
-            metadata={"user_id": str(user.id)},
-        )
-        user.stripe_account_id = account.id
+    rzp = _razorpay()
+    if not user.razorpay_account_id:
+        # Razorpay v2 Linked Account creation. `type=route` declares the
+        # marketplace intent; `reference_id` lets us correlate webhook
+        # events back to our local user without an extra lookup.
+        account = rzp.account.create({
+            "email": user.email,
+            "type": "route",
+            "reference_id": str(user.id),
+            "legal_business_name": user.name or "Individual",
+            "business_type": "individual",
+            "contact_name": user.name or "Author",
+            "profile": {
+                "category": "education",
+                "subcategory": "other",
+            },
+        })
+        user.razorpay_account_id = account["id"]
         await db.commit()
         await db.refresh(user)
 
-    link = s.AccountLink.create(
-        account=user.stripe_account_id,
-        refresh_url=_return_url("?stripe_status=onboarding_refresh"),
-        return_url=_return_url("?stripe_status=onboarding_return"),
-        type="account_onboarding",
+    # Request Route product configuration; the response carries the
+    # `activation_form_link` Razorpay hosts for KYC + bank-detail
+    # capture. Idempotent — Razorpay returns the same link for a
+    # still-onboarding account.
+    product = rzp.product.request_product_configuration(
+        user.razorpay_account_id,
+        {
+            "product_name": "route",
+            "tnc_accepted": True,
+        },
     )
-    return link.url
+    link = (
+        product.get("activation_form_link")
+        or product.get("activation_url")
+        or _return_url("?razorpay_status=onboarding_pending")
+    )
+    return link
 
 
 async def refresh_account_status(user: User, db: AsyncSession) -> User:
-    """Re-fetch the account from Stripe and persist `charges_enabled`.
+    """Re-fetch the linked account from Razorpay and persist
+    `razorpay_charges_enabled`.
 
     The webhook below also handles `account.updated` events, but the
     client polls this endpoint right after returning from onboarding so
     the publish dialog can flip from "Set up payouts" to "Ready to
     sell" without a webhook round-trip.
     """
-    if not user.stripe_account_id:
+    if not user.razorpay_account_id:
         return user
-    s = _stripe()
-    account = s.Account.retrieve(user.stripe_account_id)
-    new_state = bool(getattr(account, "charges_enabled", False))
-    if user.stripe_charges_enabled != new_state:
-        user.stripe_charges_enabled = new_state
+    rzp = _razorpay()
+    account = rzp.account.fetch(user.razorpay_account_id)
+    # Razorpay marks a linked account ready to receive transfers when
+    # its `status` is `activated`. Activation requires KYC + bank
+    # details + Route product configuration to be complete.
+    status = (account.get("status") or "").lower()
+    new_state = status == "activated"
+    if user.razorpay_charges_enabled != new_state:
+        user.razorpay_charges_enabled = new_state
         await db.commit()
         await db.refresh(user)
     return user
@@ -125,112 +157,115 @@ async def refresh_account_status(user: User, db: AsyncSession) -> User:
 async def create_checkout_session(
     user: User, item: FeedItem, author: User
 ) -> str:
-    """Return a hosted Checkout URL for `user` to buy `item`.
+    """Return a hosted Payment Link URL for `user` to buy `item`.
 
-    Uses Stripe Connect destination charges: the platform creates the
-    PaymentIntent, takes `application_fee_amount`, and routes the
-    remainder onto the author's connected balance at charge time. No
-    separate transfer / payout step — the author's balance increases
-    the moment Stripe confirms the charge.
+    Uses Razorpay Orders + Payment Links: the platform creates the
+    Order with metadata in `notes` so the webhook can correlate the
+    `payment.captured` event back to our buyer + book, then mints a
+    Payment Link tied to that order. The Route transfer (amount minus
+    platform fee) is fanned out on capture rather than at order
+    creation, which keeps the author's payout idempotent against the
+    webhook and avoids holding funds if the buyer abandons checkout.
 
     Caller has already verified `item.price_cents > 0` and that the
-    author has `stripe_charges_enabled`. Anything weaker would let a
-    reader create Checkout sessions for free items or for authors who
+    author has `razorpay_charges_enabled`. Anything weaker would let a
+    reader create payment sessions for free items or for authors who
     can't legally accept money yet.
     """
-    s = _stripe()
-    fee = _platform_fee_cents(item.price_cents)
-    session = s.checkout.Session.create(
-        mode="payment",
-        line_items=[
-            {
-                "price_data": {
-                    "currency": item.currency,
-                    "product_data": {
-                        "name": item.title or "Untitled",
-                        "description": (item.description or "")[:500] or None,
-                    },
-                    "unit_amount": item.price_cents,
-                },
-                "quantity": 1,
-            }
-        ],
-        payment_intent_data={
-            "application_fee_amount": fee,
-            "transfer_data": {"destination": author.stripe_account_id},
-            "metadata": {
-                "feed_item_id": str(item.id),
-                "buyer_id": str(user.id),
-                "author_id": str(author.id),
-            },
+    rzp = _razorpay()
+    notes = {
+        "feed_item_id": str(item.id),
+        "buyer_id": str(user.id),
+        "author_id": str(author.id),
+    }
+    order = rzp.order.create({
+        "amount": item.price_cents,
+        "currency": item.currency.upper(),
+        "notes": notes,
+    })
+    link = rzp.payment_link.create({
+        "amount": item.price_cents,
+        "currency": item.currency.upper(),
+        "accept_partial": False,
+        "description": (item.title or "Untitled")[:255],
+        "customer": {
+            "email": user.email,
+            "name": user.name or "",
         },
-        # `metadata` on the Session itself so the webhook handler can
-        # reach it without a separate PaymentIntent retrieve.
-        metadata={
-            "feed_item_id": str(item.id),
-            "buyer_id": str(user.id),
-            "author_id": str(author.id),
-        },
-        customer_email=user.email,
-        success_url=_return_url(
-            f"?stripe_status=purchase_success&feed_item_id={item.id}"
+        "notify": {"sms": False, "email": False},
+        "reminder_enable": False,
+        "notes": {**notes, "order_id": order["id"]},
+        "callback_url": _return_url(
+            f"?razorpay_status=purchase_success&feed_item_id={item.id}"
         ),
-        cancel_url=_return_url(
-            f"?stripe_status=purchase_cancel&feed_item_id={item.id}"
-        ),
-    )
-    return session.url
+        "callback_method": "get",
+    })
+    return link["short_url"]
 
 
 def parse_webhook_event(payload: bytes, sig_header: str | None):
-    """Verify the Stripe webhook signature and return the parsed event.
+    """Verify the Razorpay webhook signature and return the parsed event.
 
     Raises 400 on a missing/invalid signature so a tampered or replayed
-    payload from outside Stripe doesn't reach `record_purchase_from_event`.
+    payload from outside Razorpay doesn't reach `record_purchase_from_event`.
     """
-    s = _stripe()
-    if not settings.stripe_webhook_secret:
+    import json
+
+    rzp = _razorpay()
+    if not settings.razorpay_webhook_secret:
         raise HTTPException(
             status_code=503,
-            detail="Stripe webhook secret is not configured.",
+            detail="Razorpay webhook secret is not configured.",
         )
     if not sig_header:
-        raise HTTPException(status_code=400, detail="Missing Stripe signature.")
+        raise HTTPException(status_code=400, detail="Missing Razorpay signature.")
     try:
-        return s.Webhook.construct_event(
-            payload, sig_header, settings.stripe_webhook_secret
+        rzp.utility.verify_webhook_signature(
+            payload.decode("utf-8"),
+            sig_header,
+            settings.razorpay_webhook_secret,
         )
-    except Exception as e:  # stripe.error.SignatureVerificationError or ValueError
+    except Exception as e:  # razorpay.errors.SignatureVerificationError or ValueError
         raise HTTPException(status_code=400, detail=f"Invalid signature: {e}")
+    try:
+        return json.loads(payload.decode("utf-8"))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid payload: {e}")
 
 
 async def record_purchase_from_event(event, db: AsyncSession) -> None:
-    """Persist a Purchase row when a Checkout session reports paid.
+    """Persist a Purchase row when a payment is captured and fan out
+    the Route transfer to the author.
 
-    Idempotent on `stripe_payment_intent_id`: a webhook replay hits the
+    Idempotent on `razorpay_payment_id`: a webhook replay hits the
     unique index and no-ops. The unique `(user_id, feed_item_id)` pair
-    is the safety net against a buyer ever opening two Checkout sessions
+    is the safety net against a buyer ever opening two Payment Links
     for the same book — the second insert raises and we discard it.
     """
-    etype = event.get("type") or event["type"]
-    if etype == "account.updated":
+    etype = event.get("event") or event.get("type") or ""
+    if etype.startswith("account."):
         await _apply_account_updated(event, db)
         return
-    if etype != "checkout.session.completed":
+    if etype != "payment.captured":
         return
-    session = event["data"]["object"]
-    if session.get("payment_status") != "paid":
+    payload = event.get("payload") or {}
+    payment_envelope = payload.get("payment") or {}
+    payment = payment_envelope.get("entity") or {}
+    if not payment:
         return
-    metadata = session.get("metadata") or {}
-    feed_item_id_raw = metadata.get("feed_item_id")
-    buyer_id_raw = metadata.get("buyer_id")
-    author_id_raw = metadata.get("author_id")
+    if (payment.get("status") or "").lower() != "captured":
+        return
+    notes = payment.get("notes") or {}
+    feed_item_id_raw = notes.get("feed_item_id")
+    buyer_id_raw = notes.get("buyer_id")
+    author_id_raw = notes.get("author_id")
     if not (feed_item_id_raw and buyer_id_raw and author_id_raw):
-        # Not a checkout we created (e.g. a future product). Drop it.
+        # Not a payment we created (e.g. a future product, or a Payment
+        # Link minted outside this funnel). Drop it.
         return
 
-    payment_intent_id = session.get("payment_intent")
-    if not payment_intent_id:
+    payment_id = payment.get("id")
+    if not payment_id:
         return
     try:
         feed_item_id = uuid.UUID(feed_item_id_raw)
@@ -241,21 +276,22 @@ async def record_purchase_from_event(event, db: AsyncSession) -> None:
 
     existing = await db.execute(
         select(Purchase).where(
-            Purchase.stripe_payment_intent_id == payment_intent_id
+            Purchase.razorpay_payment_id == payment_id
         )
     )
     if existing.scalar_one_or_none() is not None:
         return
 
-    amount_total = int(session.get("amount_total") or 0)
-    currency = (session.get("currency") or "usd").lower()
+    amount_total = int(payment.get("amount") or 0)
+    currency = (payment.get("currency") or "inr").lower()
     fee_cents = _platform_fee_cents(amount_total)
+    order_id = payment.get("order_id") or notes.get("order_id")
     purchase = Purchase(
         user_id=buyer_id,
         feed_item_id=feed_item_id,
         author_id=author_id,
-        stripe_payment_intent_id=str(payment_intent_id),
-        stripe_checkout_session_id=str(session.get("id") or "") or None,
+        razorpay_payment_id=str(payment_id),
+        razorpay_order_id=str(order_id) if order_id else None,
         amount_cents=amount_total,
         platform_fee_cents=fee_cents,
         currency=currency,
@@ -265,28 +301,72 @@ async def record_purchase_from_event(event, db: AsyncSession) -> None:
         await db.commit()
     except Exception:
         # Lost a race with the unique constraint — another worker
-        # already recorded this purchase. Roll back and continue.
+        # already recorded this purchase. Roll back and continue; the
+        # transfer below is also idempotent so the duplicate-webhook
+        # path is safe.
         await db.rollback()
+        return
+
+    # Fan out the Route transfer to the author's linked account. The
+    # platform keeps `fee_cents`; the author receives the remainder.
+    # Razorpay rejects a second transfer-from-payment for the same
+    # payment_id, so this is naturally idempotent against webhook
+    # replays.
+    author_q = await db.execute(select(User).where(User.id == author_id))
+    author = author_q.scalar_one_or_none()
+    if author is None or not author.razorpay_account_id:
+        return
+    net_cents = max(0, amount_total - fee_cents)
+    if net_cents <= 0:
+        return
+    try:
+        rzp = _razorpay()
+        rzp.payment.transfer(
+            payment_id,
+            {
+                "transfers": [
+                    {
+                        "account": author.razorpay_account_id,
+                        "amount": net_cents,
+                        "currency": currency.upper(),
+                        "notes": {
+                            "feed_item_id": str(feed_item_id),
+                            "author_id": str(author_id),
+                        },
+                        "on_hold": 0,
+                    }
+                ]
+            },
+        )
+    except Exception:
+        # Already-transferred / linked account not yet activated /
+        # transient network error. The transfer can be reconciled
+        # out-of-band; we don't fail the webhook (Razorpay would
+        # otherwise keep retrying and the purchase row is already saved).
+        pass
 
 
 async def _apply_account_updated(event, db: AsyncSession) -> None:
-    """Mirror Stripe's `charges_enabled` onto the local user row so the
-    publish dialog reflects onboarding completion without a manual
-    refresh.
+    """Mirror Razorpay's linked-account `status` onto the local user
+    row so the publish dialog reflects onboarding completion without a
+    manual refresh.
     """
-    account = event["data"]["object"]
+    payload = event.get("payload") or {}
+    account_envelope = payload.get("account") or {}
+    account = account_envelope.get("entity") or {}
     account_id = account.get("id")
     if not account_id:
         return
     result = await db.execute(
-        select(User).where(User.stripe_account_id == account_id)
+        select(User).where(User.razorpay_account_id == account_id)
     )
     user = result.scalar_one_or_none()
     if user is None:
         return
-    new_state = bool(account.get("charges_enabled"))
-    if user.stripe_charges_enabled != new_state:
-        user.stripe_charges_enabled = new_state
+    status = (account.get("status") or "").lower()
+    new_state = status == "activated"
+    if user.razorpay_charges_enabled != new_state:
+        user.razorpay_charges_enabled = new_state
         await db.commit()
 
 

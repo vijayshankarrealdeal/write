@@ -1,17 +1,17 @@
-"""Payments API — author onboarding, reader checkout, Stripe webhook.
+"""Payments API — author onboarding, reader checkout, Razorpay webhook.
 
-Surfaces the three entry points the Flutter client needs:
+Surfaces the entry points the Flutter client needs:
 
-* `POST /api/payments/connect/onboard` — author opens hosted Stripe
-  onboarding for their Express account.
+* `POST /api/payments/connect/onboard` — author opens hosted Razorpay
+  Linked Account onboarding (activation form for KYC + bank details).
 * `GET  /api/payments/connect/status` — refresh + return whether the
   author can take charges yet.
 * `POST /api/payments/checkout/{feed_item_id}` — reader gets a hosted
-  Checkout URL for a paid book.
+  Payment Link URL for a paid book.
 * `GET  /api/payments/purchases/by-item/{feed_item_id}` — short poll
-  the client uses on return from Checkout to detect that the webhook
+  the client uses on return from checkout to detect that the webhook
   has landed and the purchase row is live.
-* `POST /api/payments/webhook` — Stripe webhook receiver. Anonymous;
+* `POST /api/payments/webhook` — Razorpay webhook receiver. Anonymous;
   signature-verified.
 
 Authorization is enforced here before delegating to `app.payments`.
@@ -70,11 +70,12 @@ async def start_onboarding(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Mint a hosted onboarding URL for the calling author's Express
-    account. Idempotent — second tap on a still-onboarding author
-    returns a fresh link against the same account."""
+    """Mint a hosted onboarding URL for the calling author's Razorpay
+    Linked Account. Idempotent — second tap on a still-onboarding
+    author returns a fresh activation form link against the same
+    account."""
     url = await start_connect_onboarding(user, db)
-    return OnboardResponse(url=url, account_id=user.stripe_account_id)
+    return OnboardResponse(url=url, account_id=user.razorpay_account_id)
 
 
 @router.get("/connect/status", response_model=StatusResponse)
@@ -82,16 +83,16 @@ async def get_status(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Refresh the author's Connect status from Stripe and return it.
-    The client polls this on return from onboarding so the publish
-    dialog flips from "Set up payouts" to "Ready to sell" without
-    waiting for the `account.updated` webhook."""
-    if user.stripe_account_id:
+    """Refresh the author's Razorpay status and return it. The client
+    polls this on return from onboarding so the publish dialog flips
+    from "Set up payouts" to "Ready to sell" without waiting for the
+    `account.updated` webhook."""
+    if user.razorpay_account_id:
         user = await refresh_account_status(user, db)
     return StatusResponse(
-        account_id=user.stripe_account_id,
-        charges_enabled=user.stripe_charges_enabled,
-        platform_fee_bps=settings.stripe_platform_fee_bps,
+        account_id=user.razorpay_account_id,
+        charges_enabled=user.razorpay_charges_enabled,
+        platform_fee_bps=settings.razorpay_platform_fee_bps,
     )
 
 
@@ -101,7 +102,7 @@ async def start_checkout(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Create a hosted Stripe Checkout session for [feed_item_id].
+    """Create a hosted Razorpay Payment Link for [feed_item_id].
 
     Rejects:
 
@@ -109,8 +110,8 @@ async def start_checkout(
       so existence isn't leaked through the payments surface).
     * free items (400 — there's nothing to charge for).
     * the author trying to buy their own book (400).
-    * an author who hasn't finished Connect onboarding (409 — the
-      destination charge would otherwise fail at confirm time).
+    * an author who hasn't finished onboarding (409 — the Route
+      transfer would otherwise fail at capture time).
     * an item the user already owns (409 — surface the existing
       purchase so the client can navigate to the read view instead).
     """
@@ -144,7 +145,11 @@ async def start_checkout(
     author = (
         await db.execute(select(User).where(User.id == item.author_id))
     ).scalar_one_or_none()
-    if author is None or not author.stripe_account_id or not author.stripe_charges_enabled:
+    if (
+        author is None
+        or not author.razorpay_account_id
+        or not author.razorpay_charges_enabled
+    ):
         raise HTTPException(
             status_code=409,
             detail="The author hasn't finished setting up payouts yet.",
@@ -165,8 +170,8 @@ async def get_purchase_for_item(
 ):
     """Has the calling user purchased this feed item?
 
-    Used by the post-Checkout return path: the client polls until
-    `purchased` flips True (the Stripe webhook landed) so the reader
+    Used by the post-checkout return path: the client polls until
+    `purchased` flips True (the Razorpay webhook landed) so the reader
     transitions straight into the unlocked book without a hard refresh.
     """
     purchase = (
@@ -188,19 +193,19 @@ async def get_purchase_for_item(
 
 
 @router.post("/webhook")
-async def stripe_webhook(
+async def razorpay_webhook(
     request: Request,
     db: AsyncSession = Depends(get_db),
 ):
-    """Stripe webhook receiver. Anonymous — auth is the signature.
+    """Razorpay webhook receiver. Anonymous — auth is the signature.
 
-    Handles `checkout.session.completed` (writes the Purchase row) and
-    `account.updated` (mirrors `charges_enabled` onto the author user).
-    Returns `{"received": True}` on every signature-valid call so
-    Stripe stops retrying.
+    Handles `payment.captured` (writes the Purchase row + fans out the
+    Route transfer to the author) and `account.updated` (mirrors
+    activation state onto the author user). Returns `{"received": True}`
+    on every signature-valid call so Razorpay stops retrying.
     """
     payload = await request.body()
-    sig = request.headers.get("stripe-signature")
+    sig = request.headers.get("x-razorpay-signature")
     event = parse_webhook_event(payload, sig)
     await record_purchase_from_event(event, db)
     return {"received": True}

@@ -69,17 +69,17 @@ class _PublishPageState extends State<PublishPage> {
   Set<String> _alreadyPublishedIds = {};
 
   // Monetization. `_isPaid` flips the flow into "set a price + pick free
-  // preview chapters". Price is captured in cents to match the backend
+  // preview chapters". Price is captured in paise to match the backend
   // column (`feed_items.price_cents`). The author can publish a paid
   // book only when `_connectStatus.chargesEnabled` is true; the UI
-  // surfaces a "Set up payouts" CTA otherwise that opens hosted Stripe
-  // onboarding via `url_launcher`.
+  // surfaces a "Set up payouts" CTA otherwise that opens the hosted
+  // Razorpay activation form via `url_launcher`.
   bool _isPaid = false;
   late final TextEditingController _priceController;
-  String _priceCurrency = 'usd';
+  String _priceCurrency = 'inr';
   final Set<String> _freePreviewSectionIds = {};
   ConnectStatus? _connectStatus;
-  bool _stripeBusy = false;
+  bool _payoutsBusy = false;
 
   List<String> get _suggestedTags {
     final typeForSuggestions = _publishType ?? widget.book.writingType;
@@ -136,9 +136,9 @@ class _PublishPageState extends State<PublishPage> {
     }
   }
 
-  Future<void> _startStripeOnboarding() async {
-    if (_stripeBusy) return;
-    setState(() => _stripeBusy = true);
+  Future<void> _startPayoutsOnboarding() async {
+    if (_payoutsBusy) return;
+    setState(() => _payoutsBusy = true);
     try {
       final url = await _paymentsService().startOnboarding();
       final ok = await launchUrl(
@@ -149,12 +149,12 @@ class _PublishPageState extends State<PublishPage> {
     } catch (e) {
       if (mounted) {
         _showAlert(
-          'Stripe setup failed',
+          'Razorpay setup failed',
           e.toString().replaceFirst('Exception: ', ''),
         );
       }
     } finally {
-      if (mounted) setState(() => _stripeBusy = false);
+      if (mounted) setState(() => _payoutsBusy = false);
     }
   }
 
@@ -209,7 +209,7 @@ class _PublishPageState extends State<PublishPage> {
                   (existing.priceCents / 100).toStringAsFixed(2);
               _priceCurrency = existing.currency.isNotEmpty
                   ? existing.currency
-                  : 'usd';
+                  : 'inr';
             }
             for (final s in existing.sections) {
               if (s.isFreePreview) {
@@ -531,7 +531,7 @@ class _PublishPageState extends State<PublishPage> {
       if (!_canSell) {
         _showAlert(
           "Set up payouts first",
-          "Finish Stripe payouts setup before publishing a paid book. "
+          "Finish Razorpay payouts setup before publishing a paid book. "
               "Tap 'Set up payouts' below to continue.",
         );
         return;
@@ -583,7 +583,7 @@ class _PublishPageState extends State<PublishPage> {
             .where((id) => _freePreviewSectionIds.contains(id))
             .toList()
         : <String>[];
-    final currencyToSend = _isPaid ? _priceCurrency : 'usd';
+    final currencyToSend = _isPaid ? _priceCurrency : 'inr';
 
     // Per-publish notification tag — different books / republishes
     // get their own progress slot in the tray.
@@ -1739,7 +1739,7 @@ class _PublishPageState extends State<PublishPage> {
           _isPaid
               ? "Readers pay to unlock the book. You receive their "
                   "payment minus a $feePct% platform fee, instantly into "
-                  "your Stripe balance."
+                  "your Razorpay balance."
               : "Free for everyone. Switch on to charge for this book.",
           style: GoogleFonts.inter(fontSize: 12, color: mutedColor),
         ),
@@ -1774,7 +1774,7 @@ class _PublishPageState extends State<PublishPage> {
                       color: textColor,
                     ),
                     decoration: InputDecoration(
-                      hintText: '4.99',
+                      hintText: '199',
                       hintStyle: GoogleFonts.inter(
                         color: mutedColor.withValues(alpha: 0.6),
                       ),
@@ -1803,7 +1803,7 @@ class _PublishPageState extends State<PublishPage> {
           const SizedBox(height: 14),
           if (!_canSell)
             GestureDetector(
-              onTap: _stripeBusy ? null : _startStripeOnboarding,
+              onTap: _payoutsBusy ? null : _startPayoutsOnboarding,
               child: Container(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 14, vertical: 12),
@@ -1821,8 +1821,8 @@ class _PublishPageState extends State<PublishPage> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        _stripeBusy
-                            ? "Opening Stripe…"
+                        _payoutsBusy
+                            ? "Opening Razorpay…"
                             : "Set up payouts to publish a paid book",
                         style: GoogleFonts.inter(
                           fontSize: 13,

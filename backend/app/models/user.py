@@ -33,15 +33,16 @@ class User(UUIDMixin, Base):
     favorite_posts: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     section_bookmarks: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
 
-    # Stripe Connect (Express) account. Populated after the author
-    # completes hosted onboarding. `stripe_charges_enabled` mirrors the
-    # `charges_enabled` flag from the Account object — only true once
-    # the author has cleared identity verification, at which point
-    # destination charges can route money into their balance at the
-    # moment of charge (minus our `application_fee_amount`). Both fields
-    # are null for readers who never opt into selling.
-    stripe_account_id: Mapped[str | None] = mapped_column(String(64))
-    stripe_charges_enabled: Mapped[bool] = mapped_column(
+    # Razorpay Linked Account (Route). Populated after the author taps
+    # "Set up payouts" — the backend creates the account and requests the
+    # Route product, then hands the author the activation form link to
+    # complete KYC. `razorpay_charges_enabled` mirrors the linked
+    # account's activation state and only flips true once Razorpay has
+    # cleared KYC, at which point Route transfers from captured payments
+    # land in the author's balance (minus our platform fee). Both fields
+    # are null/false for readers who never opt into selling.
+    razorpay_account_id: Mapped[str | None] = mapped_column(String(64))
+    razorpay_charges_enabled: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
 

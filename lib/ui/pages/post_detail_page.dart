@@ -142,11 +142,11 @@ class _PostDetailPageState extends State<PostDetailPage>
   // `widget.item`, so the chapter list paints once the detail fetch lands.
   late FeedItemModel _item;
 
-  // -- Stripe Checkout state. `_checkoutBusy` guards the buy CTA against
-  // double-tap. After returning from hosted Checkout we poll the
-  // purchases endpoint until the webhook lands, then refresh the item
-  // so the reader UI flips from "Buy" to fully unlocked without the
-  // user having to back out and re-enter the page.
+  // -- Razorpay Payment Link state. `_checkoutBusy` guards the buy
+  // CTA against double-tap. After returning from the hosted payment
+  // page we poll the purchases endpoint until the webhook lands, then
+  // refresh the item so the reader UI flips from "Buy" to fully
+  // unlocked without the user having to back out and re-enter the page.
   bool _checkoutBusy = false;
 
   // -- Two-level navigation: null = overview, int = section detail --
@@ -445,15 +445,16 @@ class _PostDetailPageState extends State<PostDetailPage>
   // Also refresh the signed-in user so the heart's filled state matches
   // likes the user gave on a different device.
   // --------------------------------------------------------------------------
-  // Stripe Checkout flow.
+  // Razorpay Payment Link flow.
   //
-  // Backend mints a hosted Checkout URL (destination charge with a
-  // platform-fee cut), we open it via `url_launcher`, then poll the
-  // purchases endpoint until the webhook lands. A poll-based gate
-  // beats listening for app-foreground events because the user might
-  // complete the payment in a browser tab and never return to the app
-  // — once they do, the next render hits a freshly-`purchased=true`
-  // item and the gate dissolves.
+  // Backend mints a hosted Payment Link URL (an Order with metadata
+  // notes that the webhook handler uses to fan out a Route transfer
+  // to the author on capture), we open it via `url_launcher`, then
+  // poll the purchases endpoint until the webhook lands. A poll-based
+  // gate beats listening for app-foreground events because the user
+  // might complete the payment in a browser tab and never return to
+  // the app — once they do, the next render hits a freshly-
+  // `purchased=true` item and the gate dissolves.
   // --------------------------------------------------------------------------
   Future<void> _startCheckout() async {
     if (_checkoutBusy) return;
@@ -4872,9 +4873,9 @@ class _TagWrap extends StatelessWidget {
 // BUY BANNER — paid books, viewer hasn't purchased
 //
 // Surfaces price, the platform's promise (instant payout to author), and
-// a single CTA that opens hosted Stripe Checkout via `url_launcher`.
-// The detail page polls the purchases endpoint after the user returns
-// so the gate dissolves the moment the webhook lands.
+// a single CTA that opens a hosted Razorpay Payment Link via
+// `url_launcher`. The detail page polls the purchases endpoint after
+// the user returns so the gate dissolves the moment the webhook lands.
 // ============================================================================
 class _BuyBanner extends StatelessWidget {
   final FeedItemModel item;
@@ -4937,7 +4938,7 @@ class _BuyBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Pays the author instantly via Stripe',
+                  'Pays the author instantly via Razorpay',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: textColor.withValues(alpha: 0.7),

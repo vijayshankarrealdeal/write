@@ -479,13 +479,13 @@ async def create_feed_item(
             status_code=400, detail="writing_id does not belong to user"
         )
     # Pricing gate: a positive price requires the calling author to
-    # have completed Stripe Connect onboarding, otherwise the destination
-    # charge would 400 at Checkout time and strand readers in a broken
-    # buy flow. Free publishes (price_cents <= 0) bypass this entirely.
-    if (payload.get("price_cents") or 0) > 0 and not user.stripe_charges_enabled:
+    # have completed Razorpay onboarding, otherwise the Route transfer
+    # would fail at capture time and strand readers in a broken buy
+    # flow. Free publishes (price_cents <= 0) bypass this entirely.
+    if (payload.get("price_cents") or 0) > 0 and not user.razorpay_charges_enabled:
         raise HTTPException(
             status_code=409,
-            detail="Finish Stripe payouts setup before pricing a book.",
+            detail="Finish Razorpay payouts setup before pricing a book.",
         )
     # Author's curation step: flip per-section is_published bits before
     # we upsert the feed card so a reader hitting the listing endpoints
@@ -699,12 +699,12 @@ async def update_feed_item(
             writing_id=item.writing_id,
             preview_ids=free_preview_section_ids,
         )
-    # Same gate as create — a positive price requires Connect onboarding.
+    # Same gate as create — a positive price requires Razorpay onboarding.
     if "price_cents" in payload and (payload["price_cents"] or 0) > 0:
-        if not user.stripe_charges_enabled:
+        if not user.razorpay_charges_enabled:
             raise HTTPException(
                 status_code=409,
-                detail="Finish Stripe payouts setup before pricing a book.",
+                detail="Finish Razorpay payouts setup before pricing a book.",
             )
         payload["price_cents"] = max(0, int(payload["price_cents"]))
     if "currency" in payload and payload["currency"]:

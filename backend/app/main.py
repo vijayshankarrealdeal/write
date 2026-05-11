@@ -115,12 +115,15 @@ async def lifespan(app: FastAPI):
         ):
             await conn.execute(text(f"ALTER TABLE writings {col_sql}"))
         # Monetization (creator studio): paid feed items + free-preview
-        # section gate + Stripe Connect author state. Idempotent for dev
-        # DBs that bypass Alembic. Mirrors backend/alembic/versions/
-        # 20260510_01_monetization.py.
+        # section gate + Razorpay linked-account state. Idempotent for
+        # dev DBs that bypass Alembic. Mirrors backend/alembic/versions/
+        # 20260510_01_monetization.py + 20260511_01_razorpay_rename.py
+        # collapsed to a single bootstrap (we land directly on the
+        # post-rename column names so a fresh dev DB doesn't go through
+        # the intermediate Stripe-flavoured schema).
         for col_sql in (
             "ADD COLUMN IF NOT EXISTS price_cents INTEGER NOT NULL DEFAULT 0",
-            "ADD COLUMN IF NOT EXISTS currency VARCHAR(8) NOT NULL DEFAULT 'usd'",
+            "ADD COLUMN IF NOT EXISTS currency VARCHAR(8) NOT NULL DEFAULT 'inr'",
         ):
             await conn.execute(text(f"ALTER TABLE feed_items {col_sql}"))
         await conn.execute(text(
@@ -128,8 +131,8 @@ async def lifespan(app: FastAPI):
             "ADD COLUMN IF NOT EXISTS is_free_preview BOOLEAN NOT NULL DEFAULT FALSE"
         ))
         for col_sql in (
-            "ADD COLUMN IF NOT EXISTS stripe_account_id VARCHAR(64)",
-            "ADD COLUMN IF NOT EXISTS stripe_charges_enabled BOOLEAN NOT NULL DEFAULT FALSE",
+            "ADD COLUMN IF NOT EXISTS razorpay_account_id VARCHAR(64)",
+            "ADD COLUMN IF NOT EXISTS razorpay_charges_enabled BOOLEAN NOT NULL DEFAULT FALSE",
         ):
             await conn.execute(text(f"ALTER TABLE users {col_sql}"))
         # Phase 3 (P2): paragraph-precise resume anchor columns on
