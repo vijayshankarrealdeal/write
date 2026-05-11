@@ -67,6 +67,25 @@ def _platform_fee_cents(amount_cents: int) -> int:
     return (amount_cents * settings.razorpay_platform_fee_bps) // 10_000
 
 
+def _friendly_error(exc: Exception) -> str:
+    """Translate a Razorpay-raised exception into a user-facing message.
+
+    Most Razorpay rejections (validation, duplicate, etc.) are useful
+    verbatim — they tell the author what to fix. The one we hit
+    repeatedly during early-stage launches is "Route feature not enabled
+    for the merchant", which is opaque to end users and isn't
+    actionable on their end. Rewrite that one specifically; pass
+    everything else through.
+    """
+    raw = str(exc)
+    if "Route feature not enabled" in raw:
+        return (
+            "Payouts setup is awaiting approval from our payment "
+            "processor. Please check back in 1–2 business days."
+        )
+    return raw
+
+
 def _return_url(suffix: str = "") -> str:
     """Where Razorpay sends the user after onboarding / Payment Link.
     Falls back to `frontend_origin` so a single config rules both
@@ -125,14 +144,11 @@ async def start_connect_onboarding(user: User, db: AsyncSession) -> str:
         )
     except Exception as exc:
         # Surface Razorpay's own message as a 409 instead of a generic
-        # 500. Common cases we hit here:
-        #   * "Route feature not enabled for the merchant" — the
-        #     platform hasn't been approved for Route yet; the author
-        #     can't be onboarded until Razorpay grants access.
-        #   * Field validation errors on the v2 account payload.
-        # 409 lets the Flutter client show the verbatim reason in the
-        # publish dialog without leaking a stack trace.
-        raise HTTPException(status_code=409, detail=str(exc))
+        # 500. Special-case the "Route feature not enabled" rejection
+        # we hit while the platform's Route product approval is still
+        # in Razorpay's queue — readers/authors shouldn't be told the
+        # raw processor error; they should be told to come back later.
+        raise HTTPException(status_code=409, detail=_friendly_error(exc))
 
     link = (
         product.get("activation_form_link")
@@ -225,7 +241,7 @@ async def create_checkout_session(
         # Same pattern as onboarding — surface Razorpay's reason as a
         # 409 so the buyer sees a clean message ("payment temporarily
         # unavailable") instead of a 500 stack trace.
-        raise HTTPException(status_code=409, detail=str(exc))
+        raise HTTPException(status_code=409, detail=_friendly_error(exc))
     return link["short_url"]
 
 
