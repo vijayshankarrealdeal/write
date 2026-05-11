@@ -1342,7 +1342,7 @@ class EditorProvider extends ChangeNotifier {
       sections: [
         SectionModel(
           id: manuscriptId,
-          title: 'Manuscript',
+          title: 'main',
           content: '',
           kind: SectionKind.folder,
           order: 0,
@@ -1580,7 +1580,7 @@ class EditorProvider extends ChangeNotifier {
     if (manuscript == null) {
       manuscript = SectionModel(
         id: _folderUuid(book.id, SectionKind.folder),
-        title: 'Manuscript',
+        title: 'main',
         content: '',
         kind: SectionKind.folder,
         order: 0,
@@ -1588,6 +1588,10 @@ class EditorProvider extends ChangeNotifier {
         includeInPublish: true,
       );
       book.sections.add(manuscript);
+      changed = true;
+    } else if (manuscript.title == 'Manuscript') {
+      manuscript.title = 'main';
+      manuscript.isSynced = false;
       changed = true;
     }
     if (findFolder(SectionKind.research) == null) {
@@ -1615,19 +1619,28 @@ class EditorProvider extends ChangeNotifier {
       changed = true;
     }
 
-    // Step 3: adopt orphan top-level chapters/scenes into the Manuscript
-    // folder so legacy flat writings keep all their existing chapters
-    // visible.
+    // Step 3: adopt orphan chapters/scenes into the Manuscript folder so
+    // legacy flat writings keep all their existing chapters visible. An
+    // orphan is either a parent_id=null section or one whose parent_id
+    // points to a section that no longer exists (e.g. from a partial
+    // sync or a folder removed on another device) — the binder walks
+    // from parent_id=null and never visits phantom-rooted subtrees, so
+    // those sections would otherwise be invisible.
+    final knownIds = <String>{for (final s in book.sections) s.id};
     var nextOrder = 0;
     for (final s in book.sections) {
       if (s.id == manuscript.id) continue;
-      if (s.parentId == null &&
-          s.kind != SectionKind.folder &&
-          s.kind != SectionKind.research &&
-          s.kind != SectionKind.trash &&
-          s.kind != SectionKind.act) {
+      final isStructural = s.kind == SectionKind.folder ||
+          s.kind == SectionKind.research ||
+          s.kind == SectionKind.trash ||
+          s.kind == SectionKind.act;
+      if (isStructural) continue;
+      final hasPhantomParent =
+          s.parentId != null && !knownIds.contains(s.parentId);
+      if (s.parentId == null || hasPhantomParent) {
         s.parentId = manuscript.id;
         s.order = nextOrder++;
+        if (hasPhantomParent) s.isSynced = false;
         changed = true;
       }
     }

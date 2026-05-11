@@ -13,6 +13,7 @@ import {
   ChevronUp,
   Smartphone,
   TrendingUp,
+  Globe,
 } from "lucide-react";
 import {
   BarChart,
@@ -770,6 +771,33 @@ function AnalyticsTab() {
           ) : (
             <Empty label="No page-visit data yet" />
           )}
+        </Card>
+
+        <Card icon={Globe} title="User regions">
+          {breakdown?.regions?.length ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={breakdown.regions} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis type="number" stroke="#6b7280" fontSize={12} />
+                <YAxis
+                  type="category"
+                  dataKey="label"
+                  stroke="#6b7280"
+                  fontSize={11}
+                  width={80}
+                />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8 }}
+                />
+                <Bar dataKey="count" fill="#f472b6" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <Empty label="No region data yet" />
+          )}
+          <div className="text-xs text-gray-500 mt-2">
+            Derived from device locale country (e.g. en_US → US). Not GPS, not IP.
+          </div>
         </Card>
 
       </div>

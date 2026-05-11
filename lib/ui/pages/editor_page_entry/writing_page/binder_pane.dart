@@ -113,7 +113,7 @@ class _BinderPaneState extends State<BinderPane> {
                       ),
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      padding: const EdgeInsets.symmetric(vertical: 4),
                       itemCount: tree.length,
                       itemBuilder: (context, idx) {
                         final node = tree[idx];
@@ -570,7 +570,7 @@ class _BinderRow extends StatelessWidget {
     final labelColor =
         section.labelColor != null ? Color(section.labelColor!) : null;
     return Padding(
-      padding: EdgeInsets.only(left: indent, right: 6, top: 1, bottom: 1),
+      padding: EdgeInsets.only(left: indent, right: 6),
       child: DragTarget<SectionModel>(
         onWillAcceptWithDetails: (_) {
           onHoverChange(section.id, null);
@@ -900,6 +900,7 @@ class _BinderRowSurface extends StatelessWidget {
     final tintedBg = labelColor?.withValues(alpha: isDark ? 0.18 : 0.10) ??
         Colors.transparent;
     final iconColor = textColor.withValues(alpha: 0.55);
+    final kindColor = _kindColor(section.kind);
     return Material(
       color: background == Colors.transparent ? accentBg : background,
       borderRadius: BorderRadius.circular(8),
@@ -911,7 +912,7 @@ class _BinderRowSurface extends StatelessWidget {
             color: tintedBg,
             borderRadius: BorderRadius.circular(8),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
           child: Row(
             children: [
               if (node.hasChildren)
@@ -919,35 +920,35 @@ class _BinderRowSurface extends StatelessWidget {
                   onTap: onToggleExpand,
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 1),
                     child: Icon(
                       isExpanded
                           ? CupertinoIcons.chevron_down
                           : CupertinoIcons.chevron_right,
-                      size: 11,
+                      size: 9,
                       color: iconColor,
                     ),
                   ),
                 )
               else
-                const SizedBox(width: 14),
-              const SizedBox(width: 4),
+                const SizedBox(width: 11),
+              const SizedBox(width: 2),
               Icon(
                 _kindIcon(section.kind, isExpanded: isExpanded),
-                size: 13,
-                color: iconColor,
+                size: 11,
+                color: kindColor,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   section.title.isEmpty ? 'Untitled' : section.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(
-                    fontSize: 12.5,
+                    fontSize: 11.5,
                     fontWeight:
-                        isActive ? FontWeight.w600 : FontWeight.w500,
-                    color: textColor.withValues(alpha: isActive ? 1.0 : 0.85),
+                        isActive ? FontWeight.w500 : FontWeight.w400,
+                    color: textColor.withValues(alpha: isActive ? 0.95 : 0.75),
                   ),
                 ),
               ),
@@ -955,20 +956,20 @@ class _BinderRowSurface extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4),
                   child: Icon(CupertinoIcons.tag_fill,
-                      size: 9, color: iconColor),
+                      size: 8, color: iconColor),
                 ),
               if (onMoreTap != null)
                 IconButton(
                   visualDensity: VisualDensity.compact,
-                  iconSize: 14,
+                  iconSize: 12,
                   padding: EdgeInsets.zero,
                   constraints:
-                      const BoxConstraints.tightFor(width: 22, height: 22),
+                      const BoxConstraints.tightFor(width: 18, height: 18),
                   icon: Icon(
                     actionsOpen
                         ? CupertinoIcons.chevron_up
                         : CupertinoIcons.ellipsis,
-                    size: 13,
+                    size: 11,
                     color: actionsOpen
                         ? textColor.withValues(alpha: 0.95)
                         : iconColor,
@@ -1000,6 +1001,26 @@ class _BinderRowSurface extends StatelessWidget {
         return CupertinoIcons.lightbulb;
       case SectionKind.trash:
         return CupertinoIcons.trash;
+    }
+  }
+
+  // Scrivener-flavored per-kind tints. Folders are sky-blue, research is
+  // a warm yellow lightbulb, trash stays neutral gray. Chapter/scene docs
+  // pick up a softer slate so the binder reads as a colored hierarchy at
+  // a glance, like Scrivener's stock icon palette.
+  Color _kindColor(SectionKind kind) {
+    switch (kind) {
+      case SectionKind.folder:
+      case SectionKind.act:
+        return const Color(0xFF5DA0E8);
+      case SectionKind.chapter:
+        return const Color(0xFF8FA3B8);
+      case SectionKind.scene:
+        return const Color(0xFFAAB7C4);
+      case SectionKind.research:
+        return const Color(0xFFF4C430);
+      case SectionKind.trash:
+        return const Color(0xFF9AA0A6);
     }
   }
 }

@@ -786,9 +786,7 @@ class _PublishPageState extends State<PublishPage> {
                       ),
                       _buildStepIndicator(
                         isDark: isDark,
-                        accent: accent,
                         textColor: textColor,
-                        mutedColor: mutedColor,
                       ),
                       if (!_loadingSpace && _isUpdate)
                         _buildLiveBanner(
@@ -1001,12 +999,32 @@ class _PublishPageState extends State<PublishPage> {
   // (`_canAdvanceToDetails`) passes.
   Widget _buildStepIndicator({
     required bool isDark,
-    required Color accent,
     required Color textColor,
-    required Color mutedColor,
   }) {
+    // The writing-type `accent` can be pure black (freestyle), which
+    // collapses against a dark page bg. Pick a neutral high-contrast
+    // tint for the indicator so the active pill is always legible.
+    final indicatorTint = isDark ? Colors.white : Colors.black;
     Widget pill(int index, String label) {
       final active = _step == index;
+      final pillBg = active
+          ? indicatorTint.withValues(alpha: isDark ? 0.10 : 0.06)
+          : (isDark
+              ? Colors.white.withValues(alpha: 0.04)
+              : Colors.black.withValues(alpha: 0.03));
+      final borderColor = active
+          ? indicatorTint.withValues(alpha: isDark ? 0.30 : 0.20)
+          : (isDark
+              ? Colors.white.withValues(alpha: 0.10)
+              : Colors.black.withValues(alpha: 0.08));
+      final circleBg = active
+          ? indicatorTint
+          : (isDark
+              ? Colors.white.withValues(alpha: 0.12)
+              : Colors.black.withValues(alpha: 0.08));
+      final circleFg = active
+          ? (isDark ? Colors.black : Colors.white)
+          : textColor.withValues(alpha: 0.7);
       return Expanded(
         child: GestureDetector(
           onTap: () {
@@ -1020,17 +1038,9 @@ class _PublishPageState extends State<PublishPage> {
             padding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: active
-                  ? accent.withValues(alpha: isDark ? 0.16 : 0.08)
-                  : Colors.transparent,
+              color: pillBg,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: active
-                    ? accent.withValues(alpha: 0.5)
-                    : (isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : Colors.black.withValues(alpha: 0.07)),
-              ),
+              border: Border.all(color: borderColor),
             ),
             child: Row(
               children: [
@@ -1039,11 +1049,7 @@ class _PublishPageState extends State<PublishPage> {
                   height: 22,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: active
-                        ? accent
-                        : (isDark
-                            ? Colors.white.withValues(alpha: 0.08)
-                            : Colors.black.withValues(alpha: 0.06)),
+                    color: circleBg,
                     shape: BoxShape.circle,
                   ),
                   child: Text(
@@ -1051,9 +1057,7 @@ class _PublishPageState extends State<PublishPage> {
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: active
-                          ? (isDark ? Colors.black : Colors.white)
-                          : mutedColor,
+                      color: circleFg,
                     ),
                   ),
                 ),
@@ -1066,7 +1070,9 @@ class _PublishPageState extends State<PublishPage> {
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: active ? textColor : mutedColor,
+                      color: active
+                          ? textColor
+                          : textColor.withValues(alpha: 0.6),
                     ),
                   ),
                 ),
@@ -1808,16 +1814,20 @@ class _PublishPageState extends State<PublishPage> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
-                  color: accent.withValues(alpha: isDark ? 0.18 : 0.1),
+                  // Fixed amber "action-needed" tint — the writing-type
+                  // accent can be pure black (freestyle), which would
+                  // collapse this CTA into the dark page bg.
+                  color: const Color(0xFFF59E0B)
+                      .withValues(alpha: isDark ? 0.18 : 0.1),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: accent.withValues(alpha: 0.4),
+                    color: const Color(0xFFF59E0B).withValues(alpha: 0.55),
                   ),
                 ),
                 child: Row(
                   children: [
-                    Icon(CupertinoIcons.creditcard,
-                        size: 18, color: accent),
+                    const Icon(CupertinoIcons.creditcard,
+                        size: 18, color: Color(0xFFF59E0B)),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -1831,8 +1841,8 @@ class _PublishPageState extends State<PublishPage> {
                         ),
                       ),
                     ),
-                    Icon(CupertinoIcons.arrow_up_right_square,
-                        size: 16, color: accent),
+                    const Icon(CupertinoIcons.arrow_up_right_square,
+                        size: 16, color: Color(0xFFF59E0B)),
                   ],
                 ),
               ),
@@ -2139,7 +2149,7 @@ class _PublishPageState extends State<PublishPage> {
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1.2,
-                    color: textColor.withValues(alpha: 0.45),
+                    color: textColor.withValues(alpha: 0.7),
                   ),
                 ),
                 const Spacer(),
@@ -2148,7 +2158,7 @@ class _PublishPageState extends State<PublishPage> {
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: accent,
+                    color: textColor.withValues(alpha: 0.85),
                   ),
                 ),
               ],
@@ -2234,18 +2244,21 @@ class _PublishPageState extends State<PublishPage> {
     if (isFocused) {
       rowColor = accent.withValues(alpha: isDark ? 0.16 : 0.08);
     }
-    final fade = excluded ? 0.4 : 1.0;
+    // Excluded rows (Research / Trash) dim but stay legible — the writer
+    // still needs to see them to understand the boundary of what *is*
+    // being published.
+    final fade = excluded ? 0.7 : 1.0;
     IconData icon;
     Color iconColor;
     if (isContainer) {
       icon = CupertinoIcons.book;
-      iconColor = textColor.withValues(alpha: 0.5 * fade);
+      iconColor = const Color(0xFF5DA0E8).withValues(alpha: fade);
     } else if (isResearch) {
       icon = CupertinoIcons.lightbulb;
-      iconColor = textColor.withValues(alpha: 0.45 * fade);
+      iconColor = const Color(0xFFF4C430).withValues(alpha: fade);
     } else if (isTrash) {
       icon = CupertinoIcons.trash;
-      iconColor = textColor.withValues(alpha: 0.45 * fade);
+      iconColor = const Color(0xFF9AA0A6).withValues(alpha: fade);
     } else if (section.kind == SectionKind.scene) {
       icon = CupertinoIcons.doc;
       iconColor = (isUnit ? textColor : mutedColor).withValues(alpha: fade);
@@ -2292,7 +2305,7 @@ class _PublishPageState extends State<PublishPage> {
                       fontStyle:
                           isMergedDescendant ? FontStyle.italic : null,
                       color: textColor.withValues(
-                          alpha: isUnit ? fade : 0.6 * fade),
+                          alpha: isUnit ? fade : 0.85 * fade),
                     ),
                   ),
                   if (isMergedDescendant)
@@ -2314,7 +2327,7 @@ class _PublishPageState extends State<PublishPage> {
                         'won\'t be published',
                         style: GoogleFonts.inter(
                           fontSize: 10,
-                          color: mutedColor.withValues(alpha: 0.7),
+                          color: textColor.withValues(alpha: 0.55),
                         ),
                       ),
                     ),
@@ -2389,16 +2402,23 @@ class _PublishPageState extends State<PublishPage> {
     final mergedJson = _buildMergedContent(focused);
     final descendants = _descendantsOf(focused);
     QuillController? controller;
+    var hasContent = false;
     try {
       final decoded = jsonDecode(mergedJson);
       if (decoded is List) {
-        controller = QuillController(
-          document: decoded.isEmpty
-              ? Document()
-              : Document.fromJson(decoded),
-          readOnly: true,
-          selection: const TextSelection.collapsed(offset: 0),
-        );
+        hasContent = decoded.any((op) {
+          if (op is! Map) return false;
+          final ins = op['insert'];
+          if (ins is String) return ins.trim().isNotEmpty;
+          return ins != null; // embed (image / mention)
+        });
+        if (hasContent) {
+          controller = QuillController(
+            document: Document.fromJson(decoded),
+            readOnly: true,
+            selection: const TextSelection.collapsed(offset: 0),
+          );
+        }
       }
     } catch (_) {}
     return Container(
@@ -2426,7 +2446,7 @@ class _PublishPageState extends State<PublishPage> {
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1.2,
-                          color: textColor.withValues(alpha: 0.4),
+                          color: textColor.withValues(alpha: 0.7),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -2478,12 +2498,33 @@ class _PublishPageState extends State<PublishPage> {
               padding: const EdgeInsets.fromLTRB(28, 18, 28, 18),
               child: controller == null
                   ? Center(
-                      child: Text(
-                        'This chapter is empty.',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: textColor.withValues(alpha: 0.5),
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            CupertinoIcons.doc_text,
+                            size: 28,
+                            color: textColor.withValues(alpha: 0.35),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Nothing to preview yet',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: textColor.withValues(alpha: 0.8),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Add text to "${focused.title.isEmpty ? 'Untitled' : focused.title}" and it\'ll appear here.',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: textColor.withValues(alpha: 0.55),
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   : QuillEditor.basic(
