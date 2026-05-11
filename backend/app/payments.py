@@ -270,7 +270,7 @@ async def record_purchase_from_event(event, db: AsyncSession) -> None:
     """
     etype = event.get("event") or event.get("type") or ""
     if etype.startswith("account."):
-        await _apply_account_updated(event, db)
+        await _apply_account_updated(event, etype, db)
         return
     if etype != "payment.captured":
         return
@@ -372,10 +372,39 @@ async def record_purchase_from_event(event, db: AsyncSession) -> None:
         pass
 
 
-async def _apply_account_updated(event, db: AsyncSession) -> None:
-    """Mirror Razorpay's linked-account `status` onto the local user
-    row so the publish dialog reflects onboarding completion without a
-    manual refresh.
+_ACTIVATING_ACCOUNT_EVENTS = frozenset({
+    # Razorpay activates a linked account in one of two paths:
+    #   * `instantly_activated` — small merchants get instant access
+    #     for payment capture without waiting for full KYC review.
+    #   * `activated_kyc_pending` — provisional activation; the account
+    #     can take payments / transfers while KYC review continues.
+    # Both signal "ready to receive Route transfers" for our purposes.
+    "account.instantly_activated",
+    "account.activated_kyc_pending",
+})
+
+_DEACTIVATING_ACCOUNT_EVENTS = frozenset({
+    # Anything that takes the account back out of the activated set.
+    # `needs_clarification` and `under_review` block transfers; `suspended`
+    # and `rejected` are terminal failures. Mirror them onto the local
+    # `charges_enabled` flag so the publish dialog stops offering paid
+    # pricing the moment Razorpay flips state.
+    "account.under_review",
+    "account.needs_clarification",
+    "account.suspended",
+    "account.rejected",
+})
+
+
+async def _apply_account_updated(event, etype: str, db: AsyncSession) -> None:
+    """Mirror Razorpay's linked-account state onto the local user row so
+    the publish dialog reflects onboarding completion without a manual
+    refresh.
+
+    Razorpay emits distinct event names per state transition rather
+    than a single generic update event, so we infer activation from
+    the event name itself instead of parsing a `status` field that
+    isn't always populated on the entity body.
     """
     payload = event.get("payload") or {}
     account_envelope = payload.get("account") or {}
@@ -389,8 +418,16 @@ async def _apply_account_updated(event, db: AsyncSession) -> None:
     user = result.scalar_one_or_none()
     if user is None:
         return
-    status = (account.get("status") or "").lower()
-    new_state = status == "activated"
+    if etype in _ACTIVATING_ACCOUNT_EVENTS:
+        new_state = True
+    elif etype in _DEACTIVATING_ACCOUNT_EVENTS:
+        new_state = False
+    else:
+        # Unrecognised account.* event — fall back to the payload's
+        # status field so a new Razorpay event we haven't seen yet
+        # still drives the flag if its body carries the signal.
+        status = (account.get("status") or "").lower()
+        new_state = status == "activated"
     if user.razorpay_charges_enabled != new_state:
         user.razorpay_charges_enabled = new_state
         await db.commit()
