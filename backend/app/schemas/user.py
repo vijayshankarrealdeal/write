@@ -64,6 +64,11 @@ class UserResponse(BaseModel):
     saved_posts: list[str]
     favorite_posts: list[str]
     section_bookmarks: list[str]
+    # ISO 3166-1 alpha-2 country code, resolved server-side from the
+    # request IP on first authenticated call. Null while the resolution
+    # is in flight or has failed. Surfaced so the Flutter client and
+    # admin dashboard can both read the same source of truth.
+    country_code: str | None = None
     created_at: datetime
     updated_at: datetime
 

@@ -46,6 +46,13 @@ class User {
   final List<String> savedPosts;
   final List<String> favoritePosts;
   final List<String> sectionBookmarks;
+  /// ISO 3166-1 alpha-2 country code (`IN`, `US`, `GB`, ...) resolved
+  /// server-side from the request IP on first authenticated call.
+  /// Null while resolution is in flight (brand-new account) or failed.
+  /// Today only the backend reads this — it drives payment-provider
+  /// routing in `POST /api/subscriptions`. Surfaced on the client so a
+  /// future region-aware UI doesn't need a second round-trip.
+  final String? countryCode;
 
   User({
     required this.id,
@@ -64,6 +71,7 @@ class User {
     List<String>? savedPosts,
     List<String>? favoritePosts,
     List<String>? sectionBookmarks,
+    this.countryCode,
   })  : preferences = preferences ?? const UserPreferences(),
         socialLinks = socialLinks ?? const {},
         likes = likes ?? [],
@@ -96,6 +104,7 @@ class User {
       savedPosts: List<String>.from(json['savedPosts'] ?? []),
       favoritePosts: List<String>.from(json['favoritePosts'] ?? []),
       sectionBookmarks: List<String>.from(json['sectionBookmarks'] ?? []),
+      countryCode: (json['countryCode'] ?? json['country_code']) as String?,
     );
   }
 
@@ -116,6 +125,7 @@ class User {
         'savedPosts': savedPosts,
         'favoritePosts': favoritePosts,
         'sectionBookmarks': sectionBookmarks,
+        'countryCode': countryCode,
       };
 
   User copyWith({
@@ -136,6 +146,7 @@ class User {
     List<String>? savedPosts,
     List<String>? favoritePosts,
     List<String>? sectionBookmarks,
+    String? countryCode,
   }) =>
       User(
         id: id ?? this.id,
@@ -154,5 +165,6 @@ class User {
         savedPosts: savedPosts ?? this.savedPosts,
         favoritePosts: favoritePosts ?? this.favoritePosts,
         sectionBookmarks: sectionBookmarks ?? this.sectionBookmarks,
+        countryCode: countryCode ?? this.countryCode,
       );
 }

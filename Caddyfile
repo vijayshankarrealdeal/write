@@ -1,3 +1,19 @@
+# Optional GeoIP-by-Caddy. When this build of Caddy includes the
+# `maxmind_geolocation` plugin (xcaddy build --with
+# github.com/porech/caddy-maxmind-geolocation), it sets
+# `X-Country-Code` on every upstream request and the backend reads
+# the header instead of calling out to ip-api.com. Until then the
+# directive is no-op'd (commented) and `app.geo` falls back to the
+# server-side ip-api lookup — the contract is the same either way.
+#
+# Setup steps (once per VM):
+#   1. Download GeoLite2-Country.mmdb to /etc/caddy/.
+#   2. Rebuild Caddy with the plugin and ship the binary.
+#   3. Uncomment the `geoip` and `header_up` lines below + restart.
+# {
+# 	order maxmind_geolocation before reverse_proxy
+# }
+
 # Dedicated API host. Flutter mobile/web/desktop builds point at this URL
 # so the API is reachable without going through the SPA host. Routers in
 # FastAPI already carry their own `/api/...` prefix, so paths are unchanged
@@ -10,7 +26,13 @@ api.{$DOMAIN} {
 		Referrer-Policy strict-origin-when-cross-origin
 	}
 
-	reverse_proxy fastapi:8000
+	# maxmind_geolocation {
+	# 	db_path /etc/caddy/GeoLite2-Country.mmdb
+	# }
+
+	reverse_proxy fastapi:8000 {
+		# header_up X-Country-Code {maxmind_geolocation.country_code}
+	}
 
 	handle_errors {
 		header Content-Type application/json
@@ -32,7 +54,9 @@ api.{$DOMAIN} {
 	}
 
 	handle /api/* {
-		reverse_proxy fastapi:8000
+		reverse_proxy fastapi:8000 {
+			# header_up X-Country-Code {maxmind_geolocation.country_code}
+		}
 	}
 
 	# If an upstream is down or errors on /api, never fall through to the

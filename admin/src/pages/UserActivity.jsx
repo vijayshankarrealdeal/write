@@ -12,7 +12,7 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import { Users, UserPlus } from "lucide-react";
+import { Users, UserPlus, Globe } from "lucide-react";
 import { api } from "../api/client";
 import PageHeader from "../components/PageHeader";
 
@@ -96,7 +96,7 @@ export default function UserActivity() {
         </div>
 
         {/* Platform breakdown */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 lg:col-span-2">
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
           <h3 className="text-sm font-medium text-gray-400 mb-4">Platform Breakdown</h3>
           {(activity?.platforms?.length || 0) > 0 ? (
             <ResponsiveContainer width="100%" height={280}>
@@ -124,6 +124,44 @@ export default function UserActivity() {
             </ResponsiveContainer>
           ) : (
             <div className="text-center py-12 text-gray-500">No platform data available yet</div>
+          )}
+        </div>
+
+        {/* Country breakdown — server-resolved from request IP on first
+            authenticated call. `unknown` is the bucket for users whose
+            resolution is still in flight (brand-new signup) or failed.
+            Drives payment-provider routing later (Razorpay for IN,
+            Stripe for the rest once it's wired). */}
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+          <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2 mb-4">
+            <Globe className="w-4 h-4" /> Countries
+          </h3>
+          {(activity?.countries?.length || 0) > 0 ? (
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={activity.countries}
+                  dataKey="count"
+                  nameKey="country"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  strokeWidth={2}
+                  stroke="#111827"
+                  label={({ country, count }) => `${country}: ${count}`}
+                >
+                  {activity.countries.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8 }}
+                />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="text-center py-12 text-gray-500">No country data available yet</div>
           )}
         </div>
       </div>

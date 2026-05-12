@@ -655,7 +655,29 @@ async def user_activity(
     )
     platforms = [{"platform": r[0] or "unknown", "count": r[1]} for r in platform_result.fetchall()]
 
-    return {"daily_active_users": dau, "new_users": new_users, "platforms": platforms}
+    # Country mix — `users.country_code` is resolved server-side from the
+    # request IP on first auth (see `app.geo`). Null while resolution is
+    # in flight or has failed for that user; we bucket those into a
+    # single "unknown" row so the chart adds up to total signups regardless.
+    country_result = await db.execute(
+        select(
+            func.coalesce(User.country_code, "unknown").label("country"),
+            func.count().label("count"),
+        )
+        .where(User.created_at >= since)
+        .group_by("country")
+        .order_by(text("count DESC"))
+    )
+    countries = [
+        {"country": r[0], "count": r[1]} for r in country_result.fetchall()
+    ]
+
+    return {
+        "daily_active_users": dau,
+        "new_users": new_users,
+        "platforms": platforms,
+        "countries": countries,
+    }
 
 
 @router.get("/analytics/devices")

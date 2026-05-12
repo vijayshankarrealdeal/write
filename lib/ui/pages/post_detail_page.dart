@@ -3199,8 +3199,11 @@ class _PostDetailPageState extends State<PostDetailPage>
                     dividerColor: dividerColor,
                     currentIndex: currentIndex,
                     totalSections: totalSections,
-                    // FAB takes over Listen at xwide so the bar stays calm.
-                    showListen: !isXWide,
+                    // Audio narration is parked until the feature ships;
+                    // both the bar's Listen button and the xwide FAB
+                    // are hidden so the UI doesn't tease something the
+                    // backend can't deliver yet.
+                    showListen: false,
                   ),
           ),
         ),
@@ -3237,22 +3240,7 @@ class _PostDetailPageState extends State<PostDetailPage>
               Expanded(child: readerColumn),
             ],
           ),
-          Positioned(
-            right: 28,
-            bottom: 28 + MediaQuery.of(context).padding.bottom,
-            child: IgnorePointer(
-              ignoring: _immersiveReader,
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 260),
-                curve: Curves.easeOutCubic,
-                opacity: _immersiveReader ? 0 : 1,
-                child: _ReaderListenFab(
-                  accent: _paperAccent,
-                  onTap: _onListenPressed,
-                ),
-              ),
-            ),
-          ),
+          // Listen FAB hidden until audio narration is implemented.
         ],
       ),
     );
@@ -4065,9 +4053,6 @@ class _OverviewHeroDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasCover = item.imageUrl.isNotEmpty || item.imageMeta != null;
     const coverWidth = 240.0;
-    // Used for the fallback when IntrinsicHeight can't size the cover
-    // (e.g. legacy callers that pass a fixed-height parent). The row
-    // below now stretches the cover to match the right column.
     const coverHeight = coverWidth * 1.45;
 
     final hasResume = resumeIndex != null && resumeIndex! > 0;
@@ -4135,18 +4120,20 @@ class _OverviewHeroDesktop extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 1080),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(40, 36, 40, 36),
-              // IntrinsicHeight + CrossAxisAlignment.stretch makes the
-              // cover column grow to match the right column's natural
-              // height — so the bottom of the poster lines up with the
-              // bottom of the "Start reading" CTA instead of floating
-              // mid-row with a margin mismatch.
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+              // Top-align so the cover sits at the top while the right
+              // column grows as tall as it needs. We can't use
+              // IntrinsicHeight + stretch here because both children
+              // contain a LayoutBuilder (cover sizing, description
+              // overflow probe), and LayoutBuilder doesn't report
+              // intrinsic dimensions — that collapsed the row to the
+              // cover's minHeight and let the expanded description
+              // overflow on top of the chapter list below.
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                     Container(
                       width: coverWidth,
-                      constraints: const BoxConstraints(minHeight: coverHeight),
+                      height: coverHeight,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
@@ -4168,23 +4155,21 @@ class _OverviewHeroDesktop extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(14),
                         child: hasCover
-                            ? LayoutBuilder(
-                                builder: (ctx, c) => AppNetworkImage(
-                                  url: item.imageUrl,
-                                  meta: item.imageMeta,
-                                  width: c.maxWidth,
-                                  height: c.maxHeight,
-                                  fit: BoxFit.cover,
-                                  errorWidget: Container(
-                                    color: isDark
-                                        ? const Color(0xFF1E1E1E)
-                                        : const Color(0xFFEDEDED),
-                                    child: Icon(CupertinoIcons.photo,
-                                        size: 36,
-                                        color: isDark
-                                            ? Colors.white24
-                                            : Colors.black26),
-                                  ),
+                            ? AppNetworkImage(
+                                url: item.imageUrl,
+                                meta: item.imageMeta,
+                                width: coverWidth,
+                                height: coverHeight,
+                                fit: BoxFit.cover,
+                                errorWidget: Container(
+                                  color: isDark
+                                      ? const Color(0xFF1E1E1E)
+                                      : const Color(0xFFEDEDED),
+                                  child: Icon(CupertinoIcons.photo,
+                                      size: 36,
+                                      color: isDark
+                                          ? Colors.white24
+                                          : Colors.black26),
                                 ),
                               )
                             : Container(
@@ -4271,7 +4256,6 @@ class _OverviewHeroDesktop extends StatelessWidget {
                     ),
                   ),
                 ],
-                ),
               ),
             ),
           ),

@@ -39,10 +39,9 @@ class SubscriptionPage extends StatefulWidget {
 class _SubscriptionPageState extends State<SubscriptionPage>
     with WidgetsBindingObserver {
   static const List<String> _features = [
-    "Unlimited books and audiobooks",
+    "Unlimited books",
     "Fresh new titles added every month",
     "Personalised recommendations",
-    "Seamless switch between reading and listening",
     "Offline access",
     "Sync across all devices",
   ];

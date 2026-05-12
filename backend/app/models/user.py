@@ -70,6 +70,15 @@ class User(UUIDMixin, Base):
     )
     subscription_status: Mapped[str | None] = mapped_column(String(32))
 
+    # ISO 3166-1 alpha-2 country code (`IN`, `US`, `GB`, ...) resolved
+    # from the request IP on the first authenticated call after signup.
+    # Used by the subscriptions router to pick a payment processor (Razorpay
+    # for IN, Stripe for elsewhere — once the second processor lands) and
+    # surfaced on the admin dashboard. Null while unresolved (new signup,
+    # or the IP→country call hasn't run / failed). See
+    # `app.geo.resolve_country_code` for the resolution path.
+    country_code: Mapped[str | None] = mapped_column(String(2))
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
