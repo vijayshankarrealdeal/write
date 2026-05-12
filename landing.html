@@ -717,7 +717,13 @@
     gap: 14px;
     align-items: center;
     flex-wrap: wrap;
-    margin-bottom: 22px;
+    margin-bottom: 10px;
+  }
+  .cta-microcopy {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin: 0 0 18px;
+    letter-spacing: 0.1px;
   }
 
   .micro-trust {
@@ -2124,6 +2130,45 @@
     .editor-card { transform: rotate(0); padding: 14px; box-shadow: 8px 8px 0 0 var(--ink); }
     .preview-stage .chip { font-size: 16px; padding: 6px 10px; }
     footer .container { grid-template-columns: 1fr; }
+    /* Keep the badge on a single line — the two-line wrap looked broken. */
+    .pill {
+      font-size: 11px;
+      letter-spacing: 0.25px;
+      padding: 6px 11px;
+      white-space: nowrap;
+    }
+  }
+  @media (max-width: 360px) {
+    .pill { font-size: 10px; letter-spacing: 0.1px; padding: 5px 9px; }
+  }
+
+  /* Sticky mobile signup CTA — desktop hides it; phones get a persistent
+     accent button pinned to the bottom so signup is always one thumb-tap
+     away. Body gets bottom padding so the bar doesn't cover the footer. */
+  .sticky-mobile-cta { display: none; }
+  @media (max-width: 720px) {
+    .sticky-mobile-cta {
+      display: flex;
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      z-index: 60;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 18px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      text-decoration: none;
+      border: 2px solid var(--ink);
+      border-radius: 14px;
+      box-shadow: 4px 4px 0 0 var(--ink);
+      letter-spacing: 0.1px;
+    }
+    body { padding-bottom: 72px; }
   }
 </style>
 </head>
@@ -2145,8 +2190,6 @@
           <a href="#features">Features</a>
           <a href="#showcase">For writers</a>
           <a href="#readers">For readers</a>
-          <a href="/scrivener-alternative.html">Compare</a>
-          <a href="/blog/">Blog</a>
           <a href="#pricing">Pricing</a>
           <a href="#faq">FAQ</a>
         </div>
@@ -2175,21 +2218,22 @@
 
       <div class="hero-grid">
         <div class="hero-left">
-          <span class="pill"><span class="dot"></span> Always free · no ads · no algorithms</span>
+          <span class="pill"><span class="dot"></span> Your work never trains AI</span>
           <h1 class="hero-title">
             <span class="line"><span class="w">A</span> <span class="w">calm</span> <span class="w">place</span> <span class="w">to</span> <span class="w"><span class="underline">write</span>,</span></span>
             <span class="line"><span class="w"><span class="ink">read</span></span> <span class="w">&amp;</span> <span class="w">share</span></span>
             <span class="line"><span class="w">your</span> <span class="w">stories.</span></span>
           </h1>
           <p class="lede">
-            <strong>Free writing software for novelists.</strong>
-            <em>Distraction-free editor</em>, beautiful reader, quiet community —
-            runs on every device you own.
+            <strong>For the novel you keep putting off.</strong>
+            A <em>distraction-free editor</em> on every device you own —
+            draft it on the bus, finish it on your laptop. <em>Free, forever.</em>
           </p>
           <div class="hero-cta">
             <a href="/signup" class="btn accent lg">Start writing — it's free <span class="arrow">→</span></a>
             <a href="#showcase" class="btn ghost-lg">Take the tour</a>
           </div>
+          <p class="cta-microcopy">10 seconds · No credit card · Skip Pro entirely</p>
           <div class="micro-trust">
             <div class="avatars" aria-hidden="true">
               <span class="av a1">M</span>
@@ -2199,7 +2243,7 @@
             </div>
             <div>
               <div class="stars">★★★★★</div>
-              <div><strong>52,000+</strong> writers and readers · loved on Play Store &amp; the web</div>
+              <div><strong>Loved early</strong> on Play Store · just launched in 2026</div>
             </div>
           </div>
         </div>
@@ -2260,25 +2304,25 @@
     <span class="section-doodle star-trust" aria-hidden="true"><img loading="lazy" decoding="async" src="Hand%20Drawn%20Doodle%20Elements/280.png" alt=""></span>
     <div class="container">
       <div class="trust-label">
-        Trusted by writers in 80+ countries.
+        Just launched. Built by a writer, for writers.
         <small>Independent · indie-funded · no investors</small>
       </div>
       <div class="trust-stats">
         <div class="stat">
-          <div class="num"><span class="accent-3">52k+</span></div>
-          <div class="label">Active writers</div>
+          <div class="num"><span class="accent-4">★ 4.9</span></div>
+          <div class="label">Loved early on Play Store</div>
         </div>
         <div class="stat">
-          <div class="num"><span class="accent">1.2M</span></div>
-          <div class="label">Stories read this month</div>
+          <div class="num"><span class="accent">$0</span></div>
+          <div class="label">To write, read &amp; share</div>
         </div>
         <div class="stat">
-          <div class="num"><span class="accent-2">8M</span></div>
-          <div class="label">Words written daily</div>
+          <div class="num"><span class="accent-2">0</span></div>
+          <div class="label">Ads, trackers or algorithms</div>
         </div>
         <div class="stat">
-          <div class="num"><span class="accent-4">4.9★</span></div>
-          <div class="label">Average store rating</div>
+          <div class="num"><span class="accent-3">100%</span></div>
+          <div class="label">Your work, your data</div>
         </div>
       </div>
     </div>
@@ -2317,49 +2361,6 @@
           <span class="tag">Type / to summon anything</span>
         </div>
 
-        <div class="feature hl-2 reveal">
-          <span class="ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#6B5BFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
-          </span>
-          <h3>A reader you'll lean into.</h3>
-          <p>Beautiful long-form typography. Highlight, bookmark, and pick up
-          exactly where you left off — across every device, even offline.</p>
-          <span class="tag">Read on the train, on a plane.</span>
-        </div>
-
-        <div class="feature hl-3 reveal">
-          <span class="ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#c9a014" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7" rx="1.4"/>
-              <rect x="14" y="3" width="7" height="7" rx="1.4"/>
-              <rect x="3" y="14" width="7" height="7" rx="1.4"/>
-              <rect x="14" y="14" width="7" height="7" rx="1.4"/>
-            </svg>
-          </span>
-          <h3>Bookshelves, your way.</h3>
-          <p>Group what you're reading, what you've published, and what you
-          want to come back to. Make them private, or share a shelf with the
-          world.</p>
-          <span class="tag">Your library, beautifully.</span>
-        </div>
-
-        <div class="feature hl-4 reveal">
-          <span class="ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#2DBA7A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M3 22v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
-              <path d="M16 11h6M19 8v6"/>
-            </svg>
-          </span>
-          <h3>A quiet community.</h3>
-          <p>Follow writers you love, get notified when they post, and discuss
-          chapters in calm, threaded comments. No outrage algorithms.</p>
-          <span class="tag">Conversations that read like letters.</span>
-        </div>
-
         <div class="feature hl-5 reveal">
           <span class="ico">
             <svg viewBox="0 0 24 24" fill="none" stroke="#cc6610" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -2385,7 +2386,7 @@
           <h3>Your work, your rules.</h3>
           <p>End-to-end encrypted drafts. Export everything as plain text or
           PDF. Delete your account in two clicks. We don't sell your data —
-          ever.</p>
+          ever, and your drafts never train an AI.</p>
           <span class="tag">Owned by you. Always.</span>
         </div>
       </div>
@@ -2584,18 +2585,18 @@
         <div class="mock purple-tilt">
           <div class="profile-card">
             <div class="header">
-              <div class="av-lg">M</div>
+              <div class="av-lg">A</div>
               <div>
-                <p class="name">Maren Halsten</p>
-                <div class="uname">@maren · novelist · Reykjavík</div>
-                <div class="bio">Writes quiet fiction about cold places & warm people. Currently working on <em>The Last Lighthouse</em>.</div>
+                <p class="name">A. Writer</p>
+                <div class="uname">@you · this could be your profile</div>
+                <div class="bio">A profile that doubles as a portfolio — bio, links, pinned works. Yours, when you sign up.</div>
               </div>
             </div>
             <div class="stats-row">
-              <div><b>14</b>Published</div>
-              <div><b>2.1k</b>Followers</div>
-              <div><b>312</b>Following</div>
-              <div><b>47k</b>Reads</div>
+              <div><b>—</b>Published</div>
+              <div><b>—</b>Followers</div>
+              <div><b>—</b>Following</div>
+              <div><b>—</b>Reads</div>
             </div>
             <div class="actions">
               <span class="btn-mini primary">+ Follow</span>
@@ -2608,7 +2609,7 @@
             <div class="feed-item">
               <span class="av b1"></span>
               <div style="flex:1;">
-                <div class="meta"><b>Sam Okonkwo</b> highlighted in your draft <span class="time">· 4m ago</span></div>
+                <div class="meta"><b>A reader</b> highlighted in your draft <span class="time">· 4m ago</span></div>
                 <div class="preview">"…the sea spoke in chapters — that you only had to listen with the right kind of patience."</div>
                 <div class="react"><span>♡ 12</span><span>↩ Reply</span></div>
               </div>
@@ -2616,14 +2617,14 @@
             <div class="feed-item">
               <span class="av b2"></span>
               <div style="flex:1;">
-                <div class="meta"><b>Lía Pereira</b> started reading <i>The Last Lighthouse</i> <span class="time">· 12m ago</span></div>
-                <div class="react"><span>♡ 38</span><span>↩ Welcome</span></div>
+                <div class="meta"><b>A new follower</b> started reading your latest chapter <span class="time">· 12m ago</span></div>
+                <div class="react"><span>♡ 5</span><span>↩ Welcome</span></div>
               </div>
             </div>
             <div class="feed-item">
               <span class="av b3"></span>
               <div style="flex:1;">
-                <div class="meta"><b>Theo Marin</b> shelved your story to <i>"Read again in winter"</i> <span class="time">· 1h ago</span></div>
+                <div class="meta"><b>A reader</b> shelved your story to <i>"Read again in winter"</i> <span class="time">· 1h ago</span></div>
               </div>
             </div>
           </div>
@@ -2635,28 +2636,28 @@
   <!-- ─── Mega stats ─── -->
   <section class="megastats">
     <div class="container">
-      <span class="eyebrow">By the numbers</span>
-      <h2 class="section-title" style="margin:0 auto 8px;">Stories find readers here.</h2>
+      <span class="eyebrow">Our promises</span>
+      <h2 class="section-title" style="margin:0 auto 8px;">A writing app you can trust.</h2>
       <p class="section-lede" style="color:rgba(255,255,255,0.85);margin:0 auto;">
-        A small platform that punches well above its weight, because everything
-        is built for the people doing the reading and writing.
+        Four lines that won't change as we grow. Read them once;
+        we mean every word.
       </p>
       <div class="grid">
         <div class="mega-stat">
-          <div class="num"><span class="y">52,000+</span></div>
-          <div class="label">Active monthly writers</div>
+          <div class="num"><span class="y">No</span></div>
+          <div class="label">Ads, ever</div>
         </div>
         <div class="mega-stat">
-          <div class="num">8.4M</div>
-          <div class="label">Words written every day</div>
+          <div class="num">No</div>
+          <div class="label">AI training on your work</div>
         </div>
         <div class="mega-stat">
-          <div class="num"><span class="o">1.2M</span></div>
-          <div class="label">Stories read this month</div>
+          <div class="num"><span class="o">No</span></div>
+          <div class="label">Selling your data</div>
         </div>
         <div class="mega-stat">
-          <div class="num">99.99%</div>
-          <div class="label">Sync uptime, last 12 months</div>
+          <div class="num">Yes</div>
+          <div class="label">Export &amp; delete in 2 clicks</div>
         </div>
       </div>
     </div>
@@ -2668,85 +2669,44 @@
     <span class="section-doodle flower-q" aria-hidden="true"><img loading="lazy" decoding="async" src="Hand%20Drawn%20Doodle%20Elements/350.png" alt=""></span>
     <div class="container">
       <div class="section-head">
-        <span class="eyebrow gold">From writers like you</span>
-        <h2 class="section-title">A few <span class="em">letters</span> we've kept on the wall.</h2>
-        <p class="section-lede">Real notes from real authors, journalists, students, and weekend storytellers using InkSpaceX every day.</p>
+        <span class="eyebrow gold">From our first writers</span>
+        <h2 class="section-title">Notes from the <span class="em">early</span> days.</h2>
+        <p class="section-lede">A few honest words from people who started writing here this year. Names left off on purpose — they're early users, not endorsements.</p>
       </div>
 
       <div class="quotes">
         <article class="quote">
-          <p>I've tried every writing app on the market. InkSpaceX is the
-          first one that <em>disappears</em> when I need it to and shows up
-          when I need a hand. I finished the first draft of my novel in 11
-          weeks.</p>
+          <p>Other apps want me to <em>engage</em>. This one wants me to
+          write. That's the entire difference.</p>
           <div class="who">
-            <span class="av q1">M</span>
+            <span class="av q4">✦</span>
             <div>
-              <p class="name">Maren Halsten</p>
-              <div class="role">Novelist · Reykjavík</div>
+              <p class="name">An early writer</p>
+              <div class="role">Poetry &amp; short fiction</div>
             </div>
           </div>
         </article>
 
         <article class="quote purple">
-          <p>The reader is the best long-form reading experience on the web.
-          I switched my whole serial newsletter over and my readers haven't
-          stopped thanking me.</p>
+          <p>It's the first writing app that <em>disappears</em> when I
+          write and shows up when I need it. I'm 18,000 words in.</p>
           <div class="who">
-            <span class="av q2">N</span>
+            <span class="av q2">✦</span>
             <div>
-              <p class="name">Niko Adeyemi</p>
-              <div class="role">Serial essayist</div>
-            </div>
-          </div>
-        </article>
-
-        <article class="quote gold">
-          <p>I run a writing workshop for teens. The fact that there's no
-          algorithmic feed, no ads, no DMs from strangers — that alone made
-          this an instant adoption.</p>
-          <div class="who">
-            <span class="av q3">A</span>
-            <div>
-              <p class="name">Aisha Khan</p>
-              <div class="role">Educator · Karachi</div>
+              <p class="name">An early novelist</p>
+              <div class="role">First draft in progress</div>
             </div>
           </div>
         </article>
 
         <article class="quote mint">
-          <p>I read on the train every morning. The offline reader is
-          flawless. Sync just <em>works</em>. I've never lost a bookmark.</p>
+          <p>Reading on the bus, syncing on my laptop. Offline just <em>works</em>.
+          I've never lost a sentence.</p>
           <div class="who">
-            <span class="av q5">T</span>
+            <span class="av q5">✦</span>
             <div>
-              <p class="name">Theo Marin</p>
-              <div class="role">Daily reader · Lisbon</div>
-            </div>
-          </div>
-        </article>
-
-        <article class="quote">
-          <p>Other apps want me to "engage". InkSpaceX wants me to write.
-          That's the entire difference.</p>
-          <div class="who">
-            <span class="av q4">L</span>
-            <div>
-              <p class="name">Lía Pereira</p>
-              <div class="role">Poet</div>
-            </div>
-          </div>
-        </article>
-
-        <article class="quote purple">
-          <p>The slash menu is faster than thought. I can build a chapter
-          with quotes, images, and footnotes without ever touching a
-          mouse.</p>
-          <div class="who">
-            <span class="av q6">J</span>
-            <div>
-              <p class="name">Jonas Becker</p>
-              <div class="role">Journalist · Berlin</div>
+              <p class="name">An early reader</p>
+              <div class="role">Daily commuter</div>
             </div>
           </div>
         </article>
@@ -2918,8 +2878,8 @@
         is <span class="y">waiting</span>.
       </h2>
       <p class="cta-lede">
-        Free forever for personal use. No card. No spam. Sign up takes
-        about ten seconds.
+        Open a draft. Type one sentence. We'll save it.
+        <br><em>Free forever · No card · 10 seconds to set up</em>
       </p>
 
       <p style="margin-top: 28px;">
@@ -3012,6 +2972,9 @@
   </footer>
 
 </div>
+
+<!-- Sticky mobile CTA — only visible on phones; keeps signup one thumb-tap away. -->
+<a href="/signup" class="sticky-mobile-cta">Start writing — it's free <span aria-hidden="true">→</span></a>
 
 <script>
   // Theme: read stored / system preference and apply, then bind toggle
