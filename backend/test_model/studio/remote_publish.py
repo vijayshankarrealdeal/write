@@ -94,7 +94,33 @@ async def upload_image(
     filename: str,
 ) -> str:
     """POST one PNG to /api/upload/editor and return the URL (already
-    includes the embed metadata fragment)."""
+    includes the embed metadata fragment).
+
+    Thin wrapper over `upload_image_with_meta` that drops the full
+    image_meta dict — most callers only persist the URL string (Quill
+    embeds, canvas elements), so that's the default. Use
+    `upload_image_with_meta` when you also need the variants / blurhash
+    structured payload (cover, character portraits)."""
+    url, _ = await upload_image_with_meta(
+        client, api_url, token, file_path=file_path, filename=filename
+    )
+    return url
+
+
+async def upload_image_with_meta(
+    client: httpx.AsyncClient,
+    api_url: str,
+    token: str,
+    *,
+    file_path: Path,
+    filename: str,
+) -> tuple[str, dict[str, Any] | None]:
+    """POST one PNG to /api/upload/editor and return (url, meta).
+
+    `meta` is the full {base_url, width, height, blurhash, color,
+    variants, formats} dict the platform's image pipeline produces.
+    Use this for surfaces where the client paints a placeholder
+    (blurhash) + picks size variants (covers, character portraits)."""
     url = api_url.rstrip("/") + "/api/upload/editor"
     with open(file_path, "rb") as fh:
         data = fh.read()
@@ -118,7 +144,8 @@ async def upload_image(
             f"upload {filename}: response missing url",
             body=str(body)[:500],
         )
-    return public_url
+    meta = body.get("meta") if isinstance(body, dict) else None
+    return public_url, meta if isinstance(meta, dict) else None
 
 
 async def upload_images_parallel(
@@ -384,6 +411,16 @@ async def publish_book(
             *(_make_section(i, p) for i, p in enumerate(chunks_payload))
         )
 
+        # ---- upload character portraits ----
+        # Each character in the scout's bible got a canonical portrait
+        # in storage/<slug>/images/_characters/<safe>.png. Upload each
+        # through /api/upload/editor (same path the cover took) so the
+        # cast strip on the book detail page has blurhash + variants.
+        characters_payload = await _build_remote_characters(
+            client, api_url, token, slug=slug, manifest=manifest,
+        )
+        await _emit("characters_ready", {"count": len(characters_payload)})
+
         # ---- create feed item + publish all sections ----
         # Sections default to is_published=False on creation. Posting a
         # FeedItem with `published_section_ids = [...all section ids...]`
@@ -401,6 +438,7 @@ async def publish_book(
             "visibility": "public",
             "writing_id": writing_id,
             "published_section_ids": published_ids,
+            "characters": characters_payload,
         }
         await _emit("publishing_feed", {"published_count": len(published_ids)})
         try:
@@ -456,4 +494,63 @@ def _scenes_for_chunk(book_dir: Path, chunk_id: str) -> list[dict[str, Any]]:
             continue
         out.append(meta)
     out.sort(key=lambda m: m.get("score") or 0, reverse=True)
+    return out
+
+
+async def _build_remote_characters(
+    client: httpx.AsyncClient,
+    api_url: str,
+    token: str,
+    *,
+    slug: str,
+    manifest: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Upload each character portrait through /api/upload/editor and
+    return the per-character publish payload for `POST /api/feed/`.
+
+    Returns [] when the manifest has no character bible (essay
+    collections, landscape travelogues). The server treats `[]` as
+    "wipe cast" but on a brand-new feed item this is the same as "no
+    cast". A None character_sheets dict means the pipeline never
+    generated portraits — we still emit the entries with text-only
+    appearance descriptions so the cast strip can render initials
+    placeholders.
+    """
+    scout = manifest.get("scout") or {}
+    bible = scout.get("character_bible") or []
+    if not bible:
+        return []
+    sheets = manifest.get("character_sheets") or {}
+
+    out: list[dict[str, Any]] = []
+    for idx, entry in enumerate(bible):
+        if not isinstance(entry, dict):
+            continue
+        name = (entry.get("name") or "").strip()
+        appearance = (entry.get("appearance") or "").strip()
+        if not name or not appearance:
+            continue
+        image_url: str | None = None
+        image_meta: dict[str, Any] | None = None
+        local_path = sheets.get(name)
+        if local_path:
+            portrait = Path(local_path)
+            if portrait.exists() and portrait.stat().st_size > 0:
+                try:
+                    image_url, image_meta = await upload_image_with_meta(
+                        client, api_url, token,
+                        file_path=portrait,
+                        filename=portrait.name,
+                    )
+                except RemotePublishError:
+                    # Portrait upload failed — keep the text-only entry
+                    # so the cast strip still renders an initials avatar.
+                    pass
+        out.append({
+            "name": name,
+            "appearance": appearance,
+            "image_url": image_url,
+            "image_meta": image_meta,
+            "sort_order": idx,
+        })
     return out

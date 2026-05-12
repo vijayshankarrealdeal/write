@@ -19,6 +19,8 @@ from app.feed_sections import (
     set_published_section_ids,
 )
 from app.feed_visibility import public_feed_clause, visibility_clause
+from sqlalchemy import delete
+
 from app.models.book_character import BookCharacter
 from app.models.feed_item import FeedItem
 from app.models.purchase import Purchase
@@ -512,6 +514,9 @@ async def create_feed_item(
     # FeedItem fields because it touches the `sections` table directly.
     published_section_ids = payload.pop("published_section_ids", None)
     free_preview_section_ids = payload.pop("free_preview_section_ids", None)
+    # Cast list — pulled out before the upsert because it goes to
+    # `book_characters`, not the feed_items column set.
+    characters = payload.pop("characters", None)
     # Section bodies are owned by the `sections` table, not the feed
     # card. Discard any incoming `sections` field — old clients still
     # send it from cached state.
@@ -567,6 +572,29 @@ async def create_feed_item(
         publisher=user,
         **payload,
     )
+    # Cast: replace all rows for this writing in one shot. `None` leaves
+    # the existing cast alone (metadata-only republish); empty list
+    # wipes it. The delete+insert pattern is fine because cast lists
+    # are tiny (5-10 rows) and the FK-cascade-clean semantics match
+    # the rest of the publish path.
+    if characters is not None:
+        await db.execute(
+            delete(BookCharacter).where(BookCharacter.writing_id == writing_id)
+        )
+        for entry in characters:
+            name = (entry.get("name") or "").strip()
+            appearance = (entry.get("appearance") or "").strip()
+            if not name or not appearance:
+                continue
+            db.add(BookCharacter(
+                writing_id=writing_id,
+                name=name,
+                appearance=appearance,
+                image_url=entry.get("image_url"),
+                image_meta=entry.get("image_meta"),
+                sort_order=int(entry.get("sort_order") or 0),
+            ))
+        await db.flush()
     item.__dict__["purchased"] = True
     return item
 

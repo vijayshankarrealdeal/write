@@ -4,6 +4,17 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
+class CharacterPayload(BaseModel):
+    """One entry in the book's cast list, posted alongside the feed
+    item at publish time. The handler upserts `book_characters` rows
+    keyed on (writing_id, name)."""
+    name: str
+    appearance: str
+    image_url: str | None = None
+    image_meta: dict | None = None
+    sort_order: int = 0
+
+
 class FeedItemCreate(BaseModel):
     title: str
     description: str | None = None
@@ -40,6 +51,13 @@ class FeedItemCreate(BaseModel):
     # publishes a draft from the editor, so the DB-level CASCADE drops
     # the card if the writing is later deleted.
     writing_id: UUID | None = None
+    # Cast list — populated by the ingest pipeline (scout character
+    # bible + character_sheets phase). `None` leaves the existing cast
+    # alone (metadata-only republish); empty list wipes it; a list
+    # replaces it. Authors editing a book in the Flutter editor never
+    # send this; only the studio's remote_publish does, after uploading
+    # each portrait through /api/upload/editor.
+    characters: list[CharacterPayload] | None = None
 
 
 class FeedItemUpdate(BaseModel):
