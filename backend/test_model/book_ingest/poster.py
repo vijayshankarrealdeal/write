@@ -237,6 +237,7 @@ async def generate_cover_image(
     reader_preference: str | None,
     base_palette: str | None = None,
     character_refs: list[str] | None = None,
+    reference_image_paths: list[str] | None = None,
 ) -> Path | None:
     """Generate one extra illustration that becomes the book's cover.
     Saved as `images/cover.png` so it sits alongside the scene PNGs but
@@ -266,6 +267,7 @@ async def generate_cover_image(
                 reader_preference=reader_preference,
                 base_palette=base_palette,
                 character_refs=character_refs,
+                reference_image_paths=reference_image_paths,
                 quality="high",
                 size="1024x1536",  # portrait — matches feed-card aspect
             ),

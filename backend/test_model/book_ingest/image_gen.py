@@ -274,6 +274,132 @@ def generate_image_sync(
     raise last_exc
 
 
+def generate_image_with_references_sync(
+    prompt: str,
+    out_path: str,
+    *,
+    reference_image_paths: list[str],
+    style: str | None = None,
+    reader_preference: str | None = None,
+    size: str | None = None,
+    quality: str = "medium",
+    retries: int = 2,
+    mood: str | None = None,
+    composition: str | None = None,
+    time_of_day: str | None = None,
+    setting: str | None = None,
+    palette_hint: str | None = None,
+    base_palette: str | None = None,
+    character_refs: list[str] | None = None,
+) -> str:
+    """Generate a scene image conditioned on one or more reference images.
+
+    Routes to Azure's `/images/edits` endpoint instead of `/images/generations`.
+    The image model treats every file in `reference_image_paths` as a
+    visual anchor — so a scene that names "Alice" and gets her
+    pre-generated character sheet attached comes back with the same
+    facial features, build, and clothing as the sheet, even though the
+    scene composition is entirely new.
+
+    The text-based `character_refs` (one-line appearance descriptions)
+    still ride along in the prompt: belt-and-suspenders. References give
+    the face, text gives the costume + signature props.
+    """
+    if not reference_image_paths:
+        # Defensive: caller should have dispatched to the text-only path.
+        return generate_image_sync(
+            prompt, out_path,
+            style=style, reader_preference=reader_preference,
+            size=size, quality=quality, retries=retries,
+            mood=mood, composition=composition, time_of_day=time_of_day,
+            setting=setting, palette_hint=palette_hint,
+            base_palette=base_palette, character_refs=character_refs,
+        )
+
+    if size is None:
+        size = size_for_composition(composition)
+    # The `/images/edits` endpoint (multipart, multi-image inputs) is
+    # only available on the newer Azure api-version. `/images/generations`
+    # works on the older one, so we keep `config.image_api_version` for
+    # text-only and pin edits to `2025-04-01-preview`. Override via env
+    # `AZURE_IMAGE_EDITS_API_VERSION` if Azure introduces a stable one.
+    import os
+    edits_api_version = os.getenv(
+        "AZURE_IMAGE_EDITS_API_VERSION", "2025-04-01-preview"
+    )
+    url = (
+        f"{config.image_endpoint}/openai/deployments/{config.image_deployment}"
+        f"/images/edits?api-version={edits_api_version}"
+    )
+    composed = compose_prompt(
+        prompt,
+        style=style,
+        reader_preference=reader_preference,
+        mood=mood,
+        composition=composition,
+        time_of_day=time_of_day,
+        setting=setting,
+        palette_hint=palette_hint,
+        base_palette=base_palette,
+        character_refs=character_refs,
+    )
+    headers = {"Authorization": f"Bearer {config.image_api_key}"}
+    data = {
+        "prompt": composed,
+        "size": size,
+        "quality": quality,
+        "n": "1",
+        "output_format": "png",
+    }
+
+    last_exc: Exception | None = None
+    for attempt in range(retries + 1):
+        # Re-open file handles each attempt: requests consumes them on a
+        # successful upload AND a failed one (the socket eats the stream
+        # before the server reports the error).
+        files: list[tuple[str, tuple[str, "object", str]]] = []
+        for path in reference_image_paths:
+            files.append(
+                ("image[]", (os.path.basename(path), open(path, "rb"), "image/png"))
+            )
+        try:
+            try:
+                r = requests.post(url, headers=headers, files=files, data=data, timeout=180)
+                r.raise_for_status()
+                b64 = r.json()["data"][0]["b64_json"]
+                os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+                with open(out_path, "wb") as fh:
+                    fh.write(base64.b64decode(b64))
+                return out_path
+            finally:
+                for _, (_, fh, _) in files:
+                    try:
+                        fh.close()
+                    except Exception:  # noqa: BLE001
+                        pass
+        except requests.HTTPError as exc:
+            last_exc = exc
+            status = exc.response.status_code if exc.response is not None else 0
+            if status == 400:
+                is_policy, body_text = _is_content_policy_400(exc)
+                if is_policy:
+                    raise ContentPolicyViolation(
+                        f"Azure content policy rejected prompt: {body_text[:200]}",
+                        body=body_text,
+                    ) from exc
+            if status < 500 or attempt == retries:
+                raise
+            time.sleep(1.5 * (attempt + 1))
+        except requests.RequestException as exc:
+            last_exc = exc
+            if attempt == retries:
+                raise
+            time.sleep(1.5 * (attempt + 1))
+
+    assert last_exc is not None
+    raise last_exc
+
+
 async def generate_image(
     prompt: str,
     out_path: str,
@@ -289,7 +415,29 @@ async def generate_image(
     character_refs: list[str] | None = None,
     quality: str = "medium",
     size: str | None = None,
+    reference_image_paths: list[str] | None = None,
 ) -> str:
+    """Async wrapper. Dispatches to `/images/generations` (text-only) or
+    `/images/edits` (with one or more character reference images) based
+    on whether `reference_image_paths` is provided."""
+    if reference_image_paths:
+        return await asyncio.to_thread(
+            generate_image_with_references_sync,
+            prompt,
+            out_path,
+            reference_image_paths=reference_image_paths,
+            style=style,
+            reader_preference=reader_preference,
+            mood=mood,
+            composition=composition,
+            time_of_day=time_of_day,
+            setting=setting,
+            palette_hint=palette_hint,
+            base_palette=base_palette,
+            character_refs=character_refs,
+            quality=quality,
+            size=size,
+        )
     return await asyncio.to_thread(
         generate_image_sync,
         prompt,
@@ -325,6 +473,7 @@ async def generate_image_with_softening(
     base_palette: str | None = None,
     character_refs: list[str] | None = None,
     quality: str = "medium",
+    reference_image_paths: list[str] | None = None,
 ) -> dict:
     """Generate an image, recovering from content-policy rejections by
     asking the softener LLM to rephrase the scene.
@@ -368,6 +517,7 @@ async def generate_image_with_softening(
                     base_palette=base_palette,
                     character_refs=character_refs,
                     quality=quality,
+                    reference_image_paths=reference_image_paths,
                 ),
                 attempts=retry_attempts,
                 label=f"image[{label}]",

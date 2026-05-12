@@ -59,6 +59,15 @@ _CHAPTER_RE = re.compile(
 # starts (some 19th-century books use bare "I.", "II.", "III." headings).
 _NUMERAL_RE = re.compile(r"^\s*[IVXLCDM]+\.?\s*$|^\s*\d+\.?\s*$", re.IGNORECASE)
 
+# Numeral + delimiter + capitalised title: "I. A SCANDAL IN BOHEMIA",
+# "1. THE BEGINNING", "II.—The Red-Headed League" — the canonical
+# modern Project Gutenberg chapter-heading shape. Requires an uppercase
+# letter after the delimiter so we don't match "1.99 dollars" inside
+# stray body text accidentally classified as a heading.
+_LEADING_NUMERAL_TITLE_RE = re.compile(
+    r"^\s*(?:[IVXLCDM]+|\d{1,3})\s*[.\-—:)]\s*[A-Z]"
+)
+
 # Headings whose text matches one of these is *front matter* — we drop
 # them and everything they contain. Order matters: we only apply this
 # denylist to headings that appear *before* the first chapter heading,
@@ -232,6 +241,13 @@ def _is_chapter_heading(tag: Tag) -> bool:
     if not text:
         return False
     if _CHAPTER_RE.match(text):
+        return True
+    # Prefer the numeral-with-title pattern over the bare numeral
+    # pattern when both apply — but the check order doesn't actually
+    # matter (both return True), only the doc-order pick in
+    # `_find_first_chapter_heading` does, where the outer h2
+    # "I. A SCANDAL IN BOHEMIA" will sort before the inner h3 "I.".
+    if _LEADING_NUMERAL_TITLE_RE.match(text):
         return True
     if _NUMERAL_RE.match(text):
         return True

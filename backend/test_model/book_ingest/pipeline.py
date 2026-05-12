@@ -25,6 +25,7 @@ from pathlib import Path
 
 from . import embeddings, persist
 from .bundler import write_bundle
+from .character_sheets import generate_character_sheets
 from .chunker import chunk_pdf
 from .cleaner import clean_chunks
 from .config import config
@@ -101,6 +102,19 @@ async def ingest_pdf(
         loader_subjects = loaded_html.subjects or []
     else:
         loaded = load_pdf(pdf_path)
+
+    # Refuse to proceed if the loader produced nothing. Without this
+    # guard every downstream phase's "all items done" check passes
+    # vacuously on the empty list and the manifest ends up claiming the
+    # whole pipeline succeeded — when in reality the book is empty.
+    # Symptom: studio shows the book as "done" with 0 chunks/pages.
+    if not loaded.pages:
+        raise RuntimeError(
+            f"Loader produced 0 pages from {pdf_path!r}. The source's "
+            f"chapter / page structure didn't match any pattern the "
+            f"loader recognises — check the HTML headings or the PDF "
+            f"page extraction. Aborting before phases run on empty data."
+        )
 
     # Loader-supplied metadata fills in defaults the caller didn't set.
     raw_title = title or loader_title or slug
@@ -261,23 +275,56 @@ async def ingest_pdf(
     )
     print(f"[embed/scenes] +{n_scene_emb} new (cached: {len(planned) - n_scene_emb})")
 
-    # ---- 5: generate images (per-scene; PNG already exists → skip) -------
-    # Hand the scout's character bible + base palette to image generation
-    # so the same Alice / Bhīma / Frankenstein looks like the same person
-    # across every scene that names them. Falling back to empty dict/None
-    # keeps old manifests working.
+    # ---- 4.7: character sheets (reference portraits for every named figure) --
+    # Pixel-level character consistency across 20+ scenes needs visual
+    # anchors, not just text. We generate one portrait per character in
+    # the scout's bible up front, then scene-gen passes the matching
+    # portrait(s) to Azure's /images/edits endpoint as references —
+    # locking face + build + clothing across every scene that names that
+    # character. Resumable per-character.
     char_bible_by_name: dict[str, str] = {
         c["name"]: c["appearance"]
         for c in (scout_data.get("character_bible") or [])
         if isinstance(c, dict) and c.get("name") and c.get("appearance")
     }
     base_palette = scout_data.get("base_palette")
+    char_sheet_paths_by_name: dict[str, str] = {}
+    if char_bible_by_name:
+        try:
+            char_sheet_paths_by_name = await generate_character_sheets(
+                slug,
+                bible=scout_data.get("character_bible") or [],
+                style=style,
+                reader_preference=reader_preference,
+                base_palette=base_palette,
+            )
+            if char_sheet_paths_by_name:
+                manifest["character_sheets"] = char_sheet_paths_by_name
+                persist.write_manifest(slug, manifest)
+            # Mark done only when EVERY bible character has a sheet —
+            # partial coverage stays "in progress" so a re-run retries
+            # the failed ones.
+            if all(name in char_sheet_paths_by_name for name in char_bible_by_name):
+                _mark_done(slug, manifest, "character_sheets")
+        except Exception as exc:  # noqa: BLE001
+            # Fail-open — sheets are an enhancement. If they fail the
+            # pipeline degrades to text-only-bible scenes (which is what
+            # we were doing before this phase existed).
+            print(f"[chars] phase failed: {type(exc).__name__}: {exc} — "
+                  f"continuing with text-only consistency")
+
+    # ---- 5: generate images (per-scene; PNG already exists → skip) -------
+    # Hand the scout's character bible + base palette to image generation
+    # so the same Alice / Bhīma / Frankenstein looks like the same person
+    # across every scene that names them. Falling back to empty dict/None
+    # keeps old manifests working.
     scenes = await _generate_all_images(
         slug,
         planned,
         style,
         reader_preference,
         char_bible_by_name=char_bible_by_name,
+        char_sheet_paths_by_name=char_sheet_paths_by_name,
         base_palette=base_palette,
     )
     if all(persist.image_path_for(slug, p.scene_id).exists() for p in planned):
@@ -319,12 +366,17 @@ async def ingest_pdf(
             # The cover gets the *full* character bible appended — we
             # don't know which figures the cover scene names without
             # NER, so attaching all refs lets the model pick what fits.
-            # Keeps Alice's hair color etc. consistent with the
-            # interior illustrations.
+            # When we also have character sheets on disk, pass those as
+            # reference images so the cover's characters look like the
+            # same people the reader will meet inside the book.
             cover_char_refs = [
                 f"{c['name']}: {c['appearance']}"
                 for c in (scout_data.get("character_bible") or [])
                 if isinstance(c, dict) and c.get("name") and c.get("appearance")
+            ]
+            cover_sheet_paths = [
+                p for p in char_sheet_paths_by_name.values()
+                if Path(p).exists()
             ]
             cover_path = await generate_cover_image(
                 slug,
@@ -333,6 +385,7 @@ async def ingest_pdf(
                 reader_preference=manifest.get("reader_preference"),
                 base_palette=scout_data.get("base_palette"),
                 character_refs=cover_char_refs or None,
+                reference_image_paths=cover_sheet_paths or None,
             )
             if cover_path:
                 manifest["cover_image_local"] = str(cover_path)
@@ -409,6 +462,7 @@ async def _generate_all_images(
     reader_preference: str | None,
     *,
     char_bible_by_name: dict[str, str] | None = None,
+    char_sheet_paths_by_name: dict[str, str] | None = None,
     base_palette: str | None = None,
 ) -> list[GeneratedScene]:
     """Resumable per-scene image generation. A scene whose PNG is already
@@ -419,8 +473,15 @@ async def _generate_all_images(
     into the prompt. Character refs are looked up against the scout's
     character_bible so the same name maps to the same vivid description
     on every scene that mentions it.
+
+    When `char_sheet_paths_by_name` is supplied, scenes whose
+    `characters_present` names match an existing sheet PNG also pass
+    those sheets as REFERENCE IMAGES to Azure's `/images/edits`
+    endpoint — so the same Alice / Hyde / Bhīma carries the same face
+    + build across every scene appearance, not just the same costume.
     """
     char_bible_by_name = char_bible_by_name or {}
+    char_sheet_paths_by_name = char_sheet_paths_by_name or {}
     sem = asyncio.Semaphore(config.image_parallelism)
     scenes: list[GeneratedScene] = []
     lock = asyncio.Lock()
@@ -444,10 +505,14 @@ async def _generate_all_images(
         # Names the planner saw in the scene but the scout didn't list
         # are silently dropped — better no ref than a hallucinated one.
         char_refs: list[str] = []
+        sheet_paths: list[str] = []
         for name in p.characters_present:
             appearance = char_bible_by_name.get(name)
             if appearance:
                 char_refs.append(f"{name}: {appearance}")
+            sheet_path = char_sheet_paths_by_name.get(name)
+            if sheet_path and Path(sheet_path).exists():
+                sheet_paths.append(sheet_path)
 
         async with sem:
             try:
@@ -464,6 +529,7 @@ async def _generate_all_images(
                     palette_hint=p.palette_hint,
                     base_palette=base_palette,
                     character_refs=char_refs or None,
+                    reference_image_paths=sheet_paths or None,
                 )
             except Exception as exc:  # noqa: BLE001
                 print(f"[images] {p.scene_id} failed: {exc}")
