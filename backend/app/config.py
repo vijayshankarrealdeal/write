@@ -88,6 +88,11 @@ class Settings(BaseSettings):
     # client can show success/cancel UI on return. Empty falls back to
     # `frontend_origin`.
     razorpay_return_url: str = ""
+    # Razorpay Plan id for the reader ₹199/month subscription. Minted
+    # once via `scripts/create_razorpay_plan.py` and copied into env.
+    # Empty -> `/api/subscriptions/*` returns 503 so a misconfigured
+    # deployment fails loudly.
+    razorpay_plan_id_monthly: str = ""
 
     # `extra="ignore"` matches prod's docker-compose `environment:` injection (which
     # passes vars not declared here, e.g. AZURE_OPENAI_MAP_DEPLOYMENT consumed by

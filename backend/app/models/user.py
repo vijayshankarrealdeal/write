@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Index, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -46,6 +46,30 @@ class User(UUIDMixin, Base):
         Boolean, nullable=False, default=False, server_default="false"
     )
 
+    # Razorpay reader-side subscription (₹199/month). The customer id is
+    # minted lazily on the user's first Subscribe tap and reused for
+    # every subsequent subscription so Razorpay sees one customer per
+    # InkSpaceX account. `active_subscription_id` is a denormalised
+    # pointer to the current/most-recent `subscriptions` row — the
+    # per-request "is this user a paying reader?" check is a single
+    # row read on `users`, no join. NULLed when the subscription ends
+    # (cancelled / completed / halted-and-abandoned); set to the new
+    # row id when they resubscribe. `subscription_status` mirrors the
+    # latest `subscriptions.status` for the same hot-path reason. The
+    # FK is declared with `use_alter=True` because `subscriptions` in
+    # turn references `users.id`, so neither table can be created
+    # first without a deferred constraint.
+    razorpay_customer_id: Mapped[str | None] = mapped_column(String(64))
+    active_subscription_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "subscriptions.id",
+            use_alter=True,
+            name="fk_users_active_subscription",
+        ),
+    )
+    subscription_status: Mapped[str | None] = mapped_column(String(32))
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -61,6 +85,7 @@ class User(UUIDMixin, Base):
     reading_progress: Mapped[list["ReadingProgress"]] = relationship(back_populates="user", cascade="all, delete-orphan")  # noqa: F821
     bookmarks: Mapped[list["Bookmark"]] = relationship(back_populates="user", cascade="all, delete-orphan")  # noqa: F821
     author_bookmarks: Mapped[list["AuthorBookmark"]] = relationship(back_populates="user", cascade="all, delete-orphan")  # noqa: F821
+    subscriptions: Mapped[list["Subscription"]] = relationship(back_populates="user", cascade="all, delete-orphan", foreign_keys="Subscription.user_id")  # noqa: F821
 
     __table_args__ = (
         # Collaborative filtering pivots on "find users whose `likes` array

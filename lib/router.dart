@@ -45,6 +45,7 @@ import 'package:inkspacex/ui/pages/reading_statistics_page.dart';
 import 'package:inkspacex/ui/pages/tag_feed_page.dart';
 import 'package:inkspacex/ui/pages/shelf_all_page.dart';
 import 'package:inkspacex/ui/pages/subscription_page.dart';
+import 'package:inkspacex/ui/pages/billing_history_page.dart';
 import 'package:inkspacex/ui/pages/create_bookshelf_page.dart';
 import 'package:inkspacex/ui/pages/view_bookshelf_page.dart';
 import 'package:inkspacex/ui/pages/add_books_to_shelf_page.dart';
@@ -385,6 +386,10 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/subscription',
         builder: (_, _) => const SubscriptionPage(),
+      ),
+      GoRoute(
+        path: '/subscription/history',
+        builder: (_, _) => const BillingHistoryPage(),
       ),
       GoRoute(
         path: '/bookshelf/new',

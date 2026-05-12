@@ -27,6 +27,7 @@ before invoking.
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 
 from fastapi import HTTPException
 from sqlalchemy import select
@@ -35,6 +36,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.models.feed_item import FeedItem
 from app.models.purchase import Purchase
+from app.models.subscription import Subscription
+from app.models.subscription_invoice import SubscriptionInvoice
 from app.models.user import User
 
 
@@ -288,6 +291,9 @@ async def record_purchase_from_event(event, db: AsyncSession) -> None:
     if etype.startswith("account."):
         await _apply_account_updated(event, etype, db)
         return
+    if etype.startswith("subscription.") or etype.startswith("invoice."):
+        await _apply_subscription_event(event, etype, db)
+        return
     if etype != "payment.captured":
         return
     payload = event.get("payload") or {}
@@ -447,6 +453,196 @@ async def _apply_account_updated(event, etype: str, db: AsyncSession) -> None:
     if user.razorpay_charges_enabled != new_state:
         user.razorpay_charges_enabled = new_state
         await db.commit()
+
+
+def _ts_to_dt(ts):
+    """Razorpay timestamps are unix-second ints. Promote to a
+    timezone-aware UTC datetime, or `None` if absent. Tolerates string
+    payloads from older webhook bodies."""
+    if ts is None:
+        return None
+    try:
+        return datetime.fromtimestamp(int(ts), tz=timezone.utc)
+    except (TypeError, ValueError):
+        return None
+
+
+def _sub_payload(event: dict) -> dict:
+    """Extract the subscription entity dict from a `subscription.*`
+    webhook payload, tolerating Razorpay's nested envelope shape.
+    Returns `{}` if not present so callers can short-circuit cleanly."""
+    payload = event.get("payload") or {}
+    envelope = payload.get("subscription") or {}
+    return envelope.get("entity") or {}
+
+
+def _invoice_payload(event: dict) -> dict:
+    """Same as `_sub_payload` for the invoice envelope."""
+    payload = event.get("payload") or {}
+    envelope = payload.get("invoice") or {}
+    return envelope.get("entity") or {}
+
+
+def _apply_status_columns(sub: Subscription, entity: dict) -> None:
+    """Mirror the billing-cycle scalars from a Razorpay subscription
+    entity onto our local row. Used by every `subscription.*` branch so
+    cycle dates stay in sync no matter which event drove the update."""
+    sub.current_start = _ts_to_dt(entity.get("current_start")) or sub.current_start
+    sub.current_end = _ts_to_dt(entity.get("current_end")) or sub.current_end
+    sub.charge_at = _ts_to_dt(entity.get("charge_at")) or sub.charge_at
+    paid = entity.get("paid_count")
+    if paid is not None:
+        sub.paid_count = int(paid)
+
+
+async def _upsert_invoice(
+    entity: dict,
+    sub: Subscription,
+    db: AsyncSession,
+) -> None:
+    """Insert a `subscription_invoices` row from a Razorpay invoice
+    entity. Idempotent on `razorpay_invoice_id` — webhook replays
+    no-op."""
+    invoice_id = entity.get("id")
+    if not invoice_id:
+        return
+    existing = await db.execute(
+        select(SubscriptionInvoice.id).where(
+            SubscriptionInvoice.razorpay_invoice_id == invoice_id
+        )
+    )
+    if existing.scalar_one_or_none() is not None:
+        return
+    paid_at_ts = entity.get("paid_at") or entity.get("paid_at_ts")
+    period_start = entity.get("billing_start") or entity.get("period_start")
+    period_end = entity.get("billing_end") or entity.get("period_end")
+    payment_id = entity.get("payment_id")
+    invoice = SubscriptionInvoice(
+        subscription_id=sub.id,
+        user_id=sub.user_id,
+        razorpay_invoice_id=str(invoice_id),
+        razorpay_payment_id=str(payment_id) if payment_id else None,
+        status=(entity.get("status") or "issued").lower(),
+        amount_cents=int(entity.get("amount") or 0),
+        currency=(entity.get("currency") or "inr").lower(),
+        billing_period_start=_ts_to_dt(period_start),
+        billing_period_end=_ts_to_dt(period_end),
+        paid_at=_ts_to_dt(paid_at_ts),
+        short_url=entity.get("short_url"),
+    )
+    db.add(invoice)
+
+
+async def _apply_subscription_event(
+    event: dict, etype: str, db: AsyncSession
+) -> None:
+    """Mirror a Razorpay subscription/invoice event onto our tables.
+
+    Dispatches by `etype` over the Razorpay state machine:
+
+    * `subscription.authenticated` — user authorized but pre-first-charge.
+    * `subscription.activated` — first charge captured; clear the
+      short_url so the UI stops nagging the user to authorize.
+    * `subscription.charged` — recurring charge captured; refresh cycle
+      dates and upsert the attached invoice into our cache.
+    * `subscription.pending` / `.halted` — retry-state mirroring; on
+      `halted` the client surfaces the manage-payment URL.
+    * `subscription.cancelled` / `.completed` — terminal; clear the
+      user's active pointer if it still points at this row.
+    * `subscription.paused` / `.resumed` — recorded for completeness;
+      not yet exposed in the UI.
+    * `invoice.paid` / `invoice.issued` — pure invoice upserts.
+
+    Idempotent end-to-end: lookups are keyed on
+    `razorpay_subscription_id` and `razorpay_invoice_id`, so webhook
+    replays converge to the same row state without duplicating data.
+    We deliberately no-op when a subscription isn't on file — Razorpay
+    may emit events for subscriptions created out-of-band (e.g. via the
+    Razorpay dashboard), and we shouldn't fabricate rows we didn't
+    track from creation.
+    """
+    # Figure out which subscription this event references.
+    sub_id: str | None = None
+    invoice_entity: dict = {}
+    if etype.startswith("subscription."):
+        entity = _sub_payload(event)
+        sub_id = entity.get("id")
+    else:
+        invoice_entity = _invoice_payload(event)
+        sub_id = invoice_entity.get("subscription_id")
+    if not sub_id:
+        return
+
+    row = await db.execute(
+        select(Subscription).where(Subscription.razorpay_subscription_id == sub_id)
+    )
+    sub = row.scalar_one_or_none()
+    if sub is None:
+        return
+
+    now = datetime.now(tz=timezone.utc)
+    entity = _sub_payload(event) if etype.startswith("subscription.") else {}
+
+    if etype == "subscription.authenticated":
+        sub.status = "authenticated"
+        _apply_status_columns(sub, entity)
+    elif etype == "subscription.activated":
+        sub.status = "active"
+        # Once active we no longer want to show the "complete payment"
+        # CTA. Razorpay also redirects the same short_url to a manage
+        # surface, but we treat that as a distinct concept — the row's
+        # short_url is the authorization URL; manage flows go through
+        # `GET /manage-payment-method` which surfaces the URL on halt.
+        sub.short_url = None
+        _apply_status_columns(sub, entity)
+    elif etype == "subscription.charged":
+        # Refresh cycle metadata, then write the invoice if Razorpay
+        # attached one to the payload. The `paid_count` bump comes from
+        # the entity body rather than +1'ing locally so we stay in sync
+        # if a webhook is missed and a later one replays the world.
+        _apply_status_columns(sub, entity)
+        # Razorpay nests the invoice under either the subscription
+        # payload (older shape) or its own envelope. Try both.
+        nested_invoice = (
+            (event.get("payload") or {}).get("invoice", {}).get("entity")
+        )
+        if nested_invoice:
+            await _upsert_invoice(nested_invoice, sub, db)
+    elif etype == "subscription.pending":
+        sub.status = "pending"
+        _apply_status_columns(sub, entity)
+    elif etype == "subscription.halted":
+        sub.status = "halted"
+        _apply_status_columns(sub, entity)
+    elif etype in ("subscription.cancelled", "subscription.completed"):
+        sub.status = "cancelled" if etype == "subscription.cancelled" else "completed"
+        sub.ended_at = now
+        _apply_status_columns(sub, entity)
+        # Clear the user's denormalized pointer iff it still points at
+        # this row. If the user has already resubscribed (new row,
+        # pointer reassigned), leave the new pointer alone.
+        user_q = await db.execute(select(User).where(User.id == sub.user_id))
+        user = user_q.scalar_one_or_none()
+        if user is not None:
+            if user.active_subscription_id == sub.id:
+                user.active_subscription_id = None
+            user.subscription_status = sub.status
+    elif etype == "subscription.paused":
+        sub.status = "paused"
+        _apply_status_columns(sub, entity)
+    elif etype == "subscription.resumed":
+        sub.status = "active"
+        _apply_status_columns(sub, entity)
+    elif etype in ("invoice.paid", "invoice.issued"):
+        await _upsert_invoice(invoice_entity, sub, db)
+
+    try:
+        await db.commit()
+    except Exception:
+        # Lost a race with another worker handling the same event.
+        # The unique constraints make every write idempotent, so a
+        # rollback is the safe recovery.
+        await db.rollback()
 
 
 __all__ = [

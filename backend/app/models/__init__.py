@@ -31,6 +31,8 @@ from app.models.push_subscription import PushSubscription
 from app.models.reading_progress import ReadingProgress
 from app.models.report import Report
 from app.models.section import Section
+from app.models.subscription import Subscription
+from app.models.subscription_invoice import SubscriptionInvoice
 from app.models.user import User
 from app.models.writing import Writing
 
@@ -65,6 +67,8 @@ __all__ = [
     "RecommendationEvent",
     "Report",
     "Section",
+    "Subscription",
+    "SubscriptionInvoice",
     "User",
     "Writing",
 ]

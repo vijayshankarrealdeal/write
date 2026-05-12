@@ -29,6 +29,7 @@ import 'package:inkspacex/provider/nav_provider.dart';
 import 'package:inkspacex/provider/notification_provider.dart';
 import 'package:inkspacex/provider/offline_provider.dart';
 import 'package:inkspacex/provider/settings_provider.dart';
+import 'package:inkspacex/provider/subscription_provider.dart';
 import 'package:inkspacex/provider/linguistic_focus_provider.dart';
 import 'package:inkspacex/provider/spell_check_provider.dart';
 import 'package:inkspacex/provider/version_history_provider.dart';
@@ -461,6 +462,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           update: (context, auth, previous) =>
               previous ??
               OfflineProvider(storage: storage, apiClient: auth.apiClient),
+        ),
+        // Reader subscription state — drives /subscription page and the
+        // small "Active / Inactive" badge in the Profile Hub. The
+        // provider holds onto SubscriptionMe; the page polls after the
+        // user returns from the Razorpay hosted authorization URL.
+        ChangeNotifierProxyProvider<AuthProvider, SubscriptionProvider>(
+          create: (context) =>
+              SubscriptionProvider(context.read<AuthProvider>().apiClient),
+          update: (context, auth, previous) =>
+              previous ?? SubscriptionProvider(auth.apiClient),
         ),
         ChangeNotifierProxyProvider<AuthProvider, BookmarkProvider>(
           create: (context) => BookmarkProvider(
