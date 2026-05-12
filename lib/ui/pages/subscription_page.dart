@@ -66,7 +66,7 @@ class SubscriptionPage extends StatelessWidget {
                 children: [
                   _ActionTile(
                     label: "Manage payment method",
-                    trailing: "Apple Pay",
+                    trailing: "Razorpay",
                     onTap: () {},
                   ),
                   _buildDivider(isDark),
@@ -149,13 +149,13 @@ class SubscriptionPage extends StatelessWidget {
           const SizedBox(height: 10),
           _buildPlanRow(
             "Amount",
-            "\$ 7.99/month",
+            "₹ 199/month",
             accent,
           ),
           const SizedBox(height: 10),
           _buildPlanRow(
             "Payment method",
-            "Apple Pay",
+            "Razorpay",
             accent,
           ),
         ],
