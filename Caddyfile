@@ -74,7 +74,7 @@ api.{$DOMAIN} {
 	# Static marketing + SEO surfaces (landing, comparison, blog, og-image).
 	# Plain HTML — skip the SPA's COOP/COEP so Google Fonts and embedded
 	# SVGs load without cross-origin friction.
-	@marketing_html path /landing.html /scrivener-alternative.html /scrivener-vs-inkspacex.html /sudowrite-vs-inkspacex.html /best-writing-software-2026.html
+	@marketing_html path /landing.html
 	handle @marketing_html {
 		root * /srv/web
 		header Cache-Control "no-cache"
@@ -82,7 +82,7 @@ api.{$DOMAIN} {
 	}
 
 	# OG / Twitter card images — public, long-cached.
-	@og_images path /og-image.png /og-scrivener-alternative.png /og-scrivener-vs.png /og-sudowrite-vs.png /og-best-2026.png /og-blog-three-act.png /og-blog-ugly-draft.png /og-blog-switching.png
+	@og_images path /og-image.png /og-blog-three-act.png /og-blog-ugly-draft.png /og-blog-switching.png
 	handle @og_images {
 		root * /srv/web
 		header Cache-Control "public, max-age=86400"
@@ -122,10 +122,14 @@ api.{$DOMAIN} {
 
 	handle {
 		root * /srv/web
-		# skwasm renderer needs SharedArrayBuffer, which requires a
-		# cross-origin-isolated context (COOP + COEP headers).
-		header Cross-Origin-Opener-Policy "same-origin"
-		header Cross-Origin-Embedder-Policy "credentialless"
+		# No COOP/COEP here. The active renderer is canvaskit (set in
+		# flutter_bootstrap.js), which does not need SharedArrayBuffer or a
+		# cross-origin-isolated context. Setting `COEP: credentialless`
+		# broke Instagram / Facebook / TikTok in-app webviews — their
+		# WebView implementations refuse to load the bundle and the user
+		# sees a blank screen. If we ever switch back to skwasm, restore
+		# `Cross-Origin-Opener-Policy: same-origin` and
+		# `Cross-Origin-Embedder-Policy: credentialless` here.
 		# Flutter web's bootstrap files don't carry content hashes in their
 		# names — if the browser caches them stale, users keep running
 		# yesterday's build forever. Use `no-cache` (NOT `no-store`): the

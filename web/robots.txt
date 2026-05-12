@@ -2,10 +2,6 @@
 User-agent: *
 Allow: /
 Allow: /landing.html
-Allow: /scrivener-alternative.html
-Allow: /scrivener-vs-inkspacex.html
-Allow: /sudowrite-vs-inkspacex.html
-Allow: /best-writing-software-2026.html
 Allow: /blog/
 Allow: /privacy_policy.html
 Allow: /terms_of_service.html
