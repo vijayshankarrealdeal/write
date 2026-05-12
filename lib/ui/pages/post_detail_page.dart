@@ -4063,8 +4063,20 @@ class _OverviewHeroDesktop extends StatelessWidget {
         ? resumeTitle!
         : null;
 
-    return Stack(
-      children: [
+    // The outer SizedBox forces the Stack to span the full viewport
+    // width so the blurred backdrop covers the whole hero, while the
+    // inner ConstrainedBox keeps the foreground content centered at
+    // ≤1080. Using the Stack's own `alignment: topCenter` (instead of
+    // wrapping the foreground in `Center`) makes the ConstrainedBox the
+    // non-positioned child that sets the Stack's height — so when the
+    // description expands the Stack grows with it, instead of staying
+    // at the cover's height and letting the description paint over the
+    // action row / cast / chapters below.
+    return SizedBox(
+      width: double.infinity,
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
         // Cinematic blurred backdrop derived from the cover.
         Positioned.fill(
           child: ClipRect(
@@ -4115,20 +4127,11 @@ class _OverviewHeroDesktop extends StatelessWidget {
         ),
 
         // Foreground row.
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1080),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(40, 36, 40, 36),
-              // Top-align so the cover sits at the top while the right
-              // column grows as tall as it needs. We can't use
-              // IntrinsicHeight + stretch here because both children
-              // contain a LayoutBuilder (cover sizing, description
-              // overflow probe), and LayoutBuilder doesn't report
-              // intrinsic dimensions — that collapsed the row to the
-              // cover's minHeight and let the expanded description
-              // overflow on top of the chapter list below.
-              child: Row(
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1080),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(40, 36, 40, 36),
+            child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                     Container(
@@ -4259,8 +4262,8 @@ class _OverviewHeroDesktop extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
