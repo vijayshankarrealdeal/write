@@ -161,7 +161,7 @@ async def upload_pdf(
         scratch_path.unlink(missing_ok=True)
         manifest = persist.read_manifest(existing_slug)
         slug = existing_slug
-        resolved_title = manifest.get("title") or _title_from_filename(file.filename)
+        display_title = manifest.get("title") or _title_from_filename(file.filename)
         # Find whichever source.<ext> already exists for this book.
         book_path = persist.book_dir(slug)
         candidates = [book_path / f"source{ext}" for ext in (".pdf", ".html", ".htm")]
@@ -177,7 +177,7 @@ async def upload_pdf(
         manifest["source_filename"] = file.filename
         manifest["source_format"] = "html" if src_ext == ".html" else "pdf"
         persist.write_manifest(slug, manifest)
-        resolved_title = title or _title_from_filename(file.filename)
+        display_title = title or _title_from_filename(file.filename)
         resumed = False
 
     _JOBS[slug] = {
@@ -186,18 +186,25 @@ async def upload_pdf(
         "error": None,
     }
 
+    # IMPORTANT: only the user's explicit `title` (from the form) goes
+    # to the pipeline. If they didn't override, pass None — that lets
+    # `ingest_pdf` use the title the HTML loader extracts from the
+    # Gutenberg <meta name="dc.title"> / <title> tags. Otherwise the
+    # filename-derived title ("Pg64317 Images") would short-circuit
+    # the `title or loader_title or slug` chain and stomp the real
+    # "The Great Gatsby" before it ever has a chance to apply.
     background.add_task(
         _run_ingest,
         slug=slug,
         pdf_path=str(pdf_dest),
-        title=resolved_title,
+        title=title,
         image_budget=image_budget,
         style=style,
         reader_preference=reader_preference,
     )
     return UploadResponse(
         slug=slug,
-        title=resolved_title,
+        title=display_title,
         resumed=resumed,
         source_hash=source_hash,
     )
