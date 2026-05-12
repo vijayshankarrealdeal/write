@@ -591,6 +591,7 @@ async def create_feed_item(
                 writing_id=writing_id,
                 name=name,
                 appearance=appearance,
+                bio=(entry.get("bio") or "").strip() or None,
                 image_url=entry.get("image_url"),
                 image_meta=entry.get("image_meta"),
                 sort_order=int(entry.get("sort_order") or 0),

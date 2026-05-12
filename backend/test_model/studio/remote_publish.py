@@ -549,6 +549,7 @@ async def _build_remote_characters(
         out.append({
             "name": name,
             "appearance": appearance,
+            "bio": (entry.get("bio") or "").strip() or None,
             "image_url": image_url,
             "image_meta": image_meta,
             "sort_order": idx,

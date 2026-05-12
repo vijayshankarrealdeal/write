@@ -10,6 +10,11 @@ class CharacterPayload(BaseModel):
     keyed on (writing_id, name)."""
     name: str
     appearance: str
+    # 2-3 sentence reader-facing bio. Separate from `appearance`,
+    # which is the image-generation prompt. Optional for backward
+    # compat with older publishes — the client falls back to
+    # `appearance` when bio is missing.
+    bio: str | None = None
     image_url: str | None = None
     image_meta: dict | None = None
     sort_order: int = 0

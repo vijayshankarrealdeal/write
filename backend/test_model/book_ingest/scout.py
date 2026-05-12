@@ -21,12 +21,13 @@ from .schemas import Chunk
 
 
 class CharacterRef(BaseModel):
-    """A canonical visual reference for a recurring character.
+    """A canonical reference for a recurring character.
 
-    The scout produces one of these per major figure so the same person
-    looks like the same person across 20+ scenes. The image-gen phase
-    appends matching refs to every scene's prompt whenever that
-    character is present.
+    `appearance` is the image-gen prompt (locks in hair/build/clothing
+    for the art model). `bio` is the reader-facing card text — who the
+    character is, their role, personality, position in the story.
+    These serve different surfaces: appearance never leaves the
+    backend, bio is shown on the character detail page.
     """
     name: str = Field(
         ...,
@@ -35,12 +36,31 @@ class CharacterRef(BaseModel):
     appearance: str = Field(
         ...,
         description=(
-            "One vivid sentence locking in age, build, hair, clothing, and a "
-            "signature visual detail. Examples: 'a small girl about seven, "
+            "IMAGE-GEN PROMPT — one vivid sentence locking in age, build, "
+            "hair, clothing, and a signature visual detail. Reads as an "
+            "art-direction string. Examples: 'a small girl about seven, "
             "long fair hair, blue pinafore over a white dress, black "
             "stockings, perpetual look of curious bafflement', 'an immense "
             "warrior, dark-skinned, mace at his side, gold armlets, "
             "thunder-cloud aura, scarlet-edged dhoti'."
+        ),
+    )
+    bio: str = Field(
+        ...,
+        description=(
+            "READER-FACING BIO — 2-3 sentences describing who this character "
+            "is in THIS book: role / profession / social position, key "
+            "personality traits, and what they do in the story (no major "
+            "spoilers). Reads like a Wikipedia or back-cover character card. "
+            "Do NOT describe physical appearance — that's the `appearance` "
+            "field. Examples: 'Sherlock Holmes is a brilliant consulting "
+            "detective who solves mysteries through extraordinary observation "
+            "and deduction. Famously eccentric and aloof, he takes on cases "
+            "for clients across London with his friend Dr. Watson by his "
+            "side.', 'Daisy Buchanan is the golden-voiced socialite at the "
+            "centre of Gatsby''s longing. Married to wealthy Tom Buchanan "
+            "but unable to forget her romance with Jay, her choices set the "
+            "novel''s tragedy in motion.'"
         ),
     )
 
@@ -118,12 +138,17 @@ _SCOUT_SYSTEM = (
     "(don't default to 'editorial illustration')\n"
     "  - whether to bias scene picks toward any particular type of moment\n"
     "  - how many illustrations the book deserves\n"
-    "  - a CHARACTER BIBLE: 2-8 recurring named figures, each with a vivid "
-    "one-line appearance that locks in age, build, hair, clothes, and a "
-    "signature detail. This is the single biggest lever for making 20+ "
-    "scene illustrations feel like one book — if 'Alice' shows up in nine "
-    "scenes, all nine must read as the same girl. Skip the bible only for "
-    "landscape-only or essay books.\n"
+    "  - a CHARACTER BIBLE: 2-8 recurring named figures. For each:\n"
+    "      * `appearance` — image-gen prompt: a vivid one-line "
+    "description locking in age, build, hair, clothes, and a signature "
+    "visual detail. This is the single biggest lever for making 20+ "
+    "scene illustrations feel like one book — if 'Alice' shows up in "
+    "nine scenes, all nine must read as the same girl.\n"
+    "      * `bio` — reader-facing character card: 2-3 sentences on who "
+    "the character is, their role / profession / social position, "
+    "personality, and what they do in the story (no major spoilers, no "
+    "physical description — that's `appearance`).\n"
+    "    Skip the bible only for landscape-only or essay books.\n"
     "  - a base_palette: a short color anchor for the whole book that the "
     "image model can keep returning to.\n"
     "Be specific and confident. The style string and palette you return "

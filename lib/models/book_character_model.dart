@@ -19,6 +19,7 @@ class BookCharacterModel {
     required this.id,
     required this.name,
     required this.appearance,
+    this.bio,
     this.imageUrl,
     this.imageMeta,
     this.sortOrder = 0,
@@ -26,16 +27,27 @@ class BookCharacterModel {
 
   final String id;
   final String name;
+  /// Image-gen prompt — physical description used to seed character
+  /// portrait generation. Not user-facing.
   final String appearance;
+  /// 2-3 sentence reader-facing bio. Falls back to [appearance] on
+  /// older books that pre-date the bio field.
+  final String? bio;
   final String? imageUrl;
   final ImageMeta? imageMeta;
   final int sortOrder;
+
+  /// What to show on the character detail page — prefer the bio when
+  /// the scout wrote one, otherwise the appearance string.
+  String get displayDescription =>
+      (bio != null && bio!.trim().isNotEmpty) ? bio!.trim() : appearance;
 
   factory BookCharacterModel.fromJson(Map<String, dynamic> json) {
     return BookCharacterModel(
       id: json['id'].toString(),
       name: (json['name'] as String?) ?? '',
       appearance: (json['appearance'] as String?) ?? '',
+      bio: json['bio'] as String?,
       imageUrl: json['image_url'] as String? ?? json['imageUrl'] as String?,
       imageMeta: ImageMeta.tryFromJson(json['image_meta'] ?? json['imageMeta']),
       sortOrder: (json['sort_order'] as num?)?.toInt() ??
@@ -48,6 +60,7 @@ class BookCharacterModel {
         'id': id,
         'name': name,
         'appearance': appearance,
+        if (bio != null) 'bio': bio,
         'image_url': imageUrl,
         'image_meta': imageMeta?.toJson(),
         'sort_order': sortOrder,

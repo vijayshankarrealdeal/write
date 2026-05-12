@@ -428,13 +428,12 @@ class _CharacterFrameView extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    character.appearance,
-                    maxLines: 3,
+                    character.displayDescription,
+                    maxLines: 4,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
-                      fontSize: 13,
-                      height: 1.45,
-                      fontStyle: FontStyle.italic,
+                      fontSize: 13.5,
+                      height: 1.5,
                       color: subtleColor,
                     ),
                     textAlign: TextAlign.center,

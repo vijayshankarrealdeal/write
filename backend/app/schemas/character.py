@@ -17,6 +17,7 @@ class BookCharacterRead(BaseModel):
     id: UUID
     name: str
     appearance: str
+    bio: str | None = None
     image_url: str | None = None
     image_meta: dict | None = None
     sort_order: int = 0

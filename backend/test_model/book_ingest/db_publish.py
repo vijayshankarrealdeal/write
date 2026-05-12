@@ -218,6 +218,7 @@ async def publish_book(
                     writing_id=writing.id,
                     name=name,
                     appearance=appearance,
+                    bio=(entry.get("bio") or "").strip() or None,
                     image_url=entry.get("image_url"),
                     image_meta=entry.get("image_meta"),
                     sort_order=int(entry.get("sort_order") or 0),

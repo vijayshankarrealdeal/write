@@ -34,6 +34,12 @@ class BookCharacter(UUIDMixin, Base):
     )
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     appearance: Mapped[str] = mapped_column(Text, nullable=False)
+    # 2-3 sentence "who is this" bio for the character page — role,
+    # personality, position in the story, no spoilers. Distinct from
+    # `appearance`, which is the scout's image-generation prompt
+    # (locks in hair/clothing/build for the art model). Nullable for
+    # legacy rows; clients fall back to `appearance` when missing.
+    bio: Mapped[str | None] = mapped_column(Text)
     image_url: Mapped[str | None] = mapped_column(Text)
     image_meta: Mapped[dict | None] = mapped_column(JSONB)
     # Preserves the scout's order so the cast strip matches the order

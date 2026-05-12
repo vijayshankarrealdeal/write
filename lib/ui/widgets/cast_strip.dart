@@ -496,7 +496,7 @@ class _CastListRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    character.appearance,
+                    character.displayDescription,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
