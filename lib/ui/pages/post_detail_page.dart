@@ -3844,7 +3844,12 @@ class _BookHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasCover = imageUrl.isNotEmpty || imageMeta != null;
     final screenWidth = MediaQuery.of(context).size.width;
-    final coverWidth = screenWidth > 720 ? 200.0 : 160.0;
+    // Mobile gets a much larger cover — readers said the previous
+    // 160px felt postage-stamp tiny. Cap by viewport so it still
+    // breathes inside the safe area on a 320-px-wide screen.
+    final coverWidth = screenWidth > 720
+        ? 260.0
+        : (screenWidth * 0.62).clamp(220.0, 300.0);
     final coverHeight = coverWidth * 1.45;
 
     return Stack(
@@ -4046,6 +4051,9 @@ class _OverviewHeroDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasCover = item.imageUrl.isNotEmpty || item.imageMeta != null;
     const coverWidth = 240.0;
+    // Used for the fallback when IntrinsicHeight can't size the cover
+    // (e.g. legacy callers that pass a fixed-height parent). The row
+    // below now stretches the cover to match the right column.
     const coverHeight = coverWidth * 1.45;
 
     final hasResume = resumeIndex != null && resumeIndex! > 0;
@@ -4113,78 +4121,84 @@ class _OverviewHeroDesktop extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 1080),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(40, 36, 40, 36),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: coverWidth,
-                    height: coverHeight,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(
-                              alpha: isDark ? 0.6 : 0.25),
-                          blurRadius: 36,
-                          offset: const Offset(0, 18),
-                          spreadRadius: -4,
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withValues(
-                              alpha: isDark ? 0.4 : 0.12),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
-                      child: hasCover
-                          ? LayoutBuilder(
-                              builder: (ctx, c) => AppNetworkImage(
-                                url: item.imageUrl,
-                                meta: item.imageMeta,
-                                width: c.maxWidth,
-                                height: c.maxHeight,
-                                fit: BoxFit.cover,
-                                errorWidget: Container(
-                                  color: isDark
-                                      ? const Color(0xFF1E1E1E)
-                                      : const Color(0xFFEDEDED),
-                                  child: Icon(CupertinoIcons.photo,
-                                      size: 36,
-                                      color: isDark
-                                          ? Colors.white24
-                                          : Colors.black26),
+              // IntrinsicHeight + CrossAxisAlignment.stretch makes the
+              // cover column grow to match the right column's natural
+              // height — so the bottom of the poster lines up with the
+              // bottom of the "Start reading" CTA instead of floating
+              // mid-row with a margin mismatch.
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      width: coverWidth,
+                      constraints: const BoxConstraints(minHeight: coverHeight),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(
+                                alpha: isDark ? 0.6 : 0.25),
+                            blurRadius: 36,
+                            offset: const Offset(0, 18),
+                            spreadRadius: -4,
+                          ),
+                          BoxShadow(
+                            color: Colors.black.withValues(
+                                alpha: isDark ? 0.4 : 0.12),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: hasCover
+                            ? LayoutBuilder(
+                                builder: (ctx, c) => AppNetworkImage(
+                                  url: item.imageUrl,
+                                  meta: item.imageMeta,
+                                  width: c.maxWidth,
+                                  height: c.maxHeight,
+                                  fit: BoxFit.cover,
+                                  errorWidget: Container(
+                                    color: isDark
+                                        ? const Color(0xFF1E1E1E)
+                                        : const Color(0xFFEDEDED),
+                                    child: Icon(CupertinoIcons.photo,
+                                        size: 36,
+                                        color: isDark
+                                            ? Colors.white24
+                                            : Colors.black26),
+                                  ),
                                 ),
-                              ),
-                            )
-                          : Container(
-                              color: isDark
-                                  ? const Color(0xFF1E1E1E)
-                                  : const Color(0xFFEDEDED),
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Text(
-                                    item.title,
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.playfairDisplay(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                      color: textColor,
+                              )
+                            : Container(
+                                color: isDark
+                                    ? const Color(0xFF1E1E1E)
+                                    : const Color(0xFFEDEDED),
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Text(
+                                      item.title,
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        color: textColor,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 36),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                    const SizedBox(width: 36),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                         Text(
                           item.title,
                           style: GoogleFonts.playfairDisplay(
@@ -4220,7 +4234,7 @@ class _OverviewHeroDesktop extends StatelessWidget {
                         ),
                         if (tags.isNotEmpty) ...[
                           const SizedBox(height: 18),
-                          _TagWrap(tags: tags, isDark: isDark, maxVisible: 10),
+                          _TagWrap(tags: tags, isDark: isDark),
                         ],
                         if (item.description.isNotEmpty) ...[
                           const SizedBox(height: 18),
@@ -4243,6 +4257,7 @@ class _OverviewHeroDesktop extends StatelessWidget {
                     ),
                   ),
                 ],
+                ),
               ),
             ),
           ),
@@ -4835,12 +4850,17 @@ class _ReadCtaBar extends StatelessWidget {
 class _TagPill extends StatelessWidget {
   final String label;
   final bool isDark;
+  final VoidCallback? onTap;
 
-  const _TagPill({required this.label, required this.isDark});
+  const _TagPill({
+    required this.label,
+    required this.isDark,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final pill = Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
         color: isDark
@@ -4866,14 +4886,26 @@ class _TagPill extends StatelessWidget {
         ),
       ),
     );
+    if (onTap == null) return pill;
+    // Interactive "+N more" / "Show less" pill — InkWell so taps get
+    // ripple feedback on Android, MouseRegion-style hover on web.
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(100),
+        onTap: onTap,
+        child: pill,
+      ),
+    );
   }
 }
 
 // ============================================================================
-// TAG WRAP — replaces the old horizontal scroll. Caps at 8 visible pills with a
-// "+N more" trailing chip when the list overflows so we never clip mid-word.
+// TAG WRAP — caps at `maxVisible` (default 3) pills with an interactive
+// "+N more" chip that toggles to reveal the rest in-place. Tapping the
+// "Show less" chip collapses it back so the layout stays calm.
 // ============================================================================
-class _TagWrap extends StatelessWidget {
+class _TagWrap extends StatefulWidget {
   final List<String> tags;
   final bool isDark;
   final int maxVisible;
@@ -4881,19 +4913,40 @@ class _TagWrap extends StatelessWidget {
   const _TagWrap({
     required this.tags,
     required this.isDark,
-    this.maxVisible = 8,
+    this.maxVisible = 3,
   });
 
   @override
+  State<_TagWrap> createState() => _TagWrapState();
+}
+
+class _TagWrapState extends State<_TagWrap> {
+  bool _expanded = false;
+
+  @override
   Widget build(BuildContext context) {
-    if (tags.isEmpty) return const SizedBox.shrink();
-    final visible =
-        tags.length > maxVisible ? tags.take(maxVisible).toList() : tags;
-    final overflow = tags.length - visible.length;
+    if (widget.tags.isEmpty) return const SizedBox.shrink();
+    final showAll = _expanded || widget.tags.length <= widget.maxVisible;
+    final visible = showAll ? widget.tags : widget.tags.take(widget.maxVisible).toList();
+    final overflow = widget.tags.length - visible.length;
+
     final pills = <Widget>[
-      for (final t in visible) _TagPill(label: t, isDark: isDark),
-      if (overflow > 0) _TagPill(label: '+$overflow more', isDark: isDark),
+      for (final t in visible) _TagPill(label: t, isDark: widget.isDark),
     ];
+    if (overflow > 0) {
+      pills.add(_TagPill(
+        label: '+$overflow more',
+        isDark: widget.isDark,
+        onTap: () => setState(() => _expanded = true),
+      ));
+    } else if (_expanded && widget.tags.length > widget.maxVisible) {
+      pills.add(_TagPill(
+        label: 'Show less',
+        isDark: widget.isDark,
+        onTap: () => setState(() => _expanded = false),
+      ));
+    }
+
     return Wrap(
       spacing: 8,
       runSpacing: 8,
