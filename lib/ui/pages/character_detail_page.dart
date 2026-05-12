@@ -116,70 +116,34 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
     Color subtleColor,
     bool isDark,
   ) {
+    final hasImage =
+        character.imageUrl != null && character.imageUrl!.isNotEmpty;
     final mediaWidth = MediaQuery.sizeOf(context).width;
-    // Hero portrait targets ~80% of viewport width on phones, capped
-    // for tablets so it doesn't dominate the page.
-    final portraitWidth = mediaWidth.clamp(280.0, 520.0) * 0.86;
-    final portraitHeight = portraitWidth * 1.4; // matches 1024x1536 aspect
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
       children: [
-        if (character.imageUrl != null && character.imageUrl!.isNotEmpty)
-          Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: AppNetworkImage(
-                url: character.imageUrl,
-                meta: character.imageMeta,
-                width: portraitWidth,
-                height: portraitHeight,
-                fit: BoxFit.cover,
-              ),
-            ),
-          )
+        if (hasImage)
+          _portraitHero(context, character, mediaWidth)
         else
-          // No portrait — paint a tasteful initials placeholder so the
-          // page doesn't look empty for books whose pipeline run
-          // didn't generate sheets.
-          Center(
-            child: Container(
-              width: portraitWidth,
-              height: portraitHeight,
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : Colors.black.withValues(alpha: 0.04),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                _initials(character.name),
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 64,
-                  fontWeight: FontWeight.w700,
-                  color: textColor,
-                ),
-              ),
-            ),
-          ),
-        const SizedBox(height: 22),
+          _initialsHero(context, character, textColor, subtleColor, isDark),
+        const SizedBox(height: 24),
         Text(
           character.name,
           style: GoogleFonts.playfairDisplay(
-            fontSize: 28,
+            fontSize: 30,
             fontWeight: FontWeight.w700,
             color: textColor,
             letterSpacing: -0.4,
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         Text(
           character.appearance,
           style: GoogleFonts.inter(
             fontSize: 15.5,
-            height: 1.6,
+            height: 1.65,
             color: subtleColor,
           ),
           textAlign: TextAlign.center,
@@ -189,6 +153,78 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
           const Center(child: AppSpinner(size: 16)),
         ],
       ],
+    );
+  }
+
+  /// Hero portrait when a generated image is available. Capped at
+  /// 520px wide so it doesn't dominate on tablets.
+  Widget _portraitHero(
+    BuildContext context,
+    BookCharacterModel character,
+    double mediaWidth,
+  ) {
+    final portraitWidth = mediaWidth.clamp(280.0, 520.0) * 0.86;
+    final portraitHeight = portraitWidth * 1.4;
+    return Center(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: AppNetworkImage(
+          url: character.imageUrl,
+          meta: character.imageMeta,
+          width: portraitWidth,
+          height: portraitHeight,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
+  /// Fallback hero when no portrait is available — a compact circular
+  /// initials chip rather than a giant rectangle, plus a subtle hint
+  /// that the visual is missing. Keeps the focus on the appearance
+  /// text instead of a wall of blank space.
+  Widget _initialsHero(
+    BuildContext context,
+    BookCharacterModel character,
+    Color textColor,
+    Color subtleColor,
+    bool isDark,
+  ) {
+    final fill = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.05);
+    return Center(
+      child: Column(
+        children: [
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: fill,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              _initials(character.name),
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 40,
+                fontWeight: FontWeight.w700,
+                color: textColor,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Portrait coming soon',
+            style: GoogleFonts.inter(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w500,
+              color: subtleColor,
+              letterSpacing: 0.4,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

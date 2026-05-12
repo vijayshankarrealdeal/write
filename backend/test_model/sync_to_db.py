@@ -430,6 +430,7 @@ async def _build_characters_payload(
     sheets = manifest.get("character_sheets") or {}
 
     import time as _t
+    book = persist.book_dir(slug)
     out: list[dict] = []
     for idx, entry in enumerate(bible):
         if not isinstance(entry, dict):
@@ -438,14 +439,14 @@ async def _build_characters_payload(
         appearance = (entry.get("appearance") or "").strip()
         if not name or not appearance:
             continue
-        local_path = sheets.get(name)
+        portrait_path = _resolve_portrait_path(book, name, sheets.get(name))
         image_url: str | None = None
         image_meta: dict | None = None
-        if local_path and Path(local_path).exists() and not no_images:
+        if portrait_path is not None and not no_images:
             try:
                 from app.image_pipeline import process_image  # type: ignore[import-not-found]
                 from app.storage import upload_variants  # type: ignore[import-not-found]
-                data = Path(local_path).read_bytes()
+                data = portrait_path.read_bytes()
                 variants, meta = await process_image(data)
                 version = int(_t.time())
                 base_path = f"books/{slug}/characters/{_safe_char_slug(name)}/{version}"
@@ -464,6 +465,29 @@ async def _build_characters_payload(
             "sort_order": idx,
         })
     return out
+
+
+def _resolve_portrait_path(
+    book_dir: Path,
+    name: str,
+    manifest_path: str | None,
+) -> Path | None:
+    """Find a character's portrait PNG on disk.
+
+    The manifest records the absolute path from the host that ran the
+    ingest pipeline — when sync runs on a different host (e.g. inside
+    the docker container after vm-publish) that path won't exist.
+    Convention is `images/_characters/<safe>.png` under the book dir,
+    written by `character_sheets.generate_character_sheets`. Try the
+    convention first, then fall back to the manifest path."""
+    conventional = book_dir / "images" / "_characters" / f"{_safe_char_slug(name)}.png"
+    if conventional.exists() and conventional.stat().st_size > 0:
+        return conventional
+    if manifest_path:
+        legacy = Path(manifest_path)
+        if legacy.exists() and legacy.stat().st_size > 0:
+            return legacy
+    return None
 
 
 if __name__ == "__main__":

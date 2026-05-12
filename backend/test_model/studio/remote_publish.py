@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
@@ -522,6 +523,7 @@ async def _build_remote_characters(
         return []
     sheets = manifest.get("character_sheets") or {}
 
+    book = persist.book_dir(slug)
     out: list[dict[str, Any]] = []
     for idx, entry in enumerate(bible):
         if not isinstance(entry, dict):
@@ -532,20 +534,18 @@ async def _build_remote_characters(
             continue
         image_url: str | None = None
         image_meta: dict[str, Any] | None = None
-        local_path = sheets.get(name)
-        if local_path:
-            portrait = Path(local_path)
-            if portrait.exists() and portrait.stat().st_size > 0:
-                try:
-                    image_url, image_meta = await upload_image_with_meta(
-                        client, api_url, token,
-                        file_path=portrait,
-                        filename=portrait.name,
-                    )
-                except RemotePublishError:
-                    # Portrait upload failed — keep the text-only entry
-                    # so the cast strip still renders an initials avatar.
-                    pass
+        portrait = _resolve_portrait_path(book, name, sheets.get(name))
+        if portrait is not None:
+            try:
+                image_url, image_meta = await upload_image_with_meta(
+                    client, api_url, token,
+                    file_path=portrait,
+                    filename=portrait.name,
+                )
+            except RemotePublishError:
+                # Portrait upload failed — keep the text-only entry
+                # so the cast strip still renders an initials avatar.
+                pass
         out.append({
             "name": name,
             "appearance": appearance,
@@ -554,3 +554,32 @@ async def _build_remote_characters(
             "sort_order": idx,
         })
     return out
+
+
+_CHAR_SAFE_NAME_RE = re.compile(r"[^a-z0-9]+")
+
+
+def _safe_char_slug(name: str) -> str:
+    """Mirrors `book_ingest.character_sheets._safe_name` so the portrait
+    paths align with the on-disk filenames."""
+    return _CHAR_SAFE_NAME_RE.sub("-", name.lower()).strip("-") or "character"
+
+
+def _resolve_portrait_path(
+    book_dir: Path,
+    name: str,
+    manifest_path: str | None,
+) -> Path | None:
+    """Find a character's portrait PNG. Tries the conventional
+    `images/_characters/<safe>.png` location first because the manifest
+    records the absolute path from the machine that generated it, which
+    won't exist after a vm-publish copies the storage tree to another
+    host."""
+    conventional = book_dir / "images" / "_characters" / f"{_safe_char_slug(name)}.png"
+    if conventional.exists() and conventional.stat().st_size > 0:
+        return conventional
+    if manifest_path:
+        legacy = Path(manifest_path)
+        if legacy.exists() and legacy.stat().st_size > 0:
+            return legacy
+    return None
