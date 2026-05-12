@@ -100,12 +100,10 @@ class AnalyticsService {
   final bool _enabled;
   bool get enabled => _enabled;
 
-  /// Device + app + region metadata, captured once at init and merged
-  /// into every event's `properties`. Keys: `platform`, `device`,
-  /// `app_version`, `region`. `region` is a 2-letter country code
-  /// derived from `Platform.localeName` — i.e. the user's chosen
-  /// system locale, NOT GPS or IP geolocation. See privacy_policy.html
-  /// §3.2.
+  /// Device + app metadata, captured once at init and merged into every
+  /// event's `properties`. Keys: `platform`, `device`, `app_version`.
+  /// Region is derived server-side from the request IP — see
+  /// privacy_policy.html §3.2.
   final Map<String, dynamic> _deviceContext;
 
   String _sessionId = const Uuid().v4();
@@ -183,16 +181,15 @@ class AnalyticsService {
     return svc;
   }
 
-  /// Resolve platform / device model / app version / region once at
-  /// init. All four end up on every event's `properties` so the admin
-  /// dashboard can break down activity without a separate identify call.
+  /// Resolve platform / device model / app version once at init. All
+  /// three end up on every event's `properties` so the admin dashboard
+  /// can break down activity without a separate identify call.
   ///
-  /// Region is the country code from `Platform.localeName` (e.g. "en_US"
-  /// → "US"). It reflects the user's *chosen system locale*, not their
-  /// physical location — so a US English speaker travelling in Tokyo
-  /// still reports "US". This is intentional: we want a coarse signal
-  /// for product decisions without doing IP/GPS geolocation. See the
-  /// privacy policy for the user-facing wording.
+  /// We deliberately do NOT send a locale-derived region: most phones
+  /// ship with en_US as the default English locale, so the field was
+  /// tagging non-US English speakers as "US" and creating misleading
+  /// region stats. The admin dashboard derives country from the request
+  /// IP server-side instead. See the privacy policy for the wording.
   static Future<Map<String, dynamic>> _resolveDeviceContext() async {
     final ctx = <String, dynamic>{};
 
@@ -252,24 +249,6 @@ class AnalyticsService {
           : pkg.buildNumber;
     } catch (_) {
       // Tests / unsupported platforms — skip.
-    }
-
-    // Region — locale-derived country code. PlatformDispatcher works on
-    // every platform including web; dart:io.Platform.localeName does
-    // not. Normalised to upper-case.
-    String? region;
-    try {
-      final dispatcherLocale = PlatformDispatcher.instance.locale;
-      region = dispatcherLocale.countryCode;
-    } catch (_) {}
-    if ((region == null || region.isEmpty) && !kIsWeb) {
-      try {
-        final parts = Platform.localeName.split(RegExp(r'[_\-]'));
-        if (parts.length >= 2) region = parts[1];
-      } catch (_) {}
-    }
-    if (region != null && region.isNotEmpty) {
-      ctx['region'] = region.toUpperCase();
     }
 
     return ctx;

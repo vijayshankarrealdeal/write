@@ -37,6 +37,8 @@
   .updated { color: #666; font-size: 14px; margin-bottom: 28px; }
   h2 { font-size: 20px; font-weight: 700; margin-top: 36px; margin-bottom: 12px; }
   h3 { font-size: 16px; font-weight: 700; margin-top: 22px; margin-bottom: 8px; }
+  h4 { font-size: 14px; font-weight: 700; margin-top: 16px; margin-bottom: 6px; color: #2a2a2a; }
+  @media (prefers-color-scheme: dark) { h4 { color: #cfcfcf; } }
   p, li { font-size: 15px; margin-bottom: 12px; }
   ul, ol { padding-left: 22px; }
   li { margin-bottom: 8px; }
@@ -61,7 +63,7 @@
 <div class="container">
 
 <h1>Privacy Policy</h1>
-<p class="updated">Effective date: May 2, 2026 &nbsp;·&nbsp; Last updated: May 10, 2026</p>
+<p class="updated">Effective date: May 2, 2026 &nbsp;·&nbsp; Last updated: May 12, 2026</p>
 
 <p>This Privacy Policy explains how <strong>InkSpaceX</strong> ("InkSpaceX", "we", "our", or "us") collects, uses, stores, shares, and protects information when you use the InkSpaceX mobile application, website, and related services (collectively, the "Service"). It also describes the choices you have and how you can exercise your rights.</p>
 
@@ -101,8 +103,8 @@
   <li><strong>Authentication tokens.</strong> When you sign in we issue a short-lived access token and a refresh token. These are stored on your device's secure storage (Android Keystore / iOS Keychain on native; <code>localStorage</code> on web) and sent with your API requests.</li>
   <li><strong>Reading and engagement signals.</strong> Reading progress (which story, which section, scroll position), which stories you opened, liked, bookmarked, or shared, and feed preferences. We use these to sync your reading position across devices and to power personalised recommendations.</li>
   <li><strong>Product analytics (first-party, self-hosted).</strong> Anonymous behavioural events (for example: <em>screen viewed</em>, <em>book opened</em>, <em>publish tapped</em>, <em>app foregrounded</em>) tied to a per-install <code>client_id</code> (a random UUID generated on first launch and stored locally) and a <code>session_id</code> that rolls every 30 minutes of inactivity. We use these events to compute aggregate operational metrics — total page views per screen, daily active users, daily new sign-ups, platform / device / app-version mix, and most-visited screens — that are visible only to InkSpaceX administrators in our internal dashboard. These events do <strong>not</strong> include the contents of your writing, your messages, your password, your precise location, or any biometric data. After you sign in, the <code>client_id</code> is associated with your account so your pre-login funnel stays connected to your post-login activity. The events are written by code we wrote and sent only to our own backend on Azure (Central India). The app does not embed Firebase Analytics, Google Analytics, Mixpanel, Amplitude, PostHog, AppsFlyer, Adjust, or any other third-party analytics SDK.</li>
-  <li><strong>Device and technical data.</strong> Each analytics event carries a small, fixed set of context fields so we can break the metrics above down meaningfully: app version (e.g. <code>1.0.2+6</code>), platform bucket (<em>android</em> / <em>ios</em> / <em>web</em> / <em>macos</em> / <em>windows</em> / <em>linux</em>), device model (e.g. <em>Pixel 8 Pro</em>, <em>iPhone15,3</em>) reported by the operating system, language/locale, time zone, and the IP address that the request arrived on (used transiently to route the request and to detect abuse — not retained as a tracking signal and not used to derive your location).</li>
-  <li><strong>Coarse region (locale-derived, not geolocation).</strong> We derive a two-letter country code (for example, <code>US</code>, <code>IN</code>, <code>GB</code>) from the locale your device reports — i.e. the language &amp; region you have set in your phone's or browser's settings (such as <code>en_US</code>). This signal reflects the locale you have <em>chosen</em>, not where you physically are: a US-English speaker travelling in Tokyo still reports <code>US</code>. We do <strong>not</strong> use GPS, do not use IP-based geolocation, do not request the precise- or coarse-location permission, and do not query your SIM card. The locale country code is used only in aggregate (e.g. "12% of active users have their device set to <code>IN</code>") and is never combined with a name, email, or other directly identifying field in user-facing output.</li>
+  <li><strong>Device and technical data.</strong> Each analytics event carries a small, fixed set of context fields so we can break the metrics above down meaningfully: app version (e.g. <code>1.0.2+6</code>), platform bucket (<em>android</em> / <em>ios</em> / <em>web</em> / <em>macos</em> / <em>windows</em> / <em>linux</em>), device model (e.g. <em>Pixel 8 Pro</em>, <em>iPhone15,3</em>) reported by the operating system, language/locale, time zone, and the IP address that the request arrived on. The IP is used to route the request, to detect abuse, and to derive a coarse country code for aggregate metrics (see the next bullet). We do not retain the IP as a tracking signal beyond what's needed for those purposes.</li>
+  <li><strong>Coarse country (derived from IP, country-only).</strong> We pass the request IP to a third-party lookup service to obtain a two-letter country code (for example, <code>US</code>, <code>IN</code>, <code>GB</code>) and cache the result for up to 30 days. We do <strong>not</strong> request the operating-system location permission, do <strong>not</strong> use GPS, do <strong>not</strong> use Wi-Fi or cell-tower triangulation, and do <strong>not</strong> query your SIM card. The lookup returns country only — no city, region, ZIP/postal code, latitude/longitude, ISP, or street address — and is therefore not "precise location" under Apple's App Tracking guidance or Google Play's Location permission group. The country code is used only in aggregate (e.g. "12% of active users this week were in <code>IN</code>") and is never combined with a name, email, or other directly identifying field in user-facing output. The provider that performs the lookup is listed as a sub-processor in §6.2. If you do not want your IP resolved to a country, you can route your traffic through a VPN that egresses from a different country, or stop using the Service.</li>
   <li><strong>Crash and diagnostic logs (first-party, self-hosted).</strong> When the app hits an unhandled error, we may upload a stack trace, the error message, and the build/version to our own backend. We strip authentication tokens and request bodies before upload. The app does not embed Firebase Crashlytics, Sentry, Bugsnag, or any other third-party crash-reporting SDK.</li>
   <li><strong>Cookies (web only).</strong> The web app uses strictly necessary, first-party cookies / <code>localStorage</code> entries for sign-in, session continuity, and remembering UI preferences (theme, sidebar collapsed). We do <strong>not</strong> use advertising cookies or third-party tracking pixels.</li>
 </ul>
@@ -236,6 +238,11 @@
     <td>Serves font files to the web app. The browser fetches fonts directly from Google's CDN, which receives the request IP and user-agent.</td>
     <td>Google CDN (global).</td>
   </tr>
+  <tr>
+    <td><strong>country.is</strong> — IP-to-country lookup.</td>
+    <td>Our backend sends the IP address that the request arrived on and receives back a two-letter country code (see §3.2). No other fields about you are sent. Results are cached on our backend for up to 30 days so the same IP is not looked up repeatedly.</td>
+    <td>country.is global infrastructure.</td>
+  </tr>
 </table>
 
 <p><strong>What is not in this list — and why.</strong> InkSpaceX does <strong>not</strong> embed any third-party analytics or crash-reporting SDK in the mobile or web build (no Firebase Analytics, Google Analytics, Crashlytics, Sentry, Mixpanel, Amplitude, Meta SDK, AppsFlyer, Adjust, Branch, or similar). The product analytics described in §3.2 and the crash logs described in §3.2 are sent only to <strong>our own backend running on Azure (Central India)</strong>. No third party sees those events.</p>
@@ -303,6 +310,7 @@
   <li>Google Sign-In, Firebase Cloud Messaging, and Google Fonts — Google's global infrastructure (including the United States).</li>
   <li>Apple Push Notification service — Apple's global infrastructure (including the United States).</li>
   <li>Azure OpenAI Service — within the Azure tenant region we configure (Microsoft data-center).</li>
+  <li>country.is — IP address sent for country-code lookup; provider operates a global anycast network.</li>
 </ul>
 <p>Where these transfers leave the EEA, UK, or Switzerland, we rely on the European Commission's Standard Contractual Clauses (SCCs), the UK International Data Transfer Addendum, or the EU–US / UK–US Data Privacy Framework, as applicable. For users in India, transfers are made consistently with the cross-border-transfer rules of the Digital Personal Data Protection Act, 2023.</p>
 
@@ -344,7 +352,109 @@
 <h2>17. Changes to this Policy</h2>
 <p>We may update this Policy as the Service evolves. If we make a material change, we will notify you by an in-app banner or by email at least <strong>30 days</strong> before it takes effect, and we will update the "Last updated" date at the top. Continued use of the Service after the effective date means you accept the updated Policy. If you don't, you can delete your account at any time under §9.1.</p>
 
-<h2>18. Contact us</h2>
+<h2>18. Store data-safety declarations (Google Play &amp; Apple App Store)</h2>
+<p>This section restates how we describe ourselves on the Google Play <em>Data safety</em> form and the Apple App Store <em>App Privacy</em> nutrition label, so what you see in the store and what you read here line up.</p>
+
+<h3>18.1 Google Play — Data safety</h3>
+<p>For each item we declare: whether it is <strong>collected</strong>, whether it is <strong>shared with third parties</strong>, whether it is <strong>linked to your identity</strong>, whether collection is <strong>optional</strong>, and the <strong>purpose</strong>.</p>
+<table>
+  <tr><th>Data type</th><th>Collected</th><th>Shared</th><th>Linked to user</th><th>Optional</th><th>Purpose</th></tr>
+  <tr>
+    <td>Personal info — Name, Email address, User IDs</td>
+    <td>Yes</td><td>No</td><td>Yes</td><td>No (required to create an account)</td>
+    <td>Account management, App functionality</td>
+  </tr>
+  <tr>
+    <td>Personal info — Other (profile bio, profile picture URL)</td>
+    <td>Yes</td><td>No</td><td>Yes</td><td>Yes (you choose what to put on your profile)</td>
+    <td>Account management, App functionality</td>
+  </tr>
+  <tr>
+    <td><strong>Location — Approximate location</strong> (country only, derived from the request IP — see §3.2)</td>
+    <td>Yes</td><td>Yes — to country.is for the lookup (see §6.2)</td><td>Yes</td><td>No (the request IP is unavoidable when contacting our servers)</td>
+    <td>Analytics</td>
+  </tr>
+  <tr>
+    <td>Location — Precise location (GPS, Wi-Fi-based, cell-tower-based)</td>
+    <td><strong>No</strong></td><td>—</td><td>—</td><td>—</td>
+    <td>We do not request the location permission and do not collect precise location.</td>
+  </tr>
+  <tr>
+    <td>Messages — In-app messages (direct messages between users)</td>
+    <td>Yes</td><td>No</td><td>Yes</td><td>Yes (only if you send a DM)</td>
+    <td>App functionality (delivery)</td>
+  </tr>
+  <tr>
+    <td>Photos and videos — User-uploaded images on the canvas / cover photos</td>
+    <td>Yes</td><td>No</td><td>Yes</td><td>Yes (only if you upload one)</td>
+    <td>App functionality</td>
+  </tr>
+  <tr>
+    <td>Files and docs — Stories, drafts, books, comments</td>
+    <td>Yes</td><td>No</td><td>Yes</td><td>No (the Service is a writing tool — content is required for it to do anything)</td>
+    <td>App functionality</td>
+  </tr>
+  <tr>
+    <td>App activity — Page views, in-app actions, search history within the app, installed-app interactions with our own features</td>
+    <td>Yes</td><td>No</td><td>Yes (after sign-in; before sign-in tied to anonymous <code>client_id</code>)</td><td>No</td>
+    <td>Analytics, App functionality</td>
+  </tr>
+  <tr>
+    <td>App activity — Other user-generated content (likes, bookmarks, follows)</td>
+    <td>Yes</td><td>No</td><td>Yes</td><td>Yes</td>
+    <td>App functionality, Personalisation</td>
+  </tr>
+  <tr>
+    <td>App info and performance — Crash logs, diagnostics</td>
+    <td>Yes</td><td>No</td><td>Yes</td><td>No</td>
+    <td>Analytics, App functionality</td>
+  </tr>
+  <tr>
+    <td>Device or other IDs — IP address, anonymous <code>client_id</code> (random UUID, on-device)</td>
+    <td>Yes</td><td>IP only, to country.is for country lookup (see §6.2)</td><td>Yes (after sign-in)</td><td>No</td>
+    <td>App functionality, Fraud prevention &amp; security, Analytics</td>
+  </tr>
+  <tr>
+    <td>Advertising or marketing — Ad ID (IDFA / GAID), Ads</td>
+    <td><strong>No</strong></td><td>—</td><td>—</td><td>—</td>
+    <td>We do not display ads, do not request the Advertising ID, and do not integrate with any ad SDK.</td>
+  </tr>
+  <tr>
+    <td>Health and fitness, Financial info, Contacts, Calendar, SMS, Call logs, Audio, Web browsing history, Health connect</td>
+    <td><strong>No</strong></td><td>—</td><td>—</td><td>—</td>
+    <td>Not collected, not requested, not used.</td>
+  </tr>
+</table>
+<p><strong>Security practices declared on Play:</strong> data is encrypted in transit (TLS 1.2+); users can request that their data be deleted (§9.1); the app follows the Play Families Policy where applicable (we do not target children — see §12); independent security review is not currently claimed.</p>
+
+<h3>18.2 Apple App Store — App Privacy ("nutrition label")</h3>
+<p>Apple groups data into <em>Data Used to Track You</em>, <em>Data Linked to You</em>, and <em>Data Not Linked to You</em>. InkSpaceX uses no tracking SDKs and does not link advertising or analytics across other companies' apps and websites, so the <em>Data Used to Track You</em> category is empty.</p>
+
+<h4>Data Used to Track You</h4>
+<p><strong>None.</strong> InkSpaceX does not engage in tracking as Apple defines it (no cross-app/cross-site advertising, no shared device-graph identifiers, no data brokers). We therefore do not display the App Tracking Transparency prompt.</p>
+
+<h4>Data Linked to You</h4>
+<ul>
+  <li><strong>Contact Info</strong> — Name, Email address. <em>Purposes:</em> App Functionality, Account Management.</li>
+  <li><strong>User Content</strong> — Photos or Videos (cover images, canvas uploads), Other User Content (your writing, comments, messages). <em>Purposes:</em> App Functionality.</li>
+  <li><strong>Identifiers</strong> — User ID (your InkSpaceX account ID), <code>client_id</code> linked to the account after sign-in. <em>Purposes:</em> App Functionality, Analytics.</li>
+  <li><strong>Usage Data</strong> — Product Interaction (screens viewed, taps), Other Usage Data (likes, bookmarks, follows). <em>Purposes:</em> Analytics, App Functionality, Product Personalisation.</li>
+  <li><strong>Diagnostics</strong> — Crash Data, Performance Data, Other Diagnostic Data. <em>Purposes:</em> App Functionality, Analytics.</li>
+  <li><strong>Location</strong> — <em>Coarse Location</em> only, restricted to country code, derived from the request IP server-side. <em>Purposes:</em> Analytics. We do <strong>not</strong> declare Precise Location and do <strong>not</strong> request the OS location permission.</li>
+</ul>
+
+<h4>Data Not Linked to You</h4>
+<ul>
+  <li><strong>Identifiers</strong> — <code>client_id</code> before sign-in (random UUID generated on the device on first launch; not derived from any device identifier).</li>
+  <li><strong>Diagnostics</strong> — Crash Data captured before sign-in.</li>
+</ul>
+
+<h4>Data we explicitly do NOT collect</h4>
+<p>Financial Info, Health &amp; Fitness, Sensitive Info, Contacts, Browsing History, Search History (outside our app), Audio Data, Gameplay Content, Customer Support history beyond your support email thread, Advertising Data, Precise Location.</p>
+
+<p>If the in-store declarations ever drift from this section as we ship updates, this Policy is authoritative and we will reconcile the store forms within 30 days.</p>
+
+<h2>19. Contact us</h2>
 <p>Questions, requests, or concerns about this Policy or our handling of your information:</p>
 <p>
   <strong>InkSpaceX — Privacy</strong><br>

@@ -689,24 +689,33 @@ async def device_breakdown(
         )
     ).fetchall()
 
-    # Region is derived client-side from the device locale's country code
-    # (e.g. en_US -> "US"). NOT GPS, NOT IP geolocation — see analytics
-    # service docs and the privacy policy for the rationale. Referrer is
-    # web-only and supplied via properties.referrer.
-    region_rows = (
+    # Region is derived from the request IP, not the device locale —
+    # locale defaults to en_US on most English-set phones, which tagged
+    # most non-US English speakers as "US". We group events by IP first
+    # (cheap, single index pass), then map each unique IP to a country
+    # via Redis-cached lookups in app.geoip. Referrer is web-only and
+    # supplied via properties.referrer.
+    ip_count_rows = (
         await db.execute(
-            select(literal_column("properties->>'region'").label("region"), func.count().label("count"))
+            select(AnalyticsEvent.ip, func.count().label("count"))
             .where(
                 AnalyticsEvent.server_ts >= since,
-                text("(properties->>'region') IS NOT NULL"),
-                text("(properties->>'region') <> ''"),
+                AnalyticsEvent.ip.is_not(None),
                 _PROD_ONLY,
             )
-            .group_by(text("1"))
-            .order_by(text("count DESC"))
-            .limit(25)
+            .group_by(AnalyticsEvent.ip)
         )
     ).fetchall()
+
+    from app.geoip import countries_for_ips
+
+    ip_to_country = await countries_for_ips([str(r[0]) for r in ip_count_rows if r[0]])
+    country_counts: dict[str, int] = {}
+    for ip, count in ip_count_rows:
+        cc = ip_to_country.get(str(ip)) if ip else None
+        if cc:
+            country_counts[cc] = country_counts.get(cc, 0) + int(count)
+    region_rows = sorted(country_counts.items(), key=lambda kv: kv[1], reverse=True)[:25]
 
     referrer_rows = (
         await db.execute(

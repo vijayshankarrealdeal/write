@@ -796,7 +796,7 @@ function AnalyticsTab() {
             <Empty label="No region data yet" />
           )}
           <div className="text-xs text-gray-500 mt-2">
-            Derived from device locale country (e.g. en_US → US). Not GPS, not IP.
+            Derived from request IP (country only, cached for 30 days). Not GPS, not device locale.
           </div>
         </Card>
 
