@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -184,12 +186,51 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                       style: GoogleFonts.inter(color: subtleColor),
                     ),
             )
-          : _buildSwipeableBody(
-              context,
-              textColor: textColor,
-              subtleColor: subtleColor,
-              isDark: isDark,
+          : Focus(
+              autofocus: true,
+              onKeyEvent: (node, event) {
+                if (!_canSwipe || event is! KeyDownEvent) {
+                  return KeyEventResult.ignored;
+                }
+                if (event.logicalKey == LogicalKeyboardKey.arrowDown ||
+                    event.logicalKey == LogicalKeyboardKey.arrowRight ||
+                    event.logicalKey == LogicalKeyboardKey.pageDown) {
+                  _goNext();
+                  return KeyEventResult.handled;
+                }
+                if (event.logicalKey == LogicalKeyboardKey.arrowUp ||
+                    event.logicalKey == LogicalKeyboardKey.arrowLeft ||
+                    event.logicalKey == LogicalKeyboardKey.pageUp) {
+                  _goPrev();
+                  return KeyEventResult.handled;
+                }
+                return KeyEventResult.ignored;
+              },
+              child: _buildSwipeableBody(
+                context,
+                textColor: textColor,
+                subtleColor: subtleColor,
+                isDark: isDark,
+              ),
             ),
+    );
+  }
+
+  void _goNext() {
+    if (_currentIndex >= _items.length - 1) return;
+    _controller.animateToPage(
+      _currentIndex + 1,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _goPrev() {
+    if (_currentIndex <= 0) return;
+    _controller.animateToPage(
+      _currentIndex - 1,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
     );
   }
 
@@ -199,7 +240,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
     required Color subtleColor,
     required bool isDark,
   }) {
-    return PageView.builder(
+    final pageView = PageView.builder(
       controller: _controller,
       // Vertical swipe — matches the "scroll up/down for next" pattern
       // readers expect from gallery / story UIs.
@@ -216,10 +257,103 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
           textColor: textColor,
           subtleColor: subtleColor,
           isDark: isDark,
-          showSwipeHint: _canSwipe && index == 0,
+          showSwipeHint: _canSwipe && index == 0 && !kIsWeb,
           loading: _loadingCurrent && index == _currentIndex,
         );
       },
+    );
+
+    // On web (mouse-driven), the inner SingleChildScrollView competes
+    // with the PageView for the scroll wheel — plaque + caption end up
+    // below the fold without a way to reach them. Overlay clickable
+    // chevron buttons on the left + right edges so navigation doesn't
+    // depend on a scroll gesture.
+    if (!_canSwipe || !kIsWeb) return pageView;
+    final canPrev = _currentIndex > 0;
+    final canNext = _currentIndex < _items.length - 1;
+    return Stack(
+      children: [
+        Positioned.fill(child: pageView),
+        if (canPrev)
+          Positioned(
+            left: 24,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: _NavButton(
+                icon: Icons.keyboard_arrow_up,
+                tooltip: 'Previous character',
+                isDark: isDark,
+                onTap: _goPrev,
+              ),
+            ),
+          ),
+        if (canNext)
+          Positioned(
+            right: 24,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: _NavButton(
+                icon: Icons.keyboard_arrow_down,
+                tooltip: 'Next character',
+                isDark: isDark,
+                onTap: _goNext,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Circular chevron button used on web to advance between characters
+/// without relying on the mouse-wheel-vs-PageView fight.
+class _NavButton extends StatelessWidget {
+  const _NavButton({
+    required this.icon,
+    required this.tooltip,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final fill = isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.black.withValues(alpha: 0.06);
+    final iconColor = isDark
+        ? Colors.white.withValues(alpha: 0.85)
+        : const Color(0xFF1A1612);
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: fill,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.08),
+              ),
+            ),
+            child: Icon(icon, size: 26, color: iconColor),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -245,42 +379,54 @@ class _CharacterFrameView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mediaWidth = MediaQuery.sizeOf(context).width;
-    final contentWidth = mediaWidth < 720
-        ? mediaWidth - 24
-        : (mediaWidth * 0.55).clamp(440.0, 620.0);
+    final viewport = MediaQuery.sizeOf(context);
+    // The whole page (frame + plaque + ~28px gap + caption + hint)
+    // must fit one viewport so PageView swipes don't fight with an
+    // inner scroller. Reserve ~280px of overhead and size the frame
+    // width from the remaining vertical room — at the 2:3 portrait
+    // aspect plus a fixed plaque/padding allowance.
+    final isNarrow = viewport.width < 720;
+    final heightBudget = (viewport.height - 280).clamp(360.0, 1100.0);
+    // The frame is roughly (portraitWidth * 1.5) tall for the image
+    // plus ~110 px for padding + plaque. Solve for portrait width:
+    final widthFromHeight = (heightBudget - 110) / 1.5;
+    final contentWidth = isNarrow
+        ? viewport.width - 24
+        : widthFromHeight.clamp(320.0, 480.0);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 32),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: contentWidth),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 12),
               _GalleryFrame(
                 character: character,
                 isDark: isDark,
                 textColor: textColor,
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 18),
               Text(
                 character.appearance,
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.inter(
-                  fontSize: 14.5,
-                  height: 1.65,
+                  fontSize: 13.5,
+                  height: 1.5,
                   fontStyle: FontStyle.italic,
                   color: subtleColor,
                 ),
                 textAlign: TextAlign.center,
               ),
               if (loading) ...[
-                const SizedBox(height: 20),
-                const AppSpinner(size: 16),
+                const SizedBox(height: 12),
+                const AppSpinner(size: 14),
               ],
               if (showSwipeHint) ...[
-                const SizedBox(height: 28),
+                const SizedBox(height: 16),
                 _SwipeHint(subtleColor: subtleColor),
               ],
             ],

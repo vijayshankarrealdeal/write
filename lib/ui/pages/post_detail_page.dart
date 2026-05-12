@@ -2925,6 +2925,15 @@ class _PostDetailPageState extends State<PostDetailPage>
               // zero-height SizedBox for books with no character
               // bible, so this widget is safe to drop in
               // unconditionally above the chapter list.
+              // Extra top padding visually separates it from the
+              // description; a hairline divider seals it off so the
+              // strip reads as its own section instead of bleeding
+              // into the description above.
+              const SizedBox(height: 12),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: contentPadding),
+                child: Divider(color: dividerColor, height: 1),
+              ),
               CastStrip(
                 feedItemId: item.id,
                 textColor: textColor,
@@ -2932,6 +2941,11 @@ class _PostDetailPageState extends State<PostDetailPage>
                 isDark: isDark,
                 horizontalPadding: contentPadding,
               ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: contentPadding),
+                child: Divider(color: dividerColor, height: 1),
+              ),
+              const SizedBox(height: 16),
 
               // ---- Chapters header ----
               Padding(
