@@ -240,13 +240,13 @@ async def start_subscription(
     # Customer: lazy-create on first subscribe so readers who never opt
     # in never get a Razorpay record. A2's wrapper handles the
     # "already exists" case and returns the cached id.
-    customer_id = await create_or_get_customer(user)
+    customer_id = create_or_get_customer(user)
     if user.razorpay_customer_id != customer_id:
         user.razorpay_customer_id = customer_id
         await db.commit()
         await db.refresh(user)
 
-    response = await create_subscription(
+    response = create_subscription(
         plan_id=plan_id,
         customer_id=customer_id,
         total_count=_TOTAL_COUNT,
@@ -309,7 +309,7 @@ async def get_history(
         sub = await _load_active_subscription(user, db)
         if sub is not None:
             try:
-                remote = await list_invoices_for_subscription(
+                remote = list_invoices_for_subscription(
                     sub.razorpay_subscription_id
                 )
             except Exception:
@@ -406,7 +406,7 @@ async def cancel(
     if sub is None:
         raise HTTPException(status_code=404, detail="No active subscription.")
 
-    await cancel_subscription(
+    cancel_subscription(
         sub.razorpay_subscription_id, immediate=body.immediate
     )
 
