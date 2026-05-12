@@ -60,6 +60,18 @@ TextStyle _customStyleBuilder(quill.Attribute attr) {
 // ---------------------------------------------------------------------------
 // Reading time estimator
 // ---------------------------------------------------------------------------
+/// Render reading time as a compact "1 hr 52 min" / "47 min" / "2 hr".
+/// Books over an hour read better with the hour broken out than a 200+
+/// minute count that the reader has to mentally divide.
+String _formatReadingTime(int minutes) {
+  if (minutes < 60) return '$minutes min';
+  final hours = minutes ~/ 60;
+  final remaining = minutes % 60;
+  if (remaining == 0) return '$hours hr';
+  return '$hours hr $remaining min';
+}
+
+// ---------------------------------------------------------------------------
 int _estimateReadingMinutes(List<FeedItemSection> sections) {
   int totalWords = 0;
   for (final section in sections) {
@@ -4267,7 +4279,7 @@ class _HeroInlineStats extends StatelessWidget {
   Widget build(BuildContext context) {
     final parts = <String>[
       '$sections section${sections == 1 ? '' : 's'}',
-      '$readingMinutes min',
+      _formatReadingTime(readingMinutes),
       _shortDate(createdAt),
       if (genre != null && genre!.isNotEmpty) genre!,
     ];
@@ -4465,7 +4477,7 @@ class _StatsRow extends StatelessWidget {
       ),
       _tile(
         label: 'Length',
-        primary: '$readingMinutes min',
+        primary: _formatReadingTime(readingMinutes),
       ),
       _tile(
         label: 'Published',

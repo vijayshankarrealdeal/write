@@ -24,6 +24,7 @@ class AppNetworkImage extends StatelessWidget {
   final double? width;        // CSS pixels; used to pick the variant
   final double? height;
   final BoxFit fit;
+  final Alignment alignment;
   final BorderRadius? borderRadius;
   final Widget? errorWidget;
   final Color? placeholderColor; // overrides the dominant color from meta
@@ -36,6 +37,7 @@ class AppNetworkImage extends StatelessWidget {
     this.width,
     this.height,
     this.fit = BoxFit.cover,
+    this.alignment = Alignment.center,
     this.borderRadius,
     this.errorWidget,
     this.placeholderColor,
@@ -60,6 +62,7 @@ class AppNetworkImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
+      alignment: alignment,
       filterQuality: filterQuality,
       memCacheWidth: width != null ? (width! * dpr).round() : null,
       memCacheHeight:

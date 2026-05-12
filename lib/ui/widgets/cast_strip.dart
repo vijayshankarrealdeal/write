@@ -250,6 +250,10 @@ class _RingedAvatar extends StatelessWidget {
                   width: size,
                   height: size,
                   fit: BoxFit.cover,
+                  // Portraits are head-to-knees full-body, so a centered
+                  // circular crop lands on the torso. Anchor to top so
+                  // the face fills the avatar.
+                  alignment: Alignment.topCenter,
                 )
               : Container(
                   color: placeholderColor,
@@ -453,6 +457,7 @@ class _CastListRow extends StatelessWidget {
                         width: avatarSize,
                         height: avatarSize,
                         fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
                       )
                     : Container(
                         color: placeholderColor,
