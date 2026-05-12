@@ -126,6 +126,7 @@ jobs:
           RAZORPAY_WEBHOOK_SECRET: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
           RAZORPAY_PLATFORM_FEE_BPS: ${{ secrets.RAZORPAY_PLATFORM_FEE_BPS }}
           RAZORPAY_RETURN_URL: ${{ secrets.RAZORPAY_RETURN_URL }}
+          RAZORPAY_PLAN_ID_MONTHLY: ${{ secrets.RAZORPAY_PLAN_ID_MONTHLY }}
         run: |
           printf '%s\n' "$DOTENV" > .env
           # Overlay individual secrets so they can be rotated without touching DOTENV.
@@ -157,7 +158,7 @@ jobs:
           # DOTENV-baked line (if any) and appends the current value so we can
           # swap test→live keys (or rotate after a leak) by re-running this
           # workflow without touching DOTENV.
-          for var in RAZORPAY_KEY_ID RAZORPAY_KEY_SECRET RAZORPAY_WEBHOOK_SECRET RAZORPAY_PLATFORM_FEE_BPS RAZORPAY_RETURN_URL; do
+          for var in RAZORPAY_KEY_ID RAZORPAY_KEY_SECRET RAZORPAY_WEBHOOK_SECRET RAZORPAY_PLATFORM_FEE_BPS RAZORPAY_RETURN_URL RAZORPAY_PLAN_ID_MONTHLY; do
             value="${!var}"
             if [[ -n "$value" ]]; then
               grep -v "^${var}=" .env > .env.tmp || true
