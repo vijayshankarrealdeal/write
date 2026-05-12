@@ -106,9 +106,19 @@ def create_or_get_customer(user: User) -> str:
 
     Called from `POST /api/subscriptions` before a subscription is
     created. If `user.razorpay_customer_id` is already set we trust
-    it and return immediately — we never re-mint, because Razorpay
-    rejects duplicate customers on the same email with `fail_if_exists`
-    semantics anyway and we'd lose continuity of saved tokens.
+    it and return immediately — we never re-mint, because we'd lose
+    continuity of saved tokens.
+
+    When the local pointer is null but Razorpay already has a customer
+    on this email (e.g. the user signed up before this column existed,
+    or a prior attempt minted a customer before failing on the
+    subscription create), we recover by searching customers by email
+    and returning that id. That keeps the flow idempotent across
+    deploys and prevents the 409 "Customer already exists" loop A2's
+    original code hit because it passed the wrong key (`fail_if_exists`
+    is not a Razorpay parameter — the actual flag is `fail_existing`
+    and it must be the STRING `"0"`, not the bool `False`, which
+    Razorpay silently ignores).
 
     Does *not* persist the returned id; the caller writes it back onto
     the user row inside the same transaction that creates the local
@@ -119,21 +129,48 @@ def create_or_get_customer(user: User) -> str:
     if existing:
         return existing
     rzp = _razorpay()
+    body = {
+        "email": user.email,
+        "name": user.name or "Reader",
+        # String "0" is intentional — Razorpay coerces "0" → return the
+        # existing customer, anything else (including bool False) →
+        # 400/409 on duplicate email.
+        "fail_existing": "0",
+        "notes": {
+            "user_id": str(user.id),
+        },
+    }
     try:
-        customer = rzp.customer.create({
-            "email": user.email,
-            "name": user.name or "Reader",
-            "fail_if_exists": False,
-            "notes": {
-                "user_id": str(user.id),
-            },
-        })
+        customer = rzp.customer.create(body)
+        return customer["id"]
     except Exception as exc:
-        # Same pattern as `start_connect_onboarding` — Razorpay's own
-        # validation reasons surface as a 409 so the router doesn't
-        # have to learn each SDK exception subclass.
+        message = str(exc)
+        if "already exists" not in message.lower():
+            raise HTTPException(
+                status_code=409, detail=_friendly_error(exc)
+            )
+
+    # Fallback path: SDK still raised despite `fail_existing="0"` (we've
+    # seen this when the email was registered under a slightly different
+    # case, or on older SDK versions). Look the customer up by email
+    # and reuse its id.
+    try:
+        listing = rzp.customer.all({"email": user.email, "count": 5})
+    except Exception as exc:
         raise HTTPException(status_code=409, detail=_friendly_error(exc))
-    return customer["id"]
+    for item in listing.get("items", []) or []:
+        if (item.get("email") or "").lower() == user.email.lower():
+            return item["id"]
+    # Razorpay told us the customer exists but we can't find it — surface
+    # the original "already exists" message so the caller sees something
+    # actionable instead of a generic 500.
+    raise HTTPException(
+        status_code=409,
+        detail=(
+            "Razorpay reports a customer already exists for this email "
+            "but we couldn't look it up. Please contact support."
+        ),
+    )
 
 
 def create_subscription(
