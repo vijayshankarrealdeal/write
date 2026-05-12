@@ -156,6 +156,13 @@ class _CastStripState extends State<CastStrip> {
                             : Colors.white,
                         textColor: widget.textColor,
                         isDark: widget.isDark,
+                        // Pass the full cast + the tapped index so the
+                        // character page can render as a swipeable
+                        // vertical PageView seeded on this character.
+                        onTap: () => context.push(
+                          '/character/${cast[i].id}',
+                          extra: {'cast': cast, 'index': i},
+                        ),
                       ),
                     ),
                   if (remaining > 0)
@@ -210,6 +217,7 @@ class _RingedAvatar extends StatelessWidget {
     required this.ringColor,
     required this.textColor,
     required this.isDark,
+    required this.onTap,
   });
 
   final BookCharacterModel character;
@@ -217,6 +225,7 @@ class _RingedAvatar extends StatelessWidget {
   final Color ringColor;
   final Color textColor;
   final bool isDark;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -228,10 +237,7 @@ class _RingedAvatar extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => context.push(
-        '/character/${character.id}',
-        extra: character,
-      ),
+      onTap: onTap,
       child: Container(
         width: size,
         height: size,
@@ -401,9 +407,11 @@ class _CastListSheet extends StatelessWidget {
                   isDark: isDark,
                   onTap: () {
                     Navigator.of(context).pop();
+                    // Push with the full cast so the character page
+                    // is swipeable from this entry point too.
                     context.push(
                       '/character/${character.id}',
-                      extra: character,
+                      extra: {'cast': cast, 'index': index},
                     );
                   },
                 );

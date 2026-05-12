@@ -179,11 +179,29 @@ GoRouter createRouter(AuthProvider authProvider) {
         pageBuilder: (_, state) {
           final extra = state.extra;
           final id = state.pathParameters['id'] ?? '';
-          final initial = extra is BookCharacterModel ? extra : null;
+          BookCharacterModel? initial;
+          List<BookCharacterModel>? cast;
+          int initialIndex = 0;
+          // Three accepted `extra` shapes — older callers stay working.
+          if (extra is Map<String, dynamic>) {
+            final rawCast = extra['cast'];
+            if (rawCast is List<BookCharacterModel>) {
+              cast = rawCast;
+              final idx = extra['index'];
+              if (idx is int) initialIndex = idx;
+              if (cast.isNotEmpty && initialIndex >= 0 && initialIndex < cast.length) {
+                initial = cast[initialIndex];
+              }
+            }
+          } else if (extra is BookCharacterModel) {
+            initial = extra;
+          }
           return CupertinoPage(
             child: CharacterDetailPage(
               characterId: id,
               initial: initial,
+              cast: cast,
+              initialIndex: initialIndex,
             ),
           );
         },

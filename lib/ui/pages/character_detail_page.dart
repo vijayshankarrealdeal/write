@@ -11,68 +11,123 @@ import 'package:inkspacex/ui/widgets/app_spinner.dart';
 /// on the book detail page.
 ///
 /// Renders the portrait as a framed gallery piece — bronze outer
-/// frame, cream mat, the painting inside, and a brass-style plaque
-/// underneath bearing the character's name. The scout's one-line
-/// appearance sits below the frame as caption text.
+/// frame, cream mat, painting inside, brass plaque underneath. The
+/// scout's appearance description sits below the frame as italic
+/// caption text.
 ///
-/// Pushed with the [BookCharacterModel] as `extra` so the page
-/// paints instantly from the strip's payload; the page re-fetches by
-/// id in the background to pick up any later edits or hydrate when
-/// the user landed via deep link.
+/// When the caller passes a `cast` list via GoRouter `extra`, the
+/// page wraps the frame in a vertical `PageView` so the reader can
+/// swipe up/down to walk through the rest of the book's cast without
+/// returning to the book detail page. Single-character pushes (deep
+/// links / older callers) still work — the page degrades to one
+/// non-scrollable frame.
+///
+/// `extra` shape (preferred):
+///   `({List<BookCharacterModel> cast, int index})`
+/// Fallback shapes (backward compat):
+///   - `BookCharacterModel` (single character, no swipe)
+///   - `null` (deep link — fetch by id, no swipe)
 class CharacterDetailPage extends StatefulWidget {
   const CharacterDetailPage({
     super.key,
     required this.characterId,
     this.initial,
+    this.cast,
+    this.initialIndex = 0,
   });
 
   final String characterId;
   final BookCharacterModel? initial;
+  final List<BookCharacterModel>? cast;
+  final int initialIndex;
 
   @override
   State<CharacterDetailPage> createState() => _CharacterDetailPageState();
 }
 
 class _CharacterDetailPageState extends State<CharacterDetailPage> {
-  BookCharacterModel? _character;
-  bool _loadingMore = false;
+  /// The cast we render. Always non-empty in the swipeable case; in
+  /// the deep-link fallback this starts empty and we fall back to a
+  /// single-character fetch-by-id.
+  late final List<BookCharacterModel> _items;
+  late final PageController _controller;
+  int _currentIndex = 0;
+  bool _loadingCurrent = false;
   Object? _error;
+
+  bool get _canSwipe => _items.length > 1;
 
   @override
   void initState() {
     super.initState();
-    _character = widget.initial;
-    _refetch();
+    if (widget.cast != null && widget.cast!.isNotEmpty) {
+      _items = List.of(widget.cast!);
+      _currentIndex = widget.initialIndex.clamp(0, _items.length - 1);
+    } else if (widget.initial != null) {
+      _items = [widget.initial!];
+      _currentIndex = 0;
+    } else {
+      _items = <BookCharacterModel>[];
+      _currentIndex = 0;
+    }
+    _controller = PageController(initialPage: _currentIndex);
+    _refetchAt(_currentIndex);
   }
 
-  Future<void> _refetch() async {
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  /// Refresh a single character from the server and fold the result
+  /// back into `_items` so swiping back to it later uses the latest
+  /// portrait/appearance without another network call.
+  Future<void> _refetchAt(int index) async {
     if (!mounted) return;
-    setState(() => _loadingMore = _character == null);
+    final targetId = index >= 0 && index < _items.length
+        ? _items[index].id
+        : widget.characterId;
+    if (targetId.isEmpty) return;
+    setState(() {
+      _loadingCurrent = _items.isEmpty || index == _currentIndex;
+    });
     try {
       final fresh = await context
           .read<AuthProvider>()
           .dataService
-          .getCharacter(widget.characterId);
+          .getCharacter(targetId);
       if (!mounted) return;
       setState(() {
-        if (fresh != null) _character = fresh;
-        _loadingMore = false;
+        _loadingCurrent = false;
         _error = null;
+        if (fresh == null) return;
+        if (_items.isEmpty) {
+          _items.add(fresh);
+        } else if (index >= 0 && index < _items.length) {
+          _items[index] = fresh;
+        }
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _loadingMore = false;
-        if (_character == null) _error = e;
+        _loadingCurrent = false;
+        if (_items.isEmpty) _error = e;
       });
     }
+  }
+
+  void _onPageChanged(int index) {
+    setState(() => _currentIndex = index);
+    // Quietly refresh the newly-shown character. The page paints
+    // instantly from the cached BookCharacterModel that came in via
+    // `extra`; this just folds in any server-side updates.
+    _refetchAt(index);
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Wall colour — a touch warmer than the rest of the app so the
-    // gallery has its own atmosphere.
     final wallColor =
         isDark ? const Color(0xFF0B0B10) : const Color(0xFFF6F1E8);
     final textColor = isDark ? Colors.white : const Color(0xFF1A1612);
@@ -80,7 +135,10 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
         ? Colors.white.withValues(alpha: 0.65)
         : const Color(0xFF6B5E4E);
 
-    final character = _character;
+    final current = _items.isNotEmpty && _currentIndex < _items.length
+        ? _items[_currentIndex]
+        : null;
+
     return Scaffold(
       backgroundColor: wallColor,
       appBar: AppBar(
@@ -89,17 +147,35 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
         scrolledUnderElevation: 0,
         iconTheme: IconThemeData(color: textColor),
         title: Text(
-          character?.name ?? 'Character',
+          current?.name ?? 'Character',
           style: GoogleFonts.playfairDisplay(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: textColor,
           ),
         ),
+        actions: [
+          if (_canSwipe)
+            // Tiny "n / N" indicator so readers know there's a cast
+            // to swipe through.
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Center(
+                child: Text(
+                  '${_currentIndex + 1} / ${_items.length}',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: subtleColor,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
-      body: character == null
+      body: current == null
           ? Center(
-              child: _loadingMore
+              child: _loadingCurrent
                   ? const AppSpinner(size: 24)
                   : Text(
                       _error == null
@@ -108,27 +184,74 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                       style: GoogleFonts.inter(color: subtleColor),
                     ),
             )
-          : _buildBody(context, character, textColor, subtleColor, isDark),
+          : _buildSwipeableBody(
+              context,
+              textColor: textColor,
+              subtleColor: subtleColor,
+              isDark: isDark,
+            ),
     );
   }
 
-  Widget _buildBody(
-    BuildContext context,
-    BookCharacterModel character,
-    Color textColor,
-    Color subtleColor,
-    bool isDark,
-  ) {
+  Widget _buildSwipeableBody(
+    BuildContext context, {
+    required Color textColor,
+    required Color subtleColor,
+    required bool isDark,
+  }) {
+    return PageView.builder(
+      controller: _controller,
+      // Vertical swipe — matches the "scroll up/down for next" pattern
+      // readers expect from gallery / story UIs.
+      scrollDirection: Axis.vertical,
+      itemCount: _items.length,
+      physics: _canSwipe
+          ? const PageScrollPhysics()
+          : const NeverScrollableScrollPhysics(),
+      onPageChanged: _onPageChanged,
+      itemBuilder: (context, index) {
+        final character = _items[index];
+        return _CharacterFrameView(
+          character: character,
+          textColor: textColor,
+          subtleColor: subtleColor,
+          isDark: isDark,
+          showSwipeHint: _canSwipe && index == 0,
+          loading: _loadingCurrent && index == _currentIndex,
+        );
+      },
+    );
+  }
+}
+
+/// One page in the vertical PageView — gallery frame + caption + the
+/// optional swipe hint at the bottom of the first item.
+class _CharacterFrameView extends StatelessWidget {
+  const _CharacterFrameView({
+    required this.character,
+    required this.textColor,
+    required this.subtleColor,
+    required this.isDark,
+    required this.showSwipeHint,
+    required this.loading,
+  });
+
+  final BookCharacterModel character;
+  final Color textColor;
+  final Color subtleColor;
+  final bool isDark;
+  final bool showSwipeHint;
+  final bool loading;
+
+  @override
+  Widget build(BuildContext context) {
     final mediaWidth = MediaQuery.sizeOf(context).width;
-    // Web breathes — cap the inner content so the frame doesn't
-    // stretch across a 1920-px window. On phones we get the full
-    // width minus padding.
     final contentWidth = mediaWidth < 720
         ? mediaWidth - 24
         : (mediaWidth * 0.55).clamp(440.0, 620.0);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 40),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 32),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: contentWidth),
@@ -142,10 +265,6 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                 textColor: textColor,
               ),
               const SizedBox(height: 28),
-              // Appearance caption below the frame — italic, sized like
-              // a museum placard's secondary line. The frame's plaque
-              // already shows the name, so we don't repeat it here on
-              // wide screens.
               Text(
                 character.appearance,
                 style: GoogleFonts.inter(
@@ -156,9 +275,13 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              if (_loadingMore) ...[
+              if (loading) ...[
                 const SizedBox(height: 20),
                 const AppSpinner(size: 16),
+              ],
+              if (showSwipeHint) ...[
+                const SizedBox(height: 28),
+                _SwipeHint(subtleColor: subtleColor),
               ],
             ],
           ),
@@ -169,11 +292,6 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
 }
 
 /// Bronze-frame + cream-mat composition for the character portrait.
-/// Two nested Containers with carefully picked colours: a layered
-/// gradient on the outer band reads as polished metal, the mat is
-/// soft warm white, and a small brass plaque sits at the bottom of
-/// the mat with the character's name engraved. Falls back to an
-/// initials medallion when no portrait was generated.
 class _GalleryFrame extends StatelessWidget {
   const _GalleryFrame({
     required this.character,
@@ -185,19 +303,17 @@ class _GalleryFrame extends StatelessWidget {
   final bool isDark;
   final Color textColor;
 
-  // Frame palette — chosen for both light + dark walls.
-  static const _frameOuter = Color(0xFF3A2A18); // deep walnut shadow
-  static const _frameMid = Color(0xFF8C6A2E);   // antique brass
-  static const _frameHilite = Color(0xFFD9B26B); // gilt highlight
-  static const _mat = Color(0xFFEFE6D3);        // warm cream mat
-  static const _matShadow = Color(0xFFC9BBA0);  // inner mat shadow
+  static const _frameOuter = Color(0xFF3A2A18);
+  static const _frameMid = Color(0xFF8C6A2E);
+  static const _frameHilite = Color(0xFFD9B26B);
+  static const _mat = Color(0xFFEFE6D3);
+  static const _matShadow = Color(0xFFC9BBA0);
 
   @override
   Widget build(BuildContext context) {
     final hasImage =
         character.imageUrl != null && character.imageUrl!.isNotEmpty;
     return DecoratedBox(
-      // Soft wall shadow under the frame so it visually hangs.
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
@@ -210,7 +326,6 @@ class _GalleryFrame extends StatelessWidget {
         ],
       ),
       child: Container(
-        // Outer frame — three-stop gradient mimics polished brass.
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
@@ -221,22 +336,18 @@ class _GalleryFrame extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: _frameOuter, width: 1.2),
         ),
-        padding: const EdgeInsets.all(14), // bronze band thickness
+        padding: const EdgeInsets.all(14),
         child: Container(
-          // Inset bevel between bronze and mat — a thin dark line
-          // gives the metal an edge.
           decoration: BoxDecoration(
             color: _frameOuter,
             borderRadius: BorderRadius.circular(2),
           ),
           padding: const EdgeInsets.all(2),
           child: Container(
-            // Cream mat board.
             decoration: BoxDecoration(
               color: _mat,
               borderRadius: BorderRadius.circular(2),
               boxShadow: const [
-                // Tiny inner shadow lip — sells the layered paperboard look.
                 BoxShadow(
                   color: _matShadow,
                   blurRadius: 4,
@@ -249,7 +360,7 @@ class _GalleryFrame extends StatelessWidget {
             child: Column(
               children: [
                 AspectRatio(
-                  aspectRatio: 1024 / 1536, // matches the portrait gen size
+                  aspectRatio: 1024 / 1536,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(2),
                     child: hasImage
@@ -342,6 +453,34 @@ class _BrassPlaque extends StatelessWidget {
           color: const Color(0xFFF6E8C4),
         ),
       ),
+    );
+  }
+}
+
+/// Tiny "swipe up for next" hint shown under the first character's
+/// caption. Only appears on the first page so we don't pester the
+/// reader on every swipe.
+class _SwipeHint extends StatelessWidget {
+  const _SwipeHint({required this.subtleColor});
+
+  final Color subtleColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(Icons.keyboard_arrow_up, color: subtleColor, size: 22),
+        const SizedBox(height: 2),
+        Text(
+          'SWIPE FOR NEXT',
+          style: GoogleFonts.inter(
+            fontSize: 10.5,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.8,
+            color: subtleColor,
+          ),
+        ),
+      ],
     );
   }
 }
