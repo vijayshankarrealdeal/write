@@ -9,6 +9,7 @@ from app.models.analytics import (
 from app.models.author_bookmark import AuthorBookmark
 from app.models.base import Base
 from app.models.block import Block
+from app.models.book_character import BookCharacter
 from app.models.bookmark import Bookmark
 from app.models.bookshelf import Bookshelf
 from app.models.chat import ChatMessage, Conversation
@@ -40,6 +41,7 @@ __all__ = [
     "AuthorBookmark",
     "Base",
     "Block",
+    "BookCharacter",
     "Bookmark",
     "Bookshelf",
     "ChatMessage",

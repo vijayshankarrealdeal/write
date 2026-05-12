@@ -19,12 +19,14 @@ from app.feed_sections import (
     set_published_section_ids,
 )
 from app.feed_visibility import public_feed_clause, visibility_clause
+from app.models.book_character import BookCharacter
 from app.models.feed_item import FeedItem
 from app.models.purchase import Purchase
 from app.models.user import User
 from app.models.writing import Writing
 from app.notifications import create_notification
 from app.realtime import hub
+from app.schemas.character import BookCharacterRead
 from app.schemas.feed import (
     FacetEntry,
     FacetResponse,
@@ -440,6 +442,62 @@ async def get_feed_item_by_writing(
         raise HTTPException(status_code=404, detail="Feed item not found")
     item.__dict__["purchased"] = True
     return item
+
+
+@router.get(
+    "/{item_id}/characters",
+    response_model=list[BookCharacterRead],
+)
+async def list_feed_item_characters(
+    item_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Return the book's cast — one row per character the scout proposed.
+
+    Empty list for books that have no character bible (essay collections,
+    landscape travelogues, sacred texts). The Flutter client treats an
+    empty list as "no cast" and hides the strip entirely, so this
+    endpoint is safe to call for every book without conditional logic.
+
+    Open to everyone — no auth dependency. Same posture as the rest of
+    the public feed metadata (cover art, blurb, tags).
+    """
+    feed_item = (
+        await db.execute(select(FeedItem.writing_id).where(FeedItem.id == item_id))
+    ).scalar_one_or_none()
+    if feed_item is None:
+        raise HTTPException(status_code=404, detail="Feed item not found")
+    rows = (
+        await db.execute(
+            select(BookCharacter)
+            .where(BookCharacter.writing_id == feed_item)
+            .order_by(BookCharacter.sort_order, BookCharacter.created_at)
+        )
+    ).scalars().all()
+    return rows
+
+
+@router.get(
+    "/characters/{character_id}",
+    response_model=BookCharacterRead,
+)
+async def get_character_detail(
+    character_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Fetch a single character's full detail (used by the character page).
+
+    Returns the same shape as the list endpoint — name, appearance,
+    portrait. No author-only fields; characters are public metadata.
+    """
+    row = (
+        await db.execute(
+            select(BookCharacter).where(BookCharacter.id == character_id)
+        )
+    ).scalar_one_or_none()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Character not found")
+    return row
 
 
 @router.post("/", response_model=FeedItemResponse, status_code=201)

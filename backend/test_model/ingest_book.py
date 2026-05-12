@@ -197,6 +197,13 @@ async def _sync_now(slug: str, *, force: bool) -> dict | None:
         or manifest.get("subtitle")
     )
 
+    # Process each character portrait through the platform image
+    # pipeline so the cast strip has blurhash + variants. Same shape
+    # as the cover handling above. Empty list for books without a
+    # character bible.
+    from sync_to_db import _build_characters_payload  # local import to avoid cycle
+    characters = await _build_characters_payload(slug, manifest=manifest, no_images=False)
+
     db_ids = await db_publish.publish_book(
         title=manifest["title"],
         author=manifest.get("author"),
@@ -216,6 +223,7 @@ async def _sync_now(slug: str, *, force: bool) -> dict | None:
         writing_types=poster.get("writing_types") or ["book"],
         tags=poster.get("tags") or [],
         visibility="public",
+        characters=characters,
     )
     manifest["synced"] = db_ids
     persist.write_manifest(slug, manifest)

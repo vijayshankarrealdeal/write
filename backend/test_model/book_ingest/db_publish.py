@@ -39,6 +39,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from app.config import settings  # noqa: E402
 from app.feed_publish import upsert_feed_item_for_writing  # noqa: E402
+from app.models.book_character import BookCharacter  # noqa: E402
 from app.models.section import Section  # noqa: E402
 from app.models.user import User  # noqa: E402
 from app.models.writing import Writing  # noqa: E402
@@ -128,6 +129,7 @@ async def publish_book(
     tags: list[str] | None = None,
     cleaned_markdown: dict[str, str] | None = None,
     visibility: str = "public",
+    characters: list[dict] | None = None,
 ) -> dict[str, str]:
     """Persist Writing + Sections.
 
@@ -200,6 +202,27 @@ async def publish_book(
 
         writing.section_ids = [str(s.id) for s in section_rows]
         await db.flush()
+
+        # Cast strip: one row per character the scout proposed. The
+        # writing's cascade-delete owns these — when the Writing is
+        # deleted (re-publish path) the cast goes with it. Books
+        # without a bible (essay collections, landscape travelogues)
+        # simply get zero rows here, and the client hides the strip.
+        if characters:
+            for entry in characters:
+                name = (entry.get("name") or "").strip()
+                appearance = (entry.get("appearance") or "").strip()
+                if not name or not appearance:
+                    continue
+                db.add(BookCharacter(
+                    writing_id=writing.id,
+                    name=name,
+                    appearance=appearance,
+                    image_url=entry.get("image_url"),
+                    image_meta=entry.get("image_meta"),
+                    sort_order=int(entry.get("sort_order") or 0),
+                ))
+            await db.flush()
 
         if primary_account_email:
             # Primary-account mode: same identity authors AND publishes,

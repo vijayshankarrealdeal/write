@@ -20,6 +20,8 @@ import 'package:inkspacex/ui/auth/splash_screen.dart';
 import 'package:inkspacex/ui/onboarding/onboarding_page.dart';
 import 'package:inkspacex/ui/app/search_page.dart';
 import 'package:inkspacex/ui/app/settings.dart';
+import 'package:inkspacex/models/book_character_model.dart';
+import 'package:inkspacex/ui/pages/character_detail_page.dart';
 import 'package:inkspacex/ui/pages/author_profile_page.dart';
 import 'package:inkspacex/ui/pages/blocked_users_page.dart';
 import 'package:inkspacex/ui/pages/chat_conversation_page.dart';
@@ -165,6 +167,24 @@ GoRouter createRouter(AuthProvider authProvider) {
           final id = state.pathParameters['id'] ?? '';
           return CupertinoPage(
             child: _PostLoaderPage(feedItemId: id),
+          );
+        },
+      ),
+      // Character page reached from the cast strip on the book detail
+      // page. The strip pushes with the BookCharacterModel as `extra`
+      // so the page paints instantly; the page then re-fetches by id
+      // in the background to pick up any later edits.
+      GoRoute(
+        path: '/character/:id',
+        pageBuilder: (_, state) {
+          final extra = state.extra;
+          final id = state.pathParameters['id'] ?? '';
+          final initial = extra is BookCharacterModel ? extra : null;
+          return CupertinoPage(
+            child: CharacterDetailPage(
+              characterId: id,
+              initial: initial,
+            ),
           );
         },
       ),

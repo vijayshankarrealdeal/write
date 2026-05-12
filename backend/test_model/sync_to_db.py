@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -156,6 +157,9 @@ async def _main() -> int:
         manifest.get("description")
         or poster.get("description")
     )
+    characters = await _build_characters_payload(
+        slug, manifest=manifest, no_images=args.no_images
+    )
     db_ids = await db_publish.publish_book(
         title=title_value,
         author=manifest.get("author"),
@@ -178,6 +182,7 @@ async def _main() -> int:
         writing_types=poster.get("writing_types") or ["book"],
         tags=poster.get("tags") or [],
         visibility="public",
+        characters=characters,
     )
 
     manifest["synced"] = db_ids
@@ -388,6 +393,76 @@ async def _upload_images(
     if tasks:
         await asyncio.gather(*tasks)
     print(f"[minio] uploaded {len(out)} images")
+    return out
+
+
+_CHAR_SAFE_NAME_RE = re.compile(r"[^a-z0-9]+")
+
+
+def _safe_char_slug(name: str) -> str:
+    """Filesystem / URL slug for a character name. Matches the
+    `character_sheets._safe_name` shape so paths align with the
+    on-disk portrait filenames."""
+    return _CHAR_SAFE_NAME_RE.sub("-", name.lower()).strip("-") or "character"
+
+
+async def _build_characters_payload(
+    slug: str,
+    *,
+    manifest: dict,
+    no_images: bool,
+) -> list[dict]:
+    """Process each character portrait through the platform image
+    pipeline and return the per-character publish payload.
+
+    Idempotent under re-publish: the file paths are versioned with
+    `int(time.time())`, so a re-run uploads to a new prefix and the
+    DB row points at the latest. Old prefixes are orphaned but
+    harmless (immutable MinIO objects).
+
+    Returns [] when the book has no character bible — callers pass
+    that through to `publish_book(characters=[])` and the cast table
+    gets zero rows.
+    """
+    bible = (manifest.get("scout") or {}).get("character_bible") or []
+    if not bible:
+        return []
+    sheets = manifest.get("character_sheets") or {}
+
+    import time as _t
+    out: list[dict] = []
+    for idx, entry in enumerate(bible):
+        if not isinstance(entry, dict):
+            continue
+        name = (entry.get("name") or "").strip()
+        appearance = (entry.get("appearance") or "").strip()
+        if not name or not appearance:
+            continue
+        local_path = sheets.get(name)
+        image_url: str | None = None
+        image_meta: dict | None = None
+        if local_path and Path(local_path).exists() and not no_images:
+            try:
+                from app.image_pipeline import process_image  # type: ignore[import-not-found]
+                from app.storage import upload_variants  # type: ignore[import-not-found]
+                data = Path(local_path).read_bytes()
+                variants, meta = await process_image(data)
+                version = int(_t.time())
+                base_path = f"books/{slug}/characters/{_safe_char_slug(name)}/{version}"
+                base_url = await upload_variants(base_path, variants)
+                meta["base_url"] = base_url
+                image_meta = meta
+                image_url = f"{base_url}/medium.webp"
+            except Exception as exc:  # noqa: BLE001
+                print(f"[chars/upload] {name!r} failed: "
+                      f"{type(exc).__name__}: {exc} — proceeding without portrait")
+        out.append({
+            "name": name,
+            "appearance": appearance,
+            "image_url": image_url,
+            "image_meta": image_meta,
+            "sort_order": idx,
+        })
     return out
 
 

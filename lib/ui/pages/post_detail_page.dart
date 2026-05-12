@@ -17,6 +17,7 @@ import 'package:inkspacex/ui/editor/image_embed_builder.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/widgets/author_link.dart';
+import 'package:inkspacex/ui/widgets/cast_strip.dart';
 import 'package:inkspacex/ui/widgets/more_like_this_carousel.dart';
 import 'package:inkspacex/ui/widgets/report_dialog.dart';
 
@@ -2899,6 +2900,20 @@ class _PostDetailPageState extends State<PostDetailPage>
                     ),
                   ),
                 ),
+
+              // ---- Cast strip ----
+              // Lazy-fetches /api/feed/{id}/characters and renders a
+              // horizontal row of avatars + names. Returns a
+              // zero-height SizedBox for books with no character
+              // bible, so this widget is safe to drop in
+              // unconditionally above the chapter list.
+              CastStrip(
+                feedItemId: item.id,
+                textColor: textColor,
+                subtleColor: subtleColor,
+                isDark: isDark,
+                horizontalPadding: contentPadding,
+              ),
 
               // ---- Chapters header ----
               Padding(

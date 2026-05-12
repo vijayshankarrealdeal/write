@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:inkspacex/models/author_bookmark.dart';
+import 'package:inkspacex/models/book_character_model.dart';
 import 'package:inkspacex/models/bookmark_model.dart';
 import 'package:inkspacex/models/bookshelf_model.dart';
 import 'package:inkspacex/models/chat_message_model.dart';
@@ -499,6 +500,46 @@ class ApiDataService implements SyncDispatcher {
       // it as a transient network error.
       if (e.statusCode == 404) throw const FeedItemMissing();
       return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Fetch the book's cast — the characters the scout proposed during
+  /// ingest, each with a one-line appearance and a portrait when the
+  /// pipeline successfully generated one. Returns an empty list for
+  /// books without a character bible (essays, landscape travelogues,
+  /// most sacred texts). Callers should treat empty as "no cast" and
+  /// hide the strip.
+  Future<List<BookCharacterModel>> getFeedItemCharacters(
+    String feedItemId,
+  ) async {
+    try {
+      final response = await _client.get(
+        '/api/feed/$feedItemId/characters',
+      );
+      final data = response.data;
+      if (data is! List) return const [];
+      return data
+          .whereType<Map>()
+          .map((m) => BookCharacterModel.fromJson(Map<String, dynamic>.from(m)))
+          .toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  /// Fetch one character's full detail for the character page. Returns
+  /// null on any error so the page can show a graceful empty state
+  /// instead of crashing.
+  Future<BookCharacterModel?> getCharacter(String characterId) async {
+    try {
+      final response = await _client.get(
+        '/api/feed/characters/$characterId',
+      );
+      final data = response.data;
+      if (data is! Map) return null;
+      return BookCharacterModel.fromJson(Map<String, dynamic>.from(data));
     } catch (_) {
       return null;
     }
