@@ -4887,14 +4887,25 @@ class _TagPill extends StatelessWidget {
       ),
     );
     if (onTap == null) return pill;
-    // Interactive "+N more" / "Show less" pill — InkWell so taps get
-    // ripple feedback on Android, MouseRegion-style hover on web.
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(100),
+    // Interactive "+N more" / "Show less" pill. Three layers:
+    //  - GestureDetector with HitTestBehavior.opaque guarantees the
+    //    tap fires even inside a Wrap or on web where InkWell hit
+    //    detection can otherwise miss the chip's padding.
+    //  - MouseRegion gives a pointer cursor on web/desktop.
+    //  - Material+InkWell on top adds the ripple feedback on touch.
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: pill,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(100),
+            onTap: onTap,
+            child: pill,
+          ),
+        ),
       ),
     );
   }
