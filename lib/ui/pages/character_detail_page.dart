@@ -10,12 +10,15 @@ import 'package:inkspacex/ui/widgets/app_spinner.dart';
 /// Full-bleed character page reached by tapping a cast-strip avatar
 /// on the book detail page.
 ///
-/// Renders the larger portrait (when available) plus the scout's
-/// one-line appearance description and the character's name. Pushed
-/// with the [BookCharacterModel] as `extra` so the page paints
-/// instantly from the strip's payload — the page re-fetches the
-/// detail by id in the background to pick up any later edits or to
-/// hydrate when the user landed via deep link.
+/// Renders the portrait as a framed gallery piece — bronze outer
+/// frame, cream mat, the painting inside, and a brass-style plaque
+/// underneath bearing the character's name. The scout's one-line
+/// appearance sits below the frame as caption text.
+///
+/// Pushed with the [BookCharacterModel] as `extra` so the page
+/// paints instantly from the strip's payload; the page re-fetches by
+/// id in the background to pick up any later edits or hydrate when
+/// the user landed via deep link.
 class CharacterDetailPage extends StatefulWidget {
   const CharacterDetailPage({
     super.key,
@@ -39,9 +42,6 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
   void initState() {
     super.initState();
     _character = widget.initial;
-    // Even with `initial` we re-fetch to pick up any server-side
-    // refresh (regenerated portrait, edited appearance) without making
-    // the user pull-to-refresh.
     _refetch();
   }
 
@@ -71,17 +71,20 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bg = isDark ? const Color(0xFF0E0E12) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF111111);
+    // Wall colour — a touch warmer than the rest of the app so the
+    // gallery has its own atmosphere.
+    final wallColor =
+        isDark ? const Color(0xFF0B0B10) : const Color(0xFFF6F1E8);
+    final textColor = isDark ? Colors.white : const Color(0xFF1A1612);
     final subtleColor = isDark
         ? Colors.white.withValues(alpha: 0.65)
-        : Colors.black.withValues(alpha: 0.65);
+        : const Color(0xFF6B5E4E);
 
     final character = _character;
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: wallColor,
       appBar: AppBar(
-        backgroundColor: bg,
+        backgroundColor: wallColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         iconTheme: IconThemeData(color: textColor),
@@ -116,122 +119,229 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
     Color subtleColor,
     bool isDark,
   ) {
+    final mediaWidth = MediaQuery.sizeOf(context).width;
+    // Web breathes — cap the inner content so the frame doesn't
+    // stretch across a 1920-px window. On phones we get the full
+    // width minus padding.
+    final contentWidth = mediaWidth < 720
+        ? mediaWidth - 24
+        : (mediaWidth * 0.55).clamp(440.0, 620.0);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 40),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: contentWidth),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 12),
+              _GalleryFrame(
+                character: character,
+                isDark: isDark,
+                textColor: textColor,
+              ),
+              const SizedBox(height: 28),
+              // Appearance caption below the frame — italic, sized like
+              // a museum placard's secondary line. The frame's plaque
+              // already shows the name, so we don't repeat it here on
+              // wide screens.
+              Text(
+                character.appearance,
+                style: GoogleFonts.inter(
+                  fontSize: 14.5,
+                  height: 1.65,
+                  fontStyle: FontStyle.italic,
+                  color: subtleColor,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              if (_loadingMore) ...[
+                const SizedBox(height: 20),
+                const AppSpinner(size: 16),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bronze-frame + cream-mat composition for the character portrait.
+/// Two nested Containers with carefully picked colours: a layered
+/// gradient on the outer band reads as polished metal, the mat is
+/// soft warm white, and a small brass plaque sits at the bottom of
+/// the mat with the character's name engraved. Falls back to an
+/// initials medallion when no portrait was generated.
+class _GalleryFrame extends StatelessWidget {
+  const _GalleryFrame({
+    required this.character,
+    required this.isDark,
+    required this.textColor,
+  });
+
+  final BookCharacterModel character;
+  final bool isDark;
+  final Color textColor;
+
+  // Frame palette — chosen for both light + dark walls.
+  static const _frameOuter = Color(0xFF3A2A18); // deep walnut shadow
+  static const _frameMid = Color(0xFF8C6A2E);   // antique brass
+  static const _frameHilite = Color(0xFFD9B26B); // gilt highlight
+  static const _mat = Color(0xFFEFE6D3);        // warm cream mat
+  static const _matShadow = Color(0xFFC9BBA0);  // inner mat shadow
+
+  @override
+  Widget build(BuildContext context) {
     final hasImage =
         character.imageUrl != null && character.imageUrl!.isNotEmpty;
-    final mediaWidth = MediaQuery.sizeOf(context).width;
-
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-      children: [
-        if (hasImage)
-          _portraitHero(context, character, mediaWidth)
-        else
-          _initialsHero(context, character, textColor, subtleColor, isDark),
-        const SizedBox(height: 24),
-        Text(
-          character.name,
-          style: GoogleFonts.playfairDisplay(
-            fontSize: 30,
-            fontWeight: FontWeight.w700,
-            color: textColor,
-            letterSpacing: -0.4,
+    return DecoratedBox(
+      // Soft wall shadow under the frame so it visually hangs.
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.55 : 0.20),
+            blurRadius: 30,
+            offset: const Offset(0, 16),
+            spreadRadius: -6,
           ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          character.appearance,
-          style: GoogleFonts.inter(
-            fontSize: 15.5,
-            height: 1.65,
-            color: subtleColor,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        if (_loadingMore) ...[
-          const SizedBox(height: 24),
-          const Center(child: AppSpinner(size: 16)),
         ],
-      ],
-    );
-  }
-
-  /// Hero portrait when a generated image is available. Capped at
-  /// 520px wide so it doesn't dominate on tablets.
-  Widget _portraitHero(
-    BuildContext context,
-    BookCharacterModel character,
-    double mediaWidth,
-  ) {
-    final portraitWidth = mediaWidth.clamp(280.0, 520.0) * 0.86;
-    final portraitHeight = portraitWidth * 1.4;
-    return Center(
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: AppNetworkImage(
-          url: character.imageUrl,
-          meta: character.imageMeta,
-          width: portraitWidth,
-          height: portraitHeight,
-          fit: BoxFit.cover,
-        ),
       ),
-    );
-  }
-
-  /// Fallback hero when no portrait is available — a compact circular
-  /// initials chip rather than a giant rectangle, plus a subtle hint
-  /// that the visual is missing. Keeps the focus on the appearance
-  /// text instead of a wall of blank space.
-  Widget _initialsHero(
-    BuildContext context,
-    BookCharacterModel character,
-    Color textColor,
-    Color subtleColor,
-    bool isDark,
-  ) {
-    final fill = isDark
-        ? Colors.white.withValues(alpha: 0.08)
-        : Colors.black.withValues(alpha: 0.05);
-    return Center(
-      child: Column(
-        children: [
-          Container(
-            width: 120,
-            height: 120,
+      child: Container(
+        // Outer frame — three-stop gradient mimics polished brass.
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [_frameHilite, _frameMid, _frameOuter],
+            stops: [0.0, 0.55, 1.0],
+          ),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: _frameOuter, width: 1.2),
+        ),
+        padding: const EdgeInsets.all(14), // bronze band thickness
+        child: Container(
+          // Inset bevel between bronze and mat — a thin dark line
+          // gives the metal an edge.
+          decoration: BoxDecoration(
+            color: _frameOuter,
+            borderRadius: BorderRadius.circular(2),
+          ),
+          padding: const EdgeInsets.all(2),
+          child: Container(
+            // Cream mat board.
             decoration: BoxDecoration(
-              color: fill,
-              shape: BoxShape.circle,
+              color: _mat,
+              borderRadius: BorderRadius.circular(2),
+              boxShadow: const [
+                // Tiny inner shadow lip — sells the layered paperboard look.
+                BoxShadow(
+                  color: _matShadow,
+                  blurRadius: 4,
+                  spreadRadius: -2,
+                  offset: Offset(0, 1),
+                ),
+              ],
             ),
-            alignment: Alignment.center,
-            child: Text(
-              _initials(character.name),
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 40,
-                fontWeight: FontWeight.w700,
-                color: textColor,
-              ),
+            padding: const EdgeInsets.fromLTRB(22, 22, 22, 14),
+            child: Column(
+              children: [
+                AspectRatio(
+                  aspectRatio: 1024 / 1536, // matches the portrait gen size
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(2),
+                    child: hasImage
+                        ? AppNetworkImage(
+                            url: character.imageUrl,
+                            meta: character.imageMeta,
+                            fit: BoxFit.cover,
+                          )
+                        : _initialsMedallion(character),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _BrassPlaque(name: character.name),
+              ],
             ),
           ),
-          const SizedBox(height: 10),
+        ),
+      ),
+    );
+  }
+
+  Widget _initialsMedallion(BookCharacterModel character) {
+    final parts =
+        character.name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
+    final initials = parts.isEmpty
+        ? '?'
+        : parts.take(2).map((p) => p[0].toUpperCase()).join();
+    return Container(
+      color: const Color(0xFFE5D9BF),
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
           Text(
-            'Portrait coming soon',
+            initials,
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 64,
+              fontWeight: FontWeight.w700,
+              color: _frameOuter,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'PORTRAIT PENDING',
             style: GoogleFonts.inter(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w500,
-              color: subtleColor,
-              letterSpacing: 0.4,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.6,
+              color: _frameMid,
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
-    if (parts.isEmpty) return '?';
-    final letters = parts.take(2).map((p) => p[0].toUpperCase()).join();
-    return letters.isEmpty ? '?' : letters;
+class _BrassPlaque extends StatelessWidget {
+  const _BrassPlaque({required this.name});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFB3892F),
+            Color(0xFF8C6A2E),
+            Color(0xFF5B431A),
+          ],
+          stops: [0.0, 0.5, 1.0],
+        ),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(
+          color: const Color(0xFF3A2A18),
+          width: 0.8,
+        ),
+      ),
+      child: Text(
+        name.toUpperCase(),
+        style: GoogleFonts.cormorantGaramond(
+          fontSize: 17,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 2.4,
+          color: const Color(0xFFF6E8C4),
+        ),
+      ),
+    );
   }
 }

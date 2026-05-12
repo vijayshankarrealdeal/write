@@ -142,6 +142,14 @@ class FeedItemModel {
   /// `purchased=true` so the reader UI treats them as fully unlocked.
   final bool purchased;
 
+  /// Server-computed reading time in minutes, summing every published
+  /// section's prose at ~1200 chars/min. Only the detail endpoint
+  /// returns this; listing payloads leave it null and the UI falls
+  /// back to a cheap in-memory estimate from whatever section bodies
+  /// happen to be loaded. Null when the writing has no published
+  /// sections at all.
+  final int? readingMinutes;
+
   /// Set on items returned from `/api/ai/recommendations`. Carries the
   /// engine's score, the LLM-generated "why this" reason, and where in
   /// the pipeline the item came from (engine | cold_start | llm_rerank).
@@ -170,6 +178,7 @@ class FeedItemModel {
     this.priceCents = 0,
     this.currency = 'usd',
     this.purchased = true,
+    this.readingMinutes,
     this.recommendation,
   }) : updatedAt = updatedAt ?? createdAt;
 
@@ -232,6 +241,9 @@ class FeedItemModel {
       purchased: json['purchased'] is bool
           ? json['purchased'] as bool
           : ((json['priceCents'] ?? json['price_cents'] ?? 0) as num) <= 0,
+      readingMinutes: (json['readingMinutes'] ?? json['reading_minutes']) is num
+          ? (json['readingMinutes'] ?? json['reading_minutes']) as int
+          : null,
     );
   }
 
@@ -256,6 +268,7 @@ class FeedItemModel {
         'priceCents': priceCents,
         'currency': currency,
         'purchased': purchased,
+        if (readingMinutes != null) 'readingMinutes': readingMinutes,
       };
 
   FeedItemModel copyWith({
@@ -279,6 +292,7 @@ class FeedItemModel {
     int? priceCents,
     String? currency,
     bool? purchased,
+    int? readingMinutes,
     RecommendationMeta? recommendation,
   }) =>
       FeedItemModel(
@@ -302,6 +316,7 @@ class FeedItemModel {
         priceCents: priceCents ?? this.priceCents,
         currency: currency ?? this.currency,
         purchased: purchased ?? this.purchased,
+        readingMinutes: readingMinutes ?? this.readingMinutes,
         recommendation: recommendation ?? this.recommendation,
       );
 }

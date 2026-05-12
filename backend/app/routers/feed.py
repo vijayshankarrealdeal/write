@@ -12,6 +12,7 @@ from app.database import get_db
 from app.feed_home import compose_home
 from app.feed_publish import upsert_feed_item_for_writing
 from app.feed_sections import (
+    compute_reading_minutes,
     get_section_content,
     list_section_stubs,
     section_id_at_index,
@@ -637,11 +638,14 @@ async def get_feed_item(
         raise HTTPException(status_code=404, detail="Feed item not found")
     if item.writing_id is not None:
         stubs = await list_section_stubs(db, item.writing_id)
+        reading_minutes = await compute_reading_minutes(db, item.writing_id)
     else:
         stubs = []
+        reading_minutes = 0
     # Transient response field — bypass the ORM so SQLAlchemy doesn't try
     # to write the stubs list back to (the now-removed) `sections` JSONB.
     item.__dict__["sections"] = stubs
+    item.__dict__["reading_minutes"] = reading_minutes
     item.__dict__["purchased"] = await _viewer_owns(db, user, item)
     return item
 

@@ -110,6 +110,13 @@ class FeedItemResponse(BaseModel):
     # `/api/feed/{id}/sections/{section_id}` — keeps the response
     # bounded for thousand-chapter books.
     sections: list[dict] | None = None
+    # Estimated reading time in minutes for the book's published
+    # sections, computed server-side from the JSON text inserts in
+    # each section's Quill delta. Filled only by the detail endpoint
+    # (`GET /api/feed/{id}`) — listing endpoints leave it null so the
+    # client falls back to a cheap in-memory estimate. The number is
+    # already clamped to >= 1.
+    reading_minutes: int | None = None
     created_at: datetime
     updated_at: datetime
 

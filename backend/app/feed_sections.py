@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.section import Section
@@ -294,6 +294,46 @@ async def section_id_at_index(
     if index < 0 or index >= len(published_in_order):
         return None
     return published_in_order[index]
+
+
+async def compute_reading_minutes(
+    db: AsyncSession, writing_id: uuid.UUID
+) -> int:
+    """Estimate reading time in minutes for a writing's published
+    sections. Sums up the characters in every text `insert` of every
+    section's Quill delta and divides by an English-prose throughput
+    of ~1200 chars/min (≈ 240 wpm × 5 chars/word).
+
+    Done entirely in Postgres via `jsonb_array_elements` so we never
+    pull section bodies over the wire — a 1000-chapter book stays a
+    single round-trip. Returns at least 1 (any positive amount of
+    content rounds up to a minute) and 0 only for a writing with no
+    published sections at all.
+    """
+    row = await db.execute(
+        text(
+            """
+            SELECT COALESCE(SUM(text_len), 0) AS chars FROM (
+                SELECT LENGTH(elem->>'insert') AS text_len
+                FROM sections,
+                     jsonb_array_elements(content) AS elem
+                WHERE writing_id = :writing_id
+                  AND is_published = TRUE
+                  AND jsonb_typeof(content) = 'array'
+                  AND jsonb_typeof(elem->'insert') = 'string'
+            ) t
+            """
+        ),
+        {"writing_id": str(writing_id)},
+    )
+    chars = int(row.scalar() or 0)
+    if chars <= 0:
+        return 0
+    # 1200 chars/min ≈ 240 words/min × 5 chars/word. Conservative
+    # because Quill prose tends to include short joiner words and
+    # punctuation that pull the effective wpm down.
+    minutes = (chars + 1199) // 1200
+    return max(1, minutes)
 
 
 async def flatten_writing_text(

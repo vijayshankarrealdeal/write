@@ -2677,7 +2677,13 @@ class _PostDetailPageState extends State<PostDetailPage>
     Color bgColor,
   ) {
     final item = _item;
-    final readingMinutes = _estimateReadingMinutes(item.sections);
+    // Prefer the server-computed reading minutes when the detail
+    // endpoint has filled it in. Sections arrive as lazy-loaded
+    // stubs, so client-side word counting from in-memory content
+    // would underestimate every book to ~1 min until the user opens
+    // chapter bodies one-by-one.
+    final readingMinutes =
+        item.readingMinutes ?? _estimateReadingMinutes(item.sections);
     const contentPadding = 20.0;
     const maxContentWidth = 760.0;
     final cardColor = isDark ? const Color(0xFF141414) : Colors.white;
