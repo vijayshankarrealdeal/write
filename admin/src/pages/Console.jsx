@@ -14,6 +14,7 @@ import {
   Smartphone,
   TrendingUp,
   Globe,
+  Filter,
 } from "lucide-react";
 import {
   BarChart,
@@ -618,6 +619,7 @@ function AnalyticsTab() {
   const [breakdown, setBreakdown] = useState(null);
   const [activity, setActivity] = useState(null);
   const [topPages, setTopPages] = useState([]);
+  const [funnel, setFunnel] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -626,11 +628,13 @@ function AnalyticsTab() {
       api.deviceBreakdown(days),
       api.userActivity(days),
       api.topPages(days),
+      api.funnel(days),
     ])
-      .then(([b, a, tp]) => {
+      .then(([b, a, tp, f]) => {
         setBreakdown(b);
         setActivity(a);
         setTopPages(tp);
+        setFunnel(f);
       })
       .finally(() => setLoading(false));
   }, [days]);
@@ -663,6 +667,8 @@ function AnalyticsTab() {
           <option value={90}>Last 90 days</option>
         </select>
       </div>
+
+      {funnel?.steps?.length ? <FunnelCard funnel={funnel} /> : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card icon={Smartphone} title="Platform breakdown">
@@ -800,6 +806,54 @@ function AnalyticsTab() {
           </div>
         </Card>
 
+      </div>
+    </div>
+  );
+}
+
+function FunnelCard({ funnel }) {
+  const top = funnel.steps[0]?.count || 0;
+  return (
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-6">
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
+          <Filter className="w-4 h-4" /> Acquisition funnel
+        </h3>
+        <span className="text-xs text-gray-500">distinct devices, last {funnel.days}d</span>
+      </div>
+      <p className="text-xs text-gray-500 mb-4">
+        Each step is the count of distinct devices that ever reached that screen — drop-offs show where to fix the journey.
+      </p>
+      <div className="space-y-2">
+        {funnel.steps.map((s, i) => {
+          const prev = i > 0 ? funnel.steps[i - 1].count : null;
+          const dropFromPrev =
+            prev && prev > 0 ? Math.round(100 * (1 - s.count / prev)) : null;
+          return (
+            <div key={s.step} className="flex items-center gap-3">
+              <div className="w-40 shrink-0 text-sm text-gray-300">{s.step}</div>
+              <div className="flex-1 bg-gray-800 rounded h-7 overflow-hidden relative">
+                <div
+                  className="h-full bg-indigo-500/40 border-r border-indigo-400/50 transition-all"
+                  style={{ width: top ? `${(s.count / top) * 100}%` : 0 }}
+                />
+                <div className="absolute inset-0 flex items-center px-3 text-xs tabular-nums text-gray-200">
+                  <span className="font-medium">{s.count.toLocaleString()}</span>
+                  <span className="ml-2 text-gray-400">{s.rate}% of top</span>
+                </div>
+              </div>
+              <div className="w-20 text-right text-xs tabular-nums shrink-0">
+                {dropFromPrev != null ? (
+                  <span className={dropFromPrev >= 50 ? "text-red-400" : dropFromPrev >= 25 ? "text-amber-400" : "text-emerald-400"}>
+                    −{dropFromPrev}%
+                  </span>
+                ) : (
+                  <span className="text-gray-600">—</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

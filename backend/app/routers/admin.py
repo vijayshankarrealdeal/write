@@ -512,6 +512,11 @@ _NOT_WRITING = text(
     "NOT (screen LIKE '/editor%' OR screen LIKE '/publish%')"
 )
 
+# Restrict breakdowns to actual page views, not lifecycle/api events.
+# Without this, app_foregrounded + every track() call inflates platform /
+# device / region counts 3-5x and obscures real user behaviour.
+_SCREEN_VIEWS = text("event_name = 'screen_viewed'")
+
 
 # COALESCE(properties->>'platform', <UA fallback>) as a single SQL fragment.
 # Order matters: Android UAs also contain "Linux", so check it first.
@@ -522,6 +527,7 @@ _PLATFORM_EXPR = literal_column(
     COALESCE(
         NULLIF(properties->>'platform', ''),
         CASE
+            WHEN user_agent ILIKE 'dart/%' THEN 'app-unknown'
             WHEN user_agent ILIKE '%android%' THEN 'android'
             WHEN user_agent ILIKE '%iphone%' OR user_agent ILIKE '%ipad%' OR user_agent ILIKE '%ios%' THEN 'ios'
             WHEN user_agent ILIKE '%mac os%' OR user_agent ILIKE '%macintosh%' THEN 'macos'
@@ -639,9 +645,11 @@ async def user_activity(
         for r in new_users_result.fetchall()
     ]
 
+    # Platform mix is counted from screen-view events only — anything else
+    # is lifecycle/api noise and obscures the actual reach of each OS.
     platform_result = await db.execute(
         select(_PLATFORM_EXPR.label("platform"), func.count().label("count"))
-        .where(AnalyticsEvent.server_ts >= since, _PROD_ONLY)
+        .where(AnalyticsEvent.server_ts >= since, _PROD_ONLY, _SCREEN_VIEWS)
         .group_by(text("1"))
         .order_by(text("count DESC"))
     )
@@ -667,22 +675,33 @@ async def device_breakdown(
     platform_rows = (
         await db.execute(
             select(_PLATFORM_EXPR.label("platform"), func.count().label("count"))
-            .where(AnalyticsEvent.server_ts >= since, _PROD_ONLY)
+            .where(AnalyticsEvent.server_ts >= since, _PROD_ONLY, _SCREEN_VIEWS)
             .group_by(text("1"))
             .order_by(text("count DESC"))
         )
     ).fetchall()
 
-    # Prefer client-reported device, fall back to user_agent (truncated
-    # for legibility). `literal_column` (not `text`) — TextClause does not
-    # support `.label()` in `select()`.
+    # Prefer client-reported device, then a friendly label for our own
+    # Dart HTTP client (which would otherwise dominate the chart as a
+    # generic "Dart/3.11 (dart:io)" row that means nothing to the admin),
+    # finally falling back to user_agent. `literal_column` (not `text`) —
+    # TextClause does not support `.label()` in `select()`.
     device_expr = literal_column(
-        "COALESCE(NULLIF(properties->>'device', ''), LEFT(COALESCE(user_agent, ''), 80))"
+        """
+        COALESCE(
+            NULLIF(properties->>'device', ''),
+            CASE
+                WHEN user_agent ILIKE 'dart/%' THEN
+                    'Flutter app · ' || COALESCE(NULLIF(properties->>'platform', ''), 'unknown')
+                ELSE LEFT(COALESCE(user_agent, ''), 80)
+            END
+        )
+        """
     )
     device_rows = (
         await db.execute(
             select(device_expr.label("device"), func.count().label("count"))
-            .where(AnalyticsEvent.server_ts >= since, _PROD_ONLY)
+            .where(AnalyticsEvent.server_ts >= since, _PROD_ONLY, _SCREEN_VIEWS)
             .group_by(text("1"))
             .order_by(text("count DESC"))
             .limit(15)
@@ -702,6 +721,7 @@ async def device_breakdown(
                 AnalyticsEvent.server_ts >= since,
                 AnalyticsEvent.ip.is_not(None),
                 _PROD_ONLY,
+                _SCREEN_VIEWS,
             )
             .group_by(AnalyticsEvent.ip)
         )
@@ -725,6 +745,7 @@ async def device_breakdown(
                 text("(properties->>'referrer') IS NOT NULL"),
                 text("(properties->>'referrer') <> ''"),
                 _PROD_ONLY,
+                _SCREEN_VIEWS,
             )
             .group_by(text("1"))
             .order_by(text("count DESC"))
@@ -753,6 +774,78 @@ async def device_breakdown(
             {"day": r[0].isoformat() if r[0] else None, "count": r[1]} for r in signup_rows
         ],
     }
+
+
+@router.get("/analytics/funnel")
+async def acquisition_funnel(
+    days: int = Query(30, ge=1, le=365),
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Conversion funnel from first visit to onboarded user.
+
+    Each step is a count of distinct `client_id`s that ever reached the
+    screen within the window — session-level rather than event-level, so
+    one curious user clicking around doesn't pad the numbers. The final
+    "Onboarded" step joins on `users.onboarding_complete` to capture the
+    only step that lives outside the analytics stream.
+    """
+    since = datetime.now(timezone.utc) - timedelta(days=days)
+
+    async def _distinct_clients_on(screen: str) -> int:
+        result = await db.execute(
+            select(func.count(func.distinct(AnalyticsEvent.client_id)))
+            .where(
+                AnalyticsEvent.server_ts >= since,
+                AnalyticsEvent.event_name == "screen_viewed",
+                AnalyticsEvent.screen == screen,
+                _PROD_ONLY,
+            )
+        )
+        return int(result.scalar() or 0)
+
+    # "Landed" is anyone with any screen view at all in the window — the
+    # widest possible top-of-funnel.
+    landed_result = await db.execute(
+        select(func.count(func.distinct(AnalyticsEvent.client_id)))
+        .where(
+            AnalyticsEvent.server_ts >= since,
+            AnalyticsEvent.event_name == "screen_viewed",
+            _PROD_ONLY,
+        )
+    )
+    landed = int(landed_result.scalar() or 0)
+
+    saw_login = await _distinct_clients_on("/login")
+    saw_signup = await _distinct_clients_on("/signup")
+    saw_onboarding = await _distinct_clients_on("/onboarding")
+
+    signed_up_result = await db.execute(
+        select(func.count(User.id)).where(User.created_at >= since)
+    )
+    signed_up = int(signed_up_result.scalar() or 0)
+
+    onboarded_result = await db.execute(
+        select(func.count(User.id)).where(
+            User.created_at >= since,
+            User.onboarding_complete.is_(True),
+        )
+    )
+    onboarded = int(onboarded_result.scalar() or 0)
+
+    steps = [
+        {"step": "Landed", "count": landed},
+        {"step": "Saw /login", "count": saw_login},
+        {"step": "Saw /signup", "count": saw_signup},
+        {"step": "Signed up", "count": signed_up},
+        {"step": "Saw /onboarding", "count": saw_onboarding},
+        {"step": "Onboarded", "count": onboarded},
+    ]
+    # Conversion rate against the top of funnel, rounded to 0.1%.
+    for s in steps:
+        s["rate"] = round(100 * s["count"] / landed, 1) if landed else 0.0
+
+    return {"days": days, "steps": steps}
 
 
 # ── Writings (read-only, for user-behaviour insight) ───────────────────────

@@ -91,6 +91,7 @@ export const api = {
   topPages: (days = 7) => request(`/analytics/top-pages?days=${days}`),
   userActivity: (days = 7) => request(`/analytics/user-activity?days=${days}`),
   deviceBreakdown: (days = 30) => request(`/analytics/devices?days=${days}`),
+  funnel: (days = 30) => request(`/analytics/funnel?days=${days}`),
 
   // Writings (read-only)
   writings: (page = 1, perPage = 25, search = "") => {
