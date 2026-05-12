@@ -24,6 +24,19 @@ _HEADING_RE = re.compile(
 )
 _FALLBACK_WINDOW = 5  # pages per chunk if no structure found
 
+# Single-chapter safety net (see `_split_oversized_chunks`). Triggered
+# when a "chapter" is way too long to be one — typical chapters in the
+# existing books sit between 10K-20K chars; anything over this is
+# almost certainly an unbroken wall of text the structure detection
+# missed.
+_OVERSIZED_CHUNK_CHARS = 30_000
+# Target piece size when we synthesise chapters from a single blob.
+# ~2,500 words / ~12-15 min reading per chapter.
+_TARGET_PIECE_CHARS = 14_000
+# Min piece size — anything shorter is a near-empty fragment we
+# shouldn't bother promoting to its own chapter.
+_MIN_PIECE_CHARS = 1_200
+
 
 def chunk_pdf(loaded: LoadedPdf) -> list[Chunk]:
     """Strategy precedence: TOC > headings > sliding window. Each strategy
@@ -34,6 +47,13 @@ def chunk_pdf(loaded: LoadedPdf) -> list[Chunk]:
     Project Gutenberg boilerplate lines) and drop chunks that look like
     pure front-matter — readers don't want SECTION 1 to be a translator's
     methodology essay.
+
+    Final safety net: if the result is one giant chunk (or two with one
+    giant chunk), the book never got chunked at all — its TOC was empty,
+    no recognised chapter-heading regex matched, and the sliding-window
+    fallback gave a single window because the loader emitted only one
+    page. We then synthesise chapters by length so readers don't open
+    the book to a 30-minute wall of text. See `_split_oversized_chunks`.
     """
     if _toc_is_usable(loaded.toc, total_pages=len(loaded.pages)):
         chunks = _chunk_by_toc(loaded.pages, loaded.toc)
@@ -41,7 +61,8 @@ def chunk_pdf(loaded: LoadedPdf) -> list[Chunk]:
         chunks = _chunk_by_headings(loaded.pages) or _chunk_by_window(
             loaded.pages, _FALLBACK_WINDOW
         )
-    return _filter_and_clean(chunks)
+    chunks = _filter_and_clean(chunks)
+    return _split_oversized_chunks(chunks)
 
 
 _MIN_CHUNK_CHARS = 200  # below this, almost certainly a divider page
@@ -215,3 +236,169 @@ def _chunk_id(strategy: str, text: str, page_start: int, page_end: int) -> str:
     invalidates the cache instead of silently mixing data."""
     payload = f"{strategy}|{page_start}|{page_end}|{text}".encode("utf-8")
     return hashlib.sha1(payload).hexdigest()[:12]
+
+
+# -----------------------------------------------------------------------
+# Single-chapter safety net
+# -----------------------------------------------------------------------
+
+# Detect markdown headings like `## STORY OF THE DOOR` or `### Letter 4`
+# that survived inside a chunk because the upstream loader's chapter
+# regex was too narrow (e.g. Jekyll & Hyde uses uppercase title headings
+# that don't start with the word "CHAPTER").
+_MD_HEADING_RE = re.compile(r"^(#{1,3})\s+(.+?)\s*$", re.MULTILINE)
+# 3+ asterisks on a line — common scene-break / chapter-break marker
+# in older texts ("    *    *    *    ").
+_ASTER_DIVIDER_RE = re.compile(r"\n[ \t]*(?:\*[ \t]*){3,}\n")
+
+
+def _split_oversized_chunks(chunks: list[Chunk]) -> list[Chunk]:
+    """Break a single-chunk-style book into chapter-sized pieces.
+
+    Conservative trigger — fires only when the book genuinely has no
+    chunking structure to speak of:
+      • 1 or 2 chunks total, AND
+      • at least one of them is longer than `_OVERSIZED_CHUNK_CHARS`.
+
+    Multi-chunk books with one anomalous long chapter (e.g. Frederick
+    Douglass: 12 chunks, one of 68K chars) are left alone — that's an
+    authorial choice, not a chunker miss.
+
+    Split-point precedence:
+      1. Markdown `## Heading` lines inside the chunk — these are the
+         real chapter titles the loader missed. Promotes them to
+         actual chapter_titles.
+      2. Asterisk dividers (`* * *`) — common scene/chapter breaks.
+      3. Paragraph rolling — accumulate paragraphs until the target
+         size, break at the next blank line. Synthetic "Chapter N"
+         titles.
+    """
+    if not chunks:
+        return chunks
+    if len(chunks) > 2:
+        return chunks
+    if not any(len(c.text) > _OVERSIZED_CHUNK_CHARS for c in chunks):
+        return chunks
+
+    out: list[Chunk] = []
+    chapter_counter = 1
+    for c in chunks:
+        if len(c.text) <= _OVERSIZED_CHUNK_CHARS:
+            out.append(c)
+            chapter_counter += 1
+            continue
+
+        pieces = _break_oversized_text(c.text)
+        if len(pieces) < 2:
+            out.append(c)
+            chapter_counter += 1
+            continue
+
+        print(
+            f"[chunker] single-chapter book ({len(c.text):,} chars) — "
+            f"split into {len(pieces)} chapters"
+        )
+        for title, body in pieces:
+            new_title = title or (
+                f"{c.chapter_title} — Part {chapter_counter}"
+                if c.chapter_title
+                else f"Chapter {chapter_counter}"
+            )
+            out.append(
+                Chunk(
+                    id=_chunk_id("split", body, c.page_start, c.page_end),
+                    chapter_title=new_title,
+                    page_start=c.page_start,
+                    page_end=c.page_end,
+                    text=body,
+                )
+            )
+            chapter_counter += 1
+    return out
+
+
+def _break_oversized_text(text: str) -> list[tuple[str | None, str]]:
+    """Return [(title_or_none, body), ...] for `text`.
+
+    Title is filled when the split point was a markdown heading.
+    Falls back to (None, body) for asterisk and paragraph splits —
+    `_split_oversized_chunks` synthesises Chapter N titles in that case.
+    """
+    md_pieces = _split_at_md_headings(text)
+    if md_pieces is not None:
+        return md_pieces
+
+    aster_pieces = _split_at_asterisks(text)
+    if aster_pieces is not None:
+        return [(None, body) for body in aster_pieces]
+
+    return [(None, body) for body in _split_at_paragraphs(text, _TARGET_PIECE_CHARS)]
+
+
+def _split_at_md_headings(text: str) -> list[tuple[str | None, str]] | None:
+    """Split on `^##+ heading` lines. Returns None when there aren't
+    enough headings (<3) or when the headings cluster too unevenly
+    (e.g. one giant section followed by 8 micro-sections — likely
+    the headings aren't real chapter breaks)."""
+    headings: list[tuple[int, int, str]] = []  # (line_start, body_start, title)
+    for m in _MD_HEADING_RE.finditer(text):
+        title = m.group(2).strip()
+        if not title:
+            continue
+        line_start = m.start()
+        body_start = m.end()
+        headings.append((line_start, body_start, title))
+    if len(headings) < 3:
+        return None
+
+    pieces: list[tuple[str | None, str]] = []
+    for i, (_, body_start, title) in enumerate(headings):
+        end = headings[i + 1][0] if i + 1 < len(headings) else len(text)
+        body = text[body_start:end].strip()
+        if len(body) < _MIN_PIECE_CHARS:
+            # Skip tiny leading-title-page slivers (e.g. Jekyll's "## by
+            # Robert Louis Stevenson" right under the title).
+            continue
+        pieces.append((title, body))
+    if len(pieces) < 3:
+        return None
+    return pieces
+
+
+def _split_at_asterisks(text: str) -> list[str] | None:
+    parts = [p.strip() for p in _ASTER_DIVIDER_RE.split(text)]
+    parts = [p for p in parts if len(p) >= _MIN_PIECE_CHARS]
+    if len(parts) < 3:
+        return None
+    return parts
+
+
+def _split_at_paragraphs(text: str, target_chars: int) -> list[str]:
+    """Greedy paragraph accumulation. Breaks at the first blank line
+    after we've gathered at least `target_chars // 2` characters,
+    aiming to land near `target_chars` per piece without slicing
+    mid-paragraph.
+
+    A single paragraph that's longer than the target is kept whole
+    rather than mid-sentence chopped — better one long chapter than
+    mangled prose.
+    """
+    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+    if not paragraphs:
+        return []
+    pieces: list[str] = []
+    current: list[str] = []
+    current_len = 0
+    soft_floor = target_chars // 2
+    for para in paragraphs:
+        addition = len(para) + (2 if current else 0)
+        if current and current_len >= soft_floor and current_len + addition > target_chars:
+            pieces.append("\n\n".join(current))
+            current = [para]
+            current_len = len(para)
+        else:
+            current.append(para)
+            current_len += addition
+    if current:
+        pieces.append("\n\n".join(current))
+    return pieces

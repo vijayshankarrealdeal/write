@@ -170,15 +170,24 @@ async def _sync_now(slug: str, *, force: bool) -> dict | None:
 
     cover_local = manifest.get("cover_image_local") or _pick_cover(scenes_by_chunk_local)
     cover_url: str | None = None
+    cover_image_meta: dict | None = None
     if cover_local and Path(cover_local).exists():
-        from app.storage import upload_file  # type: ignore[import-not-found]
+        # Run the cover through the platform's image pipeline so the feed
+        # card has blurhash + dominant color + WebP size variants — same
+        # shape every other cover in the app carries. Without this the
+        # card renders with a grey placeholder and no aspect-ratio hint.
+        from app.image_pipeline import process_image  # type: ignore[import-not-found]
+        from app.storage import upload_variants  # type: ignore[import-not-found]
+        import time as _t
         with open(cover_local, "rb") as fh:
             cover_data = fh.read()
-        cover_url = await upload_file(
-            f"books/{slug}/cover.png",
-            cover_data,
-            content_type="image/png",
-        )
+        variants, meta = await process_image(cover_data)
+        version = int(_t.time())
+        base_path = f"books/{slug}/cover/{version}"
+        base_url = await upload_variants(base_path, variants)
+        meta["base_url"] = base_url
+        cover_image_meta = meta
+        cover_url = f"{base_url}/medium.webp"
 
     cleaned_md_map = _build_cleaned_markdown_map(slug, chunks)
     poster = manifest.get("poster") or {}
@@ -193,6 +202,7 @@ async def _sync_now(slug: str, *, force: bool) -> dict | None:
         author=manifest.get("author"),
         description=description,
         cover_image_path=cover_url,
+        cover_image_meta=cover_image_meta,
         chunks=chunks,
         briefs=briefs,
         deeps=deeps,

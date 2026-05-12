@@ -235,18 +235,39 @@ async def generate_cover_image(
     cover_scene: str,
     style: str | None,
     reader_preference: str | None,
+    base_palette: str | None = None,
+    character_refs: list[str] | None = None,
 ) -> Path | None:
     """Generate one extra illustration that becomes the book's cover.
     Saved as `images/cover.png` so it sits alongside the scene PNGs but
-    has a stable, predictable filename."""
+    has a stable, predictable filename.
+
+    The cover is the single most-viewed image of a book — the feed card
+    has to stop a scrolling reader. So we layer in:
+      - `book cover composition` framing (centered hero, deliberate
+        margins for the title overlay the app may add later)
+      - portrait aspect ratio (1024x1536) — matches how cards render
+      - high quality
+      - base_palette + character refs (when the cover scene names them),
+        for consistency with the interior illustrations
+    """
     out_path = persist.book_dir(slug) / "images" / "cover.png"
+    cover_brief = (
+        f"book cover composition, hero focal subject, magazine-poster "
+        f"impact, dramatic but balanced negative space for a title "
+        f"overlay. Subject: {cover_scene.strip().rstrip('.')}"
+    )
     try:
         await with_retries(
             lambda: generate_image(
-                cover_scene,
+                cover_brief,
                 str(out_path),
                 style=style,
                 reader_preference=reader_preference,
+                base_palette=base_palette,
+                character_refs=character_refs,
+                quality="high",
+                size="1024x1536",  # portrait — matches feed-card aspect
             ),
             label="cover",
         )

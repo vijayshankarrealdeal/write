@@ -30,7 +30,31 @@ from .config import config
 from .retry import with_retries
 
 
-_NEGATIVE_GUIDANCE = "no text, no captions, no logos, no watermark"
+_NEGATIVE_GUIDANCE = (
+    "no text, no captions, no logos, no watermark, no signatures, "
+    "no borders, no frames, no UI elements, no panel grids, "
+    "no speech bubbles, no page numbers"
+)
+
+# Cinematic framing cues appended to every prompt. Tunes the image
+# model toward illustration-as-artwork rather than stock-photo realism.
+_CINEMATIC_GUIDANCE = (
+    "cinematic composition, deliberate negative space, clear focal "
+    "subject, layered foreground / midground / background, atmospheric "
+    "depth, intentional light direction, painterly detail"
+)
+
+# Composition → (aspect-ratio size, depth-of-field cue) lookup. Sizes
+# the gpt-image-2 deployment accepts: 1024x1024 (square),
+# 1024x1536 (portrait), 1536x1024 (landscape).
+_COMPOSITION_TUNING: dict[str, tuple[str, str]] = {
+    "close-up": ("1024x1024", "shallow depth of field, subject fills the frame, expressive face or hands in focus"),
+    "medium": ("1024x1024", "balanced framing, subject waist-up, soft background"),
+    "wide": ("1536x1024", "subject embedded in setting, environmental storytelling, breathing room around figures"),
+    "establishing": ("1536x1024", "sweeping vista or architecture, figures small or absent, sense of scale"),
+    "overhead": ("1024x1024", "top-down view, geometric arrangement, pattern of figures and objects"),
+    "low-angle": ("1024x1536", "camera looking up, towering subject, dramatic sky or ceiling"),
+}
 
 # Fragments that signal Azure's responsible-AI / content-policy filter
 # tripped. We match on either the structured error code or the body text
@@ -65,14 +89,69 @@ def compose_prompt(
     *,
     style: str | None,
     reader_preference: str | None,
+    mood: str | None = None,
+    composition: str | None = None,
+    time_of_day: str | None = None,
+    setting: str | None = None,
+    palette_hint: str | None = None,
+    base_palette: str | None = None,
+    character_refs: list[str] | None = None,
 ) -> str:
-    parts = [scene.strip().rstrip(".")]
+    """Build the full image-gen prompt from a scene + book-wide art direction.
+
+    Layering (most → least specific so the model anchors on the scene
+    first and uses the book-wide guidance as background):
+      1. scene_text (the moment to depict)
+      2. setting (where it happens)
+      3. time_of_day + mood (light + emotional register)
+      4. character refs from the scout's character_bible
+      5. composition + cinematic framing cues
+      6. scene-specific palette override OR book-wide base palette
+      7. book-wide style string from the scout
+      8. reader preference
+      9. negative guidance
+    """
+    parts: list[str] = [scene.strip().rstrip(".")]
+    if setting:
+        parts.append(f"setting: {setting.strip().rstrip('.')}")
+    light_mood: list[str] = []
+    if time_of_day:
+        light_mood.append(time_of_day.strip().rstrip("."))
+    if mood:
+        light_mood.append(f"mood: {mood.strip().rstrip('.')}")
+    if light_mood:
+        parts.append(", ".join(light_mood))
+    if character_refs:
+        # Each ref is a vivid one-line appearance ("Alice: small girl,
+        # long fair hair, blue pinafore…"). Joined with semicolons so
+        # the model treats them as separate locked-in descriptions.
+        refs_line = "; ".join(r.strip().rstrip(".") for r in character_refs if r and r.strip())
+        if refs_line:
+            parts.append(f"characters: {refs_line}")
+    if composition:
+        comp_extra = _COMPOSITION_TUNING.get(composition, (None, None))[1]
+        comp_line = f"{composition} shot"
+        if comp_extra:
+            comp_line = f"{comp_line}, {comp_extra}"
+        parts.append(comp_line)
+    parts.append(_CINEMATIC_GUIDANCE)
+    palette = palette_hint or base_palette
+    if palette:
+        parts.append(f"palette: {palette.strip().rstrip('.')}")
     if style:
         parts.append(style.strip().rstrip("."))
     if reader_preference:
         parts.append(f"reader preference: {reader_preference.strip().rstrip('.')}")
     parts.append(_NEGATIVE_GUIDANCE)
     return ". ".join(parts)
+
+
+def size_for_composition(composition: str | None) -> str:
+    """Pick the aspect ratio that flatters the composition. Defaults to
+    1024x1024 when composition is missing or unknown."""
+    if composition and composition in _COMPOSITION_TUNING:
+        return _COMPOSITION_TUNING[composition][0]
+    return "1024x1024"
 
 
 def _is_content_policy_400(exc: requests.HTTPError) -> tuple[bool, str]:
@@ -108,16 +187,47 @@ def generate_image_sync(
     *,
     style: str | None = None,
     reader_preference: str | None = None,
-    size: str = "1024x1024",
-    quality: str = "low",
+    size: str | None = None,
+    quality: str = "medium",
     retries: int = 2,
+    mood: str | None = None,
+    composition: str | None = None,
+    time_of_day: str | None = None,
+    setting: str | None = None,
+    palette_hint: str | None = None,
+    base_palette: str | None = None,
+    character_refs: list[str] | None = None,
 ) -> str:
+    """Generate a single PNG via Azure gpt-image-2.
+
+    `size` defaults to the aspect ratio that suits the composition —
+    portrait for close-ups and low-angle shots, landscape for wides
+    and establishing shots, square otherwise. Pass an explicit `size`
+    to override.
+
+    `quality` defaults to 'medium' — 'low' produces visibly muddy
+    output for character close-ups. The Azure pricing delta between
+    low and medium is small relative to the LLM cost per book.
+    """
+    if size is None:
+        size = size_for_composition(composition)
     url = (
         f"{config.image_endpoint}/openai/deployments/{config.image_deployment}"
         f"/images/generations?api-version={config.image_api_version}"
     )
     body = {
-        "prompt": compose_prompt(prompt, style=style, reader_preference=reader_preference),
+        "prompt": compose_prompt(
+            prompt,
+            style=style,
+            reader_preference=reader_preference,
+            mood=mood,
+            composition=composition,
+            time_of_day=time_of_day,
+            setting=setting,
+            palette_hint=palette_hint,
+            base_palette=base_palette,
+            character_refs=character_refs,
+        ),
         "size": size,
         "quality": quality,
         "output_compression": 100,
@@ -170,6 +280,15 @@ async def generate_image(
     *,
     style: str | None = None,
     reader_preference: str | None = None,
+    mood: str | None = None,
+    composition: str | None = None,
+    time_of_day: str | None = None,
+    setting: str | None = None,
+    palette_hint: str | None = None,
+    base_palette: str | None = None,
+    character_refs: list[str] | None = None,
+    quality: str = "medium",
+    size: str | None = None,
 ) -> str:
     return await asyncio.to_thread(
         generate_image_sync,
@@ -177,6 +296,15 @@ async def generate_image(
         out_path,
         style=style,
         reader_preference=reader_preference,
+        mood=mood,
+        composition=composition,
+        time_of_day=time_of_day,
+        setting=setting,
+        palette_hint=palette_hint,
+        base_palette=base_palette,
+        character_refs=character_refs,
+        quality=quality,
+        size=size,
     )
 
 
@@ -189,6 +317,14 @@ async def generate_image_with_softening(
     max_softening_attempts: int = 2,
     retry_attempts: int = 6,
     label: str | None = None,
+    mood: str | None = None,
+    composition: str | None = None,
+    time_of_day: str | None = None,
+    setting: str | None = None,
+    palette_hint: str | None = None,
+    base_palette: str | None = None,
+    character_refs: list[str] | None = None,
+    quality: str = "medium",
 ) -> dict:
     """Generate an image, recovering from content-policy rejections by
     asking the softener LLM to rephrase the scene.
@@ -224,6 +360,14 @@ async def generate_image_with_softening(
                     out_path,
                     style=style,
                     reader_preference=reader_preference,
+                    mood=mood,
+                    composition=composition,
+                    time_of_day=time_of_day,
+                    setting=setting,
+                    palette_hint=palette_hint,
+                    base_palette=base_palette,
+                    character_refs=character_refs,
+                    quality=quality,
                 ),
                 attempts=retry_attempts,
                 label=f"image[{label}]",

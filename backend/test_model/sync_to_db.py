@@ -108,18 +108,32 @@ async def _main() -> int:
     else:
         cover_local = manifest.get("cover_image_local") or _pick_cover(scenes_by_chunk_local)
     cover_url: str | None = None
+    cover_image_meta: dict | None = None
     if cover_local and Path(cover_local).exists():
         if args.no_images:
             cover_url = Path(cover_local).resolve().as_uri()
         else:
-            from app.storage import upload_file  # type: ignore[import-not-found]
+            # Run the cover through the platform's image pipeline so the
+            # feed card has blurhash placeholder + dominant color +
+            # size variants — same shape every other cover in the app
+            # carries. Without this, the feed card has no aspect-ratio
+            # hint and renders with a grey placeholder.
+            from app.image_pipeline import process_image  # type: ignore[import-not-found]
+            from app.storage import upload_variants  # type: ignore[import-not-found]
             with open(cover_local, "rb") as fh:
-                data = fh.read()
-            cover_url = await upload_file(
-                f"books/{slug}/cover.png",
-                data,
-                content_type="image/png",
-            )
+                cover_bytes = fh.read()
+            variants, meta = await process_image(cover_bytes)
+            # Path-version the upload so the URL is immutable and
+            # cacheable — different cover regenerations don't collide.
+            import time as _t
+            version = int(_t.time())
+            base_path = f"books/{slug}/cover/{version}"
+            base_url = await upload_variants(base_path, variants)
+            meta["base_url"] = base_url
+            cover_image_meta = meta
+            # Pick the medium variant URL for the legacy cover_image_path
+            # field (used by older readers / fallbacks).
+            cover_url = f"{base_url}/medium.webp"
 
     # Pipeline-published works are owned by the canonical "inkspace"
     # account so they show up in the editorial profile alongside
@@ -147,6 +161,7 @@ async def _main() -> int:
         author=manifest.get("author"),
         description=description_value,
         cover_image_path=cover_url,
+        cover_image_meta=cover_image_meta,
         chunks=chunks,
         briefs=briefs,
         deeps=deeps,
@@ -270,6 +285,12 @@ def _load_artifacts(
                 chapter_title=entry.get("chapter_title"),
                 scene_text=entry["scene_text"],
                 score=float(entry.get("score", 0.0)),
+                mood=entry.get("mood"),
+                composition=entry.get("composition"),
+                time_of_day=entry.get("time_of_day"),
+                setting=entry.get("setting"),
+                characters_present=tuple(entry.get("characters_present") or ()),
+                palette_hint=entry.get("palette_hint"),
             )
 
     scenes_by_chunk: dict[str, list[tuple[PlannedScene, GeneratedScene]]] = {}

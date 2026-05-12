@@ -262,7 +262,24 @@ async def ingest_pdf(
     print(f"[embed/scenes] +{n_scene_emb} new (cached: {len(planned) - n_scene_emb})")
 
     # ---- 5: generate images (per-scene; PNG already exists → skip) -------
-    scenes = await _generate_all_images(slug, planned, style, reader_preference)
+    # Hand the scout's character bible + base palette to image generation
+    # so the same Alice / Bhīma / Frankenstein looks like the same person
+    # across every scene that names them. Falling back to empty dict/None
+    # keeps old manifests working.
+    char_bible_by_name: dict[str, str] = {
+        c["name"]: c["appearance"]
+        for c in (scout_data.get("character_bible") or [])
+        if isinstance(c, dict) and c.get("name") and c.get("appearance")
+    }
+    base_palette = scout_data.get("base_palette")
+    scenes = await _generate_all_images(
+        slug,
+        planned,
+        style,
+        reader_preference,
+        char_bible_by_name=char_bible_by_name,
+        base_palette=base_palette,
+    )
     if all(persist.image_path_for(slug, p.scene_id).exists() for p in planned):
         _mark_done(slug, manifest, "images")
     print(f"[images] {len(scenes)} on disk")
@@ -299,11 +316,23 @@ async def ingest_pdf(
             print(f"[poster] tags: {poster.tags}")
             print(f"[poster] cover scene: {poster.cover_scene}")
 
+            # The cover gets the *full* character bible appended — we
+            # don't know which figures the cover scene names without
+            # NER, so attaching all refs lets the model pick what fits.
+            # Keeps Alice's hair color etc. consistent with the
+            # interior illustrations.
+            cover_char_refs = [
+                f"{c['name']}: {c['appearance']}"
+                for c in (scout_data.get("character_bible") or [])
+                if isinstance(c, dict) and c.get("name") and c.get("appearance")
+            ]
             cover_path = await generate_cover_image(
                 slug,
                 cover_scene=poster.cover_scene,
                 style=manifest.get("style"),
                 reader_preference=manifest.get("reader_preference"),
+                base_palette=scout_data.get("base_palette"),
+                character_refs=cover_char_refs or None,
             )
             if cover_path:
                 manifest["cover_image_local"] = str(cover_path)
@@ -359,6 +388,12 @@ def _save_plan(slug: str, planned: list[PlannedScene]) -> None:
                     "chapter_title": p.chapter_title,
                     "scene_text": p.scene_text,
                     "score": p.score,
+                    "mood": p.mood,
+                    "composition": p.composition,
+                    "time_of_day": p.time_of_day,
+                    "setting": p.setting,
+                    "characters_present": list(p.characters_present),
+                    "palette_hint": p.palette_hint,
                 }
                 for p in planned
             ],
@@ -372,9 +407,20 @@ async def _generate_all_images(
     planned: list[PlannedScene],
     style: str | None,
     reader_preference: str | None,
+    *,
+    char_bible_by_name: dict[str, str] | None = None,
+    base_palette: str | None = None,
 ) -> list[GeneratedScene]:
     """Resumable per-scene image generation. A scene whose PNG is already
-    on disk is skipped and merely loaded back into the result list."""
+    on disk is skipped and merely loaded back into the result list.
+
+    Per-scene cinematic hints (mood, composition, time_of_day, setting,
+    palette_hint, characters_present) ride along from the PlannedScene
+    into the prompt. Character refs are looked up against the scout's
+    character_bible so the same name maps to the same vivid description
+    on every scene that mentions it.
+    """
+    char_bible_by_name = char_bible_by_name or {}
     sem = asyncio.Semaphore(config.image_parallelism)
     scenes: list[GeneratedScene] = []
     lock = asyncio.Lock()
@@ -394,6 +440,15 @@ async def _generate_all_images(
                 image_path=str(out_path),
             )
 
+        # Resolve character refs for THIS scene against the bible.
+        # Names the planner saw in the scene but the scout didn't list
+        # are silently dropped — better no ref than a hallucinated one.
+        char_refs: list[str] = []
+        for name in p.characters_present:
+            appearance = char_bible_by_name.get(name)
+            if appearance:
+                char_refs.append(f"{name}: {appearance}")
+
         async with sem:
             try:
                 soft_result = await generate_image_with_softening(
@@ -402,6 +457,13 @@ async def _generate_all_images(
                     style=style,
                     reader_preference=reader_preference,
                     label=p.scene_id[:12],
+                    mood=p.mood,
+                    composition=p.composition,
+                    time_of_day=p.time_of_day,
+                    setting=p.setting,
+                    palette_hint=p.palette_hint,
+                    base_palette=base_palette,
+                    character_refs=char_refs or None,
                 )
             except Exception as exc:  # noqa: BLE001
                 print(f"[images] {p.scene_id} failed: {exc}")

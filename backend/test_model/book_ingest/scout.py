@@ -20,6 +20,31 @@ from .agents import reduce_model  # use the smarter model — only one call
 from .schemas import Chunk
 
 
+class CharacterRef(BaseModel):
+    """A canonical visual reference for a recurring character.
+
+    The scout produces one of these per major figure so the same person
+    looks like the same person across 20+ scenes. The image-gen phase
+    appends matching refs to every scene's prompt whenever that
+    character is present.
+    """
+    name: str = Field(
+        ...,
+        description="Canonical name as the book uses it ('Alice', 'Bhīma').",
+    )
+    appearance: str = Field(
+        ...,
+        description=(
+            "One vivid sentence locking in age, build, hair, clothing, and a "
+            "signature visual detail. Examples: 'a small girl about seven, "
+            "long fair hair, blue pinafore over a white dress, black "
+            "stockings, perpetual look of curious bafflement', 'an immense "
+            "warrior, dark-skinned, mace at his side, gold armlets, "
+            "thunder-cloud aura, scarlet-edged dhoti'."
+        ),
+    )
+
+
 class BookProposal(BaseModel):
     """The scout's recommendation for how to ingest this specific book."""
     detected_genre: str = Field(
@@ -58,6 +83,26 @@ class BookProposal(BaseModel):
             "warrant more; tight novels fewer."
         ),
     )
+    character_bible: list[CharacterRef] = Field(
+        default_factory=list,
+        max_length=12,
+        description=(
+            "2-8 recurring named characters who should look consistent "
+            "across illustrations. Pick the ones who actually appear in "
+            "multiple scenes; ignore one-off cameos. Each entry locks in "
+            "a vivid appearance the image model can reproduce. Omit "
+            "entirely (empty list) for landscape-only or essay books."
+        ),
+    )
+    base_palette: str | None = Field(
+        None,
+        description=(
+            "Optional 2-4 word color anchor for the whole book ('sepia and "
+            "ivory', 'crimson and gold on indigo', 'cool greys with one "
+            "amber accent'). Reinforces visual coherence across scenes; "
+            "individual scenes may override via SceneBrief.palette_hint."
+        ),
+    )
     rationale: str = Field(
         ...,
         description="One or two sentences explaining the choices above so the user can sanity-check.",
@@ -73,8 +118,16 @@ _SCOUT_SYSTEM = (
     "(don't default to 'editorial illustration')\n"
     "  - whether to bias scene picks toward any particular type of moment\n"
     "  - how many illustrations the book deserves\n"
-    "Be specific and confident. The style string you return will be appended "
-    "verbatim to every image prompt, so make it vivid."
+    "  - a CHARACTER BIBLE: 2-8 recurring named figures, each with a vivid "
+    "one-line appearance that locks in age, build, hair, clothes, and a "
+    "signature detail. This is the single biggest lever for making 20+ "
+    "scene illustrations feel like one book — if 'Alice' shows up in nine "
+    "scenes, all nine must read as the same girl. Skip the bible only for "
+    "landscape-only or essay books.\n"
+    "  - a base_palette: a short color anchor for the whole book that the "
+    "image model can keep returning to.\n"
+    "Be specific and confident. The style string and palette you return "
+    "will be appended verbatim to every image prompt, so make them vivid."
 )
 
 

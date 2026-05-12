@@ -28,9 +28,69 @@ class Chunk(BaseModel):
 
 
 class SceneBrief(BaseModel):
-    """A candidate moment worth illustrating."""
+    """A candidate moment worth illustrating.
+
+    `scene_text` is the only required field; the rest are optional
+    cinematic hints that the image-gen phase folds into the prompt.
+    Older briefs cached on disk pre-date these fields, so they all
+    default — deserialization stays backward-compatible.
+    """
     scene_text: str = Field(..., description="One sentence describing the scene visually.")
     visual_strength: float = Field(..., ge=0.0, le=1.0)
+    mood: str | None = Field(
+        None,
+        description=(
+            "Emotional register in 1-3 words. Examples: 'tender, awestruck', "
+            "'dread', 'comic chaos', 'reverent', 'foreboding'. Drives lighting "
+            "and palette choices in the image."
+        ),
+    )
+    composition: str | None = Field(
+        None,
+        description=(
+            "Cinematic framing hint. Pick one: 'close-up' (face/object), "
+            "'medium' (one or two figures waist-up), 'wide' (figures in setting), "
+            "'establishing' (landscape/architecture, figures small or absent), "
+            "'overhead' (top-down), 'low-angle' (looking up). Drives aspect "
+            "ratio and depth-of-field."
+        ),
+    )
+    time_of_day: str | None = Field(
+        None,
+        description=(
+            "When this moment happens, in 1-3 words. Examples: 'dawn', "
+            "'noon', 'golden hour', 'dusk', 'moonlit night', 'storm-grey "
+            "afternoon', 'candle-lit interior'. Drives the light direction "
+            "and warmth."
+        ),
+    )
+    setting: str | None = Field(
+        None,
+        description=(
+            "Where the moment takes place, concrete and visual. Examples: "
+            "'a Victorian drawing room with heavy curtains', 'a windswept "
+            "alpine pass', 'the deck of a wooden ship at night', 'the marble "
+            "courtyard of a Mughal palace'."
+        ),
+    )
+    characters_present: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Named characters visible in this scene. Use the canonical name "
+            "as it appears in the book ('Alice', 'Victor Frankenstein', "
+            "'Bhīma'). Empty when the scene has no named figures (landscape, "
+            "still life). Drives character continuity across illustrations."
+        ),
+    )
+    palette_hint: str | None = Field(
+        None,
+        description=(
+            "Optional palette steer when this scene needs a specific color "
+            "language different from the book's base style — e.g. 'crimson "
+            "and gunmetal grey' for a battle, 'pale jade and mist' for a "
+            "ghost scene. null when the book-wide style is enough."
+        ),
+    )
 
 
 class ChunkBrief(BaseModel):
