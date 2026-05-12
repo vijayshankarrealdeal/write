@@ -18,8 +18,20 @@ from .boilerplate import clean_chunk_text, looks_like_front_matter
 from .pdf_loader import LoadedPdf, TocEntry
 from .schemas import Chunk, Page
 
+# Chapter-heading detection for PDFs that have no usable TOC. Broad
+# enough to catch the shapes we see across the test corpus:
+#   "CHAPTER I.", "Chapter 12: The Hunt", "Chapter the First"
+#   "BOOK II", "Part III — The Return", "Section 4"
+#   "Letter 1", "CANTO V", "Prologue", "Epilogue"
+#   "Act II", "Scene 3"
+# We keep this line-anchored (^) so a mid-paragraph mention of the word
+# "chapter" doesn't accidentally split the book.
 _HEADING_RE = re.compile(
-    r"^(?:CHAPTER|BOOK|PART|SECTION)\s+[IVXLC\d]+\b.*$",
+    r"^\s*(?:CHAPTER|BOOK|PART|SECTION|LETTER|CANTO|ACT|SCENE)"
+    r"\s+(?:[IVXLCDM]+|\d+|the\s+(?:first|second|third|fourth|fifth|sixth|"
+    r"seventh|eighth|ninth|tenth|eleventh|twelfth)|one|two|three|four|"
+    r"five|six|seven|eight|nine|ten|eleven|twelve)\b.*$"
+    r"|^\s*(?:PROLOGUE|EPILOGUE|FOREWORD|AFTERWORD)\b.*$",
     re.IGNORECASE | re.MULTILINE,
 )
 _FALLBACK_WINDOW = 5  # pages per chunk if no structure found
@@ -107,47 +119,53 @@ def _strategy_from_id(_id: str) -> str:
     return "cleaned"
 
 
-_TOC_PREFERRED_PAGES_PER_CHUNK = (2, 30)  # min, max — sweet spot for map-pass
+# Upper bound for "this TOC level is the chapter level" — a typical novel
+# chapter sits between 5 and 50 pages; multi-volume works (Ramayana,
+# Mahābhārata) put Books at level 1 with 200+ pages each, which is why we
+# drop a level when level 1 is too coarse. 60 leaves headroom for long
+# chapters (Moby Dick, Les Misérables) without flipping into sub-section
+# territory.
+_TOC_CHAPTER_PAGES_MAX = 60
+_TOC_MIN_ENTRIES = 3
 
 
 def _toc_is_usable(toc: list[TocEntry], *, total_pages: int) -> bool:
-    """A TOC is usable when *some* depth produces chunks of reasonable
-    size (2–30 pages on average). For a 1700-page Ramayana with 8 L1
-    entries the average is 200+ pages/chunk → unusable at L1 but
-    excellent at L2 (~2.6 pages/chunk)."""
+    """A TOC is usable when *some* depth has at least three entries.
+    Depth selection itself is owned by `_pick_toc_depth`."""
     if not toc:
         return False
     return _pick_toc_depth(toc, total_pages=total_pages) is not None
 
 
 def _pick_toc_depth(toc: list[TocEntry], *, total_pages: int) -> int | None:
-    """Return the deepest TOC level that yields chunks averaging
-    `_TOC_PREFERRED_PAGES_PER_CHUNK` pages, or None if no level fits.
+    """Return the *shallowest* TOC level whose average pages-per-entry
+    is small enough to be a real chapter (≤ `_TOC_CHAPTER_PAGES_MAX`).
 
-    Depth is chosen by walking from depth=1 upward and picking the
-    deepest level with at least 3 entries and an average page span
-    inside the preferred window. We prefer deeper because shallow TOCs
-    (Books / Volumes) hide the actual chapters."""
-    lo, hi = _TOC_PREFERRED_PAGES_PER_CHUNK
+    Rationale — the user-facing chapter list should be the book's
+    chapter list. For a 400-page, 12-chapter novel we want 12 sections
+    (level 1 → avg 33 pp/chunk), not 60+ sections from level 2 of a
+    sub-divided TOC. For a 1700-page Ramayana with level 1 = 8 Books
+    (avg 212 pp), level 1 is too coarse — we drop to level 2 where the
+    644 sargas average 2.6 pp.
+
+    The old heuristic preferred the *deepest* level that fit a narrow
+    2–30 page band, which broke chapter-grain selection for moderately
+    long novels whose chapters span 30–60 pages.
+    """
     levels = sorted({e.level for e in toc})
-    best_depth: int | None = None
     for depth in levels:
         entries = [e for e in toc if e.level <= depth]
-        if len(entries) < 3:
+        if len(entries) < _TOC_MIN_ENTRIES:
             continue
         avg = total_pages / len(entries)
-        if lo <= avg <= hi:
-            best_depth = depth        # deeper is better, keep updating
-        elif avg < lo and best_depth is not None:
-            # Going too granular now; stop at the previously best depth.
-            break
-    if best_depth is not None:
-        return best_depth
-    # Fallback: even if no depth lands inside the preferred window, take
-    # the deepest level with at least 3 entries — better than the broken
-    # all-in-one-chunk outcome of the old behaviour.
+        if avg <= _TOC_CHAPTER_PAGES_MAX:
+            return depth
+    # Last resort: deepest level with enough entries — only fires when
+    # every level has fewer than three entries OR every level averages
+    # more than the chapter ceiling (rare, e.g. a 5-entry TOC for a
+    # 1000-page book). Better than emitting one mega-chunk per book.
     for depth in reversed(levels):
-        if sum(1 for e in toc if e.level <= depth) >= 3:
+        if sum(1 for e in toc if e.level <= depth) >= _TOC_MIN_ENTRIES:
             return depth
     return None
 
