@@ -324,12 +324,16 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fill = isDark
-        ? Colors.white.withValues(alpha: 0.10)
-        : Colors.black.withValues(alpha: 0.06);
-    final iconColor = isDark
-        ? Colors.white.withValues(alpha: 0.85)
-        : const Color(0xFF1A1612);
+    // Buttons need to read clearly against the page's warm-wall
+    // background — semi-transparent dark/light overlay was almost
+    // invisible at distance. Use the bronze/gold frame palette so
+    // they feel like they belong to the gallery instead of a generic
+    // chrome control.
+    const ringFill = Color(0xFFD9B26B); // gilt — same as the frame highlight
+    const iconColor = Color(0xFF1A1210); // dark walnut — high contrast
+    final shadow = isDark
+        ? Colors.black.withValues(alpha: 0.55)
+        : Colors.black.withValues(alpha: 0.18);
     return Tooltip(
       message: tooltip,
       child: Material(
@@ -339,18 +343,28 @@ class _NavButton extends StatelessWidget {
           customBorder: const CircleBorder(),
           onTap: onTap,
           child: Container(
-            width: 44,
-            height: 44,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              color: fill,
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [ringFill, Color(0xFF8C6A2E)],
+              ),
               shape: BoxShape.circle,
               border: Border.all(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.12)
-                    : Colors.black.withValues(alpha: 0.08),
+                color: const Color(0xFF3A2A18),
+                width: 1,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: shadow,
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            child: Icon(icon, size: 26, color: iconColor),
+            child: Icon(icon, size: 28, color: iconColor),
           ),
         ),
       ),
@@ -379,60 +393,66 @@ class _CharacterFrameView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewport = MediaQuery.sizeOf(context);
-    // The whole page (frame + plaque + ~28px gap + caption + hint)
-    // must fit one viewport so PageView swipes don't fight with an
-    // inner scroller. Reserve ~280px of overhead and size the frame
-    // width from the remaining vertical room — at the 2:3 portrait
-    // aspect plus a fixed plaque/padding allowance.
-    final isNarrow = viewport.width < 720;
-    final heightBudget = (viewport.height - 280).clamp(360.0, 1100.0);
-    // The frame is roughly (portraitWidth * 1.5) tall for the image
-    // plus ~110 px for padding + plaque. Solve for portrait width:
-    final widthFromHeight = (heightBudget - 110) / 1.5;
-    final contentWidth = isNarrow
-        ? viewport.width - 24
-        : widthFromHeight.clamp(320.0, 480.0);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 720;
+        // Vertical overhead: frame padding (top+bottom) + plaque +
+        // gap + caption + hint + outer page padding. Reserve more
+        // than seems strictly needed so the frame never bumps the
+        // edge of the viewport on web zoom / different DPRs.
+        const verticalOverhead = 260.0;
+        final availableForFrameImage =
+            (constraints.maxHeight - verticalOverhead).clamp(280.0, 900.0);
+        // Image width = imageHeight × (1024/1536) = imageHeight × 0.667.
+        // Then clamp so the frame doesn't get absurdly small on phones
+        // (where width is the binding constraint) or huge on ultra-wide
+        // desktop windows.
+        final widthFromHeight = availableForFrameImage * (1024 / 1536);
+        final contentWidth = isNarrow
+            ? constraints.maxWidth - 24
+            : widthFromHeight.clamp(280.0, 420.0);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: contentWidth),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _GalleryFrame(
-                character: character,
-                isDark: isDark,
-                textColor: textColor,
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: contentWidth),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _GalleryFrame(
+                    character: character,
+                    isDark: isDark,
+                    textColor: textColor,
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    character.appearance,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      height: 1.45,
+                      fontStyle: FontStyle.italic,
+                      color: subtleColor,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (loading) ...[
+                    const SizedBox(height: 10),
+                    const AppSpinner(size: 14),
+                  ],
+                  if (showSwipeHint) ...[
+                    const SizedBox(height: 12),
+                    _SwipeHint(subtleColor: subtleColor),
+                  ],
+                ],
               ),
-              const SizedBox(height: 18),
-              Text(
-                character.appearance,
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.inter(
-                  fontSize: 13.5,
-                  height: 1.5,
-                  fontStyle: FontStyle.italic,
-                  color: subtleColor,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              if (loading) ...[
-                const SizedBox(height: 12),
-                const AppSpinner(size: 14),
-              ],
-              if (showSwipeHint) ...[
-                const SizedBox(height: 16),
-                _SwipeHint(subtleColor: subtleColor),
-              ],
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
