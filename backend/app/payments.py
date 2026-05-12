@@ -533,6 +533,38 @@ async def _upsert_invoice(
     db.add(invoice)
 
 
+# Ranked subscription states. Razorpay fires `authenticated` and
+# `activated` (and sometimes `charged`) in quick succession on the
+# first cycle, and they can arrive out-of-order — without this gate a
+# late `authenticated` clobbers an already-active row back to
+# `authenticated`, and the app's UI stays stuck on the "Complete
+# payment" CTA forever.
+#
+# Rule: a transition is accepted only if the incoming priority is
+# >= the current. Terminal/problem states (halted, completed,
+# cancelled) outrank `active`, so they still take effect.
+_STATUS_PRIORITY: dict[str, int] = {
+    "created": 0,
+    "authenticated": 1,
+    "active": 2,
+    "pending": 2,        # equal — Razorpay flips active ↔ pending on retry
+    "paused": 3,
+    "halted": 4,
+    "completed": 5,
+    "cancelled": 5,
+}
+
+
+def _set_status(sub: Subscription, candidate: str) -> None:
+    """Apply `candidate` as the new status iff it doesn't regress the
+    row's current state. Prevents a late-arriving
+    `subscription.authenticated` from un-activating an already-active
+    row."""
+    current = sub.status or ""
+    if _STATUS_PRIORITY.get(candidate, 0) >= _STATUS_PRIORITY.get(current, 0):
+        sub.status = candidate
+
+
 async def _apply_subscription_event(
     event: dict, etype: str, db: AsyncSession
 ) -> None:
@@ -584,10 +616,10 @@ async def _apply_subscription_event(
     entity = _sub_payload(event) if etype.startswith("subscription.") else {}
 
     if etype == "subscription.authenticated":
-        sub.status = "authenticated"
+        _set_status(sub, "authenticated")
         _apply_status_columns(sub, entity)
     elif etype == "subscription.activated":
-        sub.status = "active"
+        _set_status(sub, "active")
         # Once active we no longer want to show the "complete payment"
         # CTA. Razorpay also redirects the same short_url to a manage
         # surface, but we treat that as a distinct concept — the row's
@@ -596,6 +628,13 @@ async def _apply_subscription_event(
         sub.short_url = None
         _apply_status_columns(sub, entity)
     elif etype == "subscription.charged":
+        # Razorpay always fires `subscription.charged` on a successful
+        # capture — including the first cycle, where it may arrive
+        # before `subscription.activated` in some race scenarios. Treat
+        # a charged event as proof of activation so we don't sit at
+        # `authenticated` indefinitely if `.activated` is lost.
+        _set_status(sub, "active")
+        sub.short_url = None
         # Refresh cycle metadata, then write the invoice if Razorpay
         # attached one to the payload. The `paid_count` bump comes from
         # the entity body rather than +1'ing locally so we stay in sync
@@ -609,32 +648,38 @@ async def _apply_subscription_event(
         if nested_invoice:
             await _upsert_invoice(nested_invoice, sub, db)
     elif etype == "subscription.pending":
-        sub.status = "pending"
+        _set_status(sub, "pending")
         _apply_status_columns(sub, entity)
     elif etype == "subscription.halted":
-        sub.status = "halted"
+        _set_status(sub, "halted")
         _apply_status_columns(sub, entity)
     elif etype in ("subscription.cancelled", "subscription.completed"):
-        sub.status = "cancelled" if etype == "subscription.cancelled" else "completed"
+        terminal = "cancelled" if etype == "subscription.cancelled" else "completed"
+        _set_status(sub, terminal)
         sub.ended_at = now
         _apply_status_columns(sub, entity)
-        # Clear the user's denormalized pointer iff it still points at
-        # this row. If the user has already resubscribed (new row,
-        # pointer reassigned), leave the new pointer alone.
-        user_q = await db.execute(select(User).where(User.id == sub.user_id))
-        user = user_q.scalar_one_or_none()
-        if user is not None:
-            if user.active_subscription_id == sub.id:
-                user.active_subscription_id = None
-            user.subscription_status = sub.status
     elif etype == "subscription.paused":
-        sub.status = "paused"
+        _set_status(sub, "paused")
         _apply_status_columns(sub, entity)
     elif etype == "subscription.resumed":
-        sub.status = "active"
+        _set_status(sub, "active")
         _apply_status_columns(sub, entity)
     elif etype in ("invoice.paid", "invoice.issued"):
         await _upsert_invoice(invoice_entity, sub, db)
+
+    # Sync the user's denormalized mirror. Terminal events also clear
+    # the active pointer so the publish dialog / paywall flips back to
+    # "subscribe to read". A resubscribe between webhook send and this
+    # write would leave `active_subscription_id` pointing at the new
+    # row — we leave that alone.
+    user_q = await db.execute(select(User).where(User.id == sub.user_id))
+    user = user_q.scalar_one_or_none()
+    if user is not None:
+        if sub.status in {"cancelled", "completed"}:
+            if user.active_subscription_id == sub.id:
+                user.active_subscription_id = None
+        if user.active_subscription_id == sub.id:
+            user.subscription_status = sub.status
 
     try:
         await db.commit()
