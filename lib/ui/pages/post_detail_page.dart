@@ -2762,6 +2762,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                   title: item.title,
                   author: item.author,
                   authorId: item.authorId,
+                  publisherName: item.publisherName,
                   isDark: isDark,
                   textColor: textColor,
                   subtleColor: subtleColor,
@@ -3827,6 +3828,7 @@ class _BookHeader extends StatelessWidget {
   final String title;
   final String author;
   final String authorId;
+  final String? publisherName;
   final bool isDark;
   final Color textColor;
   final Color subtleColor;
@@ -3837,6 +3839,7 @@ class _BookHeader extends StatelessWidget {
     required this.title,
     required this.author,
     required this.authorId,
+    this.publisherName,
     required this.isDark,
     required this.textColor,
     required this.subtleColor,
@@ -4006,12 +4009,36 @@ class _BookHeader extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
+              if (_shouldShowPresentedBy(author, publisherName)) ...[
+                const SizedBox(height: 4),
+                Text(
+                  'Presented by ${publisherName!.trim()}',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: subtleColor,
+                    letterSpacing: 0.1,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
       ],
     );
   }
+}
+
+/// True when the publishing user is distinct from the cover byline —
+/// the editorial-classic case where readers see "Jane Austen" on the
+/// cover but the writing was uploaded under the "inkspace" identity.
+/// Returns false when [publisherName] is null/blank or matches [author]
+/// (the self-publishing user's own writing — no tagline needed).
+bool _shouldShowPresentedBy(String author, String? publisherName) {
+  final pub = publisherName?.trim() ?? '';
+  if (pub.isEmpty) return false;
+  return pub.toLowerCase() != author.trim().toLowerCase();
 }
 
 // ============================================================================
@@ -4226,6 +4253,19 @@ class _OverviewHeroDesktop extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        if (_shouldShowPresentedBy(
+                            item.author, item.publisherName)) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'Presented by ${item.publisherName!.trim()}',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: subtleColor,
+                              letterSpacing: 0.1,
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 18),
                         _HeroInlineStats(
                           sections: item.sections.length,

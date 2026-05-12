@@ -44,6 +44,7 @@ async def upsert_feed_item_for_writing(
     visibility: str = "public",
     price_cents: int | None = None,
     currency: str | None = None,
+    author_display: str | None = None,
 ) -> FeedItem:
     """Create or update the feed card for [writing_id].
 
@@ -89,17 +90,30 @@ async def upsert_feed_item_for_writing(
     # the wrong default for a serial-content product. Reads now go
     # straight to the `sections` table via `app.feed_sections`.
 
+    # Byline precedence: explicit `author_display` (the book's real
+    # author from Gutenberg dc.creator / fallback map) wins over the
+    # publishing user's name. Ingested classics need this — they're
+    # uploaded under the "inkspace" editorial identity but readers must
+    # see "Jane Austen" on the cover, not the publisher.
+    byline = (author_display or "").strip() or publisher.name
+
     if existing is not None:
         # Preserve the original publisher identity on update — re-publishing
         # under a different account would silently move the card and break
         # author-page listings for anyone already linked to the original.
         for key, value in fields.items():
             setattr(existing, key, value)
+        # Keep the byline in sync on re-publish (e.g. a backfill pass
+        # that corrects the inkspace → Jane Austen mismatch on an
+        # existing card). author_id stays anchored to the publishing
+        # user so the link target — the editorial profile page — does
+        # not shift under existing readers.
+        existing.author = byline
         item = existing
     else:
         item = FeedItem(
             writing_id=writing_id,
-            author=publisher.name,
+            author=byline,
             author_id=publisher.id,
             **fields,
         )

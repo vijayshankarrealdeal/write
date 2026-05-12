@@ -252,6 +252,11 @@ async def publish_book(
             tags=tags,
             is_draft=False,
             visibility=visibility,
+            # Byline shows the book's real author (e.g. "Jane Austen"),
+            # not the editorial publishing identity ("inkspace") used as
+            # the FeedItem.author_id. UI surfaces "Presented by inkspace"
+            # below the byline so the publisher is still credited.
+            author_display=writing.author,
         )
 
         return {

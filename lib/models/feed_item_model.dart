@@ -150,6 +150,14 @@ class FeedItemModel {
   /// sections at all.
   final int? readingMinutes;
 
+  /// Display name of the user who *published* this item — distinct
+  /// from [author], which is the cover byline. For author self-
+  /// published writings the two coincide; for editorially-curated
+  /// classics they differ (e.g. byline "Jane Austen", publisher
+  /// "inkspace"). Only the detail endpoint fills this in; listings
+  /// leave it null.
+  final String? publisherName;
+
   /// Set on items returned from `/api/ai/recommendations`. Carries the
   /// engine's score, the LLM-generated "why this" reason, and where in
   /// the pipeline the item came from (engine | cold_start | llm_rerank).
@@ -179,6 +187,7 @@ class FeedItemModel {
     this.currency = 'usd',
     this.purchased = true,
     this.readingMinutes,
+    this.publisherName,
     this.recommendation,
   }) : updatedAt = updatedAt ?? createdAt;
 
@@ -244,6 +253,9 @@ class FeedItemModel {
       readingMinutes: (json['readingMinutes'] ?? json['reading_minutes']) is num
           ? (json['readingMinutes'] ?? json['reading_minutes']) as int
           : null,
+      publisherName: (json['publisherName'] ?? json['publisher_name']) is String
+          ? (json['publisherName'] ?? json['publisher_name']) as String
+          : null,
     );
   }
 
@@ -269,6 +281,7 @@ class FeedItemModel {
         'currency': currency,
         'purchased': purchased,
         if (readingMinutes != null) 'readingMinutes': readingMinutes,
+        if (publisherName != null) 'publisherName': publisherName,
       };
 
   FeedItemModel copyWith({
@@ -293,6 +306,7 @@ class FeedItemModel {
     String? currency,
     bool? purchased,
     int? readingMinutes,
+    String? publisherName,
     RecommendationMeta? recommendation,
   }) =>
       FeedItemModel(
@@ -317,6 +331,7 @@ class FeedItemModel {
         currency: currency ?? this.currency,
         purchased: purchased ?? this.purchased,
         readingMinutes: readingMinutes ?? this.readingMinutes,
+        publisherName: publisherName ?? this.publisherName,
         recommendation: recommendation ?? this.recommendation,
       );
 }

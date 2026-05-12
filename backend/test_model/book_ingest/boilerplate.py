@@ -50,6 +50,13 @@ _LINE_PATTERNS = [
         r"^\s*all\s+rights\s+reserved\.?\s*$",
         r"^\s*copyright\s+(?:\(c\)|©)?\s*\d{4}\b",
         r"^\s*©\s*\d{4}\b",
+        # Bracketed "[Copyright YYYY by X.]" lines that sit under
+        # illustration captions in 19th-century Gutenberg HTML
+        # (e.g. the Hugh Thomson edition of Pride and Prejudice).
+        # Markdown rendering wraps the italic in asterisks, hence
+        # the optional `\*` after the opening bracket.
+        r"^\s*\[?\s*\*?\s*copyright\s+\d{4}\s+by\b.*?\*?\s*\]?\s*$",
+        r"^\s*\[?\s*\*?\s*illustration\s*[:.]?\s*\*?\s*\]?\s*$",
         r"^\s*first\s+published\s+\d{4}\b",
         r"^\s*reprinted\s+\d{4}\b",
         r"^\s*by\s+j\.\s*b\.\s*hare\b",

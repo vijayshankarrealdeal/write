@@ -643,11 +643,20 @@ async def get_feed_item(
     else:
         stubs = []
         reading_minutes = 0
+    # Pull the publishing user's display name so the client can render
+    # a "Presented by …" subtitle when it differs from the cover byline
+    # (the editorial classics case: byline "Jane Austen", publisher
+    # "inkspace"). One indexed PK lookup — cheap on the detail path.
+    publisher_row = await db.execute(
+        select(User.name).where(User.id == item.author_id)
+    )
+    publisher_name = publisher_row.scalar_one_or_none()
     # Transient response field — bypass the ORM so SQLAlchemy doesn't try
     # to write the stubs list back to (the now-removed) `sections` JSONB.
     item.__dict__["sections"] = stubs
     item.__dict__["reading_minutes"] = reading_minutes
     item.__dict__["purchased"] = await _viewer_owns(db, user, item)
+    item.__dict__["publisher_name"] = publisher_name
     return item
 
 

@@ -122,6 +122,13 @@ class FeedItemResponse(BaseModel):
     # client falls back to a cheap in-memory estimate. The number is
     # already clamped to >= 1.
     reading_minutes: int | None = None
+    # Display name of the user who *published* the item — distinct from
+    # `author`, which is the byline shown on the cover. For an author's
+    # own writing the two are identical; for editorially-curated books
+    # they differ (e.g. byline "Jane Austen", publisher "inkspace").
+    # Filled only by the detail endpoint; listings leave it null so
+    # cards on the home / search feeds don't add a join per row.
+    publisher_name: str | None = None
     created_at: datetime
     updated_at: datetime
 

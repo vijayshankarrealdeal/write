@@ -83,6 +83,12 @@ _FRONT_MATTER_HEADINGS = {
 }
 
 
+# Fallback title→author lookup is owned by `known_authors.py` so the
+# repair script can import it inside the production fastapi container
+# without dragging bs4 along. Re-exported for backwards compat.
+from .known_authors import lookup_known_author  # noqa: F401
+
+
 class TocEntry(NamedTuple):
     level: int
     title: str
@@ -201,6 +207,16 @@ def _read_metadata(soup: BeautifulSoup) -> tuple[str | None, str | None, list[st
         if "," in author:
             last, _, first = author.partition(",")
             author = f"{first.strip()} {last.strip()}".strip()
+    else:
+        # Last-resort fallback: a curated title→author map covers the
+        # classics where the Gutenberg edition omitted dc.creator and
+        # the head <title> doesn't carry "by AUTHOR" (e.g. the modern
+        # `"Romeo and Juliet | Project Gutenberg"` shape). Without this
+        # the FeedItem would byline the publisher identity instead of
+        # the actual author.
+        fallback = lookup_known_author(title)
+        if fallback:
+            author = fallback
 
     subjects: list[str] = []
     for tag in soup.find_all("meta", attrs={"name": "dc.subject"}):
