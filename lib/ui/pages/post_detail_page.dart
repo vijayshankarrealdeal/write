@@ -3202,7 +3202,11 @@ class _PostDetailPageState extends State<PostDetailPage>
                     dividerColor: dividerColor,
                     currentIndex: currentIndex,
                     totalSections: totalSections,
-                    showListen: item.sections.any((s) => s.hasAudio),
+                    // The xwide chapter-rail layout renders its own
+                    // floating Listen FAB, so suppress the inline pill
+                    // in that mode to avoid two buttons.
+                    showListen:
+                        !showChapterRail && item.sections.any((s) => s.hasAudio),
                   ),
           ),
         ),
