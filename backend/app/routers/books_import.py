@@ -202,14 +202,14 @@ async def import_book(
     writing = (
         await db.execute(
             select(Writing).where(
-                Writing.author_id == author_uuid, Writing.title == title
+                Writing.user_id == author_uuid, Writing.title == title
             )
         )
     ).scalar_one_or_none()
     if writing is None:
         writing = Writing(
             id=uuid.uuid4(),
-            author_id=author_uuid,
+            user_id=author_uuid,
             title=title,
             section_ids=[],
         )
