@@ -359,59 +359,72 @@ class _MiniNowPlaying extends StatelessWidget {
             ? book.coverImageUrl!
             : (book.imageUrl.isNotEmpty ? book.imageUrl : ''))
         .trim();
-    final ctx = audio.context;
-    final chapterTitle = ctx == null
-        ? ''
-        : ctx.chapters[ctx.currentChapterIndex].title;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        ClipOval(
-          child: SizedBox(
-            width: 56,
-            height: 56,
-            child: url.isEmpty
-                ? Container(color: Colors.grey.shade800)
-                : CachedNetworkImage(
-                    imageUrl: url,
-                    fit: BoxFit.cover,
-                    placeholder: (_, __) =>
-                        Container(color: Colors.grey.shade900),
-                    errorWidget: (_, __, ___) =>
-                        Container(color: Colors.grey.shade800),
+    // Subscribe to the player's current-index stream so the chapter
+    // title in the strip updates when the user hits prev/next or auto-
+    // advances. Reading audio.context at build time was a snapshot — it
+    // never refreshed, so users always saw "Chapter I" no matter where
+    // they were.
+    return StreamBuilder<int?>(
+      stream: audio.currentIndexStream,
+      initialData: audio.context?.currentChapterIndex,
+      builder: (context, _) {
+        final ctx = audio.context;
+        final chapterTitle = (ctx == null ||
+                ctx.currentChapterIndex < 0 ||
+                ctx.currentChapterIndex >= ctx.chapters.length)
+            ? ''
+            : ctx.chapters[ctx.currentChapterIndex].title;
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ClipOval(
+              child: SizedBox(
+                width: 56,
+                height: 56,
+                child: url.isEmpty
+                    ? Container(color: Colors.grey.shade800)
+                    : CachedNetworkImage(
+                        imageUrl: url,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) =>
+                            Container(color: Colors.grey.shade900),
+                        errorWidget: (_, __, ___) =>
+                            Container(color: Colors.grey.shade800),
+                      ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    chapterTitle.isEmpty ? book.title : chapterTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-          ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                chapterTitle.isEmpty ? (book.title) : chapterTitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${book.author} — ${book.title}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.6),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 2),
-              Text(
-                '${book.author} — ${book.title}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.6),
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+            ),
+          ],
+        );
+      },
     );
   }
 }
