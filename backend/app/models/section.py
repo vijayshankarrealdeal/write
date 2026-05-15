@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Index, Integer, String, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Float, ForeignKey, Index, Integer, String, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -63,6 +63,18 @@ class Section(UUIDMixin, Base):
     # Visible numbers are derived from list order at render time, so
     # editing this column never forces a Quill delta rewrite.
     footnotes: Mapped[list[dict] | None] = mapped_column(JSONB)
+
+    # TTS audiobook artefacts. Populated by `/api/admin/books/import`
+    # from the `book_ingest.deploy` bundle. ``audio_url`` is the MP3
+    # (32 kbps mono); ``audio_words_url`` is the faster-whisper word
+    # alignment JSON used to highlight the current word in the reader.
+    # ``audio_duration_s`` is denormalised so the scrubber renders
+    # without fetching the words file. All four are nullable so plain
+    # text-only chapters keep working.
+    audio_url: Mapped[str | None] = mapped_column(String)
+    audio_words_url: Mapped[str | None] = mapped_column(String)
+    audio_duration_s: Mapped[float | None] = mapped_column(Float)
+    voice_name: Mapped[str | None] = mapped_column(String(8))
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

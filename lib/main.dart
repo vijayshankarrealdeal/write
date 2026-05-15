@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:just_audio_background/just_audio_background.dart' as audio_bg;
+
+import 'package:inkspacex/services/audio_playback_service.dart';
 
 import 'package:inkspacex/ui/auth/widgets/auth_scaffold.dart'
     show precacheAuthAssets;
@@ -75,6 +78,22 @@ void main() {
       }
       WidgetsFlutterBinding.ensureInitialized();
 
+      // Audiobook playback. Has to run before any AudioPlayer is
+      // constructed (which happens lazily, via the
+      // `AudioPlaybackService.instance` singleton) so the background
+      // isolate, audio session, and lock-screen MediaItem plumbing is
+      // wired up exactly once for the process. Safe on web — the
+      // package degrades to a no-op when there's no platform audio
+      // session.
+      await audio_bg.JustAudioBackground.init(
+        androidNotificationChannelId: 'inkspacex_audio',
+        androidNotificationChannelName: 'Audiobook playback',
+        androidNotificationOngoing: true,
+        // Reuses the existing notification icon Android already has
+        // for foreground notifications — keeps the bundle slim.
+        androidNotificationIcon: 'mipmap/ic_launcher',
+      );
+
       // Flutter framework errors (widget build, layout, etc.)
       FlutterError.onError = (FlutterErrorDetails details) {
         FlutterError.presentError(details);
@@ -95,6 +114,13 @@ void main() {
 
       final storage = StorageService();
       await storage.init();
+
+      // Open the audio service's Hive boxes (resume position + words.json
+      // cache) and wire its position-tick → highlighted-word stream now
+      // that Hive is alive. The AudioPlayer itself is constructed lazily
+      // on first `loadBook(...)` so cold-start isn't slowed when the
+      // user never opens an audiobook.
+      unawaited(AudioPlaybackService.instance.bootstrap());
 
       // Web-only: if we just came back from the backend's Google OAuth callback,
       // the tokens ride in the URL fragment. Persist them before AuthProvider

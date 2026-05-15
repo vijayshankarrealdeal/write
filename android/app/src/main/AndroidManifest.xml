@@ -1,5 +1,13 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Audiobook playback: keeps the MediaSession running when the app
+         is backgrounded and lets Android post the now-playing notification
+         with media-style controls (play/pause/skip from the lock screen). -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
         android:label="InkSpaceX"
         android:name="${applicationName}"
@@ -46,6 +54,25 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/inkspacex_widget_info" />
+        </receiver>
+
+        <!-- just_audio_background — required service + media-button
+             receiver so the MediaSession survives backgrounding and
+             the lock-screen play/pause/skip buttons reach the running
+             AudioPlayer. -->
+        <service android:name="com.ryanheise.audioservice.AudioService"
+                 android:foregroundServiceType="mediaPlayback"
+                 android:exported="true"
+                 tools:ignore="Instantiatable">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+        <receiver android:name="com.ryanheise.audioservice.MediaButtonReceiver"
+                  android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
         </receiver>
 
         <!-- Don't delete the meta-data below.

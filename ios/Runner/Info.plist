@@ -55,6 +55,15 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Background audio: keeps the AudioPlayer ticking when the app
+	     is backgrounded or the device is locked. Required by
+	     just_audio_background; without it iOS suspends the process
+	     and the lock-screen MediaItem stops responding to play/pause
+	     after ~5 s. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

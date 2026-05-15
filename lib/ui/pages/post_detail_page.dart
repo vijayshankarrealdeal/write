@@ -32,6 +32,8 @@ import 'package:inkspacex/provider/offline_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/api/api_payments_service.dart';
+import 'package:inkspacex/services/audio_playback_service.dart';
+import 'package:inkspacex/ui/pages/audio_player_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // ---------------------------------------------------------------------------
@@ -3804,16 +3806,38 @@ class _PostDetailPageState extends State<PostDetailPage>
   }
 
   // --------------------------------------------------------------------------
-  // Listen button stub (audio narration)
+  // Listen button — loads the book into the singleton AudioPlaybackService
+  // and opens the dedicated AudioPlayerPage. When the user has previously
+  // listened to this book, the service auto-resumes from the persisted
+  // chapter + position (Hive's `audio_last_played` box).
   // --------------------------------------------------------------------------
   void _onListenPressed() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Audio narration coming soon',
-          style: GoogleFonts.lora(fontSize: 14),
+    final book = widget.feedItem;
+    final hasAnyAudio = book.sections.any((s) => s.hasAudio);
+    if (!hasAnyAudio) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'No audio narration available for this book yet',
+            style: GoogleFonts.lora(fontSize: 14),
+          ),
+          duration: const Duration(seconds: 2),
         ),
-        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+    // Start the load eagerly so the player has the queue ready when
+    // the page transition completes; just_audio surfaces its own
+    // buffering UI through `playerStateStream`.
+    final audio = AudioPlaybackService.instance;
+    final loadFuture = audio.loadBook(book, autoPlay: true);
+    // Silently absorb load failures — the player's error stream will
+    // surface anything actionable inside the page itself.
+    loadFuture.catchError((_) {});
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const AudioPlayerPage(),
+        fullscreenDialog: true,
       ),
     );
   }

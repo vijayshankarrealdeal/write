@@ -93,6 +93,9 @@ class FeedItemResponse(BaseModel):
     description: str | None
     image_url: str | None
     image_meta: dict | None = None
+    # Square cover used by the audio-player view. Falls back to
+    # `image_url` on the client if null.
+    cover_image_url: str | None = None
     genres: list[str]
     writing_types: list[str]
     tags: list[str]

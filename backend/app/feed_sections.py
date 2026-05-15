@@ -87,6 +87,10 @@ async def list_section_stubs(
                 Section.content,
                 Section.updated_at,
                 Section.is_free_preview,
+                Section.audio_url,
+                Section.audio_words_url,
+                Section.audio_duration_s,
+                Section.voice_name,
             ).where(
                 Section.id.in_(parsed_ids),
                 Section.is_published.is_(True),
@@ -115,6 +119,13 @@ async def list_section_stubs(
                 # access call. The body endpoint enforces the gate; this
                 # flag is just a hint for the chapter list.
                 "is_free_preview": bool(row.is_free_preview),
+                # Audio fields — null for text-only chapters. The reader
+                # only fetches words.json when the user starts listening
+                # to this specific chapter, so the stub is cheap.
+                "audio_url": row.audio_url,
+                "audio_words_url": row.audio_words_url,
+                "audio_duration_s": row.audio_duration_s,
+                "voice_name": row.voice_name,
                 "_lazy": True,
             }
         )
@@ -153,6 +164,10 @@ async def get_section_content(
                 Section.footnotes,
                 Section.updated_at,
                 Section.is_free_preview,
+                Section.audio_url,
+                Section.audio_words_url,
+                Section.audio_duration_s,
+                Section.voice_name,
             ).where(
                 Section.id == section_id,
                 Section.writing_id == writing_id,
@@ -193,6 +208,10 @@ async def get_section_content(
         "updated_at": row.updated_at.isoformat() if row.updated_at else None,
         "_has_image": _has_image(row.content),
         "is_free_preview": bool(row.is_free_preview),
+        "audio_url": row.audio_url,
+        "audio_words_url": row.audio_words_url,
+        "audio_duration_s": row.audio_duration_s,
+        "voice_name": row.voice_name,
         "locked": False,
     }
 

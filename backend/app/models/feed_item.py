@@ -30,6 +30,12 @@ class FeedItem(UUIDMixin, Base):
     description: Mapped[str | None] = mapped_column(Text)
     image_url: Mapped[str | None] = mapped_column(Text)
     image_meta: Mapped[dict | None] = mapped_column(JSONB)
+    # Large square cover used by the dedicated audio-player view (cover
+    # art à la Apple Music). Distinct from `image_url`, which is the
+    # feed-card thumbnail. Populated for audiobook-imported titles only;
+    # text-only books leave this null and the player falls back to
+    # `image_url`.
+    cover_image_url: Mapped[str | None] = mapped_column(Text)
     genres: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     writing_types: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     tags: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)

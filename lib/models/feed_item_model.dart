@@ -31,6 +31,25 @@ class FeedItemSection {
   /// `content` is empty when locked — render a "Buy to read" placeholder.
   final bool locked;
 
+  /// Public MP3 URL for chapter narration (32 kbps mono). Null on
+  /// text-only chapters. The reader's "Listen" button is hidden when
+  /// every chapter lacks audio, and the AudioPlayerPage scrubber is
+  /// disabled per-chapter when null.
+  final String? audioUrl;
+
+  /// Companion word-timing JSON URL. Schema:
+  /// `{"wav": ..., "duration": seconds, "words": [{"w","start","end"}, ...]}`
+  /// Fetched on first listen and cached in memory + Hive.
+  final String? audioWordsUrl;
+
+  /// Pre-computed duration so the scrubber can render before the
+  /// words.json is fetched. Null on legacy / text-only chapters.
+  final double? audioDurationSeconds;
+
+  /// Supertonic voice preset used for narration (M1..M5 / F1..F5).
+  /// Display-only — shown as "Narrated by …" on the player page.
+  final String? voiceName;
+
   const FeedItemSection({
     required this.id,
     required this.title,
@@ -40,7 +59,14 @@ class FeedItemSection {
     this.updatedAt,
     this.isFreePreview = false,
     this.locked = false,
+    this.audioUrl,
+    this.audioWordsUrl,
+    this.audioDurationSeconds,
+    this.voiceName,
   });
+
+  /// True when this chapter has streamable audio attached.
+  bool get hasAudio => audioUrl != null && audioUrl!.isNotEmpty;
 
   factory FeedItemSection.fromJson(Map<String, dynamic> json) {
     // `content` can arrive in two shapes:
@@ -76,6 +102,14 @@ class FeedItemSection {
         ? DateTime.tryParse(rawUpdated)
         : null;
 
+    final dynamic rawDuration = json['audio_duration_s'] ?? json['audioDurationSeconds'];
+    final double? duration = rawDuration is num ? rawDuration.toDouble() : null;
+    final String? audioUrl =
+        (json['audio_url'] ?? json['audioUrl']) as String?;
+    final String? wordsUrl =
+        (json['audio_words_url'] ?? json['audioWordsUrl']) as String?;
+    final String? voice = (json['voice_name'] ?? json['voiceName']) as String?;
+
     return FeedItemSection(
       // Chapter-list stubs send `section_id`; legacy bodies + author-side
       // models send `id`. The backend's new `/sections/by-id/...`
@@ -88,6 +122,11 @@ class FeedItemSection {
       updatedAt: updated,
       isFreePreview: json['is_free_preview'] == true || json['isFreePreview'] == true,
       locked: json['locked'] == true,
+      audioUrl: (audioUrl != null && audioUrl.isNotEmpty) ? audioUrl : null,
+      audioWordsUrl:
+          (wordsUrl != null && wordsUrl.isNotEmpty) ? wordsUrl : null,
+      audioDurationSeconds: duration,
+      voiceName: (voice != null && voice.isNotEmpty) ? voice : null,
     );
   }
 
@@ -100,6 +139,10 @@ class FeedItemSection {
         if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
         if (isFreePreview) 'is_free_preview': true,
         if (locked) 'locked': true,
+        if (audioUrl != null) 'audio_url': audioUrl,
+        if (audioWordsUrl != null) 'audio_words_url': audioWordsUrl,
+        if (audioDurationSeconds != null) 'audio_duration_s': audioDurationSeconds,
+        if (voiceName != null) 'voice_name': voiceName,
       };
 }
 
@@ -112,6 +155,11 @@ class FeedItemModel {
   final String description;
   final String imageUrl;
   final ImageMeta? imageMeta;
+  /// Big square cover used by the audio-player page. Distinct from
+  /// [imageUrl], which is the feed-card thumbnail. May be null for
+  /// text-only / legacy books — the AudioPlayerPage falls back to
+  /// [imageUrl] in that case.
+  final String? coverImageUrl;
   final List<String> genres;
   final List<String> writingTypes;
   final List<String> tags;
@@ -173,6 +221,7 @@ class FeedItemModel {
     required this.description,
     required this.imageUrl,
     this.imageMeta,
+    this.coverImageUrl,
     this.genres = const [],
     this.writingTypes = const [],
     this.tags = const [],
@@ -219,6 +268,7 @@ class FeedItemModel {
       description: json['description'] ?? '',
       imageUrl: json['imageUrl'] ?? json['image_url'] ?? '',
       imageMeta: ImageMeta.tryFromJson(json['imageMeta'] ?? json['image_meta']),
+      coverImageUrl: (json['cover_image_url'] ?? json['coverImageUrl']) as String?,
       genres: List<String>.from(json['genres'] ?? []),
       writingTypes:
           List<String>.from(json['writingTypes'] ?? json['writing_types'] ?? []),

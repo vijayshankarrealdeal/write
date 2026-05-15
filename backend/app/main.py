@@ -28,6 +28,7 @@ from app.routers import (
     auth,
     author_bookmarks,
     bookmarks,
+    books_import,
     bookshelves,
     chat,
     comments,
@@ -242,6 +243,7 @@ app.include_router(upload.router)
 app.include_router(ai_router)
 app.include_router(offline_router)
 app.include_router(admin.router)
+app.include_router(books_import.router)
 app.include_router(crashes.router)
 app.include_router(logs.router)
 app.include_router(notifications.router)

@@ -68,6 +68,18 @@ dependencies:
   # foreground. Background/killed-app push needs FCM/APNS native config
   # in addition to this package — see LocalNotificationService.
   flutter_local_notifications: ^17.2.4
+  # Audiobook playback. `just_audio` is the player; `just_audio_background`
+  # wraps it with `audio_service` under the hood so Now Playing / lock-screen
+  # controls work on iOS and the Android media-style notification appears
+  # automatically — tapping it opens the app at the current chapter. The
+  # Apple-Music-style highlighted-text view in `AudioPlayerPage` listens to
+  # the position stream and binary-searches the words.json for the active
+  # word. See `lib/services/audio_playback_service.dart`.
+  just_audio: ^0.10.5
+  just_audio_background: ^0.0.1-beta.16
+  audio_session: ^0.2.2
+  rxdart: ^0.28.0
+  # NB: path_provider is already declared further down for the offline store.
   # `flutter_local_notifications.zonedSchedule` requires a TZDateTime,
   # so we pull `timezone` in as a direct dep (otherwise it's transitive
   # via flutter_local_notifications). `flutter_timezone` reads the
