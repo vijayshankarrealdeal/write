@@ -49,34 +49,58 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     _lastScrolledIndex = -1;
   }
 
-  /// Centre the active word in the viewport when it changes by more
-  /// than ~half a viewport, animate gently when it's a small jump.
+  /// Keep the active word near 40% from the top of the viewport.
+  ///
+  /// Two cases to handle separately:
+  ///   - **Small step (regular playback tick).** The new word is on
+  ///     screen, so its GlobalKey resolves. Animate gently.
+  ///   - **Big jump (user seeked, scrubbed, or chapter changed).** The
+  ///     new word is off-screen, GlobalKey is null. Estimate the
+  ///     destination from the index ratio, jump there, then refine
+  ///     after one frame once the RenderBox attaches.
   void _maybeScrollTo(int index) {
     if (index < 0 || index >= _wordKeys.length) return;
     if (index == _lastScrolledIndex) return;
-    final key = _wordKeys[index];
-    final ctx = key.currentContext;
-    if (ctx == null) return;
+    if (!_scrollController.hasClients) return;
+
+    final ctx = _wordKeys[index].currentContext;
+    if (ctx == null) {
+      // Off-screen — estimate proportionally then refine post-frame.
+      final pos = _scrollController.position;
+      final total = _wordKeys.length;
+      final estimated = (pos.maxScrollExtent * index / math.max(total, 1))
+          .clamp(0.0, pos.maxScrollExtent);
+      _scrollController.jumpTo(estimated);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final ctx2 = _wordKeys[index].currentContext;
+        if (ctx2 != null) {
+          Scrollable.ensureVisible(
+            ctx2,
+            alignment: 0.4,
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+          ).catchError((_) {});
+        }
+      });
+      _lastScrolledIndex = index;
+      return;
+    }
+
+    // On-screen — only nudge if it's drifting toward an edge.
     final box = ctx.findRenderObject() as RenderBox?;
-    if (box == null) return;
-    final position = box.localToGlobal(Offset.zero);
-    // Find the closest enclosing Scrollable to keep the word centred
-    // even when this widget is hosted inside a CustomScrollView (e.g.
-    // tablet layout with a sliver app bar).
     final viewport = Scrollable.of(ctx);
     final viewportBox = viewport.context.findRenderObject() as RenderBox?;
-    if (viewportBox == null) return;
-    final viewportOffset = viewportBox.localToGlobal(Offset.zero);
-    final relative = position.dy - viewportOffset.dy;
+    if (box == null || viewportBox == null) return;
+    final relative =
+        box.localToGlobal(Offset.zero).dy - viewportBox.localToGlobal(Offset.zero).dy;
     final viewportHeight = viewportBox.size.height;
-    if (relative < viewportHeight * 0.25 ||
-        relative > viewportHeight * 0.7) {
+    if (relative < viewportHeight * 0.25 || relative > viewportHeight * 0.7) {
       _scrollController
           .animateTo(
-        _scrollController.offset + (relative - viewportHeight * 0.4),
-        duration: const Duration(milliseconds: 320),
-        curve: Curves.easeOutCubic,
-      )
+            _scrollController.offset + (relative - viewportHeight * 0.4),
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeOutCubic,
+          )
           .catchError((_) {});
     }
     _lastScrolledIndex = index;
@@ -214,9 +238,14 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                               milliseconds:
                                   (words.words[i].startSeconds * 1000).round(),
                             )),
-                            child: AnimatedDefaultTextStyle(
+                            // Plain Text + DefaultTextStyle (no animation):
+                            // a per-word 220ms cross-fade meant 1500 words
+                            // simultaneously animating on a far seek, which
+                            // looked like a full-screen flash. Single-frame
+                            // recolor matches Apple Music's behaviour.
+                            child: Text(
+                              _displayWord(words.words[i].word),
                               key: _wordKeys[i],
-                              duration: const Duration(milliseconds: 220),
                               style: TextStyle(
                                 fontSize: 28,
                                 height: 1.45,
@@ -229,7 +258,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                                         ? Colors.white.withOpacity(0.85)
                                         : Colors.white.withOpacity(0.32)),
                               ),
-                              child: Text(_displayWord(words.words[i].word)),
                             ),
                           ),
                         ),
@@ -434,12 +462,11 @@ class _ScrubberControls extends StatelessWidget {
                     inactiveTrackColor: Colors.white.withOpacity(0.18),
                     thumbColor: Colors.white,
                   ),
-                  child: Slider(
+                  child: _SeekSlider(
                     min: 0,
                     max: clampedMax,
-                    value: clampedPos,
-                    onChanged: (v) =>
-                        audio.seek(Duration(milliseconds: v.round())),
+                    livePos: clampedPos,
+                    onSeek: (ms) => audio.seek(Duration(milliseconds: ms)),
                   ),
                 ),
                 Padding(
@@ -515,6 +542,46 @@ class _ScrubberControls extends StatelessWidget {
             );
           },
         );
+      },
+    );
+  }
+}
+
+/// Seek slider that lets the user drag freely without firing a seek
+/// per pixel. While the thumb is held the value lives in local state;
+/// only `onChangeEnd` commits the seek to the AudioPlaybackService.
+/// Without this, dragging across a 16-hour book triggered hundreds of
+/// `seek()` calls per second, each restarting the audio buffer.
+class _SeekSlider extends StatefulWidget {
+  final double min;
+  final double max;
+  final double livePos;
+  final ValueChanged<int> onSeek;
+  const _SeekSlider({
+    required this.min,
+    required this.max,
+    required this.livePos,
+    required this.onSeek,
+  });
+
+  @override
+  State<_SeekSlider> createState() => _SeekSliderState();
+}
+
+class _SeekSliderState extends State<_SeekSlider> {
+  double? _dragValue;
+
+  @override
+  Widget build(BuildContext context) {
+    final value = (_dragValue ?? widget.livePos).clamp(widget.min, widget.max);
+    return Slider(
+      min: widget.min,
+      max: widget.max,
+      value: value,
+      onChanged: (v) => setState(() => _dragValue = v),
+      onChangeEnd: (v) {
+        widget.onSeek(v.round());
+        setState(() => _dragValue = null);
       },
     );
   }
