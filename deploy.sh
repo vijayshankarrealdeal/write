@@ -162,6 +162,8 @@ ssh_exec "mkdir -p $REMOTE_DIR/build"
 
 rsync_to --delete \
   --exclude='__pycache__' --exclude='*.pyc' --exclude='.pytest_cache' \
+  --exclude='test_model' --exclude='storage' --exclude='/data' \
+  --exclude='*.pdf' --exclude='*.wav' \
   backend/ "$SSH_HOST:$REMOTE_DIR/backend/"
 
 rsync_to --delete build/web/ "$SSH_HOST:$REMOTE_DIR/build/web/"
