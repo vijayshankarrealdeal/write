@@ -71,13 +71,19 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
       final estimated = (pos.maxScrollExtent * index / math.max(total, 1))
           .clamp(0.0, pos.maxScrollExtent);
       _scrollController.jumpTo(estimated);
+      // First scroll after chapter load: snap to the refined position
+      // (Duration.zero) instead of animating, so there's no visible
+      // bounce on entry. Subsequent jumps animate normally.
+      final firstScroll = _lastScrolledIndex < 0;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final ctx2 = _wordKeys[index].currentContext;
         if (ctx2 != null) {
           Scrollable.ensureVisible(
             ctx2,
             alignment: 0.4,
-            duration: const Duration(milliseconds: 220),
+            duration: firstScroll
+                ? Duration.zero
+                : const Duration(milliseconds: 220),
             curve: Curves.easeOutCubic,
           ).catchError((_) {});
         }
@@ -95,13 +101,21 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
         box.localToGlobal(Offset.zero).dy - viewportBox.localToGlobal(Offset.zero).dy;
     final viewportHeight = viewportBox.size.height;
     if (relative < viewportHeight * 0.25 || relative > viewportHeight * 0.7) {
-      _scrollController
-          .animateTo(
-            _scrollController.offset + (relative - viewportHeight * 0.4),
-            duration: const Duration(milliseconds: 320),
-            curve: Curves.easeOutCubic,
-          )
-          .catchError((_) {});
+      // First scroll after a chapter loads: jump silently so the lyrics
+      // appear already-positioned. Otherwise we'd see the page spring
+      // from offset 0 to ~40%-from-top in 320ms — looks like a bounce.
+      if (_lastScrolledIndex < 0) {
+        _scrollController
+            .jumpTo(_scrollController.offset + (relative - viewportHeight * 0.4));
+      } else {
+        _scrollController
+            .animateTo(
+              _scrollController.offset + (relative - viewportHeight * 0.4),
+              duration: const Duration(milliseconds: 320),
+              curve: Curves.easeOutCubic,
+            )
+            .catchError((_) {});
+      }
     }
     _lastScrolledIndex = index;
   }

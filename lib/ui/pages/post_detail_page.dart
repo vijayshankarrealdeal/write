@@ -34,6 +34,7 @@ import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/api/api_payments_service.dart';
 import 'package:inkspacex/services/audio_playback_service.dart';
 import 'package:inkspacex/ui/pages/audio_player_page.dart';
+import 'package:inkspacex/ui/widgets/mini_player_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // ---------------------------------------------------------------------------
@@ -3194,19 +3195,32 @@ class _PostDetailPageState extends State<PostDetailPage>
             alignment: Alignment.topCenter,
             child: _immersiveReader
                 ? const SizedBox(width: double.infinity, height: 0)
-                : _buildReaderBottomBar(
-                    isDark: isDark,
-                    textColor: textColor,
-                    subtleColor: subtleColor,
-                    bgColor: bgColor,
-                    dividerColor: dividerColor,
-                    currentIndex: currentIndex,
-                    totalSections: totalSections,
-                    // The xwide chapter-rail layout renders its own
-                    // floating Listen FAB, so suppress the inline pill
-                    // in that mode to avoid two buttons.
-                    showListen:
-                        !showChapterRail && item.sections.any((s) => s.hasAudio),
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Mini-player parks above the chapter strip when
+                      // audio is loaded for this book, so the reader
+                      // keeps all its features (Aa, highlights, notes)
+                      // while playback stays accessible. Self-hides via
+                      // MiniPlayerBar when nothing is playing.
+                      const MiniPlayerBar(),
+                      _buildReaderBottomBar(
+                        isDark: isDark,
+                        textColor: textColor,
+                        subtleColor: subtleColor,
+                        bgColor: bgColor,
+                        dividerColor: dividerColor,
+                        currentIndex: currentIndex,
+                        totalSections: totalSections,
+                        // Suppress inline Listen pill when (a) the wide
+                        // FAB owns it, or (b) the mini-player is already
+                        // showing (audio is loaded for this book).
+                        showListen: !showChapterRail &&
+                            item.sections.any((s) => s.hasAudio) &&
+                            AudioPlaybackService.instance.context?.book.id !=
+                                item.id,
+                      ),
+                    ],
                   ),
           ),
         ),
