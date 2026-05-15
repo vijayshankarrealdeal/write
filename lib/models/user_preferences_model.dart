@@ -25,6 +25,11 @@ class UserPreferences {
   /// Preferred reading length: 'short' | 'medium' | 'long' | 'mixed'.
   final String? contentLengthPreference;
 
+  /// ISO 8601 date string `YYYY-MM-DD`. Collected at onboarding so the
+  /// feed can filter age-inappropriate content; age is derived
+  /// server-side rather than stored, since it changes over time.
+  final String? dateOfBirth;
+
   const UserPreferences({
     this.preferredGenres = const [],
     this.preferredWritingTypes = const [],
@@ -35,6 +40,7 @@ class UserPreferences {
     this.moodThemes = const [],
     this.writingFrequency,
     this.contentLengthPreference,
+    this.dateOfBirth,
   });
 
   factory UserPreferences.fromJson(Map<String, dynamic>? json) {
@@ -50,6 +56,7 @@ class UserPreferences {
       moodThemes: List<String>.from(json['moodThemes'] ?? []),
       writingFrequency: json['writingFrequency'] as String?,
       contentLengthPreference: json['contentLengthPreference'] as String?,
+      dateOfBirth: json['dateOfBirth'] as String?,
     );
   }
 
@@ -63,6 +70,7 @@ class UserPreferences {
         'moodThemes': moodThemes,
         'writingFrequency': writingFrequency,
         'contentLengthPreference': contentLengthPreference,
+        'dateOfBirth': dateOfBirth,
       };
 
   UserPreferences copyWith({
@@ -75,6 +83,7 @@ class UserPreferences {
     List<String>? moodThemes,
     String? writingFrequency,
     String? contentLengthPreference,
+    String? dateOfBirth,
   }) =>
       UserPreferences(
         preferredGenres: preferredGenres ?? this.preferredGenres,
@@ -88,5 +97,6 @@ class UserPreferences {
         writingFrequency: writingFrequency ?? this.writingFrequency,
         contentLengthPreference:
             contentLengthPreference ?? this.contentLengthPreference,
+        dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       );
 }

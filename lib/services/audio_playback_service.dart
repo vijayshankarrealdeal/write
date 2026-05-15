@@ -253,10 +253,34 @@ class AudioPlaybackService {
       }
     }
     int initialIndex = 0;
+    bool found = false;
     for (var i = 0; i < playable.length; i++) {
       if (playable[i].section.id == targetSectionId) {
         initialIndex = i;
+        found = true;
         break;
+      }
+    }
+    // The target chapter exists in the reader (chapters list) but has
+    // no audio file, so it isn't in the playable queue. Without this
+    // fallback, initialIndex stays at 0 and tapping "Listen" on a
+    // text-only chapter silently rewinds to chapter 1. Find the
+    // nearest narrated chapter at or after the requested one (then
+    // back-search if everything after is text-only), and start there
+    // from the top — the saved position was for a different chapter.
+    if (!found && targetSectionId != null) {
+      final reqIdx = ctx.chapters.indexWhere((s) => s.id == targetSectionId);
+      if (reqIdx >= 0) {
+        int? pick;
+        for (var i = 0; i < playable.length; i++) {
+          if (playable[i].realIndex >= reqIdx) {
+            pick = i;
+            break;
+          }
+        }
+        pick ??= playable.length - 1;
+        initialIndex = pick;
+        targetSeconds = 0.0;
       }
     }
 

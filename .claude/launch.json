@@ -8,6 +8,12 @@
       "port": 8765
     },
     {
+      "name": "prod-redirect",
+      "runtimeExecutable": "/opt/homebrew/bin/python3.13",
+      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "/tmp/prod-redirect"],
+      "port": 8766
+    },
+    {
       "name": "admin",
       "runtimeExecutable": "node",
       "runtimeArgs": [
@@ -18,6 +24,20 @@
         "5174"
       ],
       "port": 5174
+    },
+    {
+      "name": "flutter-web",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": [
+        "run",
+        "-d",
+        "chrome",
+        "--web-port",
+        "8421",
+        "--web-hostname",
+        "localhost"
+      ],
+      "port": 8421
     }
   ]
 }

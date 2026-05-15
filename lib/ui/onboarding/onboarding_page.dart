@@ -26,6 +26,7 @@ class _OnboardingPageState extends State<OnboardingPage>
   // ── Collected preferences ──
   String? _primaryRole;
   String? _experienceLevel;
+  DateTime? _dateOfBirth;
   final List<String> _goals = [];
   final List<String> _selectedWritingTypes = [];
   final List<String> _selectedSubtypes = [];
@@ -137,6 +138,25 @@ class _OnboardingPageState extends State<OnboardingPage>
     );
   }
 
+  Future<void> _pickDateOfBirth() async {
+    final now = DateTime.now();
+    // 13 is the floor we expect to enforce later for the age filter, so the
+    // picker's "latest selectable" defaults to that. Users older than 13 just
+    // page back; we don't want a 5-year-old's birthday landing as a default.
+    final initial = _dateOfBirth ?? DateTime(now.year - 18, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(now.year - 120),
+      lastDate: DateTime(now.year - 13, now.month, now.day),
+      helpText: 'When were you born?',
+      initialEntryMode: DatePickerEntryMode.calendar,
+    );
+    if (picked != null && mounted) {
+      setState(() => _dateOfBirth = picked);
+    }
+  }
+
   Future<void> _finishOnboarding() async {
     if (_isFinishing) return;
     final auth = context.read<AuthProvider>();
@@ -152,6 +172,11 @@ class _OnboardingPageState extends State<OnboardingPage>
         moodThemes: _moodThemes,
         writingFrequency: _writingFrequency,
         contentLengthPreference: _contentLength,
+        dateOfBirth: _dateOfBirth == null
+            ? null
+            : '${_dateOfBirth!.year.toString().padLeft(4, '0')}-'
+                '${_dateOfBirth!.month.toString().padLeft(2, '0')}-'
+                '${_dateOfBirth!.day.toString().padLeft(2, '0')}',
       );
       await auth.completeOnboarding(prefs).timeout(
         const Duration(seconds: 15),
@@ -181,7 +206,9 @@ class _OnboardingPageState extends State<OnboardingPage>
     final step = _currentPage - _firstPrefIndex;
     switch (step) {
       case 0:
-        return _primaryRole != null && _experienceLevel != null;
+        return _primaryRole != null &&
+            _experienceLevel != null &&
+            _dateOfBirth != null;
       case 1:
         return _goals.isNotEmpty;
       case 2:
@@ -667,6 +694,16 @@ class _OnboardingPageState extends State<OnboardingPage>
                 ),
               );
             }).toList(),
+          ),
+          const SizedBox(height: 32),
+          _SectionLabel(text: 'DATE OF BIRTH', mutedColor: mutedColor),
+          const SizedBox(height: 14),
+          _DobField(
+            value: _dateOfBirth,
+            isDark: isDark,
+            textColor: textColor,
+            mutedColor: mutedColor,
+            onPick: _pickDateOfBirth,
           ),
           const SizedBox(height: 32),
           _SectionLabel(text: 'EXPERIENCE LEVEL', mutedColor: mutedColor),
@@ -1336,5 +1373,119 @@ class _OnboardingData {
     required this.subtitle,
     required this.description,
   });
+}
+
+class _DobField extends StatelessWidget {
+  final DateTime? value;
+  final bool isDark;
+  final Color textColor;
+  final Color mutedColor;
+  final VoidCallback onPick;
+
+  const _DobField({
+    required this.value,
+    required this.isDark,
+    required this.textColor,
+    required this.mutedColor,
+    required this.onPick,
+  });
+
+  static const _months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = value != null;
+    final bg = isDark
+        ? Colors.white.withValues(alpha: 0.04)
+        : Colors.black.withValues(alpha: 0.02);
+    final border = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.08);
+
+    return GestureDetector(
+      onTap: onPick,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: selected ? textColor.withValues(alpha: isDark ? 0.95 : 1) : bg,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: selected ? Colors.transparent : border,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: selected
+                    ? (isDark
+                        ? Colors.black.withValues(alpha: 0.12)
+                        : Colors.white.withValues(alpha: 0.2))
+                    : textColor.withValues(alpha: 0.06),
+              ),
+              child: Icon(
+                CupertinoIcons.calendar,
+                size: 17,
+                color: selected
+                    ? (isDark ? Colors.black : Colors.white)
+                    : textColor.withValues(alpha: 0.75),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    selected ? _format(value!) : 'Select your date of birth',
+                    style: GoogleFonts.inter(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w600,
+                      color: selected
+                          ? (isDark ? Colors.black : Colors.white)
+                          : textColor.withValues(alpha: 0.78),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Helps us filter content for your age',
+                    style: GoogleFonts.inter(
+                      fontSize: 12.5,
+                      color: selected
+                          ? (isDark
+                              ? Colors.black.withValues(alpha: 0.65)
+                              : Colors.white.withValues(alpha: 0.75))
+                          : mutedColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              CupertinoIcons.chevron_right,
+              size: 16,
+              color: selected
+                  ? (isDark
+                      ? Colors.black.withValues(alpha: 0.55)
+                      : Colors.white.withValues(alpha: 0.7))
+                  : textColor.withValues(alpha: 0.35),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static String _format(DateTime d) =>
+      '${d.day} ${_months[d.month - 1]} ${d.year}';
 }
 
