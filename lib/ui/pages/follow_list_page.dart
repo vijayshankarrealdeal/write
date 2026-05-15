@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
+import 'package:inkspacex/services/format_count.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
 import 'package:inkspacex/ui/widgets/user_badge_chip.dart';
@@ -417,7 +418,7 @@ class _UserRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${user.postsCount} ${user.postsCount == 1 ? 'story' : 'stories'} · ${user.followersCount} followers',
+                  '${formatCount(user.postsCount)} ${user.postsCount == 1 ? 'story' : 'stories'} · ${formatCount(user.followersCount)} followers',
                   style: GoogleFonts.inter(fontSize: 12, color: subtle),
                 ),
               ],

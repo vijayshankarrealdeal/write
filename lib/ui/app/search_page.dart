@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
+import 'package:inkspacex/services/format_count.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
@@ -1364,14 +1365,14 @@ class _SearchPageState extends State<SearchPage> {
                     Icon(CupertinoIcons.heart, size: 11, color: subtle),
                     const SizedBox(width: 3),
                     Text(
-                      '${item.likesCount}',
+                      formatCount(item.likesCount),
                       style: GoogleFonts.inter(fontSize: 11, color: subtle),
                     ),
                     const SizedBox(width: 10),
                     Icon(CupertinoIcons.chat_bubble, size: 11, color: subtle),
                     const SizedBox(width: 3),
                     Text(
-                      '${item.commentsCount}',
+                      formatCount(item.commentsCount),
                       style: GoogleFonts.inter(fontSize: 11, color: subtle),
                     ),
                     if (item.genres.isNotEmpty) ...[

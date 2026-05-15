@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:inkspacex/services/format_count.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/ri.dart';
 import 'package:iconify_flutter/icons/simple_icons.dart';
@@ -1001,15 +1002,7 @@ class _Stat extends StatelessWidget {
     );
   }
 
-  static String _fmt(int n) {
-    if (n < 1000) return '$n';
-    if (n < 1000000) {
-      final v = n / 1000;
-      return v >= 10 ? '${v.toStringAsFixed(0)}k' : '${v.toStringAsFixed(1)}k';
-    }
-    final v = n / 1000000;
-    return v >= 10 ? '${v.toStringAsFixed(0)}M' : '${v.toStringAsFixed(1)}M';
-  }
+  static String _fmt(int n) => formatCount(n);
 }
 
 class _Sep extends StatelessWidget {
@@ -1608,8 +1601,8 @@ class _MetaStrip extends StatelessWidget {
       runSpacing: 4,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        _meta(CupertinoIcons.heart, '${item.likesCount}'),
-        _meta(CupertinoIcons.chat_bubble, '${item.commentsCount}'),
+        _meta(CupertinoIcons.heart, formatCount(item.likesCount)),
+        _meta(CupertinoIcons.chat_bubble, formatCount(item.commentsCount)),
         if (genre != null) _genreTag(genre),
       ],
     );

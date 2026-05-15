@@ -11,6 +11,7 @@ import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
+import 'package:inkspacex/services/format_count.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
@@ -1317,7 +1318,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
                               icon: isLiked
                                   ? CupertinoIcons.heart_fill
                                   : CupertinoIcons.heart,
-                              label: '${item.likesCount.clamp(0, 999999)}',
+                              label: formatCount(item.likesCount.clamp(0, 999999)),
                               color: isLiked ? Colors.red : null,
                               isDark: isDark,
                               onTap: () => authState.toggleLike(item.id,
@@ -1327,7 +1328,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
                             // Comment
                             _ActionButton(
                               icon: CupertinoIcons.chat_bubble,
-                              label: '${item.commentsCount}',
+                              label: formatCount(item.commentsCount),
                               isDark: isDark,
                               onTap: () => _openPost(item),
                             ),
@@ -1961,7 +1962,7 @@ class _FeedCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                '${item.likesCount.clamp(0, 999999)}',
+                                formatCount(item.likesCount.clamp(0, 999999)),
                                 style: GoogleFonts.inter(
                                   fontSize: 12,
                                   color: isLiked
@@ -1982,7 +1983,7 @@ class _FeedCard extends StatelessWidget {
                                 color: subtleColor.withValues(alpha: 0.6)),
                             const SizedBox(width: 4),
                             Text(
-                              '${item.commentsCount}',
+                              formatCount(item.commentsCount),
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 color: subtleColor.withValues(alpha: 0.6),

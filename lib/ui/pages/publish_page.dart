@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
+import 'package:inkspacex/services/format_count.dart';
 import 'package:inkspacex/models/footnote_model.dart';
 import 'package:inkspacex/models/writing_model.dart';
 import 'package:inkspacex/models/section_model.dart';
@@ -1130,7 +1131,7 @@ class _PublishPageState extends State<PublishPage> {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                "Live with ${space.sections.length} section${space.sections.length == 1 ? '' : 's'} · ${space.likesCount} like${space.likesCount == 1 ? '' : 's'}",
+                "Live with ${space.sections.length} section${space.sections.length == 1 ? '' : 's'} · ${formatCount(space.likesCount)} like${space.likesCount == 1 ? '' : 's'}",
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,

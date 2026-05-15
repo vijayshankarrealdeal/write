@@ -9,12 +9,15 @@ markdown, briefs, deeps, image prompts, character bibles, poster copy,
 Quill Deltas — all of it lands on disk, finished, before any reader
 opens the book.
 
-**OpenAI has exactly one job, and it only runs on-demand:** when the
-reader opens `index.html`, picks a book, and clicks "Generate image"
-on a scene card, the backend calls OpenAI with the prompt you prepared
-and saves the PNG. If generation fails, the backend rephrases the
-prompt and retries. **No image is generated until a reader asks for
-it.** No batch image runs. No background prefetch.
+**Azure has exactly one job, run automatically at the end of prep:**
+once every prompt JSON is on disk (Phase 7) and the Deltas + poster
+are written (Phases 8–10), you call the studio's `generate-all`
+endpoint, which fires every cover/character/scene generation in
+parallel with the same 5-strategy rephrase-retry. **The book ships
+with every PNG already in place — no human clicks needed.** The
+per-scene "Generate image" buttons in the studio survive as a
+manual retry / catch-up path for the rare prompts Azure refuses
+to soften.
 
 Everything else — every text decision, every art-direction decision,
 every prompt — is yours, done up-front, written to disk as plain
@@ -116,8 +119,8 @@ auto-OCR dump.
 | **Composing image prompts** (scenes, characters, cover) | **You** | prep, offline |
 | **Quill Delta assembly** | **You** | prep, offline |
 | **Back-cover copy + genres + tags** | **You** | prep, offline |
-| **Image pixel generation** | **OpenAI**, called by backend | **runtime, on reader click** |
-| **Prompt rephrase on failure** | Backend (deterministic) | runtime, on retry |
+| **Image pixel generation** | **Azure**, called by backend | **end of prep, automatic (Phase 10.5)** |
+| **Prompt rephrase on failure** | Backend (deterministic) | inside each generation call |
 
 You do **everything** that involves taste, judgment, or fidelity to
 the author — and you do it offline, once, writing every output to
@@ -178,7 +181,7 @@ Operationally this means:
 - The same semaphore is shared with the map pass, the reduce pass, and
   the scout — if scout is running, only 9 cleaner calls may run
   concurrently with it.
-- OpenAI calls (embeddings, images) do **not** count against this
+- Azure image API calls do **not** count against this
   budget — they're a separate provider.
 
 For book N parallelism: with 10 in-flight calls, processing 10 books at
@@ -190,19 +193,24 @@ slots however the queue fills them.
 
 ## 5. Pipeline phases — what to do for each book
 
-The phases mirror what `book_ingest/pipeline.py` does today. You are
-replacing the LLM bits; the file layout and the resilience contract
-stay identical.
+You walk these phases yourself, in order, for every book. There's no
+orchestrator module — the playbook *is* the orchestration. Per-item
+files on disk are the resilience contract: write atomically, skip
+items whose output already exists, recover by re-running.
 
 ### Phase 0 — Load (free)
 
 Input: a path to `.pdf`, `.html`, or `.htm`.
 
-- For PDF: extract text page by page (PyMuPDF via `pdf_loader.py` —
-  invoke the existing function, don't reinvent).
-- For HTML (Project Gutenberg): use `html_loader.py` — it pulls the
-  `<meta>` title/author/subjects and converts the body to clean
-  markdown.
+- For PDF: read the file with your Read tool — text-bearing PDFs
+  return extractable text directly. For scanned/image-only PDFs,
+  note that in the manifest and ask the operator before continuing
+  (OCR is out of scope for this slim project).
+- For HTML (Project Gutenberg): read the file, parse the `<meta>`
+  tags for `DC.title`, `DC.creator`, `DC.subject`, then strip
+  Gutenberg's header/footer boilerplate and convert the body to
+  markdown using your judgment (Gutenberg HTML is well-structured
+  — `<h1>`/`<h2>` for chapter divisions, `<p>` for prose).
 
 Output: a list of `Page{no, text, char_count}` written to
 `storage/books/<slug>/pages/<n>.json`. Each page atomically.
@@ -221,8 +229,10 @@ Output: a list of `Chunk{id, chapter_title, page_start, page_end, text}`.
 Chunk IDs are **deterministic** (hash of chapter title + page range) so
 re-runs don't orphan per-item files.
 
-Use the existing `chunker.py` — it already encodes the heuristics
-above.
+Implement these heuristics inline as you work — there's no chunker
+module to import in this project. The rules above are the complete
+spec; do them directly with your Read tool + Python via Bash if
+helpful, then write the resulting `Chunk[]` to disk as you go.
 
 ### Phase 2 — Clean (you, per chunk)
 
@@ -247,9 +257,8 @@ markdown that:
 - Drops front-matter (copyright, ISBN, TOC list, marketing) but keeps
   substantive prefaces, dedications, translator essays.
 
-**Read the existing `cleaner.py` system prompt** — its rules are
-authoritative. You are executing the same contract Claude Desktop, not
-a separate model.
+The rules above are the authoritative cleaner contract. There's no
+separate cleaner module — you execute it directly.
 
 **Where output lands:** `storage/books/<slug>/cleaned/<chunk_id>.md`,
 written atomically (tempfile + `os.replace`). Already-cleaned chunks
@@ -389,7 +398,7 @@ For each scene in `plan.json`, write
   "scene_id": "<hash>",
   "chunk_id": "<hash>",
   "scene_text": "...",
-  "prompt": "<the FINAL composed prompt — ready to call OpenAI with>",
+  "prompt": "<the FINAL composed prompt — ready to call Azure with>",
   "negative": "no text, no logos, no signature, no watermark",
   "size": "1024x1536",
   "characters_present": ["Alice", "Bhīma"],
@@ -449,12 +458,13 @@ For the **cover**, write `storage/books/<slug>/cover.json`:
 typography on the cover (see §12.1) — you don't render text inside
 the image itself.
 
-**`status: "pending"`** is the signal to `index.html` that the PNG
-hasn't been generated yet. Once the reader clicks "Generate image"
-and the backend produces the PNG, the backend flips status to
-`"ready"` and adds an `image_path` field.
+**`status: "pending"`** marks every prompt as waiting for pixels.
+Phase 10.5 will flip them to `"ready"` automatically as the
+generations land. The studio's manual "Generate image" button is
+the retry/catch-up path if any pending entry survives Phase 10.5.
 
-**No PNG is produced in this phase.** You write prompts only.
+**No PNG is produced in this phase.** You write prompts only — the
+actual Azure calls happen in Phase 10.5.
 
 ### Phase 8 — Poster metadata (you, text only)
 
@@ -501,7 +511,8 @@ file just starts existing.
 
 ### Phase 10 — Persist (you)
 
-Compose `storage/books/<slug>/manifest.json` with everything:
+Compose `storage/books/<slug>/manifest.json` with everything **except**
+`ready_for_runtime` for now:
 
 ```json
 {
@@ -518,22 +529,85 @@ Compose `storage/books/<slug>/manifest.json` with everything:
   "reader_preference": "...",
   "phases_done": ["load", "chunk", "clean", "scout", "map", "reduce",
                   "plan", "compose_prompts", "poster", "delta", "persist"],
-  "ready_for_runtime": true
+  "ready_for_runtime": false
 }
 ```
 
-`ready_for_runtime: true` is the signal that `index.html` can open
-this book and start offering image-generation buttons. The studio
-server uses this to filter which books appear in the library.
+`ready_for_runtime` stays **false** until Phase 10.5 finishes — the
+flag means "every PNG that ships with this book is on disk", and at
+this point only the prompts exist.
+
+### Phase 10.5 — Generate all images (server-side, automatic) ⭐ NEW
+
+This is the phase that flips the architecture from "click to
+generate per scene" to **"book ships ready"**. No human clicks
+needed.
+
+The studio MUST be running (start it with `./run.sh &` before this
+phase if it isn't). You call:
+
+```
+POST http://localhost:8765/api/books/<slug>/generate-all
+```
+
+What the server does:
+
+1. **Wave 1 — characters first** (concurrency 3). Generates every
+   pending character portrait. Sheets land in `characters/<name>.png`.
+   These are the visual anchors scenes + cover will reference.
+2. **Wave 2 — cover + every scene in parallel** (concurrency 5).
+   Each call automatically passes the relevant character sheet PNGs
+   as references to Azure's `/images/edits` endpoint, so Alice in
+   scene 7 is the same Alice as in scene 22.
+3. **Per-image rephrase retry** — the same 5-strategy ladder
+   (as-is → softened → drop-extras → drop-character-refs →
+   scene-only) applies to every generation. Content-policy hits
+   self-recover; only genuinely-impossible prompts fail.
+
+Returns a per-target results block:
+
+```json
+{
+  "slug": "blue-castle",
+  "status": "complete",            // or "partial" if any failed
+  "counts": {
+    "total_attempted": 39,
+    "succeeded": 39,
+    "failed": 0
+  },
+  "characters": [{"name_slug": "valancy", "status": "ready", "attempts": 1}, ...],
+  "scenes": [{"scene_id": "...", "status": "ready", "attempts": 2}, ...],
+  "cover": {"status": "ready", "attempts": 1}
+}
+```
+
+**Wait for this call to complete.** A 40-image book typically takes
+60–180s end-to-end. The HTTP timeout should be generous (5 min
+minimum). Long but bounded.
+
+If `status == "complete"`: move to Phase 11.
+
+If `status == "partial"`: inspect the `failed` entries. The
+common cause is a prompt that all 5 rephrase strategies couldn't
+softening into Azure's safety bar. Options:
+- Rewrite the offending prompt JSON on disk (Claude's job — adjust
+  the scene description) and retry just that one via the per-image
+  endpoint
+- Drop the scene from the book (delete its prompt JSON; the Delta's
+  inline reference 404s gracefully and the reader sees a clean gap)
+- Skip and continue; the book ships with N-1 images
+
+Once all PNGs are on disk, **flip `ready_for_runtime = true` in the
+manifest** and re-write it. This is the official "ready to ship"
+moment.
 
 ### Phase 11 — Bundle (you, optional)
 
 Zip everything under `storage/books/<slug>/` into `bundle.zip` —
 manifest, cleaned md, briefs, deeps, deltas, scene/character/cover
-prompt JSONs. **No PNGs yet** — they don't exist at prep time. A
-later `restore_bundle.py` can replay your text artifacts onto a
-fresh disk; the reader then re-triggers image generation on the
-restored host.
+prompt JSONs, **plus every PNG generated in Phase 10.5**. A later
+`restore_bundle.py` can replay the entire book onto a fresh disk
+with zero Azure cost.
 
 Insurance, not load-bearing.
 
@@ -559,7 +633,7 @@ FastAPI server (`studio/server.py`, slimmed) doing four things:
    - Read `images/<scene_id>.json` (your prepared prompt).
    - Read any `character_sheet_refs` PNGs (generate those first if
      they're also `pending`).
-   - Call OpenAI's image endpoint with `prompt` + `negative` +
+   - Call Azure's image endpoint with `prompt` + `negative` +
      `size`, passing character sheet PNGs as reference images when
      present.
    - On success: write `images/<scene_id>.png`, flip
@@ -578,7 +652,7 @@ Claude Desktop, once, before the reader ever opened the app.
 
 ### The rephrase-and-retry loop
 
-When OpenAI rejects or fails on a prompt, the backend doesn't give
+When Azure rejects or fails on a prompt, the backend doesn't give
 up — it rewrites the prompt and tries again. **The rephrase is
 deterministic** (no LLM call); the backend strips down the prompt
 each retry until it lands:
@@ -597,11 +671,11 @@ into `images/<scene_id>.json` under `attempts: [...]`, so the user
 (and you, on the next book) can see what went wrong without
 re-running.
 
-Use the existing `image_softener.py` rules as the basis for attempt
-2's deterministic rewrites. If a book consistently fails on a
-specific character, that's a signal to you — go back and rewrite
-the character's `appearance` in the bible so it doesn't trip the
-filter.
+Attempt 2's softening is driven by `book_ingest/image_softener.py` —
+deterministic regex swaps for known trigger words. If a book
+consistently fails on a specific character, that's a signal to you —
+go back and rewrite the character's `appearance` in the bible so it
+doesn't trip the filter the next time around.
 
 ### Why deterministic retry (not LLM rephrase)
 
@@ -638,37 +712,54 @@ author. Both steps are backend code.
 
 ## 6. Output structure on disk
 
-Everything lives under `backend/test_model/storage/books/<slug>/`.
-After prep finishes (before any reader opens the book):
+Everything lives under `storage/books/<slug>/` (relative to the
+project root, `/Users/vijayshankar/dispose`). The shape **must
+match production format A exactly** — the same layout that
+`/Users/vijayshankar/Desktop/write/backend/test_model/storage/books/`
+ships and that the production VM's `sync_to_db.py` reads without
+translation. After prep finishes (before any reader opens the
+book):
 
 ```
-manifest.json                      # title, author, slug, scout, poster, phases_done, ready_for_runtime: true
-pages/0001.json                    # raw extracted text, per page (kept for audit)
-cleaned/<chunk_id>.md              # your cleaned markdown
-briefs/<chunk_id>.json             # one ChunkBrief per chunk
-deeps/<chunk_id>.json              # one ChunkDeep per top-importance chunk
-chunks/<chunk_id>.json             # composite {chunk, brief, deep?, scene_ids[]}
-sections/<chunk_id>.delta.json     # FINAL Quill Delta — what index.html renders
-plan.json                          # picked scenes, scored
-highlights.json                    # flat list of all highlight spans
-poster.json                        # back-cover copy, genres, tags
-cover.json                         # cover prompt + title_overlay (status: pending)
-images/<scene_id>.json             # FINAL scene prompt + characters_present + status: pending
-characters/<name_slug>.json        # {name, appearance, bio, prompt, status: pending}
-bundle.zip                         # ready-made archive (text only — no PNGs yet)
+storage/books/<slug>/
+├── manifest.json                       # title/author/slug/scout/poster/style/phases_done/ready_for_runtime
+├── plan.json                           # FLAT JSON ARRAY of scene entries (not a dict)
+├── cover.json                          # cover prompt + title_overlay {title, subtitle, author}
+├── poster.json                         # back-cover copy, genres, tags
+├── scout.json                          # BookProposal + character_bible
+├── chunks_index.json                   # ordered chunk index (studio convenience)
+├── chunks/<id>.json                    # WRAPPER: {"chunk":{id,...}, "brief":{...}, "deep":{...}, "scene_ids":[]}
+├── cleaned/<id>.md                     # cleaned markdown per chunk
+├── pages/<n>.json                      # raw extracted pages
+├── sections/<id>.delta.json            # Quill Delta per chunk (studio preview)
+├── highlights.json                     # flat list of highlight spans
+└── images/
+    ├── <scene_id>.json                 # scene prompt
+    └── _characters/
+        └── <name_slug>.json            # character prompt
 ```
 
-After readers start clicking "Generate image" at runtime, the
-backend adds PNGs alongside the JSONs:
+Mandatory format rules — these are what production reads, do not deviate:
+
+- **`chunks/<id>.json` is wrapped**: top keys are `chunk`, `brief`, `deep`, `scene_ids`. `chunk` has `id` (not `chunk_id`), `chapter_title`, `page_start`, `page_end`, `text`. Never write the flat shape.
+- **`plan.json` is a JSON array** of scene entries: `{scene_id, chunk_id, chapter_title, score, scene_text, mood?, composition?, time_of_day?, setting?, palette_hint?, characters_present[]}`. Not `{scenes: [...]}`. The field is **`chapter_title`**, never `chunk_title`.
+- **Character slug**: `re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')`. **No NFKD decomposition.** "Geneviève" → `genevi-ve`, not `genevieve`. This is what `sync_to_db._safe_char_slug` does; matching it is what makes the production publisher find the portrait.
+- **Character JSON lives at `images/_characters/<slug>.json`**, *not* at `characters/<slug>.json`. The top-level `characters/` directory does not exist.
+- **`character_sheet_refs` in scene JSONs** must point to `"images/_characters/<slug>.json"`.
+
+After Sync-to-VM (or any per-image click), PNGs land next to their JSONs:
 
 ```
-images/<scene_id>.png              # appears after first successful click
-images/<scene_id>.json             # status flips: pending → ready, image_path + generated_at added,
-                                   # attempts: [...] log for failures
-characters/<name_slug>.png         # appears after first click on cast strip OR
-                                   # implicitly when a scene needs it as a reference
-cover.png                          # appears after cover-click + typography overlay step
+images/cover.png                        # title typography ALREADY BURNED IN by the studio
+images/<scene_id>.png                   # generated scene
+images/_characters/<name_slug>.png      # generated portrait
 ```
+
+The studio's cover-generate endpoint always composites
+`cover.json:title_overlay` onto the raw model output before saving
+to `images/cover.png`. The negative prompt to the model still says
+`no text` — typography is your job (well, the server's), not the
+model's.
 
 **Atomic writes:** every per-item file is written via tempfile +
 `os.replace`. Power cut → either old file or new file, never half.
@@ -689,7 +780,7 @@ pipeline:
 - `manifest.phases_done` records coarse phase completion, but the
   per-item files are the source of truth.
 
-When you hit a transient OpenAI error (429, 5xx, timeout): retry with
+When you hit a transient Azure error (429, 5xx, timeout): retry with
 exponential backoff (use `retry.py:with_retries`). Permanent errors
 (4xx other than 429): record the failure, move on.
 
@@ -721,7 +812,7 @@ They tell you the folder path. You:
    Notice: no `images: 18` count. There are no PNGs yet — that count
    only grows at runtime as readers click "Generate image". The
    counts above are how many *prompts* are sitting on disk ready to
-   call OpenAI with.
+   call Azure with.
 
 Re-running on the same folder is **idempotent** — books already
 prepped are skipped unless you force a re-prep. Books partially
@@ -764,9 +855,12 @@ an OCR dump:
 
 ## 10. Schemas — verbatim reference
 
-For exact field names and defaults, **always** consult
-`book_ingest/schemas.py` and `book_ingest/scout.py` rather than relying
-on this document. If schemas drift, schemas win — update this doc.
+For exact field names and defaults of the **runtime-facing** shapes
+(scene prompt, character prompt, cover prompt, poster), see
+`book_ingest/schemas.py`. The other shapes (`Chunk`, `ChunkBrief`,
+`ChunkDeep`, `BookProposal`) are documented in this playbook — they
+never reach the server, so there's no Python model for them in this
+slim project.
 
 The shapes you emit, by phase:
 
@@ -804,7 +898,7 @@ The shapes you emit, by phase:
   raw text and log.
 - Don't invent chapters the source doesn't have.
 - Don't bypass the 10-in-flight limit even when one book is small.
-- Don't use OpenAI for any text task. It's pixels only — and only when
+- Don't use Azure image API for any text task. It's pixels only — and only when
   a reader clicks.
 - **Don't generate images during prep.** No batch run, no prefetch.
   Pixels happen only after a reader click. You write prompts, not
@@ -833,152 +927,651 @@ The shapes you emit, by phase:
 Things that look wrong in the product today but are not yet fixed in
 the pipeline. Capture more here as we notice them.
 
-### 12.1 Covers have no title typography on them (Netflix-style)
+### 12.1 Covers have title typography baked in (resolved)
 
-**What's odd:** the generated covers are gorgeous painterly scenes —
-characters, setting, mood, palette all locked in — but they have **no
-book title rendered on the artwork itself**. The title appears only as
-a text label *below* the card (see the "Continue reading" row:
-*To Kill a Mockingbird*, *Pride and Prejudice*, *The Great Gatsby*,
-*The Strange Case of Dr. Jekyll and Mr. Hyde* are all bare scene
-paintings with their titles set in the app's UI label, not in the
-artwork).
+The studio's `POST /api/books/<slug>/cover/generate` endpoint
+always composites `cover.json:title_overlay` onto the raw model
+output before saving to `images/cover.png`. Warm-ivory glyphs with
+a near-black drop shadow, Georgia serif, title centered near the
+top (wraps to two lines for long titles), author centered at the
+bottom margin. The model is still told `no text, no logos, no
+signature, no watermark` in the negative prompt — typography is
+the studio's job, not the model's.
 
-Netflix posters, by contrast, almost always bake the title into the
-artwork — custom typography integrated into the composition, sized
-for thumbnail recognition. That's why a Netflix thumbnail reads
-instantly even when the row is scrolling fast. Our cards make the
-reader's eye jump from artwork → label → back to artwork.
+What you need to do:
 
-**Why it happens today:** every image prompt — cover included —
-appends the negative tokens `no text, no logos, no signature, no
-watermark`. That's correct for *interior scene illustrations* (where
-hallucinated lorem-ipsum on the page would ruin the reading
-experience), but wrong for the **cover**, where typography is the
-whole point.
+- When you write `cover.json`, **always** populate
+  `title_overlay: {title, subtitle, author}`. Pull `title` and
+  `author` from `manifest.title` / `manifest.author`; `subtitle`
+  is optional (use it for editions that have one, e.g.
+  "Frankenstein; or, the Modern Prometheus" can put the alt
+  title here).
+- Do **not** bake the title into the cover prompt itself — that
+  would tell the model to render text, which it does poorly.
+  Leave the negative tokens in place.
 
-**Two ways to fix it — pick one:**
-
-1. **Composite the title in post.** Image model produces the painting
-   (still with negative-text tokens); a separate typography pass
-   overlays the title using Pillow or SVG. Pros: deterministic font
-   choice, free variants (different sizes, different positions,
-   different language editions), no spelling errors. Cons: the title
-   sits *on top of* the artwork rather than being interlocked with
-   it the way a real Netflix poster is designed.
-
-2. **Let the image model render the title.** For the cover prompt
-   only, drop the `no text` token and explicitly instruct: "title
-   '<TITLE>' in <font genre> serif, integrated into the composition.
-   Author byline '<AUTHOR>' set smaller below." Pros: organic, looks
-   designed. Cons: image models still misspell titles regularly;
-   you'd need a verify-and-retry loop, and the model — not you —
-   picks the font.
-
-**Recommendation:** start with option 1 because it ships this week
-and the typography is fully deterministic. Add option 2 as an
-optional "stylised" variant later for books where the genre supports
-hand-lettered titles (gothic, fantasy, vintage).
-
-**Where it would live in the pipeline:** a new sub-phase between
-Phase 10 (Poster) and the sync step. The poster phase has already
-chosen `cover_scene` and the base palette; the new "cover
-typography" pass reads `manifest.title` + `manifest.subtitle` +
-`manifest.author` + `scout.suggested_style` and either composites or
-re-prompts.
-
-**Also fix the byline.** The same Netflix gap applies to the author
-name — a small "HARPER LEE" / "JANE AUSTEN" set under the title
-would complete the poster look. That comes for free with option 1.
+Implementation lives in `studio/server.py:_composite_title_overlay`.
+Fonts walk a Mac-typical list (Georgia → Times → Helvetica → PIL
+default).
 
 ---
 
-## 13. Backend code — what stays, what goes
+## 13. What's in this project, what's not
 
-Now that Claude Desktop owns the entire ingest pipeline, the backend
-shrinks. Here's the proposed cut. **Confirm before deleting** — none
-of this is destroyed without explicit approval.
+This is a slim, clean project. There is no legacy ingest code here.
 
-### Keep (image-gen runtime + studio + minimal helpers)
-
-| File | Why |
-|---|---|
-| `studio/server.py` | The runtime. Trim it to: serve static, serve artifacts, generate image, sync to DB. |
-| `studio/static/index.html` | The reader UI. Add "Generate image" buttons on 404 placeholders. |
-| `book_ingest/image_gen.py` | The OpenAI call. Backend's one real job. |
-| `book_ingest/image_softener.py` | Deterministic prompt rewrites for the retry loop. |
-| `book_ingest/retry.py` | Exponential backoff for transient OpenAI errors. |
-| `book_ingest/persist.py` | Read-only helpers — load JSON, read paths, atomic writes for the new PNGs. |
-| `book_ingest/schemas.py` | So the server can deserialize what Claude wrote. |
-| `book_ingest/config.py` | Image API keys + endpoints. Other env vars can be trimmed. |
-| `book_ingest/delta.py` | Only if the server still needs to re-render deltas; if Claude writes finished deltas, this can also go. Recheck. |
-| `book_ingest/db_publish.py` | Sync-to-DB still runs server-side. |
-| `sync_to_db.py` | The DB+MinIO upload entrypoint, called from `index.html`. |
-| `restore_bundle.py` | Insurance — replay an old book's text artifacts. |
-| `book_ingest/bundler.py` | Companion to `restore_bundle.py`. |
-
-### Delete (Claude does this now)
-
-| File | Replaced by |
-|---|---|
-| `book_ingest/pipeline.py` | The phases in this playbook |
-| `book_ingest/cleaner.py` + agent prompt | Phase 2 of this playbook |
-| `book_ingest/chunker.py` | Phase 1 (you do the heuristics) |
-| `book_ingest/map_agent.py` + `agents.py` | Phase 4 |
-| `book_ingest/reduce_agent.py` | Phase 5 |
-| `book_ingest/scout.py` | Phase 3 |
-| `book_ingest/character_sheets.py` | Phase 7 (you write the prompts; backend generates on click) |
-| `book_ingest/poster.py` | Phase 8 (you write the copy directly) |
-| `book_ingest/embeddings.py` | Removed entirely — no scene-search UX in scope |
-| `book_ingest/image_planner.py` | Phase 6 (you sort + take top-K) |
-| `book_ingest/title_cleaner.py` | You clean the title yourself |
-| `book_ingest/boilerplate.py` | Phase 2 rules cover boilerplate |
-| `book_ingest/known_authors.py` | You resolve authors yourself |
-| `book_ingest/html_loader.py` | Phase 0 — you read HTML directly |
-| `book_ingest/pdf_loader.py` | Phase 0 — you read PDF via PyMuPDF directly when needed |
-| `book_ingest/md_to_delta.py` | Phase 9 — you build deltas directly |
-| `book_ingest/app_taxonomy.py` | Phase 8 — you pick genres + tags directly |
-| `book_ingest/map_agent.py` | Phase 4 |
-| `ingest_book.py` | Claude Desktop is the entrypoint |
-| `batch_ingest.py` | Same |
-| `regenerate_image.py` | Replaced by the "Generate image" button + rephrase loop |
-| `repair_books.py` | One-off scripts — keep only if you still need them, otherwise drop |
-| `preview_html.py` | Dev-only |
-| `package_book.sh` | Replaced by `bundler.py` |
-| `smoke_test.sh` | Pipeline that no longer exists |
-| `plan.md` | This playbook supersedes it; keep as historical reference or drop |
-
-### After the cut, the backend tree looks like
+### Files you can rely on
 
 ```
-backend/test_model/
-  studio/
-    server.py            # slim FastAPI: serve artifacts + generate image
-    static/index.html    # reader UI with "Generate image" buttons
-  book_ingest/
-    image_gen.py         # OpenAI call
-    image_softener.py    # deterministic prompt rewrites for retry
-    retry.py             # exponential backoff
-    persist.py           # read artifacts, atomic write PNGs
-    schemas.py           # pydantic types for the JSONs Claude writes
-    config.py            # image API keys
-    db_publish.py        # used by sync
-    bundler.py           # zip artifacts
-  sync_to_db.py          # button-triggered DB+MinIO upload
-  restore_bundle.py      # insurance replay
-  storage/books/<slug>/  # everything Claude wrote
-  convert_book_to_inkspace_reader_book.md  # this playbook
+/Users/vijayshankar/dispose/
+├── convert_book_to_inkspace_reader_book.md   # this playbook
+├── README.md                                 # human + Claude orientation
+├── run.sh                                    # ./run.sh starts the studio
+├── deploy.sh                                 # CLI alternative to the Sync-to-VM button
+├── requirements.txt                          # 7 deps
+├── .env                                      # Azure + SSH creds (pre-populated, gitignored)
+├── data/                                     # operator drops raw books here
+├── storage/books/<slug>/                     # you write artifacts here (see §6 for layout)
+├── studio/
+│   ├── server.py                             # FastAPI runtime — image gen + cover overlay + deploy
+│   └── static/index.html                     # studio UI w/ one-click Sync-to-VM
+└── book_ingest/
+    ├── config.py                             # env-driven config
+    ├── schemas.py                            # pydantic types (mirrors production sync_to_db)
+    ├── persist.py                            # atomic read/write helpers
+    ├── retry.py                              # exponential backoff
+    ├── image_softener.py                     # deterministic prompt-softening rules
+    ├── image_gen.py                          # Azure gpt-image-2 wrapper (httpx)
+    ├── deploy.py                             # normalize → tar → SFTP → container-exec
+    ├── inventory.py                          # dedupe + tracking
+    ├── triage.py                             # fast metadata + promise score
+    ├── load_clean.py                         # HTML → chunks + cleaned markdown
+    ├── finalize.py                           # Quill Deltas + scene/character/cover prompts
+    └── import_main.py                        # one-time copy from legacy main project
 ```
 
-That's ~10 Python files instead of ~25. The diff is mostly
-**deletion**, no rewrites — the existing image-gen and studio
-endpoints already do the right thing, they just become the *only*
-thing.
+No `cover_overlay.py` or `generate_all.py` — the cover overlay is
+inline in `studio/server.py:_composite_title_overlay`, and bulk
+image generation is the studio's job queue, kicked off by the
+**Sync to VM** button.
+
+### What you (Claude) do directly, no module to import
+
+- PDF text extraction (use the Read tool on `.pdf` files; for
+  scanned ones, drop a note in the manifest and skip).
+- HTML parsing (use the Read tool on `.html` files; parse meta tags
+  yourself).
+- All the phases described in §5 — cleaning, chunking, scout, map,
+  reduce, image-prompt composition, Delta assembly, poster.
+- Quill Delta building (§5 Phase 9 — direct dict construction).
+- Writing every artifact in the exact §6 format. Character slugs
+  use the no-NFKD regex (`re.sub(r'[^a-z0-9]+','-', name.lower())`).
+  Brief and deep data go *inside* `chunks/<id>.json` under their
+  respective keys — there are no sibling `briefs/` or `deeps/`
+  directories.
+
+### What the server does for you
+
+- Serves the JSONs you write at `/api/books/<slug>/...`.
+- On `POST /api/books/<slug>/images/<scene_id>/generate`, runs the
+  5-strategy rephrase-retry loop and writes the PNG to
+  `images/<scene_id>.png`.
+- On `POST /api/books/<slug>/characters/<name_slug>/generate`,
+  same for portraits, written to `images/_characters/<name_slug>.png`.
+- On `POST /api/books/<slug>/cover/generate`, generates the cover
+  AND composites `title_overlay` typography onto it before saving
+  to `images/cover.png`.
+- On `POST /api/books/<slug>/deploy` (or click **Sync to VM**),
+  runs `normalize_to_format_a` → tar → SFTP → `docker exec` into
+  the fastapi container on the VM → `python sync_to_db.py <slug>`.
+  The book is live in the Flutter app within seconds.
+
+You don't call Azure yourself for images. You write the prompt; the
+server calls it when the operator clicks (or when **Sync to VM**
+pre-generates the missing ones in one shot).
 
 ---
 
-## 14. The one-line summary
+## 14. The Flutter contract — what your output must satisfy
+
+The studio at `/Users/vijayshankar/dispose` is **not** the final
+consumer of your work. The final consumer is the **Inkspace Flutter
+app**, which lives in the main repo at `/Users/vijayshankar/Desktop/write/`
+(it's the same repo as the production backend — `lib/` is Flutter,
+`backend/` is FastAPI, `ios/` `android/` `web/` `macos/` are
+platform targets).
+
+Flutter does **not** read your on-disk artifacts. It reads via the
+production FastAPI at `https://inkspacex.com/api/...`, which reads
+Postgres + MinIO. Your job — and what `deploy` does — is to get
+your artifacts into Postgres + MinIO in the exact shape the Flutter
+app expects.
+
+### The data path, in full
+
+```
+You (Claude Code)                       Studio (this server)               Azure VM (production)              Flutter app
+─────────────────                       ───────────────────                ─────────────────────              ────────────
+write artifacts to                      serves them at                     storage/books/<slug>/              GET /api/feed/home
+storage/books/<slug>/   ─SFTP─▶         localhost:8765/    ─deploy─▶       sync_to_db.py reads,    ─FastAPI─▶ GET /api/feed/{id}
+                                                                            uploads images via                 GET /api/feed/{id}/characters
+                                                                            app.image_pipeline,                GET /api/feed/{id}/sections/by-id/...
+                                                                            inserts Writing+Section+
+                                                                            BookCharacter+FeedItem
+```
+
+### What lands in Postgres after deploy (the four tables Flutter touches)
+
+**`writings`** — one row per book. Key columns Flutter reads via the
+FeedItem projection:
+- `id` (uuid), `user_id` (the canonical `inkspace@inkspacex.com` user)
+- `title`, `author` (real byline like "Harper Lee")
+- `description` (the back-cover copy from your `poster.json`)
+- `cover_image_path` (text — a MinIO public URL pointing at the
+  cover's `medium.webp` variant)
+- `cover_image_meta` (jsonb — see image_meta shape below)
+- `status` (int — `published = 1`), `writing_type` (int — `book = 0`)
+- `section_ids` (text[] — ordered list of Section UUIDs)
+
+**`sections`** — one row per chapter. The reader page loads these.
+- `id` (uuid), `writing_id` (uuid FK)
+- `title` — the chapter title
+- `content` (**jsonb** — the Quill Delta as a JSON array of ops, NOT a
+  stringified version)
+- `is_published = true`, `sort_order` (int)
+- `kind` (e.g. `"chapter"`)
+
+**`book_characters`** — the cast strip rows. One per character bible
+entry.
+- `id` (uuid), `writing_id` (uuid FK), `name`
+- `appearance` (the image-gen prompt — vivid one-liner)
+- `bio` (the reader-facing 2–3 sentence card text)
+- `image_url` (MinIO public URL to the portrait's `medium.webp`)
+- `image_meta` (jsonb — same shape as cover)
+- `sort_order` (int — preserve scout bible order)
+
+**`feed_items`** — the homepage card projection. One row per
+published book. `upsert_feed_item_for_writing` builds this from
+`writings`+`book_characters`+aggregated section content.
+- `writing_id` (uuid, unique)
+- `title`, `author`, `description`, `image_url`, `image_meta`
+- `genres: list[str]`, `writing_types: list[str]`, `tags: list[str]`
+- `is_draft = false`, `visibility = "public"`
+- `created_at`, `updated_at`
+
+### The Quill Delta shape — what `Section.content` must look like
+
+The Flutter reader runs `quill.Document.fromJson(jsonDecode(contentJson))`
+on `content`. Required shape:
+
+```json
+[
+  {"insert": "An italic editorial summary…", "attributes": {"italic": true}},
+  {"insert": "\n"},
+  {"insert": "\n"},
+  {"insert": {"image": "https://cdn.inkspacex.com/inkspace/books/<slug>/<scene>/medium.webp"}},
+  {"insert": "\n"},
+  {"insert": "small italic caption", "attributes": {"italic": true, "size": "small"}},
+  {"insert": "\n"},
+  {"insert": "Chapter Title", "attributes": {"header": 2}},
+  {"insert": "\n"},
+  {"insert": "Clean flowing paragraph of prose. "},
+  {"insert": "pivotal sentence", "attributes": {"background": "#FFEB3B"}},
+  {"insert": " catches the eye.\n"},
+  {"insert": "Verse line one", "attributes": {"blockquote": true}},
+  {"insert": "\n"},
+  {"insert": "\n"}
+]
+```
+
+Hard rules:
+- It's an **array of ops**, written to Postgres as `JSONB` (not stringified).
+- Every block-attr op (header, blockquote) carries its newline. `\n`
+  closes a block.
+- Inline image inserts are `{"insert": {"image": "<url>"}}`.
+- Image URLs are **full MinIO public URLs**, not relative paths — and
+  they point at the `medium.webp` variant (size 800px max edge).
+- The document **MUST** terminate with `{"insert": "\n"}`.
+
+### image_meta — the variant shape Flutter expects for cover + characters
+
+Every "important" image (book cover, every character portrait) needs
+this JSONB sidecar so `AppNetworkImage` can render a blurhash
+placeholder + dominant-color background while the variant decodes:
+
+```json
+{
+  "base_url": "https://cdn.inkspacex.com/inkspace/books/<slug>/cover/<version>",
+  "width": 1024, "height": 1536,
+  "blurhash": "L9AB$jof00WB~qof?bj[",
+  "color": "#a37c4f",
+  "variants": {
+    "thumb":  {"w": 160, "h": 240},
+    "small":  {"w": 400, "h": 600},
+    "medium": {"w": 800, "h": 1200},
+    "large":  {"w": 1600, "h": 2400}
+  },
+  "formats": ["webp"]
+}
+```
+
+Flutter loads `<base_url>/<variant_key>.<fmt>` (e.g.
+`<base_url>/medium.webp`).
+
+**You don't compute this yourself.** The `sync_to_db.py` step on the
+VM passes each PNG through `app.image_pipeline.process_image()` which
+produces the blurhash + dominant color + WebP variants, and through
+`app.storage.upload_variants()` which puts them in MinIO at the right
+path. All you do is write the PNGs to disk; the pipeline takes care
+of the rest at deploy time.
+
+### Inline scene images in deltas
+
+For images embedded inline (the scene illustrations woven into chapter
+prose), Flutter only needs the URL — no image_meta in the JSON. The
+delta op `{"insert": {"image": "<url>"}}` is enough. But the URL
+**must** point at the MinIO public URL produced by the production
+publisher, NOT at your local `/api/books/<slug>/images/<id>/png`.
+
+How to make this work without coding the URL twice:
+- In your Phase 9 (Build Quill Deltas), write the image URL as the
+  **local studio path** `/api/books/<slug>/images/<scene_id>/png`.
+- The production `sync_to_db.py` already rewrites these to MinIO public
+  URLs at sync time via the `image_url_for` callback. So your local
+  delta and the deployed delta share the same shape; only the URL
+  differs.
+
+### Reading time + section count
+
+The Flutter detail page shows: `"31 sections · 7 hr 38 min · May 12 · historical-fiction"`.
+
+- Section count = `len(sections)` — the rows you write.
+- Reading time = computed **on the VM** by `compute_reading_minutes`
+  which sums `LENGTH(elem->>'insert')` across every section's Quill
+  delta and divides by 1200 chars/min. **You don't write this.**
+- Date = `feed_items.updated_at`.
+- Genre = `feed_items.genres[0]`.
+
+If you want a specific reading-time appearance, the only lever is
+**how much prose ends up in `Section.content`**. That's a function of
+your cleaning fidelity — preserve every author word, ±10% length,
+and the reading-time computes itself.
+
+### Auth on the production side
+
+Every Flutter HTTP call sets `Authorization: Bearer <jwt>`. The
+backend's FastAPI endpoints require this. Your studio deploy step
+does NOT need to handle auth — `sync_to_db.py` runs server-side as
+a script with direct DB access. The book ships under the canonical
+`inkspace@inkspacex.com` publisher account.
+
+### Endpoints Flutter actually hits (for reference)
+
+| Method | Path | Reads what |
+|---|---|---|
+| GET | `/api/feed/home` | list of `FeedItemResponse` (cards) |
+| GET | `/api/feed/{id}` | one detail with section stubs (lazy bodies) + reading_minutes |
+| GET | `/api/feed/{id}/sections/by-id/{section_id}` | full Quill Delta for one chapter |
+| GET | `/api/feed/{id}/characters` | cast strip — list of `BookCharacterRead` |
+
+Your responsibility ends at: producing the artifacts on disk such
+that when `sync_to_db.py <slug>` runs on the VM, every one of these
+four endpoints returns sensible data.
+
+### The deploy command, in full
+
+```
+POST /api/books/<slug>/deploy   body: {"run_sync": true, "force": false}
+```
+
+What that does on the VM:
+
+```
+sftp put storage/books/<slug>/ → /home/azureuser/inkspace/storage/books/<slug>/
+ssh azureuser@20.219.16.30 'cd /home/azureuser/inkspace/backend/test_model && \
+    .venv/bin/python sync_to_db.py <slug>'
+```
+
+`sync_to_db.py` reads the manifest, chunks, briefs, deeps, images, and
+the scout's character bible; uploads images through image_pipeline;
+writes Postgres rows; calls `upsert_feed_item_for_writing`. The book
+is live in the Flutter feed within seconds of the script returning.
+
+**Required artifacts for `sync_to_db.py` to succeed** (i.e. what your
+Phases 0–11 MUST produce on disk):
+
+- `manifest.json` with `title`, `author`, `description`, `slug`, `poster`,
+  `scout` (with `character_bible`), `cover_image_local` pointing at
+  the cover PNG
+- `chunks/<chunk_id>.json` — composite per-chunk records with brief +
+  deep + scene_ids
+- `briefs/<chunk_id>.json` and `deeps/<chunk_id>.json` (legacy format,
+  still consumed by sync to rebuild the Delta if `sections/*.delta.json`
+  is missing)
+- `cleaned/<chunk_id>.md` (cleaned markdown per chunk)
+- `images/<scene_id>.png` (the PNG itself, present means generated)
+- `images/<scene_id>.json` (the prompt + scene_text + score)
+- `images/cover.png` (the cover PNG)
+- character portraits at `images/character_<name>.png` (legacy path)
+  or `characters/<name>.png` (new path)
+
+The new-format artifacts (`sections/<id>.delta.json`, `cover.json`,
+`poster.json`, `characters/<name>.json`) are **additional** — they
+power the studio's local UI but are not yet consumed by `sync_to_db.py`.
+Producing both flavours costs you nothing extra (they share the same
+inputs), and lets the deploy step work today without modifying the
+production publisher.
+
+---
+
+## 15. Working at scale — when the user dumps 10,000 files
+
+When the operator drops a folder with thousands of raw books and asks
+"pick the best" or "what should I push to the platform," you do NOT
+run the full pipeline on all of them — that's cost-prohibitive and
+unnecessary. The flow is **triage → curate → convert → deploy**, with
+the inventory at `storage/inventory.json` enforcing idempotency at
+every step.
+
+### Step 1 — Triage scan (free, ~38 files/sec)
+
+Trigger the triage scan over the source folder:
+
+```
+POST /api/triage/scan  body: {"folder": "data"}   (or absolute path)
+```
+
+Or call `book_ingest.triage.scan_folder()` directly. This is a thread-
+pool sweep that for every file extracts:
+
+- title, author, language, Gutenberg `dc.subject` tags (HTML)
+- title, author from PDF info, page count, scanned-PDF detection (PDF)
+- word count estimate
+- a heuristic **promise score** (0–1) — combines length, metadata
+  richness, Gutenberg popularity (low IDs = heavily downloaded), and
+  genre keyword hits
+- a deterministic `source_hash` (sha256) so dropping the same file
+  twice resolves to the same inventory entry
+
+**No LLM call. No image gen. No expensive work.** 10,000 files = ~5
+minutes.
+
+Results land in `inventory.json` under each entry's `triage` block.
+
+### Step 2 — Curate (you, with judgment)
+
+When the operator says "pick the best N", call:
+
+```
+GET /api/triage/picks?target=30&buffer=5
+```
+
+This selector encodes the operator's quality bar:
+
+1. **Excludes everything already in the Flutter app.** Books with
+   inventory status `imported` / `ready` / `deployed` are filtered out
+   — those are either already in production (imported from the main
+   project) or already shipped from dispose. The user never sees
+   "convert Frankenstein" recommended when Frankenstein is already
+   on the home feed.
+2. **Famous-only floor.** A "famous" book is one whose triage score
+   is ≥ `0.80` (Gutenberg top-2000 + genre lift + novel-length all
+   stack to push recognised classics above this; obscure local-history
+   pamphlets sit well below). All famous candidates up to `target`
+   are returned.
+3. **Buffer of MAX 5** lesser-known books, used only to top up if
+   there aren't enough famous candidates to hit `target`. Never pad
+   more than 5 below the floor — better to return fewer picks than
+   to ship obscure books just to hit a round number.
+
+The response includes the breakdown:
+
+```json
+{
+  "target": 30, "buffer": 5, "famous_floor": 0.8,
+  "famous_available": 27, "famous_picked": 27,
+  "buffer_picked": 3, "total_picked": 30,
+  "lowest_score_in_picks": 0.71,
+  "below_floor_count": 18,
+  "picks": [<inventory entry>, ...]
+}
+```
+
+If `famous_picked` is well below `target`, **say so to the operator**:
+the batch genuinely doesn't have 30 famous books and shipping 30 would
+mean shipping obscurity. Better to recommend 27 (or whatever
+`famous_picked + min(buffer, gap)` is).
+
+After getting the picks, this is where **your literary judgment** comes
+in. Walk the list and:
+
+- Read HEAD samples (~2K chars) of the top picks using your Read tool
+  — the only LLM-side cost in curate.
+- Group by theme / era / genre if you spot a coherent collection
+  ("8 Gothic novels → bundle as a Gothic Collection," "5 Russian
+  classics → underrepresented on the platform").
+- Flag bad fits to drop entirely: scanned PDFs, multi-column academic
+  books, very short or very long files, books in languages the platform
+  doesn't yet support.
+
+Surface a "trend" recommendation back to the operator: which genres
+dominate this batch, what's missing vs. what's already on the platform
+(use `GET /api/inventory` to see what's already done).
+
+### Note on "already in the app"
+
+The inventory only knows about books that flowed through dispose
+(imported from main, or freshly converted here). If books were
+published directly through the main project AFTER day-one import,
+they won't be in our inventory until you refresh:
+
+```
+POST /api/import-from-main
+```
+
+Run this before triage if the operator says "there's stuff in
+production you haven't seen yet". The import is idempotent — it
+won't re-copy what's already present, just adds new entries.
+
+### Step 2.5 — Web-verify demand + copyright (use WebSearch / WebFetch)
+
+The triage score is a heuristic — Gutenberg low-ID + length + genre
+keyword. It tells you which books *probably* matter, not which books
+*actually* trend right now or are *actually* safe to redistribute. Use
+your **WebSearch** and **WebFetch** tools to ground those guesses
+before recommending the final set.
+
+For each book in `picks` (top 20–30 is plenty — don't bother for the
+buffer tier), do a light-weight verification pass:
+
+#### 1. Real demand signal — is this still being read?
+
+Three quick checks per book, in priority order:
+
+- **Project Gutenberg "Top 100 last 30 days"** — the most current
+  signal for free PD books.
+  - `WebFetch("https://www.gutenberg.org/browse/scores/top", "Find the 'Top 100 EBooks last 30 days' list and report the position of the book if present")`
+  - A book in the live top-100 is genuinely in demand right now.
+- **Wikipedia presence + page-view recency.**
+  - `WebSearch("<title> <author> wikipedia")` — confirm a Wikipedia
+    article exists; if it does, the book has cultural weight.
+  - Optional: pull the page's view count via the Wikipedia REST API
+    (`https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/...`)
+    if you want a numeric signal.
+- **Goodreads ratings count.**
+  - `WebSearch("<title> <author> goodreads")` — look at the result
+    snippet for "X ratings" / "Y reviews". >100K ratings = enduringly
+    popular; >1M = pillar of the canon.
+
+#### 2. Copyright / public-domain check
+
+Three layers, from cheapest to strongest:
+
+- **Gutenberg ID prefix** — if the source filename starts with a
+  Gutenberg digit prefix (e.g. `00174_…`) the book is **already
+  verified public domain by Project Gutenberg**. No further check
+  needed.
+- **Author's death year + 70 years.** Public-domain status in most
+  jurisdictions is `(year of author's death) + 70 years <= current year`.
+  Wikipedia gives the death year reliably.
+  `WebSearch("<author> death year")` is enough.
+- **Cross-check Gutenberg's catalog** if the file came from elsewhere
+  (a stray PDF): `WebFetch("https://www.gutenberg.org/ebooks/search/?query=<title>+<author>", "Is this book in Gutenberg's catalog? If yes, return the ebook ID.")`.
+  Presence in Gutenberg = PD for redistribution.
+
+If a book fails the PD check (still in copyright, author alive or
+died <50 years ago, no Gutenberg listing): **drop it from the picks**
+and note `public_domain: false` in the inventory. Don't recommend
+it. Don't convert it. The operator should never accidentally ship
+a book they don't have rights to.
+
+#### 3. Persist the signals to inventory
+
+Write what you learned back to `storage/inventory.json` via
+`inventory.update_entry(slug, demand=...)`. The shape:
+
+```json
+{
+  "demand": {
+    "checked_at": "2026-05-13T04:30:00Z",
+    "gutenberg_top_30day": {"present": true, "rank": 47},
+    "wikipedia": {"present": true, "url": "https://en.wikipedia.org/wiki/..."},
+    "goodreads": {"ratings_count": 4_800_000, "avg_rating": 4.27},
+    "public_domain": true,
+    "pd_source": "gutenberg-id-prefix",
+    "notes": "Live in Gutenberg top-100 — sustained demand."
+  }
+}
+```
+
+Future sessions skip the web check if `demand.checked_at` is recent
+(<30 days). Re-check after a month to catch shifts in current demand.
+
+#### 4. Suggest books NOT yet in the folder
+
+If a great book keeps showing up in your web searches but **isn't**
+in `data/` and isn't in the inventory, surface it as a recommendation
+to the operator at the end of curate:
+
+> "Project Gutenberg's current top-100 includes 7 books not in your
+> data drop: *Anna Karenina* (PG #1399), *Heart of Darkness* (#219),
+> *The Brothers Karamazov* (#28054 — actually you HAVE this, ignore),
+> *Pride and Prejudice* (already in library, ignore), …. Want me to
+> fetch them so they enter the next conversion cycle?"
+
+If the operator says yes, the **operator fetches them** into `data/`
+(via their browser or `curl https://www.gutenberg.org/ebooks/<id>...`).
+You don't fetch them yourself — the studio doesn't have outbound
+internet for that, and Gutenberg's UTF-8 HTML downloads behind a CDN
+need a real browser session anyway. Just give the operator a tidy
+list with Gutenberg IDs + direct download URLs.
+
+#### 5. When to skip the web check
+
+- Already-checked recently (`demand.checked_at < 30 days ago`).
+- Operator says "skip web" — e.g. they're behind a firewall, or
+  doing a fast triage pass.
+- Books in the buffer tier (below famous floor) — not worth the
+  verification cost since they're filler anyway.
+
+### Step 3 — Convert (the heavy work, fully automated)
+
+For each picked book, walk phases 0 → 11 from §5 **including
+Phase 10.5 (Generate all images, server-side)**. No human is
+required at any point during conversion — Claude runs cleaning,
+chunking, prompts, AND image generation in one continuous flow.
+
+After Phase 10.5 flips `manifest.ready_for_runtime = true`, also
+update the inventory entry:
+
+```python
+inventory.mark_phase(slug, "<phase>")  # per phase
+inventory.mark_status(slug, "ready")    # after Phase 10.5
+```
+
+The inventory is now the resilience contract: if the run is
+interrupted (Ctrl-C mid-batch, network blip during Azure calls),
+re-running checks `inventory.is_done()` per source file and skips
+anything already at status `ready` / `deployed` / `imported`. The
+per-image PNGs on disk are themselves the resume signal — a re-run
+of Phase 10.5 only generates the ones still missing.
+
+### Step 4 — Visual review (optional, manual)
+
+After conversion the operator opens `http://localhost:8765/` and
+spot-checks the books. Every image is already on disk; the reader
+just sees them.
+
+If a specific scene's image looks wrong, they can:
+- Click **Regenerate** on the scene card (same endpoint as initial
+  generate; backs up the old PNG, calls Azure again)
+- Or ask Claude to rewrite the prompt JSON and regenerate (better
+  for systemic issues like "Alice's costume is wrong in every scene")
+
+The "Generate all N images" button on the book detail page is now
+a **manual retry / catch-up** path — it only does work for any
+PNGs that didn't land during Phase 10.5 (typical reason: Azure
+content-policy that all 5 rephrase strategies couldn't soften).
+
+### Step 5 — Deploy (push to the VM)
+
+When a book looks right:
+
+```
+POST /api/books/<slug>/deploy   (or ./deploy.sh <slug>)
+```
+
+SFTPs `storage/books/<slug>/` to
+`azureuser@20.219.16.30:/home/azureuser/inkspace/storage/books/<slug>/`.
+After success, `inventory.mark_status(slug, "deployed")` so a future
+run sees this book as truly done.
+
+### Idempotency contract — what "no repeated work" means
+
+The inventory is keyed by **source file sha256**. Drop the same PDF
+twice under different filenames → same entry → same slug → no
+re-triage, no re-convert. Drop a slightly different file (e.g. a
+re-OCRed PDF) → different hash → fresh entry → fresh work.
+
+Statuses progress monotonically:
+`discovered → triaged → ready → deployed`
+
+A book in `ready` is fully prepped but not pushed to the VM yet. A
+book in `deployed` is live. Going backward (re-doing) requires
+explicit operator intent — the system never silently re-does work.
+
+### Pre-existing artifacts (imported from the main project)
+
+11 books from `/Users/vijayshankar/Desktop/write/backend/test_model`
+were imported on day one — Alice, Frankenstein, Dracula, Jekyll &
+Hyde, Pride and Prejudice, Frederick Douglass, Sherlock Holmes, The
+Great Gatsby, To Kill a Mockingbird, Siva Puranam, and Jekyll. They
+are in the **legacy artifact format** (briefs/, deeps/, chunks/, plus
+generated PNGs in images/). They're already valuable:
+- The PNGs cost real money to generate — don't redo them.
+- The text artifacts (briefs/deeps) are reusable as-is for the new
+  Quill Delta format with a free translation pass.
+
+The studio lists them in the library with `legacy_format: true`. When
+the operator (or you, in conversation) wants to fully read them in
+the new format, you do a one-time translation phase: read the legacy
+briefs+deeps+chunks, emit `sections/<chunk_id>.delta.json` +
+`poster.json` + `cover.json` (status: ready, image_path: cover_image.png).
+No API calls, just JSON munging.
+
+To re-import (if the main project gains new books):
+
+```
+POST /api/import-from-main
+```
+
+It's idempotent — already-present books skip.
+
+---
+
+## 16. The one-line summary
 
 Take a raw book. Clean it like an editor. Direct it like an art
 director. Lay it out like a typesetter. Save it as ready-made files.
-Let the reader pick which scenes come to life.
+Let the reader pick which scenes come to life. Deploy when ready —
+the Flutter app picks up the rest.

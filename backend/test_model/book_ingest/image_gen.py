@@ -1,64 +1,30 @@
-"""Phase 5 — generate illustrations via Azure gpt-image-2.
+"""Azure image generation — text-to-image and image-edits (with references).
 
-Two failure modes worth handling differently:
+Hits Azure's REST endpoint directly via httpx (async). Two endpoints:
 
-  • Transient (429, 5xx) → exponential backoff via `retry.with_retries`.
-  • Content-policy 400 (Azure RAI rejects the prompt) → not retryable
-    with the same prompt, but often *recoverable* by rewriting the
-    scene description. `generate_image_with_softening` catches that
-    case, calls the LLM softener to rephrase, and tries again.
+  • POST /openai/deployments/{d}/images/generations  — text-only
+  • POST /openai/deployments/{d}/images/edits        — with reference PNGs
 
-Reader-preference plumbing: every scene prompt is composed as
+The /edits endpoint anchors character appearance across scenes — same
+Alice / Bhīma / Frankenstein in every scene that references her.
 
-    <scene description>. <book-wide style>. <reader_preference>. <negative>
-
-so the *user's* taste (e.g. "I like mystical, painterly imagery") steers
-the result alongside the per-book style. Empty preference → no-op.
+Returns raw PNG bytes; caller persists.
 """
-
 from __future__ import annotations
 
-import asyncio
 import base64
 import json
-import os
-import time
+from pathlib import Path
+from typing import Iterable
 
-import requests
+import httpx
 
 from .config import config
 from .retry import with_retries
 
 
-_NEGATIVE_GUIDANCE = (
-    "no text, no captions, no logos, no watermark, no signatures, "
-    "no borders, no frames, no UI elements, no panel grids, "
-    "no speech bubbles, no page numbers"
-)
+# ── Content-policy detection ────────────────────────────────────────
 
-# Cinematic framing cues appended to every prompt. Tunes the image
-# model toward illustration-as-artwork rather than stock-photo realism.
-_CINEMATIC_GUIDANCE = (
-    "cinematic composition, deliberate negative space, clear focal "
-    "subject, layered foreground / midground / background, atmospheric "
-    "depth, intentional light direction, painterly detail"
-)
-
-# Composition → (aspect-ratio size, depth-of-field cue) lookup. Sizes
-# the gpt-image-2 deployment accepts: 1024x1024 (square),
-# 1024x1536 (portrait), 1536x1024 (landscape).
-_COMPOSITION_TUNING: dict[str, tuple[str, str]] = {
-    "close-up": ("1024x1024", "shallow depth of field, subject fills the frame, expressive face or hands in focus"),
-    "medium": ("1024x1024", "balanced framing, subject waist-up, soft background"),
-    "wide": ("1536x1024", "subject embedded in setting, environmental storytelling, breathing room around figures"),
-    "establishing": ("1536x1024", "sweeping vista or architecture, figures small or absent, sense of scale"),
-    "overhead": ("1024x1024", "top-down view, geometric arrangement, pattern of figures and objects"),
-    "low-angle": ("1024x1536", "camera looking up, towering subject, dramatic sky or ceiling"),
-}
-
-# Fragments that signal Azure's responsible-AI / content-policy filter
-# tripped. We match on either the structured error code or the body text
-# because the JSON shape isn't always consistent across Azure regions.
 _POLICY_KEYWORDS = (
     "content_filter",
     "content_policy",
@@ -68,492 +34,135 @@ _POLICY_KEYWORDS = (
     "safety system",
     "moderation_blocked",
     "image_generation_user_error",
-    "your prompt may contain text",  # Azure's user-friendly variant
+    "your prompt may contain text",
 )
 
 
 class ContentPolicyViolation(Exception):
-    """Raised when Azure's image API rejects a prompt for content-policy
-    reasons (HTTP 400 with a RAI / safety-system code in the body).
+    """Azure rejected the prompt for content-policy reasons.
 
-    Distinct from a generic 400 so the softening wrapper can catch it
-    without swallowing real malformed-request errors."""
+    Surfaced separately from generic 400s so the studio's rephrase-retry
+    loop can recognise it and try a softened prompt next, rather than
+    retrying the same prompt forever."""
 
     def __init__(self, message: str, *, body: str = ""):
         super().__init__(message)
         self.body = body
 
 
-def compose_prompt(
-    scene: str,
-    *,
-    style: str | None,
-    reader_preference: str | None,
-    mood: str | None = None,
-    composition: str | None = None,
-    time_of_day: str | None = None,
-    setting: str | None = None,
-    palette_hint: str | None = None,
-    base_palette: str | None = None,
-    character_refs: list[str] | None = None,
-) -> str:
-    """Build the full image-gen prompt from a scene + book-wide art direction.
-
-    Layering (most → least specific so the model anchors on the scene
-    first and uses the book-wide guidance as background):
-      1. scene_text (the moment to depict)
-      2. setting (where it happens)
-      3. time_of_day + mood (light + emotional register)
-      4. character refs from the scout's character_bible
-      5. composition + cinematic framing cues
-      6. scene-specific palette override OR book-wide base palette
-      7. book-wide style string from the scout
-      8. reader preference
-      9. negative guidance
-    """
-    parts: list[str] = [scene.strip().rstrip(".")]
-    if setting:
-        parts.append(f"setting: {setting.strip().rstrip('.')}")
-    light_mood: list[str] = []
-    if time_of_day:
-        light_mood.append(time_of_day.strip().rstrip("."))
-    if mood:
-        light_mood.append(f"mood: {mood.strip().rstrip('.')}")
-    if light_mood:
-        parts.append(", ".join(light_mood))
-    if character_refs:
-        # Each ref is a vivid one-line appearance ("Alice: small girl,
-        # long fair hair, blue pinafore…"). Joined with semicolons so
-        # the model treats them as separate locked-in descriptions.
-        refs_line = "; ".join(r.strip().rstrip(".") for r in character_refs if r and r.strip())
-        if refs_line:
-            parts.append(f"characters: {refs_line}")
-    if composition:
-        comp_extra = _COMPOSITION_TUNING.get(composition, (None, None))[1]
-        comp_line = f"{composition} shot"
-        if comp_extra:
-            comp_line = f"{comp_line}, {comp_extra}"
-        parts.append(comp_line)
-    parts.append(_CINEMATIC_GUIDANCE)
-    palette = palette_hint or base_palette
-    if palette:
-        parts.append(f"palette: {palette.strip().rstrip('.')}")
-    if style:
-        parts.append(style.strip().rstrip("."))
-    if reader_preference:
-        parts.append(f"reader preference: {reader_preference.strip().rstrip('.')}")
-    parts.append(_NEGATIVE_GUIDANCE)
-    return ". ".join(parts)
+def _is_content_policy_400(status: int, body_text: str) -> bool:
+    if status != 400:
+        return False
+    haystack = body_text.lower()
+    return any(k in haystack for k in _POLICY_KEYWORDS)
 
 
-def size_for_composition(composition: str | None) -> str:
-    """Pick the aspect ratio that flatters the composition. Defaults to
-    1024x1024 when composition is missing or unknown."""
-    if composition and composition in _COMPOSITION_TUNING:
-        return _COMPOSITION_TUNING[composition][0]
-    return "1024x1024"
+# ── The actual generation calls ─────────────────────────────────────
+
+def _require_config() -> None:
+    if not config.azure_image_endpoint or not config.azure_image_api_key:
+        raise RuntimeError(
+            "Azure image config missing. Set AZURE_IMAGE_ENDPOINT and "
+            "AZURE_IMAGE_API_KEY in .env."
+        )
 
 
-def _is_content_policy_400(exc: requests.HTTPError) -> tuple[bool, str]:
-    """Return (is_policy_violation, body_text). body_text is captured
-    even when the answer is False so callers can log the response."""
-    if exc.response is None or exc.response.status_code != 400:
-        return False, ""
-    body_text = ""
-    try:
-        body = exc.response.json()
-        body_text = json.dumps(body)[:2000]
-        # Azure shape: {"error": {"code": "content_filter", "message": "..."}}
-        # Sometimes nested: {"error": {"inner_error": {"content_filter_results": {...}}}}
-        err = body.get("error", {}) if isinstance(body, dict) else {}
-        code = str(err.get("code", "")).lower()
-        msg = str(err.get("message", "")).lower()
-        haystack = f"{code} {msg} {body_text.lower()}"
-    except Exception:  # noqa: BLE001
-        try:
-            body_text = (exc.response.text or "")[:2000]
-        except Exception:  # noqa: BLE001
-            body_text = ""
-        haystack = body_text.lower()
-
-    if any(k in haystack for k in _POLICY_KEYWORDS):
-        return True, body_text
-    return False, body_text
-
-
-def generate_image_sync(
-    prompt: str,
-    out_path: str,
-    *,
-    style: str | None = None,
-    reader_preference: str | None = None,
-    size: str | None = None,
-    quality: str = "medium",
-    retries: int = 2,
-    mood: str | None = None,
-    composition: str | None = None,
-    time_of_day: str | None = None,
-    setting: str | None = None,
-    palette_hint: str | None = None,
-    base_palette: str | None = None,
-    character_refs: list[str] | None = None,
-) -> str:
-    """Generate a single PNG via Azure gpt-image-2.
-
-    `size` defaults to the aspect ratio that suits the composition —
-    portrait for close-ups and low-angle shots, landscape for wides
-    and establishing shots, square otherwise. Pass an explicit `size`
-    to override.
-
-    `quality` defaults to 'medium' — 'low' produces visibly muddy
-    output for character close-ups. The Azure pricing delta between
-    low and medium is small relative to the LLM cost per book.
-    """
-    if size is None:
-        size = size_for_composition(composition)
+async def _generate_text_only(prompt: str, *, size: str, quality: str) -> bytes:
+    _require_config()
     url = (
-        f"{config.image_endpoint}/openai/deployments/{config.image_deployment}"
-        f"/images/generations?api-version={config.image_api_version}"
+        f"{config.azure_image_endpoint}/openai/deployments/"
+        f"{config.azure_image_deployment}/images/generations"
+        f"?api-version={config.azure_image_api_version}"
     )
-    body = {
-        "prompt": compose_prompt(
-            prompt,
-            style=style,
-            reader_preference=reader_preference,
-            mood=mood,
-            composition=composition,
-            time_of_day=time_of_day,
-            setting=setting,
-            palette_hint=palette_hint,
-            base_palette=base_palette,
-            character_refs=character_refs,
-        ),
+    payload = {
+        "prompt": prompt,
         "size": size,
         "quality": quality,
-        "output_compression": 100,
         "output_format": "png",
+        "output_compression": 100,
         "n": 1,
     }
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {config.image_api_key}",
+        "api-key": config.azure_image_api_key,
+        "Authorization": f"Bearer {config.azure_image_api_key}",
     }
-
-    last_exc: Exception | None = None
-    for attempt in range(retries + 1):
-        try:
-            r = requests.post(url, headers=headers, json=body, timeout=120)
-            r.raise_for_status()
-            b64 = r.json()["data"][0]["b64_json"]
-            os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
-            with open(out_path, "wb") as f:
-                f.write(base64.b64decode(b64))
-            return out_path
-        except requests.HTTPError as exc:
-            last_exc = exc
-            status = exc.response.status_code if exc.response is not None else 0
-            # Content-policy 400 → distinct exception so the softening
-            # wrapper can catch it. Don't retry the same prompt.
-            if status == 400:
-                is_policy, body_text = _is_content_policy_400(exc)
-                if is_policy:
-                    raise ContentPolicyViolation(
-                        f"Azure content policy rejected prompt: {body_text[:200]}",
-                        body=body_text,
-                    ) from exc
-            if status < 500 or attempt == retries:
-                raise
-            time.sleep(1.5 * (attempt + 1))
-        except requests.RequestException as exc:
-            last_exc = exc
-            if attempt == retries:
-                raise
-            time.sleep(1.5 * (attempt + 1))
-
-    assert last_exc is not None
-    raise last_exc
-
-
-def generate_image_with_references_sync(
-    prompt: str,
-    out_path: str,
-    *,
-    reference_image_paths: list[str],
-    style: str | None = None,
-    reader_preference: str | None = None,
-    size: str | None = None,
-    quality: str = "medium",
-    retries: int = 2,
-    mood: str | None = None,
-    composition: str | None = None,
-    time_of_day: str | None = None,
-    setting: str | None = None,
-    palette_hint: str | None = None,
-    base_palette: str | None = None,
-    character_refs: list[str] | None = None,
-) -> str:
-    """Generate a scene image conditioned on one or more reference images.
-
-    Routes to Azure's `/images/edits` endpoint instead of `/images/generations`.
-    The image model treats every file in `reference_image_paths` as a
-    visual anchor — so a scene that names "Alice" and gets her
-    pre-generated character sheet attached comes back with the same
-    facial features, build, and clothing as the sheet, even though the
-    scene composition is entirely new.
-
-    The text-based `character_refs` (one-line appearance descriptions)
-    still ride along in the prompt: belt-and-suspenders. References give
-    the face, text gives the costume + signature props.
-    """
-    if not reference_image_paths:
-        # Defensive: caller should have dispatched to the text-only path.
-        return generate_image_sync(
-            prompt, out_path,
-            style=style, reader_preference=reader_preference,
-            size=size, quality=quality, retries=retries,
-            mood=mood, composition=composition, time_of_day=time_of_day,
-            setting=setting, palette_hint=palette_hint,
-            base_palette=base_palette, character_refs=character_refs,
+    async with httpx.AsyncClient(timeout=180.0) as client:
+        r = await client.post(url, headers=headers, json=payload)
+    if r.status_code == 400 and _is_content_policy_400(400, r.text):
+        raise ContentPolicyViolation(
+            f"Azure content policy rejected prompt: {r.text[:200]}",
+            body=r.text,
         )
+    r.raise_for_status()
+    data = r.json()
+    b64 = data["data"][0]["b64_json"]
+    if not b64:
+        raise RuntimeError("Azure returned no image data")
+    return base64.b64decode(b64)
 
-    if size is None:
-        size = size_for_composition(composition)
-    # The `/images/edits` endpoint (multipart, multi-image inputs) is
-    # only available on the newer Azure api-version. `/images/generations`
-    # works on the older one, so we keep `config.image_api_version` for
-    # text-only and pin edits to `2025-04-01-preview`. Override via env
-    # `AZURE_IMAGE_EDITS_API_VERSION` if Azure introduces a stable one.
-    import os
-    edits_api_version = os.getenv(
-        "AZURE_IMAGE_EDITS_API_VERSION", "2025-04-01-preview"
-    )
+
+async def _generate_with_refs(
+    prompt: str, *, size: str, quality: str, refs: list[Path],
+) -> bytes:
+    _require_config()
     url = (
-        f"{config.image_endpoint}/openai/deployments/{config.image_deployment}"
-        f"/images/edits?api-version={edits_api_version}"
+        f"{config.azure_image_endpoint}/openai/deployments/"
+        f"{config.azure_image_deployment}/images/edits"
+        f"?api-version={config.azure_image_edits_api_version}"
     )
-    composed = compose_prompt(
-        prompt,
-        style=style,
-        reader_preference=reader_preference,
-        mood=mood,
-        composition=composition,
-        time_of_day=time_of_day,
-        setting=setting,
-        palette_hint=palette_hint,
-        base_palette=base_palette,
-        character_refs=character_refs,
-    )
-    headers = {"Authorization": f"Bearer {config.image_api_key}"}
+    headers = {
+        "api-key": config.azure_image_api_key,
+        "Authorization": f"Bearer {config.azure_image_api_key}",
+    }
     data = {
-        "prompt": composed,
+        "prompt": prompt,
         "size": size,
         "quality": quality,
         "n": "1",
         "output_format": "png",
     }
-
-    last_exc: Exception | None = None
-    for attempt in range(retries + 1):
-        # Re-open file handles each attempt: requests consumes them on a
-        # successful upload AND a failed one (the socket eats the stream
-        # before the server reports the error).
-        files: list[tuple[str, tuple[str, "object", str]]] = []
-        for path in reference_image_paths:
-            files.append(
-                ("image[]", (os.path.basename(path), open(path, "rb"), "image/png"))
-            )
-        try:
-            try:
-                r = requests.post(url, headers=headers, files=files, data=data, timeout=180)
-                r.raise_for_status()
-                b64 = r.json()["data"][0]["b64_json"]
-                os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
-                with open(out_path, "wb") as fh:
-                    fh.write(base64.b64decode(b64))
-                return out_path
-            finally:
-                for _, (_, fh, _) in files:
-                    try:
-                        fh.close()
-                    except Exception:  # noqa: BLE001
-                        pass
-        except requests.HTTPError as exc:
-            last_exc = exc
-            status = exc.response.status_code if exc.response is not None else 0
-            if status == 400:
-                is_policy, body_text = _is_content_policy_400(exc)
-                if is_policy:
-                    raise ContentPolicyViolation(
-                        f"Azure content policy rejected prompt: {body_text[:200]}",
-                        body=body_text,
-                    ) from exc
-            if status < 500 or attempt == retries:
-                raise
-            time.sleep(1.5 * (attempt + 1))
-        except requests.RequestException as exc:
-            last_exc = exc
-            if attempt == retries:
-                raise
-            time.sleep(1.5 * (attempt + 1))
-
-    assert last_exc is not None
-    raise last_exc
+    files: list[tuple[str, tuple[str, bytes, str]]] = []
+    for p in refs:
+        files.append((
+            "image[]",
+            (p.name, p.read_bytes(), "image/png"),
+        ))
+    async with httpx.AsyncClient(timeout=240.0) as client:
+        r = await client.post(url, headers=headers, data=data, files=files)
+    if r.status_code == 400 and _is_content_policy_400(400, r.text):
+        raise ContentPolicyViolation(
+            f"Azure content policy rejected prompt: {r.text[:200]}",
+            body=r.text,
+        )
+    r.raise_for_status()
+    resp = r.json()
+    b64 = resp["data"][0]["b64_json"]
+    if not b64:
+        raise RuntimeError("Azure returned no image data")
+    return base64.b64decode(b64)
 
 
 async def generate_image(
     prompt: str,
-    out_path: str,
     *,
-    style: str | None = None,
-    reader_preference: str | None = None,
-    mood: str | None = None,
-    composition: str | None = None,
-    time_of_day: str | None = None,
-    setting: str | None = None,
-    palette_hint: str | None = None,
-    base_palette: str | None = None,
-    character_refs: list[str] | None = None,
+    size: str = "1024x1536",
+    reference_paths: Iterable[str] | None = None,
     quality: str = "medium",
-    size: str | None = None,
-    reference_image_paths: list[str] | None = None,
-) -> str:
-    """Async wrapper. Dispatches to `/images/generations` (text-only) or
-    `/images/edits` (with one or more character reference images) based
-    on whether `reference_image_paths` is provided."""
-    if reference_image_paths:
-        return await asyncio.to_thread(
-            generate_image_with_references_sync,
-            prompt,
-            out_path,
-            reference_image_paths=reference_image_paths,
-            style=style,
-            reader_preference=reader_preference,
-            mood=mood,
-            composition=composition,
-            time_of_day=time_of_day,
-            setting=setting,
-            palette_hint=palette_hint,
-            base_palette=base_palette,
-            character_refs=character_refs,
-            quality=quality,
-            size=size,
-        )
-    return await asyncio.to_thread(
-        generate_image_sync,
-        prompt,
-        out_path,
-        style=style,
-        reader_preference=reader_preference,
-        mood=mood,
-        composition=composition,
-        time_of_day=time_of_day,
-        setting=setting,
-        palette_hint=palette_hint,
-        base_palette=base_palette,
-        character_refs=character_refs,
-        quality=quality,
-        size=size,
-    )
+) -> bytes:
+    """Generate one PNG. Returns bytes; raises on permanent failure.
 
-
-async def generate_image_with_softening(
-    scene_text: str,
-    out_path: str,
-    *,
-    style: str | None = None,
-    reader_preference: str | None = None,
-    max_softening_attempts: int = 2,
-    retry_attempts: int = 6,
-    label: str | None = None,
-    mood: str | None = None,
-    composition: str | None = None,
-    time_of_day: str | None = None,
-    setting: str | None = None,
-    palette_hint: str | None = None,
-    base_palette: str | None = None,
-    character_refs: list[str] | None = None,
-    quality: str = "medium",
-    reference_image_paths: list[str] | None = None,
-) -> dict:
-    """Generate an image, recovering from content-policy rejections by
-    asking the softener LLM to rephrase the scene.
-
-    Flow per attempt:
-      1. Try the current scene text (with normal transient-retry budget).
-      2. If Azure RAI rejects, log it, ask the softener to rewrite.
-      3. Retry with the rewrite. Up to `max_softening_attempts` rewrites.
-
-    Returns a dict:
-      {
-        "final_scene_text": str,        # what was actually sent on success
-        "softened": bool,               # True iff at least one rewrite happened
-        "softening_log": [
-            {"attempt": int, "rejected_scene": str, "reason": str},
-            ...
-        ],
-      }
-
-    Raises ContentPolicyViolation if every softening attempt also fails
-    (so the orchestrator can record the per-scene failure and move on
-    instead of blocking the whole book on one stubborn moment).
+    Transient errors (429, 5xx, timeout) retry with backoff. Content-
+    policy 400s raise `ContentPolicyViolation` so the studio's rephrase
+    loop can softening-retry rather than spinning on the same prompt.
     """
-    current = scene_text
-    log: list[dict] = []
-    label = label or os.path.basename(out_path).rsplit(".", 1)[0]
+    refs = [Path(p) for p in (reference_paths or []) if Path(p).exists()]
 
-    for attempt in range(max_softening_attempts + 1):
-        try:
-            await with_retries(
-                lambda: generate_image(
-                    current,
-                    out_path,
-                    style=style,
-                    reader_preference=reader_preference,
-                    mood=mood,
-                    composition=composition,
-                    time_of_day=time_of_day,
-                    setting=setting,
-                    palette_hint=palette_hint,
-                    base_palette=base_palette,
-                    character_refs=character_refs,
-                    quality=quality,
-                    reference_image_paths=reference_image_paths,
-                ),
-                attempts=retry_attempts,
-                label=f"image[{label}]",
+    async def _call() -> bytes:
+        if refs:
+            return await _generate_with_refs(
+                prompt, size=size, quality=quality, refs=refs,
             )
-            return {
-                "final_scene_text": current,
-                "softened": attempt > 0,
-                "softening_log": log,
-            }
-        except ContentPolicyViolation as exc:
-            log.append({
-                "attempt": attempt,
-                "rejected_scene": current,
-                "reason": str(exc)[:300],
-            })
-            if attempt == max_softening_attempts:
-                raise
-            # Lazy import: keeps the LLM-softener stack out of contexts
-            # that just want the sync image generator (e.g. tests).
-            from .image_softener import soften_scene
-            print(f"[soften] image[{label}] policy rejection "
-                  f"(attempt {attempt + 1}/{max_softening_attempts + 1}); "
-                  f"asking softener to rephrase…")
-            try:
-                current = await soften_scene(
-                    original=scene_text,
-                    last_attempted=current,
-                    rejection_reason=str(exc)[:500],
-                    attempt_index=attempt,
-                )
-            except Exception as soften_exc:  # noqa: BLE001
-                # If the softener itself fails (rare), give up cleanly.
-                print(f"[soften] image[{label}] softener failed: "
-                      f"{type(soften_exc).__name__}: {soften_exc}")
-                raise exc from soften_exc
-            preview = current.replace("\n", " ")[:120]
-            print(f"[soften] image[{label}] new scene: {preview}…")
+        return await _generate_text_only(prompt, size=size, quality=quality)
 
-    raise RuntimeError("unreachable: softening loop exited without return/raise")
+    return await with_retries(_call, label="azure-image", max_attempts=3)

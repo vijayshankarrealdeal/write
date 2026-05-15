@@ -1,1885 +1,1173 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<title>Book Ingest Studio</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inkspace Studio</title>
 <style>
   :root {
-    /* Dark palette tuned for long reading sessions: not pure black
-       (causes contrast halo on text), and a warm sepia-dark for the
-       reader pane (the Kindle dark trick — much less strain than slate
-       grey behind serif type). */
-    --bg: #0f1115;
-    --panel: #171a20;
-    --panel-2: #21252e;
-    --border: #2c3140;
-    --fg: #e6e3dc;
-    --muted: #8b909a;
-    --accent: #6ea8fe;
-    --warn: #f59e6b;
-    --ok: #6ee7a7;
-    --highlight: #c9a96e;
-    --reader-bg: #1c1916;
-    --reader-fg: #d6cfc1;
-    --reader-shadow: 0 4px 16px rgba(0,0,0,.45);
-    color-scheme: dark;
+    --bg: #0a0a0a;
+    --fg: #ededed;
+    --fg-dim: #9a9a9a;
+    --card: #161616;
+    --card-hover: #1f1f1f;
+    --border: #262626;
+    --accent: #d4a056;
+    --danger: #d96c5a;
+    --ok: #6ec087;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--fg);
-    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  html, body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
-  .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
-  aside {
-    background: var(--panel);
-    border-right: 1px solid var(--border);
-    padding: 16px;
-    overflow-y: auto;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-  }
-  main { padding: 24px; max-width: 1180px; }
-  h1 { font-size: 18px; margin: 0 0 12px; letter-spacing: .02em; }
-  h2 { font-size: 14px; margin: 24px 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; }
-  h3 { font-size: 16px; margin: 0 0 6px; }
+  a { color: inherit; text-decoration: none; }
   button {
-    background: var(--panel-2);
-    color: var(--fg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 12px;
-    cursor: pointer;
-    font: inherit;
+    font: inherit; cursor: pointer; background: var(--card); color: var(--fg);
+    border: 1px solid var(--border); padding: .55em 1em; border-radius: 6px;
+    transition: background .15s ease, border-color .15s ease;
   }
-  button:hover { background: #2c313c; }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #0a0d12; font-weight: 600; }
-  button.primary:hover { filter: brightness(1.1); }
-  button.danger { background: #3a1e16; border-color: #6a3624; color: var(--warn); }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
-  input, select, textarea {
-    background: var(--panel-2);
-    color: var(--fg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 10px;
-    font: inherit;
-    width: 100%;
-  }
-  textarea { min-height: 64px; resize: vertical; }
-  label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 4px; }
-  .row { display: flex; gap: 8px; align-items: center; }
-  .stack { display: flex; flex-direction: column; gap: 12px; }
-  .card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 16px;
-  }
-  .book-link {
-    display: block;
-    padding: 8px 10px;
-    border-radius: 6px;
-    color: var(--fg);
-    cursor: pointer;
-  }
-  .book-link:hover, .book-link.active { background: var(--panel-2); }
-  .book-link small { color: var(--muted); display: block; }
-  .pill {
-    display: inline-block;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 2px 8px;
-    font-size: 11px;
-    color: var(--muted);
-    margin-right: 4px;
-  }
-  .pill.done { color: var(--accent); border-color: var(--accent); }
-  .pill.ok { color: var(--ok); border-color: var(--ok); }
-  .pill.warn { color: var(--warn); border-color: var(--warn); }
-  .progress-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
-  .progress-grid .stat { background: var(--panel-2); border-radius: 6px; padding: 8px; text-align: center; }
-  .progress-grid .stat strong { display: block; font-size: 18px; }
-  .progress-grid .stat span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
-  .tabs button {
-    border: none;
-    border-bottom: 2px solid transparent;
-    border-radius: 0;
-    background: transparent;
-    padding: 8px 16px;
-    color: var(--muted);
-  }
-  .tabs button.active { color: var(--fg); border-bottom-color: var(--accent); }
-  .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-  .image-card { display: flex; flex-direction: column; gap: 6px; }
-  .image-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; background: #000; cursor: zoom-in; }
-  .image-card small { color: var(--muted); display: block; }
+  button:hover { background: var(--card-hover); border-color: var(--accent); }
+  button[disabled] { opacity: .5; cursor: not-allowed; }
 
-  /* --- Reading view (Preview tab) ----------------------------- */
-  .preview-wrap.fullscreen {
-    position: fixed;
-    inset: 0;
-    z-index: 80;
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
+  header {
+    padding: 22px 32px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: baseline; gap: 18px;
   }
-  .preview-wrap.fullscreen .reader {
-    flex: 1;
-    height: auto;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
-  .reader {
+  header h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: .02em; }
+  header nav { font-size: 14px; color: var(--fg-dim); }
+  header nav a { margin-right: 14px; }
+  header nav a.crumb { color: var(--accent); }
+
+  main { padding: 28px 32px 80px; max-width: 1400px; margin: 0 auto; }
+
+  /* ── Library view ── */
+  .row-title { font-size: 22px; font-weight: 600; margin: 4px 0 18px; }
+  .book-grid {
     display: grid;
-    grid-template-columns: 240px 1fr;
-    gap: 0;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    height: calc(100vh - 220px);
-    min-height: 480px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 22px;
   }
-  .reader-toc {
-    border-right: 1px solid var(--border);
-    overflow-y: auto;
-    padding: 12px 0;
-    background: var(--panel);
+  .book-card {
+    cursor: pointer; transition: transform .15s ease;
+    display: flex; flex-direction: column;
   }
-  .reader-toc .toc-entry {
-    padding: 6px 14px;
-    cursor: pointer;
-    border-left: 2px solid transparent;
-    color: var(--muted);
-    font-size: 13px;
-  }
-  .reader-toc .toc-entry:hover { background: var(--panel-2); color: var(--fg); }
-  .reader-toc .toc-entry.active {
-    color: var(--fg);
-    border-left-color: var(--accent);
-    background: var(--panel-2);
-  }
-  .reader-toc .toc-entry small { display: block; color: var(--muted); font-size: 11px; }
-  .reader-body {
-    overflow-y: auto;
-    padding: 48px 64px;
-    background: var(--reader-bg);
-  }
-  .reader-page {
-    max-width: 720px;
-    margin: 0 auto;
-  }
-  .reader-page h1.book-title {
-    font-size: 28px;
-    margin: 0 0 4px;
-    letter-spacing: .01em;
-    text-align: center;
-  }
-  .reader-page .book-author {
-    color: var(--muted);
-    font-style: italic;
-    margin-bottom: 48px;
-    text-align: center;
-  }
-  .reader-page .chapter {
-    margin-bottom: 64px;
-    scroll-margin-top: 16px;
-  }
-  .reader-page .chapter h2.chapter-title {
-    font-size: 22px;
-    text-align: center;
-    margin: 0 0 4px;
-    letter-spacing: .02em;
-    color: var(--fg);
-    text-transform: none;
-  }
-  .reader-page .chapter .chapter-meta {
-    text-align: center;
-    color: var(--muted);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: .15em;
-    margin-bottom: 24px;
-  }
-  .reader-page .chapter-rule {
-    border: 0;
-    border-top: 1px solid var(--border);
-    margin: 0 auto 32px;
-    width: 60px;
-  }
-  .reader-controls {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    padding: 8px 14px;
-    border-bottom: 1px solid var(--border);
-    background: var(--panel-2);
-    color: var(--muted);
-    font-size: 12px;
-    flex-wrap: wrap;
-  }
-  .reader-controls .gap { flex: 1; }
-  .reader-controls input[type="range"] { width: 120px; }
-  .reader-controls .toggle { cursor: pointer; user-select: none; }
-  .reader-controls input[type="checkbox"] { width: auto; }
-
-  /* Final-cleanup panel: collapsible row above the reader. The
-     instruction is what the user types to direct the AI's final pass
-     (e.g. "drop the running header", "merge mid-sentence breaks"). */
-  .cleanup-panel {
-    border-bottom: 1px solid var(--border);
-    background: #2a2417;
-    padding: 12px 14px;
-  }
-  .cleanup-panel .cleanup-head {
-    display: flex; gap: 10px; align-items: center;
-    font-size: 12px; color: var(--muted);
-    text-transform: uppercase; letter-spacing: .12em;
-  }
-  .cleanup-panel .cleanup-head strong { color: var(--fg); letter-spacing: 0; text-transform: none; font-size: 13px; }
-  .cleanup-panel textarea { margin-top: 8px; min-height: 56px; background: #14110a; color: var(--fg); border-color: #4a3e22; }
-  .cleanup-panel .cleanup-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
-  .cleanup-panel .cleanup-progress {
-    font-size: 12px; color: var(--muted);
-  }
-  .cleanup-panel .last-instr {
-    margin-top: 6px; font-size: 12px; color: var(--muted); font-style: italic;
-  }
-  .cleanup-panel .cleanup-plan {
-    margin-top: 8px; font-size: 12px;
-    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-  }
-  .cleanup-panel .plan-pill {
-    padding: 2px 8px; border-radius: 999px; font-size: 11px;
-    text-transform: uppercase; letter-spacing: .1em;
-    border: 1px solid var(--border);
-  }
-  .cleanup-panel .plan-pill.regex { color: var(--ok); border-color: var(--ok); }
-  .cleanup-panel .plan-pill.llm   { color: var(--accent); border-color: var(--accent); }
-  .cleanup-panel .plan-rationale { color: var(--muted); }
-
-  /* Quill viewer overrides — make Quill output read like a real book.
-     We mount Quill in read-only mode without the toolbar; .ql-container
-     is what we restyle. Quill 1.3.7's Snow stylesheet hardcodes light
-     borders and white backgrounds, so we null those for dark mode. */
-  .ql-viewer .ql-toolbar { display: none !important; }
-  .ql-viewer .ql-container {
-    border: none;
-    background: transparent;
-    font-family: "Iowan Old Style", ui-serif, Georgia, "Times New Roman", serif;
-  }
-  .ql-viewer .ql-editor::selection,
-  .ql-viewer .ql-editor *::selection {
-    background: rgba(110, 168, 254, 0.35);
-  }
-  .ql-viewer .ql-editor {
-    padding: 0;
-    color: var(--reader-fg);
-    font-family: "Iowan Old Style", ui-serif, Georgia, "Times New Roman", serif;
-    line-height: 1.75;
-  }
-  .ql-viewer .ql-editor p {
-    margin: 0 0 14px;
-    text-align: justify;
-    hyphens: auto;
-  }
-  .ql-viewer .ql-editor p img {
-    max-width: 100%;
-    border-radius: 8px;
-    box-shadow: var(--reader-shadow);
-    display: block;
-    margin: 24px auto 0;
-  }
-  /* Highlight backgrounds drawn by Quill for {attributes:{background}}
-     ops can be eye-searing in dark mode (the pipeline picks colors
-     against a white page). Soften them so they read as "highlighted"
-     without shouting. */
-  .ql-viewer .ql-editor [style*="background-color"] {
-    background-color: rgba(201, 169, 110, 0.22) !important;
-    color: var(--reader-fg) !important;
-    padding: 0 2px;
-    border-radius: 2px;
-  }
-  /* If a paragraph contains only an image, drop its bottom margin so the
-     italic-small caption sits flush underneath. */
-  .ql-viewer .ql-editor p:has(img) { margin-bottom: 6px; text-align: center; }
-  .ql-viewer .ql-editor p:has(+ p em) {}
-  .ql-viewer .ql-editor .ql-size-small,
-  .ql-viewer .ql-editor [style*="font-size: small"] {
-    font-size: .85em;
-    color: var(--muted);
-  }
-  /* Drop-cap on the very first paragraph of each chapter (skip if it's an
-     italic summary or starts with an image). */
-  .reader-page .chapter .ql-viewer .ql-editor p:first-child:not(:has(img)):not(:has(em:only-child))::first-letter {
-    float: left;
-    font-size: 3.4em;
-    line-height: 0.9;
-    padding: 4px 8px 0 0;
-    color: var(--highlight);
-    font-weight: 600;
-  }
-
-  /* Inline Quill viewer used inside chunk detail and pages. */
-  .ql-viewer.compact .ql-editor { font-size: 15px; line-height: 1.65; padding: 12px 0; }
-  .ql-viewer.compact .ql-editor p img { max-width: 100%; }
-
-  .page-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 8px; }
-  .page-card .page-no { font-size: 11px; color: var(--muted); }
-  .page-card pre { margin: 0; white-space: pre-wrap; font-family: inherit; font-size: 13px; }
-  .chunk-row {
-    display: grid;
-    grid-template-columns: 1fr 60px 60px;
-    gap: 8px;
-    align-items: center;
-    padding: 8px 10px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-  }
-  .chunk-row:hover { background: var(--panel-2); }
-  .chunk-row.active { background: var(--panel-2); }
-  .chunk-row small { color: var(--muted); }
-  .scroll { max-height: 70vh; overflow-y: auto; }
-  .muted { color: var(--muted); }
-  .err { color: var(--warn); }
-  details summary { cursor: pointer; color: var(--muted); padding: 4px 0; }
-
-  /* Lightbox for image preview. */
-  .lightbox {
-    position: fixed; inset: 0; background: rgba(0,0,0,.85);
+  .book-card:hover { transform: translateY(-3px); }
+  .cover {
+    aspect-ratio: 2/3; background: var(--card); border-radius: 8px;
+    overflow: hidden; position: relative;
     display: flex; align-items: center; justify-content: center;
-    z-index: 1000; cursor: zoom-out;
-    padding: 24px;
   }
-  .lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+  .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cover-placeholder {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    color: var(--fg-dim); padding: 18px; text-align: center;
+  }
+  .cover-placeholder .title { color: var(--fg); font-size: 14px; font-weight: 600; }
+  .cover-placeholder button { font-size: 13px; }
+  .book-card .meta {
+    margin-top: 12px;
+  }
+  .book-card .meta .title {
+    font-size: 16px; font-weight: 600; line-height: 1.3;
+  }
+  .book-card .meta .author { color: var(--fg-dim); font-size: 13px; margin-top: 2px; }
+  .book-card .meta .genres {
+    color: var(--fg-dim); font-size: 11px; text-transform: uppercase;
+    letter-spacing: .08em; margin-top: 6px;
+  }
 
-  /* Toast feedback. */
-  .toast-wrap {
-    position: fixed; bottom: 24px; right: 24px; z-index: 1100;
-    display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+  /* ── Book detail ── */
+  .book-detail { display: grid; grid-template-columns: 280px 1fr; gap: 36px; }
+  @media (max-width: 720px) { .book-detail { grid-template-columns: 1fr; } }
+  .book-detail .cover-large {
+    aspect-ratio: 2/3; background: var(--card); border-radius: 10px;
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
   }
+  .book-detail .cover-large img { width: 100%; height: 100%; object-fit: cover; }
+  .book-detail .info h2 { margin: 0; font-size: 28px; font-weight: 600; }
+  .book-detail .info .author { color: var(--fg-dim); margin-top: 6px; font-size: 15px; }
+  .book-detail .info .description {
+    margin-top: 18px; color: #c8c8c8; max-width: 60ch;
+  }
+  .book-detail .info .genres { margin-top: 14px; font-size: 12px; color: var(--fg-dim); text-transform: uppercase; letter-spacing: .08em; }
+
+  .section-title { font-size: 18px; font-weight: 600; margin: 36px 0 14px; }
+
+  .cast-strip {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+  }
+  .cast-card {
+    background: var(--card); border-radius: 8px; padding: 12px; text-align: center;
+  }
+  .cast-portrait {
+    aspect-ratio: 1; background: var(--bg); border-radius: 6px; margin-bottom: 10px;
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
+  }
+  .cast-portrait img { width: 100%; height: 100%; object-fit: cover; }
+  .cast-name { font-size: 13px; font-weight: 600; }
+  .cast-bio { font-size: 11px; color: var(--fg-dim); margin-top: 4px; line-height: 1.4; }
+
+  .chapter-list { display: flex; flex-direction: column; gap: 8px; }
+  .chapter-item {
+    background: var(--card); border-radius: 6px; padding: 14px 18px;
+    border: 1px solid var(--border); cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .chapter-item:hover { background: var(--card-hover); border-color: var(--accent); }
+  .chapter-item .ch-num { color: var(--fg-dim); font-size: 12px; }
+  .chapter-item .ch-title { font-weight: 600; margin-top: 2px; }
+
+  /* ── Reader ── */
+  .reader { max-width: 720px; margin: 0 auto; }
+  .reader p { margin: 0 0 1em; }
+  .reader h1, .reader h2, .reader h3 {
+    line-height: 1.25; margin: 1.6em 0 .5em;
+  }
+  .reader h1 { font-size: 28px; }
+  .reader h2 { font-size: 22px; }
+  .reader h3 { font-size: 18px; }
+  .reader blockquote {
+    margin: 1em 0; padding: 0 1em; border-left: 3px solid var(--border);
+    color: #cfcfcf; font-style: italic;
+  }
+  .reader em { font-style: italic; }
+  .reader strong { font-weight: 600; }
+  .reader figure {
+    margin: 2em 0; text-align: center;
+  }
+  .reader figure img {
+    max-width: 100%; border-radius: 8px;
+  }
+  .reader figure figcaption {
+    margin-top: 8px; font-size: 13px; color: var(--fg-dim); font-style: italic;
+  }
+  .reader .scene-card {
+    margin: 2em 0; padding: 18px; border: 1px dashed var(--border);
+    border-radius: 8px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .reader .scene-card .scene-hint {
+    font-size: 13px; color: var(--fg-dim); max-width: 50ch; font-style: italic;
+  }
+  .reader .scene-card.failed { border-color: var(--danger); }
+  .reader .scene-card .err { color: var(--danger); font-size: 12px; }
+
   .toast {
-    background: var(--panel-2); color: var(--fg); padding: 10px 14px;
-    border-radius: 6px; font-size: 13px; max-width: 320px;
-    box-shadow: 0 8px 24px rgba(0,0,0,.6);
-    border: 1px solid var(--border);
-    pointer-events: auto;
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--card); border: 1px solid var(--border); padding: 10px 18px;
+    border-radius: 8px; font-size: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.4);
+    z-index: 99;
   }
-  .toast.err { background: #3a1e16; border-color: #6a3624; color: var(--warn); }
-  .toast.ok  { background: #142a1c; border-color: #2c5640; color: var(--ok); }
+  .toast.ok { border-color: var(--ok); }
+  .toast.err { border-color: var(--danger); }
+  .spinner {
+    width: 14px; height: 14px; border: 2px solid var(--fg-dim);
+    border-top-color: var(--accent); border-radius: 50%; display: inline-block;
+    animation: spin 0.7s linear infinite; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty {
+    text-align: center; padding: 80px 20px; color: var(--fg-dim);
+  }
+  .empty h2 { color: var(--fg); margin: 0 0 14px; }
+  .empty code {
+    background: var(--card); padding: 2px 8px; border-radius: 4px;
+    color: var(--accent); font-size: 13px;
+  }
+
+  /* ── Generation queue dock ── */
+  #dock {
+    position: fixed; bottom: 20px; right: 20px;
+    width: 340px; max-height: 60vh; overflow-y: auto;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    z-index: 80; display: none;
+  }
+  #dock.open { display: block; }
+  #dock-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    font-size: 13px; font-weight: 600;
+  }
+  #dock-header .clear {
+    color: var(--fg-dim); font-size: 12px; cursor: pointer;
+    background: transparent; border: none; padding: 0;
+  }
+  #dock-header .clear:hover { color: var(--fg); }
+  .dock-job {
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    font-size: 12px; display: flex; flex-direction: column; gap: 4px;
+  }
+  .dock-job:last-child { border-bottom: none; }
+  .dock-job .row { display: flex; align-items: center; gap: 8px; }
+  .dock-job .label { flex: 1; color: var(--fg); font-weight: 500; }
+  .dock-job .meta { color: var(--fg-dim); font-size: 11px; }
+  .dock-job.success .label { color: var(--ok); }
+  .dock-job.failed .label { color: var(--danger); }
+  .dock-job .attempts {
+    color: var(--fg-dim); font-size: 11px; font-style: italic;
+  }
+  .dock-toggle {
+    position: fixed; bottom: 20px; right: 20px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 24px; padding: 8px 14px;
+    font-size: 13px; cursor: pointer; z-index: 79;
+    display: none; align-items: center; gap: 8px;
+  }
+  .dock-toggle.visible { display: inline-flex; }
+  .dock-toggle .badge {
+    background: var(--accent); color: var(--bg);
+    border-radius: 10px; padding: 1px 7px;
+    font-weight: 600; font-size: 11px;
+  }
+
+  /* ── Gen-all panel + live progress (book detail) ──────────────── */
+  .gen-panel {
+    display: flex; flex-direction: column; gap: 10px;
+    max-width: 640px;
+  }
+  .gen-panel-row {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
+  }
+  .gen-all-btn {
+    background: var(--accent); color: var(--bg);
+    border: none; padding: .8em 1.4em;
+    border-radius: 24px; font-weight: 600; font-size: 15px;
+    cursor: pointer; align-self: flex-start;
+    display: inline-flex; align-items: center; gap: 10px;
+    transition: opacity .15s ease;
+  }
+  .gen-all-btn:disabled { cursor: default; opacity: .85; }
+  .gen-all-btn .spinner { border-top-color: var(--bg); }
+  .ghost-btn {
+    background: transparent; color: var(--fg);
+    border: 1px solid var(--border);
+    padding: .7em 1.2em; border-radius: 24px;
+    font-weight: 500; cursor: pointer;
+  }
+  .progress-bar {
+    height: 6px; width: 100%; max-width: 480px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 4px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width .3s ease;
+  }
+  .progress-meta { color: var(--fg-dim); font-size: 13px; }
+  .running-chips {
+    display: flex; flex-wrap: wrap; gap: 6px; max-width: 720px;
+  }
+  .run-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--card); border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 14px;
+    font-size: 12px; color: var(--fg-dim);
+  }
+  .run-chip.subtle { color: var(--fg-dim); border-style: dashed; }
+  .run-chip .spinner { width: 11px; height: 11px; border-width: 2px; }
+
+  /* ── Idle/pending placeholders on cast & scene cards ─────────── */
+  .card-pending {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 6px;
+    color: var(--fg-dim); font-size: 12px; padding: 8px;
+    text-align: center;
+  }
+  .cast-card.is-running .card-pending,
+  .reader .scene-card.is-running { border-color: var(--accent); }
+  .reader .scene-card .scene-status {
+    margin-top: 8px;
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--fg-dim); font-size: 13px;
+  }
+  .subtle { color: var(--fg-dim); }
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel" data-presets="react">
+<header>
+  <h1>Inkspace Studio</h1>
+  <nav id="crumbs"><a href="#/">Library</a></nav>
+</header>
+<main id="app"></main>
+<div id="toast-host"></div>
 
-const { useState, useEffect, useCallback, useMemo, useRef, createContext, useContext } = React;
+<!-- Generation queue dock — survives navigation so you can fire jobs
+     across books and watch them all progress in parallel. -->
+<button id="dock-toggle" class="dock-toggle" type="button">
+  <span class="spinner"></span>
+  <span class="badge" id="dock-toggle-count">0</span>
+  <span>jobs</span>
+</button>
+<div id="dock">
+  <div id="dock-header">
+    <span id="dock-title">Generating</span>
+    <button class="clear" id="dock-clear" type="button">clear finished</button>
+  </div>
+  <div id="dock-jobs"></div>
+</div>
 
-const api = (path, opts = {}) => fetch(path, opts).then(r => r.ok ? r.json() : Promise.reject(r));
+<script>
+"use strict";
 
-// ----- Toast system ----------------------------------------------------
-const ToastCtx = createContext(() => {});
-function ToastProvider({ children }) {
-  const [items, setItems] = useState([]);
-  const push = useCallback((message, kind = "info") => {
-    const id = Math.random().toString(36).slice(2);
-    setItems(xs => [...xs, { id, message, kind }]);
-    setTimeout(() => setItems(xs => xs.filter(x => x.id !== id)), 4000);
-  }, []);
-  return (
-    <ToastCtx.Provider value={push}>
-      {children}
-      <div className="toast-wrap">
-        {items.map(t => <div key={t.id} className={"toast " + t.kind}>{t.message}</div>)}
-      </div>
-    </ToastCtx.Provider>
-  );
-}
-const useToast = () => useContext(ToastCtx);
+// ─── State + routing ────────────────────────────────────────────────
+const $ = (sel, root=document) => root.querySelector(sel);
+const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
-// ----- Quill viewer ----------------------------------------------------
-// Mount a read-only Quill instance and feed it a Delta. Re-renders ops
-// via setContents — no toolbar, no editing affordances. This is what
-// guarantees the studio preview matches what flutter_quill renders.
-function QuillViewer({ ops, className = "", compact = false }) {
-  const hostRef = useRef(null);
-  const quillRef = useRef(null);
-
-  useEffect(() => {
-    if (!hostRef.current) return;
-    if (!quillRef.current) {
-      quillRef.current = new Quill(hostRef.current, {
-        readOnly: true,
-        modules: { toolbar: false },
-        theme: "snow",
-      });
-      // Strip the toolbar slot (Quill adds an empty one even with toolbar:false in some builds).
-      const tb = hostRef.current.parentElement?.querySelector(".ql-toolbar");
-      if (tb) tb.remove();
-    }
-    const safeOps = Array.isArray(ops) && ops.length ? ops : [{ insert: "\n" }];
-    try {
-      quillRef.current.setContents({ ops: safeOps }, "silent");
-    } catch (e) {
-      console.error("Quill setContents failed", e, safeOps);
-    }
-  }, [ops]);
-
-  return (
-    <div className={"ql-viewer " + (compact ? "compact " : "") + className}>
-      <div ref={hostRef} />
-    </div>
-  );
+function escapeHtml(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
-// ----- App shell -------------------------------------------------------
-function App() {
-  const [books, setBooks] = useState([]);
-  const [selectedSlug, setSelectedSlug] = useState(null);
-
-  const refreshBooks = useCallback(async () => {
-    const j = await api("/api/books").catch(() => ({ books: [] }));
-    setBooks(j.books || []);
-  }, []);
-  useEffect(() => { refreshBooks(); }, [refreshBooks]);
-
-  return (
-    <ToastProvider>
-      <div className="app">
-        <aside>
-          <h1>Book Studio</h1>
-          <UploadForm onUploaded={async (slug) => { await refreshBooks(); setSelectedSlug(slug); }} />
-          <h2>Books on disk</h2>
-          <div className="stack">
-            {books.length === 0 && <div className="muted">No books yet. Upload a PDF.</div>}
-            {books.map(b => (
-              <div
-                key={b.slug}
-                className={"book-link " + (b.slug === selectedSlug ? "active" : "")}
-                onClick={() => setSelectedSlug(b.slug)}
-              >
-                {b.title || b.slug}
-                {b.vm_upload_done && (
-                  <span
-                    title={"Uploaded to VM" + (b.vm_upload_done_utc ? " · " + new Date(b.vm_upload_done_utc).toLocaleString() : "")}
-                    style={{ color: "var(--ok)", marginLeft: 6, fontSize: 15, lineHeight: 1, verticalAlign: "middle" }}
-                  >✓</span>
-                )}
-                <small>
-                  {b.slug}
-                  {b.synced && <span className="pill ok">synced</span>}
-                  {b.vm_upload_done && <span className="pill ok">VM ✓</span>}
-                </small>
-              </div>
-            ))}
-          </div>
-        </aside>
-        <main>
-          {selectedSlug
-            ? <BookView key={selectedSlug} slug={selectedSlug} onSynced={refreshBooks} />
-            : <div className="muted">Select or upload a book.</div>}
-        </main>
-      </div>
-    </ToastProvider>
-  );
+async function api(path, opts = {}) {
+  const res = await fetch(path, opts);
+  if (!res.ok) {
+    let detail = res.statusText;
+    try { detail = (await res.json()).detail ?? detail; } catch {}
+    throw new Error(`${res.status} ${detail}`);
+  }
+  return res.json();
 }
 
-// ----- Upload ----------------------------------------------------------
-function UploadForm({ onUploaded }) {
-  const toast = useToast();
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState(null);
-  const [info, setInfo] = useState(null);
-  const [params, setParams] = useState({
-    image_budget: "",
-    style: "",
-    reader_preference: "",
-  });
-  const fileRef = useRef(null);
+function toast(msg, kind = "") {
+  const host = $("#toast-host");
+  const el = document.createElement("div");
+  el.className = `toast ${kind}`;
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
 
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!fileRef.current?.files?.[0]) return;
-    setBusy(true); setErr(null); setInfo(null);
-    try {
-      const fd = new FormData();
-      fd.append("file", fileRef.current.files[0]);
-      const qs = new URLSearchParams();
-      if (params.image_budget) qs.set("image_budget", params.image_budget);
-      if (params.style.trim()) qs.set("style", params.style);
-      if (params.reader_preference.trim()) qs.set("reader_preference", params.reader_preference);
-      const r = await fetch(`/api/upload?${qs}`, { method: "POST", body: fd });
-      if (!r.ok) throw new Error(await r.text());
-      const j = await r.json();
-      const msg = j.resumed
-        ? `Resumed "${j.title}" (${j.source_hash.slice(0,10)}…).`
-        : `New book "${j.title}" — scout will propose style + budget after chunking.`;
-      setInfo(msg);
-      toast(msg, "ok");
-      onUploaded(j.slug);
-    } catch (e) {
-      setErr(String(e));
-      toast("Upload failed: " + String(e), "err");
-    }
-    finally { setBusy(false); }
+// ─── Generation job queue ──────────────────────────────────────────
+//
+// A single global queue. Each call to `JobQueue.enqueue(...)` returns
+// immediately — the fetch happens in the background, with at most
+// MAX_CONCURRENT requests in flight at once (Azure rate-limit friendly).
+// The dock listens for `dock-update` events and re-renders.
+//
+// State survives navigation between routes because everything lives
+// on `window.__queue`. The dock is also outside `<main>` so the DOM
+// node persists across route renders.
+
+const MAX_CONCURRENT = 5;
+
+if (!window.__queue) {
+  window.__queue = {
+    seq: 0,
+    inflight: new Map(),     // id → job
+    finished: [],            // history (auto-trim to last 30)
+    pending: [],             // queued, awaiting a free slot
+    listeners: new Set(),    // route handlers subscribe to update buttons
   };
+}
+const Q = window.__queue;
 
-  return (
-    <form onSubmit={submit} className="card" style={{ marginBottom: 16 }}>
-      <label>PDF or HTML <span className="muted" style={{ fontWeight: 400 }}>(.pdf, .html, .htm — Project Gutenberg)</span></label>
-      <input type="file" accept=".pdf,.html,.htm" ref={fileRef} required />
-      <label>Image budget <span className="muted" style={{ fontWeight: 400 }}>(blank → auto)</span></label>
-      <input type="number" value={params.image_budget}
-        placeholder="auto-decide (10–120)"
-        onChange={e => setParams(p => ({ ...p, image_budget: e.target.value }))} />
-      <label>Style <span className="muted" style={{ fontWeight: 400 }}>(blank → auto)</span></label>
-      <input value={params.style}
-        placeholder="auto — scout picks based on the book"
-        onChange={e => setParams(p => ({ ...p, style: e.target.value }))} />
-      <label>Reader preference <span className="muted" style={{ fontWeight: 400 }}>(blank → auto)</span></label>
-      <textarea value={params.reader_preference}
-        onChange={e => setParams(p => ({ ...p, reader_preference: e.target.value }))}
-        placeholder="auto — leave blank unless you want to bias scene picks"
-      />
-      <div style={{ marginTop: 12 }}>
-        <button className="primary" disabled={busy} type="submit">
-          {busy ? "Uploading…" : "Upload + ingest"}
-        </button>
-      </div>
-      {err && <div className="err" style={{ marginTop: 8 }}>{err}</div>}
-      {info && <div className="muted" style={{ marginTop: 8, fontSize: 12 }}>{info}</div>}
-    </form>
-  );
+function emitDockUpdate() {
+  // The dock listener (renderDock) is cheap — DOM-only updates — so we
+  // fire it on every event.
+  document.dispatchEvent(new CustomEvent("dock-update"));
+  // Route listeners (renderBook / renderChapter) re-fetch the API and
+  // rewrite #app; they are HEAVY. If we fire them on every queue event
+  // we get ~30 concurrent renderBook calls when the user clicks
+  // "Generate all 23 images" and the page freezes. Debounce them to at
+  // most one dispatch per 500ms.
+  if (Q._listenerTimer) return;
+  Q._listenerTimer = setTimeout(() => {
+    Q._listenerTimer = null;
+    Q.listeners.forEach(fn => { try { fn(); } catch {} });
+  }, 500);
 }
 
-// ----- Book view -------------------------------------------------------
-function BookView({ slug, onSynced }) {
-  const [book, setBook] = useState(null);
-  const [progress, setProgress] = useState(null);
-  const [tab, setTab] = useState("preview");
+function jobKey(slug, kind, id) { return `${slug}::${kind}::${id ?? ""}`; }
 
-  const loadBook = useCallback(async () => {
-    setBook(await api(`/api/books/${slug}`));
-  }, [slug]);
-
-  useEffect(() => { loadBook(); }, [loadBook]);
-
-  // Progress polling — uses a ref to avoid the stale-closure bug in the
-  // previous version, which permanently stopped polling once `progress`
-  // briefly evaluated to "done"/"failed" on the wrong tick.
-  const phaseRef = useRef(null);
-  useEffect(() => {
-    let alive = true;
-    let timer = null;
-    const tick = async () => {
-      if (!alive) return;
-      try {
-        const p = await api(`/api/books/${slug}/progress`);
-        if (!alive) return;
-        setProgress(p);
-        phaseRef.current = p.phase;
-      } catch { /* swallow */ }
-      const done = phaseRef.current === "done" || phaseRef.current === "failed";
-      timer = setTimeout(tick, done ? 8000 : 2000);
+const JobQueue = {
+  // Each job: {id, key, slug, kind, targetId, label, status, startedAt, attempts, url, error}
+  enqueue({ slug, kind, targetId = null, label }) {
+    const key = jobKey(slug, kind, targetId);
+    // Dedup: if we already have an in-flight or pending job for this exact
+    // target, don't fire a second one.
+    for (const j of Q.inflight.values()) {
+      if (j.key === key) return j;
+    }
+    for (const j of Q.pending) {
+      if (j.key === key) return j;
+    }
+    const job = {
+      id: ++Q.seq, key, slug, kind, targetId, label,
+      status: "pending", startedAt: Date.now(),
+      attempts: 0, url: null, error: null,
     };
-    tick();
-    return () => { alive = false; if (timer) clearTimeout(timer); };
-  }, [slug]);
+    Q.pending.push(job);
+    emitDockUpdate();
+    this._drain();
+    return job;
+  },
 
-  // When the run finishes, re-fetch the book.
-  const lastPhase = useRef(null);
-  useEffect(() => {
-    if (progress?.phase === "done" && lastPhase.current !== "done") {
-      loadBook();
+  _drain() {
+    while (Q.inflight.size < MAX_CONCURRENT && Q.pending.length > 0) {
+      const job = Q.pending.shift();
+      job.status = "running";
+      job.startedAt = Date.now();
+      Q.inflight.set(job.id, job);
+      emitDockUpdate();
+      this._run(job).catch(() => {});
     }
-    lastPhase.current = progress?.phase;
-  }, [progress?.phase, loadBook]);
+  },
 
-  if (!book) return <div className="muted">Loading…</div>;
-
-  const m = book.manifest;
-  return (
-    <div>
-      <div className="card">
-        <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
-          <div>
-            <h3>{m.title || slug}</h3>
-            <small className="muted">
-              {slug}
-              {" · budget "}{m.image_budget || "?"}
-              {" · "}{m.style || "(no style yet)"}
-            </small>
-            {m.vm_upload_done && (
-              <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{
-                  display: "inline-flex", alignItems: "center", gap: 5,
-                  background: "#142a1c", border: "1px solid #2c5640",
-                  borderRadius: 6, padding: "3px 10px", fontSize: 12,
-                  color: "var(--ok)", fontWeight: 600,
-                }}>
-                  ✓ Uploaded to VM
-                </span>
-                {m.vm_upload_done_utc && (
-                  <span className="muted" style={{ fontSize: 11 }}>
-                    {new Date(m.vm_upload_done_utc).toLocaleString()}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-          <SyncPanel slug={slug} synced={!!m.synced}
-            onSynced={async () => { await loadBook(); onSynced?.(); }}
-            onCleaned={loadBook}
-          />
-        </div>
-        {m.scout && <ScoutCard scout={m.scout} reader_preference={m.reader_preference} />}
-        {progress && <ProgressStrip progress={progress} />}
-      </div>
-
-      <div className="tabs">
-        {[
-          ["preview", "Preview"],
-          ["chunks", "Chunks"],
-          ["images", "Images"],
-          ["pages", "Pages"],
-        ].map(([k, label]) => (
-          <button key={k} className={tab === k ? "active" : ""} onClick={() => setTab(k)}>
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {tab === "preview" && <PreviewTab slug={slug} />}
-      {tab === "chunks"  && <ChunksTab slug={slug} chunks={book.chunks} />}
-      {tab === "pages"   && <PagesTab slug={slug} />}
-      {tab === "images"  && <ImagesTab slug={slug} />}
-    </div>
-  );
-}
-
-function ScoutCard({ scout, reader_preference }) {
-  return (
-    <div style={{
-      marginTop: 12,
-      padding: 10,
-      background: "var(--panel-2)",
-      border: "1px solid var(--border)",
-      borderRadius: 6,
-      fontSize: 13,
-    }}>
-      <div className="muted" style={{ fontSize: 11, textTransform: "uppercase",
-        letterSpacing: ".1em", marginBottom: 6 }}>
-        Scout proposal
-      </div>
-      <div><strong>Genre:</strong> {scout.detected_genre}
-        {scout.cultural_context && <span className="muted"> · {scout.cultural_context}</span>}
-      </div>
-      <div style={{ marginTop: 4 }}><strong>Style:</strong> {scout.suggested_style}</div>
-      {(reader_preference || scout.suggested_reader_preference) && (
-        <div style={{ marginTop: 4 }}>
-          <strong>Reader bias:</strong> {reader_preference || scout.suggested_reader_preference}
-        </div>
-      )}
-      <div style={{ marginTop: 4 }}><strong>Budget:</strong> {scout.suggested_image_budget} illustrations</div>
-      <div style={{ marginTop: 6, fontStyle: "italic", color: "var(--muted)" }}>
-        {scout.rationale}
-      </div>
-    </div>
-  );
-}
-
-function ProgressStrip({ progress }) {
-  const stats = [
-    ["pages",   progress.n_pages,            "PyMuPDF-extracted page text (pages/<n>.json)"],
-    ["briefs",  progress.n_briefs,           "Map-pass output: 1-line summary + importance per chunk"],
-    ["deeps",   progress.n_deeps,            "Reduce-pass output: rich summary + highlights for top ~20% chunks"],
-    ["chk-emb", progress.n_chunk_embeddings, "Per-chunk vector embeddings — power semantic regen"],
-    ["scn-emb", progress.n_scene_embeddings, "Per-scene vector embeddings — find scenes by free text"],
-    ["images",  progress.n_images,           "Generated illustrations (PNG)"],
-  ];
-  const phasePill = {
-    queued: "warn", running: "warn", resuming: "warn",
-    done: "ok", failed: "warn",
-  }[progress.phase] || "";
-  return (
-    <div style={{ marginTop: 16 }}>
-      <div className="row" style={{ marginBottom: 8 }}>
-        <strong>Phase:</strong> <span className={"pill " + phasePill}>{progress.phase}</span>
-        {(progress.phases_done || []).map(p => <span key={p} className="pill done">{p}</span>)}
-      </div>
-      {progress.error && <div className="err">{progress.error}</div>}
-      <div className="progress-grid">
-        {stats.map(([k, v, tip]) => (
-          <div key={k} className="stat" title={tip}><strong>{v}</strong><span>{k}</span></div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function SyncPanel({ slug, synced, onSynced, onCleaned }) {
-  const toast = useToast();
-  const [showPanel, setShowPanel] = useState(false);
-  const [mode, setMode] = useState("api");  // "api" | "vm"
-  const [cleaning, setCleaning] = useState(false);
-  const [cleaned, setCleaned] = useState(null);
-
-  const cleanOrphans = async () => {
-    setCleaning(true); setCleaned(null);
-    try {
-      const r = await fetch(`/api/books/${slug}/cleanup-orphans`, { method: "POST" });
-      if (!r.ok) throw new Error(await r.text());
-      const j = await r.json();
-      setCleaned(j);
-      if (j.total_removed > 0) toast(`Removed ${j.total_removed} orphans`, "ok");
-      else toast("No orphans found", "info");
-      onCleaned?.();
-    } catch (e) {
-      setCleaned({ error: String(e) });
-      toast("Cleanup failed: " + String(e), "err");
-    }
-    finally { setCleaning(false); }
-  };
-
-  return (
-    <div style={{ textAlign: "right", minWidth: 360 }}>
-      <div className="row" style={{ justifyContent: "flex-end", gap: 8 }}>
-        <button disabled={cleaning} onClick={cleanOrphans} title="Delete stale brief/deep/chunk/embedding files left behind by older random-UUID chunker runs.">
-          {cleaning ? "Cleaning…" : "Clean orphans"}
-        </button>
-        <button className="primary" onClick={() => setShowPanel(s => !s)}>
-          {showPanel ? "Hide publish" : (synced ? "Publish again…" : "Publish…")}
-        </button>
-      </div>
-      {showPanel && (
-        <div style={{ marginTop: 10, textAlign: "left" }}>
-          {/* Two paths to publish — same outcome, different transport.
-              api: hits api.inkspacex.com via REST. No infra on this box.
-              vm:  SSH + SCP the storage dir, run sync_to_db.py on the VM.
-                   One round-trip; bypasses load balancer; needs SSH creds. */}
-          <div style={{ display: "flex", gap: 0, borderBottom: "1px solid var(--border)" }}>
-            {[
-              ["api", "REST API",  "Public API — login + uploads + writes via HTTP. Default."],
-              ["vm",  "SSH to VM", "Bundle + scp + run sync_to_db.py on the VM. Best for bulk."],
-            ].map(([k, label, hint]) => (
-              <button
-                key={k}
-                onClick={() => setMode(k)}
-                title={hint}
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  borderBottom: mode === k ? "2px solid var(--accent)" : "2px solid transparent",
-                  borderRadius: 0,
-                  color: mode === k ? "var(--fg)" : "var(--muted)",
-                  padding: "6px 14px",
-                }}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          {mode === "api" && <RemotePublishPanel slug={slug} onDone={() => { onSynced?.(); }} />}
-          {mode === "vm"  && <VmPublishPanel     slug={slug} onDone={() => { onSynced?.(); }} />}
-        </div>
-      )}
-      {cleaned && !cleaned.error && (
-        <div className="muted" style={{ marginTop: 6, fontSize: 12 }}>
-          Removed {cleaned.total_removed} orphans
-          {" · "}{cleaned.chunks_kept} chunks kept
-          {" · "}briefs:{cleaned.removed.briefs}
-          {" deeps:"}{cleaned.removed.deeps}
-          {" chunks:"}{cleaned.removed.chunks}
-          {" emb:"}{cleaned.removed.chunk_embeddings}
-        </div>
-      )}
-      {cleaned?.error && <div className="err" style={{ marginTop: 6, fontSize: 12 }}>{cleaned.error}</div>}
-    </div>
-  );
-}
-
-// Publishes the locally-ingested book to a remote inkspacex deployment
-// via its public REST API. No MinIO / Postgres on the studio side —
-// this just authenticates as a user and dumps everything through the
-// same /api/upload/editor + /api/writings + /api/sections endpoints a
-// Flutter or web client would. Image uploads + section creates run in
-// parallel under a bounded semaphore on the backend.
-function RemotePublishPanel({ slug, onDone }) {
-  const toast = useToast();
-  const [apiUrl, setApiUrl] = useState(localStorage.getItem("inkx_api_url") || "https://api.inkspacex.com");
-  // Pre-fill with the dev test account so the user doesn't retype every
-  // publish. localStorage value (if present from a prior session) wins.
-  // Password is intentionally NOT persisted to localStorage even though
-  // it's pre-filled here — keystroke convenience, not at-rest storage.
-  const [email, setEmail] = useState(localStorage.getItem("inkx_email") || "inkspace@inkspacex.com");
-  const [password, setPassword] = useState("Google@99");
-  const [status, setStatus] = useState(null);
-  const [busy, setBusy] = useState(false);
-
-  // Poll the status endpoint while a publish is running.
-  useEffect(() => {
-    let alive = true;
-    let timer = null;
-    const tick = async () => {
-      if (!alive) return;
-      try { setStatus(await api(`/api/books/${slug}/sync-remote/status`)); }
-      catch { /* swallow */ }
-      timer = setTimeout(tick, 1500);
-    };
-    tick();
-    return () => { alive = false; if (timer) clearTimeout(timer); };
-  }, [slug]);
-
-  const wasRunning = useRef(false);
-  useEffect(() => {
-    if (!status) return;
-    if (status.phase === "running" || status.phase === "queued") {
-      wasRunning.current = true;
-    } else if (wasRunning.current && status.phase === "done") {
-      wasRunning.current = false;
-      toast(`Published — ${status.result?.n_sections} sections, ${status.result?.n_images} images`, "ok");
-      onDone?.();
-    } else if (wasRunning.current && status.phase === "failed") {
-      wasRunning.current = false;
-      toast("Publish failed: " + (status.error?.message || "unknown"), "err");
-    }
-  }, [status, toast, onDone]);
-
-  const submit = async (e) => {
-    e?.preventDefault();
-    if (!email.trim() || !password) return;
-    setBusy(true);
-    try {
-      // Remember the api_url + email so the user doesn't retype on the
-      // next publish. NEVER store the password.
-      localStorage.setItem("inkx_api_url", apiUrl);
-      localStorage.setItem("inkx_email", email);
-      const r = await fetch(`/api/books/${slug}/sync-remote`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ api_url: apiUrl, email, password }),
-      });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.detail || "request failed");
-      if (!j.queued) toast(j.reason || "already running", "info");
-      else toast("Publish queued — uploading…", "ok");
-      setPassword("");
-    } catch (e) {
-      toast("Publish failed to start: " + String(e), "err");
-    } finally { setBusy(false); }
-  };
-
-  const running = status?.phase === "running" || status?.phase === "queued";
-  const events = status?.events || [];
-  const lastEvent = events[events.length - 1];
-  const result = status?.result;
-  const errorState = status?.error;
-
-  return (
-    <form onSubmit={submit} style={{
-      marginTop: 10, padding: 12, background: "var(--panel-2)",
-      border: "1px solid var(--border)", borderRadius: 8, textAlign: "left",
-    }}>
-      <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 8 }}>
-        Publishes via the public REST API — no MinIO/DB needed on this machine.
-        Login → upload images in parallel → create writing → create sections.
-      </div>
-      <label>API URL</label>
-      <input value={apiUrl} onChange={e => setApiUrl(e.target.value)}
-        placeholder="https://api.inkspacex.com" disabled={running || busy} />
-      <label>Email</label>
-      <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-        placeholder="you@example.com" required disabled={running || busy} />
-      <label>Password</label>
-      <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-        placeholder="••••••••" required disabled={running || busy} autoComplete="current-password" />
-      <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center" }}>
-        <button className="primary" type="submit" disabled={running || busy || !email.trim() || !password}>
-          {running ? "Publishing…" : (busy ? "Submitting…" : "Publish")}
-        </button>
-        {running && lastEvent && (
-          <span className="muted" style={{ fontSize: 12 }}>
-            {lastEvent.name}{lastEvent.payload?.total != null ? ` (${lastEvent.payload.done ?? 0}/${lastEvent.payload.total})` : ""}
-          </span>
-        )}
-      </div>
-      {result && (
-        <div style={{ marginTop: 10, fontSize: 12 }}>
-          <strong style={{ color: "var(--ok)" }}>Published.</strong>{" "}
-          writing_id: <code>{result.writing_id}</code> — {result.n_sections} sections, {result.n_images} images.
-        </div>
-      )}
-      {errorState && (
-        <div className="err" style={{ marginTop: 10, fontSize: 12 }}>
-          {errorState.message}
-          {errorState.status ? ` (HTTP ${errorState.status})` : ""}
-          {errorState.body && (
-            <details style={{ marginTop: 4 }}>
-              <summary>response body</summary>
-              <pre style={{ fontSize: 11, maxHeight: 160, overflow: "auto" }}>{errorState.body}</pre>
-            </details>
-          )}
-        </div>
-      )}
-      {events.length > 0 && (
-        <details style={{ marginTop: 8 }}>
-          <summary style={{ fontSize: 12 }}>{events.length} event{events.length === 1 ? "" : "s"}</summary>
-          <pre style={{ fontSize: 11, maxHeight: 200, overflow: "auto" }}>
-            {events.map(ev => `${ev.name} ${JSON.stringify(ev.payload)}`).join("\n")}
-          </pre>
-        </details>
-      )}
-    </form>
-  );
-}
-
-// SSH + SCP path: bundles the local storage/{slug}/ dir into a tarball,
-// uploads it to /tmp on the VM, extracts under
-// {remote_backend_root}/{remote_storage_subdir}, and runs
-// sync_to_db.py there directly. One round-trip for the whole book vs
-// ~80 for the API path. Useful when api.inkspacex.com is rate-limiting
-// or for bulk loads. Needs SSH creds — paramiko on the studio side.
-function VmPublishPanel({ slug, onDone }) {
-  const toast = useToast();
-  const [vmIp, setVmIp]       = useState(localStorage.getItem("inkx_vm_ip") || "20.219.16.30");
-  const [username, setUser]   = useState(localStorage.getItem("inkx_vm_user") || "azureuser");
-  const [password, setPass]   = useState("Google@990cc");
-  const [backend, setBackend] = useState(localStorage.getItem("inkx_vm_backend") || "/home/azureuser/write/backend");
-  const [storage, setStorage] = useState(localStorage.getItem("inkx_vm_storage") || "test_model/storage/books");
-  const [force, setForce]     = useState(true);
-  const [status, setStatus]   = useState(null);
-  const [busy, setBusy]       = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
-
-  // Poll status while a publish runs.
-  useEffect(() => {
-    let alive = true;
-    let timer = null;
-    const tick = async () => {
-      if (!alive) return;
-      try { setStatus(await api(`/api/books/${slug}/sync-vm/status`)); }
-      catch { /* swallow */ }
-      timer = setTimeout(tick, 1500);
-    };
-    tick();
-    return () => { alive = false; if (timer) clearTimeout(timer); };
-  }, [slug]);
-
-  const wasRunning = useRef(false);
-  useEffect(() => {
-    if (!status) return;
-    if (status.phase === "running" || status.phase === "queued") {
-      wasRunning.current = true;
-    } else if (wasRunning.current && status.phase === "done") {
-      wasRunning.current = false;
-      toast("VM publish complete", "ok");
-      onDone?.();
-    } else if (wasRunning.current && status.phase === "failed") {
-      wasRunning.current = false;
-      toast("VM publish failed: " + (status.error?.message || "unknown"), "err");
-    }
-  }, [status, toast, onDone]);
-
-  const submit = async (e) => {
-    e?.preventDefault();
-    if (!password) return;
-    setBusy(true);
-    try {
-      // Persist non-secret bits — vm_ip, username, paths — so re-runs
-      // don't retype them. NEVER persist the SSH password.
-      localStorage.setItem("inkx_vm_ip", vmIp);
-      localStorage.setItem("inkx_vm_user", username);
-      localStorage.setItem("inkx_vm_backend", backend);
-      localStorage.setItem("inkx_vm_storage", storage);
-      const r = await fetch(`/api/books/${slug}/sync-vm`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          vm_ip: vmIp,
-          username,
-          password,
-          remote_backend_root: backend,
-          remote_storage_subdir: storage,
-          force,
-        }),
-      });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.detail || "request failed");
-      if (!j.queued) toast(j.reason || "already running", "info");
-      else toast("VM publish queued — bundling…", "ok");
-    } catch (e) {
-      toast("VM publish failed to start: " + String(e), "err");
-    } finally { setBusy(false); }
-  };
-
-  const running = status?.phase === "running" || status?.phase === "queued";
-  const events  = status?.events || [];
-  const lastEvent = events[events.length - 1];
-  const result    = status?.result;
-  const errorState = status?.error;
-
-  // Three named phases the user can read at a glance. Each starts
-  // when the named begin-event fires; the matching end-event flips it
-  // to "done". Anything not yet started is "pending".
-  const phaseStatus = (begin, end) => {
-    let started = false, finished = false;
-    for (const ev of events) {
-      if (begin.includes(ev.name)) started = true;
-      if (end.includes(ev.name)) finished = true;
-    }
-    if (finished) return "done";
-    if (started) return "running";
-    return "pending";
-  };
-  const phases = [
-    {
-      key: "compress",
-      label: "1. Compress",
-      hint: `→ storage/${slug}/_publish/${slug}.tgz`,
-      status: phaseStatus(["compressing"], ["compressed"]),
-    },
-    {
-      key: "upload",
-      label: "2. Upload",
-      hint: "SFTP put → /tmp on VM",
-      status: phaseStatus(["uploading"], ["uploaded"]),
-    },
-    {
-      key: "extract",
-      label: "3. Extract + sync",
-      hint: "tar -xzf + sync_to_db.py",
-      status: phaseStatus(["extracting", "executing"], ["finished"]),
-    },
-  ];
-
-  const uploadProgress = events
-    .slice().reverse()
-    .find(e => e.name === "upload_progress");
-  const compressedEvent = events
-    .slice().reverse()
-    .find(e => e.name === "compressed");
-
-  return (
-    <form onSubmit={submit} style={{
-      marginTop: 10, padding: 12, background: "var(--panel-2)",
-      border: "1px solid var(--border)", borderRadius: 8,
-    }}>
-      <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 8 }}>
-        Bundles <code>storage/{slug}</code>, SCPs to the VM, runs
-        <code> sync_to_db.py</code> there. No HTTP per-image — one round-trip.
-      </div>
-
-      <label>VM IP</label>
-      <input value={vmIp} onChange={e => setVmIp(e.target.value)}
-        placeholder="20.219.16.30" disabled={running || busy} />
-
-      <label>SSH username</label>
-      <input value={username} onChange={e => setUser(e.target.value)}
-        placeholder="azureuser" disabled={running || busy} />
-
-      <label>SSH password</label>
-      <input type="password" value={password} onChange={e => setPass(e.target.value)}
-        placeholder="••••••••" disabled={running || busy}
-        autoComplete="current-password" required />
-
-      <details open={showAdvanced} onToggle={e => setShowAdvanced(e.target.open)}
-        style={{ marginTop: 8 }}>
-        <summary style={{ fontSize: 12 }}>Advanced (paths + flags)</summary>
-        <label>Remote backend root</label>
-        <input value={backend} onChange={e => setBackend(e.target.value)}
-          disabled={running || busy} />
-        <label>Remote storage subdir <span className="muted" style={{ fontWeight: 400 }}>(under backend root)</span></label>
-        <input value={storage} onChange={e => setStorage(e.target.value)}
-          disabled={running || busy} />
-        <label className="toggle" style={{ display: "block", marginTop: 8, fontSize: 13 }}>
-          <input type="checkbox" checked={force} onChange={e => setForce(e.target.checked)}
-            style={{ width: "auto", marginRight: 6 }} />
-          pass <code>--force</code> (re-publish even if already synced)
-        </label>
-      </details>
-
-      <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center" }}>
-        <button className="primary" type="submit" disabled={running || busy || !password}>
-          {running ? "Publishing…" : (busy ? "Submitting…" : "Compress → Upload → Extract")}
-        </button>
-        {running && lastEvent && (
-          <span className="muted" style={{ fontSize: 12 }}>
-            {lastEvent.name}
-            {uploadProgress?.payload?.pct != null && lastEvent.name === "upload_progress"
-              ? ` ${uploadProgress.payload.pct}%`
-              : ""}
-          </span>
-        )}
-      </div>
-
-      {(running || result || errorState) && (
-        <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-          {phases.map(p => (
-            <div key={p.key} style={{
-              padding: "8px 10px",
-              border: "1px solid var(--border)",
-              borderRadius: 6,
-              background: p.status === "done" ? "#142a1c"
-                       : p.status === "running" ? "#2a2417"
-                       : "var(--panel)",
-              opacity: p.status === "pending" ? 0.55 : 1,
-            }}>
-              <div style={{
-                fontSize: 12,
-                color: p.status === "done" ? "var(--ok)"
-                     : p.status === "running" ? "var(--highlight)"
-                     : "var(--muted)",
-                fontWeight: 600,
-              }}>
-                {p.status === "done" ? "✓ " : p.status === "running" ? "→ " : "· "}
-                {p.label}
-              </div>
-              <div className="muted" style={{ fontSize: 11, marginTop: 2 }}>
-                {p.hint}
-              </div>
-              {p.key === "compress" && compressedEvent && (
-                <div style={{ fontSize: 11, marginTop: 4 }}>
-                  {compressedEvent.payload.human}
-                </div>
-              )}
-              {p.key === "upload" && uploadProgress && p.status === "running" && (
-                <div style={{ fontSize: 11, marginTop: 4 }}>
-                  {uploadProgress.payload.pct}% ·{" "}
-                  {Math.round((uploadProgress.payload.bytes || 0) / 1048576)} /{" "}
-                  {Math.round((uploadProgress.payload.total || 0) / 1048576)} MB
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {result && result.ok && (
-        <div style={{ marginTop: 10, fontSize: 12 }}>
-          <strong style={{ color: "var(--ok)" }}>Synced via VM.</strong>{" "}
-          exit {result.exit_code}.
-          <details style={{ marginTop: 6 }}>
-            <summary>stdout ({(result.stdout || "").length} chars)</summary>
-            <pre style={{ fontSize: 11, maxHeight: 200, overflow: "auto" }}>{result.stdout}</pre>
-          </details>
-        </div>
-      )}
-      {errorState && (
-        <div className="err" style={{ marginTop: 10, fontSize: 12 }}>
-          {errorState.message}
-          {errorState.stage ? ` (stage: ${errorState.stage})` : ""}
-          {errorState.body && (
-            <details style={{ marginTop: 4 }}>
-              <summary>response / stderr</summary>
-              <pre style={{ fontSize: 11, maxHeight: 200, overflow: "auto" }}>{errorState.body}</pre>
-            </details>
-          )}
-        </div>
-      )}
-      {events.length > 0 && (
-        <details style={{ marginTop: 8 }}>
-          <summary style={{ fontSize: 12 }}>{events.length} event{events.length === 1 ? "" : "s"}</summary>
-          <pre style={{ fontSize: 11, maxHeight: 240, overflow: "auto" }}>
-            {events.map(ev => `${ev.name} ${JSON.stringify(ev.payload)}`).join("\n")}
-          </pre>
-        </details>
-      )}
-    </form>
-  );
-}
-
-// ----- Chunks tab ------------------------------------------------------
-function ChunksTab({ slug, chunks }) {
-  const [active, setActive] = useState(null);
-  const [detail, setDetail] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!active) return;
-    setDetail(null);
-    setLoading(true);
-    api(`/api/books/${slug}/chunks/${active}`)
-      .then(setDetail)
-      .finally(() => setLoading(false));
-  }, [active, slug]);
-
-  return (
-    <div className="row" style={{ alignItems: "stretch", gap: 16 }}>
-      <div className="card scroll" style={{ flex: "0 0 320px", padding: 0 }}>
-        <div style={{ padding: 12, borderBottom: "1px solid var(--border)", color: "var(--muted)" }}>
-          {chunks.length} chunks
-        </div>
-        {chunks.map(c => (
-          <div key={c.id}
-            className={"chunk-row " + (active === c.id ? "active" : "")}
-            onClick={() => setActive(c.id)}>
-            <div>
-              <div>{c.chapter_title || <em className="muted">Untitled</em>}</div>
-              <small>p {c.page_start}–{c.page_end} · {c.char_count.toLocaleString()} chars</small>
-            </div>
-            <small className="muted">{c.has_brief ? "B" : "·"}{c.has_deep ? "D" : "·"}</small>
-            <small className="muted">{c.scene_ids.length}🖼</small>
-          </div>
-        ))}
-      </div>
-      <div className="card scroll" style={{ flex: 1 }}>
-        {!active && <div className="muted">Pick a chunk to see its rendered Delta and scene images.</div>}
-        {active && loading && <div className="muted">Loading chunk…</div>}
-        {detail && <ChunkDetail slug={slug} detail={detail} />}
-      </div>
-    </div>
-  );
-}
-
-function ChunkDetail({ slug, detail }) {
-  const c = detail.chunk;
-  const brief = detail.brief;
-  const deep = detail.deep;
-  return (
-    <div>
-      <h3>
-        {c.chapter_title || "(untitled)"}{" "}
-        <small className="muted">p {c.page_start}–{c.page_end}</small>
-      </h3>
-      {brief && (
-        <div style={{ marginBottom: 8 }}>
-          <strong>{brief.summary_1line}</strong>
-          <div className="muted" style={{ fontSize: 12 }}>
-            importance: {Number(brief.importance ?? 0).toFixed(2)}
-            {brief.themes?.length ? " · " + brief.themes.join(", ") : ""}
-          </div>
-        </div>
-      )}
-
-      {/* Live Quill render of the chunk's Delta — what flutter_quill will
-          actually display once Section.content is written by sync_to_db. */}
-      <div style={{ marginTop: 16 }}>
-        <div className="muted" style={{ fontSize: 11, textTransform: "uppercase",
-          letterSpacing: ".1em", marginBottom: 6 }}>
-          Quill preview
-        </div>
-        <div style={{ background: "var(--reader-bg)", border: "1px solid var(--border)",
-          borderRadius: 8, padding: "16px 20px" }}>
-          <QuillViewer ops={detail.delta} compact />
-        </div>
-      </div>
-
-      {!!detail.scenes?.length && (
-        <div style={{ marginTop: 24 }}>
-          <div className="muted" style={{ fontSize: 11, textTransform: "uppercase",
-            letterSpacing: ".1em", marginBottom: 8 }}>
-            {detail.scenes.length} scene image{detail.scenes.length === 1 ? "" : "s"}
-          </div>
-          <div className="image-grid">
-            {detail.scenes.map(s => (
-              <ImageCard key={s.scene_id} slug={slug} scene={s} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {deep && !!deep.highlight_spans?.length && (
-        <details style={{ marginTop: 16 }}>
-          <summary>{deep.highlight_spans.length} highlight spans</summary>
-          <ul>
-            {deep.highlight_spans.map((s, i) => (
-              <li key={i}>“{c.text.slice(s.start, s.start + s.length)}” — {s.why}</li>
-            ))}
-          </ul>
-        </details>
-      )}
-      <details style={{ marginTop: 16 }}>
-        <summary>Raw chunk text ({c.text.length.toLocaleString()} chars)</summary>
-        <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", fontSize: 13 }}>{c.text}</pre>
-      </details>
-    </div>
-  );
-}
-
-// ----- Image card with lightbox + regen -------------------------------
-function Lightbox({ src, onClose }) {
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-  return (
-    <div className="lightbox" onClick={onClose}>
-      <img src={src} alt="" />
-    </div>
-  );
-}
-
-function ImageCard({ slug, scene }) {
-  const toast = useToast();
-  const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [instr, setInstr] = useState("");
-  const [err, setErr] = useState(null);
-  const [bust, setBust] = useState(0);
-  const [zoom, setZoom] = useState(false);
-
-  const url = `/api/books/${slug}/images/${scene.scene_id}/png?v=${bust}`;
-  const regen = async () => {
-    setBusy(true); setErr(null);
-    try {
-      const r = await fetch(`/api/books/${slug}/images/${scene.scene_id}/regenerate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ instruction: instr }),
-      });
-      if (!r.ok) throw new Error(await r.text());
-      setBust(Date.now());
-      setOpen(false);
-      setInstr("");
-      toast("Image regenerated", "ok");
-    } catch (e) {
-      setErr(String(e));
-      toast("Regen failed: " + String(e), "err");
-    }
-    finally { setBusy(false); }
-  };
-
-  const pageLabel = scene.page_start == null
-    ? null
-    : (scene.page_start === scene.page_end
-       ? `p ${scene.page_start}`
-       : `p ${scene.page_start}–${scene.page_end}`);
-
-  return (
-    <div className="image-card card" style={{ marginBottom: 0 }}>
-      <img src={url} alt={scene.scene_text || ""} loading="lazy" onClick={() => setZoom(true)} />
-      {zoom && <Lightbox src={url} onClose={() => setZoom(false)} />}
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 6, marginTop: 6 }}>
-        {pageLabel
-          ? <span className="pill" style={{ margin: 0 }}>{pageLabel}</span>
-          : <span className="pill warn" style={{ margin: 0 }} title="No matching chunk on disk — this image is orphaned.">orphan</span>}
-        {scene.chapter_title && <small className="muted" style={{ textAlign: "right" }}>{scene.chapter_title}</small>}
-      </div>
-      <small><em>{scene.scene_text}</em></small>
-      <small className="muted">
-        score {Number(scene.score || 0).toFixed(2)}
-        {" · revisions "}{scene.revision_count || 0}
-      </small>
-      {!open && <button onClick={() => setOpen(true)}>Fix recommendation</button>}
-      {open && (
-        <div className="stack" style={{ marginTop: 8 }}>
-          <textarea
-            placeholder="e.g. darker, more dramatic lighting"
-            value={instr}
-            onChange={e => setInstr(e.target.value)}
-            disabled={busy}
-          />
-          <div className="row">
-            <button className="primary" disabled={busy} onClick={regen}>
-              {busy ? "Generating…" : "Regenerate"}
-            </button>
-            <button onClick={() => { setOpen(false); setInstr(""); setErr(null); }} disabled={busy}>
-              Cancel
-            </button>
-          </div>
-          {err && <div className="err">{err}</div>}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ----- Pages tab -------------------------------------------------------
-function PagesTab({ slug }) {
-  const [pages, setPages] = useState([]);
-  const [active, setActive] = useState(null);
-  const [page, setPage] = useState(null);
-  const [filter, setFilter] = useState("");
-
-  useEffect(() => { api(`/api/books/${slug}/pages`).then(j => setPages(j.pages)); }, [slug]);
-  useEffect(() => {
-    if (!active) return;
-    setPage(null);
-    api(`/api/books/${slug}/pages/${active}`).then(setPage);
-  }, [active, slug]);
-
-  const filtered = useMemo(() => {
-    if (!filter.trim()) return pages;
-    const n = parseInt(filter, 10);
-    if (Number.isFinite(n)) return pages.filter(p => String(p).includes(filter));
-    return pages;
-  }, [pages, filter]);
-
-  return (
-    <div className="row" style={{ alignItems: "stretch", gap: 16 }}>
-      <div className="card scroll" style={{ flex: "0 0 160px", padding: 8 }}>
-        <input
-          placeholder="page #"
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-          style={{ marginBottom: 8 }}
-        />
-        {filtered.map(n => (
-          <div key={n} className={"book-link " + (n === active ? "active" : "")} onClick={() => setActive(n)}>
-            p {n}
-          </div>
-        ))}
-        {filtered.length === 0 && <div className="muted" style={{ padding: 8 }}>No matches.</div>}
-      </div>
-      <div className="card scroll" style={{ flex: 1 }}>
-        {!active && <div className="muted">Pick a page.</div>}
-        {page && (
-          <div>
-            <div className="muted">Page {page.no} · {page.char_count} chars</div>
-            <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", marginTop: 12 }}>{page.text}</pre>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ----- Images tab ------------------------------------------------------
-function ImagesTab({ slug }) {
-  const toast = useToast();
-  const [images, setImages] = useState([]);
-  const [orphans, setOrphans] = useState(0);
-  const [sortBy, setSortBy] = useState("page");  // "page" | "score"
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [hideOrphans, setHideOrphans] = useState(true);
-  const [purging, setPurging] = useState(false);
-
-  useEffect(() => {
-    api(`/api/books/${slug}/images`).then(j => {
-      setImages(j.images || []);
-      setOrphans(j.orphans || 0);
-    });
-  }, [slug, refreshKey]);
-
-  const visible = useMemo(
-    () => hideOrphans ? images.filter(i => !i.orphan) : images,
-    [images, hideOrphans],
-  );
-
-  // Page-range groups exclude orphans by definition (they have no page).
-  const groups = useMemo(() => {
-    const m = new Map();
-    for (const img of images) {
-      if (img.orphan || img.page_start == null) continue;
-      const key = img.page_start === img.page_end
-        ? `${img.page_start}`
-        : `${img.page_start}–${img.page_end}`;
-      if (!m.has(key)) {
-        m.set(key, {
-          range: key,
-          page_start: img.page_start ?? 0,
-          chapter_title: img.chapter_title,
-          count: 0,
-        });
-      }
-      m.get(key).count += 1;
-    }
-    return Array.from(m.values()).sort((a, b) => a.page_start - b.page_start);
-  }, [images]);
-
-  const sorted = useMemo(() => {
-    const copy = [...visible];
-    if (sortBy === "page") {
-      copy.sort((a, b) => (a.page_start ?? 9e9) - (b.page_start ?? 9e9));
+  async _run(job) {
+    let url;
+    let payload = "{}";
+    if (job.kind === "scene") {
+      url = `/api/books/${encodeURIComponent(job.slug)}/images/${encodeURIComponent(job.targetId)}/generate`;
+    } else if (job.kind === "character") {
+      url = `/api/books/${encodeURIComponent(job.slug)}/characters/${encodeURIComponent(job.targetId)}/generate`;
+    } else if (job.kind === "cover") {
+      url = `/api/books/${encodeURIComponent(job.slug)}/cover/generate`;
+    } else if (job.kind === "deploy") {
+      url = `/api/books/${encodeURIComponent(job.slug)}/deploy`;
+      payload = JSON.stringify({ run_sync: true, force: job.force === true });
     } else {
-      copy.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+      job.status = "failed";
+      job.error = `unknown kind: ${job.kind}`;
     }
-    return copy;
-  }, [visible, sortBy]);
-
-  const purgeOrphans = async () => {
-    if (!confirm(
-      `Delete ${orphans} orphan image${orphans === 1 ? "" : "s"}?\n\n` +
-      "These are images whose chunk_id no longer matches any chunk. " +
-      "This cannot be undone — image regen costs real money."
-    )) return;
-    setPurging(true);
     try {
-      const r = await fetch(`/api/books/${slug}/cleanup-orphans?include_images=true`, {
-        method: "POST",
-      });
-      if (!r.ok) throw new Error(await r.text());
-      const j = await r.json();
-      toast(`Removed ${j.removed.images || 0} orphan images`, "ok");
-      setRefreshKey(k => k + 1);
-    } catch (e) {
-      toast("Orphan purge failed: " + String(e), "err");
-    } finally { setPurging(false); }
-  };
-
-  return (
-    <div>
-      {orphans > 0 && (
-        <div className="card" style={{ padding: 12, background: "#2a2417", borderColor: "#4a3e22" }}>
-          <div className="row" style={{ alignItems: "center", gap: 12 }}>
-            <strong style={{ color: "var(--highlight)" }}>
-              {orphans} orphan image{orphans === 1 ? "" : "s"}
-            </strong>
-            <span className="muted" style={{ fontSize: 12 }}>
-              chunk_id no longer matches any chunk on disk — typically left over
-              when the chunker re-ran with different IDs. They have no page mapping.
-            </span>
-            <span className="gap" style={{ flex: 1 }} />
-            <label className="toggle" style={{ fontSize: 12 }}>
-              <input type="checkbox" checked={hideOrphans} style={{ width: "auto" }}
-                onChange={e => setHideOrphans(e.target.checked)} />
-              {' hide them'}
-            </label>
-            <button className="danger" disabled={purging} onClick={purgeOrphans}>
-              {purging ? "Deleting…" : "Delete orphans"}
-            </button>
-          </div>
-        </div>
-      )}
-      {groups.length > 0 && (
-        <div className="card" style={{ padding: 12 }}>
-          <div className="muted" style={{ fontSize: 11, textTransform: "uppercase",
-            letterSpacing: ".1em", marginBottom: 8 }}>
-            {images.length - orphans} images across {groups.length} page ranges
-            {orphans > 0 && ` · ${orphans} orphan${orphans === 1 ? "" : "s"}`}
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {groups.map(g => (
-              <span key={g.range} className="pill" title={g.chapter_title || ""}>
-                p {g.range} · {g.count}🖼
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-      <div className="row" style={{ marginBottom: 12, alignItems: "center", gap: 8 }}>
-        <span className="muted">sort by:</span>
-        <button className={sortBy === "page" ? "primary" : ""} onClick={() => setSortBy("page")}>page</button>
-        <button className={sortBy === "score" ? "primary" : ""} onClick={() => setSortBy("score")}>score</button>
-        <span className="gap" style={{ flex: 1 }} />
-        <button onClick={() => setRefreshKey(k => k + 1)}>Refresh</button>
-      </div>
-      <div className="image-grid">
-        {sorted.map(img => (
-          <ImageCard key={img.scene_id} slug={slug} scene={img} />
-        ))}
-        {sorted.length === 0 && <div className="muted">
-          {images.length === 0 ? "No images yet." : "All images are orphans (toggle 'hide them' to see)."}
-        </div>}
-      </div>
-    </div>
-  );
-}
-
-// ----- Preview tab (full-book Quill render) ---------------------------
-function PreviewTab({ slug }) {
-  const [book, setBook] = useState(null);
-  const [err, setErr] = useState(null);
-  const [active, setActive] = useState(null);
-  const [fontSize, setFontSize] = useState(17);
-  const [showHighlights, setShowHighlights] = useState(true);
-  const [maxWidth, setMaxWidth] = useState(720);
-  const [fullscreen, setFullscreen] = useState(true);
-  const [reloadKey, setReloadKey] = useState(0);
-  const bodyRef = useRef(null);
-
-  useEffect(() => {
-    setBook(null); setActive(null); setErr(null);
-    api(`/api/books/${slug}/delta`)
-      .then((b) => {
-        setBook(b);
-        if (b.chapters?.[0]) setActive(b.chapters[0].id);
-      })
-      .catch((e) => setErr("Failed to load preview: " + String(e)));
-  }, [slug, reloadKey]);
-
-  useEffect(() => {
-    if (!book || !bodyRef.current) return;
-    const root = bodyRef.current;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter(e => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible[0]) setActive(visible[0].target.dataset.chapterId);
-      },
-      { root, rootMargin: "-30% 0px -55% 0px", threshold: [0, .25, .5, 1] }
-    );
-    root.querySelectorAll("[data-chapter-id]").forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  }, [book]);
-
-  // ESC exits fullscreen.
-  useEffect(() => {
-    if (!fullscreen) return;
-    const onKey = (e) => { if (e.key === "Escape") setFullscreen(false); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [fullscreen]);
-
-  const jumpTo = (id) => {
-    const el = bodyRef.current?.querySelector(`[data-chapter-id="${id}"]`);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  if (err) return <div className="err">{err}</div>;
-  if (!book) return <div className="muted">Loading book…</div>;
-  if (!book.chapters?.length) return <div className="muted">No chapters rendered yet — wait for ingest to finish.</div>;
-
-  return (
-    <div className={"preview-wrap" + (fullscreen ? " fullscreen" : "")}>
-      <CleanupPanel
-        slug={slug}
-        onCleaned={() => setReloadKey(k => k + 1)}
-      />
-      <div className="reader-controls">
-        <span>{book.chapters.length} chapter{book.chapters.length === 1 ? "" : "s"}</span>
-        <span className="gap" />
-        <label className="toggle">
-          <input type="checkbox" checked={showHighlights}
-            onChange={e => setShowHighlights(e.target.checked)} />
-          {' highlights'}
-        </label>
-        <span>·</span>
-        <span>font</span>
-        <input type="range" min="14" max="24" value={fontSize}
-          onChange={e => setFontSize(+e.target.value)} />
-        <span>{fontSize}px</span>
-        <span>·</span>
-        <span>width</span>
-        <input type="range" min="560" max="960" step="20" value={maxWidth}
-          onChange={e => setMaxWidth(+e.target.value)} />
-        <span>{maxWidth}px</span>
-        <span>·</span>
-        <button onClick={() => setFullscreen(f => !f)}>
-          {fullscreen ? "Exit fullscreen (Esc)" : "Fullscreen"}
-        </button>
-      </div>
-      <div className="reader">
-        <nav className="reader-toc">
-          {book.chapters.map((c, i) => (
-            <div
-              key={c.id}
-              className={"toc-entry " + (active === c.id ? "active" : "")}
-              onClick={() => jumpTo(c.id)}
-            >
-              <div>{c.title || <em>Chapter {i + 1}</em>}</div>
-              <small>
-                p {c.page_start}–{c.page_end}
-                {c.scene_ids?.length ? ` · ${c.scene_ids.length}🖼` : ""}
-              </small>
-            </div>
-          ))}
-        </nav>
-        <div className="reader-body" ref={bodyRef}>
-          <article className="reader-page" style={{ fontSize, maxWidth }}>
-            <h1 className="book-title">{book.title}</h1>
-            {book.author && <div className="book-author">by {book.author}</div>}
-            {book.chapters.map((c, i) => (
-              <LazyChapter
-                key={c.id}
-                chapter={c}
-                index={i}
-                rootRef={bodyRef}
-                showHighlights={showHighlights}
-              />
-            ))}
-          </article>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Free-form instruction the user types to direct the AI's final cleanup
-// pass over the whole book. On submit we POST to /final-cleanup which
-// re-runs the cleaner agent for every chunk with the instruction
-// prefixed; we poll /final-cleanup/status until phase=="done", then ask
-// the parent to re-fetch the rendered Delta so the Quill viewers
-// reflect the new cleaned markdown.
-function CleanupPanel({ slug, onCleaned }) {
-  const toast = useToast();
-  const [open, setOpen] = useState(false);
-  const [text, setText] = useState("");
-  const [status, setStatus] = useState(null);
-  const [busy, setBusy] = useState(false);
-
-  const fetchStatus = useCallback(() => {
-    api(`/api/books/${slug}/final-cleanup/status`).then(setStatus).catch(() => {});
-  }, [slug]);
-
-  useEffect(() => { fetchStatus(); }, [fetchStatus]);
-
-  // While a cleanup is running, poll every 2s. When it ends, ask the
-  // parent to reload the preview.
-  const wasRunning = useRef(false);
-  useEffect(() => {
-    let t = null;
-    if (status?.phase === "running" || status?.phase === "queued") {
-      wasRunning.current = true;
-      t = setTimeout(fetchStatus, 2000);
-    } else if (wasRunning.current && status?.phase === "done") {
-      wasRunning.current = false;
-      toast("Final cleanup complete", "ok");
-      onCleaned?.();
-    }
-    return () => { if (t) clearTimeout(t); };
-  }, [status, fetchStatus, toast, onCleaned]);
-
-  const submit = async () => {
-    const instruction = text.trim();
-    if (!instruction) return;
-    setBusy(true);
-    try {
-      const r = await fetch(`/api/books/${slug}/final-cleanup`, {
+      const resp = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ instruction }),
+        body: payload,
       });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.detail || "request failed");
-      if (!j.queued) {
-        toast(j.reason || "already running", "info");
-      } else {
-        toast("Cleanup queued — applying to every chunk…", "ok");
-        setText("");
-      }
-      fetchStatus();
-    } catch (e) {
-      toast("Cleanup failed to start: " + String(e), "err");
-    } finally { setBusy(false); }
-  };
-
-  const running = status?.phase === "running" || status?.phase === "queued";
-  const lastInstr = status?.last_instruction;
-
-  return (
-    <div className="cleanup-panel">
-      <div className="cleanup-head">
-        <strong>Final cleanup</strong>
-        <span>— your instruction is sent to the AI to do a final pass over every chapter</span>
-        <span className="gap" style={{ flex: 1 }} />
-        {running && (
-          <span className="cleanup-progress">
-            running · {status.completed || 0}/{status.total || "?"} chunks
-          </span>
-        )}
-        <button onClick={() => setOpen(o => !o)}>{open ? "Hide" : "Edit instruction"}</button>
-      </div>
-      {open && (
-        <>
-          <textarea
-            placeholder='e.g. "drop the running header SHRI SHIVA PURANA from every page", "merge any mid-sentence line breaks aggressively", "convert all single quotes to typographic quotes"'
-            value={text}
-            onChange={e => setText(e.target.value)}
-            disabled={busy || running}
-          />
-          <div className="cleanup-row">
-            <button className="primary" disabled={busy || running || !text.trim()} onClick={submit}>
-              {running ? "Running…" : (busy ? "Submitting…" : "Run final cleanup")}
-            </button>
-            {running && (
-              <span className="cleanup-progress">
-                {status.completed || 0}/{status.total || "?"} chunks done
-              </span>
-            )}
-          </div>
-        </>
-      )}
-      {lastInstr && !open && (
-        <div className="last-instr">last instruction: “{lastInstr}”</div>
-      )}
-      {status?.plan && (
-        <div className="cleanup-plan">
-          <span className={"plan-pill " + status.plan.method}>{status.plan.method}</span>
-          <span className="plan-rationale">{status.plan.rationale}</span>
-          {status.plan.method === "regex" && status.plan.regex_pattern && (
-            <details style={{ marginTop: 6 }}>
-              <summary>regex applied</summary>
-              <pre style={{ fontSize: 11, margin: "4px 0", whiteSpace: "pre-wrap" }}>
-{`pattern:     ${status.plan.regex_pattern}
-replacement: ${status.plan.regex_replacement || "(empty)"}
-flags:       ${(status.plan.regex_flags || []).join(", ") || "(none)"}`}
-              </pre>
-            </details>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// LazyChapter — mounts a placeholder div whose height is estimated from
-// the chapter's char count. When near the viewport, it mounts a real
-// Quill viewer with the chapter's ops. Stays mounted afterward so users
-// can scroll back without re-rendering.
-function LazyChapter({ chapter, index, rootRef, showHighlights }) {
-  const [mounted, setMounted] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (mounted || !ref.current || !rootRef.current) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) { setMounted(true); break; }
+      const text = await resp.text();
+      let body;
+      try { body = JSON.parse(text); } catch { body = { detail: text }; }
+      if (!resp.ok) throw new Error(body.detail ?? resp.statusText);
+      job.status = "success";
+      job.url = body.url;
+      job.attempts = body.attempts_taken ?? 1;
+      job.result = body;
+      if (job.kind === "deploy" && body.sync) {
+        // Surface the sync_to_db.py output for visibility.
+        job.syncRc = body.sync.rc;
+        if (body.sync.rc !== 0) {
+          job.status = "failed";
+          job.error = `sync_to_db.py exited ${body.sync.rc}: ${(body.sync.stderr || body.sync.stdout || "").slice(-300)}`;
         }
-      },
-      { root: rootRef.current, rootMargin: "1500px 0px" }
-    );
-    obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [mounted, rootRef]);
-
-  const charCount = chapter.char_count ?? (chapter.ops?.reduce(
-    (s, op) => s + (typeof op.insert === "string" ? op.insert.length : 600),
-    0,
-  ) || 1000);
-  const placeholderH = Math.max(380, Math.min(12000, charCount * 0.35));
-
-  // When highlights are off, strip background attributes from the ops
-  // before handing them to Quill.
-  const ops = useMemo(() => {
-    if (showHighlights) return chapter.ops;
-    return (chapter.ops || []).map(op => {
-      if (op.attributes?.background) {
-        const { background, ...rest } = op.attributes;
-        const cleaned = { ...op };
-        if (Object.keys(rest).length) cleaned.attributes = rest;
-        else delete cleaned.attributes;
-        return cleaned;
       }
-      return op;
-    });
-  }, [chapter.ops, showHighlights]);
+    } catch (exc) {
+      job.status = "failed";
+      job.error = String(exc.message ?? exc);
+    }
+    Q.inflight.delete(job.id);
+    Q.finished.unshift(job);
+    if (Q.finished.length > 30) Q.finished.length = 30;
+    // Browser notification on completion. Per-job for failures; a single
+    // "batch complete" when the last in-flight + pending job for a slug
+    // drains. Quiet success per-job to avoid notification spam.
+    notifyJob(job);
+    maybeNotifyBatchComplete(job.slug);
+    emitDockUpdate();
+    this._drain();
+  },
 
-  return (
-    <section ref={ref} className="chapter" data-chapter-id={chapter.id}>
-      <h2 className="chapter-title">{chapter.title || `Chapter ${index + 1}`}</h2>
-      <div className="chapter-meta">pages {chapter.page_start}–{chapter.page_end}</div>
-      <hr className="chapter-rule" />
-      {mounted ? (
-        <QuillViewer ops={ops} />
-      ) : (
-        <div style={{ minHeight: placeholderH, color: "var(--muted)", fontStyle: "italic" }}>
-          loading…
+  clearFinished() {
+    Q.finished = [];
+    emitDockUpdate();
+  },
+
+  // Convenience: enqueue every "pending"-status scene in a chapter at once.
+  enqueueChapter(slug, sceneEntries) {
+    for (const s of sceneEntries) {
+      this.enqueue({
+        slug, kind: "scene", targetId: s.sceneId,
+        label: `${slug} / ${s.sceneId.slice(0, 10)}`,
+      });
+    }
+  },
+};
+
+// ─── Dock rendering ────────────────────────────────────────────────
+
+function renderDock() {
+  const dock = $("#dock");
+  const jobs = $("#dock-jobs");
+  const toggle = $("#dock-toggle");
+  const count = $("#dock-toggle-count");
+  const title = $("#dock-title");
+
+  const inflight = Array.from(Q.inflight.values()).sort((a, b) => a.startedAt - b.startedAt);
+  const pending = Q.pending.slice();
+  const finished = Q.finished.slice(0, 10);
+
+  const liveCount = inflight.length + pending.length;
+  count.textContent = String(liveCount);
+  toggle.classList.toggle("visible", liveCount > 0 && !dock.classList.contains("open"));
+  title.textContent = liveCount > 0
+    ? `Generating · ${inflight.length} in flight, ${pending.length} queued`
+    : `Recent jobs`;
+
+  // Auto-open the dock the first time a job starts.
+  if (liveCount > 0 && !window.__dockEverOpened) {
+    dock.classList.add("open");
+    window.__dockEverOpened = true;
+  }
+
+  const rows = [];
+  for (const j of inflight) {
+    const elapsed = ((Date.now() - j.startedAt) / 1000).toFixed(0);
+    rows.push(`
+      <div class="dock-job">
+        <div class="row">
+          <span class="spinner"></span>
+          <span class="label">${escapeHtml(j.label)}</span>
+          <span class="meta">${elapsed}s</span>
         </div>
-      )}
-    </section>
-  );
+        <div class="meta">${escapeHtml(j.kind)}${j.attempts ? ` · attempt ${j.attempts}` : ""}</div>
+      </div>`);
+  }
+  for (const j of pending) {
+    rows.push(`
+      <div class="dock-job">
+        <div class="row">
+          <span class="meta">⋯</span>
+          <span class="label">${escapeHtml(j.label)}</span>
+          <span class="meta">queued</span>
+        </div>
+      </div>`);
+  }
+  for (const j of finished) {
+    const tone = j.status === "success" ? "success" : "failed";
+    const note = j.status === "success"
+      ? `done${j.attempts > 1 ? ` after ${j.attempts} attempts` : ""}`
+      : escapeHtml((j.error || "").slice(0, 80));
+    rows.push(`
+      <div class="dock-job ${tone}">
+        <div class="row">
+          <span>${j.status === "success" ? "✓" : "✗"}</span>
+          <span class="label">${escapeHtml(j.label)}</span>
+        </div>
+        <div class="meta">${note}</div>
+      </div>`);
+  }
+  jobs.innerHTML = rows.join("") || `<div class="dock-job"><span class="meta">No recent jobs.</span></div>`;
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+document.addEventListener("dock-update", renderDock);
+// Tick once a second to refresh elapsed-time counters on in-flight jobs.
+setInterval(() => { if (Q.inflight.size > 0) renderDock(); }, 1000);
 
+// Wire dock open/close + clear once the DOM is ready.
+document.addEventListener("DOMContentLoaded", () => {
+  const dock = $("#dock");
+  $("#dock-toggle").addEventListener("click", () => {
+    dock.classList.add("open");
+    $("#dock-toggle").classList.remove("visible");
+  });
+  $("#dock-clear").addEventListener("click", () => JobQueue.clearFinished());
+  renderDock();
+});
+
+function setCrumbs(...crumbs) {
+  $("#crumbs").innerHTML =
+    `<a href="#/" class="${crumbs.length ? "" : "crumb"}">Library</a>` +
+    crumbs.map((c, i) =>
+      ` › <a href="${escapeHtml(c.href)}" class="${i === crumbs.length - 1 ? "crumb" : ""}">${escapeHtml(c.label)}</a>`
+    ).join("");
+}
+
+// Route-level subscription: every render re-registers a listener that
+// refreshes the visible page when ANY job lands. Previous listeners
+// (for old route instances) are detached on each call.
+let _routeListener = null;
+function setRouteListener(fn) {
+  if (_routeListener) Q.listeners.delete(_routeListener);
+  _routeListener = fn;
+  if (fn) Q.listeners.add(fn);
+}
+
+// ─── Library view ───────────────────────────────────────────────────
+async function renderLibrary() {
+  setCrumbs();
+  // When a cover finishes anywhere, re-pull /api/books so the library
+  // card flips from placeholder to image without manual refresh.
+  setRouteListener(() => renderLibrary());
+  const app = $("#app");
+  app.innerHTML = `<div class="row-title">Library</div><div id="library"></div>`;
+  let books;
+  try {
+    books = await api("/api/books");
+  } catch (e) {
+    $("#library").innerHTML = `<div class="empty"><h2>Could not load library</h2><p>${escapeHtml(e.message)}</p></div>`;
+    return;
+  }
+  if (!books.length) {
+    $("#library").innerHTML = `
+      <div class="empty">
+        <h2>No books yet</h2>
+        <p>Drop a book into <code>data/</code> and ask Claude to prep it.</p>
+        <p>Once a book's <code>manifest.ready_for_runtime</code> is <code>true</code>, it'll show up here.</p>
+      </div>`;
+    return;
+  }
+  $("#library").innerHTML = `<div class="book-grid">${
+    books.map(b => bookCardHtml(b)).join("")
+  }</div>`;
+  $$(".book-card").forEach(el => {
+    el.addEventListener("click", () => {
+      location.hash = `#/book/${encodeURIComponent(el.dataset.slug)}`;
+    });
+  });
+  $$(".book-card .cover-placeholder button").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.stopPropagation();
+      const slug = btn.dataset.slug;
+      await generateCover(slug, btn);
+    });
+  });
+}
+
+function bookCardHtml(book) {
+  const coverInner = book.cover_status === "ready"
+    ? `<img src="${escapeHtml(book.cover_url)}" alt="">`
+    : `<div class="cover-placeholder">
+         <div class="title">${escapeHtml(book.title)}</div>
+         <button data-slug="${escapeHtml(book.slug)}">Generate cover</button>
+       </div>`;
+  return `
+    <div class="book-card" data-slug="${escapeHtml(book.slug)}">
+      <div class="cover">${coverInner}</div>
+      <div class="meta">
+        <div class="title">${escapeHtml(book.title)}</div>
+        <div class="author">${escapeHtml(book.author ?? "")}</div>
+        <div class="genres">${(book.genres ?? []).map(escapeHtml).join(" · ")}</div>
+      </div>
+    </div>`;
+}
+
+function generateCover(slug, btn) {
+  // Enqueue; don't block. The dock shows progress. The route handler's
+  // queue listener re-renders when the job lands.
+  JobQueue.enqueue({
+    slug, kind: "cover", label: `${slug} · cover`,
+  });
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> Queued…`;
+}
+
+// ─── Book detail view ───────────────────────────────────────────────
+async function renderBook(slug) {
+  // Refresh when any cover/character/scene job lands.
+  setRouteListener(() => renderBook(slug));
+  let data;
+  try {
+    data = await api(`/api/books/${encodeURIComponent(slug)}`);
+  } catch (e) {
+    $("#app").innerHTML = `<div class="empty"><h2>Not found</h2><p>${escapeHtml(e.message)}</p></div>`;
+    return;
+  }
+  setCrumbs({ href: `#/book/${encodeURIComponent(slug)}`, label: data.manifest.title || slug });
+
+  const cover = data.cover || {};
+  const coverKey = jobKey(slug, "cover", "");
+  const coverRunning = isJobLive(coverKey);
+  const coverImg = cover.status === "ready"
+    ? `<img src="/api/books/${encodeURIComponent(slug)}/cover/png" alt="">`
+    : coverRunning
+      ? `<div class="cover-placeholder card-pending"><span class="spinner"></span><span>Generating cover…</span></div>`
+      : `<div class="cover-placeholder card-pending"><span>Cover pending</span></div>`;
+
+  $("#app").innerHTML = `
+    <div class="book-detail">
+      <div>
+        <div class="cover-large">${coverImg}</div>
+      </div>
+      <div class="info">
+        <h2>${escapeHtml(data.manifest.title)}</h2>
+        <div class="author">${escapeHtml(data.manifest.author ?? "")}</div>
+        <div class="description">${escapeHtml(data.manifest.description ?? (data.poster?.back_cover_copy ?? ""))}</div>
+        <div class="genres">${(data.poster?.genres ?? []).map(escapeHtml).join(" · ")}</div>
+        <div id="gen-all-host" style="margin-top:20px;"></div>
+      </div>
+    </div>
+
+    ${data.cast.length ? `
+      <div class="section-title">Cast</div>
+      <div class="cast-strip">${data.cast.map(c => castCardHtml(slug, c)).join("")}</div>
+    ` : ""}
+
+    <div class="section-title">Chapters</div>
+    <div class="chapter-list">${
+      data.chunks.map((c, i) => `
+        <div class="chapter-item" data-chunk="${escapeHtml(c.chunk_id)}">
+          <div class="ch-num">Chapter ${i + 1}</div>
+          <div class="ch-title">${escapeHtml(c.title ?? "Untitled")}</div>
+        </div>
+      `).join("")
+    }</div>
+  `;
+
+  $$(".chapter-item").forEach(el => {
+    el.addEventListener("click", () => {
+      location.hash = `#/book/${encodeURIComponent(slug)}/chapter/${encodeURIComponent(el.dataset.chunk)}`;
+    });
+  });
+
+  // "Generate everything" + "Sync to VM" — the two big actions for a book.
+  // The gen-all panel is re-rendered on every dock-update so the operator
+  // sees live progress (X of Y done, K in flight) without leaving the page.
+  (async () => {
+    let pending;
+    try {
+      pending = await api(`/api/books/${encodeURIComponent(slug)}/pending-images`);
+    } catch {
+      return;
+    }
+    const host = $("#gen-all-host");
+    if (!host) return;
+
+    // Snapshot the *initial* total at first render so we can show
+    // "X of N done" as jobs land. `pending.counts.total` reflects
+    // server-side state (still-pending on disk); we don't refetch
+    // it on every dock tick — the route listener will re-render on
+    // job completion, which re-runs this IIFE and resets the snapshot.
+    const initialTotal = pending.counts.total + sumGenJobs(slug, "success");
+    const totalToGen = pending.counts.total;
+
+    function renderPanel() {
+      const inflight = [...Q.inflight.values()].filter(j => j.slug === slug && j.kind !== "deploy");
+      const queued   = Q.pending.filter(j => j.slug === slug && j.kind !== "deploy");
+      const success  = Q.finished.filter(j => j.slug === slug && j.status === "success" && j.kind !== "deploy");
+      const failed   = Q.finished.filter(j => j.slug === slug && j.status === "failed" && j.kind !== "deploy");
+
+      const isRunning = inflight.length + queued.length > 0;
+      const doneCount = success.length;
+      const totalCount = initialTotal || (doneCount + inflight.length + queued.length + failed.length);
+      const pct = totalCount > 0 ? Math.min(100, Math.round((doneCount / totalCount) * 100)) : 0;
+
+      const breakdown = [
+        pending.counts.cover      && "1 cover",
+        pending.counts.characters && `${pending.counts.characters} character${pending.counts.characters === 1 ? "" : "s"}`,
+        pending.counts.scenes     && `${pending.counts.scenes} scene${pending.counts.scenes === 1 ? "" : "s"}`,
+      ].filter(Boolean).join(" · ");
+
+      let genBlock;
+      if (totalToGen === 0) {
+        genBlock = `<div class="genres" style="color:var(--ok);">✓ All images generated.</div>`;
+      } else if (isRunning) {
+        const inflightLabels = inflight.slice(0, 4).map(j => {
+          const elapsed = ((Date.now() - j.startedAt) / 1000).toFixed(0);
+          return `<span class="run-chip"><span class="spinner"></span>${escapeHtml(shortLabel(j))} · ${elapsed}s</span>`;
+        }).join("");
+        const overflow = inflight.length > 4 ? `<span class="run-chip subtle">+${inflight.length - 4} more</span>` : "";
+        genBlock = `
+          <button id="gen-all-btn" class="gen-all-btn" disabled>
+            <span class="spinner"></span> Generating ${doneCount} of ${totalCount}…
+          </button>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
+          <div class="progress-meta">
+            ${doneCount} done · ${inflight.length} in flight · ${queued.length} queued${failed.length ? ` · <span style="color:var(--danger);">${failed.length} failed</span>` : ""}
+          </div>
+          <div class="running-chips">${inflightLabels}${overflow}</div>
+        `;
+      } else {
+        genBlock = `
+          <button id="gen-all-btn" class="gen-all-btn">Generate all ${totalToGen} images</button>
+          <div class="progress-meta">${breakdown}${failed.length ? ` · <span style="color:var(--danger);">${failed.length} failed last run — retry</span>` : ""}</div>
+        `;
+      }
+
+      host.innerHTML = `
+        <div class="gen-panel">${genBlock}</div>
+        <div class="gen-panel-row" style="margin-top:14px;">
+          <button id="sync-vm-btn" class="ghost-btn">Sync to VM &nbsp;↗</button>
+          <span class="genres">Push to <code style="color:var(--accent);">inkspacex.com</code> · live in the Flutter app</span>
+        </div>`;
+
+      wireGenAll();
+      wireSync();
+    }
+
+    function wireGenAll() {
+      const genAll = $("#gen-all-btn");
+      if (!genAll || genAll.disabled) return;
+      genAll.addEventListener("click", async () => {
+        // Ask the browser for notification permission once, on first
+        // Generate-all click. If granted, we'll notify on batch complete
+        // and on individual failures.
+        await requestNotifyPermission();
+        let queued = 0;
+        if (pending.cover) {
+          JobQueue.enqueue({ slug, kind: "cover", label: `${slug} · cover` });
+          queued++;
+        }
+        for (const c of pending.characters) {
+          JobQueue.enqueue({
+            slug, kind: "character", targetId: c.name_slug,
+            label: `${slug} · ${c.name}`,
+          });
+          queued++;
+        }
+        for (const s of pending.scenes) {
+          JobQueue.enqueue({
+            slug, kind: "scene", targetId: s.scene_id,
+            label: `${slug} · ${s.scene_id.slice(0, 10)}`,
+          });
+          queued++;
+        }
+        toast(`Queued ${queued} images.`, "ok");
+        // renderPanel() will be invoked by the dock-update event.
+      });
+    }
+
+    function wireSync() {
+      const syncBtn = $("#sync-vm-btn");
+      if (!syncBtn) return;
+      syncBtn.addEventListener("click", async () => {
+        const total = pending.counts.total;
+        let confirmMsg = `Push "${data.manifest.title}" to the production VM?\n\nThis will:`;
+        if (total > 0) {
+          confirmMsg += `\n  • Generate ${total} pending image${total === 1 ? "" : "s"} first (cover with title overlay, characters, scenes)`;
+        }
+        confirmMsg += `\n  • Tar artifacts and SFTP to azureuser@20.219.16.30`;
+        confirmMsg += `\n  • Run sync_to_db.py inside the fastapi container (writes Postgres + MinIO)`;
+        confirmMsg += `\n  • Live in the Flutter app within seconds`;
+        if (!confirm(confirmMsg)) return;
+        await requestNotifyPermission();
+        // One-click flow: enqueue every missing image, then the deploy.
+        // JobQueue runs them concurrently up to MAX_CONCURRENT; the
+        // deploy waits for nothing on the client side — sync_to_db.py
+        // reads whatever's on disk when the tarball is built, so any
+        // job still in-flight at deploy time would ship as a gap.
+        // Quick guard: kick the deploy only after generate jobs settle.
+        if (pending.cover) {
+          JobQueue.enqueue({ slug, kind: "cover", label: `${slug} · cover` });
+        }
+        for (const c of pending.characters) {
+          JobQueue.enqueue({
+            slug, kind: "character", targetId: c.name_slug,
+            label: `${slug} · ${c.name}`,
+          });
+        }
+        for (const s of pending.scenes) {
+          JobQueue.enqueue({
+            slug, kind: "scene", targetId: s.scene_id,
+            label: `${slug} · ${s.scene_id.slice(0, 10)}`,
+          });
+        }
+        if (total > 0) {
+          toast(`Queued ${total} images + deploy. Deploy fires once images settle.`, "ok");
+          await waitForSlugIdle(slug);
+        }
+        JobQueue.enqueue({ slug, kind: "deploy", label: `${slug} · sync to VM` });
+        if (total === 0) toast("Deploy queued.", "ok");
+      });
+    }
+
+    // Resolves when no scene/character/cover jobs for `slug` remain in
+    // flight or pending. Polls the queue every 400ms — cheap, and the
+    // queue events fire only when something changes anyway.
+    function waitForSlugIdle(slug) {
+      return new Promise(resolve => {
+        const Q = window.__queue;
+        const check = () => {
+          const stillGoing = [
+            ...Q.inflight.values(), ...Q.pending,
+          ].some(j => j.slug === slug && j.kind !== "deploy");
+          if (!stillGoing) resolve();
+          else setTimeout(check, 400);
+        };
+        check();
+      });
+    }
+
+    renderPanel();
+    // The route listener (setRouteListener above) re-renders this whole
+    // book detail on every dock-update, so we don't need a second
+    // subscription — that would double-handle and leak. We only need a
+    // 1-second tick so the elapsed-time chips on in-flight jobs stay
+    // current between dock events. Replace any previous panel tick so
+    // re-renders don't accumulate intervals.
+    if (window._genPanelTick) clearInterval(window._genPanelTick);
+    window._genPanelTick = setInterval(() => {
+      // Only tick while in-flight jobs exist for this slug; otherwise
+      // nothing on the panel needs updating.
+      const live = [...Q.inflight.values()].some(j => j.slug === slug);
+      if (live) renderPanel();
+    }, 1000);
+  })();
+
+  // Old per-character "Generate" buttons removed — generation is driven
+  // exclusively by the single "Generate all" action above. The cast
+  // cards now render an idle placeholder or a spinner overlay based on
+  // queue state (see castCardHtml + isJobLive). Re-rendering on
+  // dock-update is handled by the route listener.
+}
+
+// ─── Browser notifications ─────────────────────────────────────────
+// We notify the operator on individual job FAILURES (because those need
+// attention) and once per slug when a batch completes (so they can come
+// back to the tab from another window). Per-success notifications would
+// be noise — the dock and progress panel already show that.
+
+const _slugBatchSeen = new Map();   // slug → last in-flight count (used to detect 0-cross)
+
+async function requestNotifyPermission() {
+  if (!("Notification" in window)) return false;
+  if (Notification.permission === "granted") return true;
+  if (Notification.permission === "denied") return false;
+  try {
+    const p = await Notification.requestPermission();
+    return p === "granted";
+  } catch { return false; }
+}
+
+function notify(title, body, tag) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  try {
+    new Notification(title, { body, tag, icon: "/favicon.ico", silent: false });
+  } catch {}
+}
+
+function notifyJob(job) {
+  if (job.status === "failed") {
+    notify(
+      `✗ ${job.label}`,
+      (job.error || "Generation failed.").slice(0, 180),
+      `job-${job.id}`,
+    );
+  }
+  // Successes: don't notify per-job — too noisy when Generate all kicks
+  // off 20+ jobs. The batch-complete notification covers it.
+}
+
+function maybeNotifyBatchComplete(slug) {
+  // Check if anything is still in flight or queued for this slug.
+  // (Excludes deploy jobs — those announce separately.)
+  const stillLive =
+    [...Q.inflight.values()].some(j => j.slug === slug && j.kind !== "deploy") ||
+    Q.pending.some(j => j.slug === slug && j.kind !== "deploy");
+  const prev = _slugBatchSeen.get(slug) || 0;
+  const now = stillLive ? 1 : 0;
+  _slugBatchSeen.set(slug, now);
+  if (prev === 1 && now === 0) {
+    // We just crossed from "live work" to "no live work". Count how
+    // many jobs of this slug landed in the most-recent finished batch.
+    const success = Q.finished.filter(j => j.slug === slug && j.status === "success" && j.kind !== "deploy").length;
+    const failed  = Q.finished.filter(j => j.slug === slug && j.status === "failed"  && j.kind !== "deploy").length;
+    const title = failed > 0
+      ? `${slug} — ${success} done, ${failed} failed`
+      : `${slug} — all ${success} images ready`;
+    notify(title, "Open the studio tab to review.", `batch-${slug}-${Date.now()}`);
+  }
+}
+
+// Helper: short, human-friendly label for an in-flight job chip.
+function shortLabel(job) {
+  // Job label is "<slug> · <name>" — strip the leading slug to keep chips tight.
+  const idx = (job.label || "").indexOf(" · ");
+  if (idx !== -1) return job.label.slice(idx + 3);
+  return job.label || job.kind;
+}
+
+// Helper: count this slug's finished jobs in a given status.
+function sumGenJobs(slug, status) {
+  return Q.finished.filter(j => j.slug === slug && j.status === status && j.kind !== "deploy").length;
+}
+
+function castCardHtml(slug, c) {
+  // No per-card Generate button — generation is driven by the single
+  // "Generate all" action on the book detail page. While a job is in
+  // flight for this character, show a spinner overlay; otherwise an
+  // empty pending placeholder.
+  const key = jobKey(slug, "character", c.name_slug);
+  const isRunning = isJobLive(key);
+  const inner = c.status === "ready"
+    ? `<img src="/api/books/${encodeURIComponent(slug)}/characters/${encodeURIComponent(c.name_slug)}/png" alt="">`
+    : isRunning
+      ? `<div class="card-pending"><span class="spinner"></span><span>Generating…</span></div>`
+      : `<div class="card-pending"><span>Pending</span></div>`;
+  return `
+    <div class="cast-card${isRunning ? " is-running" : ""}">
+      <div class="cast-portrait">${inner}</div>
+      <div class="cast-name">${escapeHtml(c.name)}</div>
+      <div class="cast-bio">${escapeHtml((c.bio || "").slice(0, 110))}${(c.bio || "").length > 110 ? "…" : ""}</div>
+    </div>`;
+}
+
+// Is there a job in the queue (inflight OR pending) for this key?
+function isJobLive(key) {
+  for (const j of Q.inflight.values()) if (j.key === key) return true;
+  for (const j of Q.pending) if (j.key === key) return true;
+  return false;
+}
+
+// ─── Reader view (Delta → HTML) ─────────────────────────────────────
+async function renderChapter(slug, chunkId) {
+  // When a scene job lands while reading, refresh so the placeholder
+  // card flips into the rendered <img>.
+  setRouteListener(() => renderChapter(slug, chunkId));
+  let bookData, section;
+  try {
+    [bookData, section] = await Promise.all([
+      api(`/api/books/${encodeURIComponent(slug)}`),
+      api(`/api/books/${encodeURIComponent(slug)}/sections/${encodeURIComponent(chunkId)}`),
+    ]);
+  } catch (e) {
+    $("#app").innerHTML = `<div class="empty"><h2>Could not load chapter</h2><p>${escapeHtml(e.message)}</p></div>`;
+    return;
+  }
+  setCrumbs(
+    { href: `#/book/${encodeURIComponent(slug)}`, label: bookData.manifest.title || slug },
+    { href: `#/book/${encodeURIComponent(slug)}/chapter/${encodeURIComponent(chunkId)}`,
+      label: (bookData.chunks.find(c => c.chunk_id === chunkId)?.title) || "Chapter" }
+  );
+
+  const html = deltaToHtml(section.ops || [], slug);
+  $("#app").innerHTML = `
+    <div class="reader">
+      ${html}
+    </div>`;
+
+  // No per-scene or chapter-level Generate buttons — generation is
+  // exclusively driven by "Generate all" on the book detail page. Scene
+  // cards in the rendered Delta show a spinner placeholder when a job
+  // is in flight for them, or an idle "Pending" placeholder otherwise.
+}
+
+// Minimal Quill Delta renderer. Handles:
+//   - text inserts with attributes: bold, italic, background (highlight), header, blockquote
+//   - image inserts: {insert: {image: "/api/.../png"}} — fetched async; 404 → scene-card placeholder
+function deltaToHtml(ops, slug) {
+  // First pass: group text ops into lines (each newline closes a line).
+  const lines = [];
+  let buffer = "";
+  let lineAttrs = {};
+  const imageOps = []; // queued image placements
+
+  for (const op of ops) {
+    const ins = op.insert;
+    if (typeof ins === "string") {
+      const parts = ins.split("\n");
+      for (let i = 0; i < parts.length; i++) {
+        if (parts[i]) {
+          buffer += inlineSpan(parts[i], op.attributes || {});
+        }
+        if (i < parts.length - 1) {
+          lines.push({ html: buffer, attrs: op.attributes || lineAttrs });
+          buffer = "";
+          lineAttrs = {};
+        }
+      }
+    } else if (ins && typeof ins === "object" && ins.image) {
+      // Flush any text on the current line.
+      if (buffer) {
+        lines.push({ html: buffer, attrs: {} });
+        buffer = "";
+      }
+      lines.push({ html: imagePlaceholderHtml(ins.image, slug), attrs: { block: "image" } });
+    }
+  }
+  if (buffer) lines.push({ html: buffer, attrs: {} });
+
+  // Second pass: collapse to HTML with paragraph/heading/blockquote blocks.
+  let html = "";
+  for (const line of lines) {
+    const a = line.attrs || {};
+    if (a.block === "image") {
+      html += line.html;
+    } else if (a.header) {
+      const lvl = Math.max(1, Math.min(6, Number(a.header)));
+      html += `<h${lvl}>${line.html}</h${lvl}>`;
+    } else if (a.blockquote) {
+      html += `<blockquote><p>${line.html}</p></blockquote>`;
+    } else {
+      html += line.html.trim() ? `<p>${line.html}</p>` : "";
+    }
+  }
+  return html;
+}
+
+function inlineSpan(text, attrs) {
+  let out = escapeHtml(text);
+  if (attrs.bold) out = `<strong>${out}</strong>`;
+  if (attrs.italic) out = `<em>${out}</em>`;
+  if (attrs.background) {
+    const safeColor = /^#[0-9a-fA-F]{3,8}$/.test(attrs.background) ? attrs.background : "transparent";
+    out = `<mark style="background:${safeColor};color:inherit">${out}</mark>`;
+  }
+  return out;
+}
+
+// For images whose PNG may not exist yet, render a scene-card placeholder
+// that triggers generation on click. We probe the URL with a HEAD request
+// to decide between <img> and placeholder.
+function imagePlaceholderHtml(url, slug) {
+  // URL shape: /api/books/<slug>/images/<scene_id>/png — extract scene_id.
+  const m = url.match(/\/api\/books\/[^/]+\/images\/([^/]+)\/png$/);
+  if (!m) {
+    return `<figure><img src="${escapeHtml(url)}" alt=""></figure>`;
+  }
+  const sceneId = m[1];
+  // Use a probe: <img> with onerror falls back to a placeholder element
+  // we hide/show via JS after render. Simpler: always render both and let
+  // CSS handle, but cleanest is to emit a wrapper that swaps based on a
+  // fetch probe done client-side after insertion.
+  const wrapperId = `scene-wrap-${sceneId}`;
+  // Defer probe to next tick after insertion.
+  queueMicrotask(() => probeImage(wrapperId, url, sceneId));
+  return `
+    <figure id="${wrapperId}">
+      <div class="scene-card" data-loading="1">
+        <span class="spinner"></span>
+        <span class="scene-hint">Checking…</span>
+      </div>
+    </figure>`;
+}
+
+async function probeImage(wrapperId, url, sceneId) {
+  const wrap = document.getElementById(wrapperId);
+  if (!wrap) return;
+  try {
+    const head = await fetch(url, { method: "HEAD" });
+    if (head.ok) {
+      wrap.innerHTML = `<img src="${escapeHtml(url)}" alt="">`;
+      return;
+    }
+  } catch {}
+  // 404 → render a placeholder. No per-scene Generate button: the only
+  // entry point is the book-detail "Generate all". If a job is in flight
+  // for this scene we show a spinner; otherwise an idle pending hint.
+  const slug = location.hash.match(/^#\/book\/([^/]+)/)?.[1] ?? "";
+  let hint = "";
+  try {
+    const meta = await api(`/api/books/${slug}/images/${encodeURIComponent(sceneId)}`);
+    hint = (meta.scene_text || "").slice(0, 200);
+  } catch {}
+  const running = isJobLive(jobKey(slug, "scene", sceneId));
+  wrap.innerHTML = `
+    <div class="scene-card${running ? " is-running" : ""}">
+      <div class="scene-hint">${escapeHtml(hint)}</div>
+      <div class="scene-status">${running
+        ? `<span class="spinner"></span><span>Generating…</span>`
+        : `<span class="subtle">Pending — click "Generate all" on the book page</span>`
+      }</div>
+    </div>`;
+}
+
+// ─── Router ─────────────────────────────────────────────────────────
+function route() {
+  const h = location.hash || "#/";
+  const mBook = h.match(/^#\/book\/([^/]+)$/);
+  const mChap = h.match(/^#\/book\/([^/]+)\/chapter\/([^/]+)$/);
+  if (mChap) return renderChapter(decodeURIComponent(mChap[1]), decodeURIComponent(mChap[2]));
+  if (mBook) return renderBook(decodeURIComponent(mBook[1]));
+  renderLibrary();
+}
+window.addEventListener("hashchange", route);
+window.addEventListener("load", route);
 </script>
 </body>
 </html>

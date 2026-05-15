@@ -13,6 +13,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:inkspacex/services/format_count.dart';
 import 'package:inkspacex/ui/editor/image_embed_builder.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
@@ -5355,7 +5356,7 @@ class _ActionRow extends StatelessWidget {
                         size: 22,
                       ),
                     ),
-                    label: '${liveLikes.clamp(0, 999999)}',
+                    label: formatCount(liveLikes.clamp(0, 999999)),
                     labelColor: textColor,
                   ),
                   const SizedBox(width: 4),
@@ -5368,7 +5369,7 @@ class _ActionRow extends StatelessWidget {
                       color: subtleColor,
                       size: 20,
                     ),
-                    label: '${item.commentsCount}',
+                    label: formatCount(item.commentsCount),
                     labelColor: textColor,
                   ),
                   const Spacer(),

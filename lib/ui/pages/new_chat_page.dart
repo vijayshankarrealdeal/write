@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/services/api/api_data_service.dart';
+import 'package:inkspacex/services/format_count.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
 import 'package:inkspacex/ui/widgets/app_spinner.dart';
 
@@ -219,7 +220,7 @@ class _UserRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${user.postsCount} posts • ${user.followersCount} followers',
+                    '${formatCount(user.postsCount)} posts • ${formatCount(user.followersCount)} followers',
                     style: GoogleFonts.inter(fontSize: 12, color: subtle),
                   ),
                 ],

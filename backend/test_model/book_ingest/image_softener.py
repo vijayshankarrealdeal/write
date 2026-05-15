@@ -1,128 +1,59 @@
-"""LLM-based prompt softener for image-gen content-policy rejections.
+"""Deterministic prompt-softening rules for the rephrase-retry loop.
 
-When Azure's image API rejects a prompt as a content-policy violation
-(typical for classic literature with creation/violence/body-horror
-scenes — Frankenstein, Dracula, etc.), the softener rewrites the scene
-description to be visually striking but compliant.
-
-Strategy: replace explicit imagery with implication. A creation scene
-becomes lab-light + storm + silhouette. A monster confrontation becomes
-shadow-on-shadow + alpine atmosphere. The narrative moment is
-preserved; the explicit content is removed.
-
-We use the cheap cleaner model — softening is a simple text-rewrite
-task and doesn't need a frontier model. Budget impact: roughly $0.001
-per softened scene.
+Each rule swaps a known trigger word/phrase for a safer near-synonym.
+Applied in order. Pure regex — no LLM call. This is attempt 2 of the
+5-attempt retry ladder in studio/server.py.
 """
-
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
-from pydantic_ai import Agent
+import re
 
-from .agents import cleaner_model
-from .retry import with_retries
+_RULES: list[tuple[str, str]] = [
+    # ── Violence / gore ────────────────────────────────────────────────
+    (r"\bblood[-\s]?soaked\b", "battle-worn"),
+    (r"\bbloody\b", "stained"),
+    (r"\bbleeding\b", "wounded"),
+    (r"\bgore\b", "aftermath"),
+    (r"\bgory\b", "stark"),
+    (r"\bdismembered\b", "broken"),
+    (r"\bcorpse(s)?\b", r"fallen figure\1"),
+    (r"\bdead body\b", "still figure"),
+    (r"\bsevered\b", "broken"),
+    (r"\bstabbing\b", "striking"),
+    (r"\bslaughter\b", "battle"),
+    (r"\bmassacre\b", "great battle"),
+    (r"\bbutcher(ed|y)?\b", "felled"),
+    (r"\bdecapitat(e|ed|ion)\b", "felled"),
 
+    # ── Sensuality ─────────────────────────────────────────────────────
+    (r"\bnude\b", "draped"),
+    (r"\bnaked\b", "unclothed in shadow"),
+    (r"\bseductive\b", "alluring"),
+    (r"\berotic\b", "intimate"),
+    (r"\bsensual\b", "tender"),
+    (r"\bvoluptuous\b", "graceful"),
 
-class SoftenedScene(BaseModel):
-    """The softener's output."""
-    scene_text: str = Field(
-        ...,
-        description=(
-            "The rewritten scene description: 1–3 sentences, fully "
-            "visual, depicting the same narrative moment but with "
-            "imagery the content policy will accept. No preface, "
-            "no explanation."
-        ),
-    )
+    # ── Horror / occult ────────────────────────────────────────────────
+    (r"\bdemon(s|ic)?\b", r"shadowed figure\1"),
+    (r"\bsatanic\b", "ominous"),
+    (r"\btorture(d|s)?\b", r"torment\1"),
+    (r"\bhanged\b", "still figure"),
+    (r"\bhanging body\b", "still figure"),
 
+    # ── Religious sensitivity ─────────────────────────────────────────
+    (r"\bcrucifix(ion|ed)?\b", "figure on a cross"),
+    (r"\bmuhammad\b", "the prophet"),
+    (r"\bprophet muhammad\b", "the prophet"),
 
-_SYSTEM_PROMPT = (
-    "You are an art director rewriting a scene description for a book "
-    "illustration. Azure's image API rejected the original description "
-    "as a content-policy violation. Your job is to rewrite it as a "
-    "compelling, visually evocative scene that depicts the SAME "
-    "narrative moment with the same emotional weight, but using ONLY "
-    "imagery the policy will accept.\n\n"
-    "Rules — strict:\n"
-    "  • REPLACE explicit violence, gore, blood, dismemberment, body "
-    "horror, sexual content, nudity, graphic injury, suicide, or "
-    "torture with IMPLICATION: shadow, silhouette, aftermath, "
-    "environmental cues, light/dark contrast, weather, posture, "
-    "symbolic objects.\n"
-    "  • A creation/reanimation scene: emphasise lab apparatus, "
-    "candlelight, storm light, glassware, electric arcs, the "
-    "scientist's silhouette — NOT the body or anatomical details.\n"
-    "  • A confrontation scene: emphasise distance, scale contrast, "
-    "fog/mist, two silhouettes, alpine landscape — NOT physical "
-    "violence.\n"
-    "  • A grief/death scene: empty room, cold light through windows, "
-    "an overturned chair, distant figure, gravestone in mist — NOT "
-    "the deceased.\n"
-    "  • Keep the time of day, weather, location, and emotional tone "
-    "of the original. The illustration should feel like the same "
-    "moment in the story — just told through atmosphere instead of "
-    "explicit depiction.\n"
-    "  • Stay concrete and visual. Describe what a painter would put "
-    "on the canvas. Don't generalise (\"a dramatic moment\").\n"
-    "  • 1–3 sentences, max ~180 words.\n"
-    "  • Output ONLY the rewritten scene_text — no preface, no quotes, "
-    "no \"Here is the rewritten scene:\".\n\n"
-    "The book is a classic work of literature being illustrated for "
-    "general adult readers. The illustration should be tasteful and "
-    "evocative, NOT explicit."
-)
+    # ── Children + danger (extra caution) ─────────────────────────────
+    (r"\bchild ((?:with|holding|near|in) (?:a |the )?(?:weapon|knife|sword|gun))\b",
+     "young figure standing alone"),
+]
 
 
-softener_agent: Agent[None, SoftenedScene] = Agent(
-    model=cleaner_model,
-    output_type=SoftenedScene,
-    system_prompt=_SYSTEM_PROMPT,
-)
-
-
-async def soften_scene(
-    *,
-    original: str,
-    last_attempted: str,
-    rejection_reason: str | None = None,
-    attempt_index: int = 0,
-) -> str:
-    """Ask the softener to rewrite `last_attempted`.
-
-    `original` and `last_attempted` differ when this is the *second*
-    softening pass — we already rewrote once, that rewrite also got
-    rejected, and we're trying again with a stronger nudge toward
-    abstraction. Showing both lets the LLM see what didn't fly.
-
-    Wrapped in `with_retries` so a flaky cleaner endpoint doesn't kill
-    the whole image-gen pipeline.
-    """
-    user_msg_parts: list[str] = [f"Original scene: {original.strip()}"]
-    if last_attempted.strip() != original.strip():
-        user_msg_parts.append(
-            f"Previous rewrite (also rejected): {last_attempted.strip()}"
-        )
-    if rejection_reason:
-        user_msg_parts.append(
-            f"Azure rejection details (truncated): {rejection_reason[:300]}"
-        )
-    if attempt_index >= 1:
-        user_msg_parts.append(
-            "This is the second softening pass — be more abstract. "
-            "Lean further on mood, weather, light, silhouette, and "
-            "metaphor. If the previous rewrite still depicted a body, "
-            "remove the body entirely and show only the aftermath or "
-            "the environment around it."
-        )
-    user_msg_parts.append(
-        "Rewrite the scene per the rules. Output only scene_text."
-    )
-
-    user_msg = "\n\n".join(user_msg_parts)
-    run = await with_retries(
-        lambda: softener_agent.run(user_msg),
-        attempts=4,
-        label="softener",
-    )
-    return run.output.scene_text.strip()
+def soften(prompt: str) -> str:
+    """Apply every rule once, in order. Idempotent on already-soft text."""
+    out = prompt
+    for pattern, replacement in _RULES:
+        out = re.sub(pattern, replacement, out, flags=re.IGNORECASE)
+    return out
