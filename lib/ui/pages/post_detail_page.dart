@@ -3816,7 +3816,10 @@ class _PostDetailPageState extends State<PostDetailPage>
   // chapter + position (Hive's `audio_last_played` box).
   // --------------------------------------------------------------------------
   void _onListenPressed() {
-    final book = widget.item;
+    // `_item` is the live mirror hydrated by the detail fetch; `widget.item`
+    // is whatever the feed-list passed in, which has no sections inlined and
+    // therefore no audio_url, so checking it falsely fails.
+    final book = _item;
     final hasAnyAudio = book.sections.any((s) => s.hasAudio);
     if (!hasAnyAudio) {
       ScaffoldMessenger.of(context).showSnackBar(
