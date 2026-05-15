@@ -316,8 +316,10 @@ class _WideLayout extends StatelessWidget {
   }
 }
 
-/// Stacked layout used on phones — cover at top, lyrics middle,
-/// controls anchored at the bottom.
+/// Stacked layout used on phones. Reading-first: the lyric pane gets
+/// the whole upper area; the cover shrinks into a circular avatar
+/// beside the chapter title at the bottom (Spotify "now playing"
+/// pattern), and the scrubber/transport sits beneath.
 class _NarrowLayout extends StatelessWidget {
   final FeedItemModel book;
   final Widget body;
@@ -328,16 +330,86 @@ class _NarrowLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
-          child: AspectRatio(aspectRatio: 1, child: _CoverArt(book: book)),
-        ),
-        const SizedBox(height: 4),
-        _TitleStrip(book: book, audio: audio),
         Expanded(child: body),
+        const SizedBox(height: 8),
         Padding(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+          child: _MiniNowPlaying(book: book, audio: audio),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
           child: _ScrubberControls(audio: audio),
+        ),
+      ],
+    );
+  }
+}
+
+/// Compact "what's playing" strip — circular cover avatar on the
+/// left, chapter title + author stacked on the right. Used inside
+/// the narrow layout's bottom section.
+class _MiniNowPlaying extends StatelessWidget {
+  final FeedItemModel book;
+  final AudioPlaybackService audio;
+  const _MiniNowPlaying({required this.book, required this.audio});
+
+  @override
+  Widget build(BuildContext context) {
+    final url = (book.coverImageUrl?.isNotEmpty == true
+            ? book.coverImageUrl!
+            : (book.imageUrl.isNotEmpty ? book.imageUrl : ''))
+        .trim();
+    final ctx = audio.context;
+    final chapterTitle = ctx == null
+        ? ''
+        : ctx.chapters[ctx.currentChapterIndex].title;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        ClipOval(
+          child: SizedBox(
+            width: 56,
+            height: 56,
+            child: url.isEmpty
+                ? Container(color: Colors.grey.shade800)
+                : CachedNetworkImage(
+                    imageUrl: url,
+                    fit: BoxFit.cover,
+                    placeholder: (_, __) =>
+                        Container(color: Colors.grey.shade900),
+                    errorWidget: (_, __, ___) =>
+                        Container(color: Colors.grey.shade800),
+                  ),
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                chapterTitle.isEmpty ? (book.title) : chapterTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${book.author} — ${book.title}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.6),
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
