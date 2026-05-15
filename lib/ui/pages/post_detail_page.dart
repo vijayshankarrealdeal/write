@@ -3947,7 +3947,30 @@ class _PostDetailPageState extends State<PostDetailPage>
     // the page transition completes; just_audio surfaces its own
     // buffering UI through `playerStateStream`.
     final audio = AudioPlaybackService.instance;
-    final loadFuture = audio.loadBook(book, autoPlay: true);
+    // If the user is mid-chapter, narrate THIS chapter — the user's
+    // intent is "read this aloud," not "resume my last session." If a
+    // saved resume happens to be for the same chapter, honour the
+    // saved position so we don't restart from 0. Tapping Listen from
+    // the overview (no chapter open) keeps the existing default in
+    // loadBook: saved resume if any, else chapter 0.
+    final currentIdx = _selectedSectionIndex;
+    String? startSectionId;
+    double? startPos;
+    if (currentIdx != null && currentIdx < book.sections.length) {
+      startSectionId = book.sections[currentIdx].id;
+      final saved = audio.readResume();
+      if (saved != null &&
+          saved.bookId == book.id &&
+          saved.sectionId == startSectionId) {
+        startPos = saved.positionSeconds;
+      }
+    }
+    final loadFuture = audio.loadBook(
+      book,
+      autoPlay: true,
+      startSectionId: startSectionId,
+      startPositionSeconds: startPos,
+    );
     // Silently absorb load failures — the player's error stream will
     // surface anything actionable inside the page itself.
     loadFuture.catchError((_) {});
