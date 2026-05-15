@@ -3202,11 +3202,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                     dividerColor: dividerColor,
                     currentIndex: currentIndex,
                     totalSections: totalSections,
-                    // Audio narration is parked until the feature ships;
-                    // both the bar's Listen button and the xwide FAB
-                    // are hidden so the UI doesn't tease something the
-                    // backend can't deliver yet.
-                    showListen: false,
+                    showListen: item.sections.any((s) => s.hasAudio),
                   ),
           ),
         ),
@@ -3243,7 +3239,15 @@ class _PostDetailPageState extends State<PostDetailPage>
               Expanded(child: readerColumn),
             ],
           ),
-          // Listen FAB hidden until audio narration is implemented.
+          if (item.sections.any((s) => s.hasAudio))
+            Positioned(
+              right: 24,
+              bottom: 24,
+              child: _ReaderListenFab(
+                accent: _paperAccent,
+                onTap: _onListenPressed,
+              ),
+            ),
         ],
       ),
     );
