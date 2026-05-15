@@ -258,17 +258,19 @@ async def import_book(
     if not chapters:
         raise HTTPException(404, "no chapters found in audio/")
 
-    # Keep the writing.section_ids in chapter order.
-    existing_sections = {
-        s.title: s
-        for s in (
-            await db.execute(
-                select(Section).where(Section.writing_id == writing.id)
-            )
+    # Keep the writing.section_ids in chapter order. Multi-part books
+    # repeat chapter titles ("Chapter I" appears once per Part), so we
+    # bucket existing sections by title and pop one per occurrence — a
+    # single dict would collapse all duplicates onto one section and
+    # silently skip the rest of the audio.
+    _existing_rows = (
+        await db.execute(
+            select(Section).where(Section.writing_id == writing.id)
         )
-        .scalars()
-        .all()
-    }
+    ).scalars().all()
+    existing_by_title: dict[str, list[Section]] = {}
+    for s in _existing_rows:
+        existing_by_title.setdefault(s.title or "", []).append(s)
 
     new_section_ids: list[str] = []
     imported = 0
@@ -276,7 +278,8 @@ async def import_book(
 
     for idx, ch in enumerate(chapters):
         md_text = ch["md"].read_text(encoding="utf-8") if ch["md"].exists() else ""
-        section = existing_sections.get(ch["title"])
+        bucket = existing_by_title.get(ch["title"] or "", [])
+        section = bucket.pop(0) if bucket else None
         if section is None:
             section = Section(
                 id=uuid.uuid4(),
