@@ -352,13 +352,15 @@ class _PostDetailPageState extends State<PostDetailPage>
   void initState() {
     super.initState();
     _item = widget.item;
-    // If audio is playing for a different book, pause it. Reading book
-    // X while book Y narrates over the top is confusing; the user has
-    // moved on. Position is preserved so they can resume from the
-    // mini-player on book Y's reader later.
+    // If audio is loaded for a different book, drop it from RAM.
+    // Reading book X while book Y's MP3 + words.json sit in memory is
+    // wasteful — the listener has clearly moved on. Resume position
+    // is saved to Hive (audio_last_played) by clear() before it stops
+    // the player, so a later Listen tap on book Y picks up exactly
+    // where they left off.
     final audioCtx = AudioPlaybackService.instance.context;
     if (audioCtx != null && audioCtx.book.id != _item.id) {
-      AudioPlaybackService.instance.pause();
+      AudioPlaybackService.instance.clear();
     }
     AnalyticsService.instance.track(
       'post_viewed',

@@ -314,6 +314,33 @@ class AudioPlaybackService {
   Future<void> togglePlayPause() =>
       _player.playing ? _player.pause() : _player.play();
 
+  /// Drop the loaded book from RAM. Persists the resume position
+  /// first (so a later loadBook(book) jumps right back to where the
+  /// listener left off via the Hive `audio_last_played` box) then
+  /// stops the player and clears the in-memory audio source. Used
+  /// when the listener navigates to a different book's reader — the
+  /// previous book's MP3 + words.json shouldn't keep eating RAM
+  /// while they're reading something else.
+  Future<void> clear() async {
+    if (_ctx == null) return;
+    _persistResume();
+    _persistTimer?.cancel();
+    _persistTimer = null;
+    await _player.stop();
+    // setAudioSource with an empty Concatenating source releases the
+    // current track. just_audio doesn't expose a "release" verb but
+    // an empty source effectively unloads the previous one.
+    try {
+      await _player.setAudioSource(ConcatenatingAudioSource(children: []));
+    } catch (_) {
+      // setAudioSource on web sometimes throws when given an empty
+      // concat source; the stop() above is enough to free RAM.
+    }
+    _ctx = null;
+    currentWords.add(AudioWords.empty);
+    currentWordIndex.add(-1);
+  }
+
   Future<void> seek(Duration position) async {
     await _player.seek(position);
     final words = currentWords.value;

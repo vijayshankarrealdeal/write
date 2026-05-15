@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -30,7 +31,11 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   // inside the scroll view and centre it on tick. Built lazily because
   // a long chapter can have ~3000 words and reallocating the list on
   // every frame is wasteful.
-  final List<GlobalKey> _wordKeys = [];
+  // Tap-gesture recognisers — one per word in the loaded chapter.
+  // Cached because building 3000 fresh recognizer objects on every
+  // position tick was the dominant cost on Flutter web mobile, and
+  // because a TextSpan.recognizer expects a stable object.
+  final List<TapGestureRecognizer> _wordRecognizers = [];
   AudioWords _lastWords = AudioWords.empty;
   int _lastScrolledIndex = -1;
   // Set when the user taps a word. The position-tick that follows
@@ -41,30 +46,52 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
 
   @override
   void dispose() {
+    for (final r in _wordRecognizers) {
+      r.dispose();
+    }
+    _wordRecognizers.clear();
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _rebuildWordKeys(AudioWords words) {
+  /// Rebuild the cached per-word recognizers when the chapter changes.
+  /// Each recognizer wires onTap to `audio.seek(...)` for that word's
+  /// start timestamp; the recognizer object itself is reused across
+  /// position-tick rebuilds so we don't churn the GC.
+  void _rebuildWordRecognizers(AudioWords words) {
     if (identical(words, _lastWords)) return;
     _lastWords = words;
-    _wordKeys
+    for (final r in _wordRecognizers) {
+      r.dispose();
+    }
+    _wordRecognizers
       ..clear()
-      ..addAll(List.generate(words.words.length, (_) => GlobalKey()));
+      ..addAll(
+        List.generate(
+          words.words.length,
+          (i) => TapGestureRecognizer()
+            ..onTap = () {
+              _suppressNextScroll = true;
+              _audio.seek(Duration(
+                milliseconds: (words.words[i].startSeconds * 1000).round(),
+              ));
+            },
+        ),
+      );
     _lastScrolledIndex = -1;
   }
 
-  /// Keep the active word near 40% from the top of the viewport.
+  /// Keep the active word near ~40% from the top of the viewport.
   ///
-  /// Two cases to handle separately:
-  ///   - **Small step (regular playback tick).** The new word is on
-  ///     screen, so its GlobalKey resolves. Animate gently.
-  ///   - **Big jump (user seeked, scrubbed, or chapter changed).** The
-  ///     new word is off-screen, GlobalKey is null. Estimate the
-  ///     destination from the index ratio, jump there, then refine
-  ///     after one frame once the RenderBox attaches.
+  /// Estimate the destination from `index / totalWords × scrollExtent`
+  /// — accurate enough to keep the active word on screen without the
+  /// O(N) RenderBox lookup the GlobalKey approach used to do. The
+  /// trade-off is sub-line precision, which the eye doesn't notice;
+  /// the win is that on Flutter web mobile we no longer pay a frame
+  /// per tick walking the widget tree.
   void _maybeScrollTo(int index) {
-    if (index < 0 || index >= _wordKeys.length) return;
+    final total = _lastWords.words.length;
+    if (index < 0 || index >= total) return;
     if (index == _lastScrolledIndex) return;
     if (!_scrollController.hasClients) return;
     if (_suppressNextScroll) {
@@ -73,59 +100,24 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
       return;
     }
 
-    final ctx = _wordKeys[index].currentContext;
-    if (ctx == null) {
-      // Off-screen — estimate proportionally then refine post-frame.
-      final pos = _scrollController.position;
-      final total = _wordKeys.length;
-      final estimated = (pos.maxScrollExtent * index / math.max(total, 1))
-          .clamp(0.0, pos.maxScrollExtent);
+    final pos = _scrollController.position;
+    // Aim ~40% from top: subtract 0.4 viewports from the per-word
+    // share so the word lands near the upper-third.
+    final viewportH = pos.viewportDimension;
+    final estimated =
+        (pos.maxScrollExtent * index / math.max(total, 1) - viewportH * 0.4)
+            .clamp(0.0, pos.maxScrollExtent);
+    final firstScroll = _lastScrolledIndex < 0;
+    if (firstScroll) {
       _scrollController.jumpTo(estimated);
-      // First scroll after chapter load: snap to the refined position
-      // (Duration.zero) instead of animating, so there's no visible
-      // bounce on entry. Subsequent jumps animate normally.
-      final firstScroll = _lastScrolledIndex < 0;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final ctx2 = _wordKeys[index].currentContext;
-        if (ctx2 != null) {
-          Scrollable.ensureVisible(
-            ctx2,
-            alignment: 0.4,
-            duration: firstScroll
-                ? Duration.zero
-                : const Duration(milliseconds: 220),
+    } else {
+      _scrollController
+          .animateTo(
+            estimated,
+            duration: const Duration(milliseconds: 320),
             curve: Curves.easeOutCubic,
-          ).catchError((_) {});
-        }
-      });
-      _lastScrolledIndex = index;
-      return;
-    }
-
-    // On-screen — only nudge if it's drifting toward an edge.
-    final box = ctx.findRenderObject() as RenderBox?;
-    final viewport = Scrollable.of(ctx);
-    final viewportBox = viewport.context.findRenderObject() as RenderBox?;
-    if (box == null || viewportBox == null) return;
-    final relative =
-        box.localToGlobal(Offset.zero).dy - viewportBox.localToGlobal(Offset.zero).dy;
-    final viewportHeight = viewportBox.size.height;
-    if (relative < viewportHeight * 0.25 || relative > viewportHeight * 0.7) {
-      // First scroll after a chapter loads: jump silently so the lyrics
-      // appear already-positioned. Otherwise we'd see the page spring
-      // from offset 0 to ~40%-from-top in 320ms — looks like a bounce.
-      if (_lastScrolledIndex < 0) {
-        _scrollController
-            .jumpTo(_scrollController.offset + (relative - viewportHeight * 0.4));
-      } else {
-        _scrollController
-            .animateTo(
-              _scrollController.offset + (relative - viewportHeight * 0.4),
-              duration: const Duration(milliseconds: 320),
-              curve: Curves.easeOutCubic,
-            )
-            .catchError((_) {});
-      }
+          )
+          .catchError((_) {});
     }
     _lastScrolledIndex = index;
   }
@@ -210,7 +202,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
       initialData: _audio.currentWords.value,
       builder: (context, wordsSnap) {
         final words = wordsSnap.data ?? AudioWords.empty;
-        _rebuildWordKeys(words);
+        _rebuildWordRecognizers(words);
         if (words.words.isEmpty) {
           // Fall back to the chapter's prose if no word timings —
           // playback still works, but without the karaoke effect.
@@ -233,71 +225,54 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
             ),
           );
         }
-        return StreamBuilder<int>(
-          stream: _audio.currentWordIndex,
-          initialData: _audio.currentWordIndex.value,
-          builder: (context, idxSnap) {
-            final activeIndex = idxSnap.data ?? -1;
-            // Schedule a scroll-to-centre after layout so positions
-            // are valid (the word's RenderBox must be attached).
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _maybeScrollTo(activeIndex);
-            });
-            return SingleChildScrollView(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 64),
-              child: RichText(
-                text: TextSpan(
-                  children: [
-                    for (var i = 0; i < words.words.length; i++)
-                      WidgetSpan(
-                        baseline: TextBaseline.alphabetic,
-                        alignment: PlaceholderAlignment.baseline,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 6, bottom: 4),
-                          child: GestureDetector(
-                            // Tap a word to seek to it — same gesture
-                            // pattern as Apple Music's lyric view.
-                            // The user's eye is already on the tapped
-                            // word; suppress the auto-scroll the next
-                            // tick would otherwise trigger.
-                            onTap: () {
-                              _suppressNextScroll = true;
-                              _audio.seek(Duration(
-                                milliseconds:
-                                    (words.words[i].startSeconds * 1000)
-                                        .round(),
-                              ));
-                            },
-                            // Plain Text + DefaultTextStyle (no animation):
-                            // a per-word 220ms cross-fade meant 1500 words
-                            // simultaneously animating on a far seek, which
-                            // looked like a full-screen flash. Single-frame
-                            // recolor matches Apple Music's behaviour.
-                            child: Text(
-                              _displayWord(words.words[i].word),
-                              key: _wordKeys[i],
-                              style: TextStyle(
-                                fontSize: 28,
-                                height: 1.45,
-                                fontWeight: i == activeIndex
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                color: i == activeIndex
-                                    ? Colors.white
-                                    : (i < activeIndex
-                                        ? Colors.white.withOpacity(0.85)
-                                        : Colors.white.withOpacity(0.32)),
-                              ),
-                            ),
+        return RepaintBoundary(
+          child: StreamBuilder<int>(
+            stream: _audio.currentWordIndex,
+            initialData: _audio.currentWordIndex.value,
+            builder: (context, idxSnap) {
+              final activeIndex = idxSnap.data ?? -1;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _maybeScrollTo(activeIndex);
+              });
+              return SingleChildScrollView(
+                controller: _scrollController,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 32, vertical: 64),
+                // Plain TextSpan instead of WidgetSpan(Padding(
+                // GestureDetector(Text(...)))) — the old chain spawned
+                // 4 widgets × 3000 words and rebuilt all of them every
+                // 33 ms on Flutter web mobile, which is what the
+                // lag stemmed from. TextSpan+TapGestureRecognizer is
+                // a render-only construct: just spans + cached
+                // recognizers, no element/widget churn.
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      for (var i = 0; i < words.words.length; i++)
+                        TextSpan(
+                          text: '${_displayWord(words.words[i].word)} ',
+                          recognizer: i < _wordRecognizers.length
+                              ? _wordRecognizers[i]
+                              : null,
+                          style: TextStyle(
+                            fontSize: 28,
+                            height: 1.45,
+                            fontWeight: i == activeIndex
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: i == activeIndex
+                                ? Colors.white
+                                : (i < activeIndex
+                                    ? Colors.white.withOpacity(0.85)
+                                    : Colors.white.withOpacity(0.32)),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         );
       },
     );
