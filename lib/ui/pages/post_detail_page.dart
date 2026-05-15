@@ -1962,11 +1962,26 @@ class _PostDetailPageState extends State<PostDetailPage>
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
+      onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         // Browser/system back: only go from section detail → overview.
         // Never pop the page — the app-bar back button handles leaving.
         if (_selectedSectionIndex != null) {
+          // If audio for THIS book is playing, ask whether to keep it
+          // running in the background or stop on exit. Most users
+          // expect a quiet reader; the few who want podcast-style
+          // background play say so explicitly.
+          final audio = AudioPlaybackService.instance;
+          final ctx = audio.context;
+          final playingHere =
+              ctx != null && ctx.book.id == _item.id && audio.playing;
+          if (playingHere) {
+            final keep = await _askKeepAudioPlaying();
+            if (!mounted) return;
+            if (keep == false) {
+              await audio.clear();
+            }
+          }
           _pageController?.dispose();
           _pageController = null;
           setState(() {
@@ -3864,6 +3879,52 @@ class _PostDetailPageState extends State<PostDetailPage>
   // listened to this book, the service auto-resumes from the persisted
   // chapter + position (Hive's `audio_last_played` box).
   // --------------------------------------------------------------------------
+  /// Confirmation dialog shown when the listener leaves the reader
+  /// while audio is mid-playback. Returns:
+  ///   - `true`  → keep audio playing in the background (mini-player
+  ///              stays alive on whatever page they land on next),
+  ///   - `false` → stop audio and free RAM,
+  ///   - `null`  → user dismissed the dialog (back/tap-outside);
+  ///              treat as "stop" because that's the safer default.
+  Future<bool?> _askKeepAudioPlaying() async {
+    final isDark = _isReaderDark();
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogCtx) => AlertDialog(
+        backgroundColor:
+            isDark ? const Color(0xFF1A1A1A) : Colors.white,
+        title: Text(
+          'Keep playing?',
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
+          'Audio is still playing. Continue in the background, '
+          'or stop on exit?',
+          style: TextStyle(
+            color: (isDark ? Colors.white : Colors.black).withOpacity(0.75),
+            fontSize: 14,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(false),
+            child: const Text('Stop'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(true),
+            child: const Text('Keep playing'),
+          ),
+        ],
+      ),
+    );
+    // Map null (dismiss) to false — quiet exit is the safer default.
+    return result ?? false;
+  }
+
   void _onListenPressed() {
     // `_item` is the live mirror hydrated by the detail fetch; `widget.item`
     // is whatever the feed-list passed in, which has no sections inlined and
