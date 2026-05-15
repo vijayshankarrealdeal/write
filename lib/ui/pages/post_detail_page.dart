@@ -351,6 +351,14 @@ class _PostDetailPageState extends State<PostDetailPage>
   void initState() {
     super.initState();
     _item = widget.item;
+    // If audio is playing for a different book, pause it. Reading book
+    // X while book Y narrates over the top is confusing; the user has
+    // moved on. Position is preserved so they can resume from the
+    // mini-player on book Y's reader later.
+    final audioCtx = AudioPlaybackService.instance.context;
+    if (audioCtx != null && audioCtx.book.id != _item.id) {
+      AudioPlaybackService.instance.pause();
+    }
     AnalyticsService.instance.track(
       'post_viewed',
       screen: '/post/:id',
@@ -3195,33 +3203,37 @@ class _PostDetailPageState extends State<PostDetailPage>
             alignment: Alignment.topCenter,
             child: _immersiveReader
                 ? const SizedBox(width: double.infinity, height: 0)
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Mini-player parks above the chapter strip when
-                      // audio is loaded for this book, so the reader
-                      // keeps all its features (Aa, highlights, notes)
-                      // while playback stays accessible. Self-hides via
-                      // MiniPlayerBar when nothing is playing.
-                      const MiniPlayerBar(),
-                      _buildReaderBottomBar(
-                        isDark: isDark,
-                        textColor: textColor,
-                        subtleColor: subtleColor,
-                        bgColor: bgColor,
-                        dividerColor: dividerColor,
-                        currentIndex: currentIndex,
-                        totalSections: totalSections,
-                        // Suppress inline Listen pill when (a) the wide
-                        // FAB owns it, or (b) the mini-player is already
-                        // showing (audio is loaded for this book).
-                        showListen: !showChapterRail &&
-                            item.sections.any((s) => s.hasAudio) &&
-                            AudioPlaybackService.instance.context?.book.id !=
-                                item.id,
-                      ),
-                    ],
-                  ),
+                : Builder(builder: (context) {
+                    final sameBookAudio = AudioPlaybackService
+                            .instance.context?.book.id ==
+                        item.id;
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Mini-player only when audio is for THIS book.
+                        // For a different book we pause it on entry
+                        // (initState) and hide the strip — the user has
+                        // moved on, no point dangling another book's
+                        // controls here.
+                        if (sameBookAudio) const MiniPlayerBar(),
+                        _buildReaderBottomBar(
+                          isDark: isDark,
+                          textColor: textColor,
+                          subtleColor: subtleColor,
+                          bgColor: bgColor,
+                          dividerColor: dividerColor,
+                          currentIndex: currentIndex,
+                          totalSections: totalSections,
+                          // Suppress inline Listen pill when (a) the
+                          // wide FAB owns it, or (b) the mini-player is
+                          // already showing (same-book audio loaded).
+                          showListen: !showChapterRail &&
+                              item.sections.any((s) => s.hasAudio) &&
+                              !sameBookAudio,
+                        ),
+                      ],
+                    );
+                  }),
           ),
         ),
       ],
