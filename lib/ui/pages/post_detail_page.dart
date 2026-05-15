@@ -35,6 +35,7 @@ import 'package:inkspacex/services/api/api_payments_service.dart';
 import 'package:inkspacex/services/audio_playback_service.dart';
 import 'package:inkspacex/ui/pages/audio_player_page.dart';
 import 'package:inkspacex/ui/widgets/mini_player_bar.dart';
+import 'package:inkspacex/ui/widgets/section_reactions_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // ---------------------------------------------------------------------------
@@ -3207,9 +3208,25 @@ class _PostDetailPageState extends State<PostDetailPage>
                     final sameBookAudio = AudioPlaybackService
                             .instance.context?.book.id ==
                         item.id;
+                    final currentSection = (currentIndex >= 0 &&
+                            currentIndex < item.sections.length)
+                        ? item.sections[currentIndex]
+                        : null;
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Per-section emoji reactions live just above
+                        // the chapter strip so they're always visible
+                        // alongside the page count.
+                        if (currentSection != null)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
+                            child: SectionReactionsBar(
+                              feedItemId: item.id,
+                              section: currentSection,
+                              isDark: isDark,
+                            ),
+                          ),
                         // Mini-player only when audio is for THIS book.
                         // For a different book we pause it on entry
                         // (initState) and hide the strip — the user has

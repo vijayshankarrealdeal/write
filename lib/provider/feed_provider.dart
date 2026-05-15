@@ -581,6 +581,26 @@ class FeedProvider extends ChangeNotifier {
     }
   }
 
+  /// Replace the reactions on a single section in the cached feed item
+  /// after the user toggles an emoji. Keeps the chapter list / overview
+  /// in sync without a refetch — the bar widget already has the
+  /// authoritative aggregate from the server response.
+  void updateSectionReactions(
+    String feedItemId,
+    String sectionId,
+    List<SectionReactionAggregate> reactions,
+  ) {
+    final idx = _items.indexWhere((i) => i.id == feedItemId);
+    if (idx == -1) return;
+    final item = _items[idx];
+    final updated = [
+      for (final s in item.sections)
+        s.id == sectionId ? s.copyWithReactions(reactions) : s,
+    ];
+    _items[idx] = item.copyWith(sections: updated);
+    notifyListeners();
+  }
+
   Future<void> deleteComment(String feedItemId, String commentId) async {
     await _dataService!.deleteComment(feedItemId, commentId);
     AnalyticsService.instance.track(

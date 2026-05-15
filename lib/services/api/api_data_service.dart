@@ -2110,4 +2110,41 @@ class ApiDataService implements SyncDispatcher {
       'updatedAt': json['updated_at'],
     });
   }
+
+  // ── Section reactions ──────────────────────────────────────────────
+  // Per-section emoji counts. The backend returns the post-update
+  // aggregate so we can swap it straight onto the section model.
+
+  Future<List<SectionReactionAggregate>> addSectionReaction({
+    required String feedItemId,
+    required String sectionId,
+    required String emoji,
+  }) async {
+    final resp = await _client.post(
+      '/api/feed/$feedItemId/sections/$sectionId/reactions',
+      data: {'emoji': emoji},
+    );
+    return _parseReactionAggregates(resp.data);
+  }
+
+  Future<List<SectionReactionAggregate>> removeSectionReaction({
+    required String feedItemId,
+    required String sectionId,
+    required String emoji,
+  }) async {
+    final resp = await _client.delete(
+      '/api/feed/$feedItemId/sections/$sectionId/reactions/$emoji',
+    );
+    return _parseReactionAggregates(resp.data);
+  }
+
+  List<SectionReactionAggregate> _parseReactionAggregates(dynamic data) {
+    if (data is! List) return const [];
+    return data
+        .whereType<Map>()
+        .map((m) => SectionReactionAggregate.fromJson(
+              Map<String, dynamic>.from(m),
+            ))
+        .toList(growable: false);
+  }
 }

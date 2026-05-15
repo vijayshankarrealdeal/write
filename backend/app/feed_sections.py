@@ -21,10 +21,11 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select, text
+from sqlalchemy import func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.section import Section
+from app.models.section_reaction import SectionReaction
 from app.models.writing import Writing
 
 
@@ -44,14 +45,23 @@ def _has_image(content) -> bool:
 
 
 async def list_section_stubs(
-    db: AsyncSession, writing_id: uuid.UUID
+    db: AsyncSession,
+    writing_id: uuid.UUID,
+    *,
+    viewer_id: uuid.UUID | None = None,
 ) -> list[dict]:
     """Ordered list of section stubs for a writing.
 
-    Each stub: `{section_id, title, updated_at, has_image, _lazy: True}`.
+    Each stub: `{section_id, title, updated_at, has_image, _lazy: True,
+    reactions: [{emoji, count, you}]}`.
     `_lazy: True` matches the legacy contract — the client knows the
     body is fetched separately. No `content` is returned; readers pull
     each chapter via `/api/feed/{id}/sections/{section_id}` on demand.
+
+    `viewer_id`, when supplied, populates the `you` flag in each
+    section's reactions block so the chapter list can highlight which
+    emojis the caller has already used. Anonymous callers omit it and
+    the flag stays False.
 
     Returns `[]` if the writing has no sections, or if its `section_ids`
     array is empty (e.g. a brand-new draft with no chapters yet).
@@ -99,6 +109,43 @@ async def list_section_stubs(
     ).all()
     by_id = {r.id: r for r in rows}
 
+    # One aggregated query for reactions across every section in this
+    # chapter list. Group by (section_id, emoji); each section ends up
+    # with a list ordered by popularity. Server caps at 5 emojis per
+    # section because that's all the chapter list can show inline; the
+    # full per-emoji detail comes from /reactions GET.
+    section_id_keys = list(by_id.keys())
+    reactions_by_section: dict[uuid.UUID, list[dict]] = {}
+    if section_id_keys:
+        rxn_rows = (
+            await db.execute(
+                select(
+                    SectionReaction.section_id,
+                    SectionReaction.emoji,
+                    func.count(SectionReaction.id).label("count"),
+                    func.bool_or(
+                        SectionReaction.user_id == viewer_id
+                    ).label("you")
+                    if viewer_id is not None
+                    else func.bool_or(text("FALSE")).label("you"),
+                )
+                .where(SectionReaction.section_id.in_(section_id_keys))
+                .group_by(SectionReaction.section_id, SectionReaction.emoji)
+                .order_by(
+                    SectionReaction.section_id,
+                    func.count(SectionReaction.id).desc(),
+                    SectionReaction.emoji,
+                )
+            )
+        ).all()
+        for r in rxn_rows:
+            bucket = reactions_by_section.setdefault(r.section_id, [])
+            if len(bucket) >= 5:
+                continue
+            bucket.append(
+                {"emoji": r.emoji, "count": r.count, "you": bool(r.you)}
+            )
+
     out: list[dict] = []
     for sid in ordered_ids:
         try:
@@ -126,6 +173,10 @@ async def list_section_stubs(
                 "audio_words_url": row.audio_words_url,
                 "audio_duration_s": row.audio_duration_s,
                 "voice_name": row.voice_name,
+                # Top emojis on this chapter, populated by the
+                # SectionReaction aggregate above. Empty list when
+                # nobody's reacted yet.
+                "reactions": reactions_by_section.get(row.id, []),
                 "_lazy": True,
             }
         )

@@ -50,6 +50,11 @@ class FeedItemSection {
   /// Display-only — shown as "Narrated by …" on the player page.
   final String? voiceName;
 
+  /// Top emoji reactions on this section, sorted by count desc and
+  /// capped server-side at 5. `you=true` means the viewer has used
+  /// this emoji on this section. Empty when nobody's reacted yet.
+  final List<SectionReactionAggregate> reactions;
+
   const FeedItemSection({
     required this.id,
     required this.title,
@@ -63,6 +68,7 @@ class FeedItemSection {
     this.audioWordsUrl,
     this.audioDurationSeconds,
     this.voiceName,
+    this.reactions = const [],
   });
 
   /// True when this chapter has streamable audio attached.
@@ -110,6 +116,16 @@ class FeedItemSection {
         (json['audio_words_url'] ?? json['audioWordsUrl']) as String?;
     final String? voice = (json['voice_name'] ?? json['voiceName']) as String?;
 
+    final rawReactions = json['reactions'];
+    final reactions = rawReactions is List
+        ? rawReactions
+            .whereType<Map>()
+            .map((m) => SectionReactionAggregate.fromJson(
+                  Map<String, dynamic>.from(m),
+                ))
+            .toList(growable: false)
+        : const <SectionReactionAggregate>[];
+
     return FeedItemSection(
       // Chapter-list stubs send `section_id`; legacy bodies + author-side
       // models send `id`. The backend's new `/sections/by-id/...`
@@ -127,8 +143,28 @@ class FeedItemSection {
           (wordsUrl != null && wordsUrl.isNotEmpty) ? wordsUrl : null,
       audioDurationSeconds: duration,
       voiceName: (voice != null && voice.isNotEmpty) ? voice : null,
+      reactions: reactions,
     );
   }
+
+  /// Return a copy of this section with `reactions` replaced. Used by
+  /// optimistic updates when the user toggles an emoji.
+  FeedItemSection copyWithReactions(List<SectionReactionAggregate> r) =>
+      FeedItemSection(
+        id: id,
+        title: title,
+        content: content,
+        canvasData: canvasData,
+        hasImage: hasImage,
+        updatedAt: updatedAt,
+        isFreePreview: isFreePreview,
+        locked: locked,
+        audioUrl: audioUrl,
+        audioWordsUrl: audioWordsUrl,
+        audioDurationSeconds: audioDurationSeconds,
+        voiceName: voiceName,
+        reactions: r,
+      );
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -412,4 +448,34 @@ class RecommendationMeta {
     required this.sessionId,
     this.reason,
   });
+}
+
+/// One row of the per-section reactions aggregate. Returned by the
+/// chapter-stubs endpoint (top 5 per section) and by the dedicated
+/// reactions endpoint (full list with reactor avatars).
+class SectionReactionAggregate {
+  final String emoji;
+  final int count;
+  /// True if the viewer themselves has used this emoji on the section.
+  final bool you;
+
+  const SectionReactionAggregate({
+    required this.emoji,
+    required this.count,
+    this.you = false,
+  });
+
+  factory SectionReactionAggregate.fromJson(Map<String, dynamic> json) =>
+      SectionReactionAggregate(
+        emoji: (json['emoji'] ?? '').toString(),
+        count: json['count'] is num ? (json['count'] as num).toInt() : 0,
+        you: json['you'] == true,
+      );
+
+  SectionReactionAggregate copyWith({int? count, bool? you}) =>
+      SectionReactionAggregate(
+        emoji: emoji,
+        count: count ?? this.count,
+        you: you ?? this.you,
+      );
 }

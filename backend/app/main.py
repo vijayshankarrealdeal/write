@@ -45,6 +45,7 @@ from app.routers import (
     reading,
     realtime,
     reports,
+    section_reactions,
     spellcheck,
     subscriptions,
     upload,
@@ -257,6 +258,7 @@ app.include_router(feedback.router)
 app.include_router(early_testers.router)
 app.include_router(payments.router)
 app.include_router(subscriptions.router)
+app.include_router(section_reactions.router)
 
 # Request logging middleware
 app.add_middleware(RequestLoggingMiddleware)

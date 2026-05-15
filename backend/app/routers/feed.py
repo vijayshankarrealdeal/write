@@ -638,7 +638,9 @@ async def get_feed_item(
     if not item:
         raise HTTPException(status_code=404, detail="Feed item not found")
     if item.writing_id is not None:
-        stubs = await list_section_stubs(db, item.writing_id)
+        stubs = await list_section_stubs(
+            db, item.writing_id, viewer_id=user.id
+        )
         reading_minutes = await compute_reading_minutes(db, item.writing_id)
     else:
         stubs = []
