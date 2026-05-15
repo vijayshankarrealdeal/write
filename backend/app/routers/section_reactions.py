@@ -30,8 +30,8 @@ from sqlalchemy import delete, func, or_, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth.deps import get_current_user
 from app.database import get_db
-from app.dependencies import get_current_user
 from app.feed_visibility import public_feed_clause
 from app.models.feed_item import FeedItem
 from app.models.section import Section
