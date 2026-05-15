@@ -33,6 +33,11 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   final List<GlobalKey> _wordKeys = [];
   AudioWords _lastWords = AudioWords.empty;
   int _lastScrolledIndex = -1;
+  // Set when the user taps a word. The position-tick that follows
+  // the resulting seek would otherwise scroll the page to centre the
+  // tapped word — but the user's eye is already on it, so the scroll
+  // looks like a pointless jolt. Cleared after we consume one tick.
+  bool _suppressNextScroll = false;
 
   @override
   void dispose() {
@@ -62,6 +67,11 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     if (index < 0 || index >= _wordKeys.length) return;
     if (index == _lastScrolledIndex) return;
     if (!_scrollController.hasClients) return;
+    if (_suppressNextScroll) {
+      _suppressNextScroll = false;
+      _lastScrolledIndex = index;
+      return;
+    }
 
     final ctx = _wordKeys[index].currentContext;
     if (ctx == null) {
@@ -248,10 +258,17 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                           child: GestureDetector(
                             // Tap a word to seek to it — same gesture
                             // pattern as Apple Music's lyric view.
-                            onTap: () => _audio.seek(Duration(
-                              milliseconds:
-                                  (words.words[i].startSeconds * 1000).round(),
-                            )),
+                            // The user's eye is already on the tapped
+                            // word; suppress the auto-scroll the next
+                            // tick would otherwise trigger.
+                            onTap: () {
+                              _suppressNextScroll = true;
+                              _audio.seek(Duration(
+                                milliseconds:
+                                    (words.words[i].startSeconds * 1000)
+                                        .round(),
+                              ));
+                            },
                             // Plain Text + DefaultTextStyle (no animation):
                             // a per-word 220ms cross-fade meant 1500 words
                             // simultaneously animating on a far seek, which
