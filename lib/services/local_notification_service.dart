@@ -110,7 +110,7 @@ class LocalNotificationService {
 
     try {
       await _plugin.initialize(
-        settings,
+        settings: settings,
         onDidReceiveNotificationResponse: _onResponse,
       );
       _supported = true;
@@ -122,8 +122,8 @@ class LocalNotificationService {
       // time by the local offset.
       tz_data.initializeTimeZones();
       try {
-        final name = await FlutterTimezone.getLocalTimezone();
-        tz.setLocalLocation(tz.getLocation(name));
+        final tzInfo = await FlutterTimezone.getLocalTimezone();
+        tz.setLocalLocation(tz.getLocation(tzInfo.identifier));
       } catch (e) {
         log.w('[local-notif] timezone detection failed, falling back '
             'to UTC: $e');
@@ -269,10 +269,10 @@ class LocalNotificationService {
     );
     final id = notif.id.hashCode & 0x7fffffff;
     await _plugin.show(
-      id,
-      notif.title,
-      notif.subtitle ?? '',
-      details,
+      id: id,
+      title: notif.title,
+      body: notif.subtitle ?? '',
+      notificationDetails: details,
       payload: 'notif:${notif.id}',
     );
   }
@@ -314,10 +314,10 @@ class LocalNotificationService {
     // the prior one so the tray doesn't pile up.
     final id = _chatIdBase | (msg.conversationId.hashCode & 0x0fffffff);
     await _plugin.show(
-      id,
-      title,
-      body,
-      details,
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: details,
       payload: 'chat:${msg.conversationId}',
     );
   }
@@ -389,10 +389,10 @@ class LocalNotificationService {
       macOS: darwinDetails,
     );
     await _plugin.show(
-      _uploadId(tag),
-      title,
-      body,
-      details,
+      id: _uploadId(tag),
+      title: title,
+      body: body,
+      notificationDetails: details,
       payload: 'upload:$tag',
     );
   }
@@ -428,10 +428,10 @@ class LocalNotificationService {
       macOS: darwinDetails,
     );
     await _plugin.show(
-      _uploadId(tag),
-      title,
-      body,
-      details,
+      id: _uploadId(tag),
+      title: title,
+      body: body,
+      notificationDetails: details,
       payload: success ? 'upload-done:$tag' : 'upload-fail:$tag',
     );
   }
@@ -441,7 +441,7 @@ class LocalNotificationService {
   /// replace the tray tile with an in-app indicator).
   Future<void> cancelUpload(String tag) async {
     if (!_supported) return;
-    await _plugin.cancel(_uploadId(tag));
+    await _plugin.cancel(id: _uploadId(tag));
   }
 
   int _uploadId(String tag) =>
@@ -462,7 +462,7 @@ class LocalNotificationService {
     required int dailyGoal,
   }) async {
     if (!_supported) return;
-    await _plugin.cancel(_goalReminderId);
+    await _plugin.cancel(id: _goalReminderId);
 
     // Build the schedule in the device's local zone (set during
     // `init()` from `flutter_timezone`). This way `matchDateTimeComponents`
@@ -507,18 +507,15 @@ class LocalNotificationService {
 
     try {
       await _plugin.zonedSchedule(
-        _goalReminderId,
-        'Keep your writing streak alive',
-        body,
-        tzWhen,
-        details,
+        id: _goalReminderId,
+        title: 'Keep your writing streak alive',
+        body: body,
+        scheduledDate: tzWhen,
+        notificationDetails: details,
         // Inexact is fine: a few minutes of drift on a writing reminder
         // is invisible, and exact alarms need a runtime permission on
         // Android 13+ that we'd rather not ask for.
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        // 17.x still requires this arg even though it's iOS-only legacy.
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
         // Daily-repeat at the wall-clock time encoded in `tzWhen`. Without
         // this the notification is a one-shot and the user only ever gets
         // a reminder if they re-open the app each day.
@@ -581,7 +578,7 @@ class LocalNotificationService {
 
   Future<void> cancelDailyGoalReminder() async {
     if (!_supported) return;
-    await _plugin.cancel(_goalReminderId);
+    await _plugin.cancel(id: _goalReminderId);
   }
 
   // ── Tap handling ─────────────────────────────────────────────────
