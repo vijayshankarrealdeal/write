@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:flutter/material.dart' show Brightness;
+import 'package:flutter/foundation.dart' show ValueNotifier;
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
@@ -114,6 +116,13 @@ class AudioPlaybackService {
   /// Loaded words for the chapter currently in the player.
   final BehaviorSubject<AudioWords> currentWords =
       BehaviorSubject.seeded(AudioWords.empty);
+
+  /// Brightness for audio UI surfaces (mini player + full player page).
+  /// The reader sets this to match its own theme so the audio experience
+  /// looks like a continuation of the page the user was on instead of
+  /// snapping back to a dark Spotify-style sheet over a light reader.
+  final ValueNotifier<Brightness> uiBrightness =
+      ValueNotifier(Brightness.dark);
 
   /// Hive box created lazily so the service can be instantiated
   /// before `Hive.initFlutter()` has run (we always init Hive in

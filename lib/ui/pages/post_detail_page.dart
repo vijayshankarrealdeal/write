@@ -389,6 +389,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     final platformBrightness =
         WidgetsBinding.instance.platformDispatcher.platformBrightness;
     _readerTheme = platformBrightness == Brightness.dark ? 'black' : 'white';
+    _syncAudioBrightness();
     // Defer Quill parsing off the first frame — for the Mahābhārata's
     // first chapter (an 11K-char Translator's Preface) parsing the delta
     // costs ~80ms which would otherwise stall the page transition.
@@ -650,7 +651,17 @@ class _PostDetailPageState extends State<PostDetailPage>
         _readerBrightness =
             prefs.getDouble(_kPrefBrightness) ?? _readerBrightness;
       });
+      _syncAudioBrightness();
     } catch (_) {}
+  }
+
+  /// Forward the reader's effective brightness to the audio UI so the
+  /// mini-player strip and full audio page paint in the same light/dark
+  /// register the user picked for the page. Reader theme 'white'/'sepia'
+  /// → light; 'black'/'grey' → dark.
+  void _syncAudioBrightness() {
+    AudioPlaybackService.instance.uiBrightness.value =
+        _isReaderDark() ? Brightness.dark : Brightness.light;
   }
 
   Future<void> _saveReaderPrefs() async {
@@ -1328,6 +1339,7 @@ class _PostDetailPageState extends State<PostDetailPage>
             void apply(VoidCallback fn) {
               setSheet(fn);
               setState(fn);
+              _syncAudioBrightness();
               _saveReaderPrefs();
             }
 

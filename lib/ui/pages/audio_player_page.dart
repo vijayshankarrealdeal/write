@@ -14,14 +14,55 @@ import 'package:inkspacex/services/audio_playback_service.dart';
 ///
 /// Layout is responsive: side-by-side on wide screens (macOS / web /
 /// landscape iPad), stacked on tall ones (phones, portrait tablets).
-/// The cover is the big square; the active word is bright white, the
-/// rest dim grey. Auto-scrolls to keep the active word near the
-/// vertical centre.
+/// The cover is the big square; the active word uses the page's
+/// foreground colour, the rest fade. Auto-scrolls to keep the active
+/// word near the vertical centre. Light/dark register is driven by
+/// `AudioPlaybackService.uiBrightness` — set by the reader so the
+/// listen experience matches the page the user was on.
 class AudioPlayerPage extends StatefulWidget {
   const AudioPlayerPage({super.key});
 
   @override
   State<AudioPlayerPage> createState() => _AudioPlayerPageState();
+}
+
+/// Resolved colours for the audio surfaces in the active brightness.
+class _AudioPalette {
+  final Color bg;
+  final Color fg;
+  final Color readWord;
+  final Color unreadWord;
+  final Color subtle;
+  final Color menuSurface;
+  const _AudioPalette({
+    required this.bg,
+    required this.fg,
+    required this.readWord,
+    required this.unreadWord,
+    required this.subtle,
+    required this.menuSurface,
+  });
+
+  factory _AudioPalette.of(Brightness brightness) {
+    if (brightness == Brightness.dark) {
+      return _AudioPalette(
+        bg: const Color(0xFF000000),
+        fg: const Color(0xFFFFFFFF),
+        readWord: Colors.white.withOpacity(0.85),
+        unreadWord: Colors.white.withOpacity(0.32),
+        subtle: Colors.white.withOpacity(0.6),
+        menuSurface: Colors.grey.shade900,
+      );
+    }
+    return _AudioPalette(
+      bg: const Color(0xFFFFFFFF),
+      fg: const Color(0xFF1A1A1A),
+      readWord: const Color(0xFF1A1A1A).withOpacity(0.85),
+      unreadWord: const Color(0xFF1A1A1A).withOpacity(0.32),
+      subtle: const Color(0xFF1A1A1A).withOpacity(0.6),
+      menuSurface: const Color(0xFFF1F5F9),
+    );
+  }
 }
 
 class _AudioPlayerPageState extends State<AudioPlayerPage> {
@@ -84,12 +125,12 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   /// Keep the active word at the vertical centre of the viewport so
   /// the reader's eye doesn't have to chase highlights up the page.
   ///
-  /// Estimate the destination from `index / totalWords × scrollExtent`
-  /// — accurate enough to keep the active word on screen without the
-  /// O(N) RenderBox lookup the GlobalKey approach used to do. The
-  /// trade-off is sub-line precision, which the eye doesn't notice;
-  /// the win is that on Flutter web mobile we no longer pay a frame
-  /// per tick walking the widget tree.
+  /// Centring works because the surrounding LayoutBuilder pads top and
+  /// bottom with viewportH/2 each, so `maxScrollExtent` equals the
+  /// pure word-band height and `index / total × maxScrollExtent` is
+  /// the exact scroll position that puts word `index` at viewport
+  /// centre. No need to subtract viewportH/2 or add the padding back
+  /// in — the padding is baked into the scroll range.
   void _maybeScrollTo(int index) {
     final total = _lastWords.words.length;
     if (index < 0 || index >= total) return;
@@ -102,15 +143,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     }
 
     final pos = _scrollController.position;
-    // Centre the active word — multiply the fraction by full content
-    // height (maxScrollExtent + viewportH), not maxScrollExtent alone.
-    // Using maxScrollExtent underscrolls by viewportH × fraction, which
-    // pushes the active word toward the bottom edge instead of centre.
-    final viewportH = pos.viewportDimension;
-    final contentH = pos.maxScrollExtent + viewportH;
-    final estimated =
-        (contentH * index / math.max(total, 1) - viewportH * 0.5)
-            .clamp(0.0, pos.maxScrollExtent);
+    final estimated = (pos.maxScrollExtent * index / math.max(total, 1))
+        .clamp(0.0, pos.maxScrollExtent);
     final firstScroll = _lastScrolledIndex < 0;
     if (firstScroll) {
       _scrollController.jumpTo(estimated);
@@ -134,12 +168,12 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     if (!_scrollController.hasClients) return;
     if (durationSeconds <= 0) return;
     final pos = _scrollController.position;
-    final viewportH = pos.viewportDimension;
-    final contentH = pos.maxScrollExtent + viewportH;
     final fraction = (positionSeconds / durationSeconds).clamp(0.0, 1.0);
+    // Same reasoning as _maybeScrollTo: viewportH/2 padding above and
+    // below makes maxScrollExtent the pure body height, so fraction ×
+    // maxScrollExtent centres the current paragraph.
     final estimated =
-        (contentH * fraction - viewportH * 0.5)
-            .clamp(0.0, pos.maxScrollExtent);
+        (pos.maxScrollExtent * fraction).clamp(0.0, pos.maxScrollExtent);
     final firstScroll = _lastScrolledIndex < 0;
     _lastScrolledIndex = 0;
     // Below-threshold deltas still need _lastScrolledIndex flipped above
@@ -161,79 +195,96 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final ctx = _audio.context;
-    if (ctx == null) {
-      return Scaffold(
-        backgroundColor: Colors.black,
-        appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
-        body: const Center(
-          child: Text(
-            'No audio loaded',
-            style: TextStyle(color: Colors.white70),
-          ),
-        ),
-      );
-    }
-    final width = MediaQuery.of(context).size.width;
-    final isWide = width > 820;
-    return Scaffold(
-      backgroundColor: Colors.black,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
-          onPressed: () => Navigator.of(context).maybePop(),
-          tooltip: 'Close',
-        ),
-        actions: [
-          // Speed selector — segmented popup so all common audiobook
-          // speeds are one tap away.
-          StreamBuilder<double>(
-            stream: _audio.speedStream,
-            initialData: _audio.speed,
-            builder: (context, snap) {
-              final s = snap.data ?? 1.0;
-              return PopupMenuButton<double>(
-                tooltip: 'Playback speed',
-                color: Colors.grey.shade900,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Center(
-                    child: Text(
-                      '${s.toStringAsFixed(s == s.roundToDouble() ? 1 : 2)}×',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+    return ValueListenableBuilder<Brightness>(
+      valueListenable: _audio.uiBrightness,
+      builder: (context, brightness, _) {
+        final palette = _AudioPalette.of(brightness);
+        final ctx = _audio.context;
+        if (ctx == null) {
+          return Scaffold(
+            backgroundColor: palette.bg,
+            appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
+            body: Center(
+              child: Text(
+                'No audio loaded',
+                style: TextStyle(color: palette.subtle),
+              ),
+            ),
+          );
+        }
+        final width = MediaQuery.of(context).size.width;
+        final isWide = width > 820;
+        return Scaffold(
+          backgroundColor: palette.bg,
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            iconTheme: IconThemeData(color: palette.fg),
+            leading: IconButton(
+              icon: Icon(Icons.close, color: palette.fg),
+              onPressed: () => Navigator.of(context).maybePop(),
+              tooltip: 'Close',
+            ),
+            actions: [
+              // Speed selector — segmented popup so all common audiobook
+              // speeds are one tap away.
+              StreamBuilder<double>(
+                stream: _audio.speedStream,
+                initialData: _audio.speed,
+                builder: (context, snap) {
+                  final s = snap.data ?? 1.0;
+                  return PopupMenuButton<double>(
+                    tooltip: 'Playback speed',
+                    color: palette.menuSurface,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Center(
+                        child: Text(
+                          '${s.toStringAsFixed(s == s.roundToDouble() ? 1 : 2)}×',
+                          style: TextStyle(
+                            color: palette.fg,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                onSelected: _audio.setSpeed,
-                itemBuilder: (context) => const [0.75, 1.0, 1.25, 1.5, 2.0]
-                    .map((speed) => PopupMenuItem(
-                          value: speed,
-                          child: Text(
-                            '${speed.toStringAsFixed(speed == speed.roundToDouble() ? 1 : 2)}×',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ))
-                    .toList(),
-              );
-            },
+                    onSelected: _audio.setSpeed,
+                    itemBuilder: (context) => const [0.75, 1.0, 1.25, 1.5, 2.0]
+                        .map((speed) => PopupMenuItem(
+                              value: speed,
+                              child: Text(
+                                '${speed.toStringAsFixed(speed == speed.roundToDouble() ? 1 : 2)}×',
+                                style: TextStyle(color: palette.fg),
+                              ),
+                            ))
+                        .toList(),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: SafeArea(
-        child: isWide
-            ? _WideLayout(book: ctx.book, body: _buildLyricsView(), audio: _audio)
-            : _NarrowLayout(book: ctx.book, body: _buildLyricsView(), audio: _audio),
-      ),
+          body: SafeArea(
+            child: isWide
+                ? _WideLayout(
+                    book: ctx.book,
+                    body: _buildLyricsView(palette),
+                    audio: _audio,
+                    palette: palette,
+                  )
+                : _NarrowLayout(
+                    book: ctx.book,
+                    body: _buildLyricsView(palette),
+                    audio: _audio,
+                    palette: palette,
+                  ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildLyricsView() {
+  Widget _buildLyricsView(_AudioPalette palette) {
     return StreamBuilder<AudioWords>(
       stream: _audio.currentWords,
       initialData: _audio.currentWords.value,
@@ -265,25 +316,31 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                   durSec,
                 );
               });
-              // ~45% of the viewport as top/bottom buffer so the
-              // current-audio paragraph can sit at the visual centre at
-              // any audio position — the same trick lyrics apps use.
-              // Computed from MediaQuery so resize / orientation flips
-              // re-pad.
-              final pad = MediaQuery.of(context).size.height * 0.45;
-              return SingleChildScrollView(
-                controller: _scrollController,
-                padding: EdgeInsets.fromLTRB(32, pad, 32, pad),
-                child: Text(
-                  fallback.isEmpty
-                      ? 'No lyrics available for this chapter.'
-                      : fallback,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 20,
-                    height: 1.7,
-                  ),
-                ),
+              // Pad with half the *body* viewport above and below so
+              // the currently-narrated line can sit at the vertical
+              // centre at any audio position — same trick lyrics apps
+              // use. LayoutBuilder gives the body's real height (after
+              // the mini-player + scrubber claim the bottom); using
+              // MediaQuery here over-pads because the screen is taller
+              // than the lyric pane.
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final pad = constraints.maxHeight / 2;
+                  return SingleChildScrollView(
+                    controller: _scrollController,
+                    padding: EdgeInsets.fromLTRB(32, pad, 32, pad),
+                    child: Text(
+                      fallback.isEmpty
+                          ? 'No lyrics available for this chapter.'
+                          : fallback,
+                      style: TextStyle(
+                        color: palette.subtle,
+                        fontSize: 20,
+                        height: 1.7,
+                      ),
+                    ),
+                  );
+                },
               );
             },
           );
@@ -298,42 +355,48 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                 if (!mounted) return;
                 _maybeScrollTo(activeIndex);
               });
-              final pad = MediaQuery.of(context).size.height * 0.45;
-              return SingleChildScrollView(
-                controller: _scrollController,
-                padding: EdgeInsets.fromLTRB(32, pad, 32, pad),
-                // Plain TextSpan instead of WidgetSpan(Padding(
-                // GestureDetector(Text(...)))) — the old chain spawned
-                // 4 widgets × 3000 words and rebuilt all of them every
-                // 33 ms on Flutter web mobile, which is what the
-                // lag stemmed from. TextSpan+TapGestureRecognizer is
-                // a render-only construct: just spans + cached
-                // recognizers, no element/widget churn.
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      for (var i = 0; i < words.words.length; i++)
-                        TextSpan(
-                          text: '${words.words[i].word} ',
-                          recognizer: i < _wordRecognizers.length
-                              ? _wordRecognizers[i]
-                              : null,
-                          style: TextStyle(
-                            fontSize: 28,
-                            height: 1.45,
-                            fontWeight: i == activeIndex
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                            color: i == activeIndex
-                                ? Colors.white
-                                : (i < activeIndex
-                                    ? Colors.white.withOpacity(0.85)
-                                    : Colors.white.withOpacity(0.32)),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  // pad = half the body viewport so the active word
+                  // can centre at any index. See fallback path for
+                  // the full explanation.
+                  final pad = constraints.maxHeight / 2;
+                  return SingleChildScrollView(
+                    controller: _scrollController,
+                    padding: EdgeInsets.fromLTRB(32, pad, 32, pad),
+                    // Plain TextSpan instead of WidgetSpan(Padding(
+                    // GestureDetector(Text(...)))) — the old chain
+                    // spawned 4 widgets × 3000 words and rebuilt all
+                    // of them every 33 ms on Flutter web mobile, which
+                    // is what the lag stemmed from. TextSpan +
+                    // TapGestureRecognizer is a render-only construct.
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          for (var i = 0; i < words.words.length; i++)
+                            TextSpan(
+                              text: '${words.words[i].word} ',
+                              recognizer: i < _wordRecognizers.length
+                                  ? _wordRecognizers[i]
+                                  : null,
+                              style: TextStyle(
+                                fontSize: 28,
+                                height: 1.45,
+                                fontWeight: i == activeIndex
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                color: i == activeIndex
+                                    ? palette.fg
+                                    : (i < activeIndex
+                                        ? palette.readWord
+                                        : palette.unreadWord),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               );
             },
           ),
@@ -349,7 +412,13 @@ class _WideLayout extends StatelessWidget {
   final FeedItemModel book;
   final Widget body;
   final AudioPlaybackService audio;
-  const _WideLayout({required this.book, required this.body, required this.audio});
+  final _AudioPalette palette;
+  const _WideLayout({
+    required this.book,
+    required this.body,
+    required this.audio,
+    required this.palette,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -364,9 +433,9 @@ class _WideLayout extends StatelessWidget {
               children: [
                 Expanded(child: _CoverArt(book: book)),
                 const SizedBox(height: 24),
-                _TitleStrip(book: book, audio: audio),
+                _TitleStrip(book: book, audio: audio, palette: palette),
                 const SizedBox(height: 8),
-                _ScrubberControls(audio: audio),
+                _ScrubberControls(audio: audio, palette: palette),
               ],
             ),
           ),
@@ -391,7 +460,13 @@ class _NarrowLayout extends StatelessWidget {
   final FeedItemModel book;
   final Widget body;
   final AudioPlaybackService audio;
-  const _NarrowLayout({required this.book, required this.body, required this.audio});
+  final _AudioPalette palette;
+  const _NarrowLayout({
+    required this.book,
+    required this.body,
+    required this.audio,
+    required this.palette,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -401,11 +476,11 @@ class _NarrowLayout extends StatelessWidget {
         const SizedBox(height: 8),
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
-          child: _MiniNowPlaying(book: book, audio: audio),
+          child: _MiniNowPlaying(book: book, audio: audio, palette: palette),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
-          child: _ScrubberControls(audio: audio),
+          child: _ScrubberControls(audio: audio, palette: palette),
         ),
       ],
     );
@@ -418,7 +493,12 @@ class _NarrowLayout extends StatelessWidget {
 class _MiniNowPlaying extends StatelessWidget {
   final FeedItemModel book;
   final AudioPlaybackService audio;
-  const _MiniNowPlaying({required this.book, required this.audio});
+  final _AudioPalette palette;
+  const _MiniNowPlaying({
+    required this.book,
+    required this.audio,
+    required this.palette,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -470,8 +550,8 @@ class _MiniNowPlaying extends StatelessWidget {
                     chapterTitle.isEmpty ? book.title : chapterTitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: palette.fg,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
@@ -484,7 +564,7 @@ class _MiniNowPlaying extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
+                      color: palette.subtle,
                       fontSize: 13,
                     ),
                   ),
@@ -540,7 +620,12 @@ class _CoverArt extends StatelessWidget {
 class _TitleStrip extends StatelessWidget {
   final FeedItemModel book;
   final AudioPlaybackService audio;
-  const _TitleStrip({required this.book, required this.audio});
+  final _AudioPalette palette;
+  const _TitleStrip({
+    required this.book,
+    required this.audio,
+    required this.palette,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -564,8 +649,8 @@ class _TitleStrip extends StatelessWidget {
             children: [
               Text(
                 chapterTitle.isEmpty ? book.title : chapterTitle,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: palette.fg,
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
@@ -578,7 +663,7 @@ class _TitleStrip extends StatelessWidget {
                     ? book.author
                     : '${book.author} — ${book.title}',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: palette.fg.withOpacity(0.7),
                   fontSize: 13,
                 ),
                 maxLines: 1,
@@ -596,7 +681,8 @@ class _TitleStrip extends StatelessWidget {
 /// and narrow layouts use the exact same widget tree.
 class _ScrubberControls extends StatelessWidget {
   final AudioPlaybackService audio;
-  const _ScrubberControls({required this.audio});
+  final _AudioPalette palette;
+  const _ScrubberControls({required this.audio, required this.palette});
 
   String _fmt(Duration d) {
     final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -623,11 +709,13 @@ class _ScrubberControls extends StatelessWidget {
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     trackHeight: 3,
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
-                    activeTrackColor: Colors.white,
-                    inactiveTrackColor: Colors.white.withOpacity(0.18),
-                    thumbColor: Colors.white,
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 6),
+                    overlayShape:
+                        const RoundSliderOverlayShape(overlayRadius: 12),
+                    activeTrackColor: palette.fg,
+                    inactiveTrackColor: palette.fg.withOpacity(0.18),
+                    thumbColor: palette.fg,
                   ),
                   child: _SeekSlider(
                     min: 0,
@@ -642,12 +730,12 @@ class _ScrubberControls extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(_fmt(pos),
-                          style: TextStyle(color: Colors.white.withOpacity(0.6))),
+                          style: TextStyle(color: palette.subtle)),
                       Text(
                         dur == Duration.zero
                             ? '--:--'
                             : '-${_fmt(dur - pos)}',
-                        style: TextStyle(color: Colors.white.withOpacity(0.6)),
+                        style: TextStyle(color: palette.subtle),
                       ),
                     ],
                   ),
@@ -657,13 +745,14 @@ class _ScrubberControls extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.skip_previous, color: Colors.white, size: 28),
+                      icon: Icon(Icons.skip_previous, color: palette.fg, size: 28),
                       onPressed: audio.previousChapter,
                       tooltip: 'Previous chapter',
                     ),
                     IconButton(
-                      icon: const Icon(Icons.replay_10, color: Colors.white, size: 28),
-                      onPressed: () => audio.skipBackward(by: const Duration(seconds: 10)),
+                      icon: Icon(Icons.replay_10, color: palette.fg, size: 28),
+                      onPressed: () =>
+                          audio.skipBackward(by: const Duration(seconds: 10)),
                       tooltip: 'Back 10s',
                     ),
                     StreamBuilder<PlayerState>(
@@ -671,22 +760,26 @@ class _ScrubberControls extends StatelessWidget {
                       builder: (context, snap) {
                         final state = snap.data;
                         final playing = state?.playing == true;
-                        final loading = state?.processingState == ProcessingState.loading ||
-                            state?.processingState == ProcessingState.buffering;
+                        final loading = state?.processingState ==
+                                ProcessingState.loading ||
+                            state?.processingState ==
+                                ProcessingState.buffering;
                         return IconButton(
                           iconSize: 56,
                           icon: loading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 32,
                                   height: 32,
                                   child: CircularProgressIndicator(
-                                    color: Colors.white,
+                                    color: palette.fg,
                                     strokeWidth: 2.5,
                                   ),
                                 )
                               : Icon(
-                                  playing ? Icons.pause_circle_filled : Icons.play_circle_fill,
-                                  color: Colors.white,
+                                  playing
+                                      ? Icons.pause_circle_filled
+                                      : Icons.play_circle_fill,
+                                  color: palette.fg,
                                   size: 56,
                                 ),
                           onPressed: loading ? null : audio.togglePlayPause,
@@ -694,12 +787,13 @@ class _ScrubberControls extends StatelessWidget {
                       },
                     ),
                     IconButton(
-                      icon: const Icon(Icons.forward_30, color: Colors.white, size: 28),
-                      onPressed: () => audio.skipForward(by: const Duration(seconds: 30)),
+                      icon: Icon(Icons.forward_30, color: palette.fg, size: 28),
+                      onPressed: () =>
+                          audio.skipForward(by: const Duration(seconds: 30)),
                       tooltip: 'Forward 30s',
                     ),
                     IconButton(
-                      icon: const Icon(Icons.skip_next, color: Colors.white, size: 28),
+                      icon: Icon(Icons.skip_next, color: palette.fg, size: 28),
                       onPressed: audio.nextChapter,
                       tooltip: 'Next chapter',
                     ),
