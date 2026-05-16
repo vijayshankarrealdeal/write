@@ -272,25 +272,32 @@ async def import_book(
     if author_user is None:
         raise HTTPException(404, f"author_user not found: {author_uuid}")
 
-    # ── 2. cover image upload ─────────────────────────────────────────
-    # Append a short content-hash query string so clients automatically
-    # cache-miss the moment we re-upload a new cover. Without this the
-    # URL is identical across uploads and Flutter's CachedNetworkImage
-    # keeps painting the previous cover until the user wipes the app.
+    # ── 2. cover image upload + variant build ────────────────────────
+    # Push the cover through the platform image pipeline so the feed
+    # card has a thumb / small / medium / large webp variant set —
+    # mobile downloads ~25 KB instead of a 3 MB master, and the cards
+    # can paint a blurhash placeholder before the bytes arrive.
+    # Path is versioned (``cover/<unix-ts>/``) so a re-import never
+    # collides with the previous cover under the same URL, which
+    # eliminates the Flutter CachedNetworkImage cache-bust class of bug.
     cover_url: str | None = None
+    cover_image_meta: dict | None = None
     cover_path = book_dir / "images" / "cover.png"
     if cover_path.exists():
-        import hashlib
-        ext = cover_path.suffix.lstrip(".") or "png"
+        from app.image_pipeline import process_image
+        from app.storage import upload_variants
+
         cover_data = cover_path.read_bytes()
-        base_url = await upload_file(
-            f"books/{slug}/cover.{ext}",
-            cover_data,
-            content_type=mimetypes.types_map.get(f".{ext}", "image/png"),
-        )
-        version = hashlib.md5(cover_data).hexdigest()[:8]
-        sep = "&" if "?" in base_url else "?"
-        cover_url = f"{base_url}{sep}v={version}"
+        variants, cover_image_meta = await process_image(cover_data)
+        import time as _t
+
+        version = int(_t.time())
+        base_path = f"books/{slug}/cover/{version}"
+        base_url = await upload_variants(base_path, variants)
+        cover_image_meta["base_url"] = base_url
+        # Use the medium variant URL as the convenience ``image_url`` so
+        # legacy clients (no ImageMeta builder) still get a sane size.
+        cover_url = f"{base_url}/medium.webp"
 
     # ── 2b. chapter scene-image upload ────────────────────────────────
     # The ingest pipeline writes per-chapter illustrations to
@@ -324,9 +331,15 @@ async def import_book(
             user_id=author_uuid,
             title=title,
             section_ids=[],
+            cover_image_path=cover_url,
         )
         db.add(writing)
         await db.flush()
+    elif cover_url and cover_url != writing.cover_image_path:
+        # Repoint existing writings at the freshly-versioned cover URL
+        # so the detail-page hero (which reads writing.cover_image_path)
+        # doesn't lag behind the carousel (which reads feed_item.image_url).
+        writing.cover_image_path = cover_url
 
     feed_item = (
         await db.execute(
@@ -342,6 +355,7 @@ async def import_book(
             writing_id=writing.id,
             description=description,
             image_url=cover_url,
+            image_meta=cover_image_meta,
             cover_image_url=cover_url,
             genres=genres,
             tags=tags,
@@ -354,15 +368,14 @@ async def import_book(
         feed_item.title = title
         feed_item.author = author
         feed_item.description = description
-        # When the cover URL changes we must overwrite ``image_url`` (not
-        # OR-keep the old one) so the carousel picks up the new artwork.
-        # Also wipe ``image_meta`` so the Flutter variant-URL builder
-        # stops resolving against the stale ``cover/<old-ts>/...webp``
-        # path from the legacy pipeline — null meta falls back to
-        # ``image_url`` which now points at the versioned cover.png.
+        # On a re-import with a fresh cover we MUST overwrite image_url
+        # and image_meta (not OR-keep the previous values), otherwise the
+        # carousel keeps painting the stale artwork. The two fields are
+        # always written together — image_meta describes the variants at
+        # the URL in image_url, so they invalidate as a pair.
         if cover_url and cover_url != feed_item.image_url:
             feed_item.image_url = cover_url
-            feed_item.image_meta = None
+            feed_item.image_meta = cover_image_meta
         feed_item.cover_image_url = cover_url or feed_item.cover_image_url
         feed_item.genres = genres
         feed_item.tags = tags
