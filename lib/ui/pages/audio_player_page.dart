@@ -15,10 +15,15 @@ import 'package:inkspacex/services/audio_playback_service.dart';
 /// Layout is responsive: side-by-side on wide screens (macOS / web /
 /// landscape iPad), stacked on tall ones (phones, portrait tablets).
 /// The cover is the big square; the active word uses the page's
-/// foreground colour, the rest fade. Auto-scrolls to keep the active
-/// word near the vertical centre. Light/dark register is driven by
-/// `AudioPlaybackService.uiBrightness` — set by the reader so the
-/// listen experience matches the page the user was on.
+/// foreground colour, the rest fade. Auto-scrolls so the active word
+/// lands at the viewport's upper-third — leaves a strip of already-
+/// read context above and lots of lookahead below. The scroll target
+/// is the word's *measured* y-position (via TextPainter) rather than
+/// a proportional estimate; the estimate drifted badly on long
+/// chapters because word density isn't uniform across paragraphs.
+/// Light/dark register is driven by `AudioPlaybackService.uiBrightness`
+/// — set by the reader so the listen experience matches the page the
+/// user was on.
 class AudioPlayerPage extends StatefulWidget {
   const AudioPlayerPage({super.key});
 
@@ -85,6 +90,17 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   // looks like a pointless jolt. Cleared after we consume one tick.
   bool _suppressNextScroll = false;
 
+  // Measured y-position (text-local coords) of each word's line top.
+  // Populated by _ensureWordYOffsets via a one-off TextPainter layout
+  // matching the on-screen Text.rich. The scroll target for word i is
+  // _wordYOffsets[i] — placing the line at the viewport's upper-third
+  // because the SingleChildScrollView pads top by viewportH/3. Keyed
+  // on (words identity, layout width) so a different chapter or a
+  // resize triggers a fresh measurement; otherwise we reuse.
+  List<double> _wordYOffsets = const [];
+  double _wordYOffsetsWidth = 0;
+  AudioWords _wordYOffsetsWords = AudioWords.empty;
+
   @override
   void dispose() {
     for (final r in _wordRecognizers) {
@@ -122,15 +138,72 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     _lastScrolledIndex = -1;
   }
 
-  /// Keep the active word at the vertical centre of the viewport so
-  /// the reader's eye doesn't have to chase highlights up the page.
+  /// Measure each word's line-top y-position in the laid-out text so
+  /// _maybeScrollTo can target the actual position instead of a
+  /// proportional estimate. The estimate was correct on average but
+  /// drifted line-by-line because word density varies: dialogue
+  /// paragraphs pack fewer words per line than dense descriptive
+  /// prose, so a seek to "halfway through the words" landed nowhere
+  /// near the halfway point of the rendered text.
   ///
-  /// Centring works because the surrounding LayoutBuilder pads top and
-  /// bottom with viewportH/2 each, so `maxScrollExtent` equals the
-  /// pure word-band height and `index / total × maxScrollExtent` is
-  /// the exact scroll position that puts word `index` at viewport
-  /// centre. No need to subtract viewportH/2 or add the padding back
-  /// in — the padding is baked into the scroll range.
+  /// Done with a single off-screen TextPainter layout at the matching
+  /// width and base style; results are cached per (words, width).
+  /// Active-word weight (w700) differs from base (w500) but only one
+  /// word at a time is bold, so line-wrap shifts are sub-pixel — the
+  /// difference is invisible at upper-third placement scale.
+  void _ensureWordYOffsets(AudioWords words, double width, TextStyle style) {
+    if (identical(words, _wordYOffsetsWords) &&
+        width == _wordYOffsetsWidth) {
+      return;
+    }
+    if (words.words.isEmpty || width <= 0) {
+      _wordYOffsets = const [];
+      _wordYOffsetsWords = words;
+      _wordYOffsetsWidth = width;
+      return;
+    }
+
+    final buffer = StringBuffer();
+    final charStarts = List<int>.filled(words.words.length, 0);
+    for (var i = 0; i < words.words.length; i++) {
+      charStarts[i] = buffer.length;
+      buffer
+        ..write(words.words[i].word)
+        ..write(' ');
+    }
+
+    final tp = TextPainter(
+      text: TextSpan(text: buffer.toString(), style: style),
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: width);
+
+    final offsets = List<double>.filled(charStarts.length, 0);
+    for (var i = 0; i < charStarts.length; i++) {
+      offsets[i] = tp
+          .getOffsetForCaret(TextPosition(offset: charStarts[i]), Rect.zero)
+          .dy;
+    }
+    tp.dispose();
+
+    _wordYOffsets = offsets;
+    _wordYOffsetsWords = words;
+    _wordYOffsetsWidth = width;
+  }
+
+  /// Place the active word at the viewport's upper-third — leaves a
+  /// strip of just-read context above and a generous lookahead below.
+  ///
+  /// Geometry: the surrounding LayoutBuilder pads top by viewportH/3
+  /// and bottom by 2*viewportH/3, so `maxScrollExtent` equals the
+  /// pure text-body height. A scroll-position of `wordY` (text-local
+  /// y of the word's line top) therefore places that line at the
+  /// viewport's upper-third — the math falls out of the padding.
+  ///
+  /// For natural progression (one word advancing every few ticks)
+  /// the scroll animates smoothly so the eye can follow. For seeks
+  /// (scrubber drag, skip buttons, tap-on-word) the new word is
+  /// usually far off-screen and we jump instantly — animating a long
+  /// distance feels sluggish and loses the user's place.
   void _maybeScrollTo(int index) {
     final total = _lastWords.words.length;
     if (index < 0 || index >= total) return;
@@ -143,15 +216,29 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     }
 
     final pos = _scrollController.position;
-    final estimated = (pos.maxScrollExtent * index / math.max(total, 1))
-        .clamp(0.0, pos.maxScrollExtent);
+    final viewportH = pos.viewportDimension;
+
+    final double target;
+    if (index < _wordYOffsets.length) {
+      target = _wordYOffsets[index].clamp(0.0, pos.maxScrollExtent);
+    } else {
+      // Pre-measurement fallback. Used for the first frame before
+      // _ensureWordYOffsets has had a chance to lay out, or if the
+      // index races ahead of a stale cache (different chapter).
+      target = (pos.maxScrollExtent * index / math.max(total, 1))
+          .clamp(0.0, pos.maxScrollExtent);
+    }
+
     final firstScroll = _lastScrolledIndex < 0;
-    if (firstScroll) {
-      _scrollController.jumpTo(estimated);
+    final delta = (target - pos.pixels).abs();
+    final shouldJump = firstScroll || delta > viewportH * 0.8;
+
+    if (shouldJump) {
+      _scrollController.jumpTo(target);
     } else {
       _scrollController
           .animateTo(
-            estimated,
+            target,
             duration: const Duration(milliseconds: 320),
             curve: Curves.easeOutCubic,
           )
@@ -168,19 +255,24 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     if (!_scrollController.hasClients) return;
     if (durationSeconds <= 0) return;
     final pos = _scrollController.position;
+    final viewportH = pos.viewportDimension;
     final fraction = (positionSeconds / durationSeconds).clamp(0.0, 1.0);
-    // Same reasoning as _maybeScrollTo: viewportH/2 padding above and
-    // below makes maxScrollExtent the pure body height, so fraction ×
-    // maxScrollExtent centres the current paragraph.
+    // Same reasoning as _maybeScrollTo: the LayoutBuilder pads top by
+    // viewportH/3 and bottom by 2*viewportH/3, so maxScrollExtent
+    // equals the pure body height and `fraction × maxScrollExtent`
+    // places that fraction-point of the text at the viewport's
+    // upper-third.
     final estimated =
         (pos.maxScrollExtent * fraction).clamp(0.0, pos.maxScrollExtent);
     final firstScroll = _lastScrolledIndex < 0;
     _lastScrolledIndex = 0;
+    final delta = (estimated - pos.pixels).abs();
     // Below-threshold deltas still need _lastScrolledIndex flipped above
     // — otherwise the next non-trivial tick re-enters as "first scroll"
     // and jumps instead of animating.
-    if ((estimated - pos.pixels).abs() < 4) return;
-    if (firstScroll) {
+    if (delta < 4) return;
+    final shouldJump = firstScroll || delta > viewportH * 0.8;
+    if (shouldJump) {
       _scrollController.jumpTo(estimated);
     } else {
       _scrollController
@@ -316,19 +408,20 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                   durSec,
                 );
               });
-              // Pad with half the *body* viewport above and below so
-              // the currently-narrated line can sit at the vertical
-              // centre at any audio position — same trick lyrics apps
-              // use. LayoutBuilder gives the body's real height (after
-              // the mini-player + scrubber claim the bottom); using
-              // MediaQuery here over-pads because the screen is taller
-              // than the lyric pane.
+              // Pad top by viewportH/3 and bottom by 2*viewportH/3 so
+              // the currently-narrated line lands at the viewport's
+              // upper-third at any audio position. LayoutBuilder gives
+              // the body's real height (after the mini-player +
+              // scrubber claim the bottom); MediaQuery would over-pad
+              // because the screen is taller than the lyric pane.
               return LayoutBuilder(
                 builder: (context, constraints) {
-                  final pad = constraints.maxHeight / 2;
+                  final viewportH = constraints.maxHeight;
+                  final topPad = viewportH / 3;
+                  final bottomPad = viewportH * 2 / 3;
                   return SingleChildScrollView(
                     controller: _scrollController,
-                    padding: EdgeInsets.fromLTRB(32, pad, 32, pad),
+                    padding: EdgeInsets.fromLTRB(32, topPad, 32, bottomPad),
                     child: Text(
                       fallback.isEmpty
                           ? 'No lyrics available for this chapter.'
@@ -357,13 +450,26 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
               });
               return LayoutBuilder(
                 builder: (context, constraints) {
-                  // pad = half the body viewport so the active word
-                  // can centre at any index. See fallback path for
-                  // the full explanation.
-                  final pad = constraints.maxHeight / 2;
+                  // Top viewportH/3 + bottom 2*viewportH/3 padding so a
+                  // scroll-position equal to a word's text-local y
+                  // lands that word at the viewport's upper-third.
+                  // See _maybeScrollTo for the geometry.
+                  final viewportH = constraints.maxHeight;
+                  final topPad = viewportH / 3;
+                  final bottomPad = viewportH * 2 / 3;
+                  const baseStyle = TextStyle(
+                    fontSize: 28,
+                    height: 1.45,
+                    fontWeight: FontWeight.w500,
+                  );
+                  _ensureWordYOffsets(
+                    words,
+                    constraints.maxWidth - 64,
+                    baseStyle,
+                  );
                   return SingleChildScrollView(
                     controller: _scrollController,
-                    padding: EdgeInsets.fromLTRB(32, pad, 32, pad),
+                    padding: EdgeInsets.fromLTRB(32, topPad, 32, bottomPad),
                     // Plain TextSpan instead of WidgetSpan(Padding(
                     // GestureDetector(Text(...)))) — the old chain
                     // spawned 4 widgets × 3000 words and rebuilt all
@@ -380,11 +486,11 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                                   ? _wordRecognizers[i]
                                   : null,
                               style: TextStyle(
-                                fontSize: 28,
-                                height: 1.45,
+                                fontSize: baseStyle.fontSize,
+                                height: baseStyle.height,
                                 fontWeight: i == activeIndex
                                     ? FontWeight.w700
-                                    : FontWeight.w500,
+                                    : baseStyle.fontWeight,
                                 color: i == activeIndex
                                     ? palette.fg
                                     : (i < activeIndex
