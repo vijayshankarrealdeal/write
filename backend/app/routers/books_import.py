@@ -85,12 +85,14 @@ def _read_json(p: Path) -> dict | list | None:
 
 
 def _chapters_in_order(audio_dir: Path) -> list[dict]:
-    """Return `[{md, mp3, words_json, title}]` in chapter order.
+    """Return `[{md, mp3, words_json, title, chunk_id}]` in chapter order.
 
     Pulls ordering from `audio/manifest.json` if present (the standard
     output of the per-book Sonnet agent); falls back to lexicographic
     glob of `audio/*.md` which works for the prefixed `NN_slug.md`
-    naming we always use.
+    naming we always use. ``chunk_id`` lets us look up the matching
+    pre-rendered Quill delta in ``sections/<chunk_id>.delta.json`` so
+    chapters retain their scene illustrations from the ingest pipeline.
     """
     manifest = _read_json(audio_dir / "manifest.json") or {}
     chapters = manifest.get("chapters") if isinstance(manifest, dict) else None
@@ -110,6 +112,7 @@ def _chapters_in_order(audio_dir: Path) -> list[dict]:
                     "mp3": audio_dir / "wav" / f"{stem}.mp3",
                     "words_json": audio_dir / "wav" / f"{stem}.words.json",
                     "title": title or stem,
+                    "chunk_id": ch.get("chunk_id"),
                 }
             )
     else:
@@ -121,8 +124,82 @@ def _chapters_in_order(audio_dir: Path) -> list[dict]:
                     "mp3": audio_dir / "wav" / f"{stem}.mp3",
                     "words_json": audio_dir / "wav" / f"{stem}.words.json",
                     "title": stem,
+                    "chunk_id": None,
                 }
             )
+    return out
+
+
+_LOCAL_IMAGE_RE = re.compile(
+    r"^/api/books/[^/]+/images/(?P<scene_id>[A-Za-z0-9_-]+)/png$"
+)
+
+
+async def _upload_chapter_images(
+    *, slug: str, book_dir: Path,
+) -> dict[str, str]:
+    """Upload every chapter scene PNG to MinIO. Returns
+    ``{scene_id: minio_url}``. Idempotent — re-uploading the same path
+    is cheap and gives us a deterministic URL the delta can reference."""
+    images_dir = book_dir / "images"
+    if not images_dir.is_dir():
+        return {}
+    out: dict[str, str] = {}
+    for png in sorted(images_dir.glob("*.png")):
+        scene_id = png.stem
+        if scene_id == "cover":
+            continue  # cover handled above with its own variants
+        try:
+            data = png.read_bytes()
+        except OSError:
+            continue
+        url = await upload_file(
+            f"books/{slug}/scenes/{scene_id}.png",
+            data,
+            content_type="image/png",
+        )
+        out[scene_id] = url
+    return out
+
+
+def _delta_with_remapped_images(
+    delta: list[dict], image_urls: dict[str, str],
+) -> list[dict]:
+    """Rewrite any ``/api/books/<slug>/images/<scene>/png`` references
+    in a Quill delta to their uploaded MinIO URLs. Also drops the
+    leading ``"Chapter X" + {header:2}`` pair the ingest pipeline
+    emits — the Flutter reader already paints Section.title above the
+    body, so keeping it would render the chapter name twice."""
+    src_ops = list(delta)
+    if len(src_ops) >= 2:
+        first = src_ops[0]
+        second = src_ops[1]
+        first_insert = first.get("insert") if isinstance(first, dict) else None
+        second_insert = second.get("insert") if isinstance(second, dict) else None
+        second_attrs = second.get("attributes") if isinstance(second, dict) else None
+        if (
+            isinstance(first_insert, str)
+            and second_insert == "\n"
+            and isinstance(second_attrs, dict)
+            and second_attrs.get("header")
+        ):
+            src_ops = src_ops[2:]
+
+    out: list[dict] = []
+    for op in src_ops:
+        insert = op.get("insert") if isinstance(op, dict) else None
+        if isinstance(insert, dict) and "image" in insert:
+            src = insert.get("image") or ""
+            m = _LOCAL_IMAGE_RE.match(src) if isinstance(src, str) else None
+            if m:
+                scene_id = m.group("scene_id")
+                remote = image_urls.get(scene_id)
+                if remote:
+                    new_op = dict(op)
+                    new_op["insert"] = {**insert, "image": remote}
+                    out.append(new_op)
+                    continue
+        out.append(op)
     return out
 
 
@@ -197,6 +274,19 @@ async def import_book(
             cover_data,
             content_type=mimetypes.types_map.get(f".{ext}", "image/png"),
         )
+
+    # ── 2b. chapter scene-image upload ────────────────────────────────
+    # The ingest pipeline writes per-chapter illustrations to
+    # ``images/<scene_id>.png`` and embeds them in
+    # ``sections/<chunk_id>.delta.json``. Upload each PNG to MinIO so
+    # the delta can be rewritten with public URLs below — otherwise
+    # the chapter body renders with broken images that point at the
+    # studio dev server.
+    scene_image_urls = await _upload_chapter_images(
+        slug=slug, book_dir=book_dir,
+    )
+
+    sections_dir = book_dir / "sections"
 
     # ── 3. find-or-create Writing + FeedItem ──────────────────────────
     writing = (
@@ -278,6 +368,26 @@ async def import_book(
 
     for idx, ch in enumerate(chapters):
         md_text = ch["md"].read_text(encoding="utf-8") if ch["md"].exists() else ""
+        # Prefer the pre-rendered Quill delta from ``sections/`` — it
+        # carries the chapter's scene illustration + italic caption
+        # that the ingest pipeline planned. Fall back to the raw .md
+        # text when no delta is on disk (e.g. very old bundles).
+        chunk_id = ch.get("chunk_id") or ""
+        delta_path = (
+            (sections_dir / f"{chunk_id}.delta.json")
+            if (sections_dir.is_dir() and chunk_id)
+            else None
+        )
+        section_delta: list[dict] | None = None
+        if delta_path and delta_path.exists():
+            raw = _read_json(delta_path)
+            if isinstance(raw, list):
+                section_delta = _delta_with_remapped_images(
+                    raw, scene_image_urls,
+                )
+        if section_delta is None:
+            section_delta = _quill_delta_for(md_text)
+
         bucket = existing_by_title.get(ch["title"] or "", [])
         section = bucket.pop(0) if bucket else None
         if section is None:
@@ -285,14 +395,14 @@ async def import_book(
                 id=uuid.uuid4(),
                 writing_id=writing.id,
                 title=ch["title"],
-                content=_quill_delta_for(md_text),
+                content=section_delta,
                 is_published=True,
                 sort_order=idx,
                 kind="chapter",
             )
             db.add(section)
         else:
-            section.content = _quill_delta_for(md_text)
+            section.content = section_delta
             section.is_published = True
             section.sort_order = idx
 

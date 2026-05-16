@@ -81,7 +81,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     _lastScrolledIndex = -1;
   }
 
-  /// Keep the active word near ~40% from the top of the viewport.
+  /// Keep the active word at the vertical centre of the viewport so
+  /// the reader's eye doesn't have to chase highlights up the page.
   ///
   /// Estimate the destination from `index / totalWords × scrollExtent`
   /// — accurate enough to keep the active word on screen without the
@@ -101,11 +102,11 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     }
 
     final pos = _scrollController.position;
-    // Aim ~40% from top: subtract 0.4 viewports from the per-word
-    // share so the word lands near the upper-third.
+    // Centre the active word — subtract half a viewport so the word
+    // lands mid-screen instead of in the upper third.
     final viewportH = pos.viewportDimension;
     final estimated =
-        (pos.maxScrollExtent * index / math.max(total, 1) - viewportH * 0.4)
+        (pos.maxScrollExtent * index / math.max(total, 1) - viewportH * 0.5)
             .clamp(0.0, pos.maxScrollExtent);
     final firstScroll = _lastScrolledIndex < 0;
     if (firstScroll) {
@@ -120,6 +121,35 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
           .catchError((_) {});
     }
     _lastScrolledIndex = index;
+  }
+
+  /// Words.json fallback scroll — keeps the page roughly aligned with
+  /// audio position when per-word timings are unavailable (older chapter
+  /// uploads, fetch failures, text-only review). Without this, the
+  /// "Listen" view sat motionless while the audio rolled forward.
+  void _maybeScrollFallback(double positionSeconds, double durationSeconds) {
+    if (!_scrollController.hasClients) return;
+    if (durationSeconds <= 0) return;
+    final pos = _scrollController.position;
+    final viewportH = pos.viewportDimension;
+    final fraction = (positionSeconds / durationSeconds).clamp(0.0, 1.0);
+    final estimated =
+        (pos.maxScrollExtent * fraction - viewportH * 0.5)
+            .clamp(0.0, pos.maxScrollExtent);
+    if ((estimated - pos.pixels).abs() < 4) return;
+    final firstScroll = _lastScrolledIndex < 0;
+    _lastScrolledIndex = 0;
+    if (firstScroll) {
+      _scrollController.jumpTo(estimated);
+    } else {
+      _scrollController
+          .animateTo(
+            estimated,
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeOutCubic,
+          )
+          .catchError((_) {});
+    }
   }
 
   @override
@@ -206,23 +236,43 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
         if (words.words.isEmpty) {
           // Fall back to the chapter's prose if no word timings —
           // playback still works, but without the karaoke effect.
+          // Auto-scroll proportional to audio position so the reader's
+          // current spot stays near the centre even without per-word
+          // alignment.
           final ctx = _audio.context;
           final fallback = ctx == null
               ? ''
               : (ctx.chapters[ctx.currentChapterIndex].content);
-          return SingleChildScrollView(
-            controller: _scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 64),
-            child: Text(
-              fallback.isEmpty
-                  ? 'No lyrics available for this chapter.'
-                  : fallback,
-              style: const TextStyle(
-                color: Colors.white54,
-                fontSize: 20,
-                height: 1.7,
-              ),
-            ),
+          return StreamBuilder<Duration>(
+            stream: _audio.positionStream,
+            initialData: _audio.position,
+            builder: (context, posSnap) {
+              final pos = posSnap.data ?? Duration.zero;
+              final durSec = _audio.duration?.inMilliseconds != null
+                  ? _audio.duration!.inMilliseconds / 1000.0
+                  : 0.0;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _maybeScrollFallback(
+                  pos.inMilliseconds / 1000.0,
+                  durSec,
+                );
+              });
+              return SingleChildScrollView(
+                controller: _scrollController,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 64),
+                child: Text(
+                  fallback.isEmpty
+                      ? 'No lyrics available for this chapter.'
+                      : fallback,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 20,
+                    height: 1.7,
+                  ),
+                ),
+              );
+            },
           );
         }
         return RepaintBoundary(

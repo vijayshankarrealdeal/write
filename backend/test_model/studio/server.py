@@ -622,10 +622,14 @@ async def generate_cover(slug: str) -> dict[str, Any]:
             label=f"{slug}/cover",
         )
         # Title overlay — composite title/subtitle/author onto the raw
-        # cover. Always-on so every shipped cover carries typography;
-        # the prompt already tells the model `no text`.
+        # cover. Skipped when the prompt already bakes the typography
+        # into the painting (``title_overlay_baked_in: true``), which
+        # the new AI-text covers use to avoid the pasted-on PIL look.
         overlay = payload.get("title_overlay") or {}
-        if overlay.get("title") or overlay.get("author"):
+        if (
+            not payload.get("title_overlay_baked_in")
+            and (overlay.get("title") or overlay.get("author"))
+        ):
             png_bytes = await asyncio.to_thread(
                 _composite_title_overlay, png_bytes,
                 title=(overlay.get("title") or "").strip(),
