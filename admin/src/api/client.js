@@ -102,9 +102,10 @@ export const api = {
   writing: (id) => request(`/writings/${id}`),
 
   // Users (admin-managed)
-  users: (page = 1, perPage = 25, search = "") => {
+  users: (page = 1, perPage = 25, search = "", includeSeed = false) => {
     const params = new URLSearchParams({ page, per_page: perPage });
     if (search) params.set("search", search);
+    if (includeSeed) params.set("include_seed", "true");
     return request(`/users?${params}`);
   },
   createUser: (payload) =>

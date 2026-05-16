@@ -83,18 +83,19 @@ function AuthTab() {
   const [data, setData] = useState(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [includeSeed, setIncludeSeed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [resetFor, setResetFor] = useState(null);
 
-  const load = (p = page, s = search) => {
+  const load = (p = page, s = search, seed = includeSeed) => {
     setLoading(true);
-    api.users(p, 25, s).then(setData).finally(() => setLoading(false));
+    api.users(p, 25, s, seed).then(setData).finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    load(1, search);
-  }, [search]);
+    load(1, search, includeSeed);
+  }, [search, includeSeed]);
 
   return (
     <div className="space-y-4">
@@ -112,6 +113,18 @@ function AuthTab() {
             className="w-full bg-gray-900 border border-gray-800 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-indigo-500"
           />
         </div>
+        <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={includeSeed}
+            onChange={(e) => {
+              setIncludeSeed(e.target.checked);
+              setPage(1);
+            }}
+            className="w-4 h-4 rounded border-gray-700 bg-gray-900 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0"
+          />
+          Show seed users
+        </label>
         <button
           onClick={() => setShowCreate(true)}
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg px-4 py-2"
@@ -188,7 +201,7 @@ function AuthTab() {
         totalPages={data?.total_pages || 0}
         onPageChange={(p) => {
           setPage(p);
-          load(p, search);
+          load(p, search, includeSeed);
         }}
       />
 
@@ -197,7 +210,7 @@ function AuthTab() {
           onClose={() => setShowCreate(false)}
           onCreated={() => {
             setShowCreate(false);
-            load(1, search);
+            load(1, search, includeSeed);
           }}
         />
       )}

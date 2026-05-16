@@ -1097,6 +1097,7 @@ async def list_users(
     page: int = Query(1, ge=1),
     per_page: int = Query(25, ge=1, le=200),
     search: str | None = Query(None, description="Match email or name"),
+    include_seed: bool = Query(False, description="Include @inkspace.local seed users"),
     db: AsyncSession = Depends(get_db),
     _=Depends(_verify_admin),
 ):
@@ -1107,6 +1108,9 @@ async def list_users(
         like = f"%{search}%"
         q = q.where(or_(User.email.ilike(like), User.name.ilike(like)))
         count_q = count_q.where(or_(User.email.ilike(like), User.name.ilike(like)))
+    if not include_seed:
+        q = q.where(~User.email.ilike("%@inkspace.local"))
+        count_q = count_q.where(~User.email.ilike("%@inkspace.local"))
 
     total = (await db.execute(count_q)).scalar() or 0
     result = await db.execute(q.offset((page - 1) * per_page).limit(per_page))
