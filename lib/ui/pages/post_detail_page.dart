@@ -660,8 +660,10 @@ class _PostDetailPageState extends State<PostDetailPage>
   /// register the user picked for the page. Reader theme 'white'/'sepia'
   /// → light; 'black'/'grey' → dark.
   void _syncAudioBrightness() {
-    AudioPlaybackService.instance.uiBrightness.value =
+    final audio = AudioPlaybackService.instance;
+    audio.uiBrightness.value =
         _isReaderDark() ? Brightness.dark : Brightness.light;
+    audio.uiFontFamily.value = _readerFont;
   }
 
   Future<void> _saveReaderPrefs() async {
@@ -4256,10 +4258,8 @@ class _PostDetailPageState extends State<PostDetailPage>
     double? startPos;
     if (currentIdx != null && currentIdx < book.sections.length) {
       startSectionId = book.sections[currentIdx].id;
-      final saved = audio.readResume();
-      if (saved != null &&
-          saved.bookId == book.id &&
-          saved.sectionId == startSectionId) {
+      final saved = audio.readResumeForBook(book.id);
+      if (saved != null && saved.sectionId == startSectionId) {
         startPos = saved.positionSeconds;
       }
     }

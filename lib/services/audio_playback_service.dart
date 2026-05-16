@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:inkspacex/models/audio_words.dart';
 import 'package:inkspacex/models/feed_item_model.dart';
@@ -96,7 +97,14 @@ class AudioPlaybackService {
   static final AudioPlaybackService instance = AudioPlaybackService._();
 
   static const String _resumeBoxName = 'audio_last_played';
+  // 'last' is the global pointer ("which book did the user listen to
+  // most recently?") — used by the lock-screen / Continue Listening
+  // path that doesn't know the book id up-front. The per-book row
+  // lives at 'book:<bookId>' so jumping A → B → A resumes A from its
+  // own saved spot instead of starting over because A got overwritten
+  // by B in the single-key world.
   static const String _resumeKey = 'last';
+  static String _bookResumeKey(String bookId) => 'book:$bookId';
   static const String _wordsCacheBoxName = 'audio_words_cache';
 
   final AudioPlayer _player = AudioPlayer();
@@ -123,6 +131,16 @@ class AudioPlaybackService {
   /// snapping back to a dark Spotify-style sheet over a light reader.
   final ValueNotifier<Brightness> uiBrightness =
       ValueNotifier(Brightness.dark);
+
+  /// Font family for the audio player's lyric pane. Mirrors the reader's
+  /// current `_readerFont` so the karaoke text feels like a continuation
+  /// of the page the user was reading — not a generic sans-serif sheet
+  /// over a Merriweather/Lora/Playfair reader. Seeded from the saved
+  /// `reader_font` pref at bootstrap so entry points that skip the
+  /// reader (mini-player tap, feed → audio direct, lock-screen resume)
+  /// still get the right face on first paint; post_detail_page later
+  /// overrides it live when the user picks a different font.
+  final ValueNotifier<String?> uiFontFamily = ValueNotifier('Merriweather');
 
   /// Hive box created lazily so the service can be instantiated
   /// before `Hive.initFlutter()` has run (we always init Hive in
@@ -157,6 +175,20 @@ class AudioPlaybackService {
     _wordsCacheBox = await Hive.openBox(_wordsCacheBoxName);
     final session = await AudioSession.instance;
     await session.configure(const AudioSessionConfiguration.speech());
+
+    // Seed the lyric font from the reader's last saved choice so the
+    // first audio session of the day — typically opened straight from
+    // the mini-player or the feed, never via post_detail_page — already
+    // wears the right face. Without this, the first paint flashed
+    // system sans before the reader's `_syncAudioBrightness` had a
+    // chance to push the actual family.
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getString('reader_font');
+      if (saved != null && saved.isNotEmpty) {
+        uiFontFamily.value = saved;
+      }
+    } catch (_) {}
 
     // Position → current-word index. Runs on every position tick
     // (just_audio emits at ~30 Hz; cheap because wordIndexAt is
@@ -211,15 +243,30 @@ class AudioPlaybackService {
     double? startPositionSeconds,
     bool autoPlay = false,
   }) async {
+    // Tear down whatever was loaded before. Without this, on Flutter
+    // web (just_audio_web) calling `setAudioSource` while the previous
+    // source is still mid-playback or in the `completed` state after
+    // an auto-advance leaves the new source stuck in `buffering`
+    // forever — the user sees a spinning play button that only clears
+    // on a full page refresh (which recreates this singleton). Stop +
+    // persist resume + reset the index marker so the new chapter
+    // doesn't inherit the old chapter's state.
+    final hadContext = _ctx != null;
+    if (hadContext) {
+      _persistResume();
+      try {
+        await _player.stop();
+      } catch (_) {}
+    }
     final ctx = AudioBookContext(book: book, chapters: book.sections);
     _ctx = ctx;
+    currentWords.add(AudioWords.empty);
+    currentWordIndex.add(-1);
 
     final playable = ctx.playable;
     if (playable.isEmpty) {
       // Nothing to play — clear and bail.
       await _player.stop();
-      currentWords.add(AudioWords.empty);
-      currentWordIndex.add(-1);
       return;
     }
 
@@ -250,13 +297,16 @@ class AudioPlaybackService {
       );
     }).toList();
 
-    // Resolve start position. Order: explicit args → saved resume
-    // for this book → first chapter at 0.
+    // Resolve start position. Order: explicit args → this book's
+    // saved resume row → first chapter at 0. Per-book lookup (rather
+    // than the global `'last'` pointer) means A → B → A jumps back
+    // to where the user paused A, not chapter 0 just because B was
+    // the most recent thing.
     String? targetSectionId = startSectionId;
     double targetSeconds = startPositionSeconds ?? 0.0;
     if (targetSectionId == null) {
-      final saved = readResume();
-      if (saved != null && saved.bookId == book.id) {
+      final saved = readResumeForBook(book.id);
+      if (saved != null) {
         targetSectionId = saved.sectionId;
         targetSeconds = saved.positionSeconds;
       }
@@ -413,12 +463,23 @@ class AudioPlaybackService {
   Future<void> setSpeed(double speed) =>
       _player.setSpeed(speed.clamp(0.5, 2.5));
 
-  /// Read back the last persisted position. Null when nothing was
-  /// ever saved (first run) or the Hive box isn't open yet.
-  PlaybackResumeState? readResume() {
+  /// Read back the globally last-played position — used by entry
+  /// points that don't know a specific book yet (e.g. "Continue
+  /// listening" on the home page). Returns null on first run or
+  /// before Hive is open.
+  PlaybackResumeState? readResume() => _readResumeAt(_resumeKey);
+
+  /// Read back the saved position for a specific book. Lets
+  /// `loadBook(book)` resume the user's spot in that book even after
+  /// they've listened to other books in between — the per-book row
+  /// survives the global `'last'` pointer getting overwritten.
+  PlaybackResumeState? readResumeForBook(String bookId) =>
+      _readResumeAt(_bookResumeKey(bookId));
+
+  PlaybackResumeState? _readResumeAt(String key) {
     final box = _resumeBox;
     if (box == null) return null;
-    final raw = box.get(_resumeKey);
+    final raw = box.get(key);
     if (raw is String) {
       try {
         return PlaybackResumeState.fromJson(
@@ -445,7 +506,14 @@ class AudioPlaybackService {
       speed: _player.speed,
       updatedAt: DateTime.now(),
     );
-    _resumeBox?.put(_resumeKey, jsonEncode(state.toJson()));
+    final encoded = jsonEncode(state.toJson());
+    final box = _resumeBox;
+    if (box == null) return;
+    // Two rows: 'last' is the global "what was the user listening to?"
+    // pointer; 'book:<id>' is this book's own row so it survives a
+    // later session for a different book overwriting 'last'.
+    box.put(_resumeKey, encoded);
+    box.put(_bookResumeKey(ctx.book.id), encoded);
   }
 
   Future<void> dispose() async {

@@ -232,15 +232,36 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     if (shouldJump) {
       _scrollController.jumpTo(target);
     } else {
+      // Predictive duration: animate so we *land* on the target right
+      // as the next word fires. A linear curve plus duration matched
+      // to wall-clock-time-to-next-word makes back-to-back word
+      // animations chain into one continuous motion — no easeOut
+      // deceleration hump between words, which is what made the old
+      // 320 ms easeOutCubic feel like discrete hops instead of the
+      // buttery Spotify-style glide. Clamped to [80 ms, 800 ms] so
+      // tightly-packed words don't jitter and long pauses don't drag.
       _scrollController
           .animateTo(
             target,
-            duration: const Duration(milliseconds: 320),
-            curve: Curves.easeOutCubic,
+            duration: _scrollDurationToNext(index),
+            curve: Curves.linear,
           )
           .catchError((_) {});
     }
     _lastScrolledIndex = index;
+  }
+
+  Duration _scrollDurationToNext(int index) {
+    const fallback = Duration(milliseconds: 300);
+    if (index + 1 >= _lastWords.words.length) return fallback;
+    final speed = math.max(_audio.speed, 0.25);
+    final nextStart = _lastWords.words[index + 1].startSeconds;
+    final nowSec = _audio.position.inMilliseconds / 1000.0;
+    final wallClockSec = (nextStart - nowSec) / speed;
+    if (!wallClockSec.isFinite || wallClockSec <= 0) return fallback;
+    return Duration(
+      milliseconds: (wallClockSec * 1000).round().clamp(80, 800),
+    );
   }
 
   /// Words.json fallback scroll — keeps the page roughly aligned with
@@ -373,6 +394,19 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   }
 
   Widget _buildLyricsView(_AudioPalette palette) {
+    // Mirror the reader's font onto the lyric pane so the karaoke text
+    // feels like a continuation of the page the user was reading (which
+    // pushed the family onto `uiFontFamily` via post_detail_page's
+    // _syncAudioBrightness). The whole rich text rebuilds on family
+    // change — which only happens when the user picks a different font
+    // from the reader's font sheet, so the cost is irrelevant.
+    return ValueListenableBuilder<String?>(
+      valueListenable: _audio.uiFontFamily,
+      builder: (context, fontFamily, _) => _buildLyricsBody(palette, fontFamily),
+    );
+  }
+
+  Widget _buildLyricsBody(_AudioPalette palette, String? fontFamily) {
     return StreamBuilder<AudioWords>(
       stream: _audio.currentWords,
       initialData: _audio.currentWords.value,
@@ -423,6 +457,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                           ? 'No lyrics available for this chapter.'
                           : fallback,
                       style: TextStyle(
+                        fontFamily: fontFamily,
                         color: palette.subtle,
                         fontSize: 20,
                         height: 1.7,
@@ -453,7 +488,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                   final viewportH = constraints.maxHeight;
                   final topPad = viewportH / 3;
                   final bottomPad = viewportH * 2 / 3;
-                  const baseStyle = TextStyle(
+                  final baseStyle = TextStyle(
+                    fontFamily: fontFamily,
                     fontSize: 28,
                     height: 1.45,
                     fontWeight: FontWeight.w500,
@@ -478,6 +514,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                                   ? _wordRecognizers[i]
                                   : null,
                               style: TextStyle(
+                                fontFamily: baseStyle.fontFamily,
                                 fontSize: baseStyle.fontSize,
                                 height: baseStyle.height,
                                 fontWeight: i == activeIndex
