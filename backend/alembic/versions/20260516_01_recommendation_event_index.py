@@ -16,8 +16,11 @@ walk the impression slice for one user in index order, picking up the
 The index is built ``CONCURRENTLY`` because the table is hot — a
 ``CREATE INDEX`` without ``CONCURRENTLY`` takes an ``ACCESS EXCLUSIVE``
 lock that would briefly stall every analytics write. ``CONCURRENTLY``
-cannot run inside a transaction block, hence ``transactional_ddl =
-False`` below and the bare ``op.execute`` calls.
+cannot run inside a transaction block; ``op.get_context().autocommit_block()``
+is Alembic's canonical way to step out of the surrounding transaction
+for a single statement (a module-level ``transactional_ddl = False``
+is *not* honoured — that's a ``MigrationContext`` option, not a
+per-revision one).
 
 Revision ID: 20260516_01
 Revises: 20260515_02
@@ -33,20 +36,23 @@ down_revision = "20260515_02"
 branch_labels = None
 depends_on = None
 
-# CREATE INDEX CONCURRENTLY refuses to run inside a transaction; tell
-# Alembic to skip its default BEGIN/COMMIT wrapper for this migration.
-transactional_ddl = False
-
 
 def upgrade() -> None:
-    op.execute(
-        "CREATE INDEX CONCURRENTLY IF NOT EXISTS "
-        "ix_rec_events_user_type_time "
-        "ON recommendation_events (user_id, event_type, created_at DESC)"
-    )
+    # `autocommit_block` commits the surrounding migration transaction,
+    # flips the connection into autocommit for the body, then resumes
+    # the normal transactional flow — the only way `CONCURRENTLY` works
+    # under Alembic + asyncpg without disabling transactional DDL for
+    # the whole env.
+    with op.get_context().autocommit_block():
+        op.execute(
+            "CREATE INDEX CONCURRENTLY IF NOT EXISTS "
+            "ix_rec_events_user_type_time "
+            "ON recommendation_events (user_id, event_type, created_at DESC)"
+        )
 
 
 def downgrade() -> None:
-    op.execute(
-        "DROP INDEX CONCURRENTLY IF EXISTS ix_rec_events_user_type_time"
-    )
+    with op.get_context().autocommit_block():
+        op.execute(
+            "DROP INDEX CONCURRENTLY IF EXISTS ix_rec_events_user_type_time"
+        )
