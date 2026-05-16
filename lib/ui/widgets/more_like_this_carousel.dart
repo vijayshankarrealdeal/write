@@ -102,7 +102,7 @@ class _MoreLikeThisCarouselState extends State<MoreLikeThisCarousel> {
               ),
               const SizedBox(height: 12),
               SizedBox(
-                height: 240,
+                height: 320,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: items.length,
@@ -150,7 +150,7 @@ class _SimilarCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AspectRatio(
-              aspectRatio: 4 / 3,
+              aspectRatio: item.imageMeta?.aspectRatio ?? 2 / 3,
               child: AppNetworkImage(
                 url: item.imageUrl,
                 meta: item.imageMeta,

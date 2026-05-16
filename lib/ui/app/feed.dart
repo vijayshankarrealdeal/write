@@ -238,12 +238,21 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
     // matching rail by id, falling back to the legacy client-side
     // computation when the rail is empty (e.g. /home unreachable, or
     // a brand-new user where a specific rail returned no candidates).
+    // Backend rails are already cross-rail deduped, but a cached-rails-
+    // meets-fresh-rails window (or any future client cache scheme) could
+    // still hand us a list with the same feed_item twice. One cheap
+    // pass at the boundary makes the render loop bullet-proof — a no-op
+    // for the happy path, but stops "two Draculas in the carousel" the
+    // moment any upstream code regresses.
     final railsById = <String, List<FeedItemModel>>{
-      for (final r in feed.rails) r.railId: r.items,
+      for (final r in feed.rails)
+        r.railId: FeedProvider.dedupById(r.items),
     };
     List<FeedItemModel> railOr(String railId, List<FeedItemModel> fallback) {
       final fromRail = railsById[railId];
-      return (fromRail != null && fromRail.isNotEmpty) ? fromRail : fallback;
+      return (fromRail != null && fromRail.isNotEmpty)
+          ? fromRail
+          : FeedProvider.dedupById(fallback);
     }
 
     final userGenres = auth.currentUser?.preferences.preferredGenres
@@ -259,7 +268,7 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
     // Recommendations rail = backend's `/api/ai/recommendations`
     // wrapped into the home composer. Fall back to engine items, then
     // to the genre-overlap heuristic so the shelf is never empty.
-    final engineRecommended = feed.recommendedItems;
+    final engineRecommended = FeedProvider.dedupById(feed.recommendedItems);
     final List<FeedItemModel> recommended;
     final railRecommend = railsById['recommendation'];
     if (railRecommend != null && railRecommend.isNotEmpty) {
@@ -303,13 +312,13 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
 
     final hPadding = isMobile ? 10.0 : (width > 1400 ? 48.0 : 32.0);
     final cardWidth = isMobile ? 130.0 : 180.0;
-    // cover aspect 3/4 → height = w*4/3; plus ~82px for labels/padding.
-    final shelfHeight = (cardWidth * 4 / 3) + 86;
+    // Server cover variants are 2:3 portrait (e.g. 533×800, 1024×1536).
+    // Cover height = cardWidth * 3/2; plus ~86px for title/author/genre.
+    final shelfHeight = (cardWidth * 3 / 2) + 86;
     final rankedCardWidth = isMobile ? 210.0 : 270.0;
     final rankedNumeralWidth = isMobile ? 64.0 : 92.0;
-    // ranked cover width = (rankedCardWidth - numeralWidth) → *4/3 + labels
     final rankedShelfHeight =
-        ((rankedCardWidth - rankedNumeralWidth) * 4 / 3) + 64;
+        ((rankedCardWidth - rankedNumeralWidth) * 3 / 2) + 64;
 
     if (feed.hasActiveFilters) {
       return _buildFilteredView(feed, auth, textColor, hPadding, isMobile);
@@ -2151,7 +2160,7 @@ class _BookCardState extends State<_BookCard> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(m ? 10 : 12),
                   child: AspectRatio(
-                    aspectRatio: 3 / 4,
+                    aspectRatio: widget.item.imageMeta?.aspectRatio ?? 2 / 3,
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
@@ -2375,7 +2384,8 @@ class _RankedBookCardState extends State<_RankedBookCard> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(m ? 8 : 10),
                       child: AspectRatio(
-                        aspectRatio: 3 / 4,
+                        aspectRatio:
+                            widget.item.imageMeta?.aspectRatio ?? 2 / 3,
                         child: (widget.item.imageUrl.isNotEmpty ||
                                 widget.item.imageMeta != null)
                             ? LayoutBuilder(

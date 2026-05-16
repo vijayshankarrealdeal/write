@@ -273,16 +273,24 @@ async def import_book(
         raise HTTPException(404, f"author_user not found: {author_uuid}")
 
     # ── 2. cover image upload ─────────────────────────────────────────
+    # Append a short content-hash query string so clients automatically
+    # cache-miss the moment we re-upload a new cover. Without this the
+    # URL is identical across uploads and Flutter's CachedNetworkImage
+    # keeps painting the previous cover until the user wipes the app.
     cover_url: str | None = None
     cover_path = book_dir / "images" / "cover.png"
     if cover_path.exists():
+        import hashlib
         ext = cover_path.suffix.lstrip(".") or "png"
         cover_data = cover_path.read_bytes()
-        cover_url = await upload_file(
+        base_url = await upload_file(
             f"books/{slug}/cover.{ext}",
             cover_data,
             content_type=mimetypes.types_map.get(f".{ext}", "image/png"),
         )
+        version = hashlib.md5(cover_data).hexdigest()[:8]
+        sep = "&" if "?" in base_url else "?"
+        cover_url = f"{base_url}{sep}v={version}"
 
     # ── 2b. chapter scene-image upload ────────────────────────────────
     # The ingest pipeline writes per-chapter illustrations to
@@ -298,10 +306,15 @@ async def import_book(
     sections_dir = book_dir / "sections"
 
     # ── 3. find-or-create Writing + FeedItem ──────────────────────────
+    # Match case-insensitively — "The Strange Case…" and "the Strange
+    # Case…" must hit the same row, otherwise a re-import forks a
+    # duplicate writing under whichever capitalisation arrived first.
+    from sqlalchemy import func
     writing = (
         await db.execute(
             select(Writing).where(
-                Writing.user_id == author_uuid, Writing.title == title
+                Writing.user_id == author_uuid,
+                func.lower(Writing.title) == title.lower(),
             )
         )
     ).scalar_one_or_none()
@@ -341,7 +354,15 @@ async def import_book(
         feed_item.title = title
         feed_item.author = author
         feed_item.description = description
-        feed_item.image_url = feed_item.image_url or cover_url
+        # When the cover URL changes we must overwrite ``image_url`` (not
+        # OR-keep the old one) so the carousel picks up the new artwork.
+        # Also wipe ``image_meta`` so the Flutter variant-URL builder
+        # stops resolving against the stale ``cover/<old-ts>/...webp``
+        # path from the legacy pipeline — null meta falls back to
+        # ``image_url`` which now points at the versioned cover.png.
+        if cover_url and cover_url != feed_item.image_url:
+            feed_item.image_url = cover_url
+            feed_item.image_meta = None
         feed_item.cover_image_url = cover_url or feed_item.cover_image_url
         feed_item.genres = genres
         feed_item.tags = tags
@@ -457,6 +478,93 @@ async def import_book(
         "audio_missing": skipped_audio,
         "cover_url": cover_url,
         "imported_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+class RebuildVariantsRequest(BaseModel):
+    """Body of POST /api/admin/books/rebuild-cover-variants.
+
+    ``cover_path`` is a server-local PNG file (typically /tmp/covers/<slug>.png
+    pushed up via scp by ``update_covers_on_prod.py``). The endpoint runs it
+    through the platform image pipeline, uploads the webp variants under a
+    versioned MinIO path, and repoints the matching FeedItem's image_url +
+    image_meta at the new artwork.
+    """
+
+    slug: str
+    cover_path: str
+    title: str | None = None
+
+
+@router.post("/rebuild-cover-variants")
+async def rebuild_cover_variants(
+    body: RebuildVariantsRequest,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Generate webp size variants (thumb/small/medium/large + original) for
+    a single book's cover and patch the row.
+
+    This is the targeted, server-side replacement for the legacy
+    ``sync_to_db.py`` cover-variant build. It exists so mobile clients can
+    pull a 160px thumbnail for a card and a 800px image for a detail page
+    instead of always paying for the 3 MB master.
+    """
+    cover = Path(body.cover_path).expanduser().resolve()
+    if not cover.is_file():
+        raise HTTPException(404, f"cover not found at {cover}")
+
+    cover_bytes = cover.read_bytes()
+    try:
+        from app.image_pipeline import process_image
+        from app.storage import upload_variants as _upload_variants
+    except ImportError as exc:
+        raise HTTPException(500, f"image pipeline unavailable: {exc}")
+
+    variants, meta = await process_image(cover_bytes)
+    # Versioned path so each cover regen lives at a unique URL — clients
+    # never see stale art under the same path.
+    import hashlib
+    import time
+
+    version = int(time.time())
+    base_path = f"books/{body.slug}/cover/{version}"
+    base_url = await _upload_variants(base_path, variants)
+    meta["base_url"] = base_url
+    # Pick the medium variant's webp as the convenience image_url for the
+    # carousel cards. The variants table still drives best-fit selection.
+    image_url = f"{base_url}/medium.webp"
+
+    # Find the matching feed_item. Title-based (case-insensitive) is the
+    # most reliable lookup; the caller can pass an explicit override too.
+    from sqlalchemy import func
+
+    title_filter = body.title or body.slug
+    feed_item = (
+        await db.execute(
+            select(FeedItem).where(func.lower(FeedItem.title) == title_filter.lower())
+        )
+    ).scalar_one_or_none()
+    if feed_item is None:
+        raise HTTPException(404, f"no feed_item matched title={title_filter!r}")
+
+    feed_item.image_url = image_url
+    feed_item.image_meta = meta
+    feed_item.cover_image_url = image_url
+    writing_row = (
+        await db.execute(select(Writing).where(Writing.id == feed_item.writing_id))
+    ).scalar_one_or_none()
+    if writing_row is not None:
+        writing_row.cover_image_path = image_url
+    await db.commit()
+
+    return {
+        "slug": body.slug,
+        "feed_item_id": str(feed_item.id),
+        "image_url": image_url,
+        "variants": list(meta["variants"].keys()),
+        "blurhash": meta.get("blurhash"),
+        "color": meta.get("color"),
     }
 
 

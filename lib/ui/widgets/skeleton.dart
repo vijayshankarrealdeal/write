@@ -138,10 +138,10 @@ class BookCardSkeleton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           AspectRatio(
-            aspectRatio: 3 / 4,
+            aspectRatio: 2 / 3,
             child: SkeletonContainer(
               width: width,
-              height: width * 4 / 3,
+              height: width * 3 / 2,
               borderRadius: BorderRadius.circular(10),
             ),
           ),
@@ -172,7 +172,7 @@ class BookShelfSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final shelfHeight = (cardWidth * 4 / 3) + 60;
+    final shelfHeight = (cardWidth * 3 / 2) + 60;
     return Padding(
       padding: const EdgeInsets.only(top: 24, bottom: 8),
       child: Column(

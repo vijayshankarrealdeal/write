@@ -117,38 +117,64 @@ class FeedProvider extends ChangeNotifier {
   String? get filteredError => _filteredError;
   FeedFacets? get cachedFacets => _facets;
 
-  /// Feed items grouped by same author + same cover image.
+  /// Feed items deduped by id and then collapsed by work.
   /// Merges sections from duplicate entries into one combined item.
   List<FeedItemModel> get groupedItems => _groupByWork(_items);
 
-  /// Group by authorId + imageUrl (same author + same cover = same work).
-  /// Items without a cover image are never grouped.
+  /// Defensive dedup-by-id used anywhere a UI surface hands us a list of
+  /// items it doesn't own (e.g. backend rails). One pass, O(N), preserves
+  /// first-seen order.
+  static List<FeedItemModel> dedupById(List<FeedItemModel> items) {
+    if (items.length < 2) return items;
+    final seen = <String>{};
+    final out = <FeedItemModel>[];
+    for (final item in items) {
+      if (seen.add(item.id)) out.add(item);
+    }
+    return out;
+  }
+
+  /// Two-pass collapse:
+  ///   1. Strip duplicate ``feed_item_id`` rows — same row, no ambiguity,
+  ///      the one immutable identity. This is what caught us when a
+  ///      cover regen forked the imageUrl: the SAME book was rendering
+  ///      twice because the previous group key was content-based.
+  ///   2. Merge sibling listings of the same work (e.g. two accounts
+  ///      republishing the same public-domain title) keyed by
+  ///      ``authorId|lowercased-title``. ``imageUrl`` deliberately stays
+  ///      OUT of the key — it's mutable content, not identity, and using
+  ///      it caused exactly the duplicate-on-cover-change bug.
   static List<FeedItemModel> _groupByWork(List<FeedItemModel> items) {
     if (items.isEmpty) return items;
 
-    final Map<String, FeedItemModel> byKey = {};
+    // Pass 1 — identity dedup.
+    final unique = dedupById(items);
+
+    // Pass 2 — work-level merge.
+    final Map<String, FeedItemModel> byWork = {};
     final List<String> order = [];
 
-    for (final item in items) {
-      final key = item.imageUrl.isNotEmpty
-          ? '${item.authorId}|${item.imageUrl}'
+    for (final item in unique) {
+      final normalisedTitle = item.title.trim().toLowerCase();
+      final key = (item.authorId.isNotEmpty && normalisedTitle.isNotEmpty)
+          ? '${item.authorId}|$normalisedTitle'
           : item.id;
 
-      if (byKey.containsKey(key)) {
-        final existing = byKey[key]!;
+      if (byWork.containsKey(key)) {
+        final existing = byWork[key]!;
         final existingIds = existing.sections.map((s) => s.id).toSet();
         final newSections = item.sections
             .where((s) => !existingIds.contains(s.id))
             .toList();
-        byKey[key] = existing.copyWith(
+        byWork[key] = existing.copyWith(
           sections: [...existing.sections, ...newSections],
         );
       } else {
-        byKey[key] = item;
+        byWork[key] = item;
         order.add(key);
       }
     }
-    return order.map((k) => byKey[k]!).toList();
+    return order.map((k) => byWork[k]!).toList();
   }
 
   /// Load feed only when empty.

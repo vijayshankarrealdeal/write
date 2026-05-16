@@ -302,7 +302,7 @@ class _ShelfCard extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: AspectRatio(
-                  aspectRatio: 3 / 4,
+                  aspectRatio: item.imageMeta?.aspectRatio ?? 2 / 3,
                   child: (item.imageUrl.isNotEmpty || item.imageMeta != null)
                       ? LayoutBuilder(
                           builder: (ctx, c) => AppNetworkImage(

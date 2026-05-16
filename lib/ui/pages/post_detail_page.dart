@@ -4020,7 +4020,10 @@ class _BookHeader extends StatelessWidget {
     final coverWidth = screenWidth > 720
         ? 260.0
         : (screenWidth * 0.62).clamp(220.0, 300.0);
-    final coverHeight = coverWidth * 1.45;
+    // Server covers are 2:3 portrait → height = width * 3/2. Honour the
+    // meta's actual ratio when present so non-standard covers don't crop.
+    final coverAspect = imageMeta?.aspectRatio ?? 2 / 3;
+    final coverHeight = coverWidth / coverAspect;
 
     return Stack(
       children: [
@@ -4245,7 +4248,8 @@ class _OverviewHeroDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasCover = item.imageUrl.isNotEmpty || item.imageMeta != null;
     const coverWidth = 240.0;
-    const coverHeight = coverWidth * 1.45;
+    final coverAspect = item.imageMeta?.aspectRatio ?? 2 / 3;
+    final coverHeight = coverWidth / coverAspect;
 
     final hasResume = resumeIndex != null && resumeIndex! > 0;
     final ctaLabel = hasResume
