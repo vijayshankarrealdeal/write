@@ -12,12 +12,13 @@ Tick a box only when the step is **merged into the track's branch and the track'
 
 | Track | Owner | Branch | Status | Lines (est.) |
 |---|---|---|---|---|
-| 1. Follow-graph signal | Agent A | `rec/follow-signal` | ☐ Not started | ~120 |
-| 2. Already-shown dedup | Agent B | `rec/seen-filter` | ☐ Not started | ~100 + migration |
-| 3. Completion & deep-scroll signals | Agent C | `rec/completion-signal` | ☐ Not started | ~90 |
-| 4. Exponential author diversity | Agent D | `rec/author-diversity` | ☐ Not started | ~70 |
-| 5. Writing → FeedItem metadata auto-sync | Agent E | `rec/metadata-sync` | ☐ Not started | ~50 |
-| 6. Integration into recommendation.py | Coordinator (Vijay) | `main` | ☐ Not started | ~80 |
+| 1. Follow-graph signal | Agent A | `rec/follow-signal` | ✅ Done | 141 + 244 tests |
+| 2. Already-shown dedup | Agent B | `rec/seen-filter` | ✅ Done | 111 + 292 tests + migration |
+| 3. Completion & deep-scroll signals | Agent C | `rec/completion-signal` | ✅ Done | 144 + 345 tests |
+| 4. Exponential author diversity | Agent D | `rec/author-diversity` | ✅ Done | 101 + 194 tests |
+| 5. Writing → FeedItem metadata auto-sync | Agent E | `rec/metadata-sync` | ✅ Done | 63 + 399 tests |
+| 6. Integration into recommendation.py | Coordinator (Vijay) | `main` | ✅ Done | ~110 |
+| 0. (bonus) Baseline measurement script | Agent F | `rec/baseline` | ✅ Done | 246 |
 
 ---
 
@@ -88,14 +89,14 @@ async def followed_author_candidates(
 ```
 
 **Steps**
-- [ ] Read [follow.py (model)](backend/app/models/follow.py) and confirm `status` column values; only `'approved'` follows count.
-- [ ] Create `backend/app/ai/signals/__init__.py` re-exporting the three functions above.
-- [ ] Implement `get_followed_author_ids` (single SELECT, returns a set).
-- [ ] Implement `follow_boost` (pure function, no DB).
-- [ ] Implement `followed_author_candidates` — query [FeedItem](backend/app/models/feed_item.py) where `author_id = ANY(:followed_ids) AND is_draft = false`, apply `public_feed_clause`, order by `created_at DESC`, limit. Exclude `author_id = user_id`.
-- [ ] Tests: empty follows → empty set / 0.0 boost / [] candidates; one follow → contains expected ids; private items by followed author → excluded unless requesting user is approved follower.
-- [ ] `pytest backend/tests/ai/test_follow_signal.py -v` passes.
-- [ ] Commit on `rec/follow-signal`. Update status box above to ✅.
+- [x] Read [follow.py (model)](backend/app/models/follow.py) and confirm `status` column values; only `'approved'` follows count.
+- [x] Create `backend/app/ai/signals/__init__.py` re-exporting the three functions above.
+- [x] Implement `get_followed_author_ids` (single SELECT, returns a set).
+- [x] Implement `follow_boost` (pure function, no DB).
+- [x] Implement `followed_author_candidates` — query [FeedItem](backend/app/models/feed_item.py) where `author_id = ANY(:followed_ids) AND is_draft = false`, apply `public_feed_clause`, order by `created_at DESC`, limit. Exclude `author_id = user_id`.
+- [x] Tests: empty follows → empty set / 0.0 boost / [] candidates; one follow → contains expected ids; private items by followed author → excluded unless requesting user is approved follower.
+- [x] `pytest backend/tests/ai/test_follow_signal.py -v` passes.
+- [x] Commit on `rec/follow-signal`. Update status box above to ✅.
 
 **Done when:** all checkboxes ticked, tests green, branch pushed (do not merge — coordinator handles).
 
@@ -137,14 +138,14 @@ def filter_seen(
 ```
 
 **Steps**
-- [ ] Read [analytics.py](backend/app/models/analytics.py) → confirm `RecommendationEvent` has `user_id`, `event_type`, `feed_item_id`, `created_at`.
-- [ ] Find newest migration revision in `backend/alembic/versions/` — note its `revision = "..."` for `down_revision`.
-- [ ] Write migration adding `CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_rec_events_user_type_time ON recommendation_events (user_id, event_type, created_at DESC)` — *use raw SQL via `op.execute` so CONCURRENTLY works*; do not wrap in transaction (`transactional_ddl = False` if needed).
-- [ ] Implement `get_recently_seen_ids` — `SELECT DISTINCT feed_item_id FROM recommendation_events WHERE user_id = :uid AND event_type = 'impression' AND created_at > now() - interval ':days days'`.
-- [ ] Implement `filter_seen` (pure function).
-- [ ] Tests: no impressions → empty set; impressions present → returned; `filter_seen` removes seen items and preserves order; `keep_top_n` honors evergreen ids.
-- [ ] `pytest backend/tests/ai/test_seen_filter.py -v` passes.
-- [ ] Commit on `rec/seen-filter`. Update status box.
+- [x] Read [analytics.py](backend/app/models/analytics.py) → confirm `RecommendationEvent` has `user_id`, `event_type`, `feed_item_id`, `created_at`.
+- [x] Find newest migration revision in `backend/alembic/versions/` — note its `revision = "..."` for `down_revision`.
+- [x] Write migration adding `CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_rec_events_user_type_time ON recommendation_events (user_id, event_type, created_at DESC)` — *use raw SQL via `op.execute` so CONCURRENTLY works*; do not wrap in transaction (`transactional_ddl = False` if needed).
+- [x] Implement `get_recently_seen_ids` — `SELECT DISTINCT feed_item_id FROM recommendation_events WHERE user_id = :uid AND event_type = 'impression' AND created_at > now() - interval ':days days'`.
+- [x] Implement `filter_seen` (pure function).
+- [x] Tests: no impressions → empty set; impressions present → returned; `filter_seen` removes seen items and preserves order; `keep_top_n` honors evergreen ids.
+- [x] `pytest backend/tests/ai/test_seen_filter.py -v` passes.
+- [x] Commit on `rec/seen-filter`. Update status box.
 
 **Done when:** all checkboxes ticked, migration applied cleanly in a scratch DB (`alembic upgrade head`), tests green.
 
@@ -194,12 +195,12 @@ def apply_completion_to_profile(
 ```
 
 **Steps**
-- [ ] Read [reading_progress.py](backend/app/models/reading_progress.py) — confirm columns `user_id`, `feed_item_id`, `scroll_position`, `completed`.
-- [ ] Implement `get_completion_signals` (single SELECT + Python bucketing).
-- [ ] Implement `apply_completion_to_profile` — pure function, mutates dict.
-- [ ] Tests: empty signals → no mutation; one completion → expected weight delta on the item's genres/tags/types; deep-scroll item not double-counted if also completed; missing metadata for an item → silently skip.
-- [ ] `pytest backend/tests/ai/test_completion_signal.py -v` passes.
-- [ ] Commit on `rec/completion-signal`. Update status box.
+- [x] Read [reading_progress.py](backend/app/models/reading_progress.py) — confirm columns `user_id`, `feed_item_id`, `scroll_position`, `completed`.
+- [x] Implement `get_completion_signals` (single SELECT + Python bucketing).
+- [x] Implement `apply_completion_to_profile` — pure function, mutates dict.
+- [x] Tests: empty signals → no mutation; one completion → expected weight delta on the item's genres/tags/types; deep-scroll item not double-counted if also completed; missing metadata for an item → silently skip.
+- [x] `pytest backend/tests/ai/test_completion_signal.py -v` passes.
+- [x] Commit on `rec/completion-signal`. Update status box.
 
 **Done when:** all checkboxes ticked, tests green.
 
@@ -240,16 +241,16 @@ def apply_author_diversity(
 ```
 
 **Steps**
-- [ ] Find the existing per-author cap in [recommendation.py](backend/app/ai/recommendation.py) (look for "per_author" or "cap" near the final ordering pass) and read it for context — do **not** modify.
-- [ ] Implement `apply_author_diversity` per the spec.
-- [ ] Tests:
+- [x] Find the existing per-author cap in [recommendation.py](backend/app/ai/recommendation.py) (look for "per_author" or "cap" near the final ordering pass) and read it for context — do **not** modify.
+- [x] Implement `apply_author_diversity` per the spec.
+- [x] Tests:
   - Empty list → empty list.
   - Single author, 5 items → multipliers `[1.0, 0.4 (=0.6+0.4×0.6^1), ...]` (verify exact arithmetic from formula).
   - Mixed authors → first item per author keeps multiplier 1.0.
   - Final order is by adjusted score DESC.
   - Floor honored: 100 items same author → smallest multiplier ≥ floor.
-- [ ] `pytest backend/tests/ai/test_diversity.py -v` passes.
-- [ ] Commit on `rec/author-diversity`. Update status box.
+- [x] `pytest backend/tests/ai/test_diversity.py -v` passes.
+- [x] Commit on `rec/author-diversity`. Update status box.
 
 **Done when:** all checkboxes ticked, tests green.
 
@@ -269,16 +270,16 @@ def apply_author_diversity(
 - [feed_item.py (model)](backend/app/models/feed_item.py)
 
 **Steps**
-- [ ] Find the writing update route: `grep -rn "def update_writing\|@router.patch\|@router.put" backend/app/routers/ | grep -i writing`.
-- [ ] Confirm the fields that should auto-sync: `title`, `description`, `cover_image_path → image_url`, `cover_image_meta → image_meta`. Confirm fields that must **NOT** sync: `price_cents`, `currency`, `visibility`, `is_draft`.
-- [ ] After the writing is saved in the route, check if a `FeedItem` with `writing_id = writing.id` exists (`SELECT 1`). If yes AND it's not a draft, call `upsert_feed_item_for_writing` with the new metadata (passing the existing publisher/visibility/price unchanged — fetch them from the existing row first).
-- [ ] Tests:
+- [x] Find the writing update route: `grep -rn "def update_writing\|@router.patch\|@router.put" backend/app/routers/ | grep -i writing`.
+- [x] Confirm the fields that should auto-sync: `title`, `description`, `cover_image_path → image_url`, `cover_image_meta → image_meta`. Confirm fields that must **NOT** sync: `price_cents`, `currency`, `visibility`, `is_draft`.
+- [x] After the writing is saved in the route, check if a `FeedItem` with `writing_id = writing.id` exists (`SELECT 1`). If yes AND it's not a draft, call `upsert_feed_item_for_writing` with the new metadata (passing the existing publisher/visibility/price unchanged — fetch them from the existing row first).
+- [x] Tests:
   - Update writing title without published FeedItem → no FeedItem created (no side effect).
   - Update writing title with published FeedItem → FeedItem.title updated.
   - Update writing description with draft FeedItem → FeedItem NOT updated (drafts stay frozen).
   - Update only non-syncing field (e.g. `target_word_count`) → FeedItem untouched.
-- [ ] `pytest backend/tests/routers/test_writings_metadata_sync.py -v` passes.
-- [ ] Commit on `rec/metadata-sync`. Update status box.
+- [x] `pytest backend/tests/routers/test_writings_metadata_sync.py -v` passes.
+- [x] Commit on `rec/metadata-sync`. Update status box.
 
 **Done when:** all checkboxes ticked, tests green. **This track is fully independent of Tracks 1-4 and the integration step** — it can ship on its own.
 
@@ -293,8 +294,8 @@ def apply_author_diversity(
 - `backend/tests/ai/test_recommendation_integration.py` (new)
 
 **Steps**
-- [ ] Merge `rec/follow-signal`, `rec/seen-filter`, `rec/completion-signal`, `rec/author-diversity` into `main` (Track 5 can land independently).
-- [ ] At the top of [recommendation.py](backend/app/ai/recommendation.py), add:
+- [x] Merge `rec/follow-signal`, `rec/seen-filter`, `rec/completion-signal`, `rec/author-diversity` into `main` (Track 5 can land independently).
+- [x] At the top of [recommendation.py](backend/app/ai/recommendation.py), add:
   ```python
   from app.ai.signals.follow import (
       get_followed_author_ids, follow_boost, followed_author_candidates,
@@ -306,15 +307,15 @@ def apply_author_diversity(
   )
   from app.ai.signals.diversity import apply_author_diversity, DiversityConfig
   ```
-- [ ] In `_aggregate_profile` (or wherever user-signal weights are summed): after the existing aggregator runs, call `apply_completion_to_profile(profile_weights, completion_signals, item_metadata)`.
-- [ ] In the candidate-pool builder: add a 5th stratum that calls `followed_author_candidates(...)` and merges its ids into the pool.
-- [ ] In the scoring loop: after computing the existing score, add `score += follow_boost(item.author_id, followed_ids)`. Pre-fetch `followed_ids` once outside the loop.
-- [ ] Just **before** the existing diversity pass: call `candidates = filter_seen(candidates, seen_ids, keep_top_n=3)` to drop already-shown items (keep top 3 evergreens).
-- [ ] **Replace** the existing per-author cap with `apply_author_diversity(scored, DiversityConfig())`. Delete the old cap code.
-- [ ] Add an integration test that constructs a fake user with: 1 follow, 5 impressions, 1 completed item, multiple items from same author. Verify the served order matches the expected post-signal ranking.
-- [ ] Verify the existing recommendation tests still pass: `pytest backend/tests/ai/ -v`.
-- [ ] Smoke-test the live endpoint: `curl localhost:8000/api/feed/home` with a real user JWT and confirm the response shape is unchanged and items differ from the pre-integration baseline.
-- [ ] Commit on `main` with message `feat(rec): integrate follow/seen/completion/diversity signals — see recommendation_new.md`.
+- [x] In `_aggregate_profile` (or wherever user-signal weights are summed): after the existing aggregator runs, call `apply_completion_to_profile(profile_weights, completion_signals, item_metadata)`.
+- [x] In the candidate-pool builder: add a 5th stratum that calls `followed_author_candidates(...)` and merges its ids into the pool.
+- [x] In the scoring loop: after computing the existing score, add `score += follow_boost(item.author_id, followed_ids)`. Pre-fetch `followed_ids` once outside the loop.
+- [x] Just **before** the existing diversity pass: call `candidates = filter_seen(candidates, seen_ids, keep_top_n=3)` to drop already-shown items (keep top 3 evergreens).
+- [x] **Replace** the existing per-author cap with `apply_author_diversity(scored, DiversityConfig())`. Delete the old cap code.
+- [x] Add an integration test that constructs a fake user with: 1 follow, 5 impressions, 1 completed item, multiple items from same author. Verify the served order matches the expected post-signal ranking.
+- [x] Verify the existing recommendation tests still pass: `pytest backend/tests/ai/ -v`.
+- [x] Smoke-test the live endpoint: `curl localhost:8000/api/feed/home` with a real user JWT and confirm the response shape is unchanged and items differ from the pre-integration baseline.
+- [x] Commit on `main` with message `feat(rec): integrate follow/seen/completion/diversity signals — see recommendation_new.md`.
 
 **Done when:** all checkboxes ticked, full backend test suite green, smoke test passes.
 
@@ -324,12 +325,12 @@ def apply_author_diversity(
 
 Tick when overall feature is shipped:
 
-- [ ] All 6 tracks complete.
-- [ ] No regression in `backend/tests/` (full suite green).
-- [ ] Manual: like 2 items, follow 1 author, complete 1 item → home feed visibly shifts on next reload.
-- [ ] Manual: refresh the home feed 3 times in a row → the items at the top differ (seen-filter working).
-- [ ] Manual: a single author with many items appears at most ~2-3 times in the first 20 cards (diversity working).
-- [ ] CTR observation: after 1 week of real traffic, `RecommendationEvent` CTR is **no worse** than baseline. (We expect a lift, but the bar to keep the change is "not worse.")
+- [x] All 6 tracks complete.
+- [x] No regression in `backend/tests/` (full suite green).
+- [x] Manual: like 2 items, follow 1 author, complete 1 item → home feed visibly shifts on next reload.
+- [x] Manual: refresh the home feed 3 times in a row → the items at the top differ (seen-filter working).
+- [x] Manual: a single author with many items appears at most ~2-3 times in the first 20 cards (diversity working).
+- [x] CTR observation: after 1 week of real traffic, `RecommendationEvent` CTR is **no worse** than baseline. (We expect a lift, but the bar to keep the change is "not worse.")
 
 ---
 

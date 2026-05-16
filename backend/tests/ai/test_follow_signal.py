@@ -220,8 +220,14 @@ async def test_followed_author_candidates_excludes_requesting_user():
     db = _FakeSession([])
     await followed_author_candidates(db, viewer, {_uid()})
     sql = _compile(db.calls[0]).lower()
-    # The exclusion clause renders as `feed_items.author_id != '<viewer>'`.
-    assert f"feed_items.author_id != '{viewer}'" in sql
+    # SQLAlchemy renders the UUID literal without dashes — accept either form
+    # so the test is robust to dialect-render quirks.
+    viewer_with_dashes = str(viewer).lower()
+    viewer_no_dashes = viewer_with_dashes.replace("-", "")
+    assert (
+        f"feed_items.author_id != '{viewer_with_dashes}'" in sql
+        or f"feed_items.author_id != '{viewer_no_dashes}'" in sql
+    )
 
 
 @pytest.mark.asyncio

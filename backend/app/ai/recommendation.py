@@ -5,27 +5,37 @@ End-to-end pipeline
 1. **Build a preference profile** from the user's behaviour:
    - genres / tags / writing_types of items they liked, read, saved,
      favorited, highlighted (engagement-weighted)
-   - reading-progress completion vs abandonment
+   - completion + deep-scroll signals (via ``app.ai.signals.completion``;
+     completion is the strongest "this was good" signal we have)
+   - abandonment penalty for scroll < 0.25
+   - **Follow graph**: the set of approved-follow authors is loaded into
+     the profile so scoring can boost their items.
    - **Cold-start fallback**: when behaviour is sparse, seed the profile
      from onboarding genres/types/moods so brand-new users still get a
      relevant feed instead of pure popularity.
 
-2. **Stratified candidate pool**: instead of "last 500 by created_at" we
-   sample three strata — recent, popular, and interest-matched — and
-   union them. Older quality work and niche-genre content stay
+2. **Stratified candidate pool**: union of strata — recent, popular,
+   interest-matched, semantic-nearest, and (new) recent items by
+   followed authors. Older quality work and niche-genre content stay
    reachable.
 
-3. **Score** each candidate against the profile (preference overlap +
-   freshness + popularity + collaborative-filtering boost − penalties).
+3. **Score** each candidate: preference overlap + freshness + popularity
+   + collaborative-filtering boost + semantic match + **follow boost**
+   − penalties.
 
-4. **Diversify** with a per-author cap so the top slots don't collapse
-   onto one prolific author.
+4. **Drop recently-seen items** (impression-log dedup via
+   ``app.ai.signals.seen``) so refreshes feel fresh; the top few
+   evergreens are kept regardless.
 
-5. **(Optional) LLM re-rank** with a sanitised prompt for users with a
+5. **Diversify** with exponential per-author decay (via
+   ``app.ai.signals.diversity``) — popular authors still appear, just
+   spread out instead of dominating.
+
+6. **(Optional) LLM re-rank** with a sanitised prompt for users with a
    rich profile — short "why you'll like this" reasons surfaced in the
    UI. Gracefully skipped when AI is unconfigured.
 
-6. **Log impressions / clicks** so we can measure CTR and tune weights.
+7. **Log impressions / clicks** so we can measure CTR and tune weights.
 
 Profiles are cached in-process for `_PROFILE_TTL_SECONDS` to keep the
 hot path cheap for power users.
@@ -37,7 +47,7 @@ import asyncio
 import math
 import re
 import time
-from collections import Counter, defaultdict
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Iterable
@@ -49,6 +59,17 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.client import ai_configured, model
+from app.ai.signals import (
+    DiversityConfig,
+    apply_author_diversity,
+    apply_completion_to_profile,
+    filter_seen,
+    follow_boost,
+    followed_author_candidates,
+    get_completion_signals,
+    get_followed_author_ids,
+    get_recently_seen_ids,
+)
 from app.feed_visibility import public_feed_clause
 from app.models.feed_item import FeedItem
 from app.models.highlight import Highlight
@@ -68,13 +89,17 @@ _PROFILE_TTL_SECONDS = 600  # 10 minutes
 # re-ranking) once they've crossed this many engagement signals.
 _RICH_PROFILE_SIGNAL_THRESHOLD = 8
 
-# Per-author cap inside the final returned list.
-_MAX_ITEMS_PER_AUTHOR = 2
+# Diversity config — exponential decay on repeat-author scores.
+# Replaces the legacy hard per-author cap of 2 with a smoother taper:
+# 1st item ×1.0, 2nd ×0.64, 3rd ×0.424, 4th ×0.2944, asymptote at floor.
+# Popular authors stay reachable; the feed just stops looking single-source.
+_DIVERSITY_CONFIG = DiversityConfig(decay=0.6, floor=0.1)
 
 # Stratified candidate pool sizes — these get unioned, deduped, scored.
 _STRATA_RECENT_LIMIT = 250
 _STRATA_POPULAR_LIMIT = 200
 _STRATA_INTEREST_LIMIT = 200
+_STRATA_FOLLOW_LIMIT = 100
 
 # Collaborative-filtering inputs: cap to keep the query bounded.
 _COLLAB_MAX_LIKED_SEEDS = 20
@@ -115,6 +140,9 @@ class UserProfile:
     # Semantic similarity boost: feed_item_id → similarity score in
     # [0, 1]. Built from pgvector KNN on the user's most-engaged seeds.
     semantic_boost: dict[str, float] = field(default_factory=dict)
+    # Approved-follow author ids. Used to boost their items in `score_item`
+    # and to seed the followed-author candidate stratum in `_fetch_candidates`.
+    followed_author_ids: set[UUID] = field(default_factory=set)
     # True when the profile was seeded from onboarding rather than from
     # actual interaction history. Used for the "source" tag on events
     # and for telling the LLM reranker that this is a cold-start case.
@@ -236,6 +264,9 @@ async def build_user_profile(
     profile.saved_ids = set(user.saved_posts or [])
     profile.favorite_ids = set(user.favorite_posts or [])
 
+    # Follow graph — used in scoring and as a candidate stratum.
+    profile.followed_author_ids = await get_followed_author_ids(db, user.id)
+
     # Reading progress
     rp_result = await db.execute(
         select(ReadingProgress).where(ReadingProgress.user_id == user.id)
@@ -280,8 +311,10 @@ async def build_user_profile(
                     w += 1.5
                 if iid in profile.highlighted_item_ids:
                     w += 2.5
-                if iid in profile.completed_ids:
-                    w += 2.0
+                # Completion is now owned by app.ai.signals.completion (applied
+                # below) — kept out of this loop so the weight lives in one
+                # place. Abandonment stays here because the completion module
+                # deliberately doesn't surface abandoned ids.
                 if iid in profile.abandoned_ids:
                     w -= 1.5
 
@@ -291,6 +324,40 @@ async def build_user_profile(
                     profile.tag_weights[t] += w
                 for wt in (item.writing_types or []):
                     profile.type_weights[wt] += w
+
+    # Completion + deep-scroll signals — strongest ground truth for "this was
+    # good" lives in ReadingProgress, not in likes. Fetch the buckets and
+    # apply weight to genres/tags/types of the completed/deep-scrolled items.
+    completion = await get_completion_signals(db, user.id)
+    completion_uuids = list(completion.completed_item_ids) + list(
+        completion.deep_scroll_item_ids
+    )
+    if completion_uuids:
+        meta_rows = (
+            await db.execute(
+                select(
+                    FeedItem.id,
+                    FeedItem.genres,
+                    FeedItem.tags,
+                    FeedItem.writing_types,
+                ).where(FeedItem.id.in_(completion_uuids))
+            )
+        ).all()
+        item_meta: dict[UUID, dict] = {
+            row[0]: {
+                "genres": row[1] or [],
+                "tags": row[2] or [],
+                "writing_types": row[3] or [],
+            }
+            for row in meta_rows
+        }
+        apply_completion_to_profile(
+            profile.genre_weights,
+            profile.tag_weights,
+            profile.type_weights,
+            completion,
+            item_meta,
+        )
 
     # Always layer in onboarding so the cold-start case isn't empty
     # *and* established users still get a small nudge toward the genres
@@ -496,10 +563,11 @@ def score_item(item: FeedItem, profile: UserProfile) -> float:
     popularity = _popularity_score(item.likes_count or 0, item.comments_count or 0) * 2.0
     collab = profile.collab_boost.get(iid, 0.0) * 4.0
     semantic = profile.semantic_boost.get(iid, 0.0) * _SEMANTIC_SCORE_WEIGHT
+    follow = follow_boost(item.author_id, profile.followed_author_ids)
 
     penalty = -3.0 if iid in profile.abandoned_ids else 0.0
 
-    return preference + freshness + popularity + collab + semantic + penalty
+    return preference + freshness + popularity + collab + semantic + follow + penalty
 
 
 # ---------------------------------------------------------------------------
@@ -582,6 +650,23 @@ async def _fetch_candidates(
                 for item in sem_result.scalars().all():
                     seen.setdefault(str(item.id), item)
 
+    # Stratum 5: recent items by authors the user follows. The single
+    # strongest declared-interest signal we have — if you followed
+    # someone, you almost certainly want to see their new work.
+    if profile.followed_author_ids:
+        followed_uuids = await followed_author_candidates(
+            db,
+            user.id,
+            profile.followed_author_ids,
+            limit=_STRATA_FOLLOW_LIMIT,
+        )
+        missing_followed = [fid for fid in followed_uuids if str(fid) not in seen]
+        if missing_followed:
+            follow_q = base.where(FeedItem.id.in_(missing_followed))
+            follow_result = await db.execute(follow_q)
+            for item in follow_result.scalars().all():
+                seen.setdefault(str(item.id), item)
+
     return list(seen.values())
 
 
@@ -605,43 +690,56 @@ async def get_scored_candidates(
 
 
 # ---------------------------------------------------------------------------
-# 4. Diversity — per-author cap
+# 4. Seen filter + diversity
 # ---------------------------------------------------------------------------
+
+def _drop_recently_seen(
+    scored: list[tuple[FeedItem, float]],
+    seen_ids: set[UUID],
+    *,
+    keep_top_n: int = 3,
+) -> list[tuple[FeedItem, float]]:
+    """Strip items that have impressions in the recent-seen window.
+
+    The top `keep_top_n` items are exempt so a beloved evergreen can come
+    back even if the user saw it yesterday — the rest get the boot so
+    refreshes feel fresh.
+    """
+    ordered_ids = [item.id for item, _ in scored]
+    kept = set(filter_seen(ordered_ids, seen_ids, keep_top_n=keep_top_n))
+    return [(item, sc) for item, sc in scored if item.id in kept]
+
 
 def _diversify(
     scored: list[tuple[FeedItem, float]],
     *,
-    per_author_cap: int = _MAX_ITEMS_PER_AUTHOR,
     limit: int,
+    config: DiversityConfig = _DIVERSITY_CONFIG,
 ) -> list[tuple[FeedItem, float]]:
-    """Return the top `limit` items, allowing at most `per_author_cap` per author.
+    """Exponential decay on repeat-author scores; re-sort and trim to `limit`.
 
-    Greedy selection — walks the score-ordered list and keeps an item
-    only if its author is below the cap. Anything skipped is appended
-    at the end so we still hit `limit` when the cap empties the pool.
+    Replaces the legacy hard per-author cap. The N-th appearance of an
+    author has its score multiplied by ``floor + (1 - floor) * decay**N``,
+    so popular authors still appear — just less densely packed.
     """
-    selected: list[tuple[FeedItem, float]] = []
-    overflow: list[tuple[FeedItem, float]] = []
-    counts: dict[str, int] = defaultdict(int)
+    # The diversity scorer is pure and works on (id, score, author_id)
+    # triples; map to that shape, apply, then re-hydrate back to FeedItems.
+    triples = [
+        (item.id, sc, item.author_id if item.author_id else item.id)
+        for item, sc in scored
+    ]
+    diversified = apply_author_diversity(triples, config=config)
 
-    for item, sc in scored:
-        author_key = str(item.author_id) if item.author_id else f"anon:{item.id}"
-        if counts[author_key] < per_author_cap:
-            selected.append((item, sc))
-            counts[author_key] += 1
-            if len(selected) >= limit:
-                break
-        else:
-            overflow.append((item, sc))
-
-    if len(selected) < limit:
-        # Top up from the overflow without re-applying the cap.
-        for entry in overflow:
-            selected.append(entry)
-            if len(selected) >= limit:
-                break
-
-    return selected
+    by_id: dict[UUID, FeedItem] = {item.id: item for item, _ in scored}
+    out: list[tuple[FeedItem, float]] = []
+    for tid, adjusted_score, _author in diversified:
+        item = by_id.get(tid)
+        if item is None:
+            continue
+        out.append((item, adjusted_score))
+        if len(out) >= limit:
+            break
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -827,8 +925,11 @@ async def recommend_for_user(
     """
     profile = await build_user_profile(user, db)
 
-    # Pull a generous score-ordered pool, then diversify down to `limit`.
+    # Pull a generous score-ordered pool, then peel back already-shown
+    # items (keeping the top few evergreens) and diversify down to `limit`.
     scored_pool = await get_scored_candidates(user, profile, db, limit=max(limit * 3, 60))
+    seen_ids = await get_recently_seen_ids(db, user.id)
+    scored_pool = _drop_recently_seen(scored_pool, seen_ids)
     diversified = _diversify(scored_pool, limit=limit)
 
     auto = use_llm_rerank is None
