@@ -173,6 +173,17 @@ class _PostDetailPageState extends State<PostDetailPage>
   // -- Last read section (for "continue reading" prompt) --
   int? _lastReadSection;
 
+  // -- Intra-section scroll resume. Decoded from the fractional part of the
+  // server's `scroll_position` (whole part = section index, e.g. 5.42 = 42%
+  // into section 5). Cleared after the first jump so it doesn't fight later
+  // navigation. Values written before this change saved integer indices —
+  // those decode to fraction 0.0 and behave as before.
+  double _pendingResumeFraction = 0.0;
+
+  // -- Live scroll fraction of the active section (0..1). Drives the hairline
+  // progress bar so it moves within a chapter, not only at chapter boundaries.
+  final ValueNotifier<double> _sectionScrollFraction = ValueNotifier(0.0);
+
   // -- Chapter-list virtualization. Long books (Mahābhārata: 1422 chapters)
   // freeze the page if every row is laid out in a single shrinkWrap pass.
   // We render `_chaptersShown` rows up front and auto-bump that count by
@@ -741,9 +752,11 @@ class _PostDetailPageState extends State<PostDetailPage>
         _item.id,
       );
       if (progress != null && mounted) {
-        final saved = progress.scrollPosition.round();
-        if (saved >= 0 && saved < _item.sections.length) {
-          setState(() => _lastReadSection = saved);
+        final saved = progress.scrollPosition;
+        final idx = saved.floor();
+        if (idx >= 0 && idx < _item.sections.length) {
+          setState(() => _lastReadSection = idx);
+          _pendingResumeFraction = (saved - idx).clamp(0.0, 0.999);
         }
       }
     } catch (_) {}
@@ -1078,6 +1091,7 @@ class _PostDetailPageState extends State<PostDetailPage>
     _pageController = PageController(initialPage: index);
     setState(() => _selectedSectionIndex = index);
     _resetImmersiveScrollTracking();
+    _sectionScrollFraction.value = 0.0;
     _saveProgress(index);
     // Pre-warm the body for the section we're opening + the next two so
     // forward swipes feel instant. Fire-and-forget; UI shows a spinner
@@ -1090,6 +1104,13 @@ class _PostDetailPageState extends State<PostDetailPage>
     // opened the chapter, the badge has done its job.
     if (index >= 0 && index < _item.sections.length) {
       _markSectionSeen(_item.sections[index]);
+    }
+    // One-shot: if we have a saved within-chapter position from a previous
+    // session, jump there once Quill has finished laying out.
+    if (_pendingResumeFraction > 0) {
+      final frac = _pendingResumeFraction;
+      _pendingResumeFraction = 0.0;
+      _restoreScrollFraction(index, frac);
     }
   }
 
@@ -1178,13 +1199,76 @@ class _PostDetailPageState extends State<PostDetailPage>
   void _saveProgress(int sectionIndex) {
     if (_userId == null) return;
     _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () {
+    _debounce = Timer(const Duration(milliseconds: 400), () {
       _dataService.updateReadingProgress(
         _userId!,
         _item.id,
-        sectionIndex.toDouble(),
+        sectionIndex + _currentSectionFraction(sectionIndex),
       );
     });
+  }
+
+  // Current 0..1 scroll fraction for the given section (0 if its controller
+  // hasn't laid out yet, or the section has no scrollable extent).
+  double _currentSectionFraction(int sectionIndex) {
+    final ctrl = _sectionScrollControllers[sectionIndex];
+    if (ctrl == null || !ctrl.hasClients) return 0.0;
+    final max = ctrl.position.maxScrollExtent;
+    if (max <= 0) return 0.0;
+    return (ctrl.position.pixels / max).clamp(0.0, 0.999);
+  }
+
+  // Driven by each section's ScrollController (the same listener that runs
+  // _onSectionScrollForImmersive). Updates the live progress bar and triggers
+  // a debounced save so resume-where-you-left-off persists across app
+  // closes, not just chapter changes.
+  void _onSectionScrollForProgress(ScrollController c, int sectionIndex) {
+    if (!c.hasClients) return;
+    if (sectionIndex != _selectedSectionIndex) return;
+    final max = c.position.maxScrollExtent;
+    final frac = max > 0 ? (c.position.pixels / max).clamp(0.0, 1.0) : 0.0;
+    _sectionScrollFraction.value = frac;
+    _saveProgress(sectionIndex);
+  }
+
+  // Restore intra-section scroll position after a "Continue reading" entry.
+  // Quill lays out across multiple frames, so maxScrollExtent grows for a
+  // few ticks after the page first appears — retry until it stabilises or
+  // we run out of attempts.
+  void _restoreScrollFraction(int index, double frac) {
+    if (!mounted) return;
+    int retries = 16;
+    double lastMax = -1;
+    int stable = 0;
+    void tick() {
+      if (!mounted) return;
+      if (_selectedSectionIndex != index) return;
+      final c = _sectionScrollControllers[index];
+      if (c == null || !c.hasClients) {
+        if (--retries <= 0) return;
+        WidgetsBinding.instance.addPostFrameCallback((_) => tick());
+        return;
+      }
+      final max = c.position.maxScrollExtent;
+      if (max <= 0) {
+        if (--retries <= 0) return;
+        WidgetsBinding.instance.addPostFrameCallback((_) => tick());
+        return;
+      }
+      if (max == lastMax) {
+        stable++;
+      } else {
+        stable = 0;
+        lastMax = max;
+      }
+      if (stable < 2 && --retries > 0) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => tick());
+        return;
+      }
+      c.jumpTo((frac * max).clamp(0.0, max));
+      _sectionScrollFraction.value = frac;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => tick());
   }
 
   // --------------------------------------------------------------------------
@@ -1903,14 +1987,16 @@ class _PostDetailPageState extends State<PostDetailPage>
       _dataService.closeFeedItemEvents(_item.id);
     }
     if (_userId != null && _selectedSectionIndex != null) {
+      final idx = _selectedSectionIndex ?? 0;
       _dataService.updateReadingProgress(
         _userId!,
         _item.id,
-        (_selectedSectionIndex ?? 0).toDouble(),
+        idx + _currentSectionFraction(idx),
       );
     }
     _pageController?.dispose();
     _readerHover.dispose();
+    _sectionScrollFraction.dispose();
     _likeAnimController.dispose();
     for (final c in _quillControllers.values) {
       c.dispose();
@@ -3102,9 +3188,6 @@ class _PostDetailPageState extends State<PostDetailPage>
     final isWide = width >= 900;
     final isXWide = width >= 1280;
     final showChapterRail = isXWide && totalSections > 1;
-    final progress = totalSections <= 1
-        ? 1.0
-        : (currentIndex + 1) / totalSections;
 
     Widget chevron(Alignment alignment, IconData icon, VoidCallback onTap) {
       return ValueListenableBuilder<bool>(
@@ -3123,15 +3206,25 @@ class _PostDetailPageState extends State<PostDetailPage>
 
     final readerColumn = Column(
       children: [
-        // Hairline reading-progress bar — replaces the need to glance at "X of Y".
+        // Hairline reading-progress bar — moves continuously within a
+        // chapter (driven by the section's scroll fraction) instead of
+        // only ticking at chapter boundaries.
         SizedBox(
           height: 2,
           child: Stack(
             children: [
               Container(color: dividerColor),
-              FractionallySizedBox(
-                widthFactor: progress.clamp(0.0, 1.0),
-                child: Container(color: _paperAccent),
+              ValueListenableBuilder<double>(
+                valueListenable: _sectionScrollFraction,
+                builder: (_, frac, __) {
+                  final base = totalSections <= 0
+                      ? 0.0
+                      : (currentIndex + frac) / totalSections;
+                  return FractionallySizedBox(
+                    widthFactor: base.clamp(0.0, 1.0),
+                    child: Container(color: _paperAccent),
+                  );
+                },
               ),
             ],
           ),
@@ -3148,10 +3241,18 @@ class _PostDetailPageState extends State<PostDetailPage>
                   onPageChanged: (index) {
                     setState(() => _selectedSectionIndex = index);
                     _resetImmersiveScrollTracking();
+                    _sectionScrollFraction.value = 0.0;
                     _saveProgress(index);
                     _ensureSectionLoaded(index);
                     _ensureSectionLoaded(index + 1);
                     _ensureSectionLoaded(index + 2);
+                    // Swipe is a legitimate "I've moved on from the
+                    // previous chapter" signal — clear the Updated pill
+                    // for the chapter we just landed on, same as the
+                    // drawer / dots paths already do.
+                    if (index >= 0 && index < _item.sections.length) {
+                      _markSectionSeen(_item.sections[index]);
+                    }
                   },
                   itemBuilder: (context, index) {
                     return _buildSingleSectionPage(
@@ -3478,7 +3579,10 @@ class _PostDetailPageState extends State<PostDetailPage>
       sectionIndex,
       () {
         final c = ScrollController();
-        c.addListener(() => _onSectionScrollForImmersive(c));
+        c.addListener(() {
+          _onSectionScrollForImmersive(c);
+          _onSectionScrollForProgress(c, sectionIndex);
+        });
         return c;
       },
     );
@@ -3578,6 +3682,17 @@ class _PostDetailPageState extends State<PostDetailPage>
                 ),
               ),
             ),
+          // End-of-section card. Shown once the body is materialised so
+          // it doesn't appear above a "Loading…" spinner. Gives the
+          // reader a real target at the bottom of the scroll — without
+          // it, the iOS bounce reads as "stop", not "you're done, move on".
+          if (_quillControllers.containsKey(sectionIndex))
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                  contentPadding, 28, contentPadding, 8),
+              child: _buildSectionEndCard(
+                sectionIndex, isDark, textColor, subtleColor),
+            ),
             ],
           ),
         ),
@@ -3592,6 +3707,176 @@ class _PostDetailPageState extends State<PostDetailPage>
       behavior: HitTestBehavior.translucent,
       onTap: () => setState(() => _immersiveReader = !_immersiveReader),
       child: body,
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // End-of-section card: gives the reader a real target at the bottom of the
+  // scroll. Two variants:
+  //   • Not the last chapter → "End of Chapter N · Next: <title>" → swipes
+  //     the PageView to the next section.
+  //   • Last chapter → "You finished <book>" + "Mark as read" → marks
+  //     reading-progress completed on the server. Avoids the previous
+  //     dead-end where the reader just hit "Last page" with nothing to do.
+  // --------------------------------------------------------------------------
+  Widget _buildSectionEndCard(
+    int sectionIndex,
+    bool isDark,
+    Color textColor,
+    Color subtleColor,
+  ) {
+    final totalSections = _item.sections.length;
+    final isLast = sectionIndex >= totalSections - 1;
+    final borderColor =
+        isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.08);
+    final fillColor = isDark
+        ? Colors.white.withValues(alpha: 0.04)
+        : Colors.black.withValues(alpha: 0.025);
+
+    if (isLast) {
+      return Container(
+        decoration: BoxDecoration(
+          color: fillColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: borderColor),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'You finished',
+              style: GoogleFonts.lora(
+                fontSize: 12,
+                letterSpacing: 0.8,
+                fontWeight: FontWeight.w600,
+                color: subtleColor,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _item.title,
+              style: _readerTextStyle(
+                fontSize: 19 * _readerFontScale,
+                fontWeight: FontWeight.w600,
+                color: textColor,
+                fontStyle: FontStyle.italic,
+                height: 1.3,
+              ),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: CupertinoButton(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                color: _paperAccent,
+                borderRadius: BorderRadius.circular(24),
+                onPressed: _markBookCompleted,
+                child: Text(
+                  'Mark as read',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final nextTitle = sectionIndex + 1 < totalSections
+        ? _item.sections[sectionIndex + 1].title
+        : '';
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        _pageController?.nextPage(
+          duration: const Duration(milliseconds: 280),
+          curve: Curves.easeOutCubic,
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: fillColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: borderColor),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 16, 16, 16),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'End of Chapter ${sectionIndex + 1}',
+                    style: GoogleFonts.lora(
+                      fontSize: 12,
+                      letterSpacing: 0.6,
+                      fontWeight: FontWeight.w600,
+                      color: subtleColor,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    nextTitle.isEmpty ? 'Next chapter' : 'Next: $nextTitle',
+                    style: _readerTextStyle(
+                      fontSize: 15 * _readerFontScale,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                      height: 1.35,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: _paperAccent,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                CupertinoIcons.arrow_right,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _markBookCompleted() async {
+    if (_userId == null) return;
+    final total = _item.sections.length;
+    try {
+      await _dataService.updateReadingProgress(
+        _userId!,
+        _item.id,
+        // Pin to end-of-book so "Continue reading" rails don't surface
+        // this item again. Server uses `completed: true` as the
+        // authoritative signal; the position is just a tiebreaker.
+        (total - 1).toDouble() + 0.999,
+        completed: true,
+      );
+    } catch (_) {
+      // Network hiccup — keep the UI quiet, the next save will retry.
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text('Marked "${_item.title}" as read'),
+      ),
     );
   }
 
