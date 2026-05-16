@@ -127,6 +127,29 @@ def _resize(img: Image.Image, max_edge: int) -> Image.Image:
     return img.resize(new_size, Image.Resampling.LANCZOS)
 
 
+def _square_crop(img: Image.Image) -> Image.Image:
+    """Center-crop to a square. For portrait shots, bias the crop upward by
+    ~15% of the excess height so faces (usually in the top third) stay in
+    frame instead of being cropped off — what BoxFit.cover would otherwise
+    show inside a circular avatar.
+    """
+    w, h = img.size
+    if w == h:
+        return img.copy()
+    side = min(w, h)
+    if h > w:
+        # Portrait: subjects usually sit in the upper portion. A pure center
+        # crop would slice their heads off; biasing the window upward keeps
+        # the face.
+        excess = h - side
+        top = max(0, round(excess * 0.35))
+        return img.crop((0, top, side, top + side))
+    # Landscape: center horizontally.
+    excess = w - side
+    left = excess // 2
+    return img.crop((left, 0, left + side, side))
+
+
 def _encode(img: Image.Image, fmt: str) -> bytes:
     if fmt != "webp":
         raise ValueError(f"unknown fmt: {fmt}")
@@ -167,8 +190,11 @@ def _process_sync(
     sizes: Iterable[tuple[str, int]],
     formats: tuple[str, ...],
     include_original: bool,
+    square_crop: bool = False,
 ) -> tuple[list[ProcessedVariant], int, int, str, str]:
     img = _load_oriented(data)
+    if square_crop:
+        img = _square_crop(img)
     width, height = img.size
     color = _dominant_color(img)
     bhash = _blurhash(img)
@@ -215,7 +241,13 @@ async def process_image(
 
     loop = asyncio.get_running_loop()
     variants, width, height, color, bhash = await loop.run_in_executor(
-        None, _process_sync, data, sizes, formats, include_original
+        None,
+        _process_sync,
+        data,
+        sizes,
+        formats,
+        include_original,
+        scope == "avatar",
     )
 
     # Group variant dimensions by key so the frontend can pick a size.

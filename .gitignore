@@ -14,6 +14,7 @@
 migrate_working_dir/
 backend/test_model
 # IntelliJ related
+spaces-df398-620d82d6722b.json
 *.iml
 *.ipr
 *.iws
