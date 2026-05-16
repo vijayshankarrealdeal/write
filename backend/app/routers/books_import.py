@@ -243,7 +243,16 @@ async def import_book(
     # ── 1. book-level metadata ────────────────────────────────────────
     book_manifest = _read_json(book_dir / "manifest.json") or {}
     slug = book_manifest.get("slug") or _slugify(book_dir.name)
-    title = book_manifest.get("title") or slug.replace("-", " ").title()
+    raw_title = (
+        book_manifest.get("title")
+        or book_manifest.get("title_raw")
+        or slug.replace("-", " ").title()
+    )
+    # Strip the Gutenberg numeric prefix from manifest titles
+    # ("00011 Alice S Adventures in Wonderland" → "Alice S Adventures
+    # in Wonderland") so the upsert matches the already-published
+    # writing instead of forking a duplicate row under the prefixed name.
+    title = re.sub(r"^\d+\s+", "", raw_title or "").strip() or raw_title
     author = book_manifest.get("author") or "Unknown"
     description = (
         (book_manifest.get("poster") or {}).get("description")
