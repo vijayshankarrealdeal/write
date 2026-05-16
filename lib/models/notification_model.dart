@@ -75,7 +75,8 @@ class NotificationModel {
       case 'reply':
         return '$actor replied to your comment';
       case 'system':
-        return 'InkSpaceX';
+        final t = data?['title'];
+        return (t is String && t.isNotEmpty) ? t : 'InkSpaceX';
       default:
         return actor;
     }
@@ -83,6 +84,10 @@ class NotificationModel {
 
   /// Optional second line — the story title when relevant, or a snippet.
   String? get subtitle {
+    if (kind == 'system') {
+      final b = data?['body'];
+      if (b is String && b.isNotEmpty) return b;
+    }
     final excerpt = data?['excerpt'];
     if (excerpt is String && excerpt.isNotEmpty) return excerpt;
     return feedItemTitle;

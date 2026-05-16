@@ -1,8 +1,16 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:ui';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:inkspacex/firebase_options.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio_background/just_audio_background.dart' as audio_bg;
+
+import 'package:inkspacex/services/fcm_service.dart'
+    show FcmService, firebaseBackgroundHandler;
 
 import 'package:inkspacex/services/audio_playback_service.dart';
 
@@ -155,6 +163,63 @@ void main() {
       }
       final mergeLog = MergeLog();
       await mergeLog.init();
+      // Firebase Core. Reads android/app/google-services.json (Android)
+      // and ios/Runner/GoogleService-Info.plist (iOS) at startup so
+      // firebase_messaging, firebase_analytics, firebase_crashlytics can
+      // all initialize off the same Firebase project. Best-effort: on
+      // web / desktop where the native config isn't present this throws
+      // and we log + continue (push, analytics, crashlytics all degrade
+      // to no-ops elsewhere).
+      try {
+        // Web, Android (and iOS once configured) all read their config
+        // from firebase_options.dart so this single call works on every
+        // platform; the typed `options` arg is required for web and
+        // makes Android/iOS deterministic.
+        final supportsFirebase =
+            kIsWeb || (!kIsWeb && (Platform.isAndroid || Platform.isIOS));
+        if (supportsFirebase) {
+          await Firebase.initializeApp(
+            options: DefaultFirebaseOptions.currentPlatform,
+          );
+
+          // FCM background isolate handler — Android-only. Web push runs
+          // inside the service worker (web/firebase-messaging-sw.js)
+          // instead of a Dart isolate.
+          if (!kIsWeb) {
+            FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
+          }
+
+          // Crashlytics: not available on web (Google hasn't shipped a
+          // web plugin). On mobile, capture every Flutter framework
+          // error + every uncaught async error. The existing `log.e`
+          // shipper keeps writing to our backend too — Crashlytics is
+          // additive, not a replacement.
+          if (!kIsWeb) {
+            FlutterError.onError = (FlutterErrorDetails details) {
+              FlutterError.presentError(details);
+              log.e(
+                '[flutter] ${details.exception}',
+                error: details.exception,
+                stackTrace: details.stack,
+              );
+              FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+            };
+            PlatformDispatcher.instance.onError =
+                (Object error, StackTrace stack) {
+              log.e('[dispatcher] $error', error: error, stackTrace: stack);
+              FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+              return true;
+            };
+            // Disable Crashlytics in debug builds so local crashes don't
+            // pollute the production dashboard.
+            await FirebaseCrashlytics.instance
+                .setCrashlyticsCollectionEnabled(kReleaseMode);
+          }
+        }
+      } catch (e) {
+        log.w('[firebase] init skipped: $e');
+      }
+
       // Local notifications: best-effort init — on platforms where the
       // package isn't supported (web, desktop) this is a no-op and the
       // service simply never publishes anything. Fire-and-forget: on iOS
@@ -390,6 +455,28 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             return drainer;
           },
           dispose: (_, drainer) => drainer.dispose(),
+        ),
+        // FcmService bridges FCM tokens into the backend's PushSubscription
+        // table. Created off AuthProvider so it picks up the auth-scoped
+        // ApiClient via pushTokenService. attachFcm registers immediately if
+        // the user is already authenticated (boot-time race protection).
+        ProxyProvider<AuthProvider, FcmService>(
+          lazy: false,
+          create: (context) {
+            final auth = context.read<AuthProvider>();
+            final fcm = FcmService(pushTokenService: auth.pushTokenService);
+            unawaited(fcm.initialize());
+            auth.attachFcm(fcm);
+            return fcm;
+          },
+          update: (context, auth, previous) {
+            if (previous != null) return previous;
+            final fcm = FcmService(pushTokenService: auth.pushTokenService);
+            unawaited(fcm.initialize());
+            auth.attachFcm(fcm);
+            return fcm;
+          },
+          dispose: (_, fcm) => fcm.dispose(),
         ),
         ChangeNotifierProxyProvider<AuthProvider, EditorProvider>(
           create: (context) => EditorProvider(

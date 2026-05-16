@@ -4,6 +4,11 @@
 *.pyc
 *.swp
 *.swo
+
+# Firebase service-account credentials — NEVER commit (contains private key)
+backend/*firebase-adminsdk*.json
+*serviceAccountKey*.json
+*service-account*.json
 .DS_Store
 .atom/
 .build/

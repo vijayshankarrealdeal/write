@@ -244,6 +244,22 @@
   </script>
   <script src="flutter_bootstrap.js" async></script>
 
+  <!-- Firebase Cloud Messaging service worker — registers the SW that
+       receives web push notifications. The SW file (web/firebase-
+       messaging-sw.js) re-initializes Firebase with the same web config
+       as lib/firebase_options.dart::web. Browser only delivers push to
+       a registered worker; FcmService.registerForCurrentUser() then
+       grabs the token via firebase_messaging.getToken(vapidKey: ...). -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/firebase-messaging-sw.js')
+        .catch(function (err) {
+          console.warn('FCM service worker registration failed:', err);
+        });
+    }
+  </script>
+
   <!-- Auto-update: detect new deploy and reload -->
   <script>
     (function() {

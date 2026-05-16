@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -10,6 +12,19 @@ import 'package:uuid/uuid.dart';
 
 import 'package:inkspacex/services/api/api_client.dart';
 import 'package:inkspacex/services/app_log.dart';
+
+/// Lazy accessor: returns Firebase Analytics once Firebase has been
+/// initialized (which happens in main.dart before runApp). When Firebase
+/// isn't initialized (web, desktop, init failed) returns null and the
+/// AnalyticsService skips the forward — events still go to the backend.
+FirebaseAnalytics? _firebaseAnalytics() {
+  try {
+    if (Firebase.apps.isEmpty) return null;
+    return FirebaseAnalytics.instance;
+  } catch (_) {
+    return null;
+  }
+}
 
 // Dev/prod tag for analytics events. `kReleaseMode` covers Flutter build
 // flavour; the API base URL covers release builds that target localhost
@@ -265,6 +280,13 @@ class AnalyticsService {
   /// on subsequent events. Pass null on logout.
   void setUserId(String? userId) {
     _userId = userId;
+    // Mirror to Firebase Analytics so its dashboards / audiences can
+    // segment by signed-in user. Pass null on logout to break the
+    // identity link for this device.
+    final fa = _firebaseAnalytics();
+    if (fa != null) {
+      unawaited(fa.setUserId(id: userId));
+    }
   }
 
   /// Track a behaviour event. Fire-and-forget — never throws.
@@ -312,6 +334,63 @@ class AnalyticsService {
     if (_buffer.length >= _flushBatchSize) {
       unawaited(flush());
     }
+
+    // Forward to Firebase Analytics for free funnel/retention/cohort
+    // dashboards + audience segmentation that drives targeted FCM
+    // sends. Best-effort; backend remains source of truth for custom
+    // queries.
+    _forwardToFirebase(eventName, screen, action, entityType, entityId);
+  }
+
+  /// One-way forward of every tracked event into Firebase Analytics.
+  /// Keeps the backend queue authoritative — failures here never affect
+  /// our own pipeline. Restricted to a small set of stable properties:
+  /// Firebase has a 25-param-per-event ceiling and we already track a
+  /// richer payload server-side.
+  void _forwardToFirebase(
+    String eventName,
+    String? screen,
+    String? action,
+    String? entityType,
+    String? entityId,
+  ) {
+    final fa = _firebaseAnalytics();
+    if (fa == null) return;
+    final params = <String, Object>{
+      // ignore: use_null_aware_elements
+      if (screen != null) 'screen': screen,
+      // ignore: use_null_aware_elements
+      if (action != null) 'action': action,
+      // ignore: use_null_aware_elements
+      if (entityType != null) 'entity_type': entityType,
+      // ignore: use_null_aware_elements
+      if (entityId != null) 'entity_id': entityId,
+    };
+    unawaited(fa.logEvent(
+      name: _firebaseEventName(eventName),
+      parameters: params.isEmpty ? null : params,
+    ));
+  }
+
+  /// Firebase Analytics event names: 1-40 chars, alphanumeric + underscore,
+  /// must start with a letter. We sanitize defensively even though most
+  /// existing event names (post_liked, auth_login_viewed, etc.) already
+  /// comply.
+  String _firebaseEventName(String raw) {
+    final buf = StringBuffer();
+    for (final r in raw.runes) {
+      final c = String.fromCharCode(r);
+      if (RegExp(r'[A-Za-z0-9_]').hasMatch(c)) {
+        buf.write(c);
+      } else {
+        buf.write('_');
+      }
+    }
+    var name = buf.toString();
+    if (name.isEmpty || !RegExp(r'^[A-Za-z]').hasMatch(name)) {
+      name = 'evt_$name';
+    }
+    return name.length > 40 ? name.substring(0, 40) : name;
   }
 
   /// Record a route change. Fires `screen_viewed` plus tracks the

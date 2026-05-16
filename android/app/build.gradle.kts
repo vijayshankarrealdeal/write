@@ -6,6 +6,12 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Firebase: reads android/app/google-services.json at build time so
+    // FCM, Analytics, etc. can resolve project IDs from generated resources.
+    id("com.google.gms.google-services")
+    // Crashlytics: uploads R8/ProGuard mappings + NDK symbols so server
+    // can show de-obfuscated stack traces.
+    id("com.google.firebase.crashlytics")
 }
 
 // ── Load release signing properties (if available) ──

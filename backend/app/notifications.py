@@ -96,6 +96,12 @@ async def create_notification(
 
 
 def _push_title(notif: Notification) -> str:
+    # System notifications carry their own title/body in `data`.
+    if notif.kind == "system":
+        title = (notif.data or {}).get("title")
+        if isinstance(title, str) and title:
+            return title
+        return "InkSpaceX"
     actor = notif.actor_name or "Someone"
     if notif.kind == "like":
         return f"{actor} liked your story"
@@ -109,6 +115,10 @@ def _push_title(notif: Notification) -> str:
 
 
 def _push_body(notif: Notification) -> str:
+    if notif.kind == "system":
+        body = (notif.data or {}).get("body")
+        if isinstance(body, str) and body:
+            return body
     excerpt = (notif.data or {}).get("excerpt") if notif.data else None
     if isinstance(excerpt, str) and excerpt:
         return excerpt

@@ -12,6 +12,7 @@ import 'package:inkspacex/services/api/api_push_token_service.dart';
 import 'package:inkspacex/services/api/api_realtime_service.dart';
 import 'package:inkspacex/services/api/api_storage_service.dart';
 import 'package:inkspacex/services/desktop_tray_service.dart';
+import 'package:inkspacex/services/fcm_service.dart';
 import 'package:inkspacex/services/home_widget_service.dart';
 import 'package:inkspacex/services/storage_service.dart';
 import 'package:inkspacex/services/sync/outbox.dart';
@@ -85,6 +86,28 @@ class AuthProvider extends ChangeNotifier {
   /// auth token gets cleared.
   void attachDrainer(OutboxDrainer drainer) {
     _drainer = drainer;
+  }
+
+  /// FCM bridge — pushed in from main.dart once Firebase has initialized.
+  /// Optional because web / desktop builds skip Firebase entirely. When
+  /// present, every successful auth path (login / signup / Google /
+  /// session restore) hands the current FCM token to the backend so OS
+  /// push starts flowing for this user/device.
+  FcmService? _fcm;
+  void attachFcm(FcmService fcm) {
+    _fcm = fcm;
+    // If we've already authenticated by the time the FCM service lands
+    // (boot-time race), register immediately.
+    if (_isAuthenticated) {
+      unawaited(_fcm!.registerForCurrentUser());
+    }
+  }
+
+  void _registerPushIfReady() {
+    final fcm = _fcm;
+    if (fcm != null) {
+      unawaited(fcm.registerForCurrentUser());
+    }
   }
 
   /// Open the per-user sandbox for [uid]. Called on every successful
@@ -227,6 +250,7 @@ class AuthProvider extends ChangeNotifier {
             await _storage.clearOnboardingPreferences();
           }
         }
+        _registerPushIfReady();
       } else {
         _currentUser = null;
         _isAuthenticated = false;
@@ -275,6 +299,7 @@ class AuthProvider extends ChangeNotifier {
       // Anchor event for backend identity stitching.
       AnalyticsService.instance
           .track('auth_login_succeeded', action: 'success', entityType: 'user', entityId: user.id);
+      _registerPushIfReady();
     } catch (e, st) {
       _isLoading = false;
       notifyListeners();
@@ -305,6 +330,7 @@ class AuthProvider extends ChangeNotifier {
         entityType: 'user',
         entityId: user.id,
       );
+      _registerPushIfReady();
     } catch (e, st) {
       _isLoading = false;
       notifyListeners();
@@ -335,6 +361,7 @@ class AuthProvider extends ChangeNotifier {
         entityType: 'user',
         entityId: user.id,
       );
+      _registerPushIfReady();
     } catch (e, st) {
       _isLoading = false;
       notifyListeners();
@@ -369,6 +396,13 @@ class AuthProvider extends ChangeNotifier {
     // Stop the proactive-refresh timer so we don't keep trying to mint
     // tokens for a signed-out user.
     _apiClient.cancelRefreshSchedule();
+
+    // Unregister this device's FCM token for the signed-out user so they
+    // don't keep receiving push for an account they're no longer in.
+    final fcm = _fcm;
+    if (fcm != null) {
+      await fcm.unregisterForCurrentUser();
+    }
 
     // Final drain while the auth token is still valid. The 30s ceiling is a
     // safety net — the logout dialog's "Sync now" path awaits drainBeforeLogout

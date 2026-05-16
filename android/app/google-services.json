@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "642359466910",
+    "project_id": "write-52320",
+    "storage_bucket": "write-52320.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:642359466910:android:b3316a2728e44fe4d8d48f",
+        "android_client_info": {
+          "package_name": "com.inkspacex.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDG8rK9HjBiuVZBngiK1ksA6QDm39JGN80"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
