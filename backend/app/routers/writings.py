@@ -74,6 +74,21 @@ async def get_writing(
     return writing
 
 
+# Writing fields that, when changed, should propagate to a published
+# FeedItem. Price/visibility/draft state are deliberately excluded —
+# they remain explicit publish-time decisions an author makes in the
+# publish dialog, not side effects of a typo fix on the draft.
+_FEED_SYNCABLE_FIELDS: frozenset[str] = frozenset(
+    {
+        "title",
+        "description",
+        "cover_image_path",
+        "cover_image_meta",
+        "writing_type",
+    }
+)
+
+
 @router.put("/{writing_id}", response_model=WritingResponse)
 async def update_writing(
     writing_id: UUID,
@@ -83,10 +98,56 @@ async def update_writing(
     op_id: str | None = Depends(_op_id),
 ):
     writing = await _get_user_writing(writing_id, user.id, db)
-    for field, value in data.model_dump(exclude_unset=True).items():
+    changes = data.model_dump(exclude_unset=True)
+    for field, value in changes.items():
         setattr(writing, field, value)
     await db.commit()
     await db.refresh(writing)
+
+    # Auto-sync metadata to the published FeedItem so readers see the
+    # corrected title/description/cover without forcing the author to
+    # re-open the publish flow. Drafts stay frozen — the FeedItem only
+    # gets refreshed once explicitly published. Genres/tags are not in
+    # the Writing schema so they're carried over from the existing card
+    # unchanged; same for price/currency/visibility/author/publisher,
+    # which remain author-controlled publish-time decisions.
+    #
+    # `upsert_feed_item_for_writing` is imported lazily — its module
+    # transitively pulls in the embeddings agent (and a heavy
+    # pydantic_ai stack) that we don't want to load when none of the
+    # syncable fields changed, and that test envs without the AI
+    # dependencies can't import at all.
+    if changes and any(f in _FEED_SYNCABLE_FIELDS for f in changes):
+        feed_item = (
+            await db.execute(
+                select(FeedItem).where(FeedItem.writing_id == writing.id)
+            )
+        ).scalar_one_or_none()
+        if feed_item is not None and not feed_item.is_draft:
+            publisher = await db.get(User, feed_item.author_id)
+            if publisher is not None:
+                from app.feed_publish import upsert_feed_item_for_writing
+
+                await upsert_feed_item_for_writing(
+                    db,
+                    writing_id=writing.id,
+                    publisher=publisher,
+                    title=writing.title,
+                    description=writing.description,
+                    image_url=writing.cover_image_path,
+                    image_meta=writing.cover_image_meta,
+                    genres=list(feed_item.genres or []),
+                    writing_types=(
+                        [writing.writing_type] if writing.writing_type else []
+                    ),
+                    tags=list(feed_item.tags or []),
+                    is_draft=feed_item.is_draft,
+                    visibility=feed_item.visibility,
+                    price_cents=feed_item.price_cents,
+                    currency=feed_item.currency,
+                    author_display=feed_item.author,
+                )
+
     await hub.broadcast_writing(
         writing_id,
         {
