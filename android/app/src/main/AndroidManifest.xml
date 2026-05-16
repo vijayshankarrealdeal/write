@@ -8,6 +8,15 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Strip the AD_ID permission that firebase_analytics pulls in by
+         default. We do not show ads, do not use the Advertising ID for
+         attribution, and the Play "Data safety" form declares Ad ID =
+         No (Android 13+ requires AD_ID to be declared or removed). The
+         google_analytics_adid_collection_enabled meta-data below is the
+         runtime counterpart that tells Firebase Analytics not to read
+         the GAID even if a transitive dep restores the permission. -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"
+                     tools:node="remove" />
     <application
         android:label="InkSpaceX"
         android:name="${applicationName}"
@@ -74,6 +83,20 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+
+        <!-- Disable Firebase Analytics' Advertising-ID collection at
+             runtime. Combined with the AD_ID permission removal above,
+             this lets us declare "No advertising or marketing data
+             collected" on Google Play's Data safety form. -->
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
+        <!-- Belt-and-braces: also disable SSAID collection (Settings.Secure
+             ANDROID_ID), since Play's "Personal info" category treats it
+             as a persistent device ID when present. -->
+        <meta-data
+            android:name="google_analytics_ssaid_collection_enabled"
+            android:value="false" />
 
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

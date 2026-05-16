@@ -63,7 +63,7 @@
 <div class="container">
 
 <h1>Privacy Policy</h1>
-<p class="updated">Effective date: May 2, 2026 &nbsp;·&nbsp; Last updated: May 12, 2026</p>
+<p class="updated">Effective date: May 2, 2026 &nbsp;·&nbsp; Last updated: May 16, 2026</p>
 
 <p>This Privacy Policy explains how <strong>InkSpaceX</strong> ("InkSpaceX", "we", "our", or "us") collects, uses, stores, shares, and protects information when you use the InkSpaceX mobile application, website, and related services (collectively, the "Service"). It also describes the choices you have and how you can exercise your rights.</p>
 
@@ -102,10 +102,10 @@
 <ul>
   <li><strong>Authentication tokens.</strong> When you sign in we issue a short-lived access token and a refresh token. These are stored on your device's secure storage (Android Keystore / iOS Keychain on native; <code>localStorage</code> on web) and sent with your API requests.</li>
   <li><strong>Reading and engagement signals.</strong> Reading progress (which story, which section, scroll position), which stories you opened, liked, bookmarked, or shared, and feed preferences. We use these to sync your reading position across devices and to power personalised recommendations.</li>
-  <li><strong>Product analytics (first-party, self-hosted).</strong> Anonymous behavioural events (for example: <em>screen viewed</em>, <em>book opened</em>, <em>publish tapped</em>, <em>app foregrounded</em>) tied to a per-install <code>client_id</code> (a random UUID generated on first launch and stored locally) and a <code>session_id</code> that rolls every 30 minutes of inactivity. We use these events to compute aggregate operational metrics — total page views per screen, daily active users, daily new sign-ups, platform / device / app-version mix, and most-visited screens — that are visible only to InkSpaceX administrators in our internal dashboard. These events do <strong>not</strong> include the contents of your writing, your messages, your password, your precise location, or any biometric data. After you sign in, the <code>client_id</code> is associated with your account so your pre-login funnel stays connected to your post-login activity. The events are written by code we wrote and sent only to our own backend on Azure (Central India). The app does not embed Firebase Analytics, Google Analytics, Mixpanel, Amplitude, PostHog, AppsFlyer, Adjust, or any other third-party analytics SDK.</li>
+  <li><strong>Product analytics.</strong> Anonymous behavioural events (for example: <em>screen viewed</em>, <em>book opened</em>, <em>publish tapped</em>, <em>app foregrounded</em>) tied to a per-install <code>client_id</code> (a random UUID generated on first launch and stored locally) and a <code>session_id</code> that rolls every 30 minutes of inactivity. We use these events to compute aggregate operational metrics — total page views per screen, daily active users, daily new sign-ups, platform / device / app-version mix, and most-visited screens — that are visible only to InkSpaceX administrators in our internal dashboard. These events do <strong>not</strong> include the contents of your writing, your messages, your password, your precise location, or any biometric data. After you sign in, the <code>client_id</code> is associated with your account so your pre-login funnel stays connected to your post-login activity. The same events are written to (a) our own backend on Azure (Central India) and (b) <strong>Google Firebase Analytics</strong>, which we use for free retention / cohort / funnel dashboards and for building audiences that drive targeted push sends ("users idle 7+ days"). The Firebase Analytics SDK is configured to <strong>not</strong> read the Advertising ID (GAID / IDFA) and <strong>not</strong> read the Android SSAID, so events are tied only to a Firebase-generated app-instance ID and the same <code>client_id</code> we already describe above — there is no cross-app advertising identifier in the stream. We do not embed Mixpanel, Amplitude, PostHog, AppsFlyer, Adjust, Branch, or any other third-party analytics SDK.</li>
   <li><strong>Device and technical data.</strong> Each analytics event carries a small, fixed set of context fields so we can break the metrics above down meaningfully: app version (e.g. <code>1.0.2+6</code>), platform bucket (<em>android</em> / <em>ios</em> / <em>web</em> / <em>macos</em> / <em>windows</em> / <em>linux</em>), device model (e.g. <em>Pixel 8 Pro</em>, <em>iPhone15,3</em>) reported by the operating system, language/locale, time zone, and the IP address that the request arrived on. The IP is used to route the request, to detect abuse, and to derive a coarse country code for aggregate metrics (see the next bullet). We do not retain the IP as a tracking signal beyond what's needed for those purposes.</li>
   <li><strong>Coarse country (derived from IP, country-only).</strong> We pass the request IP to a third-party lookup service to obtain a two-letter country code (for example, <code>US</code>, <code>IN</code>, <code>GB</code>) and cache the result for up to 30 days. We do <strong>not</strong> request the operating-system location permission, do <strong>not</strong> use GPS, do <strong>not</strong> use Wi-Fi or cell-tower triangulation, and do <strong>not</strong> query your SIM card. The lookup returns country only — no city, region, ZIP/postal code, latitude/longitude, ISP, or street address — and is therefore not "precise location" under Apple's App Tracking guidance or Google Play's Location permission group. The country code is used only in aggregate (e.g. "12% of active users this week were in <code>IN</code>") and is never combined with a name, email, or other directly identifying field in user-facing output. The provider that performs the lookup is listed as a sub-processor in §6.2. If you do not want your IP resolved to a country, you can route your traffic through a VPN that egresses from a different country, or stop using the Service.</li>
-  <li><strong>Crash and diagnostic logs (first-party, self-hosted).</strong> When the app hits an unhandled error, we may upload a stack trace, the error message, and the build/version to our own backend. We strip authentication tokens and request bodies before upload. The app does not embed Firebase Crashlytics, Sentry, Bugsnag, or any other third-party crash-reporting SDK.</li>
+  <li><strong>Crash and diagnostic logs.</strong> When the app hits an unhandled error, we upload a stack trace, the error message, and the build/version to (a) our own backend on Azure and (b) <strong>Google Firebase Crashlytics</strong>, which gives us symbolicated crash grouping and trends. We strip authentication tokens and request bodies before upload. Crashlytics receives the stack trace, a Crashlytics-generated installation UUID, OS / device-model / app-version, and any non-fatal breadcrumbs we log — it does <strong>not</strong> receive your email, password, the contents of your writing, your messages, or your Advertising ID (collection is disabled — see above). We do not embed Sentry, Bugsnag, or any other third-party crash-reporting SDK.</li>
   <li><strong>Cookies (web only).</strong> The web app uses strictly necessary, first-party cookies / <code>localStorage</code> entries for sign-in, session continuity, and remembering UI preferences (theme, sidebar collapsed). We do <strong>not</strong> use advertising cookies or third-party tracking pixels.</li>
 </ul>
 
@@ -229,6 +229,16 @@
     <td>Google's global infrastructure.</td>
   </tr>
   <tr>
+    <td><strong>Google LLC</strong> — Firebase Analytics.</td>
+    <td>Receives the same anonymous behavioural events described in §3.2 (screen views, taps, sign-ups, opens) so we can use Google's free retention / funnel / cohort dashboards and build re-engagement audiences. We disable Advertising-ID (GAID) collection and Android SSAID collection on this SDK, so the only identifier sent is a Firebase-generated app-instance ID plus the same <code>client_id</code> we already log on our own backend. The contents of your writing, your messages, and your password are never sent.</td>
+    <td>Google's global infrastructure.</td>
+  </tr>
+  <tr>
+    <td><strong>Google LLC</strong> — Firebase Crashlytics.</td>
+    <td>Receives crash stack traces, the build / OS / device-model context, and breadcrumbs from non-fatal errors so we can fix bugs quickly. Authentication tokens and request bodies are stripped before upload. No advertising identifier is sent.</td>
+    <td>Google's global infrastructure.</td>
+  </tr>
+  <tr>
     <td><strong>Apple Inc.</strong> — Apple Push Notification service (APNs) for iOS push notifications.</td>
     <td>Same purpose as FCM, for iOS devices. We send Apple a device push token and the notification payload.</td>
     <td>Apple's global infrastructure.</td>
@@ -245,7 +255,7 @@
   </tr>
 </table>
 
-<p><strong>What is not in this list — and why.</strong> InkSpaceX does <strong>not</strong> embed any third-party analytics or crash-reporting SDK in the mobile or web build (no Firebase Analytics, Google Analytics, Crashlytics, Sentry, Mixpanel, Amplitude, Meta SDK, AppsFlyer, Adjust, Branch, or similar). The product analytics described in §3.2 and the crash logs described in §3.2 are sent only to <strong>our own backend running on Azure (Central India)</strong>. No third party sees those events.</p>
+<p><strong>What is not in this list — and why.</strong> Beyond Firebase Analytics and Firebase Crashlytics (listed above and confined to the events / crash traces described there), InkSpaceX does <strong>not</strong> embed Sentry, Bugsnag, Mixpanel, Amplitude, PostHog, Meta SDK, AppsFlyer, Adjust, Branch, or any other third-party analytics, attribution, or advertising SDK. We do <strong>not</strong> show ads, do <strong>not</strong> request the Advertising ID (the <code>com.google.android.gms.permission.AD_ID</code> permission is explicitly stripped from the Android manifest and <code>google_analytics_adid_collection_enabled</code> is set to <code>false</code> so Firebase Analytics cannot read the GAID at runtime), and do <strong>not</strong> share data with data brokers.</p>
 
 <h3>6.3 Legal, safety, and corporate transactions</h3>
 <ul>
@@ -396,28 +406,28 @@
   </tr>
   <tr>
     <td>App activity — Page views, in-app actions, search history within the app, installed-app interactions with our own features</td>
-    <td>Yes</td><td>No</td><td>Yes (after sign-in; before sign-in tied to anonymous <code>client_id</code>)</td><td>No</td>
+    <td>Yes</td><td>Yes — to Google Firebase Analytics (no Ad ID; see §6.2)</td><td>Yes (after sign-in; before sign-in tied to anonymous <code>client_id</code>)</td><td>No</td>
     <td>Analytics, App functionality</td>
   </tr>
   <tr>
     <td>App activity — Other user-generated content (likes, bookmarks, follows)</td>
-    <td>Yes</td><td>No</td><td>Yes</td><td>Yes</td>
+    <td>Yes</td><td>Yes — to Google Firebase Analytics (event counts only)</td><td>Yes</td><td>Yes</td>
     <td>App functionality, Personalisation</td>
   </tr>
   <tr>
     <td>App info and performance — Crash logs, diagnostics</td>
-    <td>Yes</td><td>No</td><td>Yes</td><td>No</td>
+    <td>Yes</td><td>Yes — to Google Firebase Crashlytics (stack traces, no Ad ID; see §6.2)</td><td>Yes</td><td>No</td>
     <td>Analytics, App functionality</td>
   </tr>
   <tr>
-    <td>Device or other IDs — IP address, anonymous <code>client_id</code> (random UUID, on-device)</td>
-    <td>Yes</td><td>IP only, to country.is for country lookup (see §6.2)</td><td>Yes (after sign-in)</td><td>No</td>
+    <td>Device or other IDs — IP address, anonymous <code>client_id</code> (random UUID, on-device), Firebase app-instance ID</td>
+    <td>Yes</td><td>IP to country.is for country lookup; Firebase app-instance ID to Google (see §6.2)</td><td>Yes (after sign-in)</td><td>No</td>
     <td>App functionality, Fraud prevention &amp; security, Analytics</td>
   </tr>
   <tr>
     <td>Advertising or marketing — Ad ID (IDFA / GAID), Ads</td>
     <td><strong>No</strong></td><td>—</td><td>—</td><td>—</td>
-    <td>We do not display ads, do not request the Advertising ID, and do not integrate with any ad SDK.</td>
+    <td>We do not display ads, do not request the Advertising ID (the AD_ID permission is removed from the Android manifest and Firebase Analytics' GAID collection is disabled at runtime), and do not integrate with any ad SDK.</td>
   </tr>
   <tr>
     <td>Health and fitness, Financial info, Contacts, Calendar, SMS, Call logs, Audio, Web browsing history, Health connect</td>
