@@ -102,11 +102,14 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     }
 
     final pos = _scrollController.position;
-    // Centre the active word — subtract half a viewport so the word
-    // lands mid-screen instead of in the upper third.
+    // Centre the active word — multiply the fraction by full content
+    // height (maxScrollExtent + viewportH), not maxScrollExtent alone.
+    // Using maxScrollExtent underscrolls by viewportH × fraction, which
+    // pushes the active word toward the bottom edge instead of centre.
     final viewportH = pos.viewportDimension;
+    final contentH = pos.maxScrollExtent + viewportH;
     final estimated =
-        (pos.maxScrollExtent * index / math.max(total, 1) - viewportH * 0.5)
+        (contentH * index / math.max(total, 1) - viewportH * 0.5)
             .clamp(0.0, pos.maxScrollExtent);
     final firstScroll = _lastScrolledIndex < 0;
     if (firstScroll) {
@@ -132,9 +135,10 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     if (durationSeconds <= 0) return;
     final pos = _scrollController.position;
     final viewportH = pos.viewportDimension;
+    final contentH = pos.maxScrollExtent + viewportH;
     final fraction = (positionSeconds / durationSeconds).clamp(0.0, 1.0);
     final estimated =
-        (pos.maxScrollExtent * fraction - viewportH * 0.5)
+        (contentH * fraction - viewportH * 0.5)
             .clamp(0.0, pos.maxScrollExtent);
     if ((estimated - pos.pixels).abs() < 4) return;
     final firstScroll = _lastScrolledIndex < 0;

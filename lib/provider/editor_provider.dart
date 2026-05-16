@@ -191,6 +191,10 @@ class EditorProvider extends ChangeNotifier {
     }
     if (_looksLikeNotFound(op)) {
       _removeLocalForOp(op);
+      // Same race as resolveUseBackend: persist the deletion before
+      // dropping the op, otherwise _syncUnsyncedSections will recreate
+      // the op on next sign-in.
+      await _storage.saveBooks(allBooks);
     }
     await _drainer.discardOp(opId);
     notifyListeners();
@@ -379,6 +383,12 @@ class EditorProvider extends ChangeNotifier {
     }
     if (snap.remoteMissing) {
       _removeLocalForOp(op);
+      // Persist the local removal BEFORE dropping the op from the
+      // outbox. If we let the save race a refresh, the section sits
+      // in Hive with isSynced=false, and _syncUnsyncedSections on the
+      // next sign-in re-enqueues the exact upsert that we just dropped
+      // — the conflict reappears.
+      await _storage.saveBooks(allBooks);
       await _drainer.discardOp(opId);
       notifyListeners();
       return;
@@ -427,6 +437,9 @@ class EditorProvider extends ChangeNotifier {
         activeSection = null;
       }
     }
+    // Callers that care about the save landing before a subsequent
+    // outbox mutation (e.g. resolveUseBackend) await saveBooks
+    // themselves; everyone else can let this fire-and-forget.
     unawaited(_storage.saveBooks(allBooks));
   }
 

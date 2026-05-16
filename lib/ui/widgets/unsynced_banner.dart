@@ -324,8 +324,14 @@ class _ConflictReviewDialogState extends State<_ConflictReviewDialog> {
     final dialogBg = isDark ? const Color(0xFF0C0C0C) : Colors.white;
 
     final media = MediaQuery.of(context);
-    final maxW = media.size.width * 0.94;
-    final maxH = media.size.height * 0.92;
+    // 600 is the standard handset/tablet split — below it the
+    // 3-column layout has nowhere to live and labels collapse one
+    // character per line.
+    final isNarrow = media.size.width < 600;
+    final maxW = media.size.width * (isNarrow ? 1.0 : 0.94);
+    final maxH = media.size.height * (isNarrow ? 0.96 : 0.92);
+    final inset = isNarrow ? 12.0 : 24.0;
+    final hPad = isNarrow ? 16.0 : 24.0;
 
     Widget body;
     if (_error != null) {
@@ -346,12 +352,14 @@ class _ConflictReviewDialogState extends State<_ConflictReviewDialog> {
         muted: muted,
         borderColor: borderColor,
         cardBg: cardBg,
+        isNarrow: isNarrow,
+        hPad: hPad,
       );
     }
 
     return Dialog(
       backgroundColor: dialogBg,
-      insetPadding: const EdgeInsets.all(24),
+      insetPadding: EdgeInsets.all(inset),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxW, maxHeight: maxH),
@@ -360,11 +368,11 @@ class _ConflictReviewDialogState extends State<_ConflictReviewDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+              padding: EdgeInsets.fromLTRB(hPad, isNarrow ? 16 : 20, hPad, 0),
               child: Text(
                 'Review sync conflict',
                 style: GoogleFonts.playfairDisplay(
-                  fontSize: 22,
+                  fontSize: isNarrow ? 19 : 22,
                   fontWeight: FontWeight.w700,
                   color: textColor,
                 ),
@@ -383,6 +391,8 @@ class _ConflictReviewDialogState extends State<_ConflictReviewDialog> {
     required Color muted,
     required Color borderColor,
     required Color cardBg,
+    required bool isNarrow,
+    required double hPad,
   }) {
     final book = _parentBook();
     final chapterSections = <SectionModel>[
@@ -414,8 +424,80 @@ class _ConflictReviewDialogState extends State<_ConflictReviewDialog> {
         snap.localContent == null &&
         selectedSection == null;
 
+    final localPane = _ContentPane(
+      label: 'YOUR DEVICE',
+      title: localTitle,
+      content: localContent,
+      isMissing: localMissing,
+      isConflictTarget: selectedId == conflictedSectionId,
+      textColor: textColor,
+      muted: muted,
+    );
+    final backendPane = _ContentPane(
+      label: 'BACKEND',
+      title: snap.remoteTitle ?? '(no copy)',
+      content: snap.remoteContent,
+      isMissing: snap.remoteMissing,
+      isConflictTarget: true,
+      // Backend snapshot only exists for the conflicted resource; if
+      // the user wandered off to a different chapter, hint that this
+      // side hasn't moved.
+      footnote: !isViewingConflicted
+          ? 'Showing backend copy of the conflicted chapter only.'
+          : null,
+      textColor: textColor,
+      muted: muted,
+    );
+
+    final Widget panes = isNarrow
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (chapterSections.isNotEmpty) ...[
+                _ChaptersStrip(
+                  sections: chapterSections,
+                  selectedId: selectedId,
+                  conflictedId: conflictedSectionId,
+                  textColor: textColor,
+                  muted: muted,
+                  border: borderColor,
+                  onSelect: (id) =>
+                      setState(() => _selectedSectionId = id),
+                ),
+                Divider(height: 1, color: borderColor),
+              ],
+              Expanded(child: localPane),
+              Divider(height: 1, color: borderColor),
+              Expanded(child: backendPane),
+            ],
+          )
+        : Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (chapterSections.isNotEmpty) ...[
+                SizedBox(
+                  width: 240,
+                  child: _ChaptersSidebar(
+                    sections: chapterSections,
+                    selectedId: selectedId,
+                    conflictedId: conflictedSectionId,
+                    textColor: textColor,
+                    muted: muted,
+                    border: borderColor,
+                    onSelect: (id) =>
+                        setState(() => _selectedSectionId = id),
+                  ),
+                ),
+                VerticalDivider(width: 1, color: borderColor),
+              ],
+              Expanded(child: localPane),
+              VerticalDivider(width: 1, color: borderColor),
+              Expanded(child: backendPane),
+            ],
+          );
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
+      padding: EdgeInsets.fromLTRB(hPad, 12, hPad, isNarrow ? 16 : 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -428,7 +510,7 @@ class _ConflictReviewDialogState extends State<_ConflictReviewDialog> {
                     "backend's.",
             style: GoogleFonts.inter(fontSize: 13, color: muted),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: isNarrow ? 10 : 14),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -437,76 +519,28 @@ class _ConflictReviewDialogState extends State<_ConflictReviewDialog> {
                 color: cardBg,
               ),
               clipBehavior: Clip.hardEdge,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (chapterSections.isNotEmpty) ...[
-                    SizedBox(
-                      width: 240,
-                      child: _ChaptersSidebar(
-                        sections: chapterSections,
-                        selectedId: selectedId,
-                        conflictedId: conflictedSectionId,
-                        textColor: textColor,
-                        muted: muted,
-                        border: borderColor,
-                        onSelect: (id) =>
-                            setState(() => _selectedSectionId = id),
-                      ),
-                    ),
-                    VerticalDivider(width: 1, color: borderColor),
-                  ],
-                  Expanded(
-                    child: _ContentPane(
-                      label: 'YOUR DEVICE',
-                      title: localTitle,
-                      content: localContent,
-                      isMissing: localMissing,
-                      isConflictTarget:
-                          selectedId == conflictedSectionId,
-                      textColor: textColor,
-                      muted: muted,
-                    ),
-                  ),
-                  VerticalDivider(width: 1, color: borderColor),
-                  Expanded(
-                    child: _ContentPane(
-                      label: 'BACKEND',
-                      title: snap.remoteTitle ?? '(no copy)',
-                      content: snap.remoteContent,
-                      isMissing: snap.remoteMissing,
-                      isConflictTarget: true,
-                      // Backend snapshot only exists for the conflicted
-                      // resource; if the user wandered off to a different
-                      // chapter, hint that this side hasn't moved.
-                      footnote: !isViewingConflicted
-                          ? 'Showing backend copy of the conflicted '
-                              'chapter only.'
-                          : null,
-                      textColor: textColor,
-                      muted: muted,
-                    ),
-                  ),
-                ],
-              ),
+              child: panes,
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          SizedBox(height: isNarrow ? 12 : 16),
+          // Wrap so the three buttons stack onto two rows on the
+          // narrowest phones instead of overflowing horizontally.
+          Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
             children: [
               TextButton(
                 onPressed: _busy ? null : () => Navigator.of(context).pop(),
                 style: TextButton.styleFrom(foregroundColor: textColor),
                 child: const Text('Close'),
               ),
-              const SizedBox(width: 8),
               TextButton(
                 onPressed: _busy ? null : _useBackend,
                 style: TextButton.styleFrom(foregroundColor: textColor),
                 child: Text(snap.remoteMissing ? 'Drop local' : 'Use backend'),
               ),
-              const SizedBox(width: 8),
               FilledButton(
                 onPressed: _busy ? null : _useLocal,
                 style: FilledButton.styleFrom(
@@ -663,6 +697,103 @@ class _ChaptersSidebar extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Compact horizontal-scrolling variant of [_ChaptersSidebar] for the
+/// narrow-screen layout. Each chapter is a chip showing its title and
+/// the CONFLICT badge if applicable; tapping switches the comparison.
+class _ChaptersStrip extends StatelessWidget {
+  const _ChaptersStrip({
+    required this.sections,
+    required this.selectedId,
+    required this.conflictedId,
+    required this.textColor,
+    required this.muted,
+    required this.border,
+    required this.onSelect,
+  });
+
+  final List<SectionModel> sections;
+  final String? selectedId;
+  final String? conflictedId;
+  final Color textColor;
+  final Color muted;
+  final Color border;
+  final ValueChanged<String> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final selectedBg = isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.black.withValues(alpha: 0.06);
+    return SizedBox(
+      height: 48,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        itemCount: sections.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 6),
+        itemBuilder: (ctx, i) {
+          final s = sections[i];
+          final isSelected = s.id == selectedId;
+          final isConflicted = s.id == conflictedId;
+          return InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => onSelect(s.id),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: isSelected ? selectedBg : null,
+                border: Border.all(color: border),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 140),
+                    child: Text(
+                      s.title.isEmpty ? '(untitled)' : s.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
+                  if (isConflicted) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFB00020)
+                            .withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'CONFLICT',
+                        style: GoogleFonts.inter(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFFB00020),
+                          letterSpacing: 0.6,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
