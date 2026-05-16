@@ -1,6 +1,17 @@
 name: Play Store
 
 on:
+  push:
+    branches: [main]
+    # Skip pushes that don't change anything shipped in the AAB. Saves ~8min of
+    # Actions time per docs/web-only commit.
+    paths:
+      - 'lib/**'
+      - 'android/**'
+      - 'assets/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - '.github/workflows/playstore.yml'
   workflow_dispatch:
     inputs:
       track:
@@ -29,7 +40,9 @@ on:
         default: '1.0'
 
 concurrency:
-  group: playstore-${{ inputs.track }}
+  # Serialize per-track so two pushes can't race against the same Play track.
+  # Falls back to "internal" when triggered by push (no inputs available).
+  group: playstore-${{ inputs.track || 'internal' }}
   cancel-in-progress: false
 
 jobs:
@@ -130,8 +143,10 @@ jobs:
           serviceAccountJson: play-service-account.json
           packageName: com.inkspacex.app
           releaseFiles: build/app/outputs/bundle/release/app-release.aab
-          track: ${{ inputs.track }}
-          status: ${{ inputs.status }}
+          # Push triggers fall through to internal/completed — safe defaults.
+          # Manual runs use the workflow_dispatch inputs.
+          track: ${{ inputs.track || 'internal' }}
+          status: ${{ inputs.status || 'completed' }}
           userFraction: ${{ inputs.status == 'inProgress' && inputs.rollout || '' }}
           mappingFile: build/app/outputs/mapping/release/mapping.txt
 
