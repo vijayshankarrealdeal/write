@@ -525,7 +525,7 @@ class _GalleryFrame extends StatelessWidget {
             child: Column(
               children: [
                 AspectRatio(
-                  aspectRatio: 1024 / 1536,
+                  aspectRatio: character.imageMeta?.aspectRatio ?? 2 / 3,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(2),
                     child: hasImage

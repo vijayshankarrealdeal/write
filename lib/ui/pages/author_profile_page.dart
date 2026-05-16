@@ -1511,7 +1511,7 @@ class _StoryGridCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AspectRatio(
-              aspectRatio: 16 / 10,
+              aspectRatio: item.imageMeta?.aspectRatio ?? 16 / 10,
               child: _cover(item, isDark),
             ),
             Expanded(

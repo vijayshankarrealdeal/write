@@ -1755,7 +1755,7 @@ class _FeedCard extends StatelessWidget {
           children: [
             // Cover image
             AspectRatio(
-              aspectRatio: 16 / 10,
+              aspectRatio: item.imageMeta?.aspectRatio ?? 16 / 10,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
