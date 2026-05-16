@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:just_audio/just_audio.dart';
 
 import 'package:inkspacex/models/audio_words.dart';
@@ -18,9 +19,13 @@ import 'package:inkspacex/services/audio_playback_service.dart';
 /// foreground colour, the rest fade. Auto-scrolls so the active word
 /// lands at the viewport's upper-third — leaves a strip of already-
 /// read context above and lots of lookahead below. The scroll target
-/// is the word's *measured* y-position (via TextPainter) rather than
-/// a proportional estimate; the estimate drifted badly on long
-/// chapters because word density isn't uniform across paragraphs.
+/// is the word's actual rendered y-position, read from the live
+/// `RenderParagraph` via a GlobalKey; an earlier version measured
+/// with an off-screen TextPainter, but that drifted because the real
+/// render has per-word TextSpans (one bold) and inherits the ambient
+/// textScaler — neither of which a bare TextPainter mirrors, so the
+/// line wrap diverged and the active word landed at the bottom of the
+/// viewport instead of the upper-third on long chapters.
 /// Light/dark register is driven by `AudioPlaybackService.uiBrightness`
 /// — set by the reader so the listen experience matches the page the
 /// user was on.
@@ -90,16 +95,16 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   // looks like a pointless jolt. Cleared after we consume one tick.
   bool _suppressNextScroll = false;
 
-  // Measured y-position (text-local coords) of each word's line top.
-  // Populated by _ensureWordYOffsets via a one-off TextPainter layout
-  // matching the on-screen Text.rich. The scroll target for word i is
-  // _wordYOffsets[i] — placing the line at the viewport's upper-third
-  // because the SingleChildScrollView pads top by viewportH/3. Keyed
-  // on (words identity, layout width) so a different chapter or a
-  // resize triggers a fresh measurement; otherwise we reuse.
-  List<double> _wordYOffsets = const [];
-  double _wordYOffsetsWidth = 0;
-  AudioWords _wordYOffsetsWords = AudioWords.empty;
+  // GlobalKey on the Text.rich so _maybeScrollTo can query the real
+  // RenderParagraph for the laid-out y of any word — no TextPainter
+  // mirror, no wrap drift.
+  final GlobalKey _textKey = GlobalKey();
+
+  // Per-word char start offsets inside the concatenated text. The
+  // RenderParagraph indexes by character; word i begins at
+  // _wordCharStarts[i]. Rebuilt only when the chapter changes.
+  List<int> _wordCharStarts = const [];
+  AudioWords _wordCharStartsFor = AudioWords.empty;
 
   @override
   void dispose() {
@@ -135,59 +140,48 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
             },
         ),
       );
+    _ensureCharStarts(words);
     _lastScrolledIndex = -1;
   }
 
-  /// Measure each word's line-top y-position in the laid-out text so
-  /// _maybeScrollTo can target the actual position instead of a
-  /// proportional estimate. The estimate was correct on average but
-  /// drifted line-by-line because word density varies: dialogue
-  /// paragraphs pack fewer words per line than dense descriptive
-  /// prose, so a seek to "halfway through the words" landed nowhere
-  /// near the halfway point of the rendered text.
-  ///
-  /// Done with a single off-screen TextPainter layout at the matching
-  /// width and base style; results are cached per (words, width).
-  /// Active-word weight (w700) differs from base (w500) but only one
-  /// word at a time is bold, so line-wrap shifts are sub-pixel — the
-  /// difference is invisible at upper-third placement scale.
-  void _ensureWordYOffsets(AudioWords words, double width, TextStyle style) {
-    if (identical(words, _wordYOffsetsWords) &&
-        width == _wordYOffsetsWidth) {
-      return;
-    }
-    if (words.words.isEmpty || width <= 0) {
-      _wordYOffsets = const [];
-      _wordYOffsetsWords = words;
-      _wordYOffsetsWidth = width;
-      return;
-    }
-
-    final buffer = StringBuffer();
-    final charStarts = List<int>.filled(words.words.length, 0);
+  /// Walk the chapter once to record each word's char-start inside the
+  /// concatenated render text. `_measureWordY` then asks the
+  /// RenderParagraph for the box of `[start, start+1)` to read the
+  /// actual y of word i. Each rendered TextSpan is `'word '` (word +
+  /// trailing space) so `word i`'s start index = sum of previous
+  /// `(word.length + 1)`.
+  void _ensureCharStarts(AudioWords words) {
+    if (identical(words, _wordCharStartsFor)) return;
+    final starts = List<int>.filled(words.words.length, 0);
+    int pos = 0;
     for (var i = 0; i < words.words.length; i++) {
-      charStarts[i] = buffer.length;
-      buffer
-        ..write(words.words[i].word)
-        ..write(' ');
+      starts[i] = pos;
+      pos += words.words[i].word.length + 1;
     }
+    _wordCharStarts = starts;
+    _wordCharStartsFor = words;
+  }
 
-    final tp = TextPainter(
-      text: TextSpan(text: buffer.toString(), style: style),
-      textDirection: TextDirection.ltr,
-    )..layout(maxWidth: width);
-
-    final offsets = List<double>.filled(charStarts.length, 0);
-    for (var i = 0; i < charStarts.length; i++) {
-      offsets[i] = tp
-          .getOffsetForCaret(TextPosition(offset: charStarts[i]), Rect.zero)
-          .dy;
-    }
-    tp.dispose();
-
-    _wordYOffsets = offsets;
-    _wordYOffsetsWords = words;
-    _wordYOffsetsWidth = width;
+  /// y-position of word [index] in the laid-out Text.rich, in the
+  /// RenderParagraph's local coords. That value is also the scroll
+  /// target: the SingleChildScrollView pads top by viewportH/3, so a
+  /// scroll-position of `wordY` lands the word at the viewport's
+  /// upper-third (see _maybeScrollTo geometry).
+  ///
+  /// Returns null when the text widget isn't laid out yet (very first
+  /// frame, or right after a chapter swap before paint completes) —
+  /// the caller falls back to a proportional estimate so we still
+  /// scroll *somewhere* sensible on that one tick.
+  double? _measureWordY(int index) {
+    if (index < 0 || index >= _wordCharStarts.length) return null;
+    final ro = _textKey.currentContext?.findRenderObject();
+    if (ro is! RenderParagraph) return null;
+    final start = _wordCharStarts[index];
+    final boxes = ro.getBoxesForSelection(
+      TextSelection(baseOffset: start, extentOffset: start + 1),
+    );
+    if (boxes.isEmpty) return null;
+    return boxes.first.top;
   }
 
   /// Place the active word at the viewport's upper-third — leaves a
@@ -218,13 +212,15 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     final pos = _scrollController.position;
     final viewportH = pos.viewportDimension;
 
+    final wordY = _measureWordY(index);
     final double target;
-    if (index < _wordYOffsets.length) {
-      target = _wordYOffsets[index].clamp(0.0, pos.maxScrollExtent);
+    if (wordY != null) {
+      target = wordY.clamp(0.0, pos.maxScrollExtent);
     } else {
-      // Pre-measurement fallback. Used for the first frame before
-      // _ensureWordYOffsets has had a chance to lay out, or if the
-      // index races ahead of a stale cache (different chapter).
+      // Pre-paint fallback. The first scroll attempt fires before the
+      // RenderParagraph exists; proportional placement keeps us in the
+      // right ballpark for one frame, then the measured path takes
+      // over on the next tick.
       target = (pos.maxScrollExtent * index / math.max(total, 1))
           .clamp(0.0, pos.maxScrollExtent);
     }
@@ -462,11 +458,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     height: 1.45,
                     fontWeight: FontWeight.w500,
                   );
-                  _ensureWordYOffsets(
-                    words,
-                    constraints.maxWidth - 64,
-                    baseStyle,
-                  );
                   return SingleChildScrollView(
                     controller: _scrollController,
                     padding: EdgeInsets.fromLTRB(32, topPad, 32, bottomPad),
@@ -477,6 +468,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     // is what the lag stemmed from. TextSpan +
                     // TapGestureRecognizer is a render-only construct.
                     child: Text.rich(
+                      key: _textKey,
                       TextSpan(
                         children: [
                           for (var i = 0; i < words.words.length; i++)
