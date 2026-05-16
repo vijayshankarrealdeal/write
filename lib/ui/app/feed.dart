@@ -10,7 +10,9 @@ import 'package:inkspacex/models/feed_item_model.dart';
 import 'package:inkspacex/models/user_preferences_model.dart';
 import 'package:inkspacex/provider/auth_provider.dart';
 import 'package:inkspacex/provider/feed_provider.dart';
+import 'package:inkspacex/provider/notification_provider.dart';
 import 'package:inkspacex/services/analytics_service.dart';
+import 'package:inkspacex/services/sync/outbox_drainer.dart';
 import 'package:inkspacex/services/format_count.dart';
 import 'package:inkspacex/ui/utilities/responsive_layout.dart';
 import 'package:inkspacex/ui/widgets/app_network_image.dart';
@@ -109,19 +111,67 @@ class _FeedState extends State<Feed> with WidgetsBindingObserver {
     });
   }
 
+  /// Pull-to-refresh = full client/server reconciliation.
+  ///
+  /// Standard app contract: a yank-the-feed gesture means "make me current
+  /// on everything that lives between this device and the server". So we
+  /// (a) **push first** — flush any pending offline edits via the outbox
+  /// drainer so the server is up to date before we pull from it, then
+  /// (b) **pull everything visible**: feed, home rails, recommendations,
+  /// reading progress (so cross-device resume points are correct), and
+  /// the notifications bell (so the unread badge is honest).
+  ///
+  /// Errors are swallowed per-task so one slow rail doesn't sink the rest
+  /// — each provider already surfaces its own failure state and the user
+  /// can pull again. Above-the-fold covers get pre-cached at the end so
+  /// the first paint after the spinner releases is crisp.
   Future<void> _onRefresh() async {
+    // Capture every provider/service we'll touch BEFORE any await — using
+    // `context.read` after an async gap is a Flutter analyzer no-no and
+    // a real footgun if the widget gets disposed mid-refresh.
     final auth = context.read<AuthProvider>();
     final feed = context.read<FeedProvider>();
     final prefs = auth.currentUser?.preferences ?? const UserPreferences();
+    final userId = auth.currentUser?.id;
+    OutboxDrainer? drainer;
+    NotificationProvider? notif;
+    try {
+      drainer = context.read<OutboxDrainer>();
+    } catch (_) {/* not in widget tree (tests / web stub) */}
+    try {
+      notif = context.read<NotificationProvider>();
+    } catch (_) {/* same */}
+
+    // Push first — drain queued offline ops before we pull anything,
+    // otherwise the freshly-pulled feed will overwrite local state that
+    // the server hasn't yet seen.
+    if (drainer != null) {
+      try {
+        await drainer.drain();
+      } catch (_) {
+        // The drainer leaves failed ops in place for its own retry loop
+        // to pick up; pull-to-refresh shouldn't block on a broken op.
+      }
+    }
+
+    // Now pull everything in parallel. Each task is wrapped so a single
+    // failure doesn't sink the rest — the relevant provider already
+    // surfaces its own error state for any partial result.
+    Future<void> safe(Future<void> Function() task) async {
+      try {
+        await task();
+      } catch (_) {/* per-provider state already records the failure */}
+    }
+
+    final notifRef = notif;
     await Future.wait([
-      feed.loadFeed(
-        prefs,
-        forceRefresh: true,
-        userId: auth.currentUser?.id,
-      ),
-      feed.loadHomeRails(forceRefresh: true),
-      feed.loadRecommendations(),
+      safe(() => feed.loadFeed(prefs, forceRefresh: true, userId: userId)),
+      safe(() => feed.loadHomeRails(forceRefresh: true)),
+      safe(() => feed.loadRecommendations()),
+      if (userId != null) safe(() => feed.loadReadingProgress(userId)),
+      if (notifRef != null) safe(() => notifRef.refresh()),
     ]);
+    if (!mounted) return;
     _precacheTop(feed);
   }
 
