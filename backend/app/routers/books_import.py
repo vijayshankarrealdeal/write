@@ -581,6 +581,193 @@ async def rebuild_cover_variants(
     }
 
 
+class RebuildChapterImagesRequest(BaseModel):
+    """Body of POST /api/admin/books/rebuild-chapter-images.
+
+    Targeted patch: rewrites ``sections.content`` for every chapter of one
+    book so each section's Quill delta carries the right scene-image
+    URLs, without re-uploading audio, re-running the audio-words pass,
+    or touching anything else. Reads from a server-local book directory
+    (rsync'd then ``docker cp``'d in, just like the cover-rebuild path).
+    """
+
+    slug: str
+    book_path: str
+    title: str | None = None
+
+
+@router.post("/rebuild-chapter-images")
+async def rebuild_chapter_images(
+    body: RebuildChapterImagesRequest,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(_verify_admin),
+):
+    """Re-link chapter scene images for one book.
+
+    Why this exists: an earlier import path created Section rows from
+    the plain ``audio/<NN>_<title>.md`` chapter text, which never
+    references the per-chapter scene illustrations. The ingest pipeline
+    DOES write a richer Quill delta under ``sections/<chunk_id>.delta.json``
+    with the scene image embedded inline. This endpoint:
+
+      1. Reads ``audio/manifest.json`` for the chapter list and the
+         per-chapter ``chunk_id`` that names the matching delta file.
+      2. Uploads every ``images/<scene_id>.png`` to MinIO (idempotent).
+      3. For each chapter, finds the matching Section row by title
+         (case-insensitive, scoped to this writing), loads the
+         pre-rendered delta, swaps the local ``/api/books/<slug>/images/
+         <scene>/png`` placeholders for the uploaded MinIO URLs, and
+         writes the result back to ``sections.content``.
+
+    Audio fields stay put. Cover stays put. Idempotent — re-running
+    just overwrites the section content with the freshly-rewritten
+    delta.
+    """
+    book_dir = Path(body.book_path).expanduser().resolve()
+    if not book_dir.is_dir():
+        raise HTTPException(404, f"book_path not a directory: {book_dir}")
+
+    audio_dir = book_dir / "audio"
+    audio_manifest = _read_json(audio_dir / "manifest.json") or {}
+    chapters = audio_manifest.get("chapters") if isinstance(audio_manifest, dict) else None
+    if not isinstance(chapters, list) or not chapters:
+        raise HTTPException(404, "no chapters[] in audio/manifest.json")
+
+    title_filter = body.title or audio_manifest.get("title") or body.slug
+    from sqlalchemy import func
+
+    writing = (
+        await db.execute(
+            select(Writing).where(func.lower(Writing.title) == title_filter.lower())
+        )
+    ).scalar_one_or_none()
+    if writing is None:
+        raise HTTPException(404, f"no writing matched title={title_filter!r}")
+
+    # Idempotent scene-PNG upload to MinIO. Reuses the helper that the
+    # full books_import path already trusts.
+    scene_image_urls = await _upload_chapter_images(
+        slug=body.slug, book_dir=book_dir,
+    )
+
+    # Pull every Section row up front and bucket by title — multi-part
+    # books repeat "Chapter I" once per part, so we have to pop entries
+    # in order, not collapse them onto a single row by title.
+    rows = (
+        await db.execute(
+            select(Section)
+            .where(Section.writing_id == writing.id)
+            .order_by(Section.sort_order)
+        )
+    ).scalars().all()
+    by_title: dict[str, list[Section]] = {}
+    for row in rows:
+        by_title.setdefault(row.title or "", []).append(row)
+
+    sections_dir = book_dir / "sections"
+    plan_path = book_dir / "plan.json"
+    # Older Gutenberg-pipeline books don't write a sections/<chunk>.delta.json
+    # tree — they record planned scenes in plan.json keyed by chapter_title.
+    # Build a fallback map so we can still inject scene images into those
+    # sections by prepending image inserts to the existing prose, instead
+    # of rebuilding the whole delta from scratch.
+    plan_by_chapter: dict[str, list[str]] = {}
+    if not sections_dir.is_dir() and plan_path.exists():
+        raw_plan = _read_json(plan_path)
+        if isinstance(raw_plan, list):
+            for entry in raw_plan:
+                if not isinstance(entry, dict):
+                    continue
+                title_key = (entry.get("chapter_title") or "").strip()
+                scene_id = entry.get("scene_id")
+                if title_key and scene_id:
+                    plan_by_chapter.setdefault(title_key, []).append(scene_id)
+
+    patched = 0
+    skipped_no_delta = 0
+    skipped_no_section = 0
+    for chap in chapters:
+        chunk_id = chap.get("chunk_id")
+        chap_title = chap.get("title") or ""
+        if not chap_title:
+            continue
+
+        bucket = by_title.get(chap_title, [])
+        section = bucket.pop(0) if bucket else None
+        if section is None:
+            skipped_no_section += 1
+            continue
+
+        # Preferred path: pre-rendered Quill delta from the audio pipeline.
+        if sections_dir.is_dir() and chunk_id:
+            delta_path = sections_dir / f"{chunk_id}.delta.json"
+            raw_delta = _read_json(delta_path) if delta_path.exists() else None
+            if isinstance(raw_delta, list):
+                section.content = _delta_with_remapped_images(raw_delta, scene_image_urls)
+                patched += 1
+                continue
+
+        # Fallback path: Gutenberg pipeline. Prepend scene images for this
+        # chapter (sourced from plan.json) onto whatever section.content
+        # already holds. We compare titles case-insensitively because
+        # plan.json sometimes carries "CHAPTER I." vs the section's
+        # "Chapter I" formatting.
+        scene_ids = (
+            plan_by_chapter.get(chap_title)
+            or plan_by_chapter.get(chap_title.upper())
+            or plan_by_chapter.get(chap_title.title())
+            or []
+        )
+        if not scene_ids:
+            # case-insensitive last-resort lookup
+            wanted = chap_title.strip().lower()
+            for k, v in plan_by_chapter.items():
+                if k.strip().lower() == wanted:
+                    scene_ids = v
+                    break
+        if not scene_ids:
+            skipped_no_delta += 1
+            continue
+
+        image_ops: list[dict] = []
+        for sid in scene_ids:
+            url = scene_image_urls.get(sid)
+            if not url:
+                continue
+            image_ops.append({"insert": {"image": url}})
+            image_ops.append({"insert": "\n"})
+        if not image_ops:
+            skipped_no_delta += 1
+            continue
+
+        existing = section.content if isinstance(section.content, list) else []
+        # Drop any image inserts that already sit at the head — re-running
+        # this endpoint mustn't keep stacking copies of the same image.
+        head_purged: list = []
+        skip_head = True
+        for op in existing:
+            if skip_head and isinstance(op, dict) and isinstance(op.get("insert"), dict) and "image" in op["insert"]:
+                continue
+            if skip_head and isinstance(op, dict) and op.get("insert") == "\n" and not head_purged:
+                continue
+            skip_head = False
+            head_purged.append(op)
+        section.content = [*image_ops, *head_purged]
+        patched += 1
+
+    await db.commit()
+    return {
+        "slug": body.slug,
+        "writing_id": str(writing.id),
+        "chapters_in_manifest": len(chapters),
+        "sections_patched": patched,
+        "scene_images_on_minio": len(scene_image_urls),
+        "skipped_no_delta": skipped_no_delta,
+        "skipped_no_section": skipped_no_section,
+        "used_plan_fallback": not sections_dir.is_dir() and bool(plan_by_chapter),
+    }
+
+
 class PlaybackPositionUpdate(BaseModel):
     section_id: str
     position_seconds: float
