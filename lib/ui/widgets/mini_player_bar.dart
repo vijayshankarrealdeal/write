@@ -22,10 +22,11 @@ class MiniPlayerBar extends StatelessWidget {
       valueListenable: audio.uiBrightness,
       builder: (context, brightness, _) {
         final isDark = brightness == Brightness.dark;
-        // Surfaces pulled from the app's existing dark/light palette so
-        // the strip blends with whichever reader theme is active rather
-        // than introducing a third tone.
-        final bg = isDark ? const Color(0xFF1A1A1A) : const Color(0xFFFFFFFF);
+        // Surface = slight step away from the reader's pure bg so the
+        // strip reads as an elevated card, not a continuation. Dark uses
+        // #1A1A1A over the reader's #000; light uses #F8F9FA over #FFF —
+        // both directions get the same shadow-pop from elevation: 8.
+        final bg = isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8F9FA);
         final fg = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1A1A1A);
         final subtle = fg.withOpacity(0.65);
         return StreamBuilder<int?>(
