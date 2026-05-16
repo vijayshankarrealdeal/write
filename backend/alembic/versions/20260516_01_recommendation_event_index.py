@@ -38,21 +38,23 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # `autocommit_block` commits the surrounding migration transaction,
-    # flips the connection into autocommit for the body, then resumes
-    # the normal transactional flow — the only way `CONCURRENTLY` works
-    # under Alembic + asyncpg without disabling transactional DDL for
-    # the whole env.
-    with op.get_context().autocommit_block():
-        op.execute(
-            "CREATE INDEX CONCURRENTLY IF NOT EXISTS "
-            "ix_rec_events_user_type_time "
-            "ON recommendation_events (user_id, event_type, created_at DESC)"
-        )
+    # `autocommit_block` is meant to exit the surrounding transaction so
+    # ``CREATE INDEX CONCURRENTLY`` is legal, but with asyncpg it still
+    # raises ``ActiveSQLTransactionError`` — Alembic's helper doesn't
+    # fully release the asyncpg transaction wrapper. The container then
+    # crash-loops on every restart. Drop ``CONCURRENTLY``: this is a
+    # young table; the ACCESS EXCLUSIVE lock is sub-second in practice
+    # and the migration runs once at deploy time, not under traffic.
+    # ``IF NOT EXISTS`` keeps it idempotent against environments where
+    # the index was already created out-of-band.
+    op.execute(
+        "CREATE INDEX IF NOT EXISTS "
+        "ix_rec_events_user_type_time "
+        "ON recommendation_events (user_id, event_type, created_at DESC)"
+    )
 
 
 def downgrade() -> None:
-    with op.get_context().autocommit_block():
-        op.execute(
-            "DROP INDEX CONCURRENTLY IF EXISTS ix_rec_events_user_type_time"
-        )
+    op.execute(
+        "DROP INDEX IF EXISTS ix_rec_events_user_type_time"
+    )

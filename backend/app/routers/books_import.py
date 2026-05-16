@@ -672,13 +672,24 @@ async def rebuild_chapter_images(
     # sections by prepending image inserts to the existing prose, instead
     # of rebuilding the whole delta from scratch.
     plan_by_chapter: dict[str, list[str]] = {}
+
+    def _norm_title(s: str) -> str:
+        """Collapse a chapter title to a comparison key: lowercase,
+        smart-quotes flattened to ASCII, every non-alphanumeric stripped.
+        ``"CHAPTER XV DR. SEWARD'S DIARY— continued ."`` and ``"Chapter
+        XV Dr. Seward's Diary - continued"`` both map to the same thing."""
+        s = (s or "").lower()
+        s = s.replace("‘", "'").replace("’", "'")
+        s = s.replace("“", '"').replace("”", '"')
+        return re.sub(r"[^a-z0-9]+", "", s)
+
     if not sections_dir.is_dir() and plan_path.exists():
         raw_plan = _read_json(plan_path)
         if isinstance(raw_plan, list):
             for entry in raw_plan:
                 if not isinstance(entry, dict):
                     continue
-                title_key = (entry.get("chapter_title") or "").strip()
+                title_key = _norm_title(entry.get("chapter_title") or "")
                 scene_id = entry.get("scene_id")
                 if title_key and scene_id:
                     plan_by_chapter.setdefault(title_key, []).append(scene_id)
@@ -709,22 +720,9 @@ async def rebuild_chapter_images(
 
         # Fallback path: Gutenberg pipeline. Prepend scene images for this
         # chapter (sourced from plan.json) onto whatever section.content
-        # already holds. We compare titles case-insensitively because
-        # plan.json sometimes carries "CHAPTER I." vs the section's
-        # "Chapter I" formatting.
-        scene_ids = (
-            plan_by_chapter.get(chap_title)
-            or plan_by_chapter.get(chap_title.upper())
-            or plan_by_chapter.get(chap_title.title())
-            or []
-        )
-        if not scene_ids:
-            # case-insensitive last-resort lookup
-            wanted = chap_title.strip().lower()
-            for k, v in plan_by_chapter.items():
-                if k.strip().lower() == wanted:
-                    scene_ids = v
-                    break
+        # already holds. Normalised key comparison so curly quotes,
+        # trailing punctuation, and dash variants don't block the match.
+        scene_ids = plan_by_chapter.get(_norm_title(chap_title), [])
         if not scene_ids:
             skipped_no_delta += 1
             continue

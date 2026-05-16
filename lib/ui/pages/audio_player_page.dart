@@ -140,9 +140,12 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     final estimated =
         (contentH * fraction - viewportH * 0.5)
             .clamp(0.0, pos.maxScrollExtent);
-    if ((estimated - pos.pixels).abs() < 4) return;
     final firstScroll = _lastScrolledIndex < 0;
     _lastScrolledIndex = 0;
+    // Below-threshold deltas still need _lastScrolledIndex flipped above
+    // — otherwise the next non-trivial tick re-enters as "first scroll"
+    // and jumps instead of animating.
+    if ((estimated - pos.pixels).abs() < 4) return;
     if (firstScroll) {
       _scrollController.jumpTo(estimated);
     } else {
@@ -256,15 +259,21 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                   ? _audio.duration!.inMilliseconds / 1000.0
                   : 0.0;
               WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
                 _maybeScrollFallback(
                   pos.inMilliseconds / 1000.0,
                   durSec,
                 );
               });
+              // ~45% of the viewport as top/bottom buffer so the
+              // current-audio paragraph can sit at the visual centre at
+              // any audio position — the same trick lyrics apps use.
+              // Computed from MediaQuery so resize / orientation flips
+              // re-pad.
+              final pad = MediaQuery.of(context).size.height * 0.45;
               return SingleChildScrollView(
                 controller: _scrollController,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 64),
+                padding: EdgeInsets.fromLTRB(32, pad, 32, pad),
                 child: Text(
                   fallback.isEmpty
                       ? 'No lyrics available for this chapter.'
@@ -286,12 +295,13 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
             builder: (context, idxSnap) {
               final activeIndex = idxSnap.data ?? -1;
               WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
                 _maybeScrollTo(activeIndex);
               });
+              final pad = MediaQuery.of(context).size.height * 0.45;
               return SingleChildScrollView(
                 controller: _scrollController,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 32, vertical: 64),
+                padding: EdgeInsets.fromLTRB(32, pad, 32, pad),
                 // Plain TextSpan instead of WidgetSpan(Padding(
                 // GestureDetector(Text(...)))) — the old chain spawned
                 // 4 widgets × 3000 words and rebuilt all of them every
@@ -304,7 +314,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     children: [
                       for (var i = 0; i < words.words.length; i++)
                         TextSpan(
-                          text: '${_displayWord(words.words[i].word)} ',
+                          text: '${words.words[i].word} ',
                           recognizer: i < _wordRecognizers.length
                               ? _wordRecognizers[i]
                               : null,
@@ -332,9 +342,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     );
   }
 
-  /// Whisper produces "Chapter", "I,", "Down" — keep the punctuation
-  /// glued to the preceding token so the rendered prose looks normal.
-  String _displayWord(String w) => w;
 }
 
 /// Right-of-cover layout used on macOS / web / iPad-landscape.
@@ -471,7 +478,9 @@ class _MiniNowPlaying extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${book.author} — ${book.title}',
+                    chapterTitle.isEmpty
+                        ? book.author
+                        : '${book.author} — ${book.title}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
