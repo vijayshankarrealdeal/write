@@ -544,37 +544,50 @@ class _TitleStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ctx = audio.context;
-    final chapterTitle = ctx == null
-        ? ''
-        : (ctx.chapters[ctx.currentChapterIndex].title);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            chapterTitle.isEmpty ? book.title : chapterTitle,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+    // Same reasoning as _MiniNowPlaying: reading audio.context at build
+    // time was a snapshot, so the chapter title never refreshed on
+    // prev/next or auto-advance. Subscribe to the index stream.
+    return StreamBuilder<int?>(
+      stream: audio.currentIndexStream,
+      initialData: audio.context?.currentChapterIndex,
+      builder: (context, _) {
+        final ctx = audio.context;
+        final chapterTitle = (ctx == null ||
+                ctx.currentChapterIndex < 0 ||
+                ctx.currentChapterIndex >= ctx.chapters.length)
+            ? ''
+            : ctx.chapters[ctx.currentChapterIndex].title;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                chapterTitle.isEmpty ? book.title : chapterTitle,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                chapterTitle.isEmpty
+                    ? book.author
+                    : '${book.author} — ${book.title}',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 13,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
-          const SizedBox(height: 2),
-          Text(
-            '${book.author} — ${book.title}',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 13,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
