@@ -454,7 +454,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     padding: EdgeInsets.fromLTRB(32, topPad, 32, bottomPad),
                     child: Text(
                       fallback.isEmpty
-                          ? 'No lyrics available for this chapter.'
+                          ? 'No audio available for this chapter.'
                           : fallback,
                       style: TextStyle(
                         fontFamily: fontFamily,

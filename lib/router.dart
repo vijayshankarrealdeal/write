@@ -41,6 +41,7 @@ import 'package:inkspacex/ui/pages/notifications_page.dart';
 import 'package:inkspacex/ui/pages/bookmarks_page.dart';
 import 'package:inkspacex/ui/pages/manage_downloads_page.dart';
 import 'package:inkspacex/ui/pages/saved_favorites_page.dart';
+import 'package:inkspacex/ui/pages/library_page.dart';
 import 'package:inkspacex/ui/pages/reading_statistics_page.dart';
 import 'package:inkspacex/ui/pages/tag_feed_page.dart';
 import 'package:inkspacex/ui/pages/shelf_all_page.dart';
@@ -382,6 +383,10 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/reading-statistics',
         builder: (_, _) => const ReadingStatisticsPage(),
+      ),
+      GoRoute(
+        path: '/library',
+        builder: (_, _) => const LibraryPage(),
       ),
       GoRoute(
         path: '/subscription',

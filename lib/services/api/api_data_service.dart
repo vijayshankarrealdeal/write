@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:inkspacex/models/author_bookmark.dart';
 import 'package:inkspacex/models/book_character_model.dart';
 import 'package:inkspacex/models/bookmark_model.dart';
+import 'package:inkspacex/models/library_book_model.dart';
 import 'package:inkspacex/models/bookshelf_model.dart';
 import 'package:inkspacex/models/chat_message_model.dart';
 import 'package:inkspacex/models/comment_model.dart';
@@ -1677,19 +1678,30 @@ class ApiDataService implements SyncDispatcher {
   // READING PROGRESS
   // =========================================================================
 
+  /// Persist the user's spot in a book.
+  ///
+  /// `completed` is nullable on purpose: a plain scroll-tick should NOT
+  /// re-send `completed: false` because the auto-completion trigger
+  /// (post_detail_page._maybeAutoComplete) flips the row to `true`
+  /// once the reader reaches the tail of the last section. Always
+  /// shipping `completed: false` from `_saveProgress` would race with
+  /// the auto-complete and demote the row back — which would also blank
+  /// the Library `Finished` tab. Pass `completed: true` only when the
+  /// user actually finishes (manual tap or auto-detect); leave it null
+  /// otherwise.
   Future<void> updateReadingProgress(
     String userId,
     String feedItemId,
     double scrollPosition, {
-    bool completed = false,
+    bool? completed,
     String? lastSectionId,
     int? lastParagraphIdx,
     int? lastCharOffset,
   }) async {
     final body = <String, dynamic>{
       'scroll_position': scrollPosition,
-      'completed': completed,
     };
+    if (completed != null) body['completed'] = completed;
     if (lastSectionId != null) body['last_section_id'] = lastSectionId;
     if (lastParagraphIdx != null && lastCharOffset != null) {
       body['last_anchor'] = {
@@ -1698,6 +1710,36 @@ class ApiDataService implements SyncDispatcher {
       };
     }
     await _client.put('/api/reading-progress/$feedItemId', data: body);
+  }
+
+  /// Library — books bucketed by label (reading / saved / finished /
+  /// abandoned), newest activity first. Drives the Library page.
+  /// `label` of `null` (or `BookLabel` omitted) returns all buckets.
+  Future<List<LibraryBookModel>> getLibrary({
+    BookLabel? label,
+    int limit = 60,
+  }) async {
+    final response = await _client.get(
+      '/api/reading-progress/library',
+      queryParams: {
+        'label': label != null ? bookLabelToString(label) : 'all',
+        'limit': limit,
+      },
+    );
+    final raw = response.data;
+    if (raw is! List) return const [];
+    return raw
+        .map((e) => LibraryBookModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// Per-label counts for the Library tab badges. Cheap aggregate —
+  /// safe to call on every tab focus.
+  Future<LibraryCountsModel> getLibraryCounts() async {
+    final response = await _client.get('/api/reading-progress/library-counts');
+    final raw = response.data;
+    if (raw is! Map) return const LibraryCountsModel();
+    return LibraryCountsModel.fromJson(Map<String, dynamic>.from(raw));
   }
 
   /// Items the user started but hasn't finished, newest activity first.

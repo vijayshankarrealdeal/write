@@ -174,6 +174,12 @@ class _ProfileHubPageState extends State<ProfileHubPage> {
                 cardColor: cardColor,
                 children: [
                   _HubTile(
+                    icon: CupertinoIcons.book,
+                    label: "My Library",
+                    onTap: () => context.push('/library'),
+                  ),
+                  _buildDivider(context),
+                  _HubTile(
                     icon: CupertinoIcons.bookmark,
                     label: "Bookmarks",
                     onTap: () => context.push('/bookmarks'),

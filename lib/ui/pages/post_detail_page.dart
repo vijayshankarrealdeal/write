@@ -152,6 +152,13 @@ class _PostDetailPageState extends State<PostDetailPage>
   late final ApiDataService _dataService;
   Timer? _debounce;
   String? _userId;
+  // Auto-completion latch — flips once when the reader reaches the
+  // tail of the last section so a chatty scroll listener doesn't
+  // spam the server with `completed: true` writes. The backend is
+  // idempotent (it only stamps `finished_at` on the false→true
+  // transition) but a single flip per session keeps the network
+  // chart clean.
+  bool _autoCompletedFired = false;
 
   // Local mirror of the displayed feed item. Seeded from `widget.item` (the
   // listing-shape model passed via GoRouter extra — sections empty because
@@ -1242,6 +1249,36 @@ class _PostDetailPageState extends State<PostDetailPage>
     final frac = max > 0 ? (c.position.pixels / max).clamp(0.0, 1.0) : 0.0;
     _sectionScrollFraction.value = frac;
     _saveProgress(sectionIndex);
+    _maybeAutoComplete(sectionIndex, frac);
+  }
+
+  // Silent finish trigger: when the user actually reads to the end of
+  // the last section, flip `completed: true` so the book lands on the
+  // Library / Finished tab without requiring the manual "Mark as read"
+  // tap. Threshold is 95% rather than 100% because Quill rarely lets
+  // the reader scroll to the absolute pixel-perfect bottom — at 95%
+  // the closing paragraph is on screen, which is what "finished"
+  // actually means to a user.
+  //
+  // Latched by `_autoCompletedFired` so a chatty listener doesn't
+  // spam the server. The backend further protects itself: once
+  // `finished_at` is set, re-flipping `completed` doesn't move the
+  // timestamp.
+  void _maybeAutoComplete(int sectionIndex, double frac) {
+    if (_autoCompletedFired) return;
+    if (_userId == null) return;
+    if (sectionIndex != _item.sections.length - 1) return;
+    if (frac < 0.95) return;
+    _autoCompletedFired = true;
+    _dataService.updateReadingProgress(
+      _userId!,
+      _item.id,
+      sectionIndex + frac,
+      completed: true,
+    ).catchError((_) {
+      // Network hiccup — drop the latch so a later scroll retries.
+      _autoCompletedFired = false;
+    });
   }
 
   // Restore intra-section scroll position after a "Continue reading" entry.
