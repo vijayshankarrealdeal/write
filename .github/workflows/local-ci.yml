@@ -1,0 +1,58 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Local CI — runs on the self-hosted runner (mac-vsr-write).
+# Scope: backend unit tests + flutter web build + admin SPA build.
+# No deploy, no Play Store. Trigger on any push or via workflow_dispatch.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Local CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["**"]
+    paths-ignore: ["*.md", "docs/**"]
+
+jobs:
+  backend-tests:
+    name: "Unit Tests (backend)"
+    runs-on: [self-hosted, local]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install backend deps
+        working-directory: backend
+        run: |
+          python3 -m venv .venv-ci
+          ./.venv-ci/bin/pip install --upgrade pip
+          ./.venv-ci/bin/pip install -r requirements.txt
+          if [ -f requirements-dev.txt ]; then
+            ./.venv-ci/bin/pip install -r requirements-dev.txt
+          fi
+      - name: Run pytest
+        working-directory: backend
+        run: |
+          ./.venv-ci/bin/python -m pytest tests/ -x -q --tb=short
+
+  build-frontend:
+    name: "Flutter Web Build"
+    runs-on: [self-hosted, local]
+    steps:
+      - uses: actions/checkout@v4
+      - name: flutter pub get
+        run: flutter pub get
+      - name: Build web
+        run: |
+          flutter build web --release
+          TS=$(date +%s)
+          echo "{\"version\": \"$TS\"}" > build/web/version.json
+          cp privacy_policy.html terms_of_service.html data_deletion.html landing.html build/web/ 2>/dev/null || true
+
+  build-admin:
+    name: "Admin SPA Build"
+    runs-on: [self-hosted, local]
+    steps:
+      - uses: actions/checkout@v4
+      - name: npm install + build
+        working-directory: admin
+        run: |
+          npm install --silent
+          npm run build

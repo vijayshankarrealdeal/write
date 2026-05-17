@@ -1,17 +1,8 @@
 name: Play Store
 
 on:
-  push:
-    branches: [main]
-    # Skip pushes that don't change anything shipped in the AAB. Saves ~8min of
-    # Actions time per docs/web-only commit.
-    paths:
-      - 'lib/**'
-      - 'android/**'
-      - 'assets/**'
-      - 'pubspec.yaml'
-      - 'pubspec.lock'
-      - '.github/workflows/playstore.yml'
+  # Auto-trigger disabled: shipping an AAB to Play Store is now manual.
+  # Run explicitly: `gh workflow run playstore.yml -f track=internal`.
   workflow_dispatch:
     inputs:
       track:
