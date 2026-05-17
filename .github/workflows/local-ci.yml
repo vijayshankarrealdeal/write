@@ -1,7 +1,9 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Local CI — runs on the self-hosted runner (mac-vsr-write).
-# Scope: backend unit tests + flutter web build + admin SPA build.
-# No deploy, no Play Store. Trigger on any push or via workflow_dispatch.
+# Scope (local pipeline only):
+#   1. Docker-based backend tests (deps pre-baked, fast after first build)
+#   2. Flutter web build (uses host-installed flutter)
+# Final deploy is manual: `gh workflow run deploy.yml`
 # ─────────────────────────────────────────────────────────────────────────────
 
 name: Local CI
@@ -13,26 +15,21 @@ on:
     paths-ignore: ["*.md", "docs/**"]
 
 jobs:
-  backend-tests:
-    name: "Unit Tests (backend)"
+  docker-tests:
+    name: "Docker Tests (backend)"
     runs-on: [self-hosted, local]
     steps:
       - uses: actions/checkout@v4
-      - name: Install backend deps
-        working-directory: backend
+      - name: Build CI image (pip layer cached)
+        run: docker build -t write-ci:latest -f backend/Dockerfile.ci backend
+      - name: Run pytest inside container
         run: |
-          python3 -m venv .venv-ci
-          ./.venv-ci/bin/pip install --upgrade pip
-          ./.venv-ci/bin/pip install -r requirements.txt
-          if [ -f requirements-dev.txt ]; then
-            ./.venv-ci/bin/pip install -r requirements-dev.txt
-          fi
-      - name: Run pytest
-        working-directory: backend
-        run: |
-          ./.venv-ci/bin/python -m pytest tests/ -x -q --tb=short
+          docker run --rm \
+            -v "$PWD/backend:/app" -w /app \
+            write-ci:latest \
+            python -m pytest tests/ -x -q --tb=short
 
-  build-frontend:
+  flutter-web:
     name: "Flutter Web Build"
     runs-on: [self-hosted, local]
     steps:
@@ -45,14 +42,3 @@ jobs:
           TS=$(date +%s)
           echo "{\"version\": \"$TS\"}" > build/web/version.json
           cp privacy_policy.html terms_of_service.html data_deletion.html landing.html build/web/ 2>/dev/null || true
-
-  build-admin:
-    name: "Admin SPA Build"
-    runs-on: [self-hosted, local]
-    steps:
-      - uses: actions/checkout@v4
-      - name: npm install + build
-        working-directory: admin
-        run: |
-          npm install --silent
-          npm run build

@@ -1,0 +1,16 @@
+# Build cache image for self-hosted CI. Bake pip deps into a layer so
+# subsequent runs skip reinstalling unless requirements*.txt changes.
+# Workspace (including tests/) is bind-mounted at run time.
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY requirements-dev.txt .
+RUN pip install --no-cache-dir -r requirements-dev.txt
